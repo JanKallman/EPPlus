@@ -1,0 +1,118 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7B288026-5502-4A39-BF41-77E086F3E4A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OfficeOpenXml</RootNamespace>
+    <AssemblyName>ExcelPackage</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>OfficeOpenXml.snk</AssemblyOriginatorKeyFile>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>2.0</OldToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\ExcelPackageXmlDocumentationFile.xml</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\ExcelPackageXmlDocumentationFile.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Design" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\ExcelChart.cs" />
+    <Compile Include="Drawing\ExcelDrawingBase.cs" />
+    <Compile Include="Drawing\ExcelPicture.cs" />
+    <Compile Include="ExcelCell.cs" />
+    <Compile Include="ExcelStyleCollection.cs" />
+    <Compile Include="ExcelColumn.cs" />
+    <Compile Include="Drawing\ExcelDrawings.cs" />
+    <Compile Include="ExcelHeaderFooter.cs" />
+    <Compile Include="ExcelPackage.cs" />
+    <Compile Include="ExcelRange.cs" />
+    <Compile Include="ExcelRow.cs" />
+    <Compile Include="Drawing\ExcelShape.cs" />
+    <Compile Include="ExcelStyles.cs" />
+    <Compile Include="ExcelWorksheetView.cs" />
+    <Compile Include="Style\IStyle.cs" />
+    <Compile Include="OfficeProperties.cs" />
+    <Compile Include="ExcelWorkbook.cs" />
+    <Compile Include="ExcelWorksheet.cs" />
+    <Compile Include="ExcelWorksheets.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderItemXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelXfsXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNamedStyleXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelColorXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFillXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFontXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNumberFormatXml.cs" />
+    <Compile Include="Style\StyleChangeEventArgs.cs" />
+    <Compile Include="XmlHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\ExcelChartAxis.cs" />
+    <Compile Include="Drawing\ExcelChartSerie.cs" />
+    <Compile Include="Drawing\ExcelChartSeries.cs" />
+    <Compile Include="ExcelCellBase.cs" />
+    <Compile Include="Style\ExcelBorder.cs" />
+    <Compile Include="Style\ExcelBorderItem.cs" />
+    <Compile Include="Style\ExcelColor.cs" />
+    <Compile Include="Style\ExcelFill.cs" />
+    <Compile Include="Style\IExcelCell.cs" />
+    <Compile Include="Style\ExcelStyle.cs" />
+    <Compile Include="Style\ExcelFont.cs" />
+    <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />
+    <Compile Include="Style\ExcelNumberFormat.cs" />
+    <Compile Include="Style\StyleBase.cs" />
+    <None Include="OfficeOpenXml.snk" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)\release</PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
