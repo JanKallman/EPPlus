@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml.Style;
+using System.Data;
 namespace OfficeOpenXml
 {
     public class ExcelRange : ExcelCellBase, IExcelCell, IDisposable
@@ -58,6 +59,7 @@ namespace OfficeOpenXml
             //GetRangeRowCol(_address, out _fromCol, out  _fromRow, out  _toCol, out _toRow);
         }
         #endregion
+        #region "Indexers"
         /// <summary>
         /// Access the range using an address
         /// </summary>
@@ -106,10 +108,11 @@ namespace OfficeOpenXml
                 _fromRow = FromRow;
                 _toCol = ToCol;
                 _toRow = ToRow;
-                _address = ExcelCell.GetAddress(_fromRow, _fromCol) + ":" + ExcelCell.GetAddress(_toRow, _toCol);
+                _address = GetAddress(_fromRow, _fromCol) + ":" + ExcelCell.GetAddress(_toRow, _toCol);
                 return this;
             }
         }
+        #endregion
         #region "Public Properties"
         /// <summary>
         /// The address for the range
@@ -411,7 +414,40 @@ namespace OfficeOpenXml
             }
         }
         #endregion
+        #region "Public Functions"
+        /// <summary>
+        /// Load the data from the datatable starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Table">The datatable to load</param>
+        /// <param name="PrintHeaders">print column names on first row</param>
+        public void LoadFromDataTable(DataTable Table, bool PrintHeaders)
+        {
+            if (Table == null)
+            {
+                throw(new Exception("Table can't be null"));
+            }
 
+            int col = _fromCol, row = _fromRow;
+            if (PrintHeaders)
+            {
+                foreach (DataColumn dc in Table.Columns)
+                {
+                    _xlWorksheet.Cell(row, col++).Value = dc.ColumnName;
+                }
+                row++;
+                col=_fromCol;
+            }
+            foreach (DataRow dr in Table.Rows)
+            {                
+                foreach(object value in dr.ItemArray)
+                {
+                    _xlWorksheet.Cell(row, col++).Value = value;
+                }
+                row++;
+                col = _fromCol;
+            }
+        }
+        #endregion
         #region IDisposable Members
 
         public void Dispose()
