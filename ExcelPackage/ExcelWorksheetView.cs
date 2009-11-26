@@ -164,7 +164,18 @@ namespace OfficeOpenXml
             }
             set
             {                
+                int fromCol, fromRow, toCol, toRow;
+                ExcelCellBase.GetAddressRowCol(value, out fromCol, out fromRow, out toCol, out toRow);
                 SelectionNode.SetAttribute("sqref",value);
+                if (SelectionNode.GetAttribute("activeCell") == "")
+                {
+
+                    ActiveCell = ExcelCellBase.GetAddress(fromRow, fromCol);
+                }
+                else
+                {
+                   //TODO:Add fix for out of range here
+                }
             }
         }
         public string ActiveCell
@@ -179,7 +190,18 @@ namespace OfficeOpenXml
             }
             set
             {
+                int fromCol, fromRow, toCol, toRow;
+                ExcelCellBase.GetAddressRowCol(value, out fromCol, out fromRow, out toCol, out toRow);
                 SelectionNode.SetAttribute("activeCell", value);
+                if (SelectionNode.GetAttribute("sqref") == "")
+                {
+
+                    SelectedRange = ExcelCellBase.GetAddress(fromRow, fromCol);
+                }
+                else
+                {
+                    //TODO:Add fix for out of range here
+                }
             }
         }
         #endregion

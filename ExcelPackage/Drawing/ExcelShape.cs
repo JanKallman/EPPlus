@@ -42,18 +42,6 @@ namespace OfficeOpenXml.Drawing
         {
 
         }
-        //const string _namePath = ;
-        //public override string Name
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode(_namePath);
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode(_namePath, value);
-        //    }
-        //}
         string _textPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
         public string Text
         {
@@ -63,7 +51,7 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
-                //Where need this one 
+                //We need this one 
                 CreateNode("xdr:sp/xdr:txBody/a:p/a:r/a:rPr");
                 SetXmlNode(_textPath, value);
             }
