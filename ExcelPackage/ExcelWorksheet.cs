@@ -750,7 +750,7 @@ namespace OfficeOpenXml
         {
             int fromCol, fromRow, toCol, toRow;
             //Get rows and columns and validate as well
-            ExcelCell.GetAddressRowCol(Address, out fromCol, out fromRow, out toCol, out toRow);
+            ExcelCell.GetRowColFromAddress(Address, out fromRow, out fromCol, out toRow, out toCol);
 
             if (SelectSheet)
             {
@@ -878,7 +878,7 @@ namespace OfficeOpenXml
                 var f = _sharedFormulas[id];
                 int fromCol, fromRow, toCol, toRow;
 
-                ExcelCell.GetAddressRowCol(f.Address, out fromCol, out fromRow, out toCol, out toRow);
+                ExcelCell.GetRowColFromAddress(f.Address, out fromRow, out fromCol, out toRow, out toCol);
                 if (position >= fromRow && position <= toRow)
                 {
                     if (rows > 0) //Insert

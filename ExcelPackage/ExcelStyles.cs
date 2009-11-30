@@ -139,7 +139,7 @@ namespace OfficeOpenXml
         {
             int rowFrom,rowTo, colFrom, colTo;
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
-            ExcelCell.GetAddressRowCol(e.Address, out colFrom, out rowFrom, out colTo, out rowTo);
+            ExcelCell.GetRowColFromAddress(e.Address, out rowFrom, out colFrom, out rowTo, out colTo);
             //Cellrange
             if (colFrom > 0 && rowFrom > 0)
             {

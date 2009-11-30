@@ -152,6 +152,10 @@ namespace OfficeOpenXml
                 return _selectionNode;
             }
         }
+        #endregion
+        /// <summary>
+        /// Selected Cells.Used in combination with ActiveCell
+        /// </summary>
         public string SelectedRange
         {
             get 
@@ -165,7 +169,7 @@ namespace OfficeOpenXml
             set
             {                
                 int fromCol, fromRow, toCol, toRow;
-                ExcelCellBase.GetAddressRowCol(value, out fromCol, out fromRow, out toCol, out toRow);
+                ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
                 SelectionNode.SetAttribute("sqref",value);
                 if (SelectionNode.GetAttribute("activeCell") == "")
                 {
@@ -178,6 +182,9 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Set the active cell. Must be set within the SelectedRange.
+        /// </summary>
         public string ActiveCell
         {
             get
@@ -191,7 +198,7 @@ namespace OfficeOpenXml
             set
             {
                 int fromCol, fromRow, toCol, toRow;
-                ExcelCellBase.GetAddressRowCol(value, out fromCol, out fromRow, out toCol, out toRow);
+                ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
                 SelectionNode.SetAttribute("activeCell", value);
                 if (SelectionNode.GetAttribute("sqref") == "")
                 {
@@ -204,7 +211,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-        #endregion
 
 		#region PageLayoutView
 		/// <summary>

@@ -303,7 +303,7 @@ namespace OfficeOpenXml
         /// <param name="_fromRow">Returns the to column</param>
         /// <param name="_toCol">Returns the from row</param>
         /// <param name="_toRow">Returns the to row</param>
-        internal static void GetAddressRowCol(string cellAddress, out int _fromCol, out int _fromRow, out int _toCol, out int _toRow)
+        internal static void GetRowColFromAddress(string cellAddress, out int _fromRow, out int _fromCol, out int _toRow, out int _toCol)
         {
             cellAddress = cellAddress.ToUpper();
             string[] cells = cellAddress.Split(':');

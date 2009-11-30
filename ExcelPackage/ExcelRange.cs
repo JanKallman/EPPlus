@@ -54,7 +54,7 @@ namespace OfficeOpenXml
             {
                 _address = _xlWorksheet.View.SelectedRange;
             }
-            GetAddressRowCol(_address, out _fromCol, out  _fromRow, out  _toCol, out _toRow);
+            GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
             //_address = Address;
             //GetRangeRowCol(_address, out _fromCol, out  _fromRow, out  _toCol, out _toRow);
         }
@@ -70,7 +70,7 @@ namespace OfficeOpenXml
             get
             {
                 _address = Address;
-                GetAddressRowCol(_address, out _fromCol, out  _fromRow, out  _toCol, out _toRow);
+                GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
                 return this;
             }
         }
@@ -126,7 +126,7 @@ namespace OfficeOpenXml
             set
             {
                 _address = value;
-                GetAddressRowCol(_address, out _fromCol, out  _fromRow, out  _toCol, out _toRow);
+                GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
             }
         }
         /// <summary>
@@ -392,7 +392,7 @@ namespace OfficeOpenXml
             foreach (int index in _xlWorksheet._sharedFormulas.Keys)
             {
                 ExcelWorksheet.Formulas f = _xlWorksheet._sharedFormulas[index];
-                ExcelCell.GetAddressRowCol(f.Address, out fFromCol, out fFromRow, out fToCol, out fToRow);
+                ExcelCell.GetRowColFromAddress(f.Address, out fFromRow, out fFromCol, out fToRow, out fToCol);
                 if(((fFromCol >= _fromCol && fFromCol <= _toCol) ||
                    (fToCol >= _fromCol && fToCol <= _toCol)) && 
                    ((fFromRow >= _fromRow && fFromRow <= _toRow) ||
