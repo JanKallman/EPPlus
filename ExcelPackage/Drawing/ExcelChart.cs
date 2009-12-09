@@ -33,9 +33,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
+using System.IO;
 
 namespace OfficeOpenXml.Drawing
 {
+    #region "Chart Enums"
     public enum eChartType
     {
         xl3DArea=-4098,
@@ -112,7 +114,51 @@ namespace OfficeOpenXml.Drawing
         xlXYScatterSmooth=72,
         xlXYScatterSmoothNoMarkers=73
 }
-   /// <summary>
+    public enum eDirection
+    {
+        Column,
+        Bar
+    }
+    public enum eGrouping
+    {
+        Standard,
+        Clustered,
+        Stacked,
+        PercentStacked
+    }
+    public enum eShape
+    {
+        Box,
+        Cone,
+        ConeToMax,
+        Cylinder,
+        Pyramid,
+        PyramidToMax
+    }
+    public enum eScatterStyle
+    {
+        LineMarker,
+        SmoothMarker,
+    }
+    public enum ePieType
+    {
+        Bar,
+        Pie
+    }
+    public enum eLabelPosition
+    {
+        BestFit,
+        Left,
+        Right,
+        Center,
+        Top,
+        Bottom,
+        InBase,
+        InEnd,
+        OutEnd
+    }
+    #endregion
+    /// <summary>
    /// Provide access to Chart objects.
    /// </summary>
     public class ExcelChart : ExcelDrawing
@@ -121,7 +167,7 @@ namespace OfficeOpenXml.Drawing
        string _chartPath;
        ExcelChartSeries _series;
        ExcelChartAxis[] _axis;
-       XmlHelper _chartXmlHelper;       
+       protected XmlHelper _chartXmlHelper;       
        internal ExcelChart(ExcelDrawings drawings, XmlNode node) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
         {
@@ -144,8 +190,335 @@ namespace OfficeOpenXml.Drawing
                 ChartXml = null;
             }
         }
+       internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
+       {
+           ChartType = type;
+           CreateNewChart(drawings, type);
+           _chartPath = rootPath + "/" + GetChartNodeText();
 
-       private void LoadAxis()
+           string chartNodeText=GetChartNodeText();
+           _groupingPath = string.Format(_groupingPath, chartNodeText);
+
+           _series = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
+           _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
+
+           SetTypeProperties(drawings);
+       }
+       private void SetTypeProperties(ExcelDrawings drawings)
+       {
+           /******* Grouping *******/
+           if (IsTypeClustered())
+           {
+               Grouping = eGrouping.Clustered;
+           }
+           else if (
+               IsTypeStacked())
+           {
+               Grouping = eGrouping.Stacked;
+           }
+           else if (
+              IsTypePercentStacked())
+           {
+               Grouping = eGrouping.PercentStacked;
+           }
+
+           /***** 3D Perspective *****/
+           if (IsType3D())             
+           {
+               View3D.Perspective = 30;    //Default to 30
+               if (IsTypePieDoughnut())
+               {
+                   View3D.RotX=30;
+               }
+           }
+       }
+       private void CreateNewChart(ExcelDrawings drawings, eChartType type)
+       {
+           XmlElement graphFrame = TopNode.OwnerDocument.CreateElement("graphicFrame", ExcelPackage.schemaSheetDrawings);
+           graphFrame.SetAttribute("macro", "");
+           TopNode.AppendChild(graphFrame);
+           graphFrame.InnerXml = "<xdr:nvGraphicFramePr><xdr:cNvPr id=\"2\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>";
+           TopNode.AppendChild(TopNode.OwnerDocument.CreateElement("clientData", ExcelPackage.schemaSheetDrawings));
+
+           UriChart = new Uri(string.Format("/xl/charts/chart{0}.xml", Id),UriKind.Relative);
+
+           ChartXml = new XmlDocument();
+           ChartXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
+           ChartXml.LoadXml(ChartStartXml(type));
+
+           Package package = drawings.Worksheet.xlPackage.Package;
+           // save it to the package
+           Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", CompressionOption.Maximum);
+
+           StreamWriter streamChart = new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
+           ChartXml.Save(streamChart);
+           streamChart.Close();
+           package.Flush();
+
+           PackageRelationship chartRelation = drawings.Part.CreateRelationship(UriChart, TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+           TopNode.SelectSingleNode("//c:chart", NameSpaceManager).Attributes["r:id"].Value = chartRelation.Id;
+           package.Flush();
+       }
+       
+       private string ChartStartXml(eChartType type)
+       {
+           StringBuilder xml=new StringBuilder();
+           int axID=1;
+           int xAxID=2;
+           xml.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
+           xml.AppendFormat("<c:chartSpace xmlns:c=\"{0}\" xmlns:a=\"{1}\" xmlns:r=\"{2}\">", ExcelPackage.schemaChart, ExcelPackage.schemaMain, ExcelPackage.schemaRelationships);
+           xml.Append("<c:date1904 val=\"1\"/><c:lang val=\"sv-SE\"/><c:chart>");
+           xml.AppendFormat("{0}<c:plotArea><c:layout/>",AddPerspectiveXml(type));
+
+           xml.AppendFormat("<{0}>{6}{3}{9}<c:grouping val=\"standard\"/>{4}{5}{7}{8}<c:axId val=\"{1}\"/><c:axId val=\"{2}\"/></{0}>", GetChartNodeText(), axID, xAxID, AddBarDir(type), AddMarker(type), AddShape(type), AddVaryColors(), AddFirstSliceAng(type), AddHoleSize(type), AddScatterType(type));
+
+           xml.AppendFormat("<c:catAx><c:axId val=\"{0}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{1}\"/><c:crosses val=\"autoZero\"/><c:auto val=\"1\"/><c:lblAlgn val=\"ctr\"/><c:lblOffset val=\"100\"/></c:catAx><c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx></c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
+           xml.Append("<c:printSettings><c:headerFooter/><c:pageMargins b=\"0.75\" l=\"0.7\" r=\"0.7\" t=\"0.75\" header=\"0.3\" footer=\"0.3\"/><c:pageSetup/></c:printSettings></c:chartSpace>");          
+           return xml.ToString();
+       }
+
+       private object AddScatterType(eChartType type)
+       {
+           if (type == eChartType.xlXYScatter ||
+               type == eChartType.xlXYScatterLines ||
+               type == eChartType.xlXYScatterLinesNoMarkers ||
+               type == eChartType.xlXYScatterSmooth ||
+               type == eChartType.xlXYScatterSmoothNoMarkers)
+           {
+               return "<c:scatterStyle val=\"\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private object AddHoleSize(eChartType type)
+       {
+           if (type == eChartType.xlDoughnut ||
+               type == eChartType.xlDoughnutExploded)
+           {
+               return "<c:holeSize val=\"50\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+
+       private object AddFirstSliceAng(eChartType type)
+       {
+           if (type == eChartType.xlDoughnut ||
+               type == eChartType.xlDoughnutExploded)
+           {
+               return "<c:firstSliceAng val=\"0\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+
+       private string AddVaryColors()
+       {
+           if (IsTypePieDoughnut())
+           {
+               return "<c:varyColors val=\"1\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private string AddMarker(eChartType type)
+       {
+           if (type == eChartType.xlLineMarkers ||
+               type == eChartType.xlLineMarkersStacked ||
+               type == eChartType.xlLineMarkersStacked100 ||
+               type == eChartType.xlXYScatterLines ||
+               type == eChartType.xlXYScatterSmooth)
+           {
+               return "<c:marker val=\"1\"/>";
+           }
+           else
+           {
+               return "";
+           }
+       }
+
+       private string AddShape(eChartType type)
+       {
+           if (IsTypeShape())
+           {
+               return "<c:shape val=\"box\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+
+       private object AddBarDir(eChartType type)
+       {
+ 	        if( type == eChartType.xl3DBarClustered ||
+                type == eChartType.xl3DBarStacked ||
+                type == eChartType.xl3DBarStacked100 ||
+                type == eChartType.xlBarClustered || 
+                type == eChartType.xlBarStacked || 
+                type == eChartType.xlBarStacked100 || 
+                type == eChartType.xlBarOfPie)
+            {
+                return "<c:barDir val=\"col\" />";
+            }
+            else
+            {
+                return "";
+            }
+       }
+        private string AddPerspectiveXml(eChartType type)
+        {
+ 	        //Add for 3D sharts
+            if (IsType3D())
+            {
+                return "<c:view3D><c:perspective val=\"30\" /></c:view3D>";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        protected bool IsType3D()
+        {
+            return ChartType == eChartType.xl3DArea ||
+                            ChartType == eChartType.xl3DAreaStacked ||
+                            ChartType == eChartType.xl3DAreaStacked100 ||
+                            ChartType == eChartType.xl3DBarClustered ||
+                            ChartType == eChartType.xl3DBarStacked ||
+                            ChartType == eChartType.xl3DBarStacked100 ||
+                            ChartType == eChartType.xl3DColumn ||
+                            ChartType == eChartType.xl3DColumnClustered ||
+                            ChartType == eChartType.xl3DColumnStacked ||
+                            ChartType == eChartType.xl3DColumnStacked100 ||
+                            ChartType == eChartType.xl3DLine ||
+                            ChartType == eChartType.xl3DPie ||
+                            ChartType == eChartType.xl3DPieExploded ||
+                            ChartType == eChartType.xlBubble3DEffect ||
+                            ChartType == eChartType.xlConeBarClustered ||
+                            ChartType == eChartType.xlConeBarStacked ||
+                            ChartType == eChartType.xlConeBarStacked100 ||
+                            ChartType == eChartType.xlConeCol ||
+                            ChartType == eChartType.xlConeColClustered ||
+                            ChartType == eChartType.xlConeColStacked ||
+                            ChartType == eChartType.xlConeColStacked100 ||
+                            ChartType == eChartType.xlCylinderBarClustered ||
+                            ChartType == eChartType.xlCylinderBarStacked ||
+                            ChartType == eChartType.xlCylinderBarStacked100 ||
+                            ChartType == eChartType.xlCylinderCol ||
+                            ChartType == eChartType.xlCylinderColClustered ||
+                            ChartType == eChartType.xlCylinderColStacked ||
+                            ChartType == eChartType.xlCylinderColStacked100 ||
+                            ChartType == eChartType.xlPyramidBarClustered ||
+                            ChartType == eChartType.xlPyramidBarStacked ||
+                            ChartType == eChartType.xlPyramidBarStacked100 ||
+                            ChartType == eChartType.xlPyramidCol ||
+                            ChartType == eChartType.xlPyramidColClustered ||
+                            ChartType == eChartType.xlPyramidColStacked ||
+                            ChartType == eChartType.xlPyramidColStacked100 ||
+                            ChartType == eChartType.xlDoughnut ||
+                            ChartType == eChartType.xlDoughnutExploded;
+        }
+        protected bool IsTypeShape()
+        {
+            return ChartType == eChartType.xl3DBarClustered ||
+                            ChartType == eChartType.xl3DBarStacked ||
+                            ChartType == eChartType.xl3DBarStacked100 ||
+                            ChartType == eChartType.xl3DBarClustered ||
+                            ChartType == eChartType.xl3DBarStacked ||
+                            ChartType == eChartType.xl3DBarStacked100 ||
+                            ChartType == eChartType.xl3DColumn ||
+                            ChartType == eChartType.xl3DColumnClustered ||
+                            ChartType == eChartType.xl3DColumnStacked ||
+                            ChartType == eChartType.xl3DColumnStacked100 ||
+                            ChartType == eChartType.xl3DPie ||
+                            ChartType == eChartType.xl3DPieExploded ||
+                            ChartType == eChartType.xlBubble3DEffect ||
+                            ChartType == eChartType.xlConeBarClustered ||
+                            ChartType == eChartType.xlConeBarStacked ||
+                            ChartType == eChartType.xlConeBarStacked100 ||
+                            ChartType == eChartType.xlConeCol ||
+                            ChartType == eChartType.xlConeColClustered ||
+                            ChartType == eChartType.xlConeColStacked ||
+                            ChartType == eChartType.xlConeColStacked100 ||
+                            ChartType == eChartType.xlCylinderBarClustered ||
+                            ChartType == eChartType.xlCylinderBarStacked ||
+                            ChartType == eChartType.xlCylinderBarStacked100 ||
+                            ChartType == eChartType.xlCylinderCol ||
+                            ChartType == eChartType.xlCylinderColClustered ||
+                            ChartType == eChartType.xlCylinderColStacked ||
+                            ChartType == eChartType.xlCylinderColStacked100 ||
+                            ChartType == eChartType.xlPyramidBarClustered ||
+                            ChartType == eChartType.xlPyramidBarStacked ||
+                            ChartType == eChartType.xlPyramidBarStacked100 ||
+                            ChartType == eChartType.xlPyramidCol ||
+                            ChartType == eChartType.xlPyramidColClustered ||
+                            ChartType == eChartType.xlPyramidColStacked ||
+                            ChartType == eChartType.xlPyramidColStacked100 ||
+                            ChartType == eChartType.xlDoughnut ||
+                            ChartType == eChartType.xlDoughnutExploded;
+        }
+        protected bool IsTypePercentStacked()
+        {
+            return ChartType == eChartType.xlAreaStacked100 ||
+                           ChartType == eChartType.xlBarStacked100 ||
+                           ChartType == eChartType.xlConeBarStacked100 ||
+                           ChartType == eChartType.xlConeColStacked100 ||
+                           ChartType == eChartType.xlCylinderBarStacked100 ||
+                           ChartType == eChartType.xlCylinderColStacked ||
+                           ChartType == eChartType.xlLineMarkersStacked100 ||
+                           ChartType == eChartType.xlLineStacked100 ||
+                           ChartType == eChartType.xlPyramidBarStacked100 ||
+                           ChartType == eChartType.xlPyramidColStacked100;
+        }
+        protected bool IsTypeStacked()
+        {
+            return ChartType == eChartType.xlAreaStacked ||
+                           ChartType == eChartType.xlBarStacked ||
+                           ChartType == eChartType.xl3DColumnStacked ||
+                           ChartType == eChartType.xlConeBarStacked ||
+                           ChartType == eChartType.xlConeColStacked ||
+                           ChartType == eChartType.xlCylinderBarStacked ||
+                           ChartType == eChartType.xlCylinderColStacked ||
+                           ChartType == eChartType.xlLineMarkersStacked ||
+                           ChartType == eChartType.xlLineStacked ||
+                           ChartType == eChartType.xlPyramidBarStacked ||
+                           ChartType == eChartType.xlPyramidColStacked;
+        }
+        protected bool IsTypeClustered()
+        {
+            return ChartType == eChartType.xlBarClustered ||
+                           ChartType == eChartType.xl3DBarClustered ||
+                           ChartType == eChartType.xl3DColumnClustered ||
+                           ChartType == eChartType.xlColumnClustered ||
+                           ChartType == eChartType.xlConeBarClustered ||
+                           ChartType == eChartType.xlConeColClustered ||
+                           ChartType == eChartType.xlCylinderBarClustered ||
+                           ChartType == eChartType.xlCylinderColClustered ||
+                           ChartType == eChartType.xlPyramidBarClustered ||
+                           ChartType == eChartType.xlPyramidColClustered;
+        }
+        protected bool IsTypePieDoughnut()
+        {
+            return ChartType == eChartType.xlPie ||
+                           ChartType == eChartType.xlPieExploded ||
+                           ChartType == eChartType.xlPieOfPie ||
+                           ChartType == eChartType.xl3DPie ||
+                           ChartType == eChartType.xl3DPieExploded ||
+                           ChartType == eChartType.xlBarOfPie ||
+                           ChartType == eChartType.xlDoughnut ||
+                           ChartType == eChartType.xlDoughnutExploded;
+        }
+        private void LoadAxis()
         {
             XmlNodeList nl = ChartXml.SelectNodes(_chartPath + "/c:axId", NameSpaceManager);
             List<ExcelChartAxis> l=new List<ExcelChartAxis>();
@@ -215,7 +588,93 @@ namespace OfficeOpenXml.Drawing
                     return;
                 }
             }
-        }        
+        }
+
+        protected string GetChartNodeText()
+        {
+            switch (ChartType)
+            {
+                case eChartType.xl3DArea:
+                case eChartType.xl3DAreaStacked:
+                case eChartType.xl3DAreaStacked100:
+                    return "c:area3DChart";
+                case eChartType.xlArea:
+                case eChartType.xlAreaStacked:
+                case eChartType.xlAreaStacked100:
+                    return "c:areaChart";
+                case eChartType.xlBarClustered:
+                case eChartType.xlBarStacked:
+                case eChartType.xlBarStacked100:
+                    return "c:barChart";
+                case eChartType.xl3DBarClustered:
+                case eChartType.xl3DBarStacked:
+                case eChartType.xl3DBarStacked100:
+                case eChartType.xl3DColumnClustered:
+                case eChartType.xl3DColumnStacked:
+                case eChartType.xl3DColumnStacked100:
+                case eChartType.xlConeBarClustered:
+                case eChartType.xlConeBarStacked:
+                case eChartType.xlConeBarStacked100:
+                case eChartType.xlConeCol:
+                case eChartType.xlConeColClustered:
+                case eChartType.xlConeColStacked:
+                case eChartType.xlConeColStacked100:
+                case eChartType.xlCylinderBarClustered:
+                case eChartType.xlCylinderBarStacked:
+                case eChartType.xlCylinderBarStacked100:
+                case eChartType.xlCylinderCol:
+                case eChartType.xlCylinderColClustered:
+                case eChartType.xlCylinderColStacked:
+                case eChartType.xlCylinderColStacked100:
+                case eChartType.xlPyramidBarClustered:
+                case eChartType.xlPyramidBarStacked:
+                case eChartType.xlPyramidBarStacked100:
+                case eChartType.xlPyramidCol:
+                case eChartType.xlPyramidColClustered:
+                case eChartType.xlPyramidColStacked:
+                case eChartType.xlPyramidColStacked100:
+                    return "c:bar3DChart";
+                case eChartType.xlBubble:
+                    return "c:bubbleChart";
+                case eChartType.xlDoughnut:
+                case eChartType.xlDoughnutExploded:
+                    return "c:doughnutChart";
+                case eChartType.xlLine:
+                case eChartType.xlLineMarkers:
+                case eChartType.xlLineMarkersStacked:
+                case eChartType.xlLineMarkersStacked100:
+                case eChartType.xlLineStacked:
+                case eChartType.xlLineStacked100:
+                    return "c:lineChart";
+                case eChartType.xl3DLine:
+                    return "c:line3DChart";
+                case eChartType.xlPie:
+                case eChartType.xlPieExploded:
+                    return "c:pieChart";
+                case eChartType.xlBarOfPie:
+                case eChartType.xlPieOfPie:
+                    return "c:ofPieChart";
+                case eChartType.xl3DPie:
+                case eChartType.xl3DPieExploded:
+                    return "c:pie3DChart";
+                case eChartType.xlRadar:
+                case eChartType.xlRadarFilled:
+                case eChartType.xlRadarMarkers:
+                    return "c:radarChart";
+                case eChartType.xlXYScatter:
+                case eChartType.xlXYScatterLines:
+                case eChartType.xlXYScatterLinesNoMarkers:
+                case eChartType.xlXYScatterSmooth:
+                case eChartType.xlXYScatterSmoothNoMarkers:
+                    return "c:scatterChart";
+                case eChartType.xlSurface:
+                    return "c:surfaceChart";
+                case eChartType.xlStockHLC:
+                    return "c:stockChart";
+                default:
+                    throw(new NotImplementedException("Chart type not implemented"));
+            }
+        }
         internal PackagePart Part { get; set; }
         public XmlDocument ChartXml { get; set; }
         internal Uri UriChart { get; set; }
@@ -234,7 +693,22 @@ namespace OfficeOpenXml.Drawing
                 return _axis;
             }
         }
-        const string titlePath = "c:chartSpace/c:chart/c:title/c:tx/c:rich/a:p/a:r/a:t";
+        public ExcelView3D View3D
+        {
+            get
+            {
+                if (IsType3D())
+                {
+                    return new ExcelView3D(NameSpaceManager, ChartXml.SelectSingleNode("//c:view3D", NameSpaceManager));
+                }
+                else
+                {
+                    throw (new Exception("Charttype does not support 3D"));
+                }
+
+            }
+        }
+       const string titlePath = "c:chartSpace/c:chart/c:title/c:tx/c:rich/a:p/a:r/a:t";
        public string Header
        {
            get
@@ -247,6 +721,47 @@ namespace OfficeOpenXml.Drawing
                _chartXmlHelper.SetXmlNode(titlePath, value);
            }
        }
+       string _groupingPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:grouping/@val";
+       public eGrouping Grouping
+       {
+           get
+           {
+               return GetGroupingEnum(_chartXmlHelper.GetXmlNode(_groupingPath));
+           }
+           set
+           {
+               _chartXmlHelper.SetXmlNode(_groupingPath, GetGroupingText(value));
+           }
+       }
+       #region "Grouping Enum Translation"
+       private string GetGroupingText(eGrouping grouping)
+       {
+           switch (grouping)
+           {
+               case eGrouping.Clustered:
+                   return "clustered";
+               case eGrouping.Stacked:
+                   return "stacked";
+               case eGrouping.PercentStacked:
+                   return "percentStacked";
+               default:
+                   return "standard";
+
+           }
+       }
+       private eGrouping GetGroupingEnum(string grouping)
+       {
+           switch (grouping)
+           {
+               case "stacked":
+                   return eGrouping.Stacked;
+               case "percentStacked":
+                   return eGrouping.PercentStacked;
+               default: //"clustered":               
+                   return eGrouping.Clustered;
+           }         
+       }
+       #endregion
        internal string Id
         {
             get { return ""; }

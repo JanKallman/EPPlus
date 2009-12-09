@@ -96,5 +96,40 @@ namespace OfficeOpenXml.Drawing
                return _chart;
            }
        }
-   }
+
+       public ExcelChartSerie Add(string SeriesAddress, string XSeriesAddress)
+       {
+           XmlElement ser = _node.OwnerDocument.CreateElement("ser", ExcelPackage.schemaChart);
+           XmlNodeList node = _node.SelectNodes("//c:ser", _ns);
+           if (node.Count > 0)
+           {
+               _node.InsertAfter(ser, node[node.Count-1]);
+           }
+           else
+           {
+
+               _node.InsertAfter(ser, _node.SelectSingleNode("c:grouping", NameSpaceManager));            
+           }
+           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{0}<c:marker><c:symbol val=\"none\" /> </c:marker><c:val><c:numRef><c:f></c:f></c:numRef></c:val>", AddExplosion(Chart.ChartType), _list.Count);
+           ExcelChartSerie serie = new ExcelChartSerie(this, NameSpaceManager, ser);
+           serie.Series = SeriesAddress;
+           serie.XSeries = XSeriesAddress;
+           _list.Add(serie);
+           return serie;
+       }
+
+       private string AddExplosion(eChartType chartType)
+       {
+           if (chartType == eChartType.xl3DPieExploded ||
+              chartType == eChartType.xlPieExploded ||
+               chartType == eChartType.xlDoughnutExploded)
+           {
+               return "<c:explosion val=\"25\" />"; //Default 25;
+           }
+           else
+           {
+               return "";
+           }
+       }
+    }
 }

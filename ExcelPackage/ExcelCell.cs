@@ -256,7 +256,7 @@ namespace OfficeOpenXml
 			set
 			{
 				_hyperlink = value;
-                if (Value == "")
+                if (Value == null || Value.ToString() == "")
                 {
                     Value = _hyperlink.AbsoluteUri;
                 }

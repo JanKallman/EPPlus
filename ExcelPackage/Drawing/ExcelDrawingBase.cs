@@ -37,49 +37,69 @@ namespace OfficeOpenXml.Drawing
 {
     public class ExcelDrawing : XmlHelper 
     {
-        public class ExcelPosition
+        public class ExcelPosition : XmlHelper
         {
             XmlNode _node;
             XmlNamespaceManager _ns;            
-            internal ExcelPosition(XmlNode node, XmlNamespaceManager ns)
+            internal ExcelPosition(XmlNamespaceManager ns, XmlNode node) :
+                base (ns,node)
             {
                 _node = node;
                 _ns = ns;
             }
+            const string colPath="xdr:col";
             public int Column
             {
                 get
                 {
-                    int col;
-                    int.TryParse(_node.SelectSingleNode("dr:col", _ns).InnerText, out col);
-                    return col;
+                    return GetXmlNodeInt(colPath);
                 }
                 set
                 {
-
+                    SetXmlNode(colPath, value.ToString());
                 }
             }
-            public uint Row
+            const string rowPath="xdr:row";
+            public int Row
             {
                 get
                 {
-                    uint row;
-                    uint.TryParse(_node.SelectSingleNode("dr:row", _ns).InnerText, out row);
-                    return row;
+                    return GetXmlNodeInt(rowPath);
                 }
                 set
                 {
-
+                    SetXmlNode(rowPath, value.ToString());
                 }
             }
-
-            public uint ColumnOff { get; set; }
-            public uint RowOff { get; set; }
+            const string colOffPath = "xdr:colOff";
+            public int ColumnOff
+            {
+                get
+                {
+                    return GetXmlNodeInt(colOffPath);
+                }
+                set
+                {
+                    SetXmlNode(colOffPath, value.ToString());
+                }
+            }
+            const string rowOffPath = "xdr:rowOff";
+            public int RowOff
+            {
+                get
+                {
+                    return GetXmlNodeInt(rowOffPath);
+                }
+                set
+                {
+                    SetXmlNode(rowOffPath, value.ToString());
+                }
+            }
         }
         protected ExcelDrawings _drawings;
         protected XmlNode _topNode;
         string _nameXPath;
-        public ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node,string nameXPath) :
+        internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node, string nameXPath) :
             base(nameSpaceManager, node)
         {
             _nameXPath = nameXPath;
@@ -92,16 +112,19 @@ namespace OfficeOpenXml.Drawing
             XmlNode posNode = node.SelectSingleNode("xdr:from", drawings.NameSpaceManager);
             if (node != null)
             {
-                From = new ExcelPosition(posNode, drawings.NameSpaceManager);
+                From = new ExcelPosition(drawings.NameSpaceManager, posNode);
             }
             posNode = node.SelectSingleNode("xdr:to", drawings.NameSpaceManager);
             if (node != null)
             {
-                To = new ExcelPosition(posNode, drawings.NameSpaceManager);
+                To = new ExcelPosition(drawings.NameSpaceManager, posNode);
             }
             _nameXPath = nameXPath;
         }
-
+        public ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node) :
+            base(nameSpaceManager, node)
+        {
+        }
         public string Name 
         {
             get

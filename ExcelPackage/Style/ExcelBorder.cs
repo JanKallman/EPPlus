@@ -37,7 +37,6 @@ namespace OfficeOpenXml.Style
 {
     public class Border : StyleBase
     {
-        ExcelBorderItemXml _source;
         internal Border(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string address, int index) :
             base(styles, ChangedEvent, PositionID, address)
 	    {

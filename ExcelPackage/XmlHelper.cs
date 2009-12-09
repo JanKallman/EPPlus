@@ -55,7 +55,7 @@ namespace OfficeOpenXml
             TopNode = topNode;
             NameSpaceManager = nameSpaceManager;
         }
-        internal bool ChangedFlag;
+        //internal bool ChangedFlag;
         internal XmlNamespaceManager NameSpaceManager { get; set; }
         internal XmlNode TopNode { get; set; }
 
@@ -165,6 +165,18 @@ namespace OfficeOpenXml
             }
         }
 
+        internal bool GetXmlNodeBool(string path)
+        {
+            string value=GetXmlNode(path);
+            if (value == "1" || value == "-1" || value == "True")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         internal int GetXmlNodeInt(string path)
         {
             int i;
