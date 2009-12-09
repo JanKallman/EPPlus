@@ -38,7 +38,6 @@ namespace OfficeOpenXml.Style
     public class ExcelColor :  StyleBase
     {
         eStyleClass _cls;
-        ExcelColorXml _sourceColor;
         StyleBase _parent;
         internal ExcelColor(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int worksheetID, string address, eStyleClass cls, StyleBase parent) : 
             base(styles, ChangedEvent, worksheetID, address)
@@ -55,7 +54,6 @@ namespace OfficeOpenXml.Style
                 return GetSource().Theme;
             }
         }
-        decimal _tint;
         public decimal Tint
         {
             get
@@ -63,7 +61,6 @@ namespace OfficeOpenXml.Style
                 return GetSource().Tint;
             }
         }
-        string _rgb;
         public string Rgb
         {
             get
@@ -75,7 +72,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(_cls, eStyleProperty.Color, value, _positionID, _address));
             }
         }
-        int _indexed;
         public int Indexed
         {
             get
@@ -103,28 +99,20 @@ namespace OfficeOpenXml.Style
             {
                 case eStyleClass.FillBackgroundColor:
                     return _styles.Fills[Index].BackgroundColor;
-                    break;
                 case eStyleClass.FillPatternColor:
                     return _styles.Fills[Index].PatternColor;
-                    break;
                 case eStyleClass.Font:
                     return _styles.Fonts[Index].Color;
-                    break;
                 case eStyleClass.BorderLeft:
                     return _styles.Borders[Index].Left.Color;
-                    break;
                 case eStyleClass.BorderTop:
                     return _styles.Borders[Index].Top.Color;
-                    break;
                 case eStyleClass.BorderRight:
                     return _styles.Borders[Index].Right.Color;
-                    break;
                 case eStyleClass.BorderBottom:
                     return _styles.Borders[Index].Bottom.Color;
-                    break;
                 case eStyleClass.BorderDiagonal:
                     return _styles.Borders[Index].Diagonal.Color;
-                    break;
                 default:
                     throw(new Exception("Invalid style-class for Color"));
             }

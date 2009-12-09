@@ -36,7 +36,6 @@ namespace OfficeOpenXml.Style.XmlAccess
 {
     public class ExcelNamedStyleXml : StyleXmlHelper
     {
-        ExcelWorkbook _wb;
         ExcelStyles _styles;
         internal ExcelNamedStyleXml(XmlNamespaceManager nameSpaceManager, ExcelStyles styles)
             : base(nameSpaceManager)

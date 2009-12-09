@@ -51,7 +51,6 @@ namespace OfficeOpenXml.Style
         public ExcelFont Font { get; set; }
         public ExcelFill Fill { get; set; }
         public Border Border { get; set; }
-        ExcelHorizontalAlignment _horizontalAlignment = ExcelHorizontalAlignment.Left;
         public ExcelHorizontalAlignment HorizontalAlignment
         {
             get
@@ -63,7 +62,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.HorizontalAlign, value, _positionID, _address));
             }
         }
-        ExcelVerticalAlignment _verticalAlignment = ExcelVerticalAlignment.Bottom;
         const string verticalAlignPath = "d:alignment/@vertical";
         public ExcelVerticalAlignment VerticalAlignment
         {
@@ -76,7 +74,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.VerticalAlign, value, _positionID, _address));
             }
         }
-        bool _wrapText=false;
         const string wrapTextPath = "d:alignment/@wrapText";
         public bool WrapText
         {
@@ -89,7 +86,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.WrapText, value, _positionID, _address));
             }
         }
-        bool _readingOrder = false;
         const string readingOrderPath = "d:alignment/@readingOrder";
         public bool ReadingOrder
         {
@@ -102,7 +98,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ReadingOrder, value, _positionID, _address));
             }
         }
-        bool _shrinkToFit = false;
         const string shrinkToFitPath = "d:alignment/@shrinkToFit";
         public bool ShrinkToFit
         {
@@ -115,8 +110,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ShrinkToFit, value, _positionID, _address));
             }
         }
-
-        int _xfId=int.MinValue;
         const string xfIdPath = "@xfid";
         public int XfId 
         {

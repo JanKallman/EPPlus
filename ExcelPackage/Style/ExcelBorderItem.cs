@@ -85,19 +85,14 @@ namespace OfficeOpenXml.Style
             {
                 case eStyleClass.BorderTop:
                     return _styles.Borders[ix].Top;
-                    break;
                 case eStyleClass.BorderBottom:
                     return _styles.Borders[ix].Bottom;
-                    break;
                 case eStyleClass.BorderLeft:
                     return _styles.Borders[ix].Left;
-                    break;
                 case eStyleClass.BorderRight:
                     return _styles.Borders[ix].Right;
-                    break;
                 case eStyleClass.BorderDiagonal:
                     return _styles.Borders[ix].Diagonal;
-                    break;
                 default:
                     throw new Exception("Invalid class for Borderitem");
             }

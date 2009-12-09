@@ -91,9 +91,16 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\ExcelOfPieChart.cs" />
+    <Compile Include="Drawing\ExcelView3D.cs" />
+    <Compile Include="Drawing\ExcelBarChart.cs" />
     <Compile Include="Drawing\ExcelChartAxis.cs" />
+    <Compile Include="Drawing\ExcelChartDataLabel.cs" />
     <Compile Include="Drawing\ExcelChartSerie.cs" />
     <Compile Include="Drawing\ExcelChartSeries.cs" />
+    <Compile Include="Drawing\ExcelDoughnutChart.cs" />
+    <Compile Include="Drawing\ExcelPieChart.cs" />
+    <Compile Include="Drawing\ExcelScatterChart.cs" />
     <Compile Include="ExcelCellBase.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />
@@ -116,7 +123,7 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)\release</PostBuildEvent>
+    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)release</PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>

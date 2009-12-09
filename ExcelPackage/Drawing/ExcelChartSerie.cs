@@ -128,5 +128,34 @@ namespace OfficeOpenXml.Drawing
                }
            }
        }
+       const string explosionPath = "c:explosion/@val";
+       /// <summary>
+       /// Explosion for Piecharts
+       /// </summary>
+       public int Explosion
+       {
+           get
+           {
+               return GetXmlNodeInt(explosionPath);
+           }
+           internal set
+           {
+               //Where need this one 
+               SetXmlNode(explosionPath, value.ToString());
+           }
+       }
+       ExcelChartDataLabel _DataLabel=null;
+       public ExcelChartDataLabel DataLabel
+       {
+           get
+           {
+               if(_DataLabel==null)
+               {
+                   _DataLabel=new ExcelChartDataLabel(_charts, _ns, _node);
+               }
+               return _DataLabel;
+           }
+       }
+       
    }
 }

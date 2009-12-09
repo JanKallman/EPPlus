@@ -144,6 +144,7 @@ namespace OfficeOpenXml
 
         internal Dictionary<string, SharedStringItem> _sharedStrings = new Dictionary<string, SharedStringItem>(); //Used when reading cells.
         internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
+        internal int _chartCount=0;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
@@ -397,8 +398,9 @@ namespace OfficeOpenXml
 
                         tagCellStyles.AppendChild(tagCellStyle);
                         
-                        // save it to the package
+                        //Save it to the package
 						StreamWriter streamStyles = new StreamWriter(partSyles.GetStream(FileMode.Create, FileAccess.Write));
+
 						_xmlStyles.Save(streamStyles);
 						streamStyles.Close();
 						_xlPackage.Package.Flush();

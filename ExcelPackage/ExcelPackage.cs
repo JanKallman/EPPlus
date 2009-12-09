@@ -89,7 +89,7 @@ namespace OfficeOpenXml
         protected internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
         protected internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
 
-        protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";
+        protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
         protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
                                                            
         private Package _package;

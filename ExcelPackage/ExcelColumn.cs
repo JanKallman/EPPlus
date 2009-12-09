@@ -75,7 +75,6 @@ namespace OfficeOpenXml
 	{
 		private ExcelWorksheet _xlWorksheet;
 		private XmlElement _colElement = null;
-		private XmlNamespaceManager _nsManager;
 
 		#region ExcelColumn Constructor
 		/// <summary>
@@ -179,7 +178,6 @@ namespace OfficeOpenXml
             get { return _columnMax;/*(int.Parse(_colElement.GetAttribute("max"))); */}
 			set { _columnMax = value;/*_colElement.SetAttribute("max", value.ToString());*/ } 
 		}
-        long _cellID = long.MinValue;
         internal ulong ColumnID
         {
             get

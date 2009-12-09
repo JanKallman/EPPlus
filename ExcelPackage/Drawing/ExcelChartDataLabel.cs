@@ -1,0 +1,188 @@
+﻿/* 
+ * You may amend and distribute as you like, but don't remove this header!
+ * 
+ * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ * EPPlus is a fork of the ExcelPackage project
+ * See http://www.codeplex.com/EPPlus for details.
+ * 
+ * All rights reserved.
+ * 
+ * EPPlus is an Open Source project provided under the 
+ * GNU General Public License (GPL) as published by the 
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * 
+ * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ * 
+ * The code for this project may be used and redistributed by any means PROVIDING it is 
+ * not sold for profit without the author's written consent, and providing that this notice 
+ * and the author's name and all copyright notices remain intact.
+ * 
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ * 
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ * ******************************************************************************
+ * Jan Källman		                Initial Release		        2009-10-01
+ *******************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Text;
+using System.Xml;
+
+namespace OfficeOpenXml.Drawing
+{
+    public class ExcelChartDataLabel : XmlHelper
+    {
+       XmlNode _topNode;
+       public ExcelChartDataLabel(ExcelChartSeries charts, XmlNamespaceManager ns, XmlNode node)
+           : base(ns,node)
+       {
+           _topNode = node.SelectSingleNode("c:dLbls", NameSpaceManager);
+           if (_topNode == null)
+           {
+               _topNode = node.OwnerDocument.CreateElement("dLbls", ExcelPackage.schemaChart);
+               node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
+               _topNode.InnerXml = "<c:dLblPos val=\"ctr\" /><c:showVal val=\"1\" /><c:showCatName val=\"0\" /><c:showSerName val=\"0\" /><c:showPercent val=\"0\" /><c:separator>;</c:separator><c:showLeaderLines val=\"1\" />";
+           }    
+       }
+       const string positionPath="c:dLblPos/@val";
+       public eLabelPosition Position
+       {
+           get
+           {
+               return GetPosEnum(GetXmlNode(positionPath));
+           }
+           set
+           {
+               SetXmlNode(positionPath,GetPosText(value));
+           }
+       }
+       const string showValPath = "c:showVal/@val";
+       public bool ShowValue
+       {
+           get
+           {
+               return GetXmlNodeBool(showValPath);
+           }
+           set
+           {
+               SetXmlNode(showValPath, value ? "1" : "0");
+           }
+       }
+       const string showCatPath = "c:showCatName/@val";
+       public bool ShowCategory
+       {
+           get
+           {
+               return GetXmlNodeBool(showCatPath);
+           }
+           set
+           {
+               SetXmlNode(showCatPath, value ? "1" : "0");
+           }
+       }
+       const string showSerPath = "c:showSerName/@val";
+       public bool ShowSeriesName
+       {
+           get
+           {
+               return GetXmlNodeBool(showSerPath);
+           }
+           set
+           {
+               SetXmlNode(showSerPath, value ? "1" : "0");
+           }
+       }
+       const string showPerentPath = "c:showPercent/@val";
+       public bool ShowPercent
+       {
+           get
+           {
+               return GetXmlNodeBool(showPerentPath);
+           }
+           set
+           {
+               SetXmlNode(showPerentPath, value ? "1" : "0");
+           }
+       }
+       const string showLeaderLinesPath = "c:showLeaderLines/@val";
+       public bool ShowLeaderLines
+       {
+           get
+           {
+               return GetXmlNodeBool(showLeaderLinesPath);
+           }
+           set
+           {
+               SetXmlNode(showLeaderLinesPath, value ? "1" : "0");
+           }
+       }
+       const string separatorPath = "c:separator";
+       public string Separator
+       {
+           get
+           {
+               return GetXmlNode(separatorPath);
+           }
+           set
+           {
+               SetXmlNode(separatorPath, value);
+           }
+       }
+       #region "Position Enum Traslation"
+       private string GetPosText(eLabelPosition pos)
+       {
+           switch (pos)
+           {
+               case eLabelPosition.Bottom:
+                   return "b";
+               case eLabelPosition.Center:
+                   return "ctr";
+               case eLabelPosition.InBase:
+                   return "inBase";
+               case eLabelPosition.InEnd:
+                   return "inEnd";
+               case eLabelPosition.Left:
+                   return "l";
+               case eLabelPosition.Right:
+                   return "r";
+               case eLabelPosition.Top:
+                   return "t";
+               case eLabelPosition.OutEnd:
+                   return "outEnd";
+               default:
+                   return "bestFit";
+           }
+       }
+
+       private eLabelPosition GetPosEnum(string pos)
+       {
+           switch (pos)
+           {
+               case "b":
+                   return eLabelPosition.Bottom;
+               case "ctr":
+                   return eLabelPosition.Center;
+               case "inBase":
+                   return eLabelPosition.InBase;
+               case "inEnd":
+                   return eLabelPosition.InEnd;
+               case "l":
+                   return eLabelPosition.Left;
+               case "r":
+                   return eLabelPosition.Right;
+               case "t":
+                   return eLabelPosition.Top;
+               case "outEnd":
+                   return eLabelPosition.OutEnd;
+               default:
+                   return eLabelPosition.BestFit;
+           }
+       }
+    #endregion
+    }
+}
