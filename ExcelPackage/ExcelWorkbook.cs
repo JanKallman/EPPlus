@@ -144,7 +144,7 @@ namespace OfficeOpenXml
 
         internal Dictionary<string, SharedStringItem> _sharedStrings = new Dictionary<string, SharedStringItem>(); //Used when reading cells.
         internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
-        internal int _chartCount=0;
+        internal int _nextDrawingID = 0;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
@@ -186,7 +186,21 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region Workbook Properties
-		/// <summary>
+        decimal _standardFontWidth = decimal.MinValue;
+        public decimal MaxFontWidth 
+        {
+            get
+            {
+                if (_standardFontWidth == decimal.MinValue)
+                {
+                    var font = Styles.Fonts[0];
+                    System.Drawing.Font f = new System.Drawing.Font(font.Name, font.Size);
+                    _standardFontWidth=(decimal)(System.Windows.Forms.TextRenderer.MeasureText("00", f).Width - System.Windows.Forms.TextRenderer.MeasureText("0", f).Width);
+                }
+                return _standardFontWidth;
+            }
+        }
+        /// <summary>
 		/// The Uri to the workbook in the package
 		/// </summary>
 		protected internal Uri WorkbookUri { get { return (_uriWorkbook); }	}

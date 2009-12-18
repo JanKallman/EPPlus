@@ -72,6 +72,13 @@ namespace OfficeOpenXml.Drawing
                 }
             }
             const string colOffPath = "xdr:colOff";
+            /// <summary>
+            /// Column Offset
+            /// 
+            /// EMU units   1cm         =   1/360000 
+            ///             1US inch    =   1/914400
+            ///             1pixel      =   1/9525
+            /// </summary>
             public int ColumnOff
             {
                 get
@@ -84,6 +91,13 @@ namespace OfficeOpenXml.Drawing
                 }
             }
             const string rowOffPath = "xdr:rowOff";
+            /// <summary>
+            /// Row Offset
+            /// 
+            /// EMU units   1cm         =   1/360000 
+            ///             1US inch    =   1/914400
+            ///             1pixel      =   1/9525
+            /// </summary>
             public int RowOff
             {
                 get
@@ -99,6 +113,9 @@ namespace OfficeOpenXml.Drawing
         protected ExcelDrawings _drawings;
         protected XmlNode _topNode;
         string _nameXPath;
+        int _id;
+        const float STANDARD_DPI = 96;
+        const int EMU_PER_PIXEL = 9525;
         internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node, string nameXPath) :
             base(nameSpaceManager, node)
         {
@@ -109,6 +126,7 @@ namespace OfficeOpenXml.Drawing
         {
             _drawings = drawings;
             _topNode = node;
+            _id = drawings.Worksheet.Workbook._nextDrawingID++;
             XmlNode posNode = node.SelectSingleNode("xdr:from", drawings.NameSpaceManager);
             if (node != null)
             {
@@ -179,11 +197,173 @@ namespace OfficeOpenXml.Drawing
                 return new ExcelDrawing(drawings, node, "");
             }
         }
-
-
         internal string Id
         {
-            get { return ""; }
+            get { return _id.ToString(); }
         }
+        #region "Internal sizing functions"
+        internal int GetPixelWidth()
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw=ws.Workbook.MaxFontWidth;
+
+            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(From.Column + 1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL;
+            for (int col = From.Column + 2; col <= To.Column; col++)
+            {
+                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            }
+            pix += To.ColumnOff / EMU_PER_PIXEL;
+            return pix;
+        }
+        internal int GetPixelHeight()
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
+
+            int pix = (int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL);
+            for (int row = From.Row + 2; row <= To.Row; row++)
+            {
+                pix += (int)(ws.Row(row).Height / 0.75);
+            }
+            pix += To.RowOff / EMU_PER_PIXEL;
+            return pix;
+        }
+        internal void SetPixelTop(int pixels)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
+            int prevPix = 0;
+            int pix = (int)(ws.Row(1).Height / 0.75);
+            int row = 2;
+
+            while (pix < pixels)
+            {
+                prevPix = pix;
+                pix += (int)(ws.Row(row++).Height / 0.75);
+            }
+
+            if (pix == pixels)
+            {
+                From.Row = row - 1;
+                From.RowOff = 0;
+            }   
+            else
+            {
+                From.Row = row - 2;
+                From.RowOff = (pixels - prevPix) * EMU_PER_PIXEL;
+            }
+        }
+        internal void SetPixelLeft(int pixels)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
+            int prevPix = 0;
+            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            int col = 2;
+
+            while (pix < pixels)
+            {
+                prevPix = pix;
+                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col++).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            }
+            if (pix == pixels)
+            {
+                From.Column = col - 1;
+                From.ColumnOff = 0;
+            }
+            else
+            {
+                From.Column = col - 2;
+                From.ColumnOff = (pixels - prevPix) * EMU_PER_PIXEL;
+            }
+        }
+        internal void SetPixelHeight(int pixels)
+        {
+            SetPixelHeight(pixels, STANDARD_DPI);
+        }
+        internal void SetPixelHeight(int pixels, float dpi)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
+            pixels = (int)(pixels / (dpi / STANDARD_DPI));
+            int pixOff = pixels - ((int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL));
+            int prevPixOff = pixels;
+            int row = From.Row+2;
+
+            while (pixOff >= 0)
+            {
+                prevPixOff = pixOff;
+                pixOff -= (int)(ws.Row(++row).Height / 0.75);
+            }
+            To.Row = row - 2;
+            To.RowOff = prevPixOff * EMU_PER_PIXEL;
+        }
+        internal void SetPixelWidth(int pixels)
+        {
+            SetPixelWidth(pixels, STANDARD_DPI);
+        }
+        internal void SetPixelWidth(int pixels, float dpi)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
+
+            pixels = (int)(pixels / (dpi / STANDARD_DPI));
+            int pixOff = (int)pixels - ((int)decimal.Truncate(((256 * (decimal)ws.Column(From.Column + 1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL);
+            int prevPixOff = (int)pixels;
+            int col = From.Column + 2;
+
+            while (pixOff >= 0)
+            {
+                prevPixOff = pixOff;
+                pixOff -= (int)decimal.Truncate(((256 * (decimal)ws.Column(++col).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            }
+
+            To.Column = col - 2;
+            To.ColumnOff = prevPixOff * EMU_PER_PIXEL;
+        }
+        #endregion
+        #region "Public sizing functions"
+        /// <summary>
+        /// Set the top left corner of a drawing. 
+        /// </summary>
+        /// <param name="PixelTop">Top pixel</param>
+        /// <param name="PixelLeft">Left pixel</param>
+        public void SetPosition(int PixelTop, int PixelLeft)
+        {
+            int width = GetPixelWidth();
+            int height = GetPixelHeight();
+
+            SetPixelTop(PixelTop);
+            SetPixelLeft(PixelLeft);
+
+            SetPixelWidth(width);
+            SetPixelHeight(height);
+        }
+        /// <summary>
+        /// Set size in Percent
+        /// </summary>
+        /// <param name="Percent"></param>
+        public void SetSize(int Percent)
+        {
+            int width = GetPixelWidth();
+            int height = GetPixelHeight();
+
+            width = (int)(width * ((decimal)Percent / 100));
+            height = (int)(height * ((decimal)Percent / 100));
+
+            SetPixelWidth(width, 96);
+            SetPixelHeight(height, 96);
+        }
+        /// <summary>
+        /// Set size in pixels
+        /// </summary>
+        /// <param name="PixelWidth">Width in pixels</param>
+        /// <param name="PixelHeight">Height in pixels</param>
+        public void SetSize(int PixelWidth, int PixelHeight)
+        {
+            SetPixelWidth(PixelWidth);
+            SetPixelHeight(PixelHeight);
+        }
+        #endregion
     }
 }

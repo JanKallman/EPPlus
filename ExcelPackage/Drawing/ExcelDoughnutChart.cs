@@ -54,7 +54,7 @@ namespace OfficeOpenXml.Drawing
             _firstSliceAngPath = string.Format(_firstSliceAngPath, chartNodeText);
             _holeSizePath = string.Format(_holeSizePath, chartNodeText);
         }
-        string _firstSliceAngPath = "c:chartSpace/c:chart/{0}/c:firstSliceAng";
+        string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng";
         public decimal FirstSliceAngle
         {
             get
@@ -66,7 +66,7 @@ namespace OfficeOpenXml.Drawing
                 _chartXmlHelper.SetXmlNode(_firstSliceAngPath, value.ToString());
             }
         }
-        string _holeSizePath = "c:chartSpace/c:chart/{0}/c:holeSize";
+        string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize";
         public decimal HoleSize
         {
             get

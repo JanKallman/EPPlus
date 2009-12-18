@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
+using System.IO.Packaging;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -224,5 +225,16 @@ namespace OfficeOpenXml
                 return "";
             }
         }
+        internal Uri GetNewUri(Package package, string sUri)
+        {
+            int id = 1;
+            Uri uri;
+            do
+            {
+                uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
+            }
+            while (package.PartExists(uri));
+            return uri;
+        }       
     }
 }
