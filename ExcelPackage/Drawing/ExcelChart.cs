@@ -165,10 +165,15 @@ namespace OfficeOpenXml.Drawing
     {
        const string rootPath = "c:chartSpace/c:chart/c:plotArea";
        string _chartPath;
-       ExcelChartSeries _series;
+       ExcelChartSeries _chartSeries;
        ExcelChartAxis[] _axis;
        protected XmlHelper _chartXmlHelper;       
-       internal ExcelChart(ExcelDrawings drawings, XmlNode node) :
+       /// <summary>
+       /// Read the chart from XML
+       /// </summary>
+       /// <param name="drawings">Drawings collection for a worksheet</param>
+       /// <param name="node">Topnode for drawings</param>        
+        internal ExcelChart(ExcelDrawings drawings, XmlNode node) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
         {
             XmlNode chartNode = node.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart", drawings.NameSpaceManager);
@@ -180,9 +185,10 @@ namespace OfficeOpenXml.Drawing
                 Part = drawings.Part.Package.GetPart(UriChart);
                 ChartXml = new XmlDocument();
                 ChartXml.Load(Part.GetStream());
+                WorkSheet = drawings.Worksheet;
                 SetChartType();
                 _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
-                _series = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
+                _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
                 LoadAxis();
             }
             else
@@ -196,16 +202,19 @@ namespace OfficeOpenXml.Drawing
            ChartType = type;
            CreateNewChart(drawings, type);
            _chartPath = rootPath + "/" + GetChartNodeText();
+           WorkSheet = drawings.Worksheet;
 
            string chartNodeText=GetChartNodeText();
            _groupingPath = string.Format(_groupingPath, chartNodeText);
 
-           _series = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
+           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
            _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
 
            SetTypeProperties(drawings);
        }
-       private void SetTypeProperties(ExcelDrawings drawings)
+       public ExcelWorksheet WorkSheet { get; internal set; }
+
+        private void SetTypeProperties(ExcelDrawings drawings)
        {
            /******* Grouping *******/
            if (IsTypeClustered())
@@ -241,13 +250,13 @@ namespace OfficeOpenXml.Drawing
            graphFrame.InnerXml = "<xdr:nvGraphicFramePr><xdr:cNvPr id=\"2\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>";
            TopNode.AppendChild(TopNode.OwnerDocument.CreateElement("clientData", ExcelPackage.schemaSheetDrawings));
 
-           UriChart = new Uri(string.Format("/xl/charts/chart{0}.xml", Id),UriKind.Relative);
+           Package package = drawings.Worksheet.xlPackage.Package;
+           UriChart = GetNewUri(package, "/xl/charts/chart{0}.xml");
 
            ChartXml = new XmlDocument();
            ChartXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
            ChartXml.LoadXml(ChartStartXml(type));
 
-           Package package = drawings.Worksheet.xlPackage.Package;
            // save it to the package
            Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", CompressionOption.Maximum);
 
@@ -260,7 +269,7 @@ namespace OfficeOpenXml.Drawing
            TopNode.SelectSingleNode("//c:chart", NameSpaceManager).Attributes["r:id"].Value = chartRelation.Id;
            package.Flush();
        }
-       
+
        private string ChartStartXml(eChartType type)
        {
            StringBuilder xml=new StringBuilder();
@@ -271,14 +280,14 @@ namespace OfficeOpenXml.Drawing
            xml.Append("<c:date1904 val=\"1\"/><c:lang val=\"sv-SE\"/><c:chart>");
            xml.AppendFormat("{0}<c:plotArea><c:layout/>",AddPerspectiveXml(type));
 
-           xml.AppendFormat("<{0}>{6}{3}{9}<c:grouping val=\"standard\"/>{4}{5}{7}{8}<c:axId val=\"{1}\"/><c:axId val=\"{2}\"/></{0}>", GetChartNodeText(), axID, xAxID, AddBarDir(type), AddMarker(type), AddShape(type), AddVaryColors(), AddFirstSliceAng(type), AddHoleSize(type), AddScatterType(type));
+           xml.AppendFormat("<{0}>{6}{3}{9}{10}{4}{5}{7}{8}<c:axId val=\"{1}\"/><c:axId val=\"{2}\"/></{0}>", GetChartNodeText(), axID, xAxID, AddBarDir(type), AddMarker(type), AddShape(type), AddVaryColors(), AddFirstSliceAng(type), AddHoleSize(type), AddScatterType(type), AddGrouping());
 
            xml.AppendFormat("<c:catAx><c:axId val=\"{0}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{1}\"/><c:crosses val=\"autoZero\"/><c:auto val=\"1\"/><c:lblAlgn val=\"ctr\"/><c:lblOffset val=\"100\"/></c:catAx><c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx></c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
            xml.Append("<c:printSettings><c:headerFooter/><c:pageMargins b=\"0.75\" l=\"0.7\" r=\"0.7\" t=\"0.75\" header=\"0.3\" footer=\"0.3\"/><c:pageSetup/></c:printSettings></c:chartSpace>");          
            return xml.ToString();
        }
 
-       private object AddScatterType(eChartType type)
+       private string AddScatterType(eChartType type)
        {
            if (type == eChartType.xlXYScatter ||
                type == eChartType.xlXYScatterLines ||
@@ -287,6 +296,17 @@ namespace OfficeOpenXml.Drawing
                type == eChartType.xlXYScatterSmoothNoMarkers)
            {
                return "<c:scatterStyle val=\"\" />";
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private string AddGrouping()
+       {
+           if(IsTypeClustered() || IsTypePercentStacked() || IsTypeStacked() || IsTypePieDoughnut())
+           {
+               return "<c:grouping val=\"standard\"/>";
            }
            else
            {
@@ -431,41 +451,41 @@ namespace OfficeOpenXml.Drawing
         protected bool IsTypeShape()
         {
             return ChartType == eChartType.xl3DBarClustered ||
-                            ChartType == eChartType.xl3DBarStacked ||
-                            ChartType == eChartType.xl3DBarStacked100 ||
-                            ChartType == eChartType.xl3DBarClustered ||
-                            ChartType == eChartType.xl3DBarStacked ||
-                            ChartType == eChartType.xl3DBarStacked100 ||
-                            ChartType == eChartType.xl3DColumn ||
-                            ChartType == eChartType.xl3DColumnClustered ||
-                            ChartType == eChartType.xl3DColumnStacked ||
-                            ChartType == eChartType.xl3DColumnStacked100 ||
-                            ChartType == eChartType.xl3DPie ||
-                            ChartType == eChartType.xl3DPieExploded ||
-                            ChartType == eChartType.xlBubble3DEffect ||
-                            ChartType == eChartType.xlConeBarClustered ||
-                            ChartType == eChartType.xlConeBarStacked ||
-                            ChartType == eChartType.xlConeBarStacked100 ||
-                            ChartType == eChartType.xlConeCol ||
-                            ChartType == eChartType.xlConeColClustered ||
-                            ChartType == eChartType.xlConeColStacked ||
-                            ChartType == eChartType.xlConeColStacked100 ||
-                            ChartType == eChartType.xlCylinderBarClustered ||
-                            ChartType == eChartType.xlCylinderBarStacked ||
-                            ChartType == eChartType.xlCylinderBarStacked100 ||
-                            ChartType == eChartType.xlCylinderCol ||
-                            ChartType == eChartType.xlCylinderColClustered ||
-                            ChartType == eChartType.xlCylinderColStacked ||
-                            ChartType == eChartType.xlCylinderColStacked100 ||
-                            ChartType == eChartType.xlPyramidBarClustered ||
-                            ChartType == eChartType.xlPyramidBarStacked ||
-                            ChartType == eChartType.xlPyramidBarStacked100 ||
-                            ChartType == eChartType.xlPyramidCol ||
-                            ChartType == eChartType.xlPyramidColClustered ||
-                            ChartType == eChartType.xlPyramidColStacked ||
-                            ChartType == eChartType.xlPyramidColStacked100 ||
-                            ChartType == eChartType.xlDoughnut ||
-                            ChartType == eChartType.xlDoughnutExploded;
+                    ChartType == eChartType.xl3DBarStacked ||
+                    ChartType == eChartType.xl3DBarStacked100 ||
+                    ChartType == eChartType.xl3DBarClustered ||
+                    ChartType == eChartType.xl3DBarStacked ||
+                    ChartType == eChartType.xl3DBarStacked100 ||
+                    ChartType == eChartType.xl3DColumn ||
+                    ChartType == eChartType.xl3DColumnClustered ||
+                    ChartType == eChartType.xl3DColumnStacked ||
+                    ChartType == eChartType.xl3DColumnStacked100 ||
+                //ChartType == eChartType.xl3DPie ||
+                //ChartType == eChartType.xl3DPieExploded ||
+                    ChartType == eChartType.xlBubble3DEffect ||
+                    ChartType == eChartType.xlConeBarClustered ||
+                    ChartType == eChartType.xlConeBarStacked ||
+                    ChartType == eChartType.xlConeBarStacked100 ||
+                    ChartType == eChartType.xlConeCol ||
+                    ChartType == eChartType.xlConeColClustered ||
+                    ChartType == eChartType.xlConeColStacked ||
+                    ChartType == eChartType.xlConeColStacked100 ||
+                    ChartType == eChartType.xlCylinderBarClustered ||
+                    ChartType == eChartType.xlCylinderBarStacked ||
+                    ChartType == eChartType.xlCylinderBarStacked100 ||
+                    ChartType == eChartType.xlCylinderCol ||
+                    ChartType == eChartType.xlCylinderColClustered ||
+                    ChartType == eChartType.xlCylinderColStacked ||
+                    ChartType == eChartType.xlCylinderColStacked100 ||
+                    ChartType == eChartType.xlPyramidBarClustered ||
+                    ChartType == eChartType.xlPyramidBarStacked ||
+                    ChartType == eChartType.xlPyramidBarStacked100 ||
+                    ChartType == eChartType.xlPyramidCol ||
+                    ChartType == eChartType.xlPyramidColClustered ||
+                    ChartType == eChartType.xlPyramidColStacked ||
+                    ChartType == eChartType.xlPyramidColStacked100; //||
+                    //ChartType == eChartType.xlDoughnut ||
+                    //ChartType == eChartType.xlDoughnutExploded;
         }
         protected bool IsTypePercentStacked()
         {
@@ -683,7 +703,7 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return _series;
+                return _chartSeries;
             }
         }
         public ExcelChartAxis[] Axis

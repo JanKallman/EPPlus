@@ -48,7 +48,7 @@ namespace OfficeOpenXml.Drawing
         {
             varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
         }
-        string varyColorsPath = "c:chartSpace/c:chart/{0}/c:varyColors/@val";
+        string varyColorsPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:varyColors/@val";
         public bool VaryColors
         {
             get

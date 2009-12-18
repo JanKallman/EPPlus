@@ -39,13 +39,13 @@ namespace OfficeOpenXml.Drawing
 {
    public class ExcelChartSerie : XmlHelper
    {
-       ExcelChartSeries _charts;
+       protected ExcelChartSeries _chartSeries;
        XmlNode _node;
        XmlNamespaceManager _ns;
-       public ExcelChartSerie(ExcelChartSeries charts, XmlNamespaceManager ns, XmlNode node)
+       public ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           _charts=charts;
+           _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
        }
@@ -78,13 +78,12 @@ namespace OfficeOpenXml.Drawing
            }
            set
            {
-               if (_charts.Chart.ChartType == eChartType.xlBubble)
+               if (_chartSeries.Chart.ChartType == eChartType.xlBubble)
                {
                    throw(new Exception("Bubble charts is not supported yet"));
                }
-
                CreateNode(seriesPath,true);
-               SetXmlNode(seriesPath, value);
+               SetXmlNode(seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
                
                XmlNode cache = TopNode.SelectSingleNode("c:val/c:numRef/c:numCache", _ns);
                if (cache != null)
@@ -113,7 +112,7 @@ namespace OfficeOpenXml.Drawing
            set
            {
                CreateNode(xSeriesPath, true);
-               SetXmlNode(xSeriesPath, value);
+               SetXmlNode(xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
                XmlNode cache = TopNode.SelectSingleNode("c:cat/c:numRef/c:numCache", _ns);
                if (cache != null)
@@ -151,7 +150,7 @@ namespace OfficeOpenXml.Drawing
            {
                if(_DataLabel==null)
                {
-                   _DataLabel=new ExcelChartDataLabel(_charts, _ns, _node);
+                   _DataLabel=new ExcelChartDataLabel(_chartSeries, _ns, _node);
                }
                return _DataLabel;
            }

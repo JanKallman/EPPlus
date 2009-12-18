@@ -416,6 +416,22 @@ namespace OfficeOpenXml
         {
             return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
         }
+        public static string GetFullAddress(string worksheetName, string address)
+        {
+               if (address.IndexOf("!") == -1)
+               {
+                   string[] cells = address.Split(':');
+                   if (cells.Length > 0)
+                   {
+                       address = string.Format("'{0}'!{1}", worksheetName, cells[0]);
+                       if (cells.Length > 1)
+                       {
+                           address += string.Format(":{0}", cells[1]);
+                       }
+                   }
+               }
+               return address;
+        }
         #endregion
 
         #region IsValidCellAddress

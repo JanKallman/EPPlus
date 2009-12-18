@@ -1045,10 +1045,24 @@ namespace OfficeOpenXml
             }
             StringBuilder sbXml = new StringBuilder();
 
+            ExcelColumn prevCol = null;
+            foreach (ulong colID in _columns.Keys)
+            {
+                ExcelColumn col = _columns[colID];
+                if (prevCol != null)
+                {
+                    if(prevCol.ColumnMax != col.ColumnMin-1)
+                    {
+                        prevCol.ColumnMax=col.ColumnMin-1;
+                    }
+                }
+                prevCol = col;
+            }
             foreach (ulong colID in _columns.Keys)
             {
                 ExcelColumn col = _columns[colID];
                 ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
+
                 sbXml.AppendFormat("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
                 if (col.Hidden == true)
                 {

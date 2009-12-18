@@ -35,6 +35,7 @@ using System.IO.Packaging;
 using System.Xml;
 using System.Collections;
 using System.IO;
+using System.Drawing;
 
 namespace OfficeOpenXml.Drawing
 {
@@ -77,11 +78,11 @@ namespace OfficeOpenXml.Drawing
         {
             XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
 
-            int i = 0;
+            int i = 1;
             foreach (XmlNode node in list)
             {
                 ExcelDrawing dr = ExcelDrawing.GetDrawing(this, node);
-                _drawings.Add(++i, dr);
+                _drawings.Add(i++, dr);
             }
         }
 
@@ -202,11 +203,24 @@ namespace OfficeOpenXml.Drawing
 
                 
                 ExcelChart chart = GetNewChart(drawNode, ChartType);
-                SetDrawingDefaults(chart, Name);
+                chart.Name = Name;
                 _drawings.Add(_drawings.Count + 1, chart);
                 return chart;
             }
-
+            public ExcelPicture AddPicture(string Name, Image image)
+            {
+                if (image != null)
+                {
+                    XmlElement drawNode = CreateDrawingXml();
+                    drawNode.SetAttribute("editAs", "oneCell");
+                    ExcelPicture pic = new ExcelPicture(this, drawNode, image);
+                    pic.Name = Name;
+                    //SetPosDefaults(pic, image);
+                    _drawings.Add(_drawings.Count+1, pic);
+                    return pic;
+                }
+                throw (new Exception("AddPicture: Image can't be null"));
+            }
             private ExcelChart GetNewChart(XmlNode drawNode, eChartType chartType)
             {
                 switch(chartType)
@@ -267,21 +281,6 @@ namespace OfficeOpenXml.Drawing
                         return new ExcelChart(this, drawNode, chartType);
                 }
             }
-
-            private void SetDrawingDefaults(ExcelChart chart, string Name/*, int fromRow, int fromColumn, int toRow, int toColumn*/)
-            {
-                chart.Name = Name;  
-                chart.From.Column = 0;
-                chart.From.ColumnOff = 0;
-                chart.From.Row = 0;
-                chart.From.RowOff = 0;
-
-                chart.To.Column = 10;
-                chart.To.ColumnOff = 0;
-                chart.To.Row = 10;
-                chart.To.RowOff = 0;
-            }
-
             private XmlElement CreateDrawingXml()
             {
                 if (DrawingXml.OuterXml == "")
@@ -311,10 +310,12 @@ namespace OfficeOpenXml.Drawing
                 //Add from position Element;
                 XmlElement fromNode = _drawingsXml.CreateElement("from", ExcelPackage.schemaSheetDrawings);
                 drawNode.AppendChild(fromNode);
+                fromNode.InnerXml = "<xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff>";
 
                 //Add to position Element;
                 XmlElement toNode = _drawingsXml.CreateElement("to", ExcelPackage.schemaSheetDrawings);
                 drawNode.AppendChild(toNode);
+                toNode.InnerXml = "<xdr:col>10</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>10</xdr:row><xdr:rowOff>0</xdr:rowOff>";
                 return drawNode;
             }
         #endregion
