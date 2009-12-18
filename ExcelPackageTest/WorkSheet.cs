@@ -76,8 +76,8 @@ namespace ExcelPackageTest
             ws.Cells["X23"].Value = 135;
             ws.Cells["X24"].Value = 134;
 
-            ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Image.FromFile(@"C:\dev\AIM\applications\trunk\PropMIS\VB\User\IMAGES\Alecta_rect.jpg"));
-            pic.SetPositionPixels(150, 140);
+            ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            pic.SetPosition(150, 140);
             //pic.From.Column = 15;
             //pic.From.Row = 32;
             //pic.To.Column = 18;
