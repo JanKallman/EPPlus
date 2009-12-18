@@ -81,11 +81,11 @@ namespace ExcelPackageTest
              ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
 
              pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
-             pic.SetPositionPixels(150, 200);
+             pic.SetPosition(150, 200);
 
 
              pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
-             pic.SetPositionPixels(400, 200);
+             pic.SetPosition(400, 200);
              pic.SetSize(150);
          }
 
@@ -94,7 +94,7 @@ namespace ExcelPackageTest
         {
             var ws = _pck.Workbook.Worksheets.Add("BarChart");            
             var chrt = ws.Drawings.AddChart("barChart", eChartType.xlBarClustered) as ExcelBarChart;
-            chrt.SetPositionPixels(50, 50);
+            chrt.SetPosition(50, 50);
             chrt.SetSize(800, 300);
             AddTestSerie(ws, chrt);
 
