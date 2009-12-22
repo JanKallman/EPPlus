@@ -181,6 +181,12 @@ namespace OfficeOpenXml.Drawing
         }
         #endregion
         #region "Add functions"
+            /// <summary>
+            /// Adds a new shart to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="ChartType">Type of chart</param>
+            /// <returns></returns>
             public ExcelChart AddChart(string Name, eChartType ChartType)
             {
                 if (ChartType == eChartType.xlBubble ||
@@ -207,6 +213,12 @@ namespace OfficeOpenXml.Drawing
                 _drawings.Add(_drawings.Count + 1, chart);
                 return chart;
             }
+            /// <summary>
+            /// Adds a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="image">An image. Allways saved in then JPeg format</param>
+            /// <returns></returns>
             public ExcelPicture AddPicture(string Name, Image image)
             {
                 if (image != null)
@@ -220,6 +232,15 @@ namespace OfficeOpenXml.Drawing
                     return pic;
                 }
                 throw (new Exception("AddPicture: Image can't be null"));
+            }
+            public ExcelShape AddShape(string Name, eShapeStyle Style)
+            {
+                XmlElement drawNode = CreateDrawingXml();
+                ExcelShape shape = new ExcelShape(this, drawNode, Style);
+                shape.Name = Name;
+                shape.Style = Style;
+                _drawings.Add(_drawings.Count + 1, shape);
+                return shape;
             }
             private ExcelChart GetNewChart(XmlNode drawNode, eChartType chartType)
             {

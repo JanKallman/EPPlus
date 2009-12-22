@@ -92,7 +92,9 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\ExcelDrawingLine.cs" />
     <Compile Include="Drawing\ExcelOfPieChart.cs" />
+    <Compile Include="Drawing\ExcelDrawingFill.cs" />
     <Compile Include="Drawing\ExcelView3D.cs" />
     <Compile Include="Drawing\ExcelBarChart.cs" />
     <Compile Include="Drawing\ExcelChartAxis.cs" />
