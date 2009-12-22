@@ -50,7 +50,7 @@ namespace ExcelPackageTest
                  Directory.Delete("Test", true);
              }
              Directory.CreateDirectory(string.Format("Test"));
-             _pck = new ExcelPackage(new FileInfo("Test\\Chart.xlsx"));         
+             _pck = new ExcelPackage(new FileInfo("Test\\Drawing.xlsx"));         
          }
         
         // Use ClassCleanup to run code after all tests in a class have run
@@ -153,6 +153,42 @@ namespace ExcelPackageTest
             Assert.IsTrue(chrt.ChartType == eChartType.xl3DPie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
+        }
+        [TestMethod]
+        public void Drawings()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Shapes");
+            int y=100, i=1;
+            foreach(eShapeStyle style in Enum.GetValues(typeof(eShapeStyle)))
+            {
+                var shape = ws.Drawings.AddShape("shape"+i.ToString(), style);
+                shape.SetPosition(y, 100);
+                shape.SetSize(300, 300);
+                y += 400;
+                shape.Text = style.ToString();
+                i++;
+            }
+
+            (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
+            (ws.Drawings["shape2"] as ExcelShape).TextVertical = eTextVerticalType.Vertical;
+
+            (ws.Drawings["shape3"] as ExcelShape).TextAnchoring=eTextAnchoringType.Bottom;
+            (ws.Drawings["shape3"] as ExcelShape).TextAnchoringControl=true ;
+
+            (ws.Drawings["shape4"] as ExcelShape).TextVertical = eTextVerticalType.Vertical270;
+            (ws.Drawings["shape4"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
+
+            (ws.Drawings["shape5"] as ExcelShape).Fill.Style=eFillStyle.SolidFill;
+            (ws.Drawings["shape5"] as ExcelShape).Fill.Color=Color.Red;
+            (ws.Drawings["shape5"] as ExcelShape).Fill.Transparancy = 50;
+
+            (ws.Drawings["shape6"] as ExcelShape).Fill.Style = eFillStyle.NoFill;
+
+            (ws.Drawings["shape7"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
+            (ws.Drawings["shape7"] as ExcelShape).Fill.Color=Color.Gray;
+            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Style=eFillStyle.SolidFill;
+            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Color=Color.Black;
+            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Transparancy=43;
         }
     }
 }

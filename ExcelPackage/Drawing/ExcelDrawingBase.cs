@@ -35,6 +35,25 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Drawing
 {
+    public enum eTextAnchoringType
+    {
+        Bottom,
+        Center,
+        Distributed,
+        Justify,
+        Top
+    }
+    public enum eTextVerticalType
+    {
+        EastAsianVertical,
+        Horizontal,
+        MongolianVertical,
+        Vertical,
+        Vertical270,
+        WordArtVertical,
+        WordArtVerticalRightToLeft
+
+    }
     public class ExcelDrawing : XmlHelper 
     {
         public class ExcelPosition : XmlHelper
