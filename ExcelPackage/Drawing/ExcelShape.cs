@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Drawing;
 public enum eShapeStyle
 {
     AccentBorderCallout1,
@@ -244,6 +245,7 @@ namespace OfficeOpenXml.Drawing
         internal ExcelShape(ExcelDrawings drawings, XmlNode node, eShapeStyle style) :
             base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")
         {
+            SchemaNodeOrder = new string[] { "a:prstGeom", "a:ln" };
             XmlElement shapeNode = node.OwnerDocument.CreateElement("xdr", "sp", ExcelPackage.schemaSheetDrawings);
             shapeNode.SetAttribute("macro", "");
             shapeNode.SetAttribute("textlink", "");
@@ -422,21 +424,21 @@ namespace OfficeOpenXml.Drawing
             {
                 if(_fill==null)
                 {
-                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, this, "xdr:sp/xdr:spPr");
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr");
                 }
                 return _fill;
             }
         }
-        ExcelDrawingLine _line = null;
-        public ExcelDrawingLine Line
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
         {
             get
             {
-                if (_line == null)
+                if (_border == null)
                 {
-                    _line = new ExcelDrawingLine(NameSpaceManager, TopNode, this);
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr/a:ln");
                 }
-                return _line;
+                return _border;
             }
         }
         internal string Id

@@ -74,6 +74,7 @@ using OfficeOpenXml.Style;
 using System.Globalization;
 using System.Text;
 using System.Security;
+using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 namespace OfficeOpenXml
 {

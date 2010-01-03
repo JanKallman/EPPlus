@@ -33,49 +33,69 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelDoughnutChart : ExcelPieChart
+    public class ExcelScatterChart : ExcelChart
     {
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node) :
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node)
         {
-            SetPaths();
         }
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
-            SetPaths();
+            SetTypeProperties();
+        }
+        private void SetTypeProperties()
+        {
+           /***** ScatterStyle *****/
+           if(ChartType == eChartType.XYScatter ||
+              ChartType == eChartType.XYScatterLines ||
+              ChartType == eChartType.XYScatterLinesNoMarkers)
+           {
+               ScatterStyle = eScatterStyle.LineMarker;
+          }
+           else if (
+              ChartType == eChartType.XYScatterSmooth ||
+              ChartType == eChartType.XYScatterSmoothNoMarkers) 
+           {
+               ScatterStyle = eScatterStyle.SmoothMarker;
+           }
+        }
+        #region "Grouping Enum Translation"
+        string _scatterTypePath = "c:chartSpace/c:chart/c:plotArea/c:scatterChart/c:scatterStyle/@val";
+        private eScatterStyle GetScatterEnum(string text)
+        {
+            switch (text)
+            {
+                case "smoothMarker":
+                    return eScatterStyle.SmoothMarker;
+                default:
+                    return eScatterStyle.LineMarker;
+            }
         }
 
-        private void SetPaths()
+        private string GetScatterText(eScatterStyle shatterStyle)
         {
-            string chartNodeText = GetChartNodeText();
-            _firstSliceAngPath = string.Format(_firstSliceAngPath, chartNodeText);
-            _holeSizePath = string.Format(_holeSizePath, chartNodeText);
+            switch (shatterStyle)
+            {
+                case eScatterStyle.SmoothMarker:
+                    return "smoothMarker";
+                default:
+                    return "lineMarker";
+            }
         }
-        string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng";
-        public decimal FirstSliceAngle
+        #endregion
+        public eScatterStyle ScatterStyle
         {
             get
             {
-                return _chartXmlHelper.GetXmlNodeDecimal(_firstSliceAngPath);
+                return GetScatterEnum(_chartXmlHelper.GetXmlNode(_scatterTypePath));
             }
             set
             {
-                _chartXmlHelper.SetXmlNode(_firstSliceAngPath, value.ToString());
-            }
-        }
-        string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize";
-        public decimal HoleSize
-        {
-            get
-            {
-                return _chartXmlHelper.GetXmlNodeDecimal(_holeSizePath);
-            }
-            set
-            {
-                _chartXmlHelper.SetXmlNode(_holeSizePath, value.ToString());
+                _chartXmlHelper.CreateNode(_scatterTypePath, true);
+                _chartXmlHelper.SetXmlNode(_scatterTypePath, GetScatterText(value));
             }
         }
     }

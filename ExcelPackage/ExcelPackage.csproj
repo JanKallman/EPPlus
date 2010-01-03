@@ -60,7 +60,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drawing\ExcelChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
@@ -92,18 +92,22 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drawing\ExcelDrawingLine.cs" />
-    <Compile Include="Drawing\ExcelOfPieChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerieDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTitle.cs" />
+    <Compile Include="Drawing\ExcelDrawingBorder.cs" />
+    <Compile Include="Drawing\Chart\ExcelOfPieChart.cs" />
     <Compile Include="Drawing\ExcelDrawingFill.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChartSerie.cs" />
     <Compile Include="Drawing\ExcelView3D.cs" />
-    <Compile Include="Drawing\ExcelBarChart.cs" />
-    <Compile Include="Drawing\ExcelChartAxis.cs" />
-    <Compile Include="Drawing\ExcelChartDataLabel.cs" />
-    <Compile Include="Drawing\ExcelChartSerie.cs" />
-    <Compile Include="Drawing\ExcelChartSeries.cs" />
-    <Compile Include="Drawing\ExcelDoughnutChart.cs" />
-    <Compile Include="Drawing\ExcelPieChart.cs" />
-    <Compile Include="Drawing\ExcelScatterChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelBarChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartAxis.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSeries.cs" />
+    <Compile Include="Drawing\Chart\ExcelDoughnutChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChart.cs" />
     <Compile Include="ExcelCellBase.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />

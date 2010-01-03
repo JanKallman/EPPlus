@@ -335,77 +335,79 @@ namespace OfficeOpenXml
 						// create the style sheet
 						_xmlStyles = new XmlDocument();
 						XmlElement tagStylesheet = _xmlStyles.CreateElement("styleSheet", ExcelPackage.schemaMain);
-						_xmlStyles.AppendChild(tagStylesheet);
+                        tagStylesheet.SetAttribute("xmlns:d", ExcelPackage.schemaMain);
+
+                        _xmlStyles.AppendChild(tagStylesheet);
                         //Create the numberformat tag.
-                        XmlElement tagNumFmts = _xmlStyles.CreateElement("numFmts", ExcelPackage.schemaMain);
+                        XmlElement tagNumFmts = _xmlStyles.CreateElement("d", "numFmts", ExcelPackage.schemaMain);
                         tagStylesheet.AppendChild(tagNumFmts);
                         // create the fonts tag
-						XmlElement tagFonts = _xmlStyles.CreateElement("fonts", ExcelPackage.schemaMain);
+                        XmlElement tagFonts = _xmlStyles.CreateElement("d", "fonts", ExcelPackage.schemaMain);
 						tagFonts.SetAttribute("count", "1");
 						tagStylesheet.AppendChild(tagFonts);
 						// create the font tag
-						XmlElement tagFont = _xmlStyles.CreateElement("font", ExcelPackage.schemaMain);
+                        XmlElement tagFont = _xmlStyles.CreateElement("d", "font", ExcelPackage.schemaMain);
 						tagFonts.AppendChild(tagFont);
 						// create the sz tag
-						XmlElement tagSz = _xmlStyles.CreateElement("sz", ExcelPackage.schemaMain);
+                        XmlElement tagSz = _xmlStyles.CreateElement("d", "sz", ExcelPackage.schemaMain);
 						tagSz.SetAttribute("val", "11");
 						tagFont.AppendChild(tagSz);
 						// create the name tag
-						XmlElement tagName = _xmlStyles.CreateElement("name", ExcelPackage.schemaMain);
-						tagName.SetAttribute("val", "Calibri");
+                        XmlElement tagName = _xmlStyles.CreateElement("d", "name", ExcelPackage.schemaMain);
+                        tagName.SetAttribute("val", "Calibri");
 						tagFont.AppendChild(tagName);
 
                         //Create the Fills tag.
-                        XmlElement tagFills = _xmlStyles.CreateElement("fills", ExcelPackage.schemaMain);
+                        XmlElement tagFills = _xmlStyles.CreateElement("d", "fills", ExcelPackage.schemaMain);
                         tagStylesheet.AppendChild(tagFills);
-                        XmlElement tagFill = _xmlStyles.CreateElement("fill", ExcelPackage.schemaMain);
+                        XmlElement tagFill = _xmlStyles.CreateElement("d", "fill", ExcelPackage.schemaMain);
                         tagFills.AppendChild(tagFill);
-                        XmlElement tagPatternFill = _xmlStyles.CreateElement("patternFill", ExcelPackage.schemaMain);
+                        XmlElement tagPatternFill = _xmlStyles.CreateElement("d", "patternFill", ExcelPackage.schemaMain);
                         tagPatternFill.SetAttribute("patternType", "none");
                         tagFill.AppendChild(tagPatternFill);
 
                         //Strange behavior in excel?? Needed or fill bug out.                        
-                        tagFill = _xmlStyles.CreateElement("fill", ExcelPackage.schemaMain);
+                        tagFill = _xmlStyles.CreateElement("d", "fill", ExcelPackage.schemaMain);
                         tagFills.AppendChild(tagFill);
-                        tagPatternFill = _xmlStyles.CreateElement("patternFill", ExcelPackage.schemaMain);
-                        tagPatternFill.SetAttribute("patternType", "gray125");
+                        tagPatternFill = _xmlStyles.CreateElement("d", "patternFill", ExcelPackage.schemaMain);
+                        tagPatternFill.SetAttribute("d", "patternType", "gray125");
                         tagFill.AppendChild(tagPatternFill);
 
                         //Create the Borders tag.
-                        XmlElement tagBorders = _xmlStyles.CreateElement("borders", ExcelPackage.schemaMain);
+                        XmlElement tagBorders = _xmlStyles.CreateElement("d", "borders", ExcelPackage.schemaMain);
                         tagStylesheet.AppendChild(tagBorders);
-                        XmlElement tagBorder = _xmlStyles.CreateElement("border", ExcelPackage.schemaMain);
+                        XmlElement tagBorder = _xmlStyles.CreateElement("d", "border", ExcelPackage.schemaMain);
                         tagBorders.AppendChild(tagBorder);
-                        tagBorder.AppendChild(_xmlStyles.CreateElement("left", ExcelPackage.schemaMain));
-                        tagBorder.AppendChild(_xmlStyles.CreateElement("right", ExcelPackage.schemaMain));
-                        tagBorder.AppendChild(_xmlStyles.CreateElement("top", ExcelPackage.schemaMain));
-                        tagBorder.AppendChild(_xmlStyles.CreateElement("bottom", ExcelPackage.schemaMain));
-                        tagBorder.AppendChild(_xmlStyles.CreateElement("diagonal", ExcelPackage.schemaMain));
+                        tagBorder.AppendChild(_xmlStyles.CreateElement("d", "left", ExcelPackage.schemaMain));
+                        tagBorder.AppendChild(_xmlStyles.CreateElement("d", "right", ExcelPackage.schemaMain));
+                        tagBorder.AppendChild(_xmlStyles.CreateElement("d", "top", ExcelPackage.schemaMain));
+                        tagBorder.AppendChild(_xmlStyles.CreateElement("d", "bottom", ExcelPackage.schemaMain));
+                        tagBorder.AppendChild(_xmlStyles.CreateElement("d", "diagonal", ExcelPackage.schemaMain));
                         
                         // create the cellStyleXfs tag
-						XmlElement tagCellStyleXfs = _xmlStyles.CreateElement("cellStyleXfs", ExcelPackage.schemaMain);
+                        XmlElement tagCellStyleXfs = _xmlStyles.CreateElement("d", "cellStyleXfs", ExcelPackage.schemaMain);
 						tagCellStyleXfs.SetAttribute("count", "1");
 						tagStylesheet.AppendChild(tagCellStyleXfs);
 						// create the xf tag
-						XmlElement tagXf = _xmlStyles.CreateElement("xf", ExcelPackage.schemaMain);
+                        XmlElement tagXf = _xmlStyles.CreateElement("d", "xf", ExcelPackage.schemaMain);
 						tagXf.SetAttribute("numFmtId", "0");
 						tagXf.SetAttribute("fontId", "0");
 						tagCellStyleXfs.AppendChild(tagXf);
 						// create the cellXfs tag
-						XmlElement tagCellXfs = _xmlStyles.CreateElement("cellXfs", ExcelPackage.schemaMain);
+                        XmlElement tagCellXfs = _xmlStyles.CreateElement("d", "cellXfs", ExcelPackage.schemaMain);
 						tagCellXfs.SetAttribute("count", "1");
 						tagStylesheet.AppendChild(tagCellXfs);
 						// create the xf tag
-						XmlElement tagXf2 = _xmlStyles.CreateElement("xf", ExcelPackage.schemaMain);
+                        XmlElement tagXf2 = _xmlStyles.CreateElement("d", "xf", ExcelPackage.schemaMain);
 						tagXf2.SetAttribute("numFmtId", "0");
 						tagXf2.SetAttribute("fontId", "0");
 						tagXf2.SetAttribute("xfId", "0");
 						tagCellXfs.AppendChild(tagXf2);
 
                         //Create the CellStyles tag.
-                        XmlElement tagCellStyles = _xmlStyles.CreateElement("cellStyles", ExcelPackage.schemaMain);
+                        XmlElement tagCellStyles = _xmlStyles.CreateElement("d", "cellStyles", ExcelPackage.schemaMain);
                         tagStylesheet.AppendChild(tagCellStyles);
-                        XmlElement tagCellStyle = _xmlStyles.CreateElement("cellStyle", ExcelPackage.schemaMain);
+                        XmlElement tagCellStyle = _xmlStyles.CreateElement("d", "cellStyle", ExcelPackage.schemaMain);
                         tagCellStyle.SetAttribute("name", "Normal");
                         tagCellStyle.SetAttribute("xfId", "0");
                         tagCellStyle.SetAttribute("builtinId", "0");

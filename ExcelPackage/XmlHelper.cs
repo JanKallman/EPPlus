@@ -59,6 +59,22 @@ namespace OfficeOpenXml
         //internal bool ChangedFlag;
         internal XmlNamespaceManager NameSpaceManager { get; set; }
         internal XmlNode TopNode { get; set; }
+        string[] _schemaNodeOrder=null;
+        /// <summary>
+        /// Schema order list
+        /// </summary>
+        internal string[] SchemaNodeOrder
+        {
+            get
+            {
+                return _schemaNodeOrder;
+            }
+            set
+            {
+                _schemaNodeOrder = value;
+            }
+
+        }
 
         internal void CreateNode(string path)
         {
@@ -67,25 +83,34 @@ namespace OfficeOpenXml
         internal void CreateNode(string path, bool insertFirst)
         {
             XmlNode node = TopNode;
+            XmlNode prependNode=null;
             foreach (string subPath in path.Split('/'))
             {
-                if (node.SelectSingleNode(subPath, NameSpaceManager) == null)
+                XmlNode subNode = node.SelectSingleNode(subPath, NameSpaceManager);
+                if (subNode == null)
                 {
-                    XmlNode addedNode;
                     string nodeName;
+                    string nodePrefix;
+                    
                     string nameSpaceURI = "";
                     string[] nameSplit = subPath.Split(':');
 
+                    if(SchemaNodeOrder!=null && subPath[0]!='@')
+                    {                        
+                        prependNode=GetPrependNode(subPath, node);
+                    }
+                    
                     if (nameSplit.Length > 1)
                     {
-                        nameSpaceURI = NameSpaceManager.LookupNamespace(nameSplit[0]);
+                        nodePrefix=nameSplit[0];
+                        nameSpaceURI = NameSpaceManager.LookupNamespace(nodePrefix);
                         nodeName=nameSplit[1];
                     }
                     else
                     {
+                        nodePrefix="";
                         nodeName=nameSplit[0];
                     }
-
                     if (subPath.StartsWith("@"))
                     {
                         XmlAttribute addedAtt = node.OwnerDocument.CreateAttribute(subPath.Substring(1,subPath.Length-1), nameSpaceURI);
@@ -93,19 +118,73 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        addedNode = node.OwnerDocument.CreateElement(nodeName, nameSpaceURI);
-                        if (insertFirst)
+                        if(nodePrefix=="")
                         {
-                            node.PrependChild(addedNode);
+                            subNode = node.OwnerDocument.CreateElement(nodeName);
                         }
                         else
                         {
-                            node.AppendChild(addedNode);
+                            subNode = node.OwnerDocument.CreateElement(nodePrefix, nodeName, nameSpaceURI);
+                        }
+                        if(prependNode!=null)
+                        {
+                            node.InsertAfter(subNode, prependNode);
+                            prependNode=null;
+                        }
+                        else if (insertFirst)
+                        {
+                            node.PrependChild(subNode);
+                        }
+                        else
+                        {
+                            node.AppendChild(subNode);
                         }
                     }
                 }
-                node = node.SelectSingleNode(subPath, NameSpaceManager);
+                node = subNode;
             }
+        }
+        /// <summary>
+        /// return Prepend node
+        /// </summary>
+        /// <param name="nodeName">name of the node to check</param>
+        /// <param name="node">Topnode to check children</param>
+        /// <returns></returns>
+        private XmlNode GetPrependNode(string nodeName, XmlNode node)
+        {
+            int pos=GetNodePos(nodeName);
+            if(pos<=0)
+            {
+                return null;
+            }
+            XmlNode prependNode=null;
+            foreach(XmlNode childNode in node.ChildNodes)
+            {
+                int childPos = GetNodePos(childNode.Name);
+                if (childPos > -1)  //Found?
+                {
+                    if (childPos < pos) //Position is before
+                    {
+                        prependNode = childNode;
+                    }
+                    else //After Exit
+                    {
+                        break;
+                    }
+                }
+            }
+            return prependNode;
+        }
+        private int GetNodePos(string nodeName)
+        {
+            for (int i = 0; i < _schemaNodeOrder.Length; i++)
+            {
+                if (nodeName == _schemaNodeOrder[i])
+                {
+                    return i;
+                }
+            }
+            return -1;
         }
         internal void DeleteNode(string path)
         {
@@ -235,6 +314,27 @@ namespace OfficeOpenXml
             }
             while (package.PartExists(uri));
             return uri;
-        }       
+        }
+        /// <summary>
+        /// Insert the new node before any of the nodes in the comma separeted list
+        /// </summary>
+        /// <param name="parentNode">Parent node</param>
+        /// <param name="beforeNodes">comma separated list containing nodes to insert after. Left to right order</param>
+        /// <param name="newNode">The new node to be inserterd</param>
+        internal void InserAfter(XmlNode parentNode, string beforeNodes, XmlNode newNode)
+        {
+            string[] nodePaths = beforeNodes.Split(',');
+
+            foreach (string nodePath in nodePaths)
+            {
+                XmlNode node = parentNode.SelectSingleNode(nodePath,NameSpaceManager);
+                if(node!=null)
+                {
+                    parentNode.InsertAfter(newNode, node);
+                    return;
+                }
+            }
+            parentNode.InsertAfter(newNode, null);
+        }
     }
 }

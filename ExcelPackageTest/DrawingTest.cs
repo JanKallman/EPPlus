@@ -5,9 +5,9 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Drawing.Chart;
 using System.IO;
 using System.Drawing;
-
 namespace ExcelPackageTest
 {
     /// <summary>
@@ -84,7 +84,7 @@ namespace ExcelPackageTest
              pic.SetPosition(150, 200);
 
 
-             pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
+             pic = ws.Drawings.AddPicture("Pic3", Properties.Resources.Test1);
              pic.SetPosition(400, 200);
              pic.SetSize(150);
          }
@@ -93,12 +93,12 @@ namespace ExcelPackageTest
         public void BarChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("BarChart");            
-            var chrt = ws.Drawings.AddChart("barChart", eChartType.xlBarClustered) as ExcelBarChart;
+            var chrt = ws.Drawings.AddChart("barChart", eChartType.BarClustered) as ExcelBarChart;
             chrt.SetPosition(50, 50);
             chrt.SetSize(800, 300);
             AddTestSerie(ws, chrt);
 
-            Assert.IsTrue(chrt.ChartType == eChartType.xlBarClustered, "Invalid Charttype");
+            Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
             Assert.IsTrue(chrt.Grouping == eGrouping.Clustered, "Invalid Grouping");
             Assert.IsTrue(chrt.Shape == eShape.Box, "Invalid Shape");
@@ -127,15 +127,16 @@ namespace ExcelPackageTest
         public void PieChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart");
-            var chrt = ws.Drawings.AddChart("pieChart", eChartType.xlPie) as ExcelPieChart;
+            var chrt = ws.Drawings.AddChart("pieChart", eChartType.Pie) as ExcelPieChart;
             
             AddTestSerie(ws, chrt);
 
             chrt.To.Row = 25;
             chrt.To.Column = 12;
 
-            chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
-            Assert.IsTrue(chrt.ChartType == eChartType.xlPie, "Invalid Charttype");
+            //(chrt.Series[0] as ExcelPieChartSerie).DataLabel.Position = eLabelPosition.Center;
+            chrt.DataLabel.ShowPercent = true;
+            Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
         }
@@ -143,16 +144,67 @@ namespace ExcelPackageTest
         public void PieChart3D()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart3d");
-            var chrt = ws.Drawings.AddChart("pieChart3d", eChartType.xl3DPie) as ExcelPieChart;
+            var chrt = ws.Drawings.AddChart("pieChart3d", eChartType.Pie3D) as ExcelPieChart;
             AddTestSerie(ws, chrt);
 
             chrt.To.Row = 25;
             chrt.To.Column = 12;
 
-            chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
-            Assert.IsTrue(chrt.ChartType == eChartType.xl3DPie, "Invalid Charttype");
+            //(chrt.Series[0] as ExcelPieChartSerie).DataLabel.Position = eLabelPosition.Center;
+            chrt.DataLabel.ShowValue = true;
+            Assert.IsTrue(chrt.ChartType == eChartType.Pie3D, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
+        }
+        [TestMethod]
+        public void Scatter()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Scatter");
+            var chrt = ws.Drawings.AddChart("ScatterChart1", eChartType.XYScatterSmoothNoMarkers) as ExcelScatterChart;
+            AddTestSerie(ws, chrt);
+           // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.To.Row = 23;
+            chrt.To.Column = 12;
+            chrt.Title.Text = "Header Text";
+            chrt.Title.Fill.Style = eFillStyle.SolidFill;
+            chrt.Title.Fill.Color = Color.LightBlue;
+            ExcelScatterChartSerie ser = chrt.Series[0] as ExcelScatterChartSerie;
+            ser.DataLabel.Position = eLabelPosition.Center;
+            ser.DataLabel.ShowValue = true;
+            ser.DataLabel.ShowCategory = true;
+            Assert.IsTrue(chrt.ChartType == eChartType.XYScatterSmoothNoMarkers, "Invalid Charttype");
+            chrt.Series[0].Header = "Test serie";
+            chrt = ws.Drawings.AddChart("ScatterChart2", eChartType.XYScatterSmooth) as ExcelScatterChart;
+            chrt.Series.Add("U19:U24", "V19:V24");
+
+            chrt.From.Column = 0;
+            chrt.From.Row=25;
+            chrt.To.Row = 53;
+            chrt.To.Column = 12;
+
+            ////chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
+            //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
+
+        }
+        [TestMethod]
+        public void Pyramid()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Pyramid");
+            var chrt = ws.Drawings.AddChart("Pyramid1", eChartType.PyramidCol) as ExcelBarChart;
+            AddTestSerie(ws, chrt);
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.To.Row = 23;
+            chrt.To.Column = 12;
+            chrt.Title.Text = "Header Text";
+            chrt.Title.Fill.Style= eFillStyle.SolidFill;
+            chrt.Title.Fill.Color = Color.DarkBlue;
+            chrt.DataLabel.ShowValue = true;
+            //chrt.DataLabel.ShowSeriesName = true;
+            //chrt.DataLabel.Separator = ",";
+            chrt.Border.LineCap = eLineCap.Round;
+            chrt.Border.LineStyle = eLineStyle.LargeDashDotDot;
+            chrt.Border.Fill.Style = eFillStyle.SolidFill;
+            chrt.Border.Fill.Color = Color.Blue;
         }
         [TestMethod]
         public void Drawings()
@@ -186,9 +238,13 @@ namespace ExcelPackageTest
 
             (ws.Drawings["shape7"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
             (ws.Drawings["shape7"] as ExcelShape).Fill.Color=Color.Gray;
-            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Style=eFillStyle.SolidFill;
-            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Color=Color.Black;
-            (ws.Drawings["shape7"] as ExcelShape).Line.Fill.Transparancy=43;
+            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Style=eFillStyle.SolidFill;
+            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Color = Color.Black;
+            (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Transparancy=43;
+            (ws.Drawings["shape7"] as ExcelShape).Border.LineCap=eLineCap.Round;
+            (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LargeDash;
+
+            (ws.Drawings["shape8"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
         }
     }
 }

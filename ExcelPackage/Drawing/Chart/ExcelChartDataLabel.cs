@@ -26,41 +26,36 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
+ * Jan Källman		                Initial Release		        2009-12-30
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Datalabel on chart level. 
+    /// This class is inherited by ExcelChartSerieDataLabel
+    /// </summary>
     public class ExcelChartDataLabel : XmlHelper
     {
-       XmlNode _topNode;
-       public ExcelChartDataLabel(ExcelChartSeries charts, XmlNamespaceManager ns, XmlNode node)
+       public ExcelChartDataLabel(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           _topNode = node.SelectSingleNode("c:dLbls", NameSpaceManager);
-           if (_topNode == null)
+           XmlNode topNode = node.SelectSingleNode("c:dLbls", NameSpaceManager);
+           if (topNode == null)
            {
-               _topNode = node.OwnerDocument.CreateElement("dLbls", ExcelPackage.schemaChart);
-               node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
-               _topNode.InnerXml = "<c:dLblPos val=\"ctr\" /><c:showVal val=\"1\" /><c:showCatName val=\"0\" /><c:showSerName val=\"0\" /><c:showPercent val=\"0\" /><c:separator>;</c:separator><c:showLeaderLines val=\"1\" />";
-           }    
-       }
-       const string positionPath="c:dLblPos/@val";
-       public eLabelPosition Position
-       {
-           get
-           {
-               return GetPosEnum(GetXmlNode(positionPath));
+               topNode = node.OwnerDocument.CreateElement("c", "dLbls", ExcelPackage.schemaChart);
+               //node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
+               InserAfter(node, "c:marker,c:tx,c:order,c:ser", topNode);
+               SchemaNodeOrder = new string[] { "c:showVal", "c:showCatName", "c:showSerName", "c:showPercent", "c:separator", "c:showLeaderLines" };
+               topNode.InnerXml = "<c:showVal val=\"0\" />";
            }
-           set
-           {
-               SetXmlNode(positionPath,GetPosText(value));
-           }
+           TopNode = topNode;
        }
+       #region "Public properties"
        const string showValPath = "c:showVal/@val";
        public bool ShowValue
        {
@@ -133,8 +128,9 @@ namespace OfficeOpenXml.Drawing
                SetXmlNode(separatorPath, value);
            }
        }
+       #endregion
        #region "Position Enum Traslation"
-       private string GetPosText(eLabelPosition pos)
+       protected string GetPosText(eLabelPosition pos)
        {
            switch (pos)
            {
@@ -159,7 +155,7 @@ namespace OfficeOpenXml.Drawing
            }
        }
 
-       private eLabelPosition GetPosEnum(string pos)
+       protected eLabelPosition GetPosEnum(string pos)
        {
            switch (pos)
            {

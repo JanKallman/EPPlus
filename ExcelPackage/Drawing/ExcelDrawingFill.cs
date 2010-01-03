@@ -38,15 +38,16 @@ namespace OfficeOpenXml.Drawing
 {
     public class ExcelDrawingFill : XmlHelper
     {
-        ExcelShape _shp;                
+        //ExcelShape _shp;                
         string _fillPath;
         XmlNode _fillNode;
-        public ExcelDrawingFill(XmlNamespaceManager nameSpaceManager, XmlNode topNode, ExcelShape shp, string fillPath) : 
+        public ExcelDrawingFill(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string fillPath) : 
             base(nameSpaceManager, topNode)
         {
-            _shp=shp;
+          //  _shp=shp;
             _fillPath = fillPath;
             _fillNode = topNode.SelectSingleNode(_fillPath, NameSpaceManager);
+            SchemaNodeOrder = new string[] { "a:prstGeom", "a:noFill", "a:solidFill", "a:blipFill", "a:gradFill", "a:noFill", "a:pattFill", "a:ln" };
             //Setfill node
             if (_fillNode != null)
             {
@@ -85,12 +86,19 @@ namespace OfficeOpenXml.Drawing
             {
                 TopNode.RemoveChild(_fillTypeNode);
             }
-            CreateNode(_fillPath);
-            _fillNode=TopNode.SelectSingleNode(_fillPath, NameSpaceManager);
-            _fillTypeNode = TopNode.OwnerDocument.CreateElement("a", GetStyleText(value), ExcelPackage.schemaDrawings);
+            CreateNode(_fillPath + "/a:" + GetStyleText(value), true);
+            _fillNode=TopNode.SelectSingleNode(_fillPath + "/a:" + GetStyleText(value), NameSpaceManager);
+            //_fillTypeNode = TopNode.OwnerDocument.CreateElement("a", GetStyleText(value), ExcelPackage.schemaDrawings);
             //XmlNode appendNode = TopNode.SelectSingleNode(_appendAfterPath, NameSpaceManager);
             //appendNode.ParentNode.InsertAfter(_fillTopNode, appendNode);
-            _fillNode.AppendChild(_fillTypeNode);
+            //foreach (XmlNode preNode in _fillNode.ChildNodes)
+            //{
+            //    if (preNode.Name == "a:prstGeom")
+            //    {
+            //        _fillNode.InsertAfter(_fillTypeNode, preNode);
+            //    }
+            //}
+            //_fillNode.PrependChild(_fillTypeNode);
         }
 
         private eFillStyle GetStyleEnum(string name)
@@ -148,6 +156,7 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
+                CreateNode(_fillPath, false);
                 SetXmlNode(_fillPath + ColorPath, value.ToArgb().ToString("X").Substring(2, 6));
             }
         }
@@ -163,6 +172,7 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
+                CreateNode(_fillPath, false);
                 SetXmlNode(_fillPath + alphaPath, ((100 - value) * 1000).ToString());
             }
         }
