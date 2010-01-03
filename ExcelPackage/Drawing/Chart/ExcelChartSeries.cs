@@ -35,7 +35,7 @@ using System.Xml;
 using System.IO.Packaging;
 using System.Collections;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
    public class ExcelChartSeries : XmlHelper, IEnumerable
     {
@@ -107,22 +107,89 @@ namespace OfficeOpenXml.Drawing
            }
            else
            {
-
-               _node.InsertAfter(ser, _node.SelectSingleNode("c:grouping", NameSpaceManager));            
+               InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle", ser);
+               //XmlNode prevNode = _node.SelectSingleNode("c:grouping", NameSpaceManager);
+               //if (prevNode == null) prevNode=_node.SelectSingleNode("c:scatterStyle", NameSpaceManager);               
+               //_node.InsertAfter(ser, prevNode);            
+            }
+//           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{0}<c:marker><c:symbol val=\"none\" /> </c:marker><c:val><c:numRef><c:f></c:f></c:numRef></c:val>", AddExplosion(Chart.ChartType), _list.Count, AddScatter(Chart.ChartType));
+           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), _list.Count, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
+           ExcelChartSerie serie;
+           switch (Chart.ChartType)
+           {
+               case eChartType.XYScatter:
+               case eChartType.XYScatterLines:
+               case eChartType.XYScatterLinesNoMarkers:
+               case eChartType.XYScatterSmooth:
+               case eChartType.XYScatterSmoothNoMarkers:
+                   serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser);
+                   break;
+               case eChartType.Pie:
+               case eChartType.Pie3D:
+               case eChartType.PieExploded:
+               case eChartType.PieExploded3D:
+               case eChartType.PieOfPie:
+               case eChartType.Doughnut:
+               case eChartType.DoughnutExploded:
+               case eChartType.BarOfPie:
+                   serie = new ExcelPieChartSerie(this, NameSpaceManager, ser);
+                   break;
+               default:
+                   serie = new ExcelChartSerie(this, NameSpaceManager, ser);
+                   break;
            }
-           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{0}<c:marker><c:symbol val=\"none\" /> </c:marker><c:val><c:numRef><c:f></c:f></c:numRef></c:val>", AddExplosion(Chart.ChartType), _list.Count);
-           ExcelChartSerie serie = new ExcelChartSerie(this, NameSpaceManager, ser);
            serie.Series = SeriesAddress;
            serie.XSeries = XSeriesAddress;
            _list.Add(serie);
            return serie;
        }
 
+       private object AddMarker(eChartType chartType)
+       {
+           if (chartType == eChartType.XYScatterLines ||
+               chartType == eChartType.XYScatterSmooth ||
+               chartType == eChartType.XYScatterLinesNoMarkers ||
+                chartType == eChartType.XYScatterSmoothNoMarkers)
+           {
+               return "<c:marker><c:symbol val=\"none\" /></c:marker>";
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private object AddScatterPoint(eChartType chartType)
+       {
+           if (chartType == eChartType.XYScatter)
+           {
+               return "<c:spPr><a:ln w=\"28575\"><a:noFill /></a:ln></c:spPr>";
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private object AddAxisNodes(eChartType chartType)
+       {
+           if ( chartType == eChartType.XYScatter ||
+                chartType == eChartType.XYScatterLines ||
+                chartType == eChartType.XYScatterLinesNoMarkers ||
+                chartType == eChartType.XYScatterSmooth ||
+                chartType == eChartType.XYScatterSmoothNoMarkers)
+           {
+               return "<c:xVal /><c:yVal />";
+           }
+           else
+           {
+               return "<c:val />";
+           }
+       }
+
        private string AddExplosion(eChartType chartType)
        {
-           if (chartType == eChartType.xl3DPieExploded ||
-              chartType == eChartType.xlPieExploded ||
-               chartType == eChartType.xlDoughnutExploded)
+           if (chartType == eChartType.PieExploded3D ||
+              chartType == eChartType.PieExploded ||
+               chartType == eChartType.DoughnutExploded)
            {
                return "<c:explosion val=\"25\" />"; //Default 25;
            }
@@ -131,5 +198,17 @@ namespace OfficeOpenXml.Drawing
                return "";
            }
        }
+       private string AddSmooth(eChartType chartType)
+       {
+           if (chartType == eChartType.XYScatterSmooth ||
+              chartType == eChartType.XYScatterSmoothNoMarkers)
+           {
+               return "<c:smooth val=\"1\" />"; //Default 25;
+           }
+           else
+           {
+               return "";
+           }
+       }       
     }
 }

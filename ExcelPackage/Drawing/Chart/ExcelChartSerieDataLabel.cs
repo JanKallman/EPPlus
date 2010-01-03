@@ -27,32 +27,39 @@
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
- * ******************************************************************************/
+ *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-namespace OfficeOpenXml.Drawing
-{
-    public class ExcelChartAxis : XmlHelper
-    {
-        public ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
-            base(nameSpaceManager, topNode)
-        {
 
-        }
-        const string _formatPath="c:numFmt/@formatCode";
-        public string Format 
-        {
-            get
-            {
-                return GetXmlNode(_formatPath);
-            }
-            set
-            {
-                SetXmlNode(_formatPath,value);
-            }
- 
-        }
+namespace OfficeOpenXml.Drawing.Chart
+{
+    public class ExcelChartSerieDataLabel : ExcelChartDataLabel
+    {
+       public ExcelChartSerieDataLabel(XmlNamespaceManager ns, XmlNode node)
+           : base(ns,node)
+       {
+           //XmlNode dlblNode = node.SelectSingleNode("c:dLbls", ns);
+           //XmlElement posElement = node.OwnerDocument.CreateElement("c", "dLblPos", ExcelPackage.schemaChart);
+           //posElement.SetAttribute("val", "ctr");
+           ////First child
+           //node.InsertBefore(posElement, dlblNode.ChildNodes[0]);
+           CreateNode(positionPath);
+           Position = eLabelPosition.Center;
+       }
+
+       const string positionPath="c:dLblPos/@val";
+       public eLabelPosition Position
+       {
+           get
+           {
+               return GetPosEnum(GetXmlNode(positionPath));
+           }
+           set
+           {
+               SetXmlNode(positionPath,GetPosText(value));
+           }
+       }
     }
 }

@@ -38,6 +38,7 @@ using OfficeOpenXml;
 using System.IO;
 using System.Data.SqlClient;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using System.Drawing;
 
@@ -108,7 +109,7 @@ namespace ExcelPackageSamples
 
                     //Set the series for the chart. The series must exist in the template or the program will crash.
                     ExcelChart chart = ((ExcelChart)ws.Drawings["SampleChart"]); 
-                    chart.Header = "Exchange rate %";
+                    chart.Title.Text = "Exchange rate %";
                     chart.Series[0].Header = "USD/JPY";
                     chart.Series[0].XSeries = "'" + ws.Name + "'!" + ExcelRange.GetAddress(startRow+1, 1, row - 1, 1);
                     chart.Series[0].Series = "'" + ws.Name + "'!" + ExcelRange.GetAddress(startRow + 1, 5, row - 1, 5);

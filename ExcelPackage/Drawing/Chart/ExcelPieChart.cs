@@ -26,36 +26,58 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-12-22
+ * Jan Källman		                Initial Release		        2009-10-01
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.Drawing;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelDrawingLine : XmlHelper
+
+    public class ExcelPieChart : ExcelChart
     {
-        ExcelShape _shp;
-        public ExcelDrawingLine(XmlNamespaceManager nameSpaceManager, XmlNode topNode, ExcelShape shp) : 
-            base(nameSpaceManager, topNode)
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
+            base(drawings, node)
         {
-            _shp=shp;
+            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
         }
-        ExcelDrawingFill _fill = null;
-        public ExcelDrawingFill Fill
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+            base(drawings, node, type)
+        {
+            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
+        }
+        string varyColorsPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:varyColors/@val";
+        public bool VaryColors
         {
             get
             {
-                if (_fill == null)
+                return _chartXmlHelper.GetXmlNodeBool(varyColorsPath);
+            }
+            set
+            {
+                if (value)
                 {
-                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, _shp, "xdr:sp/xdr:spPr/a:ln");
+                    _chartXmlHelper.SetXmlNode(varyColorsPath, "1");
                 }
-                return _fill;
+                else
+                {
+                    _chartXmlHelper.SetXmlNode(varyColorsPath, "0");
+                }
             }
         }
-
+        ExcelChartDataLabel _DataLabel = null;
+        public ExcelChartDataLabel DataLabel
+        {
+            get
+            {
+                if (_DataLabel == null)
+                {
+                    _DataLabel = new ExcelChartDataLabel(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode(string.Format("c:chartSpace/c:chart/c:plotArea/{0}",GetChartNodeText()), NameSpaceManager));
+                }
+                return _DataLabel;
+            }
+        }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
     public class ExcelOfPieChart :  ExcelPieChart
     {
@@ -20,7 +20,7 @@ namespace OfficeOpenXml.Drawing
 
         private void SetTypeProperties()
         {
-            if (ChartType == eChartType.xlBarOfPie)
+            if (ChartType == eChartType.BarOfPie)
             {
                 OfPieType = ePieType.Bar;
             }

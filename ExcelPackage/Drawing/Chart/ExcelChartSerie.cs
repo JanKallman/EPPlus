@@ -35,19 +35,46 @@ using System.Xml;
 using System.IO.Packaging;
 using System.Collections;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
-   public class ExcelChartSerie : XmlHelper
+   /// <summary>
+   /// A chart serie
+   /// </summary>
+    public class ExcelChartSerie : XmlHelper
    {
        protected ExcelChartSeries _chartSeries;
-       XmlNode _node;
-       XmlNamespaceManager _ns;
-       public ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node)
+       protected XmlNode _node;
+       protected XmlNamespaceManager _ns;
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="chartSeries">Parent collection</param>
+        /// <param name="ns">Namespacemanager</param>
+        /// <param name="node">Topnode</param>
+        public ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
            _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
+           if (chartSeries.Chart.ChartType == eChartType.XYScatter ||
+               chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
+               chartSeries.Chart.ChartType == eChartType.XYScatterLinesNoMarkers ||
+               chartSeries.Chart.ChartType == eChartType.XYScatterSmooth ||
+               chartSeries.Chart.ChartType == eChartType.XYScatterSmoothNoMarkers)
+           {
+               _seriesTopPath = "c:yVal";
+               _xSeriesTopPath = "c:xVal";
+               _seriesPath = string.Format(_seriesPath, _seriesTopPath);
+               _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath);               
+           }
+           else
+           {
+               _seriesTopPath = "c:val";
+               _xSeriesTopPath = "c:cat";
+               _seriesPath = string.Format(_seriesPath, _seriesTopPath);
+               _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath);
+           }
        }
        const string headerPath="c:tx/c:v";
        /// <summary>
@@ -66,7 +93,9 @@ namespace OfficeOpenXml.Drawing
                 SetXmlNode(headerPath, value);            
             }
         }
-       const string seriesPath = "c:val/c:numRef/c:f";       
+
+        string _seriesTopPath;
+        string _seriesPath = "{0}/c:numRef/c:f";       
        /// <summary>
        /// Set this to a valid address or the drawing will be invalid.
        /// </summary>
@@ -74,24 +103,24 @@ namespace OfficeOpenXml.Drawing
        {
            get
            {
-               return GetXmlNode(seriesPath);
+               return GetXmlNode(_seriesPath);
            }
            set
            {
-               if (_chartSeries.Chart.ChartType == eChartType.xlBubble)
+               if (_chartSeries.Chart.ChartType == eChartType.Bubble)
                {
                    throw(new Exception("Bubble charts is not supported yet"));
                }
-               CreateNode(seriesPath,true);
-               SetXmlNode(seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
+               CreateNode(_seriesPath,true);
+               SetXmlNode(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
                
-               XmlNode cache = TopNode.SelectSingleNode("c:val/c:numRef/c:numCache", _ns);
+               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
                if (cache != null)
                {
                    cache.ParentNode.RemoveChild(cache);
                }
 
-               XmlNode lit = TopNode.SelectSingleNode("c:val/c:numLit", _ns);
+               XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_seriesTopPath), _ns);
                if (lit != null)
                {
                    lit.ParentNode.RemoveChild(lit);
@@ -99,7 +128,8 @@ namespace OfficeOpenXml.Drawing
            }
 
        }
-       const string xSeriesPath = "c:cat/c:numRef/c:f";
+       string _xSeriesTopPath;
+       string _xSeriesPath = "{0}/c:numRef/c:f";
        /// <summary>
        /// Set an address for the horisontal labels
        /// </summary>
@@ -107,54 +137,30 @@ namespace OfficeOpenXml.Drawing
        {
            get
            {
-               return GetXmlNode(xSeriesPath);
+               return GetXmlNode(_xSeriesPath);
            }
            set
            {
-               CreateNode(xSeriesPath, true);
-               SetXmlNode(xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
+               XmlNode node = TopNode.SelectSingleNode(_xSeriesTopPath, NameSpaceManager);
+               if(node==null)
+               {
+                   node = TopNode.OwnerDocument.CreateElement(_xSeriesTopPath, ExcelPackage.schemaChart);
+                   InserAfter(TopNode, "c:dLbls,c:tx,c:order", node);
+               }
+               SetXmlNode(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
-               XmlNode cache = TopNode.SelectSingleNode("c:cat/c:numRef/c:numCache", _ns);
+               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_xSeriesTopPath), _ns);
                if (cache != null)
                {
                    cache.ParentNode.RemoveChild(cache);
                }
 
-               XmlNode lit = TopNode.SelectSingleNode("c:cat/c:numLit", _ns);
+               XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_xSeriesTopPath), _ns);
                if (lit != null)
                {
                    lit.ParentNode.RemoveChild(lit);
                }
            }
        }
-       const string explosionPath = "c:explosion/@val";
-       /// <summary>
-       /// Explosion for Piecharts
-       /// </summary>
-       public int Explosion
-       {
-           get
-           {
-               return GetXmlNodeInt(explosionPath);
-           }
-           internal set
-           {
-               //Where need this one 
-               SetXmlNode(explosionPath, value.ToString());
-           }
-       }
-       ExcelChartDataLabel _DataLabel=null;
-       public ExcelChartDataLabel DataLabel
-       {
-           get
-           {
-               if(_DataLabel==null)
-               {
-                   _DataLabel=new ExcelChartDataLabel(_chartSeries, _ns, _node);
-               }
-               return _DataLabel;
-           }
-       }
-       
    }
 }

@@ -36,7 +36,7 @@ using System.Xml;
 using System.Collections;
 using System.IO;
 using System.Drawing;
-
+using OfficeOpenXml.Drawing.Chart;
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
@@ -46,12 +46,14 @@ namespace OfficeOpenXml.Drawing
     public class ExcelDrawings : IEnumerable
     {
         private XmlDocument _drawingsXml=new XmlDocument();
-        private Dictionary<int, ExcelDrawing> _drawings;
+        private Dictionary<string, int> _drawingNames;
+        private List<ExcelDrawing> _drawings;
         public ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();
                 _drawingsXml.PreserveWhitespace = true;
-                _drawings = new Dictionary<int, ExcelDrawing>();
+                _drawings = new List<ExcelDrawing>();
+                _drawingNames = new Dictionary<string,int>();
                 Worksheet = sheet;
                 XmlNode node = sheet.WorksheetXml.SelectSingleNode("//d:drawing", sheet.NameSpaceManager);
                 CreateNSM();
@@ -82,7 +84,11 @@ namespace OfficeOpenXml.Drawing
             foreach (XmlNode node in list)
             {
                 ExcelDrawing dr = ExcelDrawing.GetDrawing(this, node);
-                _drawings.Add(i++, dr);
+                _drawings.Add(dr);
+                if (!_drawingNames.ContainsKey(dr.Name))
+                {
+                    _drawingNames.Add(dr.Name, _drawings.Count - 1);
+                }
             }
         }
 
@@ -116,7 +122,7 @@ namespace OfficeOpenXml.Drawing
 
         public IEnumerator GetEnumerator()
         {
-            return (_drawings.Values.GetEnumerator());
+            return (_drawings.GetEnumerator());
         }
         /// <summary>
         /// Returns the worksheet at the specified position.  
@@ -132,7 +138,7 @@ namespace OfficeOpenXml.Drawing
         }
 
         /// <summary>
-        /// Returns the worksheet matching the specified name
+        /// Returns the drawing matching the specified name
         /// </summary>
         /// <param name="Name">The name of the worksheet</param>
         /// <returns></returns>
@@ -140,13 +146,14 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                foreach (ExcelDrawing drawing in _drawings.Values)
+                if (_drawingNames.ContainsKey(Name))
                 {
-                    if (drawing.Name == Name)
-                        return drawing;
+                    return _drawings[_drawingNames[Name]];
                 }
-                return null;
-                //throw new Exception(string.Format("ExcelWorksheets Error: Worksheet '{0}' not found!",Name));
+                else
+                {
+                    return null;
+                }
             }
         }
         public int Count
@@ -189,18 +196,23 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelChart AddChart(string Name, eChartType ChartType)
             {
-                if (ChartType == eChartType.xlBubble ||
-                    ChartType == eChartType.xlBubble3DEffect ||
-                    ChartType == eChartType.xlRadar ||
-                    ChartType == eChartType.xlRadarFilled ||
-                    ChartType == eChartType.xlRadarMarkers ||
-                    ChartType == eChartType.xlStockHLC ||
-                    ChartType == eChartType.xlStockOHLC ||
-                    ChartType == eChartType.xlStockVOHLC ||
-                    ChartType == eChartType.xlSurface ||
-                    ChartType == eChartType.xlSurfaceTopView ||
-                    ChartType == eChartType.xlSurfaceTopViewWireframe ||
-                    ChartType == eChartType.xlSurfaceWireframe)
+                if(_drawingNames.ContainsKey(Name))
+                {
+                    throw new Exception("Name already exist in the drawings collection");
+                }
+
+                if (ChartType == eChartType.Bubble ||
+                    ChartType == eChartType.Bubble3DEffect ||
+                    ChartType == eChartType.Radar ||
+                    ChartType == eChartType.RadarFilled ||
+                    ChartType == eChartType.RadarMarkers ||
+                    ChartType == eChartType.StockHLC ||
+                    ChartType == eChartType.StockOHLC ||
+                    ChartType == eChartType.StockVOHLC ||
+                    ChartType == eChartType.Surface ||
+                    ChartType == eChartType.SurfaceTopView ||
+                    ChartType == eChartType.SurfaceTopViewWireframe ||
+                    ChartType == eChartType.SurfaceWireframe)
                 {
                     throw(new NotImplementedException("Chart type not supported in this version"));
                 }
@@ -210,7 +222,8 @@ namespace OfficeOpenXml.Drawing
                 
                 ExcelChart chart = GetNewChart(drawNode, ChartType);
                 chart.Name = Name;
-                _drawings.Add(_drawings.Count + 1, chart);
+                _drawings.Add(chart);
+                _drawingNames.Add(Name, _drawings.Count - 1);
                 return chart;
             }
             /// <summary>
@@ -223,80 +236,89 @@ namespace OfficeOpenXml.Drawing
             {
                 if (image != null)
                 {
+                    if (_drawingNames.ContainsKey(Name))
+                    {
+                        throw new Exception("Name already exist in the drawings collection");
+                    }                    
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
                     ExcelPicture pic = new ExcelPicture(this, drawNode, image);
                     pic.Name = Name;
-                    //SetPosDefaults(pic, image);
-                    _drawings.Add(_drawings.Count+1, pic);
+                    _drawings.Add(pic);
+                    _drawingNames.Add(Name, _drawings.Count - 1);
                     return pic;
                 }
                 throw (new Exception("AddPicture: Image can't be null"));
             }
             public ExcelShape AddShape(string Name, eShapeStyle Style)
             {
+                if (_drawingNames.ContainsKey(Name))
+                {
+                    throw new Exception("Name already exist in the drawings collection");
+                }
                 XmlElement drawNode = CreateDrawingXml();
                 ExcelShape shape = new ExcelShape(this, drawNode, Style);
                 shape.Name = Name;
                 shape.Style = Style;
-                _drawings.Add(_drawings.Count + 1, shape);
+                _drawings.Add(shape);
+                _drawingNames.Add(Name, _drawings.Count - 1);
                 return shape;
             }
             private ExcelChart GetNewChart(XmlNode drawNode, eChartType chartType)
             {
                 switch(chartType)
                 {
-                    case eChartType.xlPie:
-                    case eChartType.xlPieExploded:
-                    case eChartType.xl3DPie:
-                    case eChartType.xl3DPieExploded:
+                    case eChartType.Pie:
+                    case eChartType.PieExploded:
+                    case eChartType.Pie3D:
+                    case eChartType.PieExploded3D:
                         return new ExcelPieChart(this, drawNode, chartType);
-                    case eChartType.xlBarOfPie:
-                    case eChartType.xlPieOfPie:
+                    case eChartType.BarOfPie:
+                    case eChartType.PieOfPie:
                         return new ExcelOfPieChart(this, drawNode, chartType);
-                    case eChartType.xlDoughnut:
-                    case eChartType.xlDoughnutExploded:
+                    case eChartType.Doughnut:
+                    case eChartType.DoughnutExploded:
                         return new ExcelDoughnutChart(this, drawNode, chartType);
-                    case eChartType.xlBarClustered:
-                    case eChartType.xlBarStacked:
-                    case eChartType.xlBarStacked100:
-                    case eChartType.xl3DBarClustered:
-                    case eChartType.xl3DBarStacked:
-                    case eChartType.xl3DBarStacked100:
-                    case eChartType.xlConeBarClustered:
-                    case eChartType.xlConeBarStacked:
-                    case eChartType.xlConeBarStacked100:
-                    case eChartType.xlCylinderBarClustered:
-                    case eChartType.xlCylinderBarStacked:
-                    case eChartType.xlCylinderBarStacked100:
-                    case eChartType.xlPyramidBarClustered:
-                    case eChartType.xlPyramidBarStacked:
-                    case eChartType.xlPyramidBarStacked100:
-                    case eChartType.xlColumnClustered:
-                    case eChartType.xlColumnStacked:
-                    case eChartType.xlColumnStacked100:
-                    case eChartType.xl3DColumn:
-                    case eChartType.xl3DColumnClustered:
-                    case eChartType.xl3DColumnStacked:
-                    case eChartType.xl3DColumnStacked100:
-                    case eChartType.xlConeCol:
-                    case eChartType.xlConeColClustered:
-                    case eChartType.xlConeColStacked:
-                    case eChartType.xlConeColStacked100:
-                    case eChartType.xlCylinderCol:
-                    case eChartType.xlCylinderColClustered:
-                    case eChartType.xlCylinderColStacked:
-                    case eChartType.xlCylinderColStacked100:
-                    case eChartType.xlPyramidCol:
-                    case eChartType.xlPyramidColClustered:
-                    case eChartType.xlPyramidColStacked:
-                    case eChartType.xlPyramidColStacked100:
+                    case eChartType.BarClustered:
+                    case eChartType.BarStacked:
+                    case eChartType.BarStacked100:
+                    case eChartType.BarClustered3D:
+                    case eChartType.BarStacked3D:
+                    case eChartType.BarStacked1003D:
+                    case eChartType.ConeBarClustered:
+                    case eChartType.ConeBarStacked:
+                    case eChartType.ConeBarStacked100:
+                    case eChartType.CylinderBarClustered:
+                    case eChartType.CylinderBarStacked:
+                    case eChartType.CylinderBarStacked100:
+                    case eChartType.PyramidBarClustered:
+                    case eChartType.PyramidBarStacked:
+                    case eChartType.PyramidBarStacked100:
+                    case eChartType.ColumnClustered:
+                    case eChartType.ColumnStacked:
+                    case eChartType.ColumnStacked100:
+                    case eChartType.Column3D:
+                    case eChartType.ColumnClustered3D:
+                    case eChartType.ColumnStacked3D:
+                    case eChartType.ColumnStacked1003D:
+                    case eChartType.ConeCol:
+                    case eChartType.ConeColClustered:
+                    case eChartType.ConeColStacked:
+                    case eChartType.ConeColStacked100:
+                    case eChartType.CylinderCol:
+                    case eChartType.CylinderColClustered:
+                    case eChartType.CylinderColStacked:
+                    case eChartType.CylinderColStacked100:
+                    case eChartType.PyramidCol:
+                    case eChartType.PyramidColClustered:
+                    case eChartType.PyramidColStacked:
+                    case eChartType.PyramidColStacked100:
                         return new ExcelBarChart(this, drawNode, chartType);
-                    case eChartType.xlXYScatter:
-                    case eChartType.xlXYScatterLines:
-                    case eChartType.xlXYScatterLinesNoMarkers:
-                    case eChartType.xlXYScatterSmooth:
-                    case eChartType.xlXYScatterSmoothNoMarkers:
+                    case eChartType.XYScatter:
+                    case eChartType.XYScatterLines:
+                    case eChartType.XYScatterLinesNoMarkers:
+                    case eChartType.XYScatterSmooth:
+                    case eChartType.XYScatterSmoothNoMarkers:
                         return new ExcelScatterChart(this, drawNode, chartType);
                     default:
                         return new ExcelChart(this, drawNode, chartType);
@@ -325,16 +347,16 @@ namespace OfficeOpenXml.Drawing
                     package.Flush();                    
                 }
                 XmlNode colNode = _drawingsXml.SelectSingleNode("//xdr:wsDr", NameSpaceManager);
-                XmlElement drawNode = _drawingsXml.CreateElement("twoCellAnchor", ExcelPackage.schemaSheetDrawings);
+                XmlElement drawNode = _drawingsXml.CreateElement("xdr", "twoCellAnchor", ExcelPackage.schemaSheetDrawings);
                 colNode.AppendChild(drawNode);
 
                 //Add from position Element;
-                XmlElement fromNode = _drawingsXml.CreateElement("from", ExcelPackage.schemaSheetDrawings);
+                XmlElement fromNode = _drawingsXml.CreateElement("xdr","from", ExcelPackage.schemaSheetDrawings);
                 drawNode.AppendChild(fromNode);
                 fromNode.InnerXml = "<xdr:col>0</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>0</xdr:rowOff>";
 
                 //Add to position Element;
-                XmlElement toNode = _drawingsXml.CreateElement("to", ExcelPackage.schemaSheetDrawings);
+                XmlElement toNode = _drawingsXml.CreateElement("xdr", "to", ExcelPackage.schemaSheetDrawings);
                 drawNode.AppendChild(toNode);
                 toNode.InnerXml = "<xdr:col>10</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>10</xdr:row><xdr:rowOff>0</xdr:rowOff>";
                 return drawNode;

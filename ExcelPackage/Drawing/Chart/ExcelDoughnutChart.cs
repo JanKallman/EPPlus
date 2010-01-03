@@ -33,38 +33,49 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace OfficeOpenXml.Drawing
+namespace OfficeOpenXml.Drawing.Chart
 {
-    
-    public class ExcelPieChart :  ExcelChart
+    public class ExcelDoughnutChart : ExcelPieChart
     {
-        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node)
         {
-            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
+            SetPaths();
         }
-        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
-            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
+            SetPaths();
         }
-        string varyColorsPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:varyColors/@val";
-        public bool VaryColors
+
+        private void SetPaths()
+        {
+            string chartNodeText = GetChartNodeText();
+            _firstSliceAngPath = string.Format(_firstSliceAngPath, chartNodeText);
+            _holeSizePath = string.Format(_holeSizePath, chartNodeText);
+        }
+        string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng";
+        public decimal FirstSliceAngle
         {
             get
             {
-                return _chartXmlHelper.GetXmlNodeBool(varyColorsPath);
+                return _chartXmlHelper.GetXmlNodeDecimal(_firstSliceAngPath);
             }
             set
             {
-                if (value)
-                {
-                    _chartXmlHelper.SetXmlNode(varyColorsPath, "1");
-                }
-                else
-                {
-                    _chartXmlHelper.SetXmlNode(varyColorsPath, "0");
-                }
+                _chartXmlHelper.SetXmlNode(_firstSliceAngPath, value.ToString());
+            }
+        }
+        string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize";
+        public decimal HoleSize
+        {
+            get
+            {
+                return _chartXmlHelper.GetXmlNodeDecimal(_holeSizePath);
+            }
+            set
+            {
+                _chartXmlHelper.SetXmlNode(_holeSizePath, value.ToString());
             }
         }
     }
