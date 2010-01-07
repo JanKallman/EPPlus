@@ -250,6 +250,30 @@ namespace OfficeOpenXml.Drawing
                 }
                 throw (new Exception("AddPicture: Image can't be null"));
             }
+            /// <summary>
+            /// Adds a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="ImageFile">An image. </param>
+            /// <returns></returns>
+            public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
+            {
+                if (ImageFile != null)
+                {
+                    if (_drawingNames.ContainsKey(Name))
+                    {
+                        throw new Exception("Name already exist in the drawings collection");
+                    }
+                    XmlElement drawNode = CreateDrawingXml();
+                    drawNode.SetAttribute("editAs", "oneCell");
+                    ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile);
+                    pic.Name = Name;
+                    _drawings.Add(pic);
+                    _drawingNames.Add(Name, _drawings.Count - 1);
+                    return pic;
+                }
+                throw (new Exception("AddPicture: ImageFile can't be null"));
+            }
             public ExcelShape AddShape(string Name, eShapeStyle Style)
             {
                 if (_drawingNames.ContainsKey(Name))

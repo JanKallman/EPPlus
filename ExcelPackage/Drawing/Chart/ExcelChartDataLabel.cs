@@ -41,7 +41,7 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public class ExcelChartDataLabel : XmlHelper
     {
-       public ExcelChartDataLabel(XmlNamespaceManager ns, XmlNode node)
+       internal ExcelChartDataLabel(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
            XmlNode topNode = node.SelectSingleNode("c:dLbls", NameSpaceManager);

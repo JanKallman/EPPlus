@@ -128,7 +128,7 @@ namespace OfficeOpenXml
                         }
                         if(prependNode!=null)
                         {
-                            node.InsertAfter(subNode, prependNode);
+                            node.InsertBefore(subNode, prependNode);
                             prependNode=null;
                         }
                         else if (insertFirst)
@@ -163,14 +163,15 @@ namespace OfficeOpenXml
                 int childPos = GetNodePos(childNode.Name);
                 if (childPos > -1)  //Found?
                 {
-                    if (childPos < pos) //Position is before
+                    if (childPos > pos) //Position is before
                     {
                         prependNode = childNode;
-                    }
-                    else //After Exit
-                    {
                         break;
                     }
+                    //else //After Exit
+                    //{
+                    //    break;
+                    //}
                 }
             }
             return prependNode;

@@ -44,7 +44,7 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <param name="chartSeries">Parent collection</param>
         /// <param name="ns">Namespacemanager</param>
         /// <param name="node">Topnode</param>
-        public ExcelPieChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node) :
+        internal ExcelPieChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node) :
             base(chartSeries, ns, node)
         {
 

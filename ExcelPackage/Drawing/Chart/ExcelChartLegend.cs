@@ -35,50 +35,36 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelChartSerieDataLabel : ExcelChartDataLabel
+    public class ExcelChartLegend : XmlHelper
     {
-       public ExcelChartSerieDataLabel(XmlNamespaceManager ns, XmlNode node)
+        internal ExcelChartLegend(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           CreateNode(positionPath);
-           Position = eLabelPosition.Center;
        }
 
-       const string positionPath="c:dLblPos/@val";
-       public eLabelPosition Position
-       {
-           get
-           {
-               return GetPosEnum(GetXmlNode(positionPath));
-           }
-           set
-           {
-               SetXmlNode(positionPath,GetPosText(value));
-           }
-       }
-       ExcelDrawingFill _fill = null;
-       public ExcelDrawingFill Fill
-       {
-           get
-           {
-               if (_fill == null)
-               {
-                   _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
-               }    
-               return _fill;
-           }
-       }
-       ExcelDrawingBorder _border = null;
-       public ExcelDrawingBorder Border
-       {
-           get
-           {
-               if (_border == null)
-               {
-                   _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
-               }
-               return _border;
-           }
-       }
+        ExcelDrawingFill _fill = null;
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
+                }
+                return _fill;
+            }
+        }
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
+                }
+                return _border;
+            }
+        }
     }
 }
