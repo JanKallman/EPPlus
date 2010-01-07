@@ -92,6 +92,8 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartPlotArea.cs" />
     <Compile Include="Drawing\Chart\ExcelChartSerieDataLabel.cs" />
     <Compile Include="Drawing\Chart\ExcelScatterChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelChartTitle.cs" />

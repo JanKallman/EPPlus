@@ -39,10 +39,10 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public class ExcelChartAxis : XmlHelper
     {
-        public ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
+        internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-
+            SchemaNodeOrder = new string[] {"c:axId","c:scaling","c:delete","c:axPos","c:numFmt", "c:tickLblPos"};
         }
         const string _formatPath="c:numFmt/@formatCode";
         public string Format 
@@ -55,7 +55,45 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 SetXmlNode(_formatPath,value);
             }
- 
         }
+
+        const string _lblPos = "c:tickLblPos/@val";
+        public eTickLablePosition LabelPosition
+        {
+            get
+            {
+                return (eTickLablePosition)Enum.Parse(typeof(eTickLablePosition), GetXmlNode(_lblPos), true);
+            }
+            set
+            {
+                string lp = value.ToString();
+                SetXmlNode(_lblPos, lp.Substring(0, 1).ToLower() + lp.Substring(1, lp.Length - 1));
+            }
+        }
+        ExcelDrawingFill _fill = null;
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
+                }
+                return _fill;
+            }
+        }
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
+                }
+                return _border;
+            }
+        }
+
     }
 }

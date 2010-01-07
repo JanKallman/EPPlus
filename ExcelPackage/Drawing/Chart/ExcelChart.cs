@@ -157,6 +157,13 @@ namespace OfficeOpenXml.Drawing.Chart
         InEnd,
         OutEnd
     }
+    public enum eTickLablePosition
+    {
+        High,
+        Low,
+        NextTo,
+        None
+    }
     /// <summary>
     /// Markerstyle
     /// </summary>
@@ -230,6 +237,7 @@ namespace OfficeOpenXml.Drawing.Chart
            _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
 
            SetTypeProperties(drawings);
+           LoadAxis();
        }
        #endregion
 
@@ -360,7 +368,7 @@ namespace OfficeOpenXml.Drawing.Chart
                }
            }
        }
-       #region "Xml init Functions
+       #region "Xml init Functions"
        private string ChartStartXml(eChartType type)
        {
            StringBuilder xml=new StringBuilder();
@@ -371,17 +379,48 @@ namespace OfficeOpenXml.Drawing.Chart
            xml.Append("<c:chart>");
            xml.AppendFormat("{0}<c:plotArea><c:layout/>",AddPerspectiveXml(type));
 
-           xml.AppendFormat("<{0}>{9}{6}{3}{10}{4}{5}{7}{8}<c:axId val=\"{1}\"/><c:axId val=\"{2}\"/></{0}>", GetChartNodeText(), axID, xAxID, AddBarDir(type), AddHasMarker(type), AddShape(type), AddVaryColors(), AddFirstSliceAng(type), AddHoleSize(type), AddScatterType(type), AddGrouping());
 
-           xml.AppendFormat("<c:{0}><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{2}\"/><c:crosses val=\"autoZero\"/><c:auto val=\"1\"/><c:lblAlgn val=\"ctr\"/><c:lblOffset val=\"100\"/></c:{0}>", AddAxType(type), axID, xAxID);
-           xml.AppendFormat("<c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx></c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
+           string chartNodeText = GetChartNodeText();
+           xml.AppendFormat("<{0}>", chartNodeText);
+
+           xml.Append(AddScatterType(type));
+           xml.Append(AddVaryColors());
+           xml.Append(AddBarDir(type));
+           xml.Append(AddGrouping());
+           xml.Append(AddHasMarker(type));
+           xml.Append(AddShape(type));
+           xml.Append(AddFirstSliceAng(type));
+           xml.Append(AddHoleSize(type));
+           xml.Append(AddAxisId(axID, xAxID));
+
+           xml.AppendFormat("</{0}>", chartNodeText);
+
+           //Axis
+           if (!IsTypePieDoughnut())
+           {
+               xml.AppendFormat("<c:{0}><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{2}\"/><c:crosses val=\"autoZero\"/><c:auto val=\"1\"/><c:lblAlgn val=\"ctr\"/><c:lblOffset val=\"100\"/></c:{0}>", AddAxType(), axID, xAxID);
+               xml.AppendFormat("<c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx>", axID, xAxID);
+           }
+           
+           xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
 
            xml.Append("<c:printSettings><c:headerFooter/><c:pageMargins b=\"0.75\" l=\"0.7\" r=\"0.7\" t=\"0.75\" header=\"0.3\" footer=\"0.3\"/><c:pageSetup/></c:printSettings></c:chartSpace>");          
            return xml.ToString();
-       }       
-       private string AddAxType(eChartType type)
+       }
+       private string AddAxisId(int axID,int xAxID)
        {
-           switch(type)
+           if (!IsTypePieDoughnut())
+           {
+               return string.Format("<c:axId val=\"{0}\"/><c:axId val=\"{1}\"/>",axID, xAxID);
+           }
+           else
+           {
+               return "";
+           }
+       }
+       private string AddAxType()
+       {
+           switch(ChartType)
            {
                case eChartType.XYScatter:
                case eChartType.XYScatterLines:
@@ -752,6 +791,31 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _axis;
             }
         }
+        ExcelChartPlotArea _plotArea = null;
+        public ExcelChartPlotArea PlotArea
+        {
+            get
+            {
+                if (_plotArea == null)
+                {
+                    _plotArea = new ExcelChartPlotArea(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace/c:chart/c:plotArea", NameSpaceManager)); 
+                }
+                return _plotArea;
+            }
+        }
+        public ExcelChartLegend _legent = null;
+        public ExcelChartLegend Legend
+        {
+            get
+            {
+                if (_legent == null)
+                {
+                    _legent = new ExcelChartLegend(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace/c:chart/c:legend", NameSpaceManager));
+                }
+                return _legent;
+            }
+
+        }
         ExcelDrawingBorder _border = null;
         public ExcelDrawingBorder Border
         {
@@ -762,6 +826,18 @@ namespace OfficeOpenXml.Drawing.Chart
                     _border = new ExcelDrawingBorder(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace",NameSpaceManager), "c:spPr/a:ln"); 
                 }
                 return _border;
+            }
+        }
+        ExcelDrawingFill _fill = null;
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace", NameSpaceManager), "c:spPr");
+                }
+                return _fill;
             }
         }
         public ExcelView3D View3D

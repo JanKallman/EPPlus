@@ -82,11 +82,21 @@ namespace ExcelPackageTest
 
              pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
              pic.SetPosition(150, 200);
-
+             pic.Border.LineStyle = eLineStyle.Solid;
+             pic.Border.Fill.Color = Color.DarkCyan;
+             pic.Fill.Style=eFillStyle.SolidFill;
+             pic.Fill.Color = Color.White;
+             pic.Fill.Transparancy = 50;
 
              pic = ws.Drawings.AddPicture("Pic3", Properties.Resources.Test1);
              pic.SetPosition(400, 200);
              pic.SetSize(150);
+
+             pic = ws.Drawings.AddPicture("Pic4", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"));
+             pic = ws.Drawings.AddPicture("Pic5", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
+             pic.SetPosition(400, 200);
+             pic.SetSize(150);
+         
          }
 
         [TestMethod]
@@ -120,8 +130,8 @@ namespace ExcelPackageTest
             ws.Cells["V22"].Value = 103;
             ws.Cells["V23"].Value = 105;
             ws.Cells["V24"].Value = 104;
-            
-            chrt.Series.Add("U19:U24", "V19:V24");
+
+            chrt.Series.Add("V19:V24", "U19:U24");
         }
         [TestMethod]
         public void PieChart()
@@ -136,6 +146,7 @@ namespace ExcelPackageTest
 
             //(chrt.Series[0] as ExcelPieChartSerie).DataLabel.Position = eLabelPosition.Center;
             chrt.DataLabel.ShowPercent = true;
+
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -201,11 +212,34 @@ namespace ExcelPackageTest
             chrt.DataLabel.ShowValue = true;
             //chrt.DataLabel.ShowSeriesName = true;
             //chrt.DataLabel.Separator = ",";
-            chrt.Border.LineCap = eLineCap.Round;
-            chrt.Border.LineStyle = eLineStyle.LargeDashDotDot;
+            chrt.Border.LineCap = eLineCap.Round;            
+            chrt.Border.LineStyle = eLineStyle.LongDashDotDot;
             chrt.Border.Fill.Style = eFillStyle.SolidFill;
             chrt.Border.Fill.Color = Color.Blue;
+
+            chrt.Fill.Color = Color.LightCyan;
+            chrt.PlotArea.Fill.Color = Color.White;
+            chrt.PlotArea.Border.Fill.Style = eFillStyle.SolidFill;
+            chrt.PlotArea.Border.Fill.Color = Color.Beige;
+            chrt.PlotArea.Border.LineStyle = eLineStyle.LongDash;
+
+            chrt.Legend.Fill.Color = Color.Aquamarine;
+            chrt.Axis[0].Fill.Style = eFillStyle.SolidFill;
+            chrt.Axis[0].Fill.Color = Color.LightSeaGreen; ;
+
+            chrt.Axis[1].Fill.Style = eFillStyle.SolidFill;
+            chrt.Axis[1].Fill.Color = Color.LightSlateGray;
         }
+        [TestMethod]
+        public void Cone()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Cone");
+            var chrt = ws.Drawings.AddChart("Cone1", eChartType.ConeBarClustered) as ExcelBarChart;
+            AddTestSerie(ws, chrt);
+            chrt.SetSize(200);
+            chrt.Title.Text = "Cone bar";
+            chrt.Series[0].Header = "Serie 1";
+        }        
         [TestMethod]
         public void Drawings()
         {
@@ -242,7 +276,7 @@ namespace ExcelPackageTest
             (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Color = Color.Black;
             (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Transparancy=43;
             (ws.Drawings["shape7"] as ExcelShape).Border.LineCap=eLineCap.Round;
-            (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LargeDash;
+            (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LongDash;
 
             (ws.Drawings["shape8"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
         }

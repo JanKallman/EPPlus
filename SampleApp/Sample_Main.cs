@@ -117,6 +117,11 @@ namespace ExcelPackageSamples
                     Console.WriteLine("Sample 4 created: {0}", output);
                     Console.WriteLine();
                 }
+
+                Console.WriteLine("Running sample 5");
+                Sample5.RunSample5(outputDir);
+                Console.WriteLine("Sample 5 created: {0}", output);
+                Console.WriteLine();
             }
 			catch (Exception ex)
 			

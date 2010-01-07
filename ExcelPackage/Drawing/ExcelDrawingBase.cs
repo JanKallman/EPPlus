@@ -135,7 +135,7 @@ namespace OfficeOpenXml.Drawing
         string _nameXPath;
         int _id;
         const float STANDARD_DPI = 96;
-        const int EMU_PER_PIXEL = 9525;
+        public const int EMU_PER_PIXEL = 9525;
         internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node, string nameXPath) :
             base(nameSpaceManager, node)
         {

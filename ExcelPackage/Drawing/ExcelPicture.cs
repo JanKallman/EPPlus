@@ -67,8 +67,28 @@ namespace OfficeOpenXml.Drawing
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
 
             Package package = drawings.Worksheet.xlPackage.Package;
-            UriPic = GetNewUri(package, "/xl/media/image{0}.jpeg");
-            Part = package.CreatePart(UriPic, "image/jpeg", CompressionOption.NotCompressed);
+            //if (image is Metafile)
+            //{
+                Metafile mf = image as Metafile;                            
+            //    string contentType;
+            //    if (mf.GetMetafileHeader().IsWmf() || mf.GetMetafileHeader().IsWmfPlaceable())
+            //    {
+            //        contentType = "image/x-wmf";
+            //        UriPic = GetNewUri(package, "/xl/media/image{0}.wmf");
+            //    }                    
+            //    else
+            //    {
+            //        contentType = "image/emf";
+            //        UriPic = GetNewUri(package, "/xl/media/image{0}.emf");
+            //    }
+            //    _imageFormat = ImageFormat.Png;
+            //    Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
+            //}
+            //else
+            //{
+                UriPic = GetNewUri(package, "/xl/media/image{0}.jpeg");
+                Part = package.CreatePart(UriPic, "image/jpeg", CompressionOption.NotCompressed);
+            //}
 
             //Set the Image and save it to the package.
             Image=image;
@@ -76,6 +96,75 @@ namespace OfficeOpenXml.Drawing
             //Create relationship
             PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
             node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value=picRelation.Id;
+            package.Flush();
+        }
+        internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile) :
+            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
+        {
+            XmlElement picNode = node.OwnerDocument.CreateElement("xdr", "pic", ExcelPackage.schemaSheetDrawings);
+            node.InsertAfter(picNode, node.SelectSingleNode("xdr:to", NameSpaceManager));
+            picNode.InnerXml = PicStartXml();
+
+            node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
+
+            Package package = drawings.Worksheet.xlPackage.Package;
+            UriPic = GetNewUri(package, string.Format("/xl/media/image{0}.{0}",imageFile.Extension));
+            string contentType;
+            switch (imageFile.Extension.ToLower())
+            {
+                case ".bmp":
+                    contentType = "image/bmp";                    
+                    break;
+                case ".jpg":
+                case ".jpeg":
+                    contentType="image/jpeg";
+                    break;
+                case ".gif":
+                    contentType = "image/gif";
+                    break;
+                case ".png":
+                    contentType = "image/png";
+                    break;
+                case ".cgm":
+                    contentType = "image/cgm";
+                    break;
+                case ".emf":
+                    contentType = "image/x-emf";
+                    break;
+                case ".eps":
+                    contentType = "image/x-eps";
+                    break;
+                case ".pcx":
+                    contentType = "image/x-pcx";
+                    break;
+                case ".tga":
+                    contentType = "image/x-tga";
+                    break;
+                case ".tif":
+                case ".tiff":
+                    contentType = "image/x-tiff";
+                    break;
+                case ".wmf":
+                    contentType = "image/x-wmf";
+                    break;
+                default:
+                    contentType = "image/jpeg";
+                    break;
+
+            }
+            Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
+
+            //Save the picture to package.
+            byte[] file=File.ReadAllBytes(imageFile.FullName);
+            var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
+            strm.Write(file, 0, file.Length);
+
+            _image = Image.FromFile(imageFile.FullName);
+            
+            SetPosDefaults(Image);
+            //Create relationship
+            PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = picRelation.Id;
             package.Flush();
         }
         private void SetPosDefaults(Image image)
@@ -100,8 +189,30 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
-                _image = value;
-                _image.Save(Part.GetStream(FileMode.Create, FileAccess.Write), ImageFormat.Jpeg);   //Always JPEG here at this point. 
+                if (value != null)
+                {
+                    _image = value;
+                    try
+                    {
+                        _image.Save(Part.GetStream(FileMode.Create, FileAccess.Write),_imageFormat);   //Always JPEG here at this point. 
+                    }
+                    catch(Exception ex)
+                    {
+
+                    }
+                }
+            }
+        }
+        ImageFormat _imageFormat=ImageFormat.Jpeg;
+        public ImageFormat ImageFormat
+        {
+            get
+            {
+                return _imageFormat;
+            }
+            set
+            {
+                _imageFormat = value;
             }
         }
         internal Uri UriPic { get; set; }
@@ -110,6 +221,30 @@ namespace OfficeOpenXml.Drawing
         internal string Id
         {
             get { return Name; }
+        }
+        ExcelDrawingFill _fill = null;
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "xdr:pic/xdr:spPr");
+                }
+                return _fill;
+            }
+        }
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "xdr:pic/xdr:spPr/a:ln");
+                }
+                return _border;
+            }
         }
     }
 }

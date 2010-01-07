@@ -96,55 +96,61 @@ namespace OfficeOpenXml.Drawing.Chart
                return _chart;
            }
        }
+       #region "Add Series"
 
-       public ExcelChartSerie Add(string SeriesAddress, string XSeriesAddress)
+       public ExcelChartSerie Add(ExcelRange ValueSerie, ExcelRange CategorySerie)
        {
-           XmlElement ser = _node.OwnerDocument.CreateElement("ser", ExcelPackage.schemaChart);
-           XmlNodeList node = _node.SelectNodes("//c:ser", _ns);
-           if (node.Count > 0)
-           {
-               _node.InsertAfter(ser, node[node.Count-1]);
-           }
-           else
-           {
-               InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle", ser);
-               //XmlNode prevNode = _node.SelectSingleNode("c:grouping", NameSpaceManager);
-               //if (prevNode == null) prevNode=_node.SelectSingleNode("c:scatterStyle", NameSpaceManager);               
-               //_node.InsertAfter(ser, prevNode);            
-            }
-//           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{0}<c:marker><c:symbol val=\"none\" /> </c:marker><c:val><c:numRef><c:f></c:f></c:numRef></c:val>", AddExplosion(Chart.ChartType), _list.Count, AddScatter(Chart.ChartType));
-           ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), _list.Count, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
-           ExcelChartSerie serie;
-           switch (Chart.ChartType)
-           {
-               case eChartType.XYScatter:
-               case eChartType.XYScatterLines:
-               case eChartType.XYScatterLinesNoMarkers:
-               case eChartType.XYScatterSmooth:
-               case eChartType.XYScatterSmoothNoMarkers:
-                   serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser);
-                   break;
-               case eChartType.Pie:
-               case eChartType.Pie3D:
-               case eChartType.PieExploded:
-               case eChartType.PieExploded3D:
-               case eChartType.PieOfPie:
-               case eChartType.Doughnut:
-               case eChartType.DoughnutExploded:
-               case eChartType.BarOfPie:
-                   serie = new ExcelPieChartSerie(this, NameSpaceManager, ser);
-                   break;
-               default:
-                   serie = new ExcelChartSerie(this, NameSpaceManager, ser);
-                   break;
-           }
-           serie.Series = SeriesAddress;
-           serie.XSeries = XSeriesAddress;
-           _list.Add(serie);
-           return serie;
+           return AddSeries(ValueSerie.Address, CategorySerie.Address);
        }
-
-       private object AddMarker(eChartType chartType)
+       public ExcelChartSerie Add(string ValueSerieAddress, string CategorySerieAddress)
+       {
+            return AddSeries(ValueSerieAddress, CategorySerieAddress);
+       }
+       private ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress)
+        {
+               XmlElement ser = _node.OwnerDocument.CreateElement("ser", ExcelPackage.schemaChart);
+               XmlNodeList node = _node.SelectNodes("//c:ser", _ns);
+               if (node.Count > 0)
+               {
+                   _node.InsertAfter(ser, node[node.Count-1]);
+               }
+               else
+               {
+                   InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle", ser);
+                }
+               ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), _list.Count, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
+               ExcelChartSerie serie;
+               switch (Chart.ChartType)
+               {
+                   case eChartType.XYScatter:
+                   case eChartType.XYScatterLines:
+                   case eChartType.XYScatterLinesNoMarkers:
+                   case eChartType.XYScatterSmooth:
+                   case eChartType.XYScatterSmoothNoMarkers:
+                       serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser);
+                       break;
+                   case eChartType.Pie:
+                   case eChartType.Pie3D:
+                   case eChartType.PieExploded:
+                   case eChartType.PieExploded3D:
+                   case eChartType.PieOfPie:
+                   case eChartType.Doughnut:
+                   case eChartType.DoughnutExploded:
+                   case eChartType.BarOfPie:
+                       serie = new ExcelPieChartSerie(this, NameSpaceManager, ser);
+                       break;
+                   default:
+                       serie = new ExcelChartSerie(this, NameSpaceManager, ser);
+                       break;
+               }
+               serie.Series = SeriesAddress;
+               serie.XSeries = XSeriesAddress;
+               _list.Add(serie);
+               return serie;
+        }
+       #endregion
+       #region "Xml init Functions"
+       private string AddMarker(eChartType chartType)
        {
            if (chartType == eChartType.XYScatterLines ||
                chartType == eChartType.XYScatterSmooth ||
@@ -158,7 +164,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return "";
            }
        }
-       private object AddScatterPoint(eChartType chartType)
+       private string AddScatterPoint(eChartType chartType)
        {
            if (chartType == eChartType.XYScatter)
            {
@@ -169,7 +175,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return "";
            }
        }
-       private object AddAxisNodes(eChartType chartType)
+       private string AddAxisNodes(eChartType chartType)
        {
            if ( chartType == eChartType.XYScatter ||
                 chartType == eChartType.XYScatterLines ||
@@ -209,6 +215,7 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                return "";
            }
-       }       
+       }
+        #endregion
     }
 }

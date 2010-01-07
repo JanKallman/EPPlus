@@ -47,8 +47,16 @@ namespace ExcelPackageTest
         [ClassCleanup()]
         public static void MyClassCleanup()
         {
-            _pck.Save();
-            _pck = null;
+            try
+            {
+                _pck.Save();
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail(ex.Message);
+            }
+
+                _pck = null;
         }
         [TestMethod]
         public void LoadData()
@@ -78,10 +86,32 @@ namespace ExcelPackageTest
 
             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             pic.SetPosition(150, 140);
-            //pic.From.Column = 15;
-            //pic.From.Row = 32;
-            //pic.To.Column = 18;
-            //pic.To.Row = 49;
+        }
+        const int PERF_ROWS=10000;
+        [TestMethod]
+        public void Performance()
+        {
+            ExcelWorksheet ws=_pck.Workbook.Worksheets.Add("Perf");
+            TestContext.WriteLine("StartTime {0}", DateTime.Now);
+
+            Random r = new Random();
+            for (int i = 1; i <= PERF_ROWS; i++)
+            {
+                ws.Cells[i,1].Value=string.Format("Row {0}\n.Test new row\"'",i);
+                ws.Cells[i,2].Value=i;
+                ws.Cells[i, 2].Style.WrapText = true;
+                ws.Cells[i,3].Value=DateTime.Now;
+                ws.Cells[i, 4].Value = r.NextDouble()*100000;                
+            }
+            ws.Cells[1, 2, PERF_ROWS, 2].Style.Numberformat.Format="#,##0";
+            ws.Cells[1, 3, PERF_ROWS, 3].Style.Numberformat.Format = "yyyy-MM-dd HH:mm:ss";
+            ws.Cells[1, 4, PERF_ROWS, 4].Style.Numberformat.Format = "#,##0.00";
+
+            ws.Column(1).Width = 12;
+            ws.Column(2).Width = 8;
+            ws.Column(3).Width = 20;
+            ws.Column(4).Width = 14;
+            TestContext.WriteLine("EndTime {0}", DateTime.Now);
         }
     }
 }

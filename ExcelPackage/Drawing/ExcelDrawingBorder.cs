@@ -47,9 +47,9 @@ namespace OfficeOpenXml.Drawing
         Dash,
         DashDot,
         Dot,
-        LargeDash,
-        LargeDashDot,
-        LargeDashDotDot,
+        LongDash,
+        LongDashDot,
+        LongDashDotDot,
         Solid,
         SystemDash,
         SystemDashDot,
@@ -65,8 +65,8 @@ namespace OfficeOpenXml.Drawing
         public ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder=new string[] {"c:chart"};
-            _linePath = linePath;
+            SchemaNodeOrder = new string[] { "c:chart", "c:spPr", "c:showVal", "c:showCatName", "c:showSerName", "c:showPercent", "c:separator", "c:showLeaderLines", "a:noFill", "a:solidFill", "a:blipFill", "a:gradFill", "a:noFill", "a:pattFill", "a:prstDash" };
+            _linePath = linePath;   
             _lineStylePath = string.Format(_lineStylePath, linePath);
             _lineCapPath = string.Format(_lineCapPath, linePath);
         }
@@ -121,10 +121,10 @@ namespace OfficeOpenXml.Drawing
                 case eLineStyle.DashDot:
                 case eLineStyle.Solid:
                     return text.Substring(0,1).ToLower() + text.Substring(1,text.Length-1); //First to Lower case.
-                case eLineStyle.LargeDash:
-                case eLineStyle.LargeDashDot:
-                case eLineStyle.LargeDashDotDot:
-                    return "lg" + text.Substring(5, text.Length - 5);
+                case eLineStyle.LongDash:
+                case eLineStyle.LongDashDot:
+                case eLineStyle.LongDashDotDot:
+                    return "lg" + text.Substring(4, text.Length - 4);
                 case eLineStyle.SystemDash:
                 case eLineStyle.SystemDashDot:
                 case eLineStyle.SystemDashDotDot:
@@ -146,7 +146,7 @@ namespace OfficeOpenXml.Drawing
                 case "lgDash":
                 case "lgDashDot":
                 case "lgDashDotDot":
-                    return (eLineStyle)Enum.Parse(typeof(eLineStyle), "Large" + text.Substring(2, text.Length - 2));
+                    return (eLineStyle)Enum.Parse(typeof(eLineStyle), "Long" + text.Substring(2, text.Length - 2));
                 case "sysDash":
                 case "sysDashDot":
                 case "sysDashDotDot":
