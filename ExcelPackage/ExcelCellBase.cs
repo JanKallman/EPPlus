@@ -342,6 +342,10 @@ namespace OfficeOpenXml
             bool colPart = true;
             string sRow = "", sCol = "";
             col = 0;
+            if(address.IndexOf(':')>0)  //If it is a mult-cell address use 
+            {
+                address = address.Substring(0, address.IndexOf(':'));
+            }
             for (int i = 0; i < address.Length; i++)
             {
                 if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)
@@ -379,15 +383,15 @@ namespace OfficeOpenXml
             // Get the row number
             if (sRow == "")
             {
-                if (throwException)
-                {
-                    throw (new Exception(string.Format("Invalid Address format {0}", address)));
-                }
-                else
-                {
+                //if (throwException)
+                //{
+                //    throw (new Exception(string.Format("Invalid Address format {0}", address)));
+                //}
+                //else
+                //{
                     row = 0;
                     return false;
-                }
+                //}
             }
             else
             {

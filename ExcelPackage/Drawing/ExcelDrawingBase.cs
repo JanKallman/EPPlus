@@ -136,6 +136,9 @@ namespace OfficeOpenXml.Drawing
         int _id;
         const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
+
+        //int _top, _left, _height, _width;
+
         internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node, string nameXPath) :
             base(nameSpaceManager, node)
         {
@@ -193,7 +196,7 @@ namespace OfficeOpenXml.Drawing
         public ExcelPosition From { get; set; }
         public ExcelPosition To { get; set; }
         /// <summary>
-        /// Add new types Drawing types here
+        /// Add new Drawing types here
         /// </summary>
         /// <param name="drawings">The drawing collection</param>
         /// <param name="node">Xml top node</param>
@@ -227,8 +230,8 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw=ws.Workbook.MaxFontWidth;
 
-            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(From.Column + 1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL;
-            for (int col = From.Column + 2; col <= To.Column; col++)
+            int pix = -From.ColumnOff / EMU_PER_PIXEL;
+            for (int col = From.Column + 1; col <= To.Column; col++)
             {
                 pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
@@ -240,8 +243,8 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
 
-            int pix = (int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL);
-            for (int row = From.Row + 2; row <= To.Row; row++)
+            int pix = -(From.RowOff / EMU_PER_PIXEL);
+            for (int row = From.Row + 1; row <= To.Row; row++)
             {
                 pix += (int)(ws.Row(row).Height / 0.75);
             }
@@ -316,7 +319,14 @@ namespace OfficeOpenXml.Drawing
                 pixOff -= (int)(ws.Row(++row).Height / 0.75);
             }
             To.Row = row - 2;
-            To.RowOff = prevPixOff * EMU_PER_PIXEL;
+            if (From.Row == To.Row)
+            {
+                To.RowOff = From.RowOff + (pixels) * EMU_PER_PIXEL;
+            }
+            else
+            {
+                To.RowOff = prevPixOff * EMU_PER_PIXEL;
+            }
         }
         internal void SetPixelWidth(int pixels)
         {
@@ -329,7 +339,7 @@ namespace OfficeOpenXml.Drawing
 
             pixels = (int)(pixels / (dpi / STANDARD_DPI));
             int pixOff = (int)pixels - ((int)decimal.Truncate(((256 * (decimal)ws.Column(From.Column + 1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL);
-            int prevPixOff = (int)pixels;
+            int prevPixOff = From.ColumnOff / EMU_PER_PIXEL + (int)pixels;
             int col = From.Column + 2;
 
             while (pixOff >= 0)
@@ -360,10 +370,30 @@ namespace OfficeOpenXml.Drawing
             SetPixelHeight(height);
         }
         /// <summary>
+        /// Set the top left corner of a drawing. 
+        /// </summary>
+        /// <param name="Row">Start row</param>
+        /// <param name="RowOffsetPixels">Offset in pixels</param>
+        /// <param name="Column">Start Column</param>
+        /// <param name="ColumnOffsetPixels">Offset in pixels</param>
+        public void SetPosition(int Row, int RowOffsetPixels, int Column, int ColumnOffsetPixels)
+        {
+            int width = GetPixelWidth();
+            int height = GetPixelHeight();
+
+            From.Row = Row;
+            From.RowOff = RowOffsetPixels * EMU_PER_PIXEL;
+            From.Column = Column;
+            From.ColumnOff = ColumnOffsetPixels * EMU_PER_PIXEL;
+
+            SetPixelWidth(width);
+            SetPixelHeight(height);
+        }
+        /// <summary>
         /// Set size in Percent
         /// </summary>
         /// <param name="Percent"></param>
-        public void SetSize(int Percent)
+        public virtual void SetSize(int Percent)
         {
             int width = GetPixelWidth();
             int height = GetPixelHeight();

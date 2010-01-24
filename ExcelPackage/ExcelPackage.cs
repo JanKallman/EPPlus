@@ -203,7 +203,6 @@ namespace OfficeOpenXml
         MemoryStream _stream=null;
         /// <summary>
         /// Creates a new instance of the ExcelPackage class based on a existing template.
-        /// WARNING: If newFile exists, it is deleted!
         /// </summary>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="useStream">if true use a strem. If false create a file in the temp dir with a random name</param>
@@ -424,6 +423,7 @@ namespace OfficeOpenXml
 
         /// <summary>
         /// Saves and returns the Excel files as a bytearray
+        /// Can only be used when working with a stream. That is .. new ExcelPackage() or new ExcelPackage("file", true)
         /// </summary>
         /// <example>      
         /// Example how to return a document from a Webserver...
@@ -439,6 +439,10 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public byte[] GetAsByteArray()
         {
+            if (Stream == null)
+            {
+                throw new Exception("This function can only be used when using a stream.");
+            }
             Workbook.Save();
             _package.Close();
             Byte[] byRet = new byte[Stream.Length];

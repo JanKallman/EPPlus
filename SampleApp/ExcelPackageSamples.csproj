@@ -61,6 +61,7 @@
     <Compile Include="Sample3.cs" />
     <Compile Include="Sample4.cs" />
     <Compile Include="Sample5.cs" />
+    <Compile Include="Sample6.cs" />
     <Compile Include="Sample_Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sample2.cs" />

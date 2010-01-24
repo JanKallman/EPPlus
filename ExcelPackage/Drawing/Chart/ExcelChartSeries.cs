@@ -98,13 +98,13 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        #region "Add Series"
 
-       public ExcelChartSerie Add(ExcelRange ValueSerie, ExcelRange CategorySerie)
+       public ExcelChartSerie Add(ExcelRange Serie, ExcelRange XSerie)
        {
-           return AddSeries(ValueSerie.Address, CategorySerie.Address);
+           return AddSeries(Serie.Address, XSerie.Address);
        }
-       public ExcelChartSerie Add(string ValueSerieAddress, string CategorySerieAddress)
+       public ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
        {
-            return AddSeries(ValueSerieAddress, CategorySerieAddress);
+            return AddSeries(SerieAddress, XSerieAddress);
        }
        private ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress)
         {

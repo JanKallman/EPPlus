@@ -43,9 +43,7 @@ namespace ExcelPackageSamples
     class Sample5
     {
         /// <summary>
-        /// Sample 1 - simply creates a new workbook from scratch.
-        /// The workbook contains one worksheet which adds a few numbers together.
-        /// Not very exciting, but it demonstrates the power of the ExcelPackage assembly.
+        /// Sample 5 - open Sample 1 and add a Piechart
         /// </summary>
         public static string RunSample5(DirectoryInfo outputDir)
         {
@@ -67,9 +65,7 @@ namespace ExcelPackageSamples
                 var chart = (worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart);
 
                 chart.Title.Text = "Total";
-                chart.From.Column = 2;
-                chart.From.ColumnOff = 5 * 9525;   //5 pixels. One Pixel is 9525 EMU units
-                chart.From.Row = 0;
+                chart.SetPosition(0, 0, 2, 5);
                 chart.SetSize(600, 300);
 
                 string valueAddress = ExcelRange.GetAddress(2, 2, 4, 2);

@@ -26,74 +26,88 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * ******************************************************************************/
+ * Jan Källman		                Added this class		        2010-01-24
+ *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Xml;
-namespace OfficeOpenXml.Drawing.Chart
+
+namespace OfficeOpenXml
 {
     /// <summary>
-    /// An axis for a chart
+    /// HyperlinkClass
     /// </summary>
-    public class ExcelChartAxis : XmlHelper
+    public class ExcelHyperLink : Uri
     {
-        internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
-            base(nameSpaceManager, topNode)
+        public ExcelHyperLink(string uriString) :
+            base(uriString)
         {
-            SchemaNodeOrder = new string[] {"axId","scaling","delete","axPos","numFmt", "tickLblPos"};
+
         }
-        const string _formatPath="c:numFmt/@formatCode";
-        public string Format 
+        public ExcelHyperLink(string uriString, bool dontEscape) :
+            base(uriString, dontEscape)
+        {
+
+        }
+        public ExcelHyperLink(string uriString, UriKind uriKind) :
+            base(uriString, uriKind)
+        {
+
+        }
+        public ExcelHyperLink(string referenceAddress, string display) :
+            base("xl://internal")
+        {
+            _referenceAddress = referenceAddress;
+            _display = display;
+        }
+
+        string _referenceAddress = null;
+        public string ReferenceAddress
         {
             get
             {
-                return GetXmlNode(_formatPath);
+                return _referenceAddress;
             }
             set
             {
-                SetXmlNode(_formatPath,value);
+                _referenceAddress = value;
             }
         }
-
-        const string _lblPos = "c:tickLblPos/@val";
-        public eTickLablePosition LabelPosition
+        string _display = "";
+        public string Display
         {
             get
             {
-                return (eTickLablePosition)Enum.Parse(typeof(eTickLablePosition), GetXmlNode(_lblPos), true);
+                return _display;
             }
             set
             {
-                string lp = value.ToString();
-                SetXmlNode(_lblPos, lp.Substring(0, 1).ToLower() + lp.Substring(1, lp.Length - 1));
+                _display = value;
             }
         }
-        ExcelDrawingFill _fill = null;
-        public ExcelDrawingFill Fill
+        int _colSpann = 0;
+        public int ColSpann
         {
             get
             {
-                if (_fill == null)
-                {
-                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
-                }
-                return _fill;
+                return _colSpann;
+            }
+            set
+            {
+                _colSpann = value;
             }
         }
-        ExcelDrawingBorder _border = null;
-        public ExcelDrawingBorder Border
+        int _rowSpann = 0;
+        public int RowSpann
         {
             get
             {
-                if (_border == null)
-                {
-                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
-                }
-                return _border;
+                return _rowSpann;
+            }
+            set
+            {
+                _rowSpann = value;
             }
         }
-
     }
 }

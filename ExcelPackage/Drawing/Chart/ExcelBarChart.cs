@@ -115,7 +115,13 @@ namespace OfficeOpenXml.Drawing.Chart
                 type == eChartType.Column3D ||
                 type == eChartType.ColumnClustered3D ||
                 type == eChartType.ColumnStacked3D ||
-                type == eChartType.ColumnStacked1003D)
+                type == eChartType.ColumnStacked1003D ||
+                type == eChartType.BarClustered ||
+                type == eChartType.BarStacked ||
+                type == eChartType.BarStacked100 ||
+                type == eChartType.BarClustered3D ||
+                type == eChartType.BarStacked3D ||
+                type == eChartType.BarStacked1003D)
             {
                 Shape = eShape.Box;
             }

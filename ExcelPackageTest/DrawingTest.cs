@@ -96,7 +96,11 @@ namespace ExcelPackageTest
              pic = ws.Drawings.AddPicture("Pic5", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
              pic.SetPosition(400, 200);
              pic.SetSize(150);
-         
+
+
+             pic = ws.Drawings.AddPicture("Pic6", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
+             pic.SetPosition(400, 400);
+             pic.SetSize(100);
          }
 
         [TestMethod]
@@ -144,7 +148,6 @@ namespace ExcelPackageTest
             chrt.To.Row = 25;
             chrt.To.Column = 12;
 
-            //(chrt.Series[0] as ExcelPieChartSerie).DataLabel.Position = eLabelPosition.Center;
             chrt.DataLabel.ShowPercent = true;
 
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
@@ -161,7 +164,6 @@ namespace ExcelPackageTest
             chrt.To.Row = 25;
             chrt.To.Column = 12;
 
-            //(chrt.Series[0] as ExcelPieChartSerie).DataLabel.Position = eLabelPosition.Center;
             chrt.DataLabel.ShowValue = true;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie3D, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
@@ -239,7 +241,32 @@ namespace ExcelPackageTest
             chrt.SetSize(200);
             chrt.Title.Text = "Cone bar";
             chrt.Series[0].Header = "Serie 1";
-        }        
+        }
+        [TestMethod]
+        public void Dougnut()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Dougnut");
+            var chrt = ws.Drawings.AddChart("Dougnut1", eChartType.DoughnutExploded) as ExcelDoughnutChart;
+            AddTestSerie(ws, chrt);
+            chrt.SetSize(200);
+            chrt.Title.Text = "Doughnut Exploded";
+            chrt.Series[0].Header = "Serie 1";
+            chrt.FirstSliceAngle = 33;
+            //chrt.HoleSize = 100;
+        }
+        [TestMethod]
+        public void Line()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Line");
+            var chrt = ws.Drawings.AddChart("Line1", eChartType.Line3D);
+            AddTestSerie(ws, chrt);
+            chrt.SetSize(150);
+            chrt.Title.Text = "Line 3D";
+            chrt.Series[0].Header = "Line serie 1";
+            chrt.Fill.Color = Color.LightSteelBlue;
+            chrt.Border.LineStyle = eLineStyle.Dot;
+            chrt.Border.Fill.Color=Color.Black;
+        }
         [TestMethod]
         public void Drawings()
         {
