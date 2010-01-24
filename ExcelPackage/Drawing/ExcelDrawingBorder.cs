@@ -65,10 +65,11 @@ namespace OfficeOpenXml.Drawing
         public ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "c:chart", "c:spPr", "c:showVal", "c:showCatName", "c:showSerName", "c:showPercent", "c:separator", "c:showLeaderLines", "a:noFill", "a:solidFill", "a:blipFill", "a:gradFill", "a:noFill", "a:pattFill", "a:prstDash" };
+            SchemaNodeOrder = new string[] { "chart", "spPr", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "prstDash" };
             _linePath = linePath;   
             _lineStylePath = string.Format(_lineStylePath, linePath);
             _lineCapPath = string.Format(_lineCapPath, linePath);
+            _lineWidth = string.Format(_lineWidth, linePath);
         }
         #region "Public properties"
         ExcelDrawingFill _fill = null;
@@ -107,6 +108,18 @@ namespace OfficeOpenXml.Drawing
             {
                 CreateNode(_linePath, false);
                 SetXmlNode(_lineCapPath, TranslateLineCapText(value));
+            }
+        }
+        string _lineWidth = "{0}/@w";
+        public int Width
+        {
+            get
+            {
+                return GetXmlNodeInt(_lineWidth) / 12700;
+            }
+            set
+            {
+                SetXmlNode(_lineWidth, (value * 12700).ToString());
             }
         }
         #endregion

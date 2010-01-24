@@ -87,7 +87,7 @@ namespace ExcelPackageTest
             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             pic.SetPosition(150, 140);
         }
-        const int PERF_ROWS=10000;
+        const int PERF_ROWS=50000;
         [TestMethod]
         public void Performance()
         {

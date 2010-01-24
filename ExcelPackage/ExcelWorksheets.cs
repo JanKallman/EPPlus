@@ -96,8 +96,8 @@ namespace OfficeOpenXml
 			//  Create a NamespaceManager to handle the default namespace, 
 			//  and create a prefix for the default namespace:
 			NameTable nt = new NameTable();
-			_nsManager = new XmlNamespaceManager(nt);
-			_nsManager.AddNamespace("d", ExcelPackage.schemaMain);
+			_nsManager = new XmlNamespaceManager(nt);            
+            _nsManager.AddNamespace("d", ExcelPackage.schemaMain);
 			_nsManager.AddNamespace("r", ExcelPackage.schemaRelationships);
 
 			// obtain container node for all worksheets
@@ -138,7 +138,7 @@ namespace OfficeOpenXml
 				Uri uriWorksheet = PackUriHelper.ResolvePartUri(_xlPackage.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				// add worksheet to our collection
-                _worksheets.Add(positionID, new ExcelWorksheet(_xlPackage, relId, name, uriWorksheet, sheetID, positionID, hidden));
+                _worksheets.Add(positionID, new ExcelWorksheet(_nsManager, _xlPackage, relId, uriWorksheet, name, sheetID, positionID, hidden));
 				positionID++;
 			}
 		}
@@ -238,7 +238,7 @@ namespace OfficeOpenXml
 
 			// create a reference to the new worksheet in our collection
 			int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet = new ExcelWorksheet(_xlPackage, rel.Id, Name, uriWorksheet, sheetID, positionID, false);
+            ExcelWorksheet worksheet = new ExcelWorksheet(_nsManager, _xlPackage, rel.Id, uriWorksheet, Name, sheetID, positionID, false);
 			_worksheets.Add(positionID, worksheet);
 			return worksheet;
 		}

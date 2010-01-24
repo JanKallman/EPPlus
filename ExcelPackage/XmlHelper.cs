@@ -96,7 +96,8 @@ namespace OfficeOpenXml
                     string[] nameSplit = subPath.Split(':');
 
                     if(SchemaNodeOrder!=null && subPath[0]!='@')
-                    {                        
+                    {
+                        insertFirst = false;
                         prependNode=GetPrependNode(subPath, node);
                     }
                     
@@ -113,14 +114,14 @@ namespace OfficeOpenXml
                     }
                     if (subPath.StartsWith("@"))
                     {
-                        XmlAttribute addedAtt = node.OwnerDocument.CreateAttribute(subPath.Substring(1,subPath.Length-1), nameSpaceURI);
+                        XmlAttribute addedAtt = node.OwnerDocument.CreateAttribute(subPath.Substring(1,subPath.Length-1), nameSpaceURI);  //nameSpaceURI
                         node.Attributes.Append(addedAtt);
                     }
                     else
                     {
                         if(nodePrefix=="")
                         {
-                            subNode = node.OwnerDocument.CreateElement(nodeName);
+                            subNode = node.OwnerDocument.CreateElement(nodeName, nameSpaceURI);
                         }
                         else
                         {
@@ -153,9 +154,9 @@ namespace OfficeOpenXml
         private XmlNode GetPrependNode(string nodeName, XmlNode node)
         {
             int pos=GetNodePos(nodeName);
-            if(pos<=0)
+            if(pos<0)
             {
-                return null;
+               return null;
             }
             XmlNode prependNode=null;
             foreach(XmlNode childNode in node.ChildNodes)
@@ -168,16 +169,17 @@ namespace OfficeOpenXml
                         prependNode = childNode;
                         break;
                     }
-                    //else //After Exit
-                    //{
-                    //    break;
-                    //}
                 }
             }
             return prependNode;
         }
         private int GetNodePos(string nodeName)
         {
+            int ix=nodeName.IndexOf(":");
+            if (ix>0)
+            {
+                nodeName = nodeName.Substring(ix + 1, nodeName.Length - (ix + 1));
+            }
             for (int i = 0; i < _schemaNodeOrder.Length; i++)
             {
                 if (nodeName == _schemaNodeOrder[i])

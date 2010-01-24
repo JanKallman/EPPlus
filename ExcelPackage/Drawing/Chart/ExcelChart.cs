@@ -224,7 +224,7 @@ namespace OfficeOpenXml.Drawing.Chart
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
-           SchemaNodeOrder = new string[] { "c:barDir", "c:grouping", "c:ser", "c:dLbls", "c:shape" };
+           SchemaNodeOrder = new string[] {"view3D", "plotArea", "barDir", "grouping", "ser", "dLbls", "shape", "legend" };
            ChartType = type;
            CreateNewChart(drawings, type);
            _chartPath = rootPath + "/" + GetChartNodeText();
@@ -803,16 +803,16 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _plotArea;
             }
         }
-        public ExcelChartLegend _legent = null;
+        ExcelChartLegend _legend = null;
         public ExcelChartLegend Legend
         {
             get
             {
-                if (_legent == null)
+                if (_legend == null)
                 {
-                    _legent = new ExcelChartLegend(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace/c:chart/c:legend", NameSpaceManager));
+                    _legend = new ExcelChartLegend(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode("c:chartSpace/c:chart/c:legend", NameSpaceManager), this);
                 }
-                return _legent;
+                return _legend;
             }
 
         }
@@ -862,7 +862,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetGroupingEnum(_chartXmlHelper.GetXmlNode(_groupingPath));
             }
-            set
+            internal set
             {
                 _chartXmlHelper.SetXmlNode(_groupingPath, GetGroupingText(value));
             }

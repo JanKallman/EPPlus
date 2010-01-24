@@ -111,6 +111,7 @@
     <Compile Include="Drawing\Chart\ExcelPieChart.cs" />
     <Compile Include="Drawing\Chart\ExcelScatterChart.cs" />
     <Compile Include="ExcelCellBase.cs" />
+    <Compile Include="ExcelHyperLink.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />
     <Compile Include="Style\ExcelColor.cs" />

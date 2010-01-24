@@ -144,7 +144,7 @@ namespace OfficeOpenXml
 		}
         /// <summary>
         /// If cell has inline formating. 
-        /// Use XML format specified in OPEN XML Documentation
+        /// Use XML format specified in the OPEN XML Documentation in the value property
         /// </summary>
         public bool IsRichText { get; set; }
         /// <summary>
@@ -256,9 +256,16 @@ namespace OfficeOpenXml
 			set
 			{
 				_hyperlink = value;
-                if (Value == null || Value.ToString() == "")
+                if ((Value == null || Value.ToString() == ""))
                 {
-                    Value = _hyperlink.AbsoluteUri;
+                    if (value is ExcelHyperLink)
+                    {
+                        Value = (value as ExcelHyperLink).Display;
+                    }
+                    else
+                    {
+                        Value = _hyperlink.AbsoluteUri;
+                    }
                 }
 			}
 		}

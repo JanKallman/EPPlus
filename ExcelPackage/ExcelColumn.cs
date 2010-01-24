@@ -88,96 +88,46 @@ namespace OfficeOpenXml
             _xlWorksheet = Worksheet;
             _columnMin = col;
             _columnMax = col;
-
-            //if (col < 1 || col > ExcelPackage.MaxColumns)
-            //{
-            //    throw(new Exception("Column out of range"));
-            //}
-            //NameTable nt = new NameTable();
-            //_nsManager = new XmlNamespaceManager(nt);
-            //_nsManager.AddNamespace("d", ExcelPackage.schemaMain);
-
-            //_xlWorksheet = Worksheet;
-            //XmlNode parent = Worksheet.WorksheetXml.SelectSingleNode("//d:cols", _nsManager);
-            //if (parent == null)
-            //{
-            //    parent = (XmlNode)Worksheet.WorksheetXml.CreateElement("cols", ExcelPackage.schemaMain);
-            //    XmlNode refChild = Worksheet.WorksheetXml.SelectSingleNode("//d:sheetData", _nsManager);
-            //    parent = Worksheet.WorksheetXml.DocumentElement.InsertBefore(parent, refChild);
-            //}
-            ////Std with for new columns
-            //XmlAttribute minAttr;
-            //XmlAttribute maxAttr;
-            //XmlNode insertBefore = null;
-            //// the column definitions cover a range of columns, so find the one we want
-            //bool insertBeforeFound = false;
-            //foreach (XmlNode colNode in parent.ChildNodes)
-            //{
-            //    int min = 1;
-            //    int max = 1;
-            //    minAttr = (XmlAttribute)colNode.Attributes.GetNamedItem("min");
-            //    if (minAttr != null)
-            //        min = int.Parse(minAttr.Value);
-            //    maxAttr = (XmlAttribute)colNode.Attributes.GetNamedItem("max");
-            //    if (maxAttr != null)
-            //        max = int.Parse(maxAttr.Value);
-            //    if (!insertBeforeFound && (col <= min || col <= max))
-            //    {
-            //        insertBeforeFound = true;
-            //        insertBefore = colNode;
-            //    }
-            //    if (col >= min && col <= max)
-            //    {
-            //        _colElement = (XmlElement)colNode;
-            //        break;
-            //    }
-            //}
-            //if (_colElement == null)
-            //{
-            //    // create the new column definition
-            //    _colElement = Worksheet.WorksheetXml.CreateElement("col", ExcelPackage.schemaMain);
-            //    _colElement.SetAttribute("min", col.ToString());
-            //    _colElement.SetAttribute("max", col.ToString());
-
-            //    if (insertBefore != null)
-            //        parent.InsertBefore(_colElement, insertBefore);
-            //    else
-            //        parent.AppendChild(_colElement);
-            //}
-            
-            ////Set default width if it is missing
-            //if (_colElement.GetAttribute("width") == "") 
-            //{
-            //    Width = Width;
-            //}
         }
 		#endregion
-
-		/// <summary>
-		/// Returns a reference to the Element that represents the column.
-		/// For internal use only!
-		/// </summary>
-		protected internal XmlElement Element { get { return (_colElement); } }
-		
+        int _columnMin;		
 		/// <summary>
 		/// Sets the first column the definition refers to.
 		/// </summary>
-        int _columnMin;
 		public int ColumnMin 
 		{
-            get { return _columnMin;/*(int.Parse(_colElement.GetAttribute("min"))); */}
-			set { _columnMin=value;/*_colElement.SetAttribute("min", value.ToString());*/ } 
+            get { return _columnMin; }
+			//set { _columnMin=value; } 
 		}
-		
-		/// <summary>
+
+        internal int _columnMax;
+        /// <summary>
 		/// Sets the last column the definition refers to.
 		/// </summary>
-        int _columnMax;
         public int ColumnMax 
 		{ 
-            get { return _columnMax;/*(int.Parse(_colElement.GetAttribute("max"))); */}
-			set { _columnMax = value;/*_colElement.SetAttribute("max", value.ToString());*/ } 
+            get { return _columnMax; }
+			set 
+            {
+                if (value < _columnMin && value > ExcelPackage.MaxColumns)
+                {
+                    throw new Exception("ColumnMax out of range");
+                }
+
+                foreach (ulong key in _xlWorksheet._columns.Keys)
+                {
+                    ExcelColumn c = _xlWorksheet._columns[key];
+                    if (c.ColumnMin > _columnMin && c.ColumnMax <= value && c.ColumnMin!=_columnMin)
+                    {
+                        throw new Exception(string.Format("ColumnMax can not spann over existing column {0}.",c.ColumnMin));
+                    }
+                }
+                _columnMax = value; 
+            } 
 		}
+        /// <summary>
+        /// Internal range id for the column
+        /// </summary>
         internal ulong ColumnID
         {
             get
@@ -232,6 +182,9 @@ namespace OfficeOpenXml
                 //_colElement.SetAttribute("width", value.ToString()); 
             }
 		}
+        /// <summary>
+        /// If set to true a column automaticlly resize(grow wider) when a user inputs numbers in a cell. 
+        /// </summary>
         public bool BestFit
         {
             get;
@@ -244,7 +197,7 @@ namespace OfficeOpenXml
 
 		#region ExcelColumn Style
         /// <summary>
-        /// The Style applied to the whole column. Only effekt cells with no individual style set. 
+        /// The Style applied to the whole column. Only effects cells with no individual style set. 
         /// Use Range object if you want to set specific styles.
         /// </summary>
         public ExcelStyle Style
@@ -270,10 +223,10 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
 		}
-		/// <summary>
+        int _styleID = 0;
+        /// <summary>
 		/// Sets the style for the entire column using the style ID.  
 		/// </summary>
-        int _styleID = 0;
         public int StyleID
 		{
             get

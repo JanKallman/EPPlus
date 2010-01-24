@@ -37,9 +37,11 @@ namespace OfficeOpenXml.Drawing.Chart
 {
     public class ExcelChartLegend : XmlHelper
     {
-        internal ExcelChartLegend(XmlNamespaceManager ns, XmlNode node)
+        ExcelChart _chart;
+        internal ExcelChartLegend(XmlNamespaceManager ns, XmlNode node, ExcelChart chart)
            : base(ns,node)
        {
+           _chart=chart;
        }
 
         ExcelDrawingFill _fill = null;
@@ -65,6 +67,23 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
                 return _border;
             }
+        }        
+        public void Remove()
+        {
+            if (TopNode == null) return;
+            TopNode.ParentNode.RemoveChild(TopNode);
+            TopNode = null;
+        }
+        public void Add()
+        {
+            if(TopNode!=null) return;
+
+            XmlHelper xml = new XmlHelper(NameSpaceManager, _chart.ChartXml);
+            xml.SchemaNodeOrder=_chart.SchemaNodeOrder;
+
+            xml.CreateNode("c:chartSpace/c:chart/c:legend");
+            TopNode = _chart.ChartXml.SelectSingleNode("c:chartSpace/c:chart/c:legend", NameSpaceManager);
+            TopNode.InnerXml="<c:legendPos val=\"r\" /><c:layout />";                        
         }
     }
 }

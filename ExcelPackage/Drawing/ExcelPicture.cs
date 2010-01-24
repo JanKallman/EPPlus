@@ -36,11 +36,13 @@ using System.IO;
 using System.IO.Packaging;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Diagnostics;
 
 namespace OfficeOpenXml.Drawing
 {
     public class ExcelPicture : ExcelDrawing
     {
+        #region "Constructors"
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
         {
@@ -53,9 +55,6 @@ namespace OfficeOpenXml.Drawing
                 PackagePart part = drawings.Part.Package.GetPart(UriPic);
                 _image = Image.FromStream(part.GetStream());
             }
-            else
-            {
-            }
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
@@ -67,35 +66,14 @@ namespace OfficeOpenXml.Drawing
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
 
             Package package = drawings.Worksheet.xlPackage.Package;
-            //if (image is Metafile)
-            //{
-                Metafile mf = image as Metafile;                            
-            //    string contentType;
-            //    if (mf.GetMetafileHeader().IsWmf() || mf.GetMetafileHeader().IsWmfPlaceable())
-            //    {
-            //        contentType = "image/x-wmf";
-            //        UriPic = GetNewUri(package, "/xl/media/image{0}.wmf");
-            //    }                    
-            //    else
-            //    {
-            //        contentType = "image/emf";
-            //        UriPic = GetNewUri(package, "/xl/media/image{0}.emf");
-            //    }
-            //    _imageFormat = ImageFormat.Png;
-            //    Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
-            //}
-            //else
-            //{
-                UriPic = GetNewUri(package, "/xl/media/image{0}.jpeg");
-                Part = package.CreatePart(UriPic, "image/jpeg", CompressionOption.NotCompressed);
-            //}
+            //Get the picture if it exists or save it if not.
+            _image = image;
+            string relID = SavePicture(image);
 
-            //Set the Image and save it to the package.
-            Image=image;
-            SetPosDefaults(Image);
             //Create relationship
-            PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
-            node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value=picRelation.Id;
+            node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
+
+            SetPosDefaults(image);
             package.Flush();
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile) :
@@ -108,16 +86,16 @@ namespace OfficeOpenXml.Drawing
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
 
             Package package = drawings.Worksheet.xlPackage.Package;
-            UriPic = GetNewUri(package, string.Format("/xl/media/image{0}.{0}",imageFile.Extension));
+            UriPic = GetNewUri(package, "/xl/media/image{0}" + imageFile.Extension);
             string contentType;
             switch (imageFile.Extension.ToLower())
             {
                 case ".bmp":
-                    contentType = "image/bmp";                    
+                    contentType = "image/bmp";
                     break;
                 case ".jpg":
                 case ".jpeg":
-                    contentType="image/jpeg";
+                    contentType = "image/jpeg";
                     break;
                 case ".gif":
                     contentType = "image/gif";
@@ -152,21 +130,73 @@ namespace OfficeOpenXml.Drawing
                     break;
 
             }
-            Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
-
-            //Save the picture to package.
-            byte[] file=File.ReadAllBytes(imageFile.FullName);
-            var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
-            strm.Write(file, 0, file.Length);
-
             _image = Image.FromFile(imageFile.FullName);
-            
+            ImageConverter ic = new ImageConverter();
+            byte[] img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
+
+            string relID = GetPictureRelID(img);
+
+            if (relID == "")
+            {
+                Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
+
+                //Save the picture to package.
+                byte[] file = File.ReadAllBytes(imageFile.FullName);
+                var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
+                strm.Write(file, 0, file.Length);
+
+                PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                relID = picRelation.Id;
+                AddNewPicture(img, relID);
+
+            }
             SetPosDefaults(Image);
             //Create relationship
-            PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
-            node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = picRelation.Id;
+            node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
             package.Flush();
         }
+        //Add a new image to the compare collection
+        private void AddNewPicture(byte[] img, string relID)
+        {
+            var newPic = new ExcelDrawings.ImageCompare();
+            newPic.image = img;
+            newPic.relID = relID;
+            _drawings._pics.Add(newPic);
+        }
+        #endregion
+        private string GetPictureRelID(byte[] img)
+        {            
+            foreach (ExcelDrawings.ImageCompare checkImg in _drawings._pics)
+            {
+                if (checkImg.Comparer(img))
+                {
+                    return checkImg.relID;
+                }
+            }
+            return "";
+        }
+        private string SavePicture(Image image)
+        {
+            ImageConverter ic = new ImageConverter();
+            byte[] img = (byte[])ic.ConvertTo(image, typeof(byte[]));
+
+            string relID = GetPictureRelID(img);
+            if (relID != "") return relID;
+
+            Package package = _drawings.Worksheet.xlPackage.Package;
+            _imageFormat = ImageFormat.Jpeg;
+            UriPic = GetNewUri(package, "/xl/media/image{0}.jpg");
+            Part = package.CreatePart(UriPic, "image/jpeg", CompressionOption.NotCompressed);
+
+            //Set the Image and save it to the package.
+            Image = image;
+            PackageRelationship picRelation = _drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            
+            AddNewPicture(img, picRelation.Id);
+
+            return picRelation.Id;
+        }
+
         private void SetPosDefaults(Image image)
         {
             SetPixelWidth(image.Width, image.HorizontalResolution);
@@ -198,7 +228,7 @@ namespace OfficeOpenXml.Drawing
                     }
                     catch(Exception ex)
                     {
-
+                        throw(new Exception("Can't save image - " + ex.Message, ex));
                     }
                 }
             }
@@ -213,6 +243,28 @@ namespace OfficeOpenXml.Drawing
             set
             {
                 _imageFormat = value;
+            }
+        }
+        /// <summary>
+        /// Set the size of the image in percent from the orginal size
+        /// </summary>
+        /// <param name="Percent">Percent</param>
+        public override void SetSize(int Percent)
+        {
+            if(Image == null)
+            {
+                base.SetSize(Percent);
+            }
+            else
+            {
+                int width = Image.Width;
+                int height = Image.Height;
+
+                width = (int)(width * ((decimal)Percent / 100));
+                height = (int)(height * ((decimal)Percent / 100));
+
+                SetPixelWidth(width, Image.HorizontalResolution);
+                SetPixelHeight(height, Image.VerticalResolution);
             }
         }
         internal Uri UriPic { get; set; }

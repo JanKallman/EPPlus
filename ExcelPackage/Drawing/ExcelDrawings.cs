@@ -48,9 +48,32 @@ namespace OfficeOpenXml.Drawing
         private XmlDocument _drawingsXml=new XmlDocument();
         private Dictionary<string, int> _drawingNames;
         private List<ExcelDrawing> _drawings;
+        internal class ImageCompare
+        {
+            internal byte[] image { get; set; }
+            internal string relID { get; set; }
+
+            internal bool Comparer(byte[] compareImg)
+            {
+                if (compareImg.Length != image.Length)
+                {
+                    return false;
+                }
+
+                for (int i = 0; i < image.Length; i++)
+                {
+                    if (image[i] != compareImg[i])
+                    {
+                        return false;
+                    }
+                }
+                return true; //Equal
+            }
+        }
+        internal List<ImageCompare> _pics = new List<ImageCompare>();
         public ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
-                _drawingsXml = new XmlDocument();
+                _drawingsXml = new XmlDocument();                
                 _drawingsXml.PreserveWhitespace = true;
                 _drawings = new List<ExcelDrawing>();
                 _drawingNames = new Dictionary<string,int>();
@@ -80,14 +103,13 @@ namespace OfficeOpenXml.Drawing
         {
             XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
 
-            int i = 1;
             foreach (XmlNode node in list)
             {
                 ExcelDrawing dr = ExcelDrawing.GetDrawing(this, node);
                 _drawings.Add(dr);
-                if (!_drawingNames.ContainsKey(dr.Name))
+                if (!_drawingNames.ContainsKey(dr.Name.ToLower()))
                 {
-                    _drawingNames.Add(dr.Name, _drawings.Count - 1);
+                    _drawingNames.Add(dr.Name.ToLower(), _drawings.Count - 1);
                 }
             }
         }
@@ -146,9 +168,9 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                if (_drawingNames.ContainsKey(Name))
+                if (_drawingNames.ContainsKey(Name.ToLower()))
                 {
-                    return _drawings[_drawingNames[Name]];
+                    return _drawings[_drawingNames[Name.ToLower()]];
                 }
                 else
                 {
@@ -196,7 +218,7 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelChart AddChart(string Name, eChartType ChartType)
             {
-                if(_drawingNames.ContainsKey(Name))
+                if(_drawingNames.ContainsKey(Name.ToLower()))
                 {
                     throw new Exception("Name already exist in the drawings collection");
                 }
@@ -223,7 +245,7 @@ namespace OfficeOpenXml.Drawing
                 ExcelChart chart = GetNewChart(drawNode, ChartType);
                 chart.Name = Name;
                 _drawings.Add(chart);
-                _drawingNames.Add(Name, _drawings.Count - 1);
+                _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                 return chart;
             }
             /// <summary>
@@ -236,7 +258,7 @@ namespace OfficeOpenXml.Drawing
             {
                 if (image != null)
                 {
-                    if (_drawingNames.ContainsKey(Name))
+                    if (_drawingNames.ContainsKey(Name.ToLower()))
                     {
                         throw new Exception("Name already exist in the drawings collection");
                     }                    
@@ -245,7 +267,7 @@ namespace OfficeOpenXml.Drawing
                     ExcelPicture pic = new ExcelPicture(this, drawNode, image);
                     pic.Name = Name;
                     _drawings.Add(pic);
-                    _drawingNames.Add(Name, _drawings.Count - 1);
+                    _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                     return pic;
                 }
                 throw (new Exception("AddPicture: Image can't be null"));
@@ -260,7 +282,7 @@ namespace OfficeOpenXml.Drawing
             {
                 if (ImageFile != null)
                 {
-                    if (_drawingNames.ContainsKey(Name))
+                    if (_drawingNames.ContainsKey(Name.ToLower()))
                     {
                         throw new Exception("Name already exist in the drawings collection");
                     }
@@ -269,14 +291,14 @@ namespace OfficeOpenXml.Drawing
                     ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile);
                     pic.Name = Name;
                     _drawings.Add(pic);
-                    _drawingNames.Add(Name, _drawings.Count - 1);
+                    _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                     return pic;
                 }
                 throw (new Exception("AddPicture: ImageFile can't be null"));
             }
             public ExcelShape AddShape(string Name, eShapeStyle Style)
             {
-                if (_drawingNames.ContainsKey(Name))
+                if (_drawingNames.ContainsKey(Name.ToLower()))
                 {
                     throw new Exception("Name already exist in the drawings collection");
                 }
@@ -285,7 +307,7 @@ namespace OfficeOpenXml.Drawing
                 shape.Name = Name;
                 shape.Style = Style;
                 _drawings.Add(shape);
-                _drawingNames.Add(Name, _drawings.Count - 1);
+                _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                 return shape;
             }
             private ExcelChart GetNewChart(XmlNode drawNode, eChartType chartType)

@@ -70,7 +70,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Represents the different view states of the worksheet
 	/// </summary>
-	public class ExcelWorksheetView
+	public class ExcelWorksheetView : XmlHelper
 	{
 		// TODO: implement the different view states of the worksheet
 		private ExcelWorksheet _xlWorksheet;
@@ -82,7 +82,8 @@ namespace OfficeOpenXml
 		/// view states of the worksheet.
 		/// </summary>
 		/// <param name="xlWorksheet"></param>
-		protected internal ExcelWorksheetView(ExcelWorksheet xlWorksheet)
+		protected internal ExcelWorksheetView(XmlNamespaceManager ns, XmlNode node,  ExcelWorksheet xlWorksheet) :
+            base(ns, node)
 		{
 			_xlWorksheet = xlWorksheet;
 		}
@@ -96,11 +97,11 @@ namespace OfficeOpenXml
 		{
 			get 
 			{
-				if (_sheetView == null)
-				{
-					_sheetView = (XmlElement)_xlWorksheet.WorksheetXml.SelectSingleNode("//d:sheetView", _xlWorksheet.NameSpaceManager);
-				}
-				return _sheetView;
+                //if (TopNode == null)
+                //{
+					//_sheetView = (XmlElement)_xlWorksheet.WorksheetXml.SelectSingleNode("//d:sheetView", _xlWorksheet.NameSpaceManager);
+				//}
+				return (XmlElement)TopNode;
 			}
 		}
 		#endregion
@@ -113,29 +114,30 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				bool retValue = false;
-				string ret = SheetViewElement.GetAttribute("tabSelected");
-				if (ret == "1") retValue = true;
-				return retValue;
+                //bool retValue = false;
+                //string ret = SheetViewElement.GetAttribute("tabSelected");
+                //if (ret == "1") retValue = true;
+                //return retValue;
+                return GetXmlNodeBool("@tabSelected");
 			}
 			set
 			{
-				// the sheetView node should always exist, so no need to create
-				if (value)
-				{
-					// ensure no other worksheet has its tabSelected attribute set to 1
-					foreach (ExcelWorksheet sheet in _xlWorksheet.xlPackage.Workbook.Worksheets)
-						sheet.View.TabSelected = false;
+                if (value)
+                {
+                //    // ensure no other worksheet has its tabSelected attribute set to 1
+                    foreach (ExcelWorksheet sheet in _xlWorksheet.xlPackage.Workbook.Worksheets)
+                        sheet.View.TabSelected = false;
 
-					SheetViewElement.SetAttribute("tabSelected", "1");
+                     SheetViewElement.SetAttribute("tabSelected", "1");
                     XmlElement bookView= _xlWorksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _xlWorksheet.NameSpaceManager) as XmlElement;
                     if (bookView != null)
                     {
                         bookView.SetAttribute("activeTab",(_xlWorksheet.PositionID-1).ToString());
                     }
-				}
-				else
-					SheetViewElement.SetAttribute("tabSelected", "0");
+                }
+                else
+                    SetXmlNode("@tabSelected", "0");
+                
 			}
 		}
         private XmlElement _selectionNode = null;
@@ -153,24 +155,32 @@ namespace OfficeOpenXml
             }
         }
         #endregion
+        const string _selectionRangePath = "d:selection/@sqref";
         /// <summary>
         /// Selected Cells.Used in combination with ActiveCell
-        /// </summary>
+        /// </summary>        
         public string SelectedRange
         {
             get 
-            { 
-                if(_selectionNode==null)
+            {
+                string address=GetXmlNode(_selectionRangePath);
+                if (address == "")
                 {
                     return "A1";
                 }
-                return SelectionNode.GetAttribute("sqref");
+                return address;
+                //if(_selectionNode==null)
+                //{
+                //    return "A1";
+                //}
+                //return SelectionNode.GetAttribute("sqref");
             }
             set
             {                
                 int fromCol, fromRow, toCol, toRow;
                 ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
-                SelectionNode.SetAttribute("sqref",value);
+                //SelectionNode.SetAttribute("sqref",value);
+                SetXmlNode(_selectionRangePath, value);
                 if (SelectionNode.GetAttribute("activeCell") == "")
                 {
 
@@ -182,6 +192,7 @@ namespace OfficeOpenXml
                 }
             }
         }
+        const string _activeCellPath = "d:selection/@activeCell";
         /// <summary>
         /// Set the active cell. Must be set within the SelectedRange.
         /// </summary>
@@ -189,17 +200,24 @@ namespace OfficeOpenXml
         {
             get
             {
-                if (_selectionNode == null)
+                string address = GetXmlNode(_activeCellPath);
+                if (address == "")
                 {
                     return "A1";
                 }
-                return SelectionNode.GetAttribute("activeCell");
+                return address;
+                //if (_selectionNode == null)
+                //{
+                //    return "A1";
+                //}
+                //return SelectionNode.GetAttribute("activeCell");
             }
             set
             {
                 int fromCol, fromRow, toCol, toRow;
                 ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
-                SelectionNode.SetAttribute("activeCell", value);
+                //SelectionNode.SetAttribute("activeCell", value);
+                SetXmlNode(_activeCellPath, value);
                 if (SelectionNode.GetAttribute("sqref") == "")
                 {
 
@@ -220,19 +238,31 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				bool retValue = false;
-				string ret = SheetViewElement.GetAttribute("view");
-				if (ret == "pageLayout") retValue = true;
-				return retValue;
+                //bool retValue = false;
+                //string ret = SheetViewElement.GetAttribute("view");
+                //if (ret == "pageLayout") retValue = true;
+                //return retValue;
+                return GetXmlNodeBool("@view");
 			}
 			set
 			{
-				if (value)
-					SheetViewElement.SetAttribute("view", "pageLayout");
-				else
-					SheetViewElement.RemoveAttribute("view");
+                if (value)
+                    SetXmlNode("@view", "pageLayout"); //  SheetViewElement.SetAttribute("view", "pageLayout");
+                else
+                    SheetViewElement.RemoveAttribute("view");
 			}
 		}
+        public bool ShowGridLines 
+        {
+            get
+            {
+                return GetXmlNodeBool("@showGridLines");
+            }
+            set
+            {
+                SetXmlNode("@showGridLines", value ? "1" : "0");
+            }
+        }
 		#endregion
 	}
 }

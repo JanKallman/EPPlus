@@ -81,7 +81,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-	public class ExcelWorksheet
+	public class ExcelWorksheet : XmlHelper
 	{
         internal class Formulas
         {
@@ -140,7 +140,6 @@ namespace OfficeOpenXml
         internal SortedDictionary<ulong, ExcelRow> _rows = new SortedDictionary<ulong, ExcelRow>();
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
         internal static CultureInfo _ci=new CultureInfo("en-US");
-        #region Worksheet Private Properties
 		/// <summary>
 		/// Temporary tag for all column numbers in the worksheet XML
 		/// For internal use only!
@@ -150,7 +149,8 @@ namespace OfficeOpenXml
 		/// Reference to the parent package
 		/// For internal use only!
 		/// </summary>
-		protected internal ExcelPackage xlPackage;
+        #region Worksheet Private Properties
+        protected internal ExcelPackage xlPackage;
 		private Uri _worksheetUri;
 		private string _name;
 		private int _sheetID;
@@ -160,41 +160,35 @@ namespace OfficeOpenXml
 		private XmlDocument _worksheetXml;
 		private ExcelWorksheetView _sheetView;
 		private ExcelHeaderFooter _headerFooter;
-        private XmlNamespaceManager _nsManager;
-		#endregion  // END Worksheet Private Properties
-
-		#region ExcelWorksheet Constructor
-		/// <summary>
-		/// Creates a new instance of ExcelWorksheet class. 
-		/// For internal use only!
-		/// </summary>
-		/// <param name="ParentXlPackage">Parent ExcelPackage object</param>
-		/// <param name="RelationshipID">Package relationship ID</param>
-		/// <param name="sheetName">Name of the new worksheet</param>
-		/// <param name="uriWorksheet">Uri of the worksheet in the package</param>
-		/// <param name="SheetID">The worksheet's ID in the workbook XML</param>
-		/// <param name="Hide">Indicates if the worksheet is hidden</param>
-		protected internal ExcelWorksheet(
-			ExcelPackage ParentXlPackage,
-			string RelationshipID,
-			string sheetName,
-			Uri uriWorksheet, 
-			int SheetID, 
-            int PositionID,
-			bool Hide)
-		{
-			xlPackage = ParentXlPackage;
-			_relationshipID = RelationshipID;
-			_worksheetUri = uriWorksheet;
-			_name = sheetName;
-			//_type = Type;
-			_sheetID = SheetID;
+        #endregion
+        #region ExcelWorksheet Constructor
+        /// <summary>
+        /// A worksheet
+        /// </summary>
+        /// <param name="ns">Namespacemanager</param>
+        /// <param name="excelPackage">Package</param>
+        /// <param name="uriWorksheet">URI</param>
+        /// <param name="sheetName">Name of the sheet</param>
+        /// <param name="SheetID">Sheet id</param>
+        /// <param name="PositionID">Position</param>
+        /// <param name="Hide">Hidden</param>
+        public ExcelWorksheet(XmlNamespaceManager ns, ExcelPackage excelPackage, string relID, 
+                              Uri uriWorksheet, string sheetName, int SheetID, int PositionID,
+                              bool Hide) :
+            base(ns, null)
+        {
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "protectedRanges", "customSheetViews", "hyperlinks", "pageMargins", "pageSetup", "drawing" };
+            xlPackage = excelPackage;
+            _relationshipID = RelationshipID;
+            _worksheetUri = uriWorksheet;
+            _name = sheetName;
+            _sheetID = SheetID;
             _positionID = PositionID;
-			Hidden = Hide;
+            Hidden = Hide;
             CreateXml();
-
+            TopNode = _worksheetXml.DocumentElement;
         }
-		#endregion
+        #endregion
 
 		#region Worksheet Public Properties
 		/// <summary>
@@ -215,22 +209,6 @@ namespace OfficeOpenXml
 		/// </summary>
 		protected internal int SheetID { get { return (_sheetID); } }
         protected internal int PositionID { get { return (_positionID); } }
-        /// <summary>
-		/// Provides access to a namespace manager instance to allow XPath searching
-		/// </summary>
-		public XmlNamespaceManager NameSpaceManager 
-		{ 
-			get 
-			{
-				if (_nsManager == null)
-				{
-					NameTable nt = new NameTable();
-					_nsManager = new XmlNamespaceManager(nt);
-					_nsManager.AddNamespace("d", ExcelPackage.schemaMain);
-				}
-				return (_nsManager);
-			}
-		}
 		/// <summary>
 		/// Returns a ExcelWorksheetView object that allows you to
 		/// set the view state properties of the worksheet
@@ -241,7 +219,12 @@ namespace OfficeOpenXml
 			{
 				if (_sheetView == null)
 				{
-					_sheetView = new ExcelWorksheetView(this);
+                    XmlNode node = _worksheetXml.SelectSingleNode("//d:sheetView", NameSpaceManager);
+                    if (node == null)
+                    {
+                        CreateNode("d:sheetViews/d:sheetView"); //this one shouls always exist. but check anyway
+                    }
+                    _sheetView = new ExcelWorksheetView(NameSpaceManager, node, this);
 				}
 				return (_sheetView);
 			}
@@ -368,8 +351,44 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-
-		#region WorksheetXml
+        /** <outlinePr applyStyles="1" summaryBelow="0" summaryRight="0" /> **/
+        const string outLineSummaryBelowPath = "d:sheetPr/d:outlinePr/@summaryBelow"; 
+        public bool OutLineSummaryBelow 
+        { 
+            get
+            {
+                return GetXmlNodeBool(outLineSummaryBelowPath);
+            }
+            set
+            {
+                SetXmlNode(outLineSummaryBelowPath, value ? "1" : "0");
+            }
+        }
+        const string outLineSummaryRightPath = "d:sheetPr/d:outlinePr/@summaryRight";
+        public bool OutLineSummaryRight
+        {
+            get
+            {
+                return GetXmlNodeBool(outLineSummaryRightPath);
+            }
+            set
+            {
+                SetXmlNode(outLineSummaryRightPath, value ? "1" : "0");
+            }
+        }
+        const string outLineApplyStylePath = "d:sheetPr/d:outlinePr/@applyStyles";
+        public bool OutLineApplyStyle
+        {
+            get
+            {
+                return GetXmlNodeBool(outLineApplyStylePath);
+            }
+            set
+            {
+                SetXmlNode(outLineApplyStylePath, value ? "1" : "0");
+            }
+        }
+        #region WorksheetXml
 		/// <summary>
 		/// The XML document holding all the worksheet data.
 		/// </summary>
@@ -396,7 +415,7 @@ namespace OfficeOpenXml
 
         private void LoadColumns()
         {            
-            foreach (XmlNode colNode in _worksheetXml.SelectNodes("//d:cols/d:col", _nsManager))
+            foreach (XmlNode colNode in _worksheetXml.SelectNodes("//d:cols/d:col", NameSpaceManager))
             {
                 int min=int.Parse(colNode.Attributes["min"].Value);
                 int max=int.Parse(colNode.Attributes["max"].Value);
@@ -409,7 +428,7 @@ namespace OfficeOpenXml
 
                 double width = colNode.Attributes["width"] == null ? 0 : double.Parse(colNode.Attributes["width"].Value, _ci); 
                 ExcelColumn col = new ExcelColumn(this,min);
-                col.ColumnMax = max;
+                col._columnMax = max;
                 col.StyleID = style;
                 col.Width = width;
 
@@ -424,21 +443,30 @@ namespace OfficeOpenXml
 
         private void LoadHyperLinks()
         {
-            foreach (XmlNode hlNode in _worksheetXml.SelectNodes("//d:hyperlinks/d:hyperlink", _nsManager))
+            foreach (XmlElement hlNode in _worksheetXml.SelectNodes("//d:hyperlinks/d:hyperlink", NameSpaceManager))
             {
-                int row, col;
-                ExcelCell.GetRowCol(hlNode.Attributes["ref"].Value, out row, out col);
-                ulong id = ExcelCell.GetCellID(_sheetID, row, col);
+                int fromRow, fromCol, toRow, toCol;
+                ExcelCell.GetRowColFromAddress(hlNode.Attributes["ref"].Value, out fromRow, out fromCol, out toRow, out toCol);
+                ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
                 ExcelCell cell = _cells[id];
-
-                cell.HyperLinkRId = hlNode.Attributes["r:id"].Value;
-                cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                if (hlNode.Attributes["r:id"] != null)
+                {
+                    cell.HyperLinkRId = hlNode.Attributes["r:id"].Value;
+                    cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                }
+                else if(hlNode.Attributes["location"]!=null)
+                {
+                    ExcelHyperLink hl = new ExcelHyperLink(hlNode.GetAttribute("location"), hlNode.GetAttribute("display"));
+                    hl.RowSpann = toRow - fromRow;
+                    hl.ColSpann = toCol - fromCol;
+                    cell.Hyperlink = hl;
+                }
             }
         }
 
         private void LoadCells()
         {
-            foreach (XmlNode rowNode in _worksheetXml.SelectNodes("//d:sheetData/d:row", _nsManager))
+            foreach (XmlNode rowNode in _worksheetXml.SelectNodes("//d:sheetData/d:row", NameSpaceManager))
             {
                 int row = Convert.ToInt32(rowNode.Attributes.GetNamedItem("r").Value);
                 if (rowNode.Attributes.Count > 2 || (rowNode.Attributes.Count == 2 && rowNode.Attributes.GetNamedItem("spans")!=null))
@@ -492,7 +520,7 @@ namespace OfficeOpenXml
         }
         private void LoadMergeCells()
         {
-            foreach (XmlNode mergeNode in _worksheetXml.SelectNodes("//d:mergeCells/d:mergeCell", _nsManager))
+            foreach (XmlNode mergeNode in _worksheetXml.SelectNodes("//d:mergeCells/d:mergeCell", NameSpaceManager))
             {
                 string address = mergeNode.Attributes["ref"].Value;
                 Cells[address].Merge = true;
@@ -500,12 +528,12 @@ namespace OfficeOpenXml
         }
         private void UpdateMergedCells()
         {
-            var topNode = _worksheetXml.SelectSingleNode("//d:mergeCells", _nsManager);
+            var topNode = _worksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager);
             if (_mergedCells.Count > 0)
             {
                 if (topNode == null)
                 {
-                    XmlNode parentNode = _worksheetXml.SelectSingleNode("//d:sheetData", _nsManager);
+                    XmlNode parentNode = _worksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
                     topNode = _worksheetXml.CreateElement("mergeCells", ExcelPackage.schemaMain);
                     _worksheetXml.DocumentElement.InsertAfter(topNode, parentNode);
 
@@ -573,7 +601,15 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    value = double.Parse(v, _ci);
+                    double d;
+                    if (double.TryParse(v, NumberStyles.Number, _ci, out d))
+                    {
+                        value = d;
+                    }
+                    else
+                    {
+                        value = double.NaN;
+                    }
                 }
             }
             return value;
@@ -1025,7 +1061,7 @@ namespace OfficeOpenXml
         /// </summary>
         private void UpdateColumnData()
         {
-            XmlNode cols = WorksheetXml.SelectSingleNode("//d:cols", _nsManager);
+            XmlNode cols = WorksheetXml.SelectSingleNode("//d:cols", NameSpaceManager);
             if (_columns.Count == 0)
             {
                 if (cols != null)
@@ -1037,7 +1073,7 @@ namespace OfficeOpenXml
 
             if (cols == null)
             {
-                XmlNode refNode = WorksheetXml.SelectSingleNode("//d:sheetData", _nsManager);
+                XmlNode refNode = WorksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
                 cols = WorksheetXml.DocumentElement.InsertBefore(WorksheetXml.CreateElement("cols", ExcelPackage.schemaMain), refNode);
             }
             else
@@ -1054,7 +1090,7 @@ namespace OfficeOpenXml
                 {
                     if(prevCol.ColumnMax != col.ColumnMin-1)
                     {
-                        prevCol.ColumnMax=col.ColumnMin-1;
+                        prevCol._columnMax=col.ColumnMin-1;
                     }
                 }
                 prevCol = col;
@@ -1079,9 +1115,19 @@ namespace OfficeOpenXml
                     sbXml.AppendFormat(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width);
                 }
                 if (col.OutlineLevel > 0)
-                {
-                    sbXml.Append(" collapsed=\"1\"");
+                {                    
                     sbXml.AppendFormat(" outlineLevel=\"{0}\" ", col.OutlineLevel);
+                    if (col.Collapsed)
+                    {
+                        if (col.Hidden)
+                        {
+                            sbXml.Append(" collapsed=\"1\"");
+                        }
+                        else
+                        {
+                            sbXml.Append(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                        }
+                    }
                 }
                 if (col.Phonetic)
                 {
@@ -1101,7 +1147,7 @@ namespace OfficeOpenXml
         /// </summary>
         private void UpdateRowCellData()
         {
-            XmlNode top = WorksheetXml.SelectSingleNode("//d:sheetData", _nsManager);
+            XmlNode top = WorksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
             if (top == null)
             {
                 if (_cells.Count == 0)
@@ -1109,10 +1155,10 @@ namespace OfficeOpenXml
                 else
                 {
                     top = WorksheetXml.CreateNode(XmlNodeType.Element, "d:sheetData", ExcelPackage.schemaMain);
-                    XmlNode parent = _worksheetXml.SelectSingleNode("//d:sheetFormatPr", _nsManager);
+                    XmlNode parent = _worksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
                     if (parent == null)
                     {
-                        parent = _worksheetXml.SelectSingleNode("//d:sheetViews",_nsManager);                        
+                        parent = _worksheetXml.SelectSingleNode("//d:sheetViews",NameSpaceManager);                        
                     }
                     _worksheetXml.DocumentElement.InsertAfter(top, parent);
                 }
@@ -1155,10 +1201,17 @@ namespace OfficeOpenXml
                         if (currRow.OutlineLevel > 0)
                         {
                             sbXml.AppendFormat("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
-                        }
-                        if(currRow.Collapsed)
-                        {
-                            sbXml.Append("collapsed=\"1\" ");
+                            if (currRow.Collapsed)
+                            {
+                                if (currRow.Hidden)
+                                {
+                                    sbXml.Append(" collapsed=\"1\"");
+                                }
+                                else
+                                {
+                                    sbXml.Append(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                                }
+                            }
                         }
                         if (currRow.Phonetic)
                         {
@@ -1173,7 +1226,7 @@ namespace OfficeOpenXml
                     var f = _sharedFormulas[cell.SharedFormulaID];
                     if (f.StartCol==cell.Column && f.StartRow==cell.Row)
                     {
-                        sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, f.Formula);
+                        sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
                     }
                     else
                     {
@@ -1286,7 +1339,7 @@ namespace OfficeOpenXml
         /// <param name="hyperLinkCells">List containing cellid's with hyperlinks</param>
         private void UpdateHyperLinks(List<ulong> hyperLinkCells)
         {
-            XmlNode hyperlinkParent = _worksheetXml.SelectSingleNode("//d:hyperlinks", _nsManager);
+            XmlNode hyperlinkParent = _worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager);
             if (hyperLinkCells.Count > 0)
             {
                 if (hyperlinkParent == null)
@@ -1299,9 +1352,12 @@ namespace OfficeOpenXml
                     foreach(XmlElement e in _worksheetXml.SelectNodes("//d:hyperlink",NameSpaceManager))
                     {
                         string id=e.GetAttribute("id",ExcelPackage.schemaRelationships);
-                        if (Part.RelationshipExists(id))
+                        if (id != "")
                         {
-                            Part.DeleteRelationship(id);
+                            if (Part.RelationshipExists(id))
+                            {
+                                Part.DeleteRelationship(id);
+                            }
                         }
                     }
                     hyperlinkParent.RemoveAll();                    
@@ -1310,25 +1366,38 @@ namespace OfficeOpenXml
                 foreach (ulong cellId in hyperLinkCells)
                 {
                     ExcelCell cell = _cells[cellId];
-                    string id;
-                    if (hyps.ContainsKey(cell.Hyperlink.AbsolutePath))
+                    if (cell.Hyperlink is ExcelHyperLink && (cell.Hyperlink as ExcelHyperLink).ReferenceAddress != "")
                     {
-                        id = hyps[cell.Hyperlink.AbsolutePath];
+                        ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
+                        XmlElement node = _worksheetXml.CreateElement("hyperlink", ExcelPackage.schemaMain);
+                        node.SetAttribute("ref", Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address);
+                        node.SetAttribute("location", ExcelCell.GetFullAddress(Name, hl.ReferenceAddress));
+                        node.SetAttribute("display", hl.Display);
+                        hyperlinkParent.AppendChild(node);                        
                     }
                     else
                     {
-                        XmlElement node = _worksheetXml.CreateElement("hyperlink", ExcelPackage.schemaMain);
-                        node.SetAttribute("ref", cell.CellAddress);
-                        hyperlinkParent.AppendChild(node);
+                        string id;
+                        if (hyps.ContainsKey(cell.Hyperlink.AbsolutePath))
+                        {
+                            id = hyps[cell.Hyperlink.AbsolutePath];
+                        }
+                        else
+                        {
+                            XmlElement node = _worksheetXml.CreateElement("hyperlink", ExcelPackage.schemaMain);
+                            node.SetAttribute("ref", cell.CellAddress);
+                            hyperlinkParent.AppendChild(node);
 
-                        XmlAttribute attr = _worksheetXml.CreateAttribute("r", "id", ExcelPackage.schemaRelationships);
-                        node.Attributes.Append(attr);
-                        PackageRelationship relationship = Part.CreateRelationship(cell.Hyperlink, TargetMode.External, ExcelPackage.schemaHyperlink);
-                        attr.Value = relationship.Id;
-                        id = relationship.Id;
+                            XmlAttribute attr = _worksheetXml.CreateAttribute("r", "id", ExcelPackage.schemaRelationships);
+                            node.Attributes.Append(attr);
+                            PackageRelationship relationship = Part.CreateRelationship(cell.Hyperlink, TargetMode.External, ExcelPackage.schemaHyperlink);
+                            attr.Value = relationship.Id;
+                            id = relationship.Id;
+                        }
+                        cell.HyperLinkRId = id;
                     }
-                    cell.HyperLinkRId = id;
-                }
+
+                }   
             }
             else if (hyperlinkParent != null)
             {
@@ -1342,13 +1411,13 @@ namespace OfficeOpenXml
         private XmlNode CreateHyperLinkCollection()
         {
             XmlElement hl=_worksheetXml.CreateElement("hyperlinks",ExcelPackage.schemaMain);
-            XmlNode prevNode = _worksheetXml.SelectSingleNode("//d:conditionalFormatting", _nsManager);
+            XmlNode prevNode = _worksheetXml.SelectSingleNode("//d:conditionalFormatting", NameSpaceManager);
             if (prevNode == null)
             {
-                prevNode = _worksheetXml.SelectSingleNode("//d:mergeCells", _nsManager);
+                prevNode = _worksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager);
                 if (prevNode == null)
                 {
-                    prevNode = _worksheetXml.SelectSingleNode("//d:sheetData", _nsManager);
+                    prevNode = _worksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
                 }
             }
             return _worksheetXml.DocumentElement.InsertAfter(hl, prevNode);
