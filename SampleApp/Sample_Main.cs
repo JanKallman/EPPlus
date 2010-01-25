@@ -122,19 +122,18 @@ namespace ExcelPackageSamples
                 //Open sample 1 and adds a pie chart.
                 Console.WriteLine("Running sample 5");
                 Sample5.RunSample5(outputDir);
-                Console.WriteLine("Sample 5 created: {0}", output);
+                Console.WriteLine("Sample 5 created:", output);
                 Console.WriteLine();
 
                 //Sample 6
-                //Makes a an advanced report on a directory in the filesystem.
-                //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go.
+                //Makes an advanced report on a directory in the filesystem.
+                //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if true (Set this to true to get some performance)
                 //
                 //This example demonstrates how to use outlines, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
-                Sample6.RunSample6(outputDir, new DirectoryInfo(@"..\\.."), 5);
-                Console.WriteLine("Sample 6 created: {0}", output);
+                Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
+                Console.WriteLine("Sample 6 created:", output);
                 Console.WriteLine();
-            
             }
 			catch (Exception ex)
 			

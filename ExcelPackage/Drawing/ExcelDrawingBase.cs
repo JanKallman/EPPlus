@@ -193,7 +193,13 @@ namespace OfficeOpenXml.Drawing
                 }
             }
         }
+        /// <summary>
+        /// Top Left position
+        /// </summary>
         public ExcelPosition From { get; set; }
+        /// <summary>
+        /// Bottom right position
+        /// </summary>
         public ExcelPosition To { get; set; }
         /// <summary>
         /// Add new Drawing types here
@@ -355,6 +361,7 @@ namespace OfficeOpenXml.Drawing
         #region "Public sizing functions"
         /// <summary>
         /// Set the top left corner of a drawing. 
+        /// Note that resizing columns / rows after using this function will effect the position of the drawing
         /// </summary>
         /// <param name="PixelTop">Top pixel</param>
         /// <param name="PixelLeft">Left pixel</param>
@@ -371,6 +378,7 @@ namespace OfficeOpenXml.Drawing
         }
         /// <summary>
         /// Set the top left corner of a drawing. 
+        /// Note that resizing columns / rows after using this function will effect the position of the drawing
         /// </summary>
         /// <param name="Row">Start row</param>
         /// <param name="RowOffsetPixels">Offset in pixels</param>
@@ -391,6 +399,7 @@ namespace OfficeOpenXml.Drawing
         }
         /// <summary>
         /// Set size in Percent
+        /// Note that resizing columns / rows after using this function will effect the size of the drawing
         /// </summary>
         /// <param name="Percent"></param>
         public virtual void SetSize(int Percent)
@@ -406,6 +415,7 @@ namespace OfficeOpenXml.Drawing
         }
         /// <summary>
         /// Set size in pixels
+        /// Note that resizing columns / rows after using this function will effect the size of the drawing
         /// </summary>
         /// <param name="PixelWidth">Width in pixels</param>
         /// <param name="PixelHeight">Height in pixels</param>

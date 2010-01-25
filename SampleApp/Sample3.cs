@@ -59,9 +59,9 @@ namespace ExcelPackageSamples
 	class Sample3
 	{
 		/// <summary>
-		/// Sample 3 - creates a workbook based on a template and 
-		/// populates using data from the AdventureWorks database
+		/// Sample 3 - creates a workbook and populates using data from the AdventureWorks database
 		/// This sample requires the AdventureWorks database.  
+        /// This one is also from the orginal Excelpackage sample project, but without the template
 		/// </summary>
 		/// <param name="outputDir">The output directory</param>
 		/// <param name="templateDir">The location of the sample template</param>
@@ -69,8 +69,6 @@ namespace ExcelPackageSamples
 		public static string RunSample3(DirectoryInfo outputDir, string connectionString)
 		{
 			
-			if (connectionString.IndexOf("YourServerName") > 0)
-				throw new Exception("You must edit the connection string to reference the correct server name!");
             string file = outputDir.FullName + @"\sample3.xlsx";
             if (File.Exists(file)) File.Delete(file);
             FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample3.xlsx");

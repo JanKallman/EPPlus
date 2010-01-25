@@ -1,4 +1,35 @@
-﻿using System;
+﻿/*******************************************************************************
+ * You may amend and distribute as you like, but don't remove this header!
+ * 
+ * All rights reserved.
+ * 
+ * EPPlus is an Open Source project provided under the 
+ * GNU General Public License (GPL) as published by the 
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * 
+ * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * EPPlus is a fork of the ExcelPackage project
+ * 
+ * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ * 
+ * The code for this project may be used and redistributed by any means PROVIDING it is 
+ * not sold for profit without the author's written consent, and providing that this notice 
+ * and the author's name and all copyright notices remain intact.
+ * 
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ *
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ *******************************************************************************
+ * Jan Källman		Added		25-JAN-2010
+ *******************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -13,6 +44,9 @@ using OfficeOpenXml.Style.XmlAccess;
 
 namespace ExcelPackageSamples
 {
+    /// <summary>
+    /// Sample 6 - Reads the filesystem and makes a report.
+    /// </summary>               
     class Sample6
     {
         #region "Icon API function"
@@ -37,6 +71,8 @@ namespace ExcelPackageSamples
                                     uint cbSizeFileInfo,
                                     uint uFlags);
         #endregion
+        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
+        extern static bool DestroyIcon(IntPtr handle);
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }
@@ -54,16 +90,18 @@ namespace ExcelPackageSamples
 
             #endregion
         }
-        /// <summary>
-        /// Sample 6 - Reads the filesystem and makes a report.
-        /// </summary>               
         static int _maxLevels;
 
         static Dictionary<string, StatItem> _extStat = new Dictionary<string, StatItem>();
         static List<StatItem> _fileSize = new List<StatItem>();
-        static SortedList<long, string> _dirSize = new SortedList<long, string>();
-
-        public static void RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth)
+        /// <summary>
+        /// Sample 6 - Reads the filesystem and makes a report.
+        /// </summary>
+        /// <param name="outputDir">Output directory</param>
+        /// <param name="dir">Directory to scan</param>
+        /// <param name="depth">How many levels?</param>
+        /// <param name="skipIcons">Skip the icons in column A. A lot faster</param>
+        public static void RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth, bool skipIcons)
         {
             _maxLevels = depth;
 
@@ -76,6 +114,7 @@ namespace ExcelPackageSamples
             
             //Create the workbook
             ExcelPackage pck = new ExcelPackage(newFile);
+            //Add the Content sheet
             var ws = pck.Workbook.Worksheets.Add("Content");
 
             ws.View.ShowGridLines = false;
@@ -90,7 +129,6 @@ namespace ExcelPackageSamples
             ws.Column(4).OutlineLevel = 1;
             ws.Column(4).Collapsed = true;
             ws.Column(5).OutlineLevel = 1;
-            ws.Column(4).Collapsed = true;
             ws.Column(5).Collapsed = true;
             ws.OutLineSummaryRight = true;
             
@@ -101,11 +139,13 @@ namespace ExcelPackageSamples
             ws.Cells["E1"].Value = "Last modified";
             ws.Cells["B1:E1"].Style.Font.Bold = true;
             
-            int row = 2;
+            //height is 20 pixels 
             double height = 20 * 0.75;
+            //Start at row 2;
+            int row = 2;
 
             //Load the directory content to sheet 1
-            row = AddDirectory(ws, dir, row, height, 0);
+            row = AddDirectory(ws, dir, row, height, 0, skipIcons);
             ws.OutLineSummaryBelow = false;
 
             //Format columns
@@ -134,16 +174,21 @@ namespace ExcelPackageSamples
             //Add graph sheet
             AddGraphs(pck, row, string.Format("Statistics for {0}",dir.FullName));
 
-            //Add a HyperLink to the statistics sheet
+            //Add a HyperLink to the statistics sheet. 
             var namedStyle = pck.Workbook.Styles.CreateNamedStyle("HyperLink");   //This one is language dependent
             namedStyle.Style.Font.UnderLine = true;
             namedStyle.Style.Font.Color.SetColor(Color.Blue);
             ws.Cells["K12"].Hyperlink = new ExcelHyperLink("Statistics!A1", "Statistics");
             ws.Cells["K12"].StyleName = "HyperLink";
 
+            //Printer settings
+            ws.PrinterSettings.FitToPage = true;
+            ws.PrinterSettings.FitToWidth = 1;
+            ws.PrinterSettings.FitToHeight = 0;
+
+            //Done! save the sheet
             pck.Save();
         }
-
         /// <summary>
         /// Add the second sheet containg the graphs
         /// </summary>
@@ -158,6 +203,7 @@ namespace ExcelPackageSamples
             ws.Column(1).Width = 40;
             ws.Column(2).Width = 20;
 
+            //Set first the header and format it
             ws.Cells["A1"].Value = header;
             using (ExcelRange r = ws.Cells["A1:N1"])
             {
@@ -169,27 +215,34 @@ namespace ExcelPackageSamples
                 r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(23, 55, 93));
             }
 
+            //Start with the Extention Size 
             List<StatItem> lst = new List<StatItem>(_extStat.Values);           
             lst.Sort();
 
+            //Add rows
             int row=AddStatRows(ws, lst, 2, "Extensions", "Size");
 
+            //Add the piechart
             var pieChart = ws.Drawings.AddChart("crtExtensionsSize", eChartType.PieExploded3D) as ExcelPieChart;
+            //Set top left corner to row 1 column 2
             pieChart.SetPosition(1, 0, 2, 0);
             pieChart.SetSize(400, 400);
             pieChart.Series.Add(ExcelRange.GetAddress(4, 2, row-1, 2), ExcelRange.GetAddress(4, 1, row-1, 1));
 
             pieChart.Title.Text = "Extension Size";
+            //Set datalabels and remove the legend
             pieChart.DataLabel.ShowCategory = true;
             pieChart.DataLabel.ShowPercent = true;
             pieChart.DataLabel.ShowLeaderLines = true;
             pieChart.Legend.Remove();
 
-            //Resort on Count
+            //Resort on Count and add the rows
             lst.Sort((first,second) => first.Count < second.Count ? -1 : first.Count > second.Count ? 1 : 0);
             row=AddStatRows(ws, lst, 16, "", "Count");
 
+            //Add the Doughnut chart
             var doughtnutChart = ws.Drawings.AddChart("crtExtensionCount", eChartType.DoughnutExploded) as ExcelDoughnutChart;
+            //Set position to row 1 column 7 and 50 pixels offset
             doughtnutChart.SetPosition(1, 0, 7, 50);
             doughtnutChart.SetSize(400, 400);
             doughtnutChart.Series.Add(ExcelRange.GetAddress(17, 2, row - 1, 2), ExcelRange.GetAddress(17, 1, row - 1, 1));
@@ -198,6 +251,7 @@ namespace ExcelPackageSamples
             doughtnutChart.DataLabel.ShowPercent = true;
             doughtnutChart.DataLabel.ShowLeaderLines = true;
 
+            //Top-10 filesize
             _fileSize.Sort();
             row=AddStatRows(ws, _fileSize, 29, "Files", "Size");
             var barChart = ws.Drawings.AddChart("crtFiles", eChartType.BarClustered3D) as ExcelBarChart;
@@ -210,11 +264,17 @@ namespace ExcelPackageSamples
             barChart.Series.Add(ExcelRange.GetAddress(31, 2, row - 1, 2), ExcelRange.GetAddress(31, 1, row - 1, 1));
             barChart.Series[0].Header = "Size";
             barChart.Title.Text = "Top File size";
+
             //Format the Size and Count column
             ws.Cells["B3:B42"].Style.Numberformat.Format = "#,##0";
             //Set a border around
             ws.Cells["N1:N43"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
             ws.Cells["A43:N43"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+
+            //And last the pritersettings
+            ws.PrinterSettings.Orientation = eOrientation.Landscape;
+            ws.PrinterSettings.FitToPage = true;
+            ws.PrinterSettings.Scale = 67;
         }
         /// <summary>
         /// Add statistic-rows to the statistics sheet.
@@ -244,6 +304,7 @@ namespace ExcelPackageSamples
                 row++;
             }
             
+            //Header 2
             ws.Cells[row, 1].Value = "Name";
             ws.Cells[row, 2].Value = propertyName;
             using (ExcelRange r = ws.Cells[row, 1, row, 2])
@@ -272,7 +333,8 @@ namespace ExcelPackageSamples
                     row++;
                 }
             }
-
+            
+            //If we have more than 10 items, sum...
             long rest = 0;
             for (int i = 0; i < lst.Count - 10; i++)
             {
@@ -285,7 +347,7 @@ namespace ExcelPackageSamples
                     rest += lst[i].Count;
                 }
             }
-            
+            //... and add an others row
             if (rest > 0)
             {
                 ws.Cells[row, 1].Value = "Others";
@@ -298,7 +360,11 @@ namespace ExcelPackageSamples
 
             return row;
         }
-
+        /// <summary>
+        /// Just alters the colors in the list
+        /// </summary>
+        /// <param name="ws">The worksheet</param>
+        /// <param name="row">Startrow</param>
         private static void AlterColor(ExcelWorksheet ws, int row)
         {
             using (ExcelRange rowRange = ws.Cells[row, 1, row, 2])
@@ -315,16 +381,22 @@ namespace ExcelPackageSamples
             }
         }
 
-        private static int AddDirectory(ExcelWorksheet ws, DirectoryInfo dir, int row, double height, int level)
+        private static int AddDirectory(ExcelWorksheet ws, DirectoryInfo dir, int row, double height, int level, bool skipIcons)
         {
             //Get the icon as a bitmap
-            Bitmap icon = GetIcon(dir.FullName);
+            Console.WriteLine("Directory " + dir.Name);
+            if (!skipIcons)
+            {
+                Bitmap icon = GetIcon(dir.FullName);
 
-            ws.Row(row).Height = height;
-            //Add the icon as a picture
-            ExcelPicture pic = ws.Drawings.AddPicture("pic" + (row).ToString(), icon);
-            pic.SetPosition((int)20 * (row - 1) + 2, 0);
-
+                ws.Row(row).Height = height;
+                //Add the icon as a picture
+                if (icon != null)
+                {
+                    ExcelPicture pic = ws.Drawings.AddPicture("pic" + (row).ToString(), icon);
+                    pic.SetPosition((int)20 * (row - 1) + 2, 0);
+                }
+            }
             ws.Cells[row, 2].Value = dir.Name;
             ws.Cells[row, 4].Value = dir.CreationTime;
             ws.Cells[row, 5].Value = dir.LastAccessTime;
@@ -340,18 +412,24 @@ namespace ExcelPackageSamples
             {
                 if (level < _maxLevels)
                 {
-                    row = AddDirectory(ws, subDir, row, height, level + 1);
+                    row = AddDirectory(ws, subDir, row, height, level + 1, skipIcons);
                 }                           
             }
             
             //Add files in the directory
             foreach (FileInfo file in dir.GetFiles())
             {
-                Bitmap fileIcon = GetIcon(file.FullName);
-                ws.Row(row).Height = height;
+                if (!skipIcons)
+                {
+                    Bitmap fileIcon = GetIcon(file.FullName);
 
-                pic = ws.Drawings.AddPicture("pic" + (row).ToString(), fileIcon);
-                pic.SetPosition((int)20 * (row - 1) + 2, 0);
+                    ws.Row(row).Height = height;
+                    if (fileIcon != null)
+                    {
+                        ExcelPicture pic = ws.Drawings.AddPicture("pic" + (row).ToString(), fileIcon);
+                        pic.SetPosition((int)20 * (row - 1) + 2, 0);
+                    }
+                }
 
                 ws.Cells[row, 2].Value = file.Name;
                 ws.Cells[row, 3].Value = file.Length;
@@ -418,29 +496,40 @@ namespace ExcelPackageSamples
         /// <returns></returns>
         private static Bitmap GetIcon(string FileName)
         {
-            SHFILEINFO shinfo = new SHFILEINFO();
-
-            var ret = SHGetFileInfo(FileName,
-                                      0,
-                                      ref shinfo,
-                                      (uint)Marshal.SizeOf(shinfo),
-                                      SHGFI_ICON | SHGFI_SMALLICON);
-            
-            Bitmap bmp = Icon.FromHandle(shinfo.hIcon).ToBitmap();
-
-            //Fix transparant color 
-            Color InvalidColor = Color.FromArgb(0, 0, 0, 0);
-            for(int w=0;w<bmp.PhysicalDimension.Width;w++)
+            try
             {
-                for(int h=0;h<bmp.PhysicalDimension.Height;h++)
+                SHFILEINFO shinfo = new SHFILEINFO();                
+
+                var ret = SHGetFileInfo(FileName,
+                                          0,
+                                          ref shinfo,
+                                          (uint)Marshal.SizeOf(shinfo),
+                                          SHGFI_ICON | SHGFI_SMALLICON);
+
+                if (shinfo.hIcon == IntPtr.Zero) return null;
+
+                Bitmap bmp = Icon.FromHandle(shinfo.hIcon).ToBitmap();
+                DestroyIcon(shinfo.hIcon);
+
+                //Fix transparant color 
+                Color InvalidColor = Color.FromArgb(0, 0, 0, 0);
+                for (int w = 0; w < bmp.PhysicalDimension.Width; w++)
                 {
-                    if (bmp.GetPixel(w, h) == InvalidColor)
+                    for (int h = 0; h < bmp.PhysicalDimension.Height; h++)
                     {
-                        bmp.SetPixel(w, h, Color.Transparent);
+                        if (bmp.GetPixel(w, h) == InvalidColor)
+                        {
+                            bmp.SetPixel(w, h, Color.Transparent);
+                        }
                     }
                 }
+
+                return bmp;
             }
-            return bmp;
+            catch
+            {
+                return null;
+            }
         }
     }
 }

@@ -55,7 +55,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return _chartXmlHelper.GetXmlNodeBool(varyColorsPath);
             }
-            set
+            internal set
             {
                 if (value)
                 {

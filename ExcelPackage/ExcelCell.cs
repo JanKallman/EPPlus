@@ -77,7 +77,6 @@ namespace OfficeOpenXml
 		private Uri _hyperlink=null;
         static CultureInfo _ci=new CultureInfo("en-US");
         #endregion
-
 		#region ExcelCell Constructor
 		/// <summary>
 		/// Creates a new instance of ExcelCell class. For internal use only!

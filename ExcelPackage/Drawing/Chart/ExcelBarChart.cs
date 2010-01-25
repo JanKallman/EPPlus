@@ -36,7 +36,7 @@ using System.Xml;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// Bar charts
+    /// Bar chart
     /// </summary>
     public class ExcelBarChart : ExcelChart
     {
@@ -168,7 +168,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetDirectionEnum(_chartXmlHelper.GetXmlNode(_directionPath));
             }
-            set
+            internal set
             {
                 _chartXmlHelper.SetXmlNode(_directionPath, GetDirectionText(value));
             }
@@ -180,7 +180,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetShapeEnum(_chartXmlHelper.GetXmlNode(_shapePath));
             }
-            set
+            internal set
             {
                 _chartXmlHelper.SetXmlNode(_shapePath, GetShapeText(value));
             }

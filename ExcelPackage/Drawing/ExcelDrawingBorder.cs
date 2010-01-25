@@ -73,6 +73,9 @@ namespace OfficeOpenXml.Drawing
         }
         #region "Public properties"
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Fill
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get
@@ -85,6 +88,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         string _lineStylePath = "{0}/a:prstDash/@val";
+        /// <summary>
+        /// Linestyle
+        /// </summary>
         public eLineStyle LineStyle
         {
             get
@@ -98,6 +104,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         string _lineCapPath = "{0}/@cap";
+        /// <summary>
+        /// Linecap
+        /// </summary>
         public eLineCap LineCap
         {
             get
@@ -111,6 +120,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         string _lineWidth = "{0}/@w";
+        /// <summary>
+        /// Width in pixels
+        /// </summary>
         public int Width
         {
             get

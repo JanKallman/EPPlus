@@ -61,11 +61,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ExcelPackage")]
+[assembly: AssemblyTitle("EPPlus")]
 [assembly: AssemblyDescription("Allows Excel 2007 files to be created on the server")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Open Source")]
-[assembly: AssemblyProduct("ExcelPackage")]
+[assembly: AssemblyProduct("EPPlus")]
 [assembly: AssemblyCopyright("Copyright 2007 © Dr John Tunnicliffe dr.john.tunnicliffe@btinternet.com. All EPPlus code - Jan Källman 2009-")]
 [assembly: AssemblyTrademark("The GNU General Public License (GPL)")]
 [assembly: AssemblyCulture("")]
@@ -83,5 +83,5 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("2.1.0.1")]
-[assembly: AssemblyFileVersion("2.1.0.1")]
+[assembly: AssemblyVersion("2.5.0.1")]
+[assembly: AssemblyFileVersion("2.5.0.1")]

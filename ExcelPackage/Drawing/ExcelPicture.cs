@@ -196,7 +196,6 @@ namespace OfficeOpenXml.Drawing
 
             return picRelation.Id;
         }
-
         private void SetPosDefaults(Image image)
         {
             SetPixelWidth(image.Width, image.HorizontalResolution);
@@ -211,6 +210,9 @@ namespace OfficeOpenXml.Drawing
         }
 
         Image _image = null;
+        /// <summary>
+        /// The Image
+        /// </summary>
         public Image Image 
         {
             get
@@ -234,19 +236,24 @@ namespace OfficeOpenXml.Drawing
             }
         }
         ImageFormat _imageFormat=ImageFormat.Jpeg;
+        /// <summary>
+        /// Image format
+        /// If the picture is created from an Image this type is always Jpeg
+        /// </summary>
         public ImageFormat ImageFormat
         {
             get
             {
                 return _imageFormat;
             }
-            set
+            internal set
             {
                 _imageFormat = value;
             }
         }
         /// <summary>
         /// Set the size of the image in percent from the orginal size
+        /// Note that resizing columns / rows after using this function will effect the size of the picture
         /// </summary>
         /// <param name="Percent">Percent</param>
         public override void SetSize(int Percent)
@@ -275,6 +282,9 @@ namespace OfficeOpenXml.Drawing
             get { return Name; }
         }
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Fill
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get
@@ -287,6 +297,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// Border
+        /// </summary>
         public ExcelDrawingBorder Border
         {
             get

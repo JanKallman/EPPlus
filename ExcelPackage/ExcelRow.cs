@@ -94,7 +94,7 @@ namespace OfficeOpenXml
 		{
 			_xlWorksheet = Worksheet;
             Row = row;
-            Height = _xlWorksheet.defaultRowHeight;            
+            _height = _xlWorksheet.defaultRowHeight;            
 		}
 		#endregion
 
@@ -116,13 +116,31 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelRow Height
-		/// <summary>
+        double _height;
+        /// <summary>
 		/// Sets the height of the row
 		/// </summary>
 		public double Height
         {
-            get;
-            set;
+			get
+			{
+                if (Hidden)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return _height;
+                }
+			}
+			set	
+            {
+                _height = value;
+                if (Hidden && value != 0)
+                {
+                    Hidden = false;
+                }                
+            }
         }
 		#endregion
 

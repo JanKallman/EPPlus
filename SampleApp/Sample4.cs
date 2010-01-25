@@ -46,6 +46,14 @@ namespace ExcelPackageSamples
 {
     class Sample4
     {
+        /// <summary>
+        /// This sample creates a new workbook from a template file containing a chart and populates it with Exchangrates from 
+        /// the Adventureworks database and set the three series on the chart.
+        /// </summary>
+        /// <param name="connectionString">Connectionstring to the Adventureworks db</param>
+        /// <param name="template">the template</param>
+        /// <param name="outputdir">output dir</param>
+        /// <returns></returns>
         public static string RunSample4(string connectionString, FileInfo template, DirectoryInfo outputdir)
         {
             using (ExcelPackage p = new ExcelPackage(template, true))

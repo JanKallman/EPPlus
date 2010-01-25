@@ -54,8 +54,13 @@ namespace OfficeOpenXml
         {
 
         }
+        /// <summary>
+        /// Sheet internal reference
+        /// </summary>
+        /// <param name="referenceAddress">Address</param>
+        /// <param name="display">Displayed text</param>
         public ExcelHyperLink(string referenceAddress, string display) :
-            base("xl://internal")
+            base("xl://internal")   //URI is not used on internal links so put a dummy uri here.
         {
             _referenceAddress = referenceAddress;
             _display = display;
@@ -86,6 +91,9 @@ namespace OfficeOpenXml
             }
         }
         int _colSpann = 0;
+        /// <summary>
+        /// If the hyperlink spans multiple columns
+        /// </summary>
         public int ColSpann
         {
             get
@@ -98,6 +106,9 @@ namespace OfficeOpenXml
             }
         }
         int _rowSpann = 0;
+        /// <summary>
+        /// If the hyperlink spans multiple rows
+        /// </summary>
         public int RowSpann
         {
             get

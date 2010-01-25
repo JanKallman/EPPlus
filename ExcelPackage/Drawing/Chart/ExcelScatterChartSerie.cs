@@ -76,7 +76,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetXmlNodeInt(smoothPath);
             }
-            set
+            internal set
             {
                 SetXmlNode(smoothPath, value.ToString());
             }
@@ -99,7 +99,7 @@ namespace OfficeOpenXml.Drawing.Chart
                     return (eMarkerStyle)Enum.Parse(typeof(eMarkerStyle), marker, true);
                 }
             }
-            set
+            internal set
             {
                 SetXmlNode(markerPath, value.ToString().ToLower());
             }

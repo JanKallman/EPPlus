@@ -602,7 +602,7 @@ namespace OfficeOpenXml
                 else
                 {
                     double d;
-                    if (double.TryParse(v, NumberStyles.Number, _ci, out d))
+                    if (double.TryParse(v, NumberStyles.Any, _ci, out d))
                     {
                         value = d;
                     }
@@ -647,8 +647,18 @@ namespace OfficeOpenXml
 		}
 		#endregion
 
-		// TODO: implement freeze pane. 
-		// TODO: implement page margin properties
+        #region "PrinterSettings"
+        public ExcelPrinterSettings PrinterSettings
+        {
+            get
+            {
+                var ps = new ExcelPrinterSettings(NameSpaceManager, TopNode);
+                ps.SchemaNodeOrder = SchemaNodeOrder;
+                return ps;
+            }
+        }
+        #endregion
+        // TODO: implement freeze pane. 
 
 		#endregion // END Worksheet Public Properties
 

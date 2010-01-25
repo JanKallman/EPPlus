@@ -254,14 +254,66 @@ namespace OfficeOpenXml.Drawing
             shapeNode.InnerXml = ShapeStartXml();
             node.AppendChild(shapeNode.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings));
         }
-        private string ShapeStartXml()
-        {
-            StringBuilder xml = new StringBuilder();
-            xml.AppendFormat("<xdr:nvSpPr><xdr:cNvPr id=\"{0}\" name=\"{1}\" /><xdr:cNvSpPr /></xdr:nvSpPr><xdr:spPr><a:prstGeom prst=\"rect\"><a:avLst /></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"50000\" /></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\" /></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\" /></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\" /></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\" /><a:lstStyle /><a:p></a:p></xdr:txBody>", _drawings.Count, Name);
-            return xml.ToString();
-        }
-
         const string TextPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
+        #region "public functions"
+        const string ShapeStylePath = "xdr:sp/xdr:spPr/a:prstGeom/@prst";
+        /// <summary>
+        /// Shape style
+        /// </summary>
+        public eShapeStyle Style
+        {
+            get
+            {
+                string v = GetXmlNode(ShapeStylePath);
+                try
+                {
+                    return (eShapeStyle)Enum.Parse(typeof(eShapeStyle), v, true);
+                }
+                catch
+                {
+                    throw (new Exception(string.Format("Invalid shapetype {0}", v)));
+                }
+            }
+            set
+            {
+                string v = value.ToString();
+                v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                SetXmlNode(ShapeStylePath, v);
+            }
+        }
+        ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Fill
+        /// </summary>
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr");
+                }
+                return _fill;
+            }
+        }
+        ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// Border
+        /// </summary>
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr/a:ln");
+                }
+                return _border;
+            }
+        }
+        /// <summary>
+        /// Text
+        /// </summary>
         public string Text
         {
             get
@@ -277,6 +329,9 @@ namespace OfficeOpenXml.Drawing
 
         }
         public const string TextAnchoringPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchor";
+        /// <summary>
+        /// Text Anchoring
+        /// </summary>
         public eTextAnchoringType TextAnchoring
         {
             get
@@ -308,6 +363,29 @@ namespace OfficeOpenXml.Drawing
             }
         }
 
+        const string TextVerticalPath = "xdr:sp/xdr:txBody/a:bodyPr/@vert";
+        /// <summary>
+        /// Vertical text
+        /// </summary>
+        public eTextVerticalType TextVertical
+        {
+            get
+            {
+                return GetTextVerticalEnum(GetXmlNode(TextVerticalPath));
+            }
+            set
+            {
+                SetXmlNode(TextVerticalPath, GetTextVerticalText(value));
+            }
+        }
+        #endregion
+        #region "Private functions"
+        private string ShapeStartXml()
+        {
+            StringBuilder xml = new StringBuilder();
+            xml.AppendFormat("<xdr:nvSpPr><xdr:cNvPr id=\"{0}\" name=\"{1}\" /><xdr:cNvSpPr /></xdr:nvSpPr><xdr:spPr><a:prstGeom prst=\"rect\"><a:avLst /></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"50000\" /></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\" /></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\" /></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\" /></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\" /><a:lstStyle /><a:p></a:p></xdr:txBody>", _drawings.Count, Name);
+            return xml.ToString();
+        }
         private string GetTextAchoringText(eTextAnchoringType value)
         {
             switch (value)
@@ -324,18 +402,7 @@ namespace OfficeOpenXml.Drawing
                     return "t";
             }
         }
-        const string TextVerticalPath = "xdr:sp/xdr:txBody/a:bodyPr/@vert";
-        public eTextVerticalType TextVertical
-        {
-            get
-            {
-                return GetTextVerticalEnum(GetXmlNode(TextVerticalPath));
-            }
-            set
-            {
-                SetXmlNode(TextVerticalPath, GetTextVerticalText(value));
-            }
-        }
+
 
         private string GetTextVerticalText(eTextVerticalType value)
         {
@@ -395,52 +462,7 @@ namespace OfficeOpenXml.Drawing
                     return eTextAnchoringType.Top;
             }
         }
-        const string ShapeStylePath = "xdr:sp/xdr:spPr/a:prstGeom/@prst";
-        public eShapeStyle Style
-        {
-            get
-            {                
-                string v = GetXmlNode(ShapeStylePath);
-                try
-                {
-                    return (eShapeStyle)Enum.Parse(typeof(eShapeStyle), v, true);
-                }
-                catch
-                {
-                    throw(new Exception(string.Format("Invalid shapetype {0}",v)));
-                }
-            }
-            set
-            {
-                string v = value.ToString();
-                v=v.Substring(0,1).ToLower() + v.Substring(1,v.Length-1);
-                SetXmlNode(ShapeStylePath, v);
-            }
-        }
-        ExcelDrawingFill _fill = null;
-        public ExcelDrawingFill Fill
-        {
-            get
-            {
-                if(_fill==null)
-                {
-                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr");
-                }
-                return _fill;
-            }
-        }
-        ExcelDrawingBorder _border = null;
-        public ExcelDrawingBorder Border
-        {
-            get
-            {
-                if (_border == null)
-                {
-                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr/a:ln");
-                }
-                return _border;
-            }
-        }
+        #endregion
         internal string Id
         {
             get { return Name + Text; }

@@ -61,7 +61,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return _chartXmlHelper.GetXmlNodeDecimal(_firstSliceAngPath);
             }
-            set
+            internal set
             {
                 _chartXmlHelper.SetXmlNode(_firstSliceAngPath, value.ToString());
             }
@@ -73,7 +73,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return _chartXmlHelper.GetXmlNodeDecimal(_holeSizePath);
             }
-            set
+            internal set
             {
                 _chartXmlHelper.SetXmlNode(_holeSizePath, value.ToString());
             }
