@@ -211,7 +211,8 @@ namespace OfficeOpenXml.Drawing
         #endregion
         #region "Add functions"
             /// <summary>
-            /// Adds a new shart to the worksheet
+            /// Add a new chart to the worksheet.
+            /// Do not support Bubble-, Radar-, Stock- or Surface charts. 
             /// </summary>
             /// <param name="Name"></param>
             /// <param name="ChartType">Type of chart</param>
@@ -249,7 +250,7 @@ namespace OfficeOpenXml.Drawing
                 return chart;
             }
             /// <summary>
-            /// Adds a picure to the worksheet
+            /// Add a picure to the worksheet
             /// </summary>
             /// <param name="Name"></param>
             /// <param name="image">An image. Allways saved in then JPeg format</param>
@@ -273,7 +274,7 @@ namespace OfficeOpenXml.Drawing
                 throw (new Exception("AddPicture: Image can't be null"));
             }
             /// <summary>
-            /// Adds a picure to the worksheet
+            /// Add a picure to the worksheet
             /// </summary>
             /// <param name="Name"></param>
             /// <param name="ImageFile">An image. </param>
@@ -296,7 +297,14 @@ namespace OfficeOpenXml.Drawing
                 }
                 throw (new Exception("AddPicture: ImageFile can't be null"));
             }
-            public ExcelShape AddShape(string Name, eShapeStyle Style)
+        /// <summary>
+        /// Add a new shape to the worksheet
+        /// </summary>
+        /// <param name="Name">Name</param>
+        /// <param name="Style">Shape style</param>
+        /// <returns>The shape object</returns>
+    
+        public ExcelShape AddShape(string Name, eShapeStyle Style)
             {
                 if (_drawingNames.ContainsKey(Name.ToLower()))
                 {

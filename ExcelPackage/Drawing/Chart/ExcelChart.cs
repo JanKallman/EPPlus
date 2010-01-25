@@ -766,6 +766,9 @@ namespace OfficeOpenXml.Drawing.Chart
         public ExcelWorksheet WorkSheet { get; internal set; }
         public XmlDocument ChartXml { get; set; }
         public eChartType ChartType { get; set; }
+        /// <summary>
+        /// Titel of the chart
+        /// </summary>
         public ExcelChartTitle Title
         {
             get
@@ -777,6 +780,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _title;
             }
         }
+        /// <summary>
+        /// Chart series
+        /// </summary>
         public ExcelChartSeries Series
         {
             get
@@ -784,6 +790,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _chartSeries;
             }
         }
+        /// <summary>
+        /// Axis 
+        /// </summary>
         public ExcelChartAxis[] Axis
         {
             get
@@ -792,6 +801,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelChartPlotArea _plotArea = null;
+        /// <summary>
+        /// Plotarea
+        /// </summary>
         public ExcelChartPlotArea PlotArea
         {
             get
@@ -804,6 +816,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelChartLegend _legend = null;
+        /// <summary>
+        /// Legend
+        /// </summary>
         public ExcelChartLegend Legend
         {
             get
@@ -817,6 +832,9 @@ namespace OfficeOpenXml.Drawing.Chart
 
         }
         ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// Border
+        /// </summary>
         public ExcelDrawingBorder Border
         {
             get
@@ -829,6 +847,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Fill
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get

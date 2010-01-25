@@ -251,8 +251,6 @@ namespace ExcelPackageTest
             chrt.SetSize(200);
             chrt.Title.Text = "Doughnut Exploded";
             chrt.Series[0].Header = "Serie 1";
-            chrt.FirstSliceAngle = 33;
-            //chrt.HoleSize = 100;
         }
         [TestMethod]
         public void Line()

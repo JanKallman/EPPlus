@@ -61,7 +61,7 @@ namespace ExcelPackageSamples
 		/// <summary>
 		/// Sample 1 - simply creates a new workbook from scratch.
 		/// The workbook contains one worksheet which adds a few numbers together.
-		/// Not very exciting, but it demonstrates the power of the ExcelPackage assembly.
+		/// This is the same sample 1 as in the orginal ExcelPackage with som styling added to it
 		/// </summary>
 		public static string RunSample1(DirectoryInfo outputDir)
 		{

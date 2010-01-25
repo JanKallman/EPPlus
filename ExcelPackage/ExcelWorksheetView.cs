@@ -53,7 +53,6 @@
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  */
-
 /*
  * Code change notes:
  * 
@@ -97,49 +96,11 @@ namespace OfficeOpenXml
 		{
 			get 
 			{
-                //if (TopNode == null)
-                //{
-					//_sheetView = (XmlElement)_xlWorksheet.WorksheetXml.SelectSingleNode("//d:sheetView", _xlWorksheet.NameSpaceManager);
-				//}
 				return (XmlElement)TopNode;
 			}
 		}
 		#endregion
-
 		#region TabSelected
-		/// <summary>
-		/// Indicates if the worksheet is selected within the workbook
-		/// </summary>
-		public bool TabSelected
-		{
-			get
-			{
-                //bool retValue = false;
-                //string ret = SheetViewElement.GetAttribute("tabSelected");
-                //if (ret == "1") retValue = true;
-                //return retValue;
-                return GetXmlNodeBool("@tabSelected");
-			}
-			set
-			{
-                if (value)
-                {
-                //    // ensure no other worksheet has its tabSelected attribute set to 1
-                    foreach (ExcelWorksheet sheet in _xlWorksheet.xlPackage.Workbook.Worksheets)
-                        sheet.View.TabSelected = false;
-
-                     SheetViewElement.SetAttribute("tabSelected", "1");
-                    XmlElement bookView= _xlWorksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _xlWorksheet.NameSpaceManager) as XmlElement;
-                    if (bookView != null)
-                    {
-                        bookView.SetAttribute("activeTab",(_xlWorksheet.PositionID-1).ToString());
-                    }
-                }
-                else
-                    SetXmlNode("@tabSelected", "0");
-                
-			}
-		}
         private XmlElement _selectionNode = null;
         private XmlElement SelectionNode
         {
@@ -155,6 +116,38 @@ namespace OfficeOpenXml
             }
         }
         #endregion
+        #region Public functions
+
+        /// <summary>
+        /// Indicates if the worksheet is selected within the workbook
+        /// </summary>
+        public bool TabSelected
+        {
+            get
+            {
+                return GetXmlNodeBool("@tabSelected");
+            }
+            set
+            {
+                if (value)
+                {
+                    //    // ensure no other worksheet has its tabSelected attribute set to 1
+                    foreach (ExcelWorksheet sheet in _xlWorksheet.xlPackage.Workbook.Worksheets)
+                        sheet.View.TabSelected = false;
+
+                    SheetViewElement.SetAttribute("tabSelected", "1");
+                    XmlElement bookView = _xlWorksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _xlWorksheet.NameSpaceManager) as XmlElement;
+                    if (bookView != null)
+                    {
+                        bookView.SetAttribute("activeTab", (_xlWorksheet.PositionID - 1).ToString());
+                    }
+                }
+                else
+                    SetXmlNode("@tabSelected", "0");
+
+            }
+        }
+
         const string _selectionRangePath = "d:selection/@sqref";
         /// <summary>
         /// Selected Cells.Used in combination with ActiveCell
@@ -206,11 +199,6 @@ namespace OfficeOpenXml
                     return "A1";
                 }
                 return address;
-                //if (_selectionNode == null)
-                //{
-                //    return "A1";
-                //}
-                //return SelectionNode.GetAttribute("activeCell");
             }
             set
             {
@@ -230,7 +218,6 @@ namespace OfficeOpenXml
             }
         }
 
-		#region PageLayoutView
 		/// <summary>
 		/// Sets the view mode of the worksheet to pageLayout
 		/// </summary>
@@ -238,10 +225,6 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                //bool retValue = false;
-                //string ret = SheetViewElement.GetAttribute("view");
-                //if (ret == "pageLayout") retValue = true;
-                //return retValue;
                 return GetXmlNodeBool("@view");
 			}
 			set
@@ -252,6 +235,9 @@ namespace OfficeOpenXml
                     SheetViewElement.RemoveAttribute("view");
 			}
 		}
+        /// <summary>
+        /// Show gridlines in the worksheet
+        /// </summary>
         public bool ShowGridLines 
         {
             get
@@ -263,6 +249,6 @@ namespace OfficeOpenXml
                 SetXmlNode("@showGridLines", value ? "1" : "0");
             }
         }
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -170,16 +170,22 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                //double retValue = 10;  // default column size
-                //string width = _colElement.GetAttribute("width");
-                //if (width != "") retValue = double.Parse(width, ExcelWorksheet._ci);
-                //return retValue;
-                return _width;
+                if (_hidden)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return _width;
+                }
 			}
 			set	
             {
                 _width = value;
-                //_colElement.SetAttribute("width", value.ToString()); 
+                if (_hidden && value!=0)
+                {
+                    _hidden = false;
+                }
             }
 		}
         /// <summary>

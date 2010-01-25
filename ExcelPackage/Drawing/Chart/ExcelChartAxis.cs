@@ -45,6 +45,9 @@ namespace OfficeOpenXml.Drawing.Chart
             SchemaNodeOrder = new string[] {"axId","scaling","delete","axPos","numFmt", "tickLblPos"};
         }
         const string _formatPath="c:numFmt/@formatCode";
+        /// <summary>
+        /// Numberformat
+        /// </summary>
         public string Format 
         {
             get

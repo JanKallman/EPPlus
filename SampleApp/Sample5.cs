@@ -43,7 +43,7 @@ namespace ExcelPackageSamples
     class Sample5
     {
         /// <summary>
-        /// Sample 5 - open Sample 1 and add a Piechart
+        /// Sample 5 - open Sample 1 and adds a Piechart
         /// </summary>
         public static string RunSample5(DirectoryInfo outputDir)
         {
@@ -65,6 +65,7 @@ namespace ExcelPackageSamples
                 var chart = (worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart);
 
                 chart.Title.Text = "Total";
+                //From row 1 colum 3 with five pixels offset
                 chart.SetPosition(0, 0, 2, 5);
                 chart.SetSize(600, 300);
 
@@ -76,17 +77,13 @@ namespace ExcelPackageSamples
                 chart.Legend.Border.LineStyle = eLineStyle.Solid;
                 chart.Legend.Border.Fill.Style = eFillStyle.SolidFill;
                 chart.Legend.Border.Fill.Color = Color.DarkBlue;
-                
+
+                //Switch the PageLayoutView back to normal
                 worksheet.View.PageLayoutView = false;
                 // save our new workbook and we are done!
                 xlPackage.Save();
             }
 
-            // if you want to take a look at the XML created in the package, simply uncomment the following lines
-            // These copy the output file and give it a zip extension so you can open it and take a look!
-            //FileInfo zipFile = new FileInfo(outputDir.FullName + @"\sample1.zip");
-            //if (zipFile.Exists) zipFile.Delete();
-            //newFile.CopyTo(zipFile.FullName);
             return newFile.FullName;
         }
     }
