@@ -56,13 +56,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _verticalAlignment = GetVerticalAlign(GetXmlNode(verticalAlignPath));
             _horizontalAlignment = GetHorizontalAlign(GetXmlNode(horizontalAlignPath));
             _wrapText = GetXmlNode(wrapTextPath) == "1" ? true : false;
-            //ApplyFont = GetXmlNode("@applyFont") == "1" ? true : false;
-            //ApplyFill = GetXmlNode("@applyFill") == "1" ? true : false;
-            //ApplyBorder = GetXmlNode("@applyBorder") == "1" ? true : false;
-            //ApplyNumberFormat = GetXmlNode("@applyNumberFormat") == "1" ? true : false;
-            //ApplyFill = GetXmlNode("@applyFont") == "1" ? true : false;
-            //ApplyProtection = GetXmlNode("@applyProtection") == "1" ? true : false;
-            //ApplyAlignment = GetXmlNode("@applyAlitgnment") == "1" ? true : false;
+            _textRotation = GetXmlNodeInt(textRotationPath);
         }
 
         private ExcelHorizontalAlignment GetHorizontalAlign(string align)
@@ -306,6 +300,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _wrapText = value;
             }
         }
+        string textRotationPath = "d:alignment/@textRotation";
+        int _textRotation = 0;
+        public int TextRotation
+        {
+            get
+            {
+                return _textRotation;
+            }
+            set
+            {
+                _textRotation = value;
+            }
+        }
         const string readingOrderPath = "d:alignment/@readingOrder";
         bool _readingOrder=false;
         public bool ReadingOrder
@@ -406,7 +413,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
             get
             {
-                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString();
+                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString();
                 //return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString(); 
             }
         }
@@ -422,6 +429,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             newXF.HorizontalAlignment = _horizontalAlignment;
             newXF.VerticalAlignment = _verticalAlignment;
             newXF.WrapText = _wrapText;
+            newXF.TextRotation = _textRotation;
             return newXF;
         }
 
@@ -475,6 +483,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                             break;
                         case eStyleProperty.ShrinkToFit:
                             newXfs.ShrinkToFit=(bool)value;
+                            break;
+                        case eStyleProperty.TextRotation:
+                            newXfs.TextRotation = (int)value;
                             break;
                         default:
                             throw (new Exception("Invalid property for class style."));
@@ -667,6 +678,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNode(verticalAlignPath, SetAlignString(_verticalAlignment));
             if(_wrapText) this.SetXmlNode(wrapTextPath, "1");
             if(_readingOrder) this.SetXmlNode(readingOrderPath, "1");
+            if (_textRotation>0) this.SetXmlNode(textRotationPath , _textRotation.ToString());
 
             return TopNode;
         }

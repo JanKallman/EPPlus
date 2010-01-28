@@ -93,6 +93,7 @@ namespace OfficeOpenXml
 		protected internal ExcelWorksheets(ExcelPackage xlPackage)
 		{
 			_xlPackage = xlPackage;
+            
 			//  Create a NamespaceManager to handle the default namespace, 
 			//  and create a prefix for the default namespace:
 			NameTable nt = new NameTable();
@@ -101,12 +102,12 @@ namespace OfficeOpenXml
 			_nsManager.AddNamespace("r", ExcelPackage.schemaRelationships);
 
 			// obtain container node for all worksheets
-			_worksheetsNode = _xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:sheets", _nsManager);
+			_worksheetsNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:sheets", _nsManager);
 			if (_worksheetsNode == null)
 			{
 				// create new node as it did not exist
 				_worksheetsNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheets", ExcelPackage.schemaMain);
-				_xlPackage.Workbook.WorkbookXml.DocumentElement.AppendChild(_worksheetsNode);
+				xlPackage.Workbook.WorkbookXml.DocumentElement.AppendChild(_worksheetsNode);
 			}
 
 			_worksheets = new Dictionary<int, ExcelWorksheet>();
@@ -134,8 +135,8 @@ namespace OfficeOpenXml
 				//if (attr != null)
 				//  type = attr.Value;
 
-				PackageRelationship sheetRelation = _xlPackage.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = PackUriHelper.ResolvePartUri(_xlPackage.Workbook.WorkbookUri, sheetRelation.TargetUri);
+				PackageRelationship sheetRelation = xlPackage.Workbook.Part.GetRelationship(relId);
+				Uri uriWorksheet = PackUriHelper.ResolvePartUri(xlPackage.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				// add worksheet to our collection
                 _worksheets.Add(positionID, new ExcelWorksheet(_nsManager, _xlPackage, relId, uriWorksheet, name, sheetID, positionID, hidden));
@@ -227,7 +228,7 @@ namespace OfficeOpenXml
 			_xlPackage.Package.Flush();
 			
 			// now create the new worksheet tag and set name/SheetId attributes in the workbook.xml
-			XmlElement worksheetNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheet", ExcelPackage.schemaMain);
+            XmlElement worksheetNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheet", ExcelPackage.schemaMain);
 			// create the new sheet node
 			worksheetNode.SetAttribute("name", Name);
 			worksheetNode.SetAttribute("sheetId", sheetID.ToString());

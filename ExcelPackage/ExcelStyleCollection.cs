@@ -137,19 +137,5 @@ namespace OfficeOpenXml
         {
             _list.Sort(c);
         }
-
-        //internal int FindOrCreateID(string id)
-        //{
-        //    if(_dic.ContainsKey(id))
-        //    {
-        //        return _dic[id];
-        //    }
-        //    else
-        //    {
-        //        _list.Add(new T());
-        //        return _list.Count;
-        //    }
-
-        //}
     }
 }

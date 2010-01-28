@@ -110,6 +110,25 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ShrinkToFit, value, _positionID, _address));
             }
         }
+        const string textRotationPath = "d:alignment/@textRotation";
+        /// <summary>
+        /// Text orientation in degrees. Values range from 0 to 180.
+        /// </summary>
+        public int TextRotation
+        {
+            get
+            {
+                return _styles.CellXfs[Index].TextRotation;
+            }
+            set
+            {
+                if (value < 0 || value > 180)
+                {
+                    throw new Exception("TextRotation out of range.");
+                }
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.TextRotation, value, _positionID, _address));
+            }
+        }
         const string xfIdPath = "@xfid";
         public int XfId 
         {

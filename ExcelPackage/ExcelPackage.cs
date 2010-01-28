@@ -249,9 +249,19 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_workbook == null)
-					_workbook = new ExcelWorkbook(this);
-				return (_workbook);
+                if (_workbook == null)
+                {
+                    //  Create a NamespaceManager to handle the default namespace, 
+                    //  and create a prefix for the default namespace:
+                    NameTable nt = new NameTable();
+                    var ns = new XmlNamespaceManager(nt);
+                    ns.AddNamespace("d", ExcelPackage.schemaMain);
+                    _workbook = new ExcelWorkbook(this, ns);
+
+                    _workbook.GetDefinedNames();
+
+                }
+                return (_workbook);
 			}
 		}
 		#endregion
