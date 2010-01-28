@@ -70,9 +70,9 @@ namespace ExcelPackageSamples
                                     ref SHFILEINFO psfi,
                                     uint cbSizeFileInfo,
                                     uint uFlags);
-        #endregion
         [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
         extern static bool DestroyIcon(IntPtr handle);
+        #endregion
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }

@@ -26,70 +26,38 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
+ * Jan Källman		                Added this class		        2010-01-28
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
-namespace OfficeOpenXml.Style
+
+namespace OfficeOpenXml
 {
-    public enum eStyleClass
+    public class ExcelNamedRange : ExcelRangeBase 
     {
-        Numberformat,
-        Font,    
-        Border,
-        BorderTop,
-        BorderLeft,
-        BorderBottom,
-        BorderRight,
-        BorderDiagonal,
-        Fill,
-        FillBackgroundColor,
-        FillPatternColor,
-        NamedStyle,
-        Style
-    };
-    public enum eStyleProperty
-    {
-        Format,
-        Name,
-        Size,
-        Bold,
-        Italic,
-        Strike,
-        Color,
-        Family,
-        Scheme,
-        Underline,
-        HorizontalAlign,
-        VerticalAlign,
-        Border,
-        NamedStyle,
-        Style,
-        PatternType,
-        ReadingOrder,
-        WrapText,
-        TextRotation,
-        ShrinkToFit,
-        BorderDiagonalUp,
-        BorderDiagonalDown,
-        XfId
-    }
-    public class StyleChangeEventArgs : EventArgs
-    {
-        internal StyleChangeEventArgs(eStyleClass styleclass, eStyleProperty styleProperty, object value, int positionID, string address)
+        public ExcelNamedRange(string name, ExcelWorksheet sheet, string address) :
+            base(sheet, address)
+
         {
-            StyleClass = styleclass;
-            StyleProperty=styleProperty;
-            Value = value;
-            Address = address;
-            PositionID = positionID;
+            Name = name;
+            LocalSheetId = true;
         }
-        internal eStyleClass StyleClass;
-        internal eStyleProperty StyleProperty;
-        internal string PropertyName;
-        internal object Value;
-        internal int PositionID { get; set; }
-        internal string Address;
+        /// <summary>
+        /// Name of the range
+        /// </summary>
+        public string Name
+        {
+            get;
+            internal set;
+        }
+        /// <summary>
+        /// Is the named range local for the sheet 
+        /// </summary>
+        public bool LocalSheetId
+        {
+            get;
+            set;
+        }
     }
 }

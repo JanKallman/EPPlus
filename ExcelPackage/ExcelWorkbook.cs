@@ -97,7 +97,7 @@ namespace OfficeOpenXml
 	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
-	public class ExcelWorkbook
+	public class ExcelWorkbook : XmlHelper
 	{
         internal class SharedStringItem
         {
@@ -118,7 +118,6 @@ namespace OfficeOpenXml
 		private XmlDocument _xmlStyles;
 
 		private ExcelWorksheets _worksheets;
-		private XmlNamespaceManager _nsManager;
 		private OfficeProperties _properties;
 
         private ExcelStyles _styles;
@@ -129,34 +128,34 @@ namespace OfficeOpenXml
 		/// Creates a new instance of the ExcelWorkbook class.  For internal use only!
 		/// </summary>
 		/// <param name="xlPackage">The parent package</param>
-		protected internal ExcelWorkbook(ExcelPackage xlPackage)
+        /// <param name="namespaceManager">NamespaceManager</param>
+		protected internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
+            base(namespaceManager)
 		{
 			_xlPackage = xlPackage;
-			//  Create a NamespaceManager to handle the default namespace, 
-			//  and create a prefix for the default namespace:
-			NameTable nt = new NameTable();
-			_nsManager = new XmlNamespaceManager(nt);
-			_nsManager.AddNamespace("d", ExcelPackage.schemaMain);
             CreateWorkbookXml();
+            TopNode = WorkbookXml.DocumentElement;
+            SchemaNodeOrder= new string[] {"fileVersion", "workbookPr", "bookViews", "sheets", "definedNames", "calcPr"};
             GetSharedStrings();
 		}
 		#endregion
 
         internal Dictionary<string, SharedStringItem> _sharedStrings = new Dictionary<string, SharedStringItem>(); //Used when reading cells.
         internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
+        internal ExcelNamedRangeCollection _names=new ExcelNamedRangeCollection();
         internal int _nextDrawingID = 0;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
         private void GetSharedStrings()
         {
-            XmlNodeList nl = SharedStringsXml.SelectNodes("//d:sst/d:si",_nsManager);
+            XmlNodeList nl = SharedStringsXml.SelectNodes("//d:sst/d:si", NameSpaceManager);
             _sharedStringsList = new List<SharedStringItem>();
             if (nl != null)
             {
                 foreach (XmlNode node in nl)
                 {
-                    XmlNode n = node.SelectSingleNode("d:t", _nsManager);
+                    XmlNode n = node.SelectSingleNode("d:t", NameSpaceManager);
                     if (n != null)
                     {
                         _sharedStringsList.Add(new SharedStringItem(){Text= n.InnerText});
@@ -165,6 +164,25 @@ namespace OfficeOpenXml
                     {
                         _sharedStringsList.Add(new SharedStringItem(){Text= node.InnerText, isRichText=true});
                     }
+                }
+            }
+        }
+        internal void GetDefinedNames()
+        {
+            XmlNodeList nl = WorkbookXml.SelectNodes("//d:definedNames/d:definedName", NameSpaceManager);
+            if (nl != null)
+            {
+                foreach (XmlElement elem in nl)
+                {
+                    string fullAddress = elem.InnerText;
+                    int splitPos = fullAddress.LastIndexOf('!');
+                    string sheet = fullAddress.Substring(0, splitPos);
+                    string address = fullAddress.Substring(splitPos + 1, fullAddress.Length - splitPos - 1);
+                    
+                    if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
+                    
+                    var namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                    namedRange.LocalSheetId = (elem.GetAttribute("localSheetId") != "0");
                 }
             }
         }
@@ -185,6 +203,13 @@ namespace OfficeOpenXml
 		}
 		#endregion
 
+        public ExcelNamedRangeCollection Names
+        {
+            get
+            {
+                return _names;
+            }
+        }
 		#region Workbook Properties
         decimal _standardFontWidth = decimal.MinValue;
         public decimal MaxFontWidth 
@@ -232,7 +257,6 @@ namespace OfficeOpenXml
 				return (_xmlWorkbook);
 			}
 		}
-
         /// <summary>
         /// Create or read the XML for the workbook.
         /// </summary>
@@ -295,10 +319,6 @@ namespace OfficeOpenXml
 						_xmlSharedStrings = new XmlDocument();
                         _xmlSharedStrings.PreserveWhitespace = ExcelPackage.preserveWhitespace;
                         _xmlSharedStrings.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" ?><sst count=\"0\" uniqueCount=\"0\" xmlns=\"{0}\" />", ExcelPackage.schemaMain));
-                        //XmlElement tagSst = _xmlSharedStrings.CreateElement("sst", ExcelPackage.schemaMain);
-                        //tagSst.SetAttribute("count", "0");
-                        //tagSst.SetAttribute("uniqueCount", "0");
-                        //_xmlSharedStrings.AppendChild(tagSst);
 
 						// save it to the package
 						StreamWriter streamStrings = new StreamWriter(partStrings.GetStream(FileMode.Create, FileAccess.Write));
@@ -442,7 +462,7 @@ namespace OfficeOpenXml
             {
                 if (_styles == null)
                 {
-                    _styles = new ExcelStyles(_nsManager, StylesXml, this);
+                    _styles = new ExcelStyles(NameSpaceManager, StylesXml, this);
                 }
                 return _styles;
             }
@@ -474,7 +494,7 @@ namespace OfficeOpenXml
 			{
 				ExcelCalcMode retValue = ExcelCalcMode.Automatic;
 				//  Retrieve the calcMode attribute in the calcPr element.
-				XmlNode node = WorkbookXml.SelectSingleNode("//d:calcPr", _nsManager);
+				XmlNode node = WorkbookXml.SelectSingleNode("//d:calcPr", NameSpaceManager);
 				if (node != null)
 				{
 					XmlAttribute attr = node.Attributes["calcMode"];
@@ -498,7 +518,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				XmlElement element = (XmlElement) WorkbookXml.SelectSingleNode("//d:calcPr", _nsManager);
+				XmlElement element = (XmlElement) WorkbookXml.SelectSingleNode("//d:calcPr", NameSpaceManager);
 				//if (element == null)
 				//{
 				//  // create the element
@@ -558,6 +578,7 @@ namespace OfficeOpenXml
 			}
 			#endregion
 
+            UpdateDefinedNamesXml();
 			// save the workbook
 			if (_xmlWorkbook != null)
 			{
@@ -599,7 +620,7 @@ namespace OfficeOpenXml
 
         private void UpdateSharedStringsXml()
         {
-            XmlNode top = SharedStringsXml.SelectSingleNode("//d:sst", _nsManager);
+            XmlNode top = SharedStringsXml.SelectSingleNode("//d:sst", NameSpaceManager);
             top.RemoveAll();
             StringBuilder sbXml = new StringBuilder();
             foreach (string t in _sharedStrings.Keys)
@@ -625,8 +646,43 @@ namespace OfficeOpenXml
             //top.Attributes["uniqueCount"].Value = _sharedStrings.Count.ToString();
 
             //top.InnerXml = sbXml.ToString();
+        }
+        private void UpdateDefinedNamesXml()
+        {
+            XmlNode top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
+            if (_names.Count == 0) 
+            {
+                if (top != null) TopNode.RemoveChild(top);
+                return;
+            }
+            
+            if (top == null)
+            {
+                CreateNode("d:definedNames");
+                top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
+            }
+            else
+            {
+                top.RemoveAll();
+            }
+            try
+            {
+                foreach (ExcelNamedRange name in _names)
+                {
+
+                    XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
+                    top.AppendChild(elem);
+                    elem.SetAttribute("name", name.Name);
+                    if (!name.LocalSheetId) elem.SetAttribute("localSheetId", "0");
+                    elem.InnerText = name.FullAddress;
+                }
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }        
-		#endregion
+        #endregion
 
 		#endregion
 	} // end Workbook

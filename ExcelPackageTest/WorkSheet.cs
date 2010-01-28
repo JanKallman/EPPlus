@@ -86,6 +86,23 @@ namespace ExcelPackageTest
 
             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             pic.SetPosition(150, 140);
+
+            ws.Cells["A30"].Value = "Text orientation 45";
+            ws.Cells["A30"].Style.TextRotation = 45;
+            ws.Cells["B30"].Value = "Text orientation 90";
+            ws.Cells["B30"].Style.TextRotation = 90;
+            ws.Cells["c30"].Value = "Text orientation 180";
+            ws.Cells["c30"].Style.TextRotation = 180;
+            ws.Cells["D30"].Value = "Text orientation 38";
+            ws.Cells["D30"].Style.TextRotation = 38;
+            ws.Cells["D30"].Style.Font.Bold = true;
+            ws.Cells["D30"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+
+            ws.Workbook.Names.Add("TestName", ws.Cells["B30:E30"]);
+            ws.Workbook.Names["TestName"].Style.Font.Color.SetColor(Color.Red);
+
+            ws.Workbook.Names["TestName"].Offset(1, 0).Value = "Offset test";
+            ws.Workbook.Names["TestName"].Offset(2,-1, 2, 2).Value = "Offset test";
         }
         const int PERF_ROWS=50000;
         [TestMethod]

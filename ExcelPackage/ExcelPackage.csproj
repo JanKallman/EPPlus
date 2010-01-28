@@ -112,7 +112,10 @@
     <Compile Include="Drawing\Chart\ExcelScatterChart.cs" />
     <Compile Include="ExcelCellBase.cs" />
     <Compile Include="ExcelHyperLink.cs" />
+    <Compile Include="ExcelNamedRange.cs" />
+    <Compile Include="ExcelNamedRangeCollection.cs" />
     <Compile Include="ExcelPrinterSettings.cs" />
+    <Compile Include="ExcelRangeBase.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />
     <Compile Include="Style\ExcelColor.cs" />

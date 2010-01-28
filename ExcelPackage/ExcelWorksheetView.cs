@@ -204,7 +204,6 @@ namespace OfficeOpenXml
             {
                 int fromCol, fromRow, toCol, toRow;
                 ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
-                //SelectionNode.SetAttribute("activeCell", value);
                 SetXmlNode(_activeCellPath, value);
                 if (SelectionNode.GetAttribute("sqref") == "")
                 {
@@ -247,6 +246,20 @@ namespace OfficeOpenXml
             set
             {
                 SetXmlNode("@showGridLines", value ? "1" : "0");
+            }
+        }
+        /// <summary>
+        /// Scale 
+        /// </summary>
+        public int ZoomScale
+        {
+            get
+            {
+                return GetXmlNodeInt("@zoomScale");
+            }
+            set
+            {
+                SetXmlNode("@zoomScale", value.ToString());
             }
         }
         #endregion
