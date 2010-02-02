@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
@@ -42,7 +43,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] {"axId","scaling","delete","axPos","numFmt", "tickLblPos"};
+            SchemaNodeOrder = new string[] {"axId","scaling","delete","axPos","numFmt", "tickLblPos","spPr", "txPr"};
         }
         const string _formatPath="c:numFmt/@formatCode";
         /// <summary>
@@ -97,6 +98,22 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _border;
             }
         }
-
+        ExcelTextFont _font = null;
+        public ExcelTextFont Font
+        {
+            get
+            {
+                if (_font == null)
+                {
+                    if (TopNode.SelectSingleNode("c:txPr", NameSpaceManager) == null)
+                    {
+                        CreateNode("c:txPr/a:bodyPr");
+                        CreateNode("c:txPr/a:lstStyle");
+                    }
+                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:txPr/a:p/a:pPr/a:defRPr", new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+                }
+                return _font;
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -31,6 +32,18 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNode(titlePath, value);
             }
         }
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
+                }
+                return _border;
+            }
+        }
         ExcelDrawingFill _fill = null;
         public ExcelDrawingFill Fill
         {
@@ -41,6 +54,18 @@ namespace OfficeOpenXml.Drawing.Chart
                     _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
                 }
                 return _fill;
+            }
+        }
+        ExcelTextFont _font = null;
+        public ExcelTextFont Font
+        {
+            get
+            {
+                if (_font == null)
+                {
+                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:tx/c:rich/a:p/a:r/a:rPr", new string[] { "rPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+                }
+                return _font;
             }
         }
     }
