@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -50,7 +51,7 @@ namespace OfficeOpenXml.Drawing.Chart
                topNode = node.OwnerDocument.CreateElement("c", "dLbls", ExcelPackage.schemaChart);
                //node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
                InserAfter(node, "c:marker,c:tx,c:order,c:ser", topNode);
-               SchemaNodeOrder = new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines" };
+               SchemaNodeOrder = new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines","spPr", "txPr" };
                topNode.InnerXml = "<c:showVal val=\"0\" />";
            }
            TopNode = topNode;
@@ -128,6 +129,49 @@ namespace OfficeOpenXml.Drawing.Chart
                SetXmlNode(separatorPath, value);
            }
        }
+
+       ExcelDrawingFill _fill = null;
+       public ExcelDrawingFill Fill
+       {
+           get
+           {
+               if (_fill == null)
+               {
+                   _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
+               }
+               return _fill;
+           }
+       }
+       ExcelDrawingBorder _border = null;
+       public ExcelDrawingBorder Border
+       {
+           get
+           {
+               if (_border == null)
+               {
+                   _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
+               }
+               return _border;
+           }
+       }
+       ExcelTextFont _font = null;
+       public ExcelTextFont Font
+       {
+           get
+           {
+               if (_font == null)
+               {
+                   if (TopNode.SelectSingleNode("c:txPr", NameSpaceManager) == null)
+                   {
+                       CreateNode("c:txPr/a:bodyPr");
+                       CreateNode("c:txPr/a:lstStyle");
+                   }
+                   _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:txPr/a:p/a:pPr/a:defRPr", new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+               }
+               return _font;
+           }
+       }
+       
        #endregion
        #region "Position Enum Traslation"
        protected string GetPosText(eLabelPosition pos)

@@ -34,6 +34,7 @@ using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Style;
 public enum eShapeStyle
 {
     AccentBorderCallout1,
@@ -255,7 +256,7 @@ namespace OfficeOpenXml.Drawing
             node.AppendChild(shapeNode.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings));
         }
         const string TextPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
-        #region "public functions"
+        #region "public methods"
         const string ShapeStylePath = "xdr:sp/xdr:spPr/a:prstGeom/@prst";
         /// <summary>
         /// Shape style
@@ -309,6 +310,24 @@ namespace OfficeOpenXml.Drawing
                     _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "xdr:sp/xdr:spPr/a:ln");
                 }
                 return _border;
+            }
+        }
+        ExcelTextFont _font=null;
+        public ExcelTextFont Font
+        {
+            get
+            {
+                if (_font == null)
+                {
+                    XmlNode node = TopNode.SelectSingleNode("xdr:sp/xdr:txBody/a:p", NameSpaceManager);
+                    if(node==null)
+                    {
+                        Text="";    //Creates the node p element
+                        node = TopNode.SelectSingleNode("xdr:sp/xdr:txBody/a:p", NameSpaceManager);
+                    }
+                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "xdr:sp/xdr:txBody/a:p/a:pPr/a:defRPr", new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t"});
+                }
+                return _font;
             }
         }
         /// <summary>
@@ -379,7 +398,7 @@ namespace OfficeOpenXml.Drawing
             }
         }
         #endregion
-        #region "Private functions"
+        #region "Private Methods"
         private string ShapeStartXml()
         {
             StringBuilder xml = new StringBuilder();
@@ -402,8 +421,6 @@ namespace OfficeOpenXml.Drawing
                     return "t";
             }
         }
-
-
         private string GetTextVerticalText(eTextVerticalType value)
         {
             switch (value)
@@ -424,7 +441,6 @@ namespace OfficeOpenXml.Drawing
                     return "horz";
             }
         }
-
         private eTextVerticalType GetTextVerticalEnum(string text)
         {
             switch (text)
@@ -445,7 +461,6 @@ namespace OfficeOpenXml.Drawing
                     return eTextVerticalType.Horizontal;
             }
         }
-
         private eTextAnchoringType GetTextAchoringEnum(string text)
         {
             switch (text)

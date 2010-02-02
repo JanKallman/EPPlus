@@ -8,6 +8,7 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using System.IO;
 using System.Drawing;
+using OfficeOpenXml.Style;
 namespace ExcelPackageTest
 {
     /// <summary>
@@ -149,7 +150,8 @@ namespace ExcelPackageTest
             chrt.To.Column = 12;
 
             chrt.DataLabel.ShowPercent = true;
-
+            chrt.Legend.Font.Color = Color.SteelBlue;
+            chrt.Title.Border.Fill.Style = eFillStyle.SolidFill;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -181,10 +183,15 @@ namespace ExcelPackageTest
             chrt.Title.Text = "Header Text";
             chrt.Title.Fill.Style = eFillStyle.SolidFill;
             chrt.Title.Fill.Color = Color.LightBlue;
+            chrt.Title.Fill.Transparancy = 50;
             ExcelScatterChartSerie ser = chrt.Series[0] as ExcelScatterChartSerie;
             ser.DataLabel.Position = eLabelPosition.Center;
             ser.DataLabel.ShowValue = true;
             ser.DataLabel.ShowCategory = true;
+            ser.DataLabel.Fill.Color = Color.BlueViolet;
+            ser.DataLabel.Font.Color = Color.White;
+            ser.DataLabel.Font.Italic = true;
+            ser.DataLabel.Font.SetFromFont(new Font("bookman old style", 8));
             Assert.IsTrue(chrt.ChartType == eChartType.XYScatterSmoothNoMarkers, "Invalid Charttype");
             chrt.Series[0].Header = "Test serie";
             chrt = ws.Drawings.AddChart("ScatterChart2", eChartType.XYScatterSmooth) as ExcelScatterChart;
@@ -194,7 +201,7 @@ namespace ExcelPackageTest
             chrt.From.Row=25;
             chrt.To.Row = 53;
             chrt.To.Column = 12;
-
+            
             ////chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
             //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
 
@@ -227,10 +234,18 @@ namespace ExcelPackageTest
 
             chrt.Legend.Fill.Color = Color.Aquamarine;
             chrt.Axis[0].Fill.Style = eFillStyle.SolidFill;
-            chrt.Axis[0].Fill.Color = Color.LightSeaGreen; ;
+            chrt.Axis[0].Fill.Color = Color.Black;
+            chrt.Axis[0].Font.Color = Color.White;
 
             chrt.Axis[1].Fill.Style = eFillStyle.SolidFill;
             chrt.Axis[1].Fill.Color = Color.LightSlateGray;
+            chrt.Axis[1].Font.Color = Color.DarkRed;
+
+            chrt.DataLabel.Font.Bold = true;
+            chrt.DataLabel.Fill.Color = Color.LightBlue;
+            chrt.DataLabel.Border.Fill.Style=eFillStyle.SolidFill;
+            chrt.DataLabel.Border.Fill.Color=Color.Black;
+            chrt.DataLabel.Border.LineStyle = eLineStyle.Solid;
         }
         [TestMethod]
         public void Cone()
@@ -264,6 +279,16 @@ namespace ExcelPackageTest
             chrt.Fill.Color = Color.LightSteelBlue;
             chrt.Border.LineStyle = eLineStyle.Dot;
             chrt.Border.Fill.Color=Color.Black;
+
+            chrt.Legend.Font.Color = Color.Red;
+            chrt.Legend.Font.Strike = eStrikeType.Double;
+            chrt.Title.Font.Color = Color.DarkGoldenrod;
+            chrt.Title.Font.LatinFont = "Arial";
+            chrt.Title.Font.Bold = true;
+            chrt.Title.Fill.Color = Color.White;
+            chrt.Title.Border.Fill.Style = eFillStyle.SolidFill;
+            chrt.Title.Border.LineStyle = eLineStyle.LongDashDotDot;
+            chrt.Title.Border.Fill.Color = Color.Tomato;
         }
         [TestMethod]
         public void Drawings()
@@ -294,6 +319,8 @@ namespace ExcelPackageTest
             (ws.Drawings["shape5"] as ExcelShape).Fill.Transparancy = 50;
 
             (ws.Drawings["shape6"] as ExcelShape).Fill.Style = eFillStyle.NoFill;
+            (ws.Drawings["shape6"] as ExcelShape).Font.Color = Color.Black;
+            (ws.Drawings["shape6"] as ExcelShape).Border.Fill.Color = Color.Black;
 
             (ws.Drawings["shape7"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
             (ws.Drawings["shape7"] as ExcelShape).Fill.Color=Color.Gray;
@@ -302,8 +329,18 @@ namespace ExcelPackageTest
             (ws.Drawings["shape7"] as ExcelShape).Border.Fill.Transparancy=43;
             (ws.Drawings["shape7"] as ExcelShape).Border.LineCap=eLineCap.Round;
             (ws.Drawings["shape7"] as ExcelShape).Border.LineStyle = eLineStyle.LongDash;
+            (ws.Drawings["shape7"] as ExcelShape).Font.UnderLineColor = Color.Blue;
+            (ws.Drawings["shape7"] as ExcelShape).Font.Color = Color.Black;
+            (ws.Drawings["shape7"] as ExcelShape).Font.Bold = true;
+            (ws.Drawings["shape7"] as ExcelShape).Font.LatinFont = "Arial";
+            (ws.Drawings["shape7"] as ExcelShape).Font.ComplexFont = "Arial";
+            (ws.Drawings["shape7"] as ExcelShape).Font.Italic = true;
+            (ws.Drawings["shape7"] as ExcelShape).Font.UnderLine = eUnderLineType.Dotted;
 
             (ws.Drawings["shape8"] as ExcelShape).Fill.Style = eFillStyle.SolidFill;
+            (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
+            (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
+            (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
         }
     }
 }

@@ -126,6 +126,7 @@
     <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />
     <Compile Include="Style\ExcelNumberFormat.cs" />
     <Compile Include="Style\StyleBase.cs" />
+    <Compile Include="Style\ExcelTextFont.cs" />
     <None Include="OfficeOpenXml.snk" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
