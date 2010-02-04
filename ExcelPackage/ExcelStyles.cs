@@ -188,9 +188,9 @@ namespace OfficeOpenXml
                     if (row.StyleID == 0 && _wb.Worksheets[e.PositionID]._columns.Count > 0)
                     {
                         //TODO: We should loop all columns here and change each cell. But for now we take style of column A.
-                        foreach(ulong key in _wb.Worksheets[e.PositionID]._columns.Keys)
+                        foreach(ExcelColumn column in _wb.Worksheets[e.PositionID]._columns)
                         {
-                            row.StyleID = _wb.Worksheets[e.PositionID]._columns[key].StyleID;
+                            row.StyleID = column.StyleID;
                             break;  //Get the first one and break. 
                         }                        
                         
@@ -396,15 +396,15 @@ namespace OfficeOpenXml
             CellXfs[0].useCnt = 1; //First item is allways used.
             foreach (ExcelWorksheet sheet in _wb.Worksheets)
             {
-                foreach (ExcelCell cell in sheet._cells.Values)
+                foreach (ExcelCell cell in sheet._cells) //sheet._cells.Values
                 {
                     CellXfs[cell.GetCellStyleID()].useCnt++;
                 }
-                foreach(ExcelRow row in sheet._rows.Values)
+                foreach(ExcelRow row in sheet._rows)
                 {
                     CellXfs[row.StyleID].useCnt++;
                 }
-                foreach (ExcelColumn col in sheet._columns.Values)
+                foreach (ExcelColumn col in sheet._columns)
                 {
                     if(col.StyleID>=0) CellXfs[col.StyleID].useCnt++;
                 }

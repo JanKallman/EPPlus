@@ -92,6 +92,7 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="RangeCollection.cs" />
     <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
     <Compile Include="Drawing\Chart\ExcelChartPlotArea.cs" />
     <Compile Include="Drawing\Chart\ExcelChartSerieDataLabel.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="ExcelNamedRangeCollection.cs" />
     <Compile Include="ExcelPrinterSettings.cs" />
     <Compile Include="ExcelRangeBase.cs" />
+    <Compile Include="IRangeID.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />
     <Compile Include="Style\ExcelColor.cs" />
