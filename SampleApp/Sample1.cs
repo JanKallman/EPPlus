@@ -107,18 +107,17 @@ namespace ExcelPackageSamples
 
 				worksheet.Cells[3, 2].Value = 32;  // tins Carrots sold
 
-				cell = worksheet.Cells[4, 2];
+                cell = worksheet.Cells[4, 2];
 				cell.Value = 65;  // tins of Peas sold
 				string calcEndAddress = cell.Address;  // we want this for the formula
 
 				// now add a formula to show the total number of tins sold
 				// This actually adds "SUM(B2:B4)" as the formula
 				worksheet.Cells[5, 2].Formula = string.Format("SUM({0}:{1})", calcStartAddress, calcEndAddress);
-
 				// set the row height of the total row to be a bit bigger
 				worksheet.Row(5).Height = 20;
-
-				// lets set the header text 
+                
+                // lets set the header text 
 				worksheet.HeaderFooter.oddHeader.CenteredText = "Tinned Goods Sales";
 				// add the page number to the footer plus the total number of pages
 				worksheet.HeaderFooter.oddFooter.RightAlignedText =

@@ -35,7 +35,7 @@ using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
-    internal class ExcelCell : ExcelCellBase, IExcelCell
+    internal class ExcelCell : ExcelCellBase, IExcelCell, IRangeID
     {
 		#region Cell Private Properties
 		private ExcelWorksheet _xlWorksheet;
@@ -73,6 +73,13 @@ namespace OfficeOpenXml
             IsRichText = false;
         }
 		#endregion  // END Cell Constructors
+        internal ulong CellID
+        {
+            get
+            {
+                return GetCellID(_xlWorksheet.SheetID, Row, Column);
+            }
+        }
         #region ExcelCell Public Properties
 
 		/// <summary>
@@ -169,7 +176,7 @@ namespace OfficeOpenXml
 			{
 				if(_styleID>0)
                     return _styleID;
-                else if (_xlWorksheet.Row(Row).StyleID > 0)
+                else if (_xlWorksheet._rows != null && _xlWorksheet.Row(Row).StyleID > 0)
                 {
                     return _xlWorksheet.Row(Row).StyleID;
                 }
@@ -187,13 +194,6 @@ namespace OfficeOpenXml
         internal int GetCellStyleID()
         {
             return _styleID;
-        }
-        internal ulong CellID
-        {
-            get
-            {
-                return GetCellID(_xlWorksheet.SheetID, Row, Column);
-            }
         }
         public ExcelStyle Style
         {
@@ -375,6 +375,22 @@ namespace OfficeOpenXml
 		}
 		#endregion
 		#endregion // END Cell Private Methods
+        #region IRangeID Members
 
+        ulong IRangeID.RangeID
+        {
+            get
+            {
+                return GetCellID(_xlWorksheet.SheetID, Row, Column);
+            }
+            set
+            {
+                //_sheet = (int)(cellID % 0x8000);
+                _col = ((int)(value >> 15) & 0x3FF);
+                _row = ((int)(value >> 29));
+            }
+        }
+
+        #endregion
     }
 }

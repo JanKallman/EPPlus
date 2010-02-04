@@ -128,6 +128,13 @@ namespace ExcelPackageTest
             ws.Column(2).Width = 8;
             ws.Column(3).Width = 20;
             ws.Column(4).Width = 14;
+
+            ws.DeleteRow(1000, 3, true);
+            ws.DeleteRow(2000, 1, true);
+
+            ws.InsertRow(2001, 4);
+
+            ws.InsertRow(2010, 1);
             TestContext.WriteLine("EndTime {0}", DateTime.Now);
         }
     }

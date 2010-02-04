@@ -413,12 +413,21 @@ namespace OfficeOpenXml
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
         /// </summary>
-        /// <param name="iRow">The number of the row</param>
-        /// <param name="iColumn">The number of the column in the worksheet</param>
+        /// <param name="FromRow">From row number</param>
+        /// <param name="FromColumn">From column number</param>
+        /// <param name="ToRow">To row number</param>
+        /// <param name="ToColumn">From column number</param>
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int FromRow, int FromColumn, int ToRow, int ToColumn)
         {
-            return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
+            if (FromRow == ToRow && FromColumn == ToColumn)
+            {
+                return GetColumnLetter(FromColumn) + FromRow.ToString();
+            }
+            else
+            {
+                return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
+            }
         }
         public static string GetFullAddress(string worksheetName, string address)
         {

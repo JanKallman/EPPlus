@@ -271,7 +271,7 @@ namespace ExcelPackageSamples
             ws.Cells["N1:N43"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
             ws.Cells["A43:N43"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
-            //And last the pritersettings
+            //And last the printersettings
             ws.PrinterSettings.Orientation = eOrientation.Landscape;
             ws.PrinterSettings.FitToPage = true;
             ws.PrinterSettings.Scale = 67;

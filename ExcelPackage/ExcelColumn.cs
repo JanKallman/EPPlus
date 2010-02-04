@@ -71,7 +71,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Represents an individual column within the worksheet
 	/// </summary>
-	public class ExcelColumn
+	public class ExcelColumn : IRangeID
 	{
 		private ExcelWorksheet _xlWorksheet;
 		private XmlElement _colElement = null;
@@ -114,9 +114,8 @@ namespace OfficeOpenXml
                     throw new Exception("ColumnMax out of range");
                 }
 
-                foreach (ulong key in _xlWorksheet._columns.Keys)
+                foreach (ExcelColumn c in _xlWorksheet._columns)
                 {
-                    ExcelColumn c = _xlWorksheet._columns[key];
                     if (c.ColumnMin > _columnMin && c.ColumnMax <= value && c.ColumnMin!=_columnMin)
                     {
                         throw new Exception(string.Format("ColumnMax can not spann over existing column {0}.",c.ColumnMin));
@@ -264,5 +263,25 @@ namespace OfficeOpenXml
         {
             return ((ulong)sheetID) + (((ulong)column) << 15);
         }
+
+        #region IRangeID Members
+
+        ulong IRangeID.RangeID
+        {
+            get
+            {
+                return ColumnID;
+            }
+            set
+            {
+                int prevColMin = _columnMin;
+                _columnMin = ((int)(value >> 15) & 0x3FF);
+                _columnMax += prevColMin - ColumnMin;
+                //Todo:More Validation
+                if (_columnMax > ExcelPackage.MaxColumns) _columnMax = ExcelPackage.MaxColumns;
+            }
+        }
+
+        #endregion
     }
 }

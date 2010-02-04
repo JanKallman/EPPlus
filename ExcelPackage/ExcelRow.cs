@@ -71,7 +71,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Represents an individual row in the spreadsheet.
 	/// </summary>
-	public class ExcelRow
+	public class ExcelRow : IRangeID
 	{
 		private ExcelWorksheet _xlWorksheet;
 		private XmlElement _rowElement = null;
@@ -230,5 +230,21 @@ namespace OfficeOpenXml
             return ((ulong)sheetID) + (((ulong)row) << 29);
 
         }
+
+        #region IRangeID Members
+
+        ulong IRangeID.RangeID
+        {
+            get
+            {
+                return RowID; 
+            }
+            set
+            {
+                Row = ((int)(value >> 29));
+            }
+        }
+
+        #endregion
     }
 }
