@@ -106,7 +106,7 @@ namespace OfficeOpenXml
         /// </summary>
         public ExcelPackage()
         {
-            ConstructNewFile(null);
+            ConstructNewFile();
         }
         /// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
@@ -114,8 +114,9 @@ namespace OfficeOpenXml
 		/// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
         public ExcelPackage(FileInfo newFile)
 		{
-            ConstructNewFile(newFile);
-		}
+            File = newFile;
+            ConstructNewFile();
+        }
 
 		/// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing template.
@@ -125,7 +126,8 @@ namespace OfficeOpenXml
 		/// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
 		public ExcelPackage(FileInfo newFile, FileInfo template)
 		{
-            newFile = CreateFromTemplate(newFile, template);
+            File = newFile;
+            CreateFromTemplate(template);
 		}   
 
         /// <summary>
@@ -134,55 +136,49 @@ namespace OfficeOpenXml
         /// <param name="newFile"></param>
         /// <param name="template"></param>
         /// <returns></returns>
-        private FileInfo CreateFromTemplate(FileInfo newFile, FileInfo template)
+        private void CreateFromTemplate(FileInfo template)
         {
-            _outputFolderPath = newFile.DirectoryName;
+            _outputFolderPath = File.DirectoryName;
             if (template.Exists)
             {
-                if (newFile.Exists)
-                {
-                    try
-                    {
-                        newFile.Delete();
-                    }
-                    catch (Exception ex)
-                    {
-                        throw new Exception("ExcelPackage Error: Target file already exists and is locked.", ex);
-                    }
-                }
-                newFile = template.CopyTo(newFile.FullName);
-                newFile.IsReadOnly = false;
-
-                _package = Package.Open(newFile.FullName, FileMode.Open, FileAccess.ReadWrite);
+                _stream = new MemoryStream();
+                byte[] b = System.IO.File.ReadAllBytes(template.FullName);
+                _stream.Write(b, 0, b.Length);
+                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
                 throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
-            return newFile;
+            //return newFile;
         }
         
-        private void ConstructNewFile(FileInfo newFile)
+        private void ConstructNewFile()
         {
-            if (newFile == null)
+            _stream = new MemoryStream();
+            if (File.Exists)
             {
-                _stream = new MemoryStream();
-
-                _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
-                CreateBlankWb();
+                byte[] b = System.IO.File.ReadAllBytes(File.FullName);
+                _stream.Write(b, 0, b.Length);
+                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
             {
-                _outputFolderPath = newFile.DirectoryName;
-                if (newFile.Exists)
-                    // open the existing package
-                    _package = Package.Open(newFile.FullName, FileMode.Open, FileAccess.ReadWrite);
-                else
-                {
-                    // create a new package and add the main workbook.xml part
-                    _package = Package.Open(newFile.FullName, FileMode.Create, FileAccess.ReadWrite);
+                _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
+                CreateBlankWb();
+            }   
+            //else
+            //{
+            //    _outputFolderPath = newFile.DirectoryName;
+            //    if (newFile.Exists)
+            //        // open the existing package
+            //        _package = Package.Open(newFile.FullName, FileMode.Open, FileAccess.ReadWrite);
+            //    else
+            //    {
+            //        // create a new package and add the main workbook.xml part
+            //        _package = Package.Open(newFile.FullName, FileMode.Create, FileAccess.ReadWrite);
 
-                    CreateBlankWb();
-                }
-            }
+            //        CreateBlankWb();
+            //    }
+            //}
         }
 
         private void CreateBlankWb()
@@ -208,24 +204,11 @@ namespace OfficeOpenXml
         /// <param name="useStream">if true use a strem. If false create a file in the temp dir with a random name</param>
         public ExcelPackage(FileInfo template, bool useStream)
         {
-            if (template.Exists)
+            CreateFromTemplate(template);
+            if (useStream == false)
             {
-                if (useStream)
-                {
-                    byte[] b = File.ReadAllBytes(template.FullName);
-                    _stream = new MemoryStream();
-                    _stream.Write(b, 0, b.Length);
-
-                    _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
-                }
-                else
-                {
-                    FileInfo newFile = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xls");
-                    CreateFromTemplate(newFile, template);
-                }
+                File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
             }
-            else
-                throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
         }
         #endregion
 
@@ -404,8 +387,43 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Save()
 		{
-			Workbook.Save();
-            _package.Close();
+            try
+            {
+                Workbook.Save();
+                if (File != null)
+                {                    
+                    if (System.IO.File.Exists(File.FullName))
+                    {
+                        try
+                        {
+                            System.IO.File.Delete(File.FullName);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw(new Exception( string.Format("Error overwriting file {0}", File.FullName), ex));
+                        }
+                    }
+                    System.IO.File.WriteAllBytes(File.FullName, GetAsByteArray(false));
+                }
+                _package.Close();
+            }
+            catch(Exception ex)
+            {
+                throw (new Exception(string.Format("Error saving file {0}"), ex));
+            }
+        }
+        /// <summary>
+        /// Saves the workbook to a new file
+        /// </summary>
+        public void SaveAs(FileInfo file)
+        {
+            File = file;
+            Save();
+        }
+        public FileInfo File
+        {
+            get;
+            set;
         }
         public Stream Stream
         {
@@ -449,11 +467,11 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public byte[] GetAsByteArray()
         {
-            if (Stream == null)
-            {
-                throw new Exception("This function can only be used when using a stream.");
-            }
-            Workbook.Save();
+           return GetAsByteArray(true);
+        }
+        internal  byte[] GetAsByteArray(bool save)
+        {
+            if(save) Workbook.Save();
             _package.Close();
             Byte[] byRet = new byte[Stream.Length];
             long pos = Stream.Position;            
@@ -464,5 +482,6 @@ namespace OfficeOpenXml
             Stream.Close();
             return byRet;
         }
+
     }
 }

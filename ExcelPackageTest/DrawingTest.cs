@@ -258,6 +258,16 @@ namespace ExcelPackageTest
             chrt.Series[0].Header = "Serie 1";
         }
         [TestMethod]
+        public void Column()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Column");
+            var chrt = ws.Drawings.AddChart("Column1", eChartType.ColumnClustered) as ExcelBarChart;
+            AddTestSerie(ws, chrt);
+            chrt.SetSize(200);
+            chrt.Title.Text = "Column";
+            chrt.Series[0].Header = "Serie 1";
+        }
+        [TestMethod]
         public void Dougnut()
         {
             var ws = _pck.Workbook.Worksheets.Add("Dougnut");
