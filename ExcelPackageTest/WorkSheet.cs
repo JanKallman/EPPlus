@@ -135,7 +135,31 @@ namespace ExcelPackageTest
             ws.InsertRow(2001, 4);
 
             ws.InsertRow(2010, 1);
+
+            //Single formula
+            ws.Cells["H3"].Formula = "B2+B3";
+            ws.DeleteRow(2, 1, true);
+
+            //Shared formula
+            ws.Cells["H5:H30"].Formula = "B4+B5";
+            ws.InsertRow(7, 1);
+            ws.InsertRow(2, 1);
+            ws.DeleteRow(30, 3, true);
             TestContext.WriteLine("EndTime {0}", DateTime.Now);
+        }
+        [TestMethod]
+        public void InsertDeleteTest()
+        {
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDelete");
+            ws.Cells["A1:C5"].Value = 1;
+            ws.Cells["A1:B3"].Merge = true;
+            ws.Cells["D3"].Formula = "A2+C5";
+            ws.InsertRow(2, 1);
+
+            ws.Cells["A10:C15"].Value = 1;
+            ws.Cells["A11:B13"].Merge = true;
+            ws.DeleteRow(12, 1,true);
+
         }
     }
 }

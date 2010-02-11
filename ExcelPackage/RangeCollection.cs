@@ -133,7 +133,7 @@ namespace OfficeOpenXml
         internal void Delete(ulong key)
         {
             var ix = IndexOf(key);
-            if (ix <= 0)
+            if (ix < 0)
             {
                 throw (new Exception("Key do not exist"));
             }

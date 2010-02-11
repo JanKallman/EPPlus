@@ -41,7 +41,7 @@ namespace OfficeOpenXml
 		private ExcelWorksheet _xlWorksheet;
 		private int _row;
 		private int _col;
-		private string _formula="";
+		internal string _formula="";
 		private Uri _hyperlink=null;
         static CultureInfo _ci=new CultureInfo("en-US");
         #endregion
@@ -56,19 +56,26 @@ namespace OfficeOpenXml
 		{
 			if (row < 1 || col < 1)
 				throw new Exception("ExcelCell Constructor: Negative row and column numbers are not allowed");
-			if (xlWorksheet == null)
+            if (row > ExcelPackage.MaxRows || col > ExcelPackage.MaxColumns)
+                throw new Exception("ExcelCell Constructor: row or column numbers are out of range");
+            if (xlWorksheet == null)
 				throw new Exception("ExcelCell Constructor: xlWorksheet must be set to a valid reference");
 
-			_xlWorksheet = xlWorksheet;
 			_row = row;
 			_col = col;
+            _xlWorksheet = xlWorksheet;
+            if (col < xlWorksheet._minCol) xlWorksheet._minCol = col;
+            if (col > xlWorksheet._maxCol) xlWorksheet._maxCol = col;
             SharedFormulaID = int.MinValue;
             IsRichText = false;
+
 		}
         protected internal ExcelCell(ExcelWorksheet xlWorksheet, string cellAddress)
         {
             _xlWorksheet = xlWorksheet;
             GetRowCol(cellAddress, out _row, out _col);
+            if (_col < xlWorksheet._minCol) xlWorksheet._minCol = _col;
+            if (_col > xlWorksheet._maxCol) xlWorksheet._maxCol = _col;
             SharedFormulaID = int.MinValue;
             IsRichText = false;
         }
@@ -283,6 +290,10 @@ namespace OfficeOpenXml
 				_formula = value;
                 _formulaR1C1 = "";
                 SharedFormulaID = int.MinValue;
+                if (_formula!="" && !_xlWorksheet._formulaCells.ContainsKey(CellID))
+                {
+                    _xlWorksheet._formulaCells.Add(this);
+                }
 			}
         }
         string _formulaR1C1="";
@@ -322,7 +333,10 @@ namespace OfficeOpenXml
                 _formulaR1C1 = value;
                 _formula = "";
                 SharedFormulaID = int.MinValue;
-
+                if (!_xlWorksheet._formulaCells.ContainsKey(CellID))
+                {
+                    _xlWorksheet._formulaCells.Add(this);
+                }
             }
         }
         /// <summary>

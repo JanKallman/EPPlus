@@ -140,8 +140,11 @@ namespace OfficeOpenXml
         internal RangeCollection _rows;
 
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
+        internal RangeCollection _formulaCells;
         internal static CultureInfo _ci=new CultureInfo("en-US");
-		/// <summary>
+        internal int _minCol = ExcelPackage.MaxColumns;
+        internal int _maxCol = 0;
+        /// <summary>
 		/// Temporary tag for all column numbers in the worksheet XML
 		/// For internal use only!
 		/// </summary>
@@ -471,6 +474,7 @@ namespace OfficeOpenXml
         {
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
+            var formulaList = new List<IRangeID>(); 
             foreach (XmlNode rowNode in _worksheetXml.SelectNodes("//d:sheetData/d:row", NameSpaceManager))
             {
                 int row = Convert.ToInt32(rowNode.Attributes.GetNamedItem("r").Value);
@@ -510,10 +514,11 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            cell.Formula = f.InnerText;
+                            cell._formula = f.InnerText;
                         }
                         //Set the value variable (Value property cleans the formla)
                         cell._value = GetValueFromXml(cell, colNode);
+                        formulaList.Add(cell);
                     }
                     else
                     {
@@ -525,6 +530,7 @@ namespace OfficeOpenXml
             }
             _cells = new RangeCollection(cellList);
             _rows = new RangeCollection(rowList);
+            _formulaCells = new RangeCollection(formulaList);
         }
         private void LoadMergeCells()
         {
@@ -897,56 +903,68 @@ namespace OfficeOpenXml
 		/// Inserts a new row into the spreadsheet.  Existing rows below the position are 
 		/// shifted down.  All formula are updated to take account of the new row.
 		/// </summary>
-		/// <param name="position">The position of the new row</param>
+        /// <param name="rowFrom">The position of the new row</param>
         /// <param name="rows">Number of rows to be deleted</param>
-		public void InsertRow(int position, int rows)
+		public void InsertRow(int rowFrom, int rows)
 		{
             //Insert the new row into the collection
-            int index = _cells.InsertRows(ExcelRow.GetRowID(SheetID, position), rows);
-            List<int> sharedFormulas = new List<int>();
-            for (int i = index; i < _cells.Count; i++)
+            int index = _cells.InsertRows(ExcelRow.GetRowID(SheetID, rowFrom), rows);
+            //List<int> sharedFormulas = new List<int>();
+            foreach (ExcelCell cell in _formulaCells)
             {
-                ExcelCell cell = _cells[i] as ExcelCell;
-                if (cell.SharedFormulaID >= 0 && !sharedFormulas.Contains(cell.SharedFormulaID))
+                if (cell.SharedFormulaID<0)
                 {
-                    sharedFormulas.Add(cell.SharedFormulaID);
-                }
-                else if (cell.Formula != "")
-                {
-                    cell.Formula=ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, position,0);
+                    cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, rowFrom, 0);
                 }
             }
-            FixSharedFormulasRows(sharedFormulas, position, rows);
-            //var cpy=new SortedDictionary<ulong, ExcelCell>();
-            //List<int> sharedFormulas = new List<int>();
-            //foreach (ExcelCell cell in _cellsNew)
-            //{
-            //    if(cell.Row>=position)
-            //    {
-            //        cell.Row+=rows;
-            //        if (cell.SharedFormulaID >= 0 && !sharedFormulas.Contains(cell.SharedFormulaID))
-            //        {
-            //            sharedFormulas.Add(cell.SharedFormulaID);
-            //        }
-            //        else if (cell.Formula != "")
-            //        {
-            //            cell.Formula=ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, position,0);
-            //        }
-            //    }
-            //    cpy.Add(cell.CellID, cell);
-            //}
-            ////_cells = cpy;            
-        }
 
-        private void FixSharedFormulasRows(List<int> sharedFormulas, int position, int rows)
+            FixSharedFormulasRows(rowFrom, rows);
+            AddMergedCells(rowFrom, rows);
+        }
+        /// <summary>
+        /// Adds a value to the row of merged cells to fix for inserts or deletes
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="rows"></param>
+        private void AddMergedCells(int position, int rows)
         {
-            foreach (int id in sharedFormulas)
+            for(int i=0;i<_mergedCells.Count;i++)
+            {
+                int fromRow, toRow, fromCol, toCol;
+                ExcelCellBase.GetRowColFromAddress(_mergedCells[i], out fromRow, out  fromCol, out  toRow, out toCol);
+
+                if (fromRow >= position) 
+                {
+                    fromRow += rows;
+                }
+                if (toRow >= position)
+                {
+                    toRow += rows;
+                }
+
+                //Set merged prop for cells
+                for (int row = fromRow; row <= toRow; row++)
+                {
+                    for (int col = fromCol; col <= toCol; col++)
+                    {
+                        Cell(row, col).Merge = true;
+                    }
+                }
+
+                _mergedCells.List[i] = ExcelCellBase.GetAddress(fromRow, fromCol, toRow, toCol);
+            }
+        }
+        private void FixSharedFormulasRows(int position, int rows)
+        {
+            List<Formulas> added=new List<Formulas>();
+            List<Formulas> deleted = new List<Formulas>();
+            foreach (int id in _sharedFormulas.Keys)
             {
                 var f = _sharedFormulas[id];
                 int fromCol, fromRow, toCol, toRow;
 
                 ExcelCell.GetRowColFromAddress(f.Address, out fromRow, out fromCol, out toRow, out toCol);
-                if (position >= fromRow && position <= toRow)
+                if (position >= fromRow && position+(Math.Abs(rows)) <= toRow) //Insert/delete is whithin the share formula address
                 {
                     if (rows > 0) //Insert
                     {
@@ -955,10 +973,12 @@ namespace OfficeOpenXml
                         {
                             Formulas newF = new Formulas();
                             newF.StartCol = f.StartCol;
-                            newF.StartRow = f.StartRow + rows+1;
+                            newF.StartRow = position + rows;
                             newF.Index = GetMaxShareFunctionIndex();
-                            newF.Address = ExcelCell.GetAddress(position + rows - 1, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
-                            //newF.Formula = AddRowsFormula(f.Formula, newF.StartRow-f.StartRow);
+                            newF.Address = ExcelCell.GetAddress(position + rows, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
+                            newF.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, newF.StartRow-f.StartRow, 0, 1, 0); //Recalc the cells positions //ExcelCell.TranslateFromR1C1(Cells[fromRow, fromCol].FormulaR1C1, newF.StartRow, newF.StartCol); //Räkna om formulan
+                            Cells[newF.Address].SetSharedFormulaID(newF.Index);
+                            added.Add(newF);
                         }
                     }
                     else
@@ -973,11 +993,44 @@ namespace OfficeOpenXml
                         }
                     }
                 }
-                else
+                else if (position <= toRow)
                 {
-                    f.Address = ExcelCell.GetAddress(fromRow + rows, fromCol, toRow+rows, toCol);
-                    f.StartRow = f.StartRow + rows;
+                    if (rows > 0) //Insert before shift down
+                    {
+                        f.StartRow += rows;
+                        f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0); //Recalc the cells positions
+                        f.Address = ExcelCell.GetAddress(fromRow + rows, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
+                    }
+                    else
+                    {
+                        if (position <= fromRow && position + Math.Abs(rows) >= toRow)  //Delete the formula 
+                        {
+                            deleted.Add(f);
+                        }
+                        else
+                        {
+                            toRow = toRow + rows < position - 1 ? position - 1 : toRow + rows;
+                            if (position <= fromRow)
+                            {
+                                fromRow = fromRow + rows < position ? position : fromRow + rows;
+                            }
+                            f.Address = ExcelCell.GetAddress(fromRow, fromCol, toRow, toCol);
+                            f.StartRow = fromRow;
+                            f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0);
+                        }
+                    }
                 }
+            }
+
+            //Add new formulas
+            foreach(Formulas f in added)
+            {
+                _sharedFormulas.Add(f.Index, f);
+            }
+            //Remove formulas
+            foreach (Formulas f in deleted)
+            {
+                _sharedFormulas.Remove(f.Index);
             }
         }
 		#endregion
@@ -996,40 +1049,15 @@ namespace OfficeOpenXml
 
             int index = _cells.DeleteRows(ExcelRow.GetRowID(SheetID, rowFrom), rows);
 
-            List<int> sharedFormulas = new List<int>();
-            for (int i = index; i < _cells.Count; i++)
+            foreach (ExcelCell cell in _formulaCells)
             {
-                ExcelCell cell = _cells[i] as ExcelCell;
-                if (cell.SharedFormulaID >= 0 && !sharedFormulas.Contains(cell.SharedFormulaID))
+                if (cell.SharedFormulaID < 0)
                 {
-                    sharedFormulas.Add(cell.SharedFormulaID);
-                }
-                else if (cell.Formula != "")
-                {
-                    cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
+                    cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, rowFrom, 0);
                 }
             }
-            FixSharedFormulasRows(sharedFormulas, rowFrom, -rows);
-
-            //We have a problem here with shared formulas update to be fixed
-            //var cpy = new SortedDictionary<ulong, ExcelCell>();
-            //int rows=rowTo-rowFrom;
-            //foreach (ExcelCell cell in _cells)
-            //{
-            //    if (cell.Row >= rowTo && shiftOtherRowsUp)
-            //    {
-            //        cell.Row -= rows;
-            //        if (shiftOtherRowsUp && cell.Formula != "")
-            //        {
-            //            cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
-            //        }
-            //    }
-            //    if (!(cell.Row >= rowFrom && cell.Row <= rowTo))
-            //    {
-            //        cpy.Add(cell.CellID, cell);
-            //    }
-            //}
-            //_cells = cpy;
+            FixSharedFormulasRows(rowFrom, -rows);
+            AddMergedCells(rowFrom, -rows);
         }
 		#endregion
 
@@ -1070,11 +1098,17 @@ namespace OfficeOpenXml
 
 			if (_worksheetXml != null)
 			{
+                
 				// save the header & footer (if defined)
 				if (_headerFooter != null)
 					HeaderFooter.Save();
                 // replace the numeric Cell IDs we inserted with AddNumericCellIDs()
 				//ReplaceNumericCellIDs();
+
+                if (_cells.Count > 0)
+                {
+                    this.SetXmlNode("d:dimension/@ref", Dimension);
+                }
 
 				// save worksheet to package
 				PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
@@ -1211,6 +1245,7 @@ namespace OfficeOpenXml
             }
             ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
             top.RemoveAll();
+            
             List<ulong> hyperLinkCells = new List<ulong>();
             int row = -1;
 
@@ -1467,8 +1502,22 @@ namespace OfficeOpenXml
                 }
             }
             return _worksheetXml.DocumentElement.InsertAfter(hl, prevNode);
-        }   
+        }
+        public string Dimension
+        {
+            get
+            {
+                if (_cells.Count > 0)
+                {
+                    return ExcelCellBase.GetAddress((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
+                }
+                else
+                {
+                    return "";
+                }
 
+            }
+        }
         #region Drawing
         ExcelDrawings _drawings = null;
         public ExcelDrawings Drawings

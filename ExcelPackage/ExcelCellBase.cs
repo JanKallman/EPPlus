@@ -65,7 +65,7 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Formula Functions"
-        private delegate string dlgTransl(string part, int row, int col);
+        private delegate string dlgTransl(string part, int row, int col, int rowIncr, int colIncr);
         #region R1C1 Functions"
         /// <summary>
         /// Translates a R1C1 to an absolut address/Formula
@@ -76,7 +76,7 @@ namespace OfficeOpenXml
         /// <returns>The RC address</returns>
         public static string TranslateFromR1C1(string value, int row, int col)
         {
-            return Translate(value, ToAbs, row, col);
+            return Translate(value, ToAbs, row, col, -1, -1);
         }
         /// <summary>
         /// Translates a absolut address to R1C1 Format
@@ -87,7 +87,7 @@ namespace OfficeOpenXml
         /// <returns>The absolut address/Formula</returns>
         public static string TranslateToR1C1(string value, int row, int col)
         {
-            return Translate(value, ToR1C1, row, col);
+            return Translate(value, ToR1C1, row, col, -1, -1);
         }
         /// <summary>
         /// Translates betweein R1C1 or absolut addresses
@@ -96,8 +96,10 @@ namespace OfficeOpenXml
         /// <param name="addressTranslator">The translating function</param>
         /// <param name="row"></param>
         /// <param name="col"></param>
+        /// <param name="rowIncr"></param>
+        /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string Translate(string value, dlgTransl addressTranslator, int row, int col)
+        private static string Translate(string value, dlgTransl addressTranslator, int row, int col, int rowIncr, int colIncr)
         {
             if (value == "") return "";
             bool isText = false;
@@ -110,7 +112,7 @@ namespace OfficeOpenXml
                 {
                     if (isText == false && part != "")
                     {
-                        ret += addressTranslator(part, row, col);
+                        ret += addressTranslator(part, row, col, rowIncr, colIncr);
                         part = "";
                     }
                     isText = !isText;
@@ -127,7 +129,7 @@ namespace OfficeOpenXml
                        c == '<' || c == '>' || c == '(' || c == ')') &&
                        (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
                     {
-                        ret += addressTranslator(part, row, col) + c;
+                        ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;
                         part = "";
                     }
                     else
@@ -138,7 +140,7 @@ namespace OfficeOpenXml
             }
             if (part != "")
             {
-                addressTranslator(part, row, col);
+                ret += addressTranslator(part, row, col, rowIncr, colIncr);
             }
             return ret;
         }
@@ -149,7 +151,7 @@ namespace OfficeOpenXml
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        private static string ToR1C1(string part, int row, int col)
+        private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
         {
             int addrRow, addrCol;
             string Ret = "R";
@@ -189,7 +191,7 @@ namespace OfficeOpenXml
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        private static string ToAbs(string part, int row, int col)
+        private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
             string check = part.ToUpper();
 
@@ -227,6 +229,44 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Adds or subtracts a row or column to an address
+        /// </summary>
+        /// <param name="Address"></param>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
+        /// <param name="rowIncr"></param>
+        /// <param name="colIncr"></param>
+        /// <returns></returns>
+        private static string AddToRowColumnTranslator(string Address, int row, int col, int rowIncr, int colIncr)
+        {
+            int fromRow, fromCol;
+            GetRowCol(Address, out fromRow, out fromCol);
+            if (row != 0 && fromRow >=row && Address.IndexOf('$', 1) == -1)
+            {
+                if (rowIncr > 0) //Insert
+                {
+                    Address = GetAddress(fromRow + rowIncr, fromCol);
+                }
+                else                    //Delete
+                {
+                    if (fromRow >= row && fromRow < row - rowIncr)
+                    {
+                        Address = "#REF!";
+                    }
+                    else
+                    {
+                        Address = GetAddress(fromRow + rowIncr, fromCol);
+                    }
+                }
+            }
+            else if (col != 0 && fromCol >= col && Address.StartsWith("$") == false)
+            {
+                Address = GetAddress(fromRow, fromCol + colIncr);
+            }
+            return Address;
+        }
+
         /// <summary>
         /// Returns with brackets if the value is negative
         /// </summary>
@@ -478,56 +518,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn)
         {
-            string newFormula = "";
-
-            Regex getAlphaNumeric = new Regex(@"[^a-zA-Z0-9]", RegexOptions.IgnoreCase);
-            Regex getSigns = new Regex(@"[a-zA-Z0-9]", RegexOptions.IgnoreCase);
-
-            string alphaNumeric = getAlphaNumeric.Replace(Formula, " ").Replace("  ", " ");
-            string signs = getSigns.Replace(Formula, " ");
-            char[] chrSigns = signs.ToCharArray();
-            int count = 0;
-            int length = 0;
-            foreach (string cellAddress in alphaNumeric.Split(' '))
-            {
-                count++;
-                length += cellAddress.Length;
-
-                // if the cellAddress contains an alpha part followed by a number part, then it is a valid cellAddress
-
-                int row, col;
-                GetRowCol(cellAddress, out row, out col);
-                string newCellAddress = "";
-                if (GetAddress(row, col) == cellAddress)   // this checks if the cellAddress is valid
-                {
-                    // we have a valid cell address so change its value (if necessary)
-                    if (row >= afterRow)
-                        row += rowIncrement;
-                    if (col >= afterColumn)
-                        col += colIncrement;
-                    newCellAddress = GetAddress(row, col);
-                }
-                if (newCellAddress == "")
-                {
-                    newFormula += cellAddress;
-                }
-                else
-                {
-                    newFormula += newCellAddress;
-                }
-
-                for (int i = length; i < signs.Length; i++)
-                {
-                    if (chrSigns[i] == ' ')
-                        break;
-                    if (chrSigns[i] != ' ')
-                    {
-                        length++;
-                        newFormula += chrSigns[i].ToString();
-                    }
-                }
-            }
-            return (newFormula);
+            return Translate(Formula, AddToRowColumnTranslator, afterRow, afterColumn, rowIncrement, colIncrement);
         }
 
         #endregion

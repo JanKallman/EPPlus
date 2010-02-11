@@ -677,7 +677,11 @@ namespace OfficeOpenXml.Drawing.Chart
                            ChartType == eChartType.DoughnutExploded;
         }
         #endregion
-       protected string GetChartNodeText()
+       /// <summary>
+       /// Get the name of the chart node
+       /// </summary>
+       /// <returns>The name</returns>
+        protected string GetChartNodeText()
         {
             switch (ChartType)
             {
@@ -692,6 +696,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.BarClustered:
                 case eChartType.BarStacked:
                 case eChartType.BarStacked100:
+                case eChartType.ColumnClustered:
+                case eChartType.ColumnStacked:
+                case eChartType.ColumnStacked100:
                     return "c:barChart";
                 case eChartType.BarClustered3D:
                 case eChartType.BarStacked3D:
