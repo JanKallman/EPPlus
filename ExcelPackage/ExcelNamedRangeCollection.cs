@@ -37,20 +37,19 @@ namespace OfficeOpenXml
 {
     public class ExcelNamedRangeCollection : IEnumerable<ExcelNamedRange>
     {
+        internal ExcelWorksheet _ws;
         internal ExcelNamedRangeCollection()
         {
-
+            _ws = null;
+        }
+        internal ExcelNamedRangeCollection(ExcelWorksheet ws)
+        {
+            _ws = ws;
         }
         Dictionary<string, ExcelNamedRange> _dic = new Dictionary<string, ExcelNamedRange>();
         public ExcelNamedRange Add(string Name, ExcelRange Range)
         {
-            var item = new ExcelNamedRange(Name, Range.Worksheet, Range.Address);
-            _dic.Add(Name, item);
-            return item;
-        }
-        internal ExcelNamedRange Add(string Name, ExcelWorksheet sheet, string Address)
-        {
-            var item = new ExcelNamedRange(Name, sheet, Address);
+            var item = new ExcelNamedRange(Name, _ws , Range.Worksheet, Range.Address);
             _dic.Add(Name, item);
             return item;
         }

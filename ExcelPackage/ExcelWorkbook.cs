@@ -180,9 +180,18 @@ namespace OfficeOpenXml
                     string address = fullAddress.Substring(splitPos + 1, fullAddress.Length - splitPos - 1);
                     
                     if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
-                    
-                    var namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
-                    namedRange.LocalSheetId = (elem.GetAttribute("localSheetId") != "0");
+
+                    int localSheetID = elem.GetAttribute("localSheetId") == null ? -1 : int.Parse(elem.GetAttribute("localSheetId"));
+                    ExcelNamedRange namedRange;
+                    if (localSheetID > -1)
+                    {
+                        namedRange = Worksheets.GetBySheetID(localSheetID).Names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                    }
+                    else
+                    {
+                        namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                    }
+                    if (elem.GetAttribute("hidden") == "1") namedRange.IsNameHidden = true;
                 }
             }
         }
@@ -597,11 +606,17 @@ namespace OfficeOpenXml
 			_xlPackage.SavePart(StylesUri, _xmlStyles);
 			_xlPackage.WriteDebugFile(_xmlStyles, "xl", "styles.xml");
 
-            //Update the sheet xml
+            // save all the open worksheets
             foreach (ExcelWorksheet worksheet in Worksheets)
             {
-                worksheet.UpdateSheetXml();
+                worksheet.Save();
             }
+
+            ////Update the sheet xml
+            //foreach (ExcelWorksheet worksheet in Worksheets)
+            //{
+            //    worksheet.UpdateSheetXml();
+            //}
             
             // save the shared strings
 			if (_xmlSharedStrings != null)
@@ -611,11 +626,11 @@ namespace OfficeOpenXml
 				_xlPackage.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
 			}
 
-			// save all the open worksheets
-			foreach (ExcelWorksheet worksheet in Worksheets)
-			{
-				worksheet.Save();
-			}
+            //// save all the open worksheets
+            //foreach (ExcelWorksheet worksheet in Worksheets)
+            //{
+            //    worksheet.Save();
+            //}
 		}
 
         private void UpdateSharedStringsXml()
@@ -673,8 +688,21 @@ namespace OfficeOpenXml
                     XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
                     top.AppendChild(elem);
                     elem.SetAttribute("name", name.Name);
-                    if (!name.LocalSheetId) elem.SetAttribute("localSheetId", "0");
+                    if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
                     elem.InnerText = name.FullAddress;
+                }
+                foreach (ExcelWorksheet ws in _worksheets)
+                {
+                    foreach (ExcelNamedRange name in ws.Names)
+                    {
+
+                        XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
+                        top.AppendChild(elem);
+                        elem.SetAttribute("name", name.Name);
+                        elem.SetAttribute("localSheetId", name.LocalSheetId.ToString());
+                        if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
+                        elem.InnerText = name.FullAddressAbsolute;
+                    }
                 }
             }
             catch(Exception ex)

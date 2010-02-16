@@ -66,6 +66,7 @@
  */
 using System;
 using System.IO;
+using OfficeOpenXml;
 
 namespace ExcelPackageSamples
 {

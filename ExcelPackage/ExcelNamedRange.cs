@@ -36,12 +36,27 @@ namespace OfficeOpenXml
 {
     public class ExcelNamedRange : ExcelRangeBase 
     {
-        public ExcelNamedRange(string name, ExcelWorksheet sheet, string address) :
+        ExcelWorksheet _sheet;
+        /// <summary>
+        /// A named range
+        /// </summary>
+        /// <param name="name">The name</param>
+        /// <param name="nameSheet">The sheet containing the name. null if its a global name</param>
+        /// <param name="sheet">Sheet where the address points</param>
+        /// <param name="address">The address</param>
+        public ExcelNamedRange(string name, ExcelWorksheet nameSheet , ExcelWorksheet sheet, string address) :
             base(sheet, address)
-
         {
             Name = name;
-            LocalSheetId = true;
+            _sheet = sheet;
+            if (nameSheet != null)
+            {
+                LocalSheetId = nameSheet.SheetID-1;
+            }
+            else
+            {
+                LocalSheetId = -1;
+            }
         }
         /// <summary>
         /// Name of the range
@@ -54,7 +69,15 @@ namespace OfficeOpenXml
         /// <summary>
         /// Is the named range local for the sheet 
         /// </summary>
-        public bool LocalSheetId
+        public int LocalSheetId
+        {
+            get;
+            set;
+        }
+        /// <summary>
+        /// Is the name hidden
+        /// </summary>
+        public bool IsNameHidden
         {
             get;
             set;

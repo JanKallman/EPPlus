@@ -76,6 +76,7 @@ using System.Text;
 using System.Security;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
+using System.Text.RegularExpressions;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -92,6 +93,10 @@ namespace OfficeOpenXml
             public int StartCol { get; set; }
 
         }
+        /// <summary>
+        /// Collection containing merged cell addresses
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
         public class MergeCellsCollection<T> : IEnumerable<T>
         {
             private List<T> _list = new List<T>();
@@ -144,6 +149,7 @@ namespace OfficeOpenXml
         internal static CultureInfo _ci=new CultureInfo("en-US");
         internal int _minCol = ExcelPackage.MaxColumns;
         internal int _maxCol = 0;
+        internal List<ulong> _hyperLinkCells;   //Used when saving the sheet
         /// <summary>
 		/// Temporary tag for all column numbers in the worksheet XML
 		/// For internal use only!
@@ -177,18 +183,19 @@ namespace OfficeOpenXml
         /// <param name="PositionID">Position</param>
         /// <param name="Hide">Hidden</param>
         public ExcelWorksheet(XmlNamespaceManager ns, ExcelPackage excelPackage, string relID, 
-                              Uri uriWorksheet, string sheetName, int SheetID, int PositionID,
-                              bool Hide) :
+                              Uri uriWorksheet, string sheetName, int sheetID, int positionID,
+                              bool hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "protectedRanges", "customSheetViews", "hyperlinks", "pageMargins", "pageSetup", "drawing" };
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "protectedRanges", "customSheetViews", "conditionalFormatting", "mergeCells", "hyperlinks", "pageMargins", "pageSetup","headerFooter", "drawing" };
             xlPackage = excelPackage;
-            _relationshipID = RelationshipID;
+            _relationshipID = relID;
             _worksheetUri = uriWorksheet;
             _name = sheetName;
-            _sheetID = SheetID;
-            _positionID = PositionID;
-            Hidden = Hide;
+            _sheetID = sheetID;
+            _positionID = positionID;
+            Hidden = hide;
+            _names = new ExcelNamedRangeCollection(this);
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
         }
@@ -212,6 +219,9 @@ namespace OfficeOpenXml
 		/// too useful in code!
 		/// </summary>
 		protected internal int SheetID { get { return (_sheetID); } }
+        /// <summary>
+        /// The position of the worksheet.
+        /// </summary>
         protected internal int PositionID { get { return (_positionID); } }
 		/// <summary>
 		/// Returns a ExcelWorksheetView object that allows you to
@@ -256,7 +266,14 @@ namespace OfficeOpenXml
 			}
 		}
 		#endregion // END Worksheet Name
-
+        private ExcelNamedRangeCollection _names;
+        public ExcelNamedRangeCollection  Names 
+        {
+            get
+            {
+                return _names;
+            }
+        }
 		#region Hidden
 		/// <summary>
 		/// Indicates if the worksheet is hidden in the workbook
@@ -409,198 +426,372 @@ namespace OfficeOpenXml
             _worksheetXml = new XmlDocument();
             _worksheetXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
             PackagePart packPart = xlPackage.Package.GetPart(WorksheetUri);
-            _worksheetXml.Load(packPart.GetStream());
+            string xml = "";
 
-            LoadColumns();
-            LoadCells();
-            LoadMergeCells();
-            LoadHyperLinks();            
+            Stream stream = packPart.GetStream();
+            XmlTextReader xr = new XmlTextReader(stream);
+            LoadColumns(xr);    //columnXml
+            long start = stream.Position;
+            LoadCells(xr);
+            long end = stream.Position;
+            LoadMergeCells(xr);
+            LoadHyperLinks(xr);
+
+            stream.Seek(0, SeekOrigin.Begin);
+            xml = GetWorkSheetXml(stream, start, end);
+
+            //first char is invalid sometimes?? 
+            if (xml[0] != '<') 
+                _worksheetXml.LoadXml(xml.Substring(1,xml.Length-1));
+            else
+                _worksheetXml.LoadXml(xml);
+
+            ClearNodes();
         }
 
-        private void LoadColumns()
-        {            
-            var colList=new List<IRangeID>();
-            foreach (XmlNode colNode in _worksheetXml.SelectNodes("//d:cols/d:col", NameSpaceManager))
+        private void ClearNodes()
+        {
+            if (_worksheetXml.SelectSingleNode("//d:cols", NameSpaceManager)!=null)
             {
-                int min=int.Parse(colNode.Attributes["min"].Value);
-                int max=int.Parse(colNode.Attributes["max"].Value);
-                
-                int style;
-                if (colNode.Attributes["style"]==null || !int.TryParse(colNode.Attributes["style"].Value, out style))
+                _worksheetXml.SelectSingleNode("//d:cols", NameSpaceManager).RemoveAll();
+            }
+            if (_worksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager) != null)
+            {
+                _worksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager).RemoveAll();
+            }
+            if (_worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager) != null)
+            {
+                _worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager).RemoveAll();
+            }
+        }
+        const int BLOCKSIZE=8192;
+        private string GetWorkSheetXml(Stream stream, long start, long end)
+        {
+            StreamReader sr = new StreamReader(stream);
+            int length = 0;
+            char[] block;
+            int pos;
+            StringBuilder sb = new StringBuilder();
+            Match startmMatch, endMatch;
+            do
+            {
+                int size = stream.Length < BLOCKSIZE ? (int)stream.Length : BLOCKSIZE;
+                block = new char[size];
+                pos = sr.ReadBlock(block, 0, size);                
+                sb.Append(block);
+                length += size;
+            }
+            while (length < start);
+            startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
+            if (!startmMatch.Success) //Not found
+            {
+                return sb.ToString();
+            }
+            else
+            {
+                string s = sb.ToString();
+                string xml = s.Substring(0, startmMatch.Index); 
+                if(startmMatch.Value.EndsWith("/>"))
                 {
-                    style = 0;
+                    xml += s.Substring(startmMatch.Index, s.Length - startmMatch.Index);
+                }
+                else
+                {
+                    if (sr.Peek() != -1)
+                    {
+                        if (end - BLOCKSIZE > stream.Position)
+                        {
+                            stream.Seek(end - BLOCKSIZE, SeekOrigin.Begin);
+                        }
+                        int size = stream.Length - stream.Position < BLOCKSIZE ? (int)(stream.Length - stream.Position) : BLOCKSIZE;
+                        block = new char[size];
+                        sr = new StreamReader(stream);
+                        pos = sr.ReadBlock(block, 0, size);
+                        sb = new StringBuilder();
+                        sb.Append(block);
+                    }
+                    s = sb.ToString();
+                    endMatch = Regex.Match(s, string.Format("(</[^>]*{0}[^>]*>)", "sheetData"));
+                    xml += "<sheetData/>" + s.Substring(endMatch.Index + endMatch.Length, s.Length - (endMatch.Index + endMatch.Length));
+                }
+                if (sr.Peek() > -1)
+                {
+                    xml += sr.ReadToEnd();
                 }
 
-                double width = colNode.Attributes["width"] == null ? 0 : double.Parse(colNode.Attributes["width"].Value, _ci); 
-                ExcelColumn col = new ExcelColumn(this,min);
-                col._columnMax = max;
-                col.StyleID = style;
-                col.Width = width;
+                return xml;
+            }
+        }
+        private void GetBlockPos(string xml, string tag, ref int start, ref int end)
+        {
+            Match startmMatch, endMatch;
+            startmMatch = Regex.Match(xml, string.Format("(<[^>]*{0}[^>]*>)", tag)); //"<[a-zA-Z:]*" + tag + "[?]*>");
 
-                col.BestFit = colNode.Attributes["bestFit"] != null && colNode.Attributes["bestFit"].Value == "1" ? true : false;
-                col.Collapsed = colNode.Attributes["collapsed"] != null && colNode.Attributes["collapsed"].Value == "1" ? true : false;
-                col.Phonetic = colNode.Attributes["phonetic"] != null && colNode.Attributes["phonetic"].Value == "1" ? true : false;
-                col.OutlineLevel = colNode.Attributes["outlineLevel"] == null ? 0 : int.Parse(colNode.Attributes["outlineLevel"].Value, _ci);
-                col.Hidden = colNode.Attributes["hidden"] != null && colNode.Attributes["hidden"].Value == "1" ? true : false;
-                colList.Add(col);
+            if (!startmMatch.Success) //Not found
+            {
+                start = -1;
+                end = -1;
+                return;
+            }
+            start=startmMatch.Index;
+            if(startmMatch.Value.Substring(startmMatch.Value.Length-2,1)=="/")
+            {
+                end=startmMatch.Index+startmMatch.Length;
+            }
+            else
+            {
+                endMatch = Regex.Match(xml, string.Format("(</[^>]*{0}[^>]*>)", tag));
+                if (endMatch.Success)
+                {
+                    end = endMatch.Index + endMatch.Length;
+                }
+            }
+        }
+        private bool ReadUntil(XmlTextReader xr, string tagName, string altTagName)
+        {
+            if (xr.EOF) return false;
+            while (xr.Name != tagName)
+            {
+                xr.Read();
+                if (xr.Name == altTagName || xr.EOF) return false;
+            }
+            return true;
+        }
+        private void LoadColumns (XmlTextReader xr)//(string xml)
+        {
+            var colList = new List<IRangeID>();
+            if (ReadUntil(xr, "cols", "sheetData"))
+            {
+            //if (xml != "")
+            //{
+                //var xr=new XmlTextReader(new StringReader(xml));
+                xr.Read(); 
+                while(xr.Read())
+                {
+                    if(xr.Name!="col") break;
+                    int min = int.Parse(xr.GetAttribute("min"));
+
+                    int style;
+                    if (xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style))
+                    {
+                        style = 0;
+                    }
+                    ExcelColumn col = new ExcelColumn(this, min);
+                   
+                    col._columnMax = int.Parse(xr.GetAttribute("max")); 
+                    col.StyleID = style;
+                    col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), _ci); 
+                    col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
+                    col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
+                    col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
+                    col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), _ci);
+                    col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
+                    colList.Add(col);
+                }
             }
             _columns = new RangeCollection(colList);
         }
-
-        private void LoadHyperLinks()
+        /// <summary>
+        /// Read until the node is found. If not found the xmlreader is reseted.
+        /// </summary>
+        /// <param name="xr"></param>
+        /// <param name="nodeText"></param>
+        /// <returns></returns>
+        private static bool ReadXmlReaderUntil(XmlTextReader xr, string nodeText, string altNode, StringBuilder sb)
         {
-            foreach (XmlElement hlNode in _worksheetXml.SelectNodes("//d:hyperlinks/d:hyperlink", NameSpaceManager))
+            do
             {
-                int fromRow, fromCol, toRow, toCol;
-                ExcelCell.GetRowColFromAddress(hlNode.Attributes["ref"].Value, out fromRow, out fromCol, out toRow, out toCol);
-                ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
-                ExcelCell cell = _cells[id] as ExcelCell;
-                if (hlNode.Attributes["r:id"] != null)
-                {
-                    cell.HyperLinkRId = hlNode.Attributes["r:id"].Value;
-                    cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
-                }
-                else if(hlNode.Attributes["location"]!=null)
-                {
-                    ExcelHyperLink hl = new ExcelHyperLink(hlNode.GetAttribute("location"), hlNode.GetAttribute("display"));
-                    hl.RowSpann = toRow - fromRow;
-                    hl.ColSpann = toCol - fromCol;
-                    cell.Hyperlink = hl;
-                }
+                if (xr.Name == nodeText || xr.Name == altNode) return true;
             }
+            while(xr.Read());
+            xr.Close();
+            return false;
         }
 
-        private void LoadCells()
+        private void LoadHyperLinks(XmlTextReader xr)
+        {
+            //if(xml!="")
+            //{
+            //    var xr = new XmlTextReader(new StringReader(xml));
+            //    if (xr.EOF) return;
+                if(!ReadUntil(xr, "hyperlinks","")) return;
+                while (xr.Read())
+                {
+                    if (xr.Name == "hyperLink")
+                    {
+                        int fromRow, fromCol, toRow, toCol;
+                        ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
+                        ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
+                        ExcelCell cell = _cells[id] as ExcelCell;
+                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
+                        {
+                            cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
+                            cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                            Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
+                        }
+                        else if (xr.GetAttribute("location") != null)
+                        {
+                            ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
+                            hl.RowSpann = toRow - fromRow;
+                            hl.ColSpann = toCol - fromCol;
+                            cell.Hyperlink = hl;
+                        }
+                    }
+                //}
+            }
+        }
+        private void LoadCells(XmlTextReader xr)
         {
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
-            var formulaList = new List<IRangeID>(); 
-            foreach (XmlNode rowNode in _worksheetXml.SelectNodes("//d:sheetData/d:row", NameSpaceManager))
-            {
-                int row = Convert.ToInt32(rowNode.Attributes.GetNamedItem("r").Value);
-                if (rowNode.Attributes.Count > 2 || (rowNode.Attributes.Count == 2 && rowNode.Attributes.GetNamedItem("spans")!=null))
-                {
-                    rowList.Add(AddRow(rowNode, row));
-                }
+            var formulaList = new List<IRangeID>();
+            long size=0;
+            int prevLine, prevPos;
 
-                foreach (XmlNode colNode in rowNode.SelectNodes("./d:c", NameSpaceManager))
-				{
-					ExcelCell cell=new ExcelCell(this, colNode.Attributes["r"].Value);
-                    if (colNode.Attributes["t"] != null) cell.DataType = colNode.Attributes["t"].Value;
-                    if (colNode.Attributes["s"] != null)
-                        cell.StyleID = int.Parse(colNode.Attributes["s"].Value);
-                    else
+            //if (xml != "")
+            //{
+                //var xr = new XmlTextReader(new StringReader(xml));
+                ReadUntil(xr, "sheetData", "mergeCells");
+                ExcelCell cell = null;
+                xr.Read();
+                
+                while (!xr.EOF)
+                {
+                    if (xr.NodeType == XmlNodeType.EndElement)
                     {
-                        cell.StyleID = 0;
+                        xr.Read();
                     }
-                    XmlNode f = colNode.SelectSingleNode("./d:f", NameSpaceManager);
-                    if (f != null)
+                    if (xr.Name == "row")
                     {
-                        XmlNode t = f.Attributes["t"];
-                        if (t != null)
+                        int row = Convert.ToInt32(xr.GetAttribute("r"));
+
+                        if (xr.AttributeCount > 2 || (xr.AttributeCount == 2 && xr.GetAttribute("spans") != null))
                         {
-                            if (t.InnerText == "shared")
+                            rowList.Add(AddRow(xr, row));
+                        }
+                        xr.Read();
+                    }
+                    else if (xr.Name == "c")
+                    {
+                        if (cell != null) cellList.Add(cell);
+                        cell = new ExcelCell(this, xr.GetAttribute("r"));
+                        if (xr.GetAttribute("t") != null) cell.DataType = xr.GetAttribute("t");
+                        cell.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"));
+                        xr.Read();
+                    }
+                    else if (xr.Name == "v")
+                    {
+                        cell._value = GetValueFromXml(cell, xr);
+                        xr.Read();
+                    }
+                    else if (xr.Name == "f")
+                    {
+                        string t = xr.GetAttribute("t");
+                        if (t == null)
+                        {
+                            cell._formula = xr.ReadElementContentAsString();
+                            formulaList.Add(cell);
+                        }
+                        else if (t == "shared")
+                        {
+
+                            string si = xr.GetAttribute("si");
+                            if (si != null)
                             {
-                                XmlNode si = f.Attributes["si"];
-                                if (si != null)
+                                cell.SharedFormulaID = int.Parse(si);
+                                if (xr.Value != "")
                                 {
-                                    cell.SharedFormulaID = int.Parse(si.Value);
-                                    if (f.InnerText != "")
-                                    {
-                                        _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = f.InnerText, Address = f.Attributes["ref"].Value, StartRow = cell.Row, StartCol = cell.Column });
-                                    }
+                                    _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = xr.Value, Address = xr.GetAttribute("ref"), StartRow = cell.Row, StartCol = cell.Column });
                                 }
                             }
+                            xr.Read();
+                            if (xr.NodeType == XmlNodeType.Text)
+                            {
+                                xr.Read();
+                            }
                         }
-                        else
-                        {
-                            cell._formula = f.InnerText;
-                        }
-                        //Set the value variable (Value property cleans the formla)
-                        cell._value = GetValueFromXml(cell, colNode);
-                        formulaList.Add(cell);
                     }
                     else
                     {
-                        cell._value = GetValueFromXml(cell, colNode);
+                        break;
                     }
-                    //_cells.Add(cell.RangeID, cell);
-                    cellList.Add(cell);
                 }
-            }
+                if (cell != null) cellList.Add(cell);
+            //}
+
             _cells = new RangeCollection(cellList);
             _rows = new RangeCollection(rowList);
             _formulaCells = new RangeCollection(formulaList);
         }
-        private void LoadMergeCells()
+        private void LoadMergeCells(XmlTextReader xr)
         {
-            foreach (XmlNode mergeNode in _worksheetXml.SelectNodes("//d:mergeCells/d:mergeCell", NameSpaceManager))
+            //if (xml != "")
+            //{
+            //    var xr = new XmlTextReader(new StringReader(xml));
+            if(ReadUntil(xr, "mergeCells", "hyperlinks") && !xr.EOF)
             {
-                string address = mergeNode.Attributes["ref"].Value;
-                Cells[address].Merge = true;
-            }
-        }
-        private void UpdateMergedCells()
-        {
-            var topNode = _worksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager);
-            if (_mergedCells.Count > 0)
-            {
-                if (topNode == null)
+                while (xr.Read())
                 {
-                    XmlNode parentNode = _worksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
-                    topNode = _worksheetXml.CreateElement("mergeCells", ExcelPackage.schemaMain);
-                    _worksheetXml.DocumentElement.InsertAfter(topNode, parentNode);
+                    if (xr.Name != "mergeCell") break;
 
+                    string address = xr.GetAttribute("ref");
+                    int fromRow, fromCol, toRow, toCol;
+                    ExcelCellBase.GetRowColFromAddress(address, out fromRow, out fromCol, out toRow, out toCol);
+                    for (int row = fromRow; row <= toRow; row++)
+                    {
+                        for (int col = fromCol; col <= toCol; col++)
+                        {
+                            Cell(row, col).Merge = true;
+                        }
+                    }
+
+                    _mergedCells.List.Add(address);
                 }
-                else
-                {
-                    topNode.RemoveAll();
-                }
-                foreach (string address in _mergedCells)
-                {
-                    XmlElement mergeCell = _worksheetXml.CreateElement("mergeCell", ExcelPackage.schemaMain);
-                    mergeCell.SetAttribute("ref", address);
-                    topNode.AppendChild(mergeCell);
-                }
-            }
-            else
-            {
-                if(topNode!=null)  topNode.RemoveAll();
             }
         }
-        private ExcelRow AddRow(XmlNode rowNode, int row)
+        private void UpdateMergedCells(StreamWriter sw)
+        {
+            sw.Write("<mergeCells>");
+            foreach (string address in _mergedCells)
+            {
+                sw.Write("<mergeCell ref=\"{0}\" />", address);
+            }
+            sw.Write("</mergeCells>");
+        }
+        private ExcelRow AddRow(XmlTextReader xr, int row)
         {
             ExcelRow r = new ExcelRow(this, row);
 
-            r.Collapsed = rowNode.Attributes.GetNamedItem("collapsed") != null && rowNode.Attributes.GetNamedItem("collapsed").Value == "1" ? true: false;
-            r.Height=rowNode.Attributes.GetNamedItem("ht")==null ? defaultRowHeight : double.Parse(rowNode.Attributes.GetNamedItem("ht").Value,_ci);
-            r.Hidden = rowNode.Attributes.GetNamedItem("hidden") != null && rowNode.Attributes.GetNamedItem("hidden").Value == "1" ? true : false; ;
-            r.OutlineLevel = rowNode.Attributes.GetNamedItem("outlineLevel") == null ? 0 : int.Parse(rowNode.Attributes.GetNamedItem("outlineLevel").Value, _ci); ;
-            r.Phonetic = rowNode.Attributes.GetNamedItem("ph") != null && rowNode.Attributes.GetNamedItem("ph").Value == "1" ? true : false; ;
-            r.StyleID = rowNode.Attributes.GetNamedItem("s") == null ? 0 : int.Parse(rowNode.Attributes.GetNamedItem("s").Value, _ci);
+            r.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false;
+            r.Height = xr.GetAttribute("ht") == null ? defaultRowHeight : double.Parse(xr.GetAttribute("ht"), _ci);
+            r.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false; ;
+            r.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), _ci); ;
+            r.Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false; ;
+            r.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"), _ci);
             return r;
         }
 
-        private object GetValueFromXml(ExcelCell cell, XmlNode colNode)
+        private object GetValueFromXml(ExcelCell cell, XmlTextReader xr)
         {
             object value;
-            XmlNode vnode = colNode.SelectSingleNode("d:v", NameSpaceManager);
-            if (vnode == null) return null;
+            //XmlNode vnode = colNode.SelectSingleNode("d:v", NameSpaceManager);
+            //if (vnode == null) return null;
 
-            string v=vnode.InnerText;
             if (cell.DataType == "s")
             {
-                int ix=(int.Parse(v));
+                int ix = xr.ReadElementContentAsInt();
                 value = xlPackage.Workbook._sharedStringsList[ix].Text;
                 cell.IsRichText = xlPackage.Workbook._sharedStringsList[ix].isRichText;
             }
             else if (cell.DataType == "str")
             {
-                value = v;
+                value = xr.ReadElementContentAsString();
             }
             else
             {
                 int n = cell.Style.Numberformat.NumFmtID;
+                string v = xr.ReadElementContentAsString();
+
                 if ((n >= 14 && n <= 22) || (n >= 45 && n <= 47))
                 {
                     double res;
@@ -628,6 +819,7 @@ namespace OfficeOpenXml
             }
             return value;
         }
+
 
         private string GetSharedString(int stringID)
         {
@@ -1110,9 +1302,10 @@ namespace OfficeOpenXml
                     this.SetXmlNode("d:dimension/@ref", Dimension);
                 }
 
+                SaveXml();
 				// save worksheet to package
-				PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
-				WorksheetXml.Save(Part.GetStream(FileMode.Create, FileAccess.Write));
+                //PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
+                //WorksheetXml.Save(Part.GetStream(FileMode.Create, FileAccess.Write));
 
                 xlPackage.WriteDebugFile(WorksheetXml, @"xl\worksheets", "sheet" + SheetID + ".xml");
 			}
@@ -1133,37 +1326,60 @@ namespace OfficeOpenXml
             }
 		}
 
-        internal void UpdateSheetXml()
+        private void SaveXml()
         {
-            UpdateColumnData();
-            UpdateRowCellData();
+            //Create the nodes if they do not exist.
+            CreateNode("d:cols");
+            CreateNode("d:sheetData");
+            CreateNode("d:mergeCells");
+            CreateNode("d:hyperlinks");
+
+            string xml = _worksheetXml.OuterXml;
+            PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
+            StreamWriter sw=new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
+
+            int colStart=0, colEnd=0;
+            GetBlockPos(xml, "cols", ref colStart, ref colEnd);
+
+            sw.Write(xml.Substring(0, colStart));
+            if (_columns.Count > 0)
+            {
+                UpdateColumnData(sw);
+            }
+
+            int cellStart = colEnd, cellEnd = colEnd;
+            GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
+            sw.Write(xml.Substring(colEnd, cellStart - colEnd));
+
+            UpdateRowCellData(sw);
+
+            int mergeStart = cellEnd, mergeEnd = cellEnd;
+
+            GetBlockPos(xml, "mergeCells", ref mergeStart, ref mergeEnd);
+            sw.Write(xml.Substring(cellEnd, mergeStart - cellEnd));
+
+            if (_mergedCells.Count > 0)
+            {
+                UpdateMergedCells(sw);
+            }
+
+
+            int hyperStart = mergeEnd, hyperEnd = mergeEnd;
+            GetBlockPos(xml, "hyperlinks", ref hyperStart, ref hyperEnd);
+            sw.Write(xml.Substring(mergeEnd, hyperStart - mergeEnd));
+            if (_hyperLinkCells.Count > 0)
+            {
+                UpdateHyperLinks(sw);
+            }
+
+            sw.Write(xml.Substring(hyperEnd, xml.Length - hyperEnd));
+            sw.Flush();
         }
         /// <summary>
         /// Inserts the cols collection into the XML document
         /// </summary>
-        private void UpdateColumnData()
+        private void UpdateColumnData(StreamWriter sw)
         {
-            XmlNode cols = WorksheetXml.SelectSingleNode("//d:cols", NameSpaceManager);
-            if (_columns.Count == 0)
-            {
-                if (cols != null)
-                {
-                    cols.ParentNode.RemoveChild(cols);
-                }
-                return;
-            }
-
-            if (cols == null)
-            {
-                XmlNode refNode = WorksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
-                cols = WorksheetXml.DocumentElement.InsertBefore(WorksheetXml.CreateElement("cols", ExcelPackage.schemaMain), refNode);
-            }
-            else
-            {
-                cols.RemoveAll();
-            }
-            StringBuilder sbXml = new StringBuilder();
-
             ExcelColumn prevCol = null;
             foreach (ExcelColumn col in _columns)
             {                
@@ -1176,81 +1392,66 @@ namespace OfficeOpenXml
                 }
                 prevCol = col;
             }
+            sw.Write("<cols>");
             foreach (ExcelColumn col in _columns)
             {
                 ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
 
-                sbXml.AppendFormat("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
+                sw.Write("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
                 if (col.Hidden == true)
                 {
                     //sbXml.Append(" width=\"0\" hidden=\"1\" customWidth=\"1\"");
-                    sbXml.Append(" hidden=\"1\"");
+                    sw.Write(" hidden=\"1\"");
                 }
                 else if (col.BestFit)
                 {
-                    sbXml.Append(" bestFit=\"1\"");
+                    sw.Write(" bestFit=\"1\"");
                 }
                 if (col.Width != defaultColWidth)
                 {
-                    sbXml.AppendFormat(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width);
+                    sw.Write(string.Format(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width));
                 }
                 if (col.OutlineLevel > 0)
                 {                    
-                    sbXml.AppendFormat(" outlineLevel=\"{0}\" ", col.OutlineLevel);
+                    sw.Write(" outlineLevel=\"{0}\" ", col.OutlineLevel);
                     if (col.Collapsed)
                     {
                         if (col.Hidden)
                         {
-                            sbXml.Append(" collapsed=\"1\"");
+                            sw.Write(" collapsed=\"1\"");
                         }
                         else
                         {
-                            sbXml.Append(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                            sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden
                         }
                     }
                 }
                 if (col.Phonetic)
                 {
-                    sbXml.Append(" phonetic=\"1\"");
+                    sw.Write(" phonetic=\"1\"");
                 }
                 long styleID = col.StyleID >= 0 ? cellXfs[col.StyleID].newID : col.StyleID;
                 if (styleID > 0)
                 {
-                    sbXml.AppendFormat(" style=\"{0}\"", styleID);
+                    sw.Write(" style=\"{0}\"", styleID);
                 }
-                sbXml.AppendFormat(" />");
+                sw.Write(" />");
             }
-            cols.InnerXml = sbXml.ToString();
+            sw.Write("</cols>");
         }
         /// <summary>
         /// Insert row and cells into the XML document
         /// </summary>
-        private void UpdateRowCellData()
+        private void UpdateRowCellData(StreamWriter sw)
         {
-            XmlNode top = WorksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
-            if (top == null)
-            {
-                if (_cells.Count == 0)
-                    return;
-                else
-                {
-                    top = WorksheetXml.CreateNode(XmlNodeType.Element, "d:sheetData", ExcelPackage.schemaMain);
-                    XmlNode parent = _worksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
-                    if (parent == null)
-                    {
-                        parent = _worksheetXml.SelectSingleNode("//d:sheetViews",NameSpaceManager);                        
-                    }
-                    _worksheetXml.DocumentElement.InsertAfter(top, parent);
-                }
-            }
             ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
-            top.RemoveAll();
             
-            List<ulong> hyperLinkCells = new List<ulong>();
+            _hyperLinkCells = new List<ulong>();
             int row = -1;
 
             StringBuilder sbXml = new StringBuilder();
             var ss = xlPackage.Workbook._sharedStrings;
+            sw.Write("<sheetData>");
             foreach (ExcelCell cell in _cells)
             {
                 //ExcelCell cell = _cells[cellID];
@@ -1259,47 +1460,47 @@ namespace OfficeOpenXml
                 //Add the row element if it's a new row
                 if (row != cell.Row)
                 {
-                    if (row != -1) sbXml.Append("</row>");
+                    if (row != -1) sw.Write("</row>");
 
                     ulong rowID = ExcelRow.GetRowID(SheetID, cell.Row);
-                    sbXml.AppendFormat("<row r=\"{0}\" ", cell.Row);
+                    sw.Write("<row r=\"{0}\" ", cell.Row);
                     if (_rows.ContainsKey(rowID))
                     {
                         ExcelRow currRow = _rows[rowID] as ExcelRow;
                         if (currRow.Hidden == true)
                         {
-                            sbXml.Append("ht=\"0\" hidden=\"1\" ");
+                            sw.Write("ht=\"0\" hidden=\"1\" ");
                         }
                         else if (currRow.Height != defaultRowHeight)
                         {
-                            sbXml.AppendFormat(_ci, "ht=\"{0}\" customHeight=\"1\" ", currRow.Height);
+                            sw.Write(string.Format(_ci, "ht=\"{0}\" customHeight=\"1\" ", currRow.Height));
                         }   
 
                         if(currRow.StyleID > 0)
                         {
-                            sbXml.AppendFormat("s=\"{0}\" customFormat=\"1\" ", cellXfs[currRow.StyleID].newID);
+                            sw.Write("s=\"{0}\" customFormat=\"1\" ", cellXfs[currRow.StyleID].newID);
                         }
                         if (currRow.OutlineLevel > 0)
                         {
-                            sbXml.AppendFormat("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
+                            sw.Write("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
                             if (currRow.Collapsed)
                             {
                                 if (currRow.Hidden)
                                 {
-                                    sbXml.Append(" collapsed=\"1\"");
+                                    sw.Write(" collapsed=\"1\"");
                                 }
                                 else
                                 {
-                                    sbXml.Append(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                                    sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden
                                 }
                             }
                         }
                         if (currRow.Phonetic)
                         {
-                            sbXml.Append(sbXml.Append("ph=\"1\" "));
+                            sw.Write("ph=\"1\" ");
                         }
                     }
-                    sbXml.Append(">");
+                    sw.Write(">");
                     row = cell.Row;
                 }
                 if (cell.SharedFormulaID >= 0)
@@ -1307,23 +1508,23 @@ namespace OfficeOpenXml
                     var f = _sharedFormulas[cell.SharedFormulaID];
                     if (f.StartCol==cell.Column && f.StartRow==cell.Row)
                     {
-                        sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
+                        sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
                     }
                     else
                     {
-                        sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" /></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, cell.SharedFormulaID);
+                        sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" /></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, cell.SharedFormulaID);
                     }
                 }
                 else if (cell.Formula != "")
                 {
-                    sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                    sbXml.AppendFormat("<f>{0}</f></c>", SecurityElement.Escape(cell.Formula));
+                    sw.Write("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                    sw.Write("<f>{0}</f></c>", SecurityElement.Escape(cell.Formula));
                 }
                 else
                 {
                     if (cell.Value == null)
                     {
-                        sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                        sw.Write("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
                     }
                     else
                     {
@@ -1338,7 +1539,14 @@ namespace OfficeOpenXml
                                 }
                                 else
                                 {
-                                    s = Convert.ToDecimal(cell.Value, _ci).ToString(_ci);
+                                    if (cell.Value is double && double.IsNaN((double)cell.Value))
+                                    {
+                                        s = "0";
+                                    }
+                                    else
+                                    {
+                                        s = Convert.ToDecimal(cell.Value, _ci).ToString(_ci);
+                                    }
                                 }
                             }
 
@@ -1346,8 +1554,8 @@ namespace OfficeOpenXml
                             {
                                 s = "0";
                             }
-                            sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                            sbXml.AppendFormat("<v>{0}</v></c>", s);
+                            sw.Write("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                            sw.Write("<v>{0}</v></c>", s);
                         }
                         else
                         {
@@ -1361,100 +1569,41 @@ namespace OfficeOpenXml
                             {
                                 ix = ss[cell.Value.ToString()].pos;
                             }
-                            sbXml.AppendFormat("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                            sbXml.AppendFormat("<v>{0}</v></c>", ix);
+                            sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                            sw.Write("<v>{0}</v></c>", ix);
                         }
-                        //if (cell.Merge && !addedMergedCells.ContainsKey(cell.CellID))
-                        //{
-                        //    string address = GetMergeRange(cell, ref addedMergedCells);
-                        //    if (address != "")
-                        //    {
-                        //        mergedCells.Add(address);
-                        //    }
-                        //}
                     }
                 }
                 //Update hyperlinks.
                 if (cell.Hyperlink != null)
                 {
-                    hyperLinkCells.Add(cell.CellID);
+                    _hyperLinkCells.Add(cell.CellID);
                 }
             }
-            if (row != -1) sbXml.Append("</row>");
-            top.InnerXml = sbXml.ToString();
-
-            UpdateMergedCells();
-
-            UpdateHyperLinks(hyperLinkCells);
+            if (row != -1) sw.Write("</row>");
+            sw.Write("</sheetData>");
+            //top.InnerXml = sbXml.ToString();
         }
 
-        //private string GetMergeRange(ExcelCell cell, ref Dictionary<ulong, ExcelCell> addedMergedCells)
-        //{   
-        //    int col = cell.Column+1, row = cell.Row + 1;
-        //    ulong cellId = ExcelCell.GetCellID(SheetID, cell.Row, col);
-        //    //Get end column
-        //    while (_cells.ContainsKey(cellId) && _cells[cellId].Merge)
-        //    {                
-        //        addedMergedCells.Add(this.Cell(cell.Row, col++).CellID, null);
-        //        cellId = ExcelCell.GetCellID(SheetID, cell.Row, col);
-        //    }
-        //    //Get end row
-        //    cellId = ExcelCell.GetCellID(SheetID, row, cell.Column);
-        //    while (_cells.ContainsKey(cellId) && _cells[cellId].Merge)
-        //    {
-        //        addedMergedCells.Add(this.Cell(row++, cell.Column).CellID, null);
-        //        cellId = ExcelCell.GetCellID(SheetID, row, cell.Column);
-        //    }
-        //    if (row == cell.Row + 1 && col == cell.Column + 1)
-        //    {
-        //        return "";
-        //    }
-        //    else
-        //    {
-        //        return string.Format("{0}:{1}", cell.CellAddress, ExcelCell.GetCellAddress(row-1,col-1));
-        //    }
-        //}
         /// <summary>
         /// Update xml with hyperlinks 
         /// </summary>
         /// <param name="hyperLinkCells">List containing cellid's with hyperlinks</param>
-        private void UpdateHyperLinks(List<ulong> hyperLinkCells)
+        private void UpdateHyperLinks(StreamWriter sw)
         {
-            XmlNode hyperlinkParent = _worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager);
-            if (hyperLinkCells.Count > 0)
-            {
-                if (hyperlinkParent == null)
-                {
-                    hyperlinkParent = CreateHyperLinkCollection();
-                }
-                else
-                {
-                    //Remove all Relationships
-                    foreach(XmlElement e in _worksheetXml.SelectNodes("//d:hyperlink",NameSpaceManager))
-                    {
-                        string id=e.GetAttribute("id",ExcelPackage.schemaRelationships);
-                        if (id != "")
-                        {
-                            if (Part.RelationshipExists(id))
-                            {
-                                Part.DeleteRelationship(id);
-                            }
-                        }
-                    }
-                    hyperlinkParent.RemoveAll();                    
-                }
+                sw.Write("<hyperlinks>");
                 Dictionary<string, string> hyps = new Dictionary<string, string>();
-                foreach (ulong cellId in hyperLinkCells)
+                foreach (ulong cellId in _hyperLinkCells)
                 {
                     ExcelCell cell = _cells[cellId] as ExcelCell;
                     if (cell.Hyperlink is ExcelHyperLink && (cell.Hyperlink as ExcelHyperLink).ReferenceAddress != "")
                     {
                         ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
-                        XmlElement node = _worksheetXml.CreateElement("hyperlink", ExcelPackage.schemaMain);
-                        node.SetAttribute("ref", Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address);
-                        node.SetAttribute("location", ExcelCell.GetFullAddress(Name, hl.ReferenceAddress));
-                        node.SetAttribute("display", hl.Display);
-                        hyperlinkParent.AppendChild(node);                        
+                        sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" display=\"{2}\" />", 
+                                Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address, 
+                                ExcelCell.GetFullAddress(Name, hl.ReferenceAddress),
+                                hl.Display);
+
                     }
                     else
                     {
@@ -1465,25 +1614,15 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            XmlElement node = _worksheetXml.CreateElement("hyperlink", ExcelPackage.schemaMain);
-                            node.SetAttribute("ref", cell.CellAddress);
-                            hyperlinkParent.AppendChild(node);
-
-                            XmlAttribute attr = _worksheetXml.CreateAttribute("r", "id", ExcelPackage.schemaRelationships);
-                            node.Attributes.Append(attr);
                             PackageRelationship relationship = Part.CreateRelationship(cell.Hyperlink, TargetMode.External, ExcelPackage.schemaHyperlink);
-                            attr.Value = relationship.Id;
+                            sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" />",cell.CellAddress, relationship.Id);
+
                             id = relationship.Id;
                         }
                         cell.HyperLinkRId = id;
                     }
-
+                    sw.Write("</hyperlinks>");
                 }   
-            }
-            else if (hyperlinkParent != null)
-            {
-                _worksheetXml.DocumentElement.RemoveChild(hyperlinkParent);
-            }
         }
         /// <summary>
         /// Create the hyperlinks node in the XML
@@ -1541,33 +1680,13 @@ namespace OfficeOpenXml
 		/// <returns></returns>
 		protected internal int GetStyleID(string StyleName)
 		{
-            //// find the named style in the style sheet
-            //string searchString = string.Format("//d:cellStyle[@name = '{0}']", StyleName);
-            //XmlNode styleNameNode = xlPackage.Workbook.StylesXml.SelectSingleNode(searchString, NameSpaceManager);
-            //if (styleNameNode != null)
-            //{
-            //    string xfId = styleNameNode.Attributes["xfId"].Value;
-            //    // look up position of style in the cellXfs 
-            //    searchString = string.Format("//d:cellXfs/d:xf[@xfId = '{0}']", xfId);
-            //    XmlNode styleNode = xlPackage.Workbook.StylesXml.SelectSingleNode(searchString, NameSpaceManager);
-            //    if (styleNode != null)
-            //    {
-            //        XmlNodeList nodes = styleNode.SelectNodes("preceding-sibling::d:xf", NameSpaceManager);
-            //        if (nodes != null)
-            //            styleID = nodes.Count;
-            //    }
-            //}
 			ExcelNamedStyleXml namedStyle=null;
             Workbook.Styles.NamedStyles.FindByID(StyleName, ref namedStyle);
             if (namedStyle.XfId == int.MinValue)
             {
                 namedStyle.XfId=Workbook.Styles.CellXfs.FindIndexByID(namedStyle.Style.Id);
             }
-
-            //if (namedStyle.XfId!=int.MinValue)
-                return namedStyle.XfId;
-            //else
-            //    return 0;
+            return namedStyle.XfId;
 		}
         public ExcelWorkbook Workbook
         {
@@ -1577,9 +1696,6 @@ namespace OfficeOpenXml
             }
         }
 		#endregion
-        #region MergeCells
-            //TODO: Implement Medged Cells
-        #endregion
         #endregion  // END Worksheet Private Methods
 
         internal int GetMaxShareFunctionIndex()

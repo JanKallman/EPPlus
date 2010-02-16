@@ -68,7 +68,6 @@ namespace OfficeOpenXml
             if (col > xlWorksheet._maxCol) xlWorksheet._maxCol = col;
             SharedFormulaID = int.MinValue;
             IsRichText = false;
-
 		}
         protected internal ExcelCell(ExcelWorksheet xlWorksheet, string cellAddress)
         {
