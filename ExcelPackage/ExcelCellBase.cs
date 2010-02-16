@@ -443,12 +443,29 @@ namespace OfficeOpenXml
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
         /// </summary>
-        /// <param name="iRow">The number of the row</param>
-        /// <param name="iColumn">The number of the column in the worksheet</param>
+        /// <param name="Row">The number of the row</param>
+        /// <param name="Column">The number of the column in the worksheet</param>
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int Row, int Column)
         {
-            return (GetColumnLetter(Column) + Row.ToString());
+            return GetAddress(Row, Column,false);
+        }
+        /// <summary>
+        /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
+        /// </summary>
+        /// <param name="Row">The number of the row</param>
+        /// <param name="Column">The number of the column in the worksheet</param>
+        /// <returns>The cell address in the format A1</returns>
+        public static string GetAddress(int Row, int Column, bool Absolute)
+        {
+            if (Absolute)
+            {
+                return ("$" + GetColumnLetter(Column) + "$" + Row.ToString());
+            }
+            else
+            {
+                return (GetColumnLetter(Column) + Row.ToString());
+            }
         }
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
@@ -460,13 +477,27 @@ namespace OfficeOpenXml
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int FromRow, int FromColumn, int ToRow, int ToColumn)
         {
+            return GetAddress(FromRow, FromColumn, ToRow, ToColumn, false);
+        }
+        /// <summary>
+        /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
+        /// </summary>
+        /// <param name="FromRow">From row number</param>
+        /// <param name="FromColumn">From column number</param>
+        /// <param name="ToRow">To row number</param>
+        /// <param name="ToColumn">From column number</param>
+        /// <param name="Absolute">if true address is absolute (like $A$1)</param>
+        /// <returns>The cell address in the format A1</returns>
+        public static string GetAddress(int FromRow, int FromColumn, int ToRow, int ToColumn, bool Absolute)
+        {
             if (FromRow == ToRow && FromColumn == ToColumn)
             {
-                return GetColumnLetter(FromColumn) + FromRow.ToString();
+                return GetAddress(FromRow, FromColumn, Absolute);
             }
             else
             {
-                return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
+                //return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
+                return GetAddress(FromRow, FromColumn, Absolute) + ":" + GetAddress(ToRow, ToColumn, Absolute);
             }
         }
         public static string GetFullAddress(string worksheetName, string address)

@@ -138,7 +138,6 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private void CreateFromTemplate(FileInfo template)
         {
-            _outputFolderPath = File.DirectoryName;
             if (template.Exists)
             {
                 _stream = new MemoryStream();
@@ -154,7 +153,7 @@ namespace OfficeOpenXml
         private void ConstructNewFile()
         {
             _stream = new MemoryStream();
-            if (File.Exists)
+            if (File!=null && File.Exists)
             {
                 byte[] b = System.IO.File.ReadAllBytes(File.FullName);
                 _stream.Write(b, 0, b.Length);
@@ -403,7 +402,17 @@ namespace OfficeOpenXml
                             throw(new Exception( string.Format("Error overwriting file {0}", File.FullName), ex));
                         }
                     }
-                    System.IO.File.WriteAllBytes(File.FullName, GetAsByteArray(false));
+                    if (Stream is MemoryStream)
+                    {
+                        _package.Close();
+                        var fi = new FileStream(File.FullName, FileMode.Create);
+                        fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                        fi.Close();
+                    }
+                    else
+                    {
+                        System.IO.File.WriteAllBytes(File.FullName, GetAsByteArray(false));
+                    }
                 }
                 _package.Close();
             }
@@ -414,16 +423,25 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Saves the workbook to a new file
+        /// Package is closed after it has been saved
         /// </summary>
         public void SaveAs(FileInfo file)
         {
             File = file;
             Save();
         }
+        FileInfo _file=null;
         public FileInfo File
         {
-            get;
-            set;
+            get
+            {
+                return _file;
+            }
+            set
+            {
+                _file = value;
+                _outputFolderPath = _file.DirectoryName;
+            }
         }
         public Stream Stream
         {

@@ -240,6 +240,7 @@ namespace OfficeOpenXml
 			// create a reference to the new worksheet in our collection
 			int positionID = _worksheets.Count + 1;
             ExcelWorksheet worksheet = new ExcelWorksheet(_nsManager, _xlPackage, rel.Id, uriWorksheet, Name, sheetID, positionID, false);
+
 			_worksheets.Add(positionID, worksheet);
 			return worksheet;
 		}
@@ -357,6 +358,18 @@ namespace OfficeOpenXml
 			throw new Exception("The method or operation is not implemented.");
 		}
 		#endregion
-	} // end class Worksheets
+
+        internal ExcelWorksheet GetBySheetID(int localSheetID)
+        {
+            foreach (ExcelWorksheet ws in this)
+            {
+                if (ws.SheetID == localSheetID)
+                {
+                    return ws;
+                }
+            }
+            return null;
+        }
+    } // end class Worksheets
 }
 

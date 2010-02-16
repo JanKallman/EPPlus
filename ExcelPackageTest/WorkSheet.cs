@@ -56,7 +56,7 @@ namespace ExcelPackageTest
                 Assert.Fail(ex.Message);
             }
 
-                _pck = null;
+            _pck = null;
         }
         [TestMethod]
         public void LoadData()
@@ -101,8 +101,11 @@ namespace ExcelPackageTest
             ws.Workbook.Names.Add("TestName", ws.Cells["B30:E30"]);
             ws.Workbook.Names["TestName"].Style.Font.Color.SetColor(Color.Red);
 
-            ws.Workbook.Names["TestName"].Offset(1, 0).Value = "Offset test";
-            ws.Workbook.Names["TestName"].Offset(2,-1, 2, 2).Value = "Offset test";
+
+            ws.Workbook.Names["TestName"].Offset(1, 0).Value = "Offset test 1";
+            ws.Workbook.Names["TestName"].Offset(2,-1, 2, 2).Value = "Offset test 2";
+
+            ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
         }
         const int PERF_ROWS=50000;
         [TestMethod]
@@ -160,6 +163,7 @@ namespace ExcelPackageTest
             ws.Cells["A11:B13"].Merge = true;
             ws.DeleteRow(12, 1,true);
 
+            //Workbook.Worksheets.Delete(ws.Workbook.Worksheets.Count-1);
         }
     }
 }

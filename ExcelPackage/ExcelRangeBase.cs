@@ -320,6 +320,16 @@ namespace OfficeOpenXml
                 return GetFullAddress(_worksheet.Name, _address);
             }
         }
+        /// <summary>
+        /// Address including sheetname
+        /// </summary>
+        public string FullAddressAbsolute
+        {
+            get
+            {
+                return GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+            }
+        }
         #endregion
         #region "Private Methods"
         /// <summary>
@@ -353,7 +363,7 @@ namespace OfficeOpenXml
         /// Set the merge flag for the range
         /// </summary>
         /// <param name="value"></param>
-        private void SetCellMerge(bool value)
+        internal void SetCellMerge(bool value)
         {
             for (int col = _fromCol; col <= _toCol; col++)
             {

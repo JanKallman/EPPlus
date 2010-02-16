@@ -79,7 +79,7 @@ namespace ExcelPackageSamples
 				Console.WriteLine("\tCell({0},{1}).Formula={2}", 5, iCol, worksheet.Cells[5, iCol].Formula);                
                 Console.WriteLine("\tCell({0},{1}).FormulaR1C1={2}", 5, iCol, worksheet.Cells[5, iCol].FormulaR1C1);
 
-			} // the using statement automatically calls Dispose() which closes the package.
+            } // the using statement automatically calls Dispose() which closes the package.
 
 			Console.WriteLine();
 			Console.WriteLine("Sample 2 complete");

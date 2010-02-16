@@ -96,7 +96,7 @@ namespace OfficeOpenXml
                 _fromRow = FromRow;
                 _toCol = ToCol;
                 _toRow = ToRow;
-                _address = GetAddress(_fromRow, _fromCol) + ":" + ExcelCell.GetAddress(_toRow, _toCol);
+                _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
                 return this;
             }
         }
