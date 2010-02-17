@@ -89,7 +89,7 @@ namespace OfficeOpenXml
         {
 			get
 			{
-                if (Hidden)
+                if (Hidden || (Collapsed && OutlineLevel>0))
                 {
                     return 0;
                 }

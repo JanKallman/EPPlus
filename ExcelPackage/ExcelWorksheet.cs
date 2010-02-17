@@ -1621,8 +1621,8 @@ namespace OfficeOpenXml
                         }
                         cell.HyperLinkRId = id;
                     }
-                    sw.Write("</hyperlinks>");
-                }   
+                }
+                sw.Write("</hyperlinks>");
         }
         /// <summary>
         /// Create the hyperlinks node in the XML
