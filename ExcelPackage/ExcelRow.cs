@@ -124,8 +124,7 @@ namespace OfficeOpenXml
                 _styleId = _xlWorksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
-        }
-        
+        }        
         int _styleId = 0;
 		/// <summary>
 		/// Sets the style for the entire row using the style ID.  

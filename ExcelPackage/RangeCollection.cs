@@ -135,7 +135,7 @@ namespace OfficeOpenXml
             var ix = IndexOf(key);
             if (ix < 0)
             {
-                throw (new Exception("Key do not exist"));
+                throw (new Exception("Key does not exist"));
             }
             int listPointer = _cellIndex[ix].ListPointer;
             Array.Copy(_cellIndex, ix + 1, _cellIndex, ix, _cells.Count - ix - 1);
@@ -162,7 +162,7 @@ namespace OfficeOpenXml
         int _size { get; set; }
         #region "RangeID manipulation methods"
         /// <summary>
-        /// Delete rows or Cells for rows in the collecion
+        /// Insert a number of rows in the collecion
         /// </summary>
         /// <param name="rowID"></param>
         /// <param name="rows"></param>
@@ -180,7 +180,7 @@ namespace OfficeOpenXml
             return index;
         }
         /// <summary>
-        /// 
+        /// Delete rows from the collecion
         /// </summary>
         /// <param name="rowID"></param>
         /// <param name="rows"></param>

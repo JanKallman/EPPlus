@@ -594,10 +594,11 @@ namespace OfficeOpenXml
         /// <summary>
         /// Read until the node is found. If not found the xmlreader is reseted.
         /// </summary>
-        /// <param name="xr"></param>
-        /// <param name="nodeText"></param>
+        /// <param name="xr">The reader</param>
+        /// <param name="nodeText">Text to search for</param>
+        /// <param name="altNode">Alternative text to search for</param>
         /// <returns></returns>
-        private static bool ReadXmlReaderUntil(XmlTextReader xr, string nodeText, string altNode, StringBuilder sb)
+        private static bool ReadXmlReaderUntil(XmlTextReader xr, string nodeText, string altNode)
         {
             do
             {
@@ -607,127 +608,124 @@ namespace OfficeOpenXml
             xr.Close();
             return false;
         }
-
+        /// <summary>
+        /// Load Hyperlinks
+        /// </summary>
+        /// <param name="xr">The reader</param>
         private void LoadHyperLinks(XmlTextReader xr)
         {
-            //if(xml!="")
-            //{
-            //    var xr = new XmlTextReader(new StringReader(xml));
-            //    if (xr.EOF) return;
-                if(!ReadUntil(xr, "hyperlinks","")) return;
-                while (xr.Read())
+            if(!ReadUntil(xr, "hyperlinks","")) return;
+            while (xr.Read())
+            {
+                if (xr.Name == "hyperLink")
                 {
-                    if (xr.Name == "hyperLink")
+                    int fromRow, fromCol, toRow, toCol;
+                    ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
+                    ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
+                    ExcelCell cell = _cells[id] as ExcelCell;
+                    if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
                     {
-                        int fromRow, fromCol, toRow, toCol;
-                        ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
-                        ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
-                        ExcelCell cell = _cells[id] as ExcelCell;
-                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
-                        {
-                            cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
-                            cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
-                            Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
-                        }
-                        else if (xr.GetAttribute("location") != null)
-                        {
-                            ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                            hl.RowSpann = toRow - fromRow;
-                            hl.ColSpann = toCol - fromCol;
-                            cell.Hyperlink = hl;
-                        }
+                        cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
+                        cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                        Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                     }
-                //}
+                    else if (xr.GetAttribute("location") != null)
+                    {
+                        ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
+                        hl.RowSpann = toRow - fromRow;
+                        hl.ColSpann = toCol - fromCol;
+                        cell.Hyperlink = hl;
+                    }
+                }
             }
         }
+        /// <summary>
+        /// Load cells
+        /// </summary>
+        /// <param name="xr">The reader</param>
         private void LoadCells(XmlTextReader xr)
         {
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
             var formulaList = new List<IRangeID>();
-            long size=0;
-            int prevLine, prevPos;
 
-            //if (xml != "")
-            //{
-                //var xr = new XmlTextReader(new StringReader(xml));
-                ReadUntil(xr, "sheetData", "mergeCells");
-                ExcelCell cell = null;
-                xr.Read();
-                
-                while (!xr.EOF)
+            ReadUntil(xr, "sheetData", "mergeCells");
+            ExcelCell cell = null;
+            xr.Read();
+            
+            while (!xr.EOF)
+            {
+                if (xr.NodeType == XmlNodeType.EndElement)
                 {
-                    if (xr.NodeType == XmlNodeType.EndElement)
-                    {
-                        xr.Read();
-                    }
-                    if (xr.Name == "row")
-                    {
-                        int row = Convert.ToInt32(xr.GetAttribute("r"));
+                    xr.Read();
+                }
+                if (xr.Name == "row")
+                {
+                    int row = Convert.ToInt32(xr.GetAttribute("r"));
 
-                        if (xr.AttributeCount > 2 || (xr.AttributeCount == 2 && xr.GetAttribute("spans") != null))
-                        {
-                            rowList.Add(AddRow(xr, row));
-                        }
-                        xr.Read();
-                    }
-                    else if (xr.Name == "c")
+                    if (xr.AttributeCount > 2 || (xr.AttributeCount == 2 && xr.GetAttribute("spans") != null))
                     {
-                        if (cell != null) cellList.Add(cell);
-                        cell = new ExcelCell(this, xr.GetAttribute("r"));
-                        if (xr.GetAttribute("t") != null) cell.DataType = xr.GetAttribute("t");
-                        cell.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"));
-                        xr.Read();
+                        rowList.Add(AddRow(xr, row));
                     }
-                    else if (xr.Name == "v")
+                    xr.Read();
+                }
+                else if (xr.Name == "c")
+                {
+                    if (cell != null) cellList.Add(cell);
+                    cell = new ExcelCell(this, xr.GetAttribute("r"));
+                    if (xr.GetAttribute("t") != null) cell.DataType = xr.GetAttribute("t");
+                    cell.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"));
+                    xr.Read();
+                }
+                else if (xr.Name == "v")
+                {
+                    cell._value = GetValueFromXml(cell, xr);
+                    xr.Read();
+                }
+                else if (xr.Name == "f")
+                {
+                    string t = xr.GetAttribute("t");
+                    if (t == null)
                     {
-                        cell._value = GetValueFromXml(cell, xr);
-                        xr.Read();
+                        cell._formula = xr.ReadElementContentAsString();
+                        formulaList.Add(cell);
                     }
-                    else if (xr.Name == "f")
+                    else if (t == "shared")
                     {
-                        string t = xr.GetAttribute("t");
-                        if (t == null)
-                        {
-                            cell._formula = xr.ReadElementContentAsString();
-                            formulaList.Add(cell);
-                        }
-                        else if (t == "shared")
-                        {
 
-                            string si = xr.GetAttribute("si");
-                            if (si != null)
+                        string si = xr.GetAttribute("si");
+                        if (si != null)
+                        {
+                            cell.SharedFormulaID = int.Parse(si);
+                            if (xr.Value != "")
                             {
-                                cell.SharedFormulaID = int.Parse(si);
-                                if (xr.Value != "")
-                                {
-                                    _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = xr.Value, Address = xr.GetAttribute("ref"), StartRow = cell.Row, StartCol = cell.Column });
-                                }
+                                _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = xr.Value, Address = xr.GetAttribute("ref"), StartRow = cell.Row, StartCol = cell.Column });
                             }
+                        }
+                        xr.Read();
+                        if (xr.NodeType == XmlNodeType.Text)
+                        {
                             xr.Read();
-                            if (xr.NodeType == XmlNodeType.Text)
-                            {
-                                xr.Read();
-                            }
                         }
-                    }
-                    else
-                    {
-                        break;
                     }
                 }
-                if (cell != null) cellList.Add(cell);
-            //}
+                else
+                {
+                    break;
+                }
+            }
+            if (cell != null) cellList.Add(cell);
 
             _cells = new RangeCollection(cellList);
             _rows = new RangeCollection(rowList);
             _formulaCells = new RangeCollection(formulaList);
         }
+        /// <summary>
+        /// Load merged cells
+        /// </summary>
+        /// <param name="xr"></param>
         private void LoadMergeCells(XmlTextReader xr)
         {
-            //if (xml != "")
-            //{
-            //    var xr = new XmlTextReader(new StringReader(xml));
             if(ReadUntil(xr, "mergeCells", "hyperlinks") && !xr.EOF)
             {
                 while (xr.Read())
@@ -749,6 +747,10 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Update merged cells
+        /// </summary>
+        /// <param name="sw">The writer</param>
         private void UpdateMergedCells(StreamWriter sw)
         {
             sw.Write("<mergeCells>");
@@ -758,6 +760,12 @@ namespace OfficeOpenXml
             }
             sw.Write("</mergeCells>");
         }
+        /// <summary>
+        /// Reads a row from the XML reader
+        /// </summary>
+        /// <param name="xr">The reader</param>
+        /// <param name="row">The row number</param>
+        /// <returns></returns>
         private ExcelRow AddRow(XmlTextReader xr, int row)
         {
             ExcelRow r = new ExcelRow(this, row);
@@ -819,8 +827,6 @@ namespace OfficeOpenXml
             }
             return value;
         }
-
-
         private string GetSharedString(int stringID)
         {
             string retValue = null;
@@ -831,7 +837,6 @@ namespace OfficeOpenXml
             return (retValue);
         }
         #endregion
-
 		#region HeaderFooter
 		/// <summary>
 		/// A reference to the header and footer class which allows you to 
