@@ -97,7 +97,8 @@ namespace OfficeOpenXml
 			//  Create a NamespaceManager to handle the default namespace, 
 			//  and create a prefix for the default namespace:
 			NameTable nt = new NameTable();
-			_nsManager = new XmlNamespaceManager(nt);            
+			_nsManager = new XmlNamespaceManager(nt);
+            _nsManager.AddNamespace(string.Empty, ExcelPackage.schemaMain);
             _nsManager.AddNamespace("d", ExcelPackage.schemaMain);
 			_nsManager.AddNamespace("r", ExcelPackage.schemaRelationships);
 

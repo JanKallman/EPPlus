@@ -110,6 +110,7 @@ namespace OfficeOpenXml
                     else
                     {
                         nodePrefix="";
+                        nameSpaceURI = "";
                         nodeName=nameSplit[0];
                     }
                     if (subPath.StartsWith("@"))

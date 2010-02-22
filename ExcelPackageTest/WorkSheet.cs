@@ -106,6 +106,7 @@ namespace ExcelPackageTest
             ws.Workbook.Names["TestName"].Offset(2,-1, 2, 2).Value = "Offset test 2";
 
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
+            ws.View.FreezePanes(3, 5);
         }
         const int PERF_ROWS=50000;
         [TestMethod]

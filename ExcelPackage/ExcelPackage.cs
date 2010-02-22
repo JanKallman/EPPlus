@@ -237,6 +237,7 @@ namespace OfficeOpenXml
                     //  and create a prefix for the default namespace:
                     NameTable nt = new NameTable();
                     var ns = new XmlNamespaceManager(nt);
+                    ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
                     ns.AddNamespace("d", ExcelPackage.schemaMain);
                     _workbook = new ExcelWorkbook(this, ns);
 

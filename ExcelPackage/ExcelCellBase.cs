@@ -346,16 +346,17 @@ namespace OfficeOpenXml
         internal static void GetRowColFromAddress(string cellAddress, out int _fromRow, out int _fromCol, out int _toRow, out int _toCol)
         {
             cellAddress = cellAddress.ToUpper();
-            string[] cells = cellAddress.Split(':');
-            GetRowCol(cells[0], out _fromRow, out _fromCol);
-            if (cells.Length > 1)
+            if (cellAddress.IndexOf(':') < 0)
             {
-                GetRowCol(cells[1], out _toRow, out _toCol);
+                GetRowCol(cellAddress, out _fromRow, out _fromCol);
+                _toCol = _fromCol;
+                _toRow = _fromRow;
             }
             else
             {
-                _toCol = _fromCol;
-                _toRow = _fromRow;
+                string[] cells = cellAddress.Split(':');
+                GetRowCol(cells[0], out _fromRow, out _fromCol);
+                GetRowCol(cells[1], out _toRow, out _toCol);
             }
         }
         /// <summary>
