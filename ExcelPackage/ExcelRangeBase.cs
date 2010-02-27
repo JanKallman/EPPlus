@@ -279,6 +279,36 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        public bool AutoFilter 
+        {
+            get
+            {
+                int autoFilterFromRow, autoFilterFromCol, autoFilterToRow, autoFilterToCol;
+                GetRowColFromAddress(_worksheet.AutoFilterAddress, out autoFilterFromRow, out autoFilterFromCol, out autoFilterToRow, out autoFilterToCol);
+                if (_fromRow >= autoFilterFromRow
+                    &&
+                    _toRow <= autoFilterToRow
+                    &&
+                    _fromCol >= autoFilterFromCol
+                    &&
+                    _toCol <= autoFilterToCol)
+                {
+                    return true;
+                }
+                return false;
+            }
+            set
+            {
+                _worksheet.AutoFilterAddress = _address;
+                if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
+                {
+                    _worksheet.Names.Remove("_xlnm._FilterDatabase");
+                }
+                var result = _worksheet.Names.Add("_xlnm._FilterDatabase", this);
+                result.IsNameHidden = true;
+            }
+        }
         /// <summary>
         /// If the value is in richtext format.
         /// Then the value propery contains the raw XML. Please check the openXML documentation for info;

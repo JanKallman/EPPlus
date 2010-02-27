@@ -187,7 +187,7 @@ namespace OfficeOpenXml
                               bool hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "protectedRanges", "customSheetViews", "conditionalFormatting", "mergeCells", "hyperlinks", "pageMargins", "pageSetup","headerFooter", "drawing" };
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "protectedRanges", "customSheetViews", "conditionalFormatting", "autoFilter", "mergeCells", "hyperlinks", "pageMargins", "pageSetup","headerFooter", "drawing" };
             xlPackage = excelPackage;
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -244,6 +244,21 @@ namespace OfficeOpenXml
 			}
 		}
 
+        /// <summary>
+        /// Address for autofilter
+        /// </summary>
+        public string AutoFilterAddress 
+        {
+            get
+            {
+                return GetXmlNode("d:autoFilter/@ref");
+            }
+            internal set
+            {
+                SetXmlNode("d:autoFilter/@ref", value);
+            }
+        }
+
 		#region Name // Worksheet Name
 		/// <summary>
 		/// The worksheet's name as it appears on the tab
@@ -268,7 +283,7 @@ namespace OfficeOpenXml
 		#endregion // END Worksheet Name
         private ExcelNamedRangeCollection _names;
         public ExcelNamedRangeCollection  Names 
-        {
+        {   
             get
             {
                 return _names;
