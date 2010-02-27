@@ -82,7 +82,10 @@ namespace ExcelPackageTest
             ws.Cells["X21"].Value = 221;
             ws.Cells["X22"].Value = 123;
             ws.Cells["X23"].Value = 135;
-            ws.Cells["X24"].Value = 134;
+            ws.Cells["X24"].Value = 134; 
+
+            // add autofilter
+            ws.Cells["U19:X24"].AutoFilter = true;
 
             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             pic.SetPosition(150, 140);

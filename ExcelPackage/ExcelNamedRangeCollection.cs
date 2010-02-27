@@ -47,7 +47,7 @@ namespace OfficeOpenXml
             _ws = ws;
         }
         Dictionary<string, ExcelNamedRange> _dic = new Dictionary<string, ExcelNamedRange>();
-        public ExcelNamedRange Add(string Name, ExcelRange Range)
+        public ExcelNamedRange Add(string Name, ExcelRangeBase Range)
         {
             var item = new ExcelNamedRange(Name, _ws , Range.Worksheet, Range.Address);
             _dic.Add(Name, item);
@@ -56,6 +56,10 @@ namespace OfficeOpenXml
         public void Remove(string Name)
         {
             _dic.Remove(Name);
+        }
+        public bool ContainsKey(string key)
+        {
+            return _dic.ContainsKey(key);
         }
         public int Count
         {
