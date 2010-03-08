@@ -76,11 +76,11 @@ namespace OfficeOpenXml
 
         }
 
-        internal void CreateNode(string path)
+        internal XmlNode CreateNode(string path)
         {
-            CreateNode(path, false);
+            return CreateNode(path, false);
         }
-        internal void CreateNode(string path, bool insertFirst)
+        internal XmlNode CreateNode(string path, bool insertFirst)
         {
             XmlNode node = TopNode;
             XmlNode prependNode=null;
@@ -145,6 +145,7 @@ namespace OfficeOpenXml
                 }
                 node = subNode;
             }
+            return node;
         }
         /// <summary>
         /// return Prepend node

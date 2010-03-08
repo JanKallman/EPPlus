@@ -223,6 +223,21 @@ namespace OfficeOpenXml
         /// The position of the worksheet.
         /// </summary>
         protected internal int PositionID { get { return (_positionID); } }
+        /// <summary>
+        /// Address for autofilter
+        /// </summary>
+        public string AutoFilterAddress
+        {
+            get
+            {
+                return GetXmlNode("d:autoFilter/@ref");
+            }
+            internal set
+            {
+                SetXmlNode("d:autoFilter/@ref", value);
+            }
+        }
+
 		/// <summary>
 		/// Returns a ExcelWorksheetView object that allows you to
 		/// set the view state properties of the worksheet
@@ -243,21 +258,6 @@ namespace OfficeOpenXml
 				return (_sheetView);
 			}
 		}
-
-        /// <summary>
-        /// Address for autofilter
-        /// </summary>
-        public string AutoFilterAddress 
-        {
-            get
-            {
-                return GetXmlNode("d:autoFilter/@ref");
-            }
-            internal set
-            {
-                SetXmlNode("d:autoFilter/@ref", value);
-            }
-        }
 
 		#region Name // Worksheet Name
 		/// <summary>
@@ -283,7 +283,7 @@ namespace OfficeOpenXml
 		#endregion // END Worksheet Name
         private ExcelNamedRangeCollection _names;
         public ExcelNamedRangeCollection  Names 
-        {   
+        {
             get
             {
                 return _names;
@@ -711,7 +711,7 @@ namespace OfficeOpenXml
                         string si = xr.GetAttribute("si");
                         if (si != null)
                         {
-                            cell.SharedFormulaID = int.Parse(si);
+                            cell._sharedFormulaID = int.Parse(si);
                             if (xr.Value != "")
                             {
                                 _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = xr.Value, Address = xr.GetAttribute("ref"), StartRow = cell.Row, StartCol = cell.Column });
@@ -863,10 +863,10 @@ namespace OfficeOpenXml
 			{
 				if (_headerFooter == null)
 				{
-					XmlNode headerFooterNode = WorksheetXml.SelectSingleNode("//d:headerFooter", NameSpaceManager);
-					if (headerFooterNode == null)
-						headerFooterNode = WorksheetXml.DocumentElement.AppendChild(WorksheetXml.CreateElement("headerFooter", ExcelPackage.schemaMain));
-					_headerFooter = new ExcelHeaderFooter((XmlElement)headerFooterNode);
+                    XmlNode headerFooterNode = TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager);
+                    if (headerFooterNode == null)
+                        headerFooterNode= CreateNode("d:headerFooter");
+                    _headerFooter = new ExcelHeaderFooter(NameSpaceManager, headerFooterNode);
 				}
 				return (_headerFooter);
 			}
@@ -1124,9 +1124,13 @@ namespace OfficeOpenXml
             //List<int> sharedFormulas = new List<int>();
             foreach (ExcelCell cell in _formulaCells)
             {
-                if (cell.SharedFormulaID<0)
+                if (cell.SharedFormulaID < 0)
                 {
                     cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, rowFrom, 0);
+                }
+                else
+                {
+                    throw new Exception("Shared formula error");
                 }
             }
 
@@ -1168,8 +1172,20 @@ namespace OfficeOpenXml
         }
         private void FixSharedFormulasRows(int position, int rows)
         {
-            List<Formulas> added=new List<Formulas>();
+            List<Formulas> added = new List<Formulas>();
+            if (rows < 0)   //Delete fix formulas (set #REF!) /this splits the shared formula
+            {
+                foreach (int id in _sharedFormulas.Keys)
+                {
+                    var f = _sharedFormulas[id];
+                    UpdateSharedFormulaRow(ref f, position, rows, ref added);
+                }
+
+                AddFormulas(added);
+            }
+            added=new List<Formulas>();
             List<Formulas> deleted = new List<Formulas>();
+
             foreach (int id in _sharedFormulas.Keys)
             {
                 var f = _sharedFormulas[id];
@@ -1186,7 +1202,6 @@ namespace OfficeOpenXml
                             Formulas newF = new Formulas();
                             newF.StartCol = f.StartCol;
                             newF.StartRow = position + rows;
-                            newF.Index = GetMaxShareFunctionIndex();
                             newF.Address = ExcelCell.GetAddress(position + rows, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
                             newF.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, newF.StartRow-f.StartRow, 0, 1, 0); //Recalc the cells positions //ExcelCell.TranslateFromR1C1(Cells[fromRow, fromCol].FormulaR1C1, newF.StartRow, newF.StartCol); //Räkna om formulan
                             Cells[newF.Address].SetSharedFormulaID(newF.Index);
@@ -1215,6 +1230,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
+                        Cells[f.Address].SetSharedFormulaID(int.MinValue);
                         if (position <= fromRow && position + Math.Abs(rows) >= toRow)  //Delete the formula 
                         {
                             deleted.Add(f);
@@ -1226,36 +1242,131 @@ namespace OfficeOpenXml
                             {
                                 fromRow = fromRow + rows < position ? position : fromRow + rows;
                             }
+
                             f.Address = ExcelCell.GetAddress(fromRow, fromCol, toRow, toCol);
+                            Cells[f.Address].SetSharedFormulaID(f.Index);
                             f.StartRow = fromRow;
-                            f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0);
+
+                            //f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0);
+                       
                         }
                     }
                 }
             }
 
-            //Add new formulas
-            foreach(Formulas f in added)
-            {
-                _sharedFormulas.Add(f.Index, f);
-            }
+            AddFormulas(added);
+
             //Remove formulas
             foreach (Formulas f in deleted)
             {
                 _sharedFormulas.Remove(f.Index);
             }
         }
-		#endregion
 
-		#region DeleteRow
-		/// <summary>
-		/// Deletes the specified row from the worksheet.
-		/// If shiftOtherRowsUp=true then all formula are updated to take account of the deleted row.
-		/// </summary>
-		/// <param name="rowFrom">The number of the start row to be deleted</param>
+        private void AddFormulas(List<Formulas> added)
+        {
+            //Add new formulas
+            foreach (Formulas f in added)
+            {
+                if (f.Address.Contains(":")) //Is reference to more than 1 cell, then we add it as a shared formula...
+                {
+                    f.Index = GetMaxShareFunctionIndex();
+                    _sharedFormulas.Add(f.Index, f);
+                    Cells[f.Address].SetSharedFormulaID(f.Index);
+                }
+                else
+                {
+                    Cells[f.Address].Formula = f.Formula;
+                }
+            }
+        }
+
+        private void UpdateSharedFormulaRow(ref Formulas formula, int startRow, int rows, ref List<Formulas> newFormulas)
+        {
+            int fromRow,fromCol, toRow, toCol;
+            int newFormulasCount = newFormulas.Count;
+            ExcelCellBase.GetRowColFromAddress(formula.Address, out fromRow, out fromCol, out toRow, out toCol);
+            int refSplits = Regex.Split(formula.Formula, "#REF!").GetUpperBound(0);
+            string formualR1C1 = ExcelRangeBase.TranslateToR1C1(formula.Formula, formula.StartRow, formula.StartCol);
+            bool isRef = false;
+            Formulas restFormula=formula;
+            for (int row = fromRow; row <= toRow; row++)
+            {
+                for (int col = fromCol; col <= toCol; col++)
+                {
+                    string newFormula=ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
+                    if (newFormula.Contains("#REF!"))
+                    {
+                        if (refSplits == 0 || Regex.Split(newFormula, "#REF!").GetUpperBound(0) != refSplits)
+                        {
+                            isRef = true;
+                            if (row == fromRow && col == fromCol)
+                            {
+                                formula.Formula = newFormula;
+                            }
+                            else
+                            {
+                                if (newFormulas.Count == newFormulasCount)
+                                {
+                                    formula.Address = ExcelCellBase.GetAddress(formula.StartRow, formula.StartCol, row - 1, col);
+                                }
+                                else
+                                {
+                                    newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[newFormulas.Count - 1].StartCol, row-1, col);
+                                }
+                                var refFormula = new Formulas();
+                                refFormula.Formula = newFormula;
+                                refFormula.StartRow = row;
+                                refFormula.StartCol = col;
+                                newFormulas.Add(refFormula);
+
+                                restFormula = null;
+                            }
+                        }
+                        else
+                        {
+                            isRef = false;
+                        }
+                    }
+                    else
+                    {
+                        isRef = false;
+                    }
+                    if (!isRef && restFormula==null)
+                    {
+                        if (newFormulas.Count == newFormulasCount)
+                        {
+                            formula.Address = ExcelCellBase.GetAddress(formula.StartRow, formula.StartCol, row - 1, col);
+                        }
+                        else
+                        {
+                            newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[0].StartCol, row - 1, col);
+                        }
+
+                        restFormula = new Formulas();
+                        restFormula.Formula = newFormula;
+                        restFormula.StartRow = row;
+                        restFormula.StartCol = col;
+                        newFormulas.Add(restFormula);
+                    }
+                }
+            }
+            if (newFormulas.Count > newFormulasCount)
+            {
+                newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[newFormulas.Count - 1].StartCol, toRow, toCol);
+            }
+        }
+        #endregion
+
+        #region DeleteRow
+        /// <summary>
+        /// Deletes the specified row from the worksheet.
+        /// If shiftOtherRowsUp=true then all formula are updated to take account of the deleted row.
+        /// </summary>
+        /// <param name="rowFrom">The number of the start row to be deleted</param>
         /// <param name="rows">Number of rows to delete</param>
         /// <param name="shiftOtherRowsUp">Set to true if you want the other rows renumbered so they all move up</param>
-		public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
+        public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
 		{
             //throw (new Exception("Insert and delete of rows has been removed for now."));
 
@@ -1263,10 +1374,8 @@ namespace OfficeOpenXml
 
             foreach (ExcelCell cell in _formulaCells)
             {
-                if (cell.SharedFormulaID < 0)
-                {
-                    cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, rowFrom, 0);
-                }
+                cell._formula= ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
+                cell._formulaR1C1 = "";
             }
             FixSharedFormulasRows(rowFrom, -rows);
             AddMergedCells(rowFrom, -rows);
@@ -1491,7 +1600,7 @@ namespace OfficeOpenXml
                         {
                             sw.Write("ht=\"0\" hidden=\"1\" ");
                         }
-                        else if (currRow.Height != defaultRowHeight)
+                        else if (currRow.Height != defaultRowHeight )
                         {
                             sw.Write(string.Format(_ci, "ht=\"{0}\" customHeight=\"1\" ", currRow.Height));
                         }   
@@ -1511,7 +1620,25 @@ namespace OfficeOpenXml
                                 }
                                 else
                                 {
-                                    sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                                    //ulong prevRowID = ExcelRow.GetRowID(SheetID, currRow.Row - 1), nextRowID = ExcelRow.GetRowID(SheetID, currRow.Row+1);
+                                    //ExcelRow prevRow;//, nextRow;
+                                    //if (_rows.ContainsKey(prevRowID))
+                                    //{
+                                    //    prevRow = _rows[prevRowID] as ExcelRow;
+                                    //    //nextRow = _rows[nextRowID] as ExcelRow;
+                                    //    if (prevRow.Collapsed)
+                                    //    {
+                                            sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden                                        
+                                    //    }
+                                    //    else
+                                    //    {
+                                    //        sw.Write(" collapsed=\"1\""); //not hidden, only collapsed
+                                    //    }
+                                    //}
+                                    //else
+                                    //{
+                                    //    sw.Write(" collapsed=\"1\""); //Always hidden
+                                    //}
                                 }
                             }
                         }
@@ -1519,7 +1646,7 @@ namespace OfficeOpenXml
                         {
                             sw.Write("ph=\"1\" ");
                         }
-                    }
+                        }
                     sw.Write(">");
                     row = cell.Row;
                 }
@@ -1594,6 +1721,10 @@ namespace OfficeOpenXml
                         }
                     }
                 }
+                if (row % 1000==0)    //Flush back to the stream every 1000 rows
+                {
+                    sw.Flush();
+                }
                 //Update hyperlinks.
                 if (cell.Hyperlink != null)
                 {
@@ -1602,7 +1733,6 @@ namespace OfficeOpenXml
             }
             if (row != -1) sw.Write("</row>");
             sw.Write("</sheetData>");
-            //top.InnerXml = sbXml.ToString();
         }
 
         /// <summary>
@@ -1708,6 +1838,9 @@ namespace OfficeOpenXml
             }
             return namedStyle.XfId;
 		}
+        /// <summary>
+        /// The workbook object
+        /// </summary>
         public ExcelWorkbook Workbook
         {
             get

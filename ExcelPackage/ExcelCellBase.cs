@@ -241,28 +241,34 @@ namespace OfficeOpenXml
         private static string AddToRowColumnTranslator(string Address, int row, int col, int rowIncr, int colIncr)
         {
             int fromRow, fromCol;
-            GetRowCol(Address, out fromRow, out fromCol);
-            if (row != 0 && fromRow >=row && Address.IndexOf('$', 1) == -1)
+            if (Address == "#REF!")
             {
-                if (rowIncr > 0) //Insert
+                return Address;
+            }
+            if (GetRowCol(Address, out fromRow, out fromCol, false))
+            {
+                if (row != 0 && fromRow >= row && Address.IndexOf('$', 1) == -1)
                 {
-                    Address = GetAddress(fromRow + rowIncr, fromCol);
-                }
-                else                    //Delete
-                {
-                    if (fromRow >= row && fromRow < row - rowIncr)
-                    {
-                        Address = "#REF!";
-                    }
-                    else
+                    if (rowIncr > 0) //Insert
                     {
                         Address = GetAddress(fromRow + rowIncr, fromCol);
                     }
+                    else                    //Delete
+                    {
+                        if (fromRow >= row && fromRow < row - rowIncr)
+                        {
+                            Address = "#REF!";
+                        }
+                        else
+                        {
+                            Address = GetAddress(fromRow + rowIncr, fromCol);
+                        }
+                    }
                 }
-            }
-            else if (col != 0 && fromCol >= col && Address.StartsWith("$") == false)
-            {
-                Address = GetAddress(fromRow, fromCol + colIncr);
+                else if (col != 0 && fromCol >= col && Address.StartsWith("$") == false)
+                {
+                    Address = GetAddress(fromRow, fromCol + colIncr);
+                }
             }
             return Address;
         }
@@ -336,39 +342,39 @@ namespace OfficeOpenXml
         }
         #endregion
         /// <summary>
-        /// Get the row/columns for an address
+        /// Get the row/columns for n Cell-address
         /// </summary>
-        /// <param name="cellAddress">The address</param>
-        /// <param name="_fromCol">Returns the from column</param>
-        /// <param name="_fromRow">Returns the to column</param>
-        /// <param name="_toCol">Returns the from row</param>
-        /// <param name="_toRow">Returns the to row</param>
-        internal static void GetRowColFromAddress(string cellAddress, out int _fromRow, out int _fromCol, out int _toRow, out int _toCol)
+        /// <param name="CellAddress">The address</param>
+        /// <param name="FromRow">Returns the to column</param>
+        /// <param name="FromColumn">Returns the from column</param>
+        /// <param name="ToRow">Returns the to row</param>
+        /// <param name="ToColumn">Returns the from row</param>
+        internal static void GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
         {
-            cellAddress = cellAddress.ToUpper();
-            if (cellAddress.IndexOf(':') < 0)
+            CellAddress = CellAddress.ToUpper();
+            if (CellAddress.IndexOf(':') < 0)
             {
-                GetRowCol(cellAddress, out _fromRow, out _fromCol);
-                _toCol = _fromCol;
-                _toRow = _fromRow;
+                GetRowColFromAddress(CellAddress, out FromRow, out FromColumn);
+                ToColumn = FromColumn;
+                ToRow = FromRow;
             }
             else
             {
-                string[] cells = cellAddress.Split(':');
-                GetRowCol(cells[0], out _fromRow, out _fromCol);
-                GetRowCol(cells[1], out _toRow, out _toCol);
+                string[] cells = CellAddress.Split(':');
+                GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
+                GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
             }
         }
         /// <summary>
-        /// Get the row/column for a Cell-address
+        /// Get the row/column for n Cell-address
         /// </summary>
-        /// <param name="address">the address</param>
-        /// <param name="row">returns the row</param>
-        /// <param name="col">returns the column</param>
+        /// <param name="CellAddress">The address</param>
+        /// <param name="Row">Returns Tthe row</param>
+        /// <param name="Column">Returns the column</param>
         /// <returns>true if valid</returns>
-        internal static bool GetRowCol(string address, out int row, out int col)
+        internal static bool GetRowColFromAddress(string CellAddress, out int Row, out int Column)
         {
-            return GetRowCol(address, out row, out col, true);
+            return GetRowCol(CellAddress, out Row, out Column, true);
         }
         /// <summary>
         /// Get the row/column for a Cell-address
@@ -518,7 +524,6 @@ namespace OfficeOpenXml
                return address;
         }
         #endregion
-
         #region IsValidCellAddress
         /// <summary>
         /// Checks that a cell address (e.g. A5) is valid.
@@ -528,7 +533,7 @@ namespace OfficeOpenXml
         public static bool IsValidCellAddress(string cellAddress)
         {
             int row, col;
-            GetRowCol(cellAddress, out row, out col);
+            GetRowColFromAddress(cellAddress, out row, out col);
 
             if (GetAddress(row, col) == cellAddress)
                 return (true);
@@ -548,7 +553,7 @@ namespace OfficeOpenXml
         /// <param name="afterRow">Only change rows after this row</param>
         /// <param name="afterColumn">Only change columns after this column</param>
         /// <returns></returns>
-        public static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn)
+        internal static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn)
         {
             return Translate(Formula, AddToRowColumnTranslator, afterRow, afterColumn, rowIncrement, colIncrement);
         }

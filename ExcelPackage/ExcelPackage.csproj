@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OfficeOpenXml</RootNamespace>
-    <AssemblyName>ExcelPackage</AssemblyName>
+    <AssemblyName>EPPlus</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>OfficeOpenXml.snk</AssemblyOriginatorKeyFile>
     <SccProjectName>

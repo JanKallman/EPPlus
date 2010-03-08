@@ -106,7 +106,7 @@ namespace OfficeOpenXml
             internal bool isRichText = false;
         }
         #region Private Properties
-		private ExcelPackage _xlPackage;
+		internal ExcelPackage _xlPackage;
 		// we have to hard code these uris as we need them to create a workbook from scratch
 		private Uri _uriWorkbook = new Uri("/xl/workbook.xml", UriKind.Relative);
 		private Uri _uriSharedStrings = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
@@ -276,7 +276,7 @@ namespace OfficeOpenXml
             else
             {
                 // create a new workbook part and add to the package
-                PackagePart partWorkbook = _xlPackage.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", CompressionOption.Maximum);
+                PackagePart partWorkbook = _xlPackage.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _xlPackage.Compression);
 
                 // create the workbook
                 _xmlWorkbook = new XmlDocument();
@@ -322,7 +322,7 @@ namespace OfficeOpenXml
 					else
 					{
 						// create a new sharedStrings part and add to the package
-                        PackagePart partStrings = _xlPackage.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", CompressionOption.Maximum);
+                        PackagePart partStrings = _xlPackage.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _xlPackage.Compression);
 
 						// create the shared strings xml doc (with no entries in it)
 						_xmlSharedStrings = new XmlDocument();
@@ -360,7 +360,7 @@ namespace OfficeOpenXml
 					else
 					{
 						// create a new styles part and add to the package
-                        PackagePart partSyles = _xlPackage.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", CompressionOption.Maximum);
+                        PackagePart partSyles = _xlPackage.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _xlPackage.Compression);
 						// create the style sheet
 						_xmlStyles = new XmlDocument();
 						XmlElement tagStylesheet = _xmlStyles.CreateElement("styleSheet", ExcelPackage.schemaMain);
@@ -486,8 +486,12 @@ namespace OfficeOpenXml
 		{
 			get 
 			{
-				if (_properties == null)
-					_properties = new OfficeProperties(_xlPackage);
+                if (_properties == null)
+                {
+                    //  Create a NamespaceManager to handle the default namespace, 
+                    //  and create a prefix for the default namespace:                   
+                    _properties = new OfficeProperties(_xlPackage, NameSpaceManager);
+                }
 				return _properties;
 			}
 		}

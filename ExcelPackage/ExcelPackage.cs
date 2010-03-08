@@ -75,7 +75,8 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelPackage : IDisposable
 	{
-        internal const bool preserveWhitespace=true;
+        internal const bool preserveWhitespace=false;
+        MemoryStream _stream = null;
 		#region Properties
 		/// <summary>
 		/// Provides access to the main schema used by all Excel components
@@ -91,6 +92,17 @@ namespace OfficeOpenXml
 
         protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
         protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
+
+        //Office properties
+        protected internal const string schemaCore = @"http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
+        protected internal const string schemaExtended = @"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
+        protected internal const string schemaCustom = @"http://schemas.openxmlformats.org/officeDocument/2006/custom-properties";
+        protected internal const string schemaDc = @"http://purl.org/dc/elements/1.1/";
+        protected internal const string schemaDcTerms = @"http://purl.org/dc/terms/";
+        protected internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
+        protected internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
+        protected internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
+
                                                            
         private Package _package;
 		private string _outputFolderPath;
@@ -106,6 +118,7 @@ namespace OfficeOpenXml
         /// </summary>
         public ExcelPackage()
         {
+            Init();
             ConstructNewFile();
         }
         /// <summary>
@@ -114,6 +127,7 @@ namespace OfficeOpenXml
 		/// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
         public ExcelPackage(FileInfo newFile)
 		{
+            Init();
             File = newFile;
             ConstructNewFile();
         }
@@ -126,14 +140,35 @@ namespace OfficeOpenXml
 		/// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
 		public ExcelPackage(FileInfo newFile, FileInfo template)
 		{
+            Init();
             File = newFile;
             CreateFromTemplate(template);
-		}   
-
+		}
+        /// <summary>
+        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// </summary>
+        /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
+        /// <param name="useStream">if true use a strem. If false create a file in the temp dir with a random name</param>
+        public ExcelPackage(FileInfo template, bool useStream)
+        {
+            Init();
+            CreateFromTemplate(template);
+            if (useStream == false)
+            {
+                File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
+            }
+        }
+        #endregion
+        /// <summary>
+        /// Init values here
+        /// </summary>
+        private void Init()
+        {
+            Compression = CompressionOption.Normal;
+        }
         /// <summary>
         /// Create a new file frp, a template
         /// </summary>
-        /// <param name="newFile"></param>
         /// <param name="template"></param>
         /// <returns></returns>
         private void CreateFromTemplate(FileInfo template)
@@ -143,17 +178,17 @@ namespace OfficeOpenXml
                 _stream = new MemoryStream();
                 byte[] b = System.IO.File.ReadAllBytes(template.FullName);
                 _stream.Write(b, 0, b.Length);
-                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);                
             }
             else
                 throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
             //return newFile;
         }
-        
+
         private void ConstructNewFile()
         {
             _stream = new MemoryStream();
-            if (File!=null && File.Exists)
+            if (File != null && File.Exists)
             {
                 byte[] b = System.IO.File.ReadAllBytes(File.FullName);
                 _stream.Write(b, 0, b.Length);
@@ -163,28 +198,14 @@ namespace OfficeOpenXml
             {
                 _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
                 CreateBlankWb();
-            }   
-            //else
-            //{
-            //    _outputFolderPath = newFile.DirectoryName;
-            //    if (newFile.Exists)
-            //        // open the existing package
-            //        _package = Package.Open(newFile.FullName, FileMode.Open, FileAccess.ReadWrite);
-            //    else
-            //    {
-            //        // create a new package and add the main workbook.xml part
-            //        _package = Package.Open(newFile.FullName, FileMode.Create, FileAccess.ReadWrite);
-
-            //        CreateBlankWb();
-            //    }
-            //}
+            }
         }
 
         private void CreateBlankWb()
         {
             // save a temporary part to create the default application/xml content type
             Uri uriDefaultContentType = new Uri("/default.xml", UriKind.Relative);
-            PackagePart partTemp = _package.CreatePart(uriDefaultContentType, "application/xml", CompressionOption.Maximum);
+            PackagePart partTemp = _package.CreatePart(uriDefaultContentType, "application/xml", Compression);
 
             XmlDocument workbook = Workbook.WorkbookXml; // this will create the workbook xml in the package
 
@@ -194,23 +215,6 @@ namespace OfficeOpenXml
             // remove the temporary part that created the default xml content type
             _package.DeletePart(uriDefaultContentType);
         }
-
-        MemoryStream _stream=null;
-        /// <summary>
-        /// Creates a new instance of the ExcelPackage class based on a existing template.
-        /// </summary>
-        /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
-        /// <param name="useStream">if true use a strem. If false create a file in the temp dir with a random name</param>
-        public ExcelPackage(FileInfo template, bool useStream)
-        {
-            CreateFromTemplate(template);
-            if (useStream == false)
-            {
-                File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
-            }
-        }
-        #endregion
-
 		#region Public Properties
 		/// <summary>
 		/// Setting DebugMode to true will cause the Save method to write the 
@@ -219,7 +223,7 @@ namespace OfficeOpenXml
 		public bool DebugMode = false;
 
 		/// <summary>
-		/// Returns a reference to the file package
+		/// Returns a reference to the package
 		/// </summary>
 		public Package Package { get { return (_package); } }
 
@@ -239,6 +243,19 @@ namespace OfficeOpenXml
                     var ns = new XmlNamespaceManager(nt);
                     ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
                     ns.AddNamespace("d", ExcelPackage.schemaMain);
+                    ns.AddNamespace("vt", schemaVt);
+                    // extended properties (app.xml)
+                    ns.AddNamespace("xp", schemaExtended);
+                    // custom properties
+                    ns.AddNamespace("ctp", schemaCustom);
+                    // core properties
+                    ns.AddNamespace("cp", schemaCore);
+                    // core property namespaces
+                    ns.AddNamespace("dc", schemaDc);
+                    ns.AddNamespace("dcterms", schemaDcTerms);
+                    ns.AddNamespace("dcmitype", schemaDcmiType);
+                    ns.AddNamespace("xsi", schemaXsi);
+
                     _workbook = new ExcelWorkbook(this, ns);
 
                     _workbook.GetDefinedNames();
@@ -432,6 +449,9 @@ namespace OfficeOpenXml
             Save();
         }
         FileInfo _file=null;
+        /// <summary>
+        /// The output file. Null if no file is used
+        /// </summary>
         public FileInfo File
         {
             get
@@ -444,6 +464,9 @@ namespace OfficeOpenXml
                 _outputFolderPath = _file.DirectoryName;
             }
         }
+        /// <summary>
+        /// The output stream
+        /// </summary>
         public Stream Stream
         {
             get
@@ -452,7 +475,10 @@ namespace OfficeOpenXml
             }
         }
 		#endregion
-
+        /// <summary>
+        /// Compression option for the package
+        /// </summary>
+        public CompressionOption Compression { get; set; }
 		#region GetXmlFromUri
 		/// <summary>
 		/// Obtains the XmlDocument from the package referenced by the Uri

@@ -71,12 +71,14 @@ namespace OfficeOpenXml.Drawing
             }
         }
         internal List<ImageCompare> _pics = new List<ImageCompare>();
+        internal ExcelPackage _package;
         public ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();                
-                _drawingsXml.PreserveWhitespace = true;
+                _drawingsXml.PreserveWhitespace = false;
                 _drawings = new List<ExcelDrawing>();
                 _drawingNames = new Dictionary<string,int>();
+                _package = xlPackage;
                 Worksheet = sheet;
                 XmlNode node = sheet.WorksheetXml.SelectSingleNode("//d:drawing", sheet.NameSpaceManager);
                 CreateNSM();
@@ -386,7 +388,7 @@ namespace OfficeOpenXml.Drawing
                     _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", Worksheet.SheetID),UriKind.Relative);
 
                     Package package = Worksheet.xlPackage.Package;
-                    _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", CompressionOption.Maximum);
+                    _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", _package.Compression);
 
                     StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
                     DrawingXml.Save(streamChart);
