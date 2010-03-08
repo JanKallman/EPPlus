@@ -55,14 +55,14 @@ namespace OfficeOpenXml
             {
                 _address = _worksheet.View.SelectedRange;
             }
-            GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
+            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
         }
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address)
         {
             _worksheet = xlWorksheet;
             _address = address;
-            GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
-        }
+            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
+        }   
         #endregion
         #region "Public Properties"
         /// <summary>
@@ -77,7 +77,7 @@ namespace OfficeOpenXml
             set
             {
                 _address = value;
-                GetRowColFromAddress(_address, out  _fromRow, out _fromCol, out _toRow, out  _toCol);
+                GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
             }
         }
         /// <summary>
@@ -279,8 +279,10 @@ namespace OfficeOpenXml
                 }
             }
         }
-
-        public bool AutoFilter 
+        /// <summary>
+        /// Set an autofilter for the range
+        /// </summary>
+        public bool AutoFilter
         {
             get
             {
@@ -308,7 +310,7 @@ namespace OfficeOpenXml
                 var result = _worksheet.Names.Add("_xlnm._FilterDatabase", this);
                 result.IsNameHidden = true;
             }
-        }
+        }        
         /// <summary>
         /// If the value is in richtext format.
         /// Then the value propery contains the raw XML. Please check the openXML documentation for info;
@@ -330,6 +332,23 @@ namespace OfficeOpenXml
                 }
             }
         }
+        //public ExcelComment Comment 
+        //{
+        //    get
+        //    {
+        //        return _worksheet.Cell(_fromRow, _fromCol).Comment;
+        //    }
+        //    set
+        //    {
+        //        for (int col = _fromCol; col <= _toCol; col++)
+        //        {
+        //            for (int row = _fromRow; row <= _toRow; row++)
+        //            {
+        //                _worksheet.Cell(row, col).Comment = value;
+        //            }
+        //        }
+        //    }
+        //}
         /// <summary>
         /// WorkSheet object 
         /// </summary>

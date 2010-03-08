@@ -286,7 +286,7 @@ namespace OfficeOpenXml.Drawing.Chart
            ChartXml.LoadXml(ChartStartXml(type));
 
            // save it to the package
-           Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", CompressionOption.Maximum);
+           Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _drawings._package.Compression);
 
            StreamWriter streamChart = new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
            ChartXml.Save(streamChart);

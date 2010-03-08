@@ -82,11 +82,10 @@ namespace ExcelPackageTest
             ws.Cells["X21"].Value = 221;
             ws.Cells["X22"].Value = 123;
             ws.Cells["X23"].Value = 135;
-            ws.Cells["X24"].Value = 134; 
+            ws.Cells["X24"].Value = 134;
 
             // add autofilter
             ws.Cells["U19:X24"].AutoFilter = true;
-
             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             pic.SetPosition(150, 140);
 
@@ -110,8 +109,30 @@ namespace ExcelPackageTest
 
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
+
+            _pck.Workbook.Properties.Author = "Jan Källman";
+            _pck.Workbook.Properties.Category="Category";
+            _pck.Workbook.Properties.Comments = "Comments";
+            _pck.Workbook.Properties.Company="Adventure works";
+            _pck.Workbook.Properties.Keywords = "Keywords";
+            _pck.Workbook.Properties.Title = "Title";
+            _pck.Workbook.Properties.Subject = "Subject";
+            _pck.Workbook.Properties.Status = "status";
+            _pck.Workbook.Properties.HyperlinkBase = new Uri("http://serversideexcel.com",UriKind.Absolute );
+            _pck.Workbook.Properties.Manager= "Manager";
+            //_pck.Workbook.Properties.LastModifiedBy = "jk";
+            //_pck.Workbook.Properties.LastPrinted = "Yesterday";
+
+
+            _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
+            TestContext.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
+            _pck.Workbook.Properties.SetCustomPropertyValue("Author", "Jan Källman");
+            _pck.Workbook.Properties.SetCustomPropertyValue("Count", 1);
+            _pck.Workbook.Properties.SetCustomPropertyValue("IsTested", false);
+            _pck.Workbook.Properties.SetCustomPropertyValue("LargeNo", 123456789123);
+            _pck.Workbook.Properties.SetCustomPropertyValue("Author", 3);
         }
-        const int PERF_ROWS=50000;
+        const int PERF_ROWS=5000;
         [TestMethod]
         public void Performance()
         {
@@ -152,6 +173,9 @@ namespace ExcelPackageTest
             ws.InsertRow(7, 1);
             ws.InsertRow(2, 1);
             ws.DeleteRow(30, 3, true);
+
+            ws.DeleteRow(15, 2, true);
+
             TestContext.WriteLine("EndTime {0}", DateTime.Now);
         }
         [TestMethod]

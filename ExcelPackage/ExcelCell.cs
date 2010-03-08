@@ -66,16 +66,16 @@ namespace OfficeOpenXml
             _xlWorksheet = xlWorksheet;
             if (col < xlWorksheet._minCol) xlWorksheet._minCol = col;
             if (col > xlWorksheet._maxCol) xlWorksheet._maxCol = col;
-            SharedFormulaID = int.MinValue;
+            _sharedFormulaID = int.MinValue;
             IsRichText = false;
 		}
         protected internal ExcelCell(ExcelWorksheet xlWorksheet, string cellAddress)
         {
             _xlWorksheet = xlWorksheet;
-            GetRowCol(cellAddress, out _row, out _col);
+            GetRowColFromAddress(cellAddress, out _row, out _col);
             if (_col < xlWorksheet._minCol) xlWorksheet._minCol = _col;
             if (_col > xlWorksheet._maxCol) xlWorksheet._maxCol = _col;
-            SharedFormulaID = int.MinValue;
+            _sharedFormulaID = int.MinValue;
             IsRichText = false;
         }
 		#endregion  // END Cell Constructors
@@ -272,7 +272,16 @@ namespace OfficeOpenXml
                 {
                     if (_xlWorksheet._sharedFormulas.ContainsKey(SharedFormulaID))
                     {
-                        return TranslateFromR1C1(_xlWorksheet._sharedFormulas[SharedFormulaID].Formula, Row, Column);
+                        var f = _xlWorksheet._sharedFormulas[SharedFormulaID];
+                        if (f.StartRow == Row && f.StartCol == Column)
+                        {
+                            return f.Formula;
+                        }
+                        else
+                        {
+                            return TranslateFromR1C1(TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), Row, Column); 
+                        }
+                        
                     }
                     else
                     {
@@ -295,7 +304,7 @@ namespace OfficeOpenXml
                 }
 			}
         }
-        string _formulaR1C1="";
+        internal string _formulaR1C1="";
         public string FormulaR1C1
         {
             get
@@ -338,10 +347,21 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal int _sharedFormulaID;
         /// <summary>
         /// Id for the shared formula
         /// </summary>
-        public int SharedFormulaID { get; set; }
+        public int SharedFormulaID {
+            get
+            {
+                return _sharedFormulaID;
+            }
+            set
+            {
+                _sharedFormulaID = value;
+                if(_xlWorksheet._formulaCells.ContainsKey(CellID)) _xlWorksheet._formulaCells.Delete(CellID);
+            }
+        }
 
 		#region ExcelCell Comment
 		/// <summary>
@@ -360,7 +380,6 @@ namespace OfficeOpenXml
 		#endregion 
 
 		// TODO: conditional formatting
-
 		#endregion  // END Cell Public Properties
 		
 		/// <summary>

@@ -89,14 +89,14 @@ namespace OfficeOpenXml
         {
 			get
 			{
-                if (Hidden || (Collapsed && OutlineLevel>0))
-                {
-                    return 0;
-                }
-                else
-                {
+                //if (Hidden || (Collapsed && OutlineLevel>0))
+                //{
+                //    return 0;
+                //}
+                //else
+                //{
                     return _height;
-                }
+                //}
 			}
 			set	
             {

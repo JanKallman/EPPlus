@@ -93,7 +93,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Represents the Header and Footer on an Excel Worksheet
 	/// </summary>
-	public class ExcelHeaderFooter
+	public class ExcelHeaderFooter : XmlHelper
 	{
 		#region Static Properties
 		/// <summary>
@@ -127,16 +127,16 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelHeaderFooter Private Properties
-		private XmlElement _headerFooterNode;
+		//private XmlElement _headerFooterNode;
 		private ExcelHeaderFooterText _oddHeader;
 		private ExcelHeaderFooterText _oddFooter;
 		private ExcelHeaderFooterText _evenHeader;
 		private ExcelHeaderFooterText _evenFooter;
 		private ExcelHeaderFooterText _firstHeader;
 		private ExcelHeaderFooterText _firstFooter;
-		private System.Nullable<bool> _alignWithMargins = null;
-		private System.Nullable<bool> _differentOddEven = null;
-		private System.Nullable<bool> _differentFirst = null;
+        //private bool? _alignWithMargins = null;
+        //private System.Nullable<bool> _differentOddEven = null;
+        //private System.Nullable<bool> _differentFirst = null;
 		#endregion
 
 		#region ExcelHeaderFooter Constructor
@@ -144,56 +144,62 @@ namespace OfficeOpenXml
 		/// ExcelHeaderFooter Constructor
 		/// For internal use only!
 		/// </summary>
-		/// <param name="HeaderFooterNode"></param>
-		protected internal ExcelHeaderFooter(XmlElement HeaderFooterNode)
+		/// <param name="nameSpaceManager"></param>
+        /// <param name="topNode"></param>
+		protected internal ExcelHeaderFooter(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
+            base(nameSpaceManager, topNode)
 		{
-			if (HeaderFooterNode.Name != "headerFooter")
-				throw new Exception("ExcelHeaderFooter Error: Passed invalid headerFooter node");
-			else
-			{
-				_headerFooterNode = HeaderFooterNode;
-				// TODO: populate structure based on XML content
-			}
+            //if (HeaderFooterNode.Name != "headerFooter")
+            //    throw new Exception("ExcelHeaderFooter Error: Passed invalid headerFooter node");
+            //else
+            //{
+            //    _headerFooterNode = HeaderFooterNode;
+            //    // TODO: populate structure based on XML content
+            //}
 		}
 		#endregion
 
 		#region alignWithMargins
-		/// <summary>
+        const string alignWithMarginsPath="@alignWithMargins";
+        /// <summary>
 		/// Gets/sets the alignWithMargins attribute
 		/// </summary>
 		public bool AlignWithMargins
 		{
 			get
 			{
-				if (_alignWithMargins == null)
-				{
-					_alignWithMargins = false;
-					XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
-					if (attr != null)
-					{
-						if (attr.Value == "1")
-							_alignWithMargins = true;
-					}
-				}
-				return _alignWithMargins.Value;
+                return GetXmlNodeBool(alignWithMarginsPath);
+                //if (_alignWithMargins == null)
+                //{
+                //    _alignWithMargins = false;
+                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
+                //    if (attr != null)
+                //    {
+                //        if (attr.Value == "1")
+                //            _alignWithMargins = true;
+                //    }
+                //}
+                //return _alignWithMargins.Value;
 			}
 			set
 			{
-				_alignWithMargins = value;
-				XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
-				if (attr == null)
-				{
-					attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("alignWithMargins"));
-				}
-				if (value)
-					attr.Value = "1";
-				else
-					attr.Value = "0";
+                SetXmlNode(alignWithMarginsPath, value ? "1" : "0");
+                //_alignWithMargins = value;
+                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
+                //if (attr == null)
+                //{
+                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("alignWithMargins"));
+                //}
+                //if (value)
+                //    attr.Value = "1";
+                //else
+                //    attr.Value = "0";
 			}
 		}
 		#endregion
 
-		#region differentOddEven
+        const string differentOddEvenPath = "@differentOddEven";
+        #region differentOddEven
 		/// <summary>
 		/// Gets/sets the flag that tells Excel to display different headers and footers on odd and even pages.
 		/// </summary>
@@ -201,35 +207,39 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_differentOddEven == null)
-				{
-					_differentOddEven = false;
-					XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
-					if (attr != null)
-					{
-						if (attr.Value == "1")
-							_differentOddEven = true;
-					}
-				}
-				return _differentOddEven.Value;
+                return GetXmlNodeBool(differentOddEvenPath);
+                //if (_differentOddEven == null)
+                //{
+                //    _differentOddEven = false;
+                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
+                //    if (attr != null)
+                //    {
+                //        if (attr.Value == "1")
+                //            _differentOddEven = true;
+                //    }
+                //}
+                //return _differentOddEven.Value;
 			}
 			set
 			{
-				_differentOddEven = value;
-				XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
-				if (attr == null)
-				{
-					attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentOddEven"));
-				}
-				if (value)
-					attr.Value = "1";
-				else
-					attr.Value = "0";
+                SetXmlNode(differentOddEvenPath, value ? "1" : "0");
+                //_differentOddEven = value;
+                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
+                //if (attr == null)
+                //{
+                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentOddEven"));
+                //}
+                //if (value)
+                //    attr.Value = "1";
+                //else
+                //    attr.Value = "0";
 			}
 		}
 		#endregion
 
 		#region differentFirst
+        const string differentFirstPath = "@differentFirst";
+
 		/// <summary>
 		/// Gets/sets the flag that tells Excel to display different headers and footers on the first page of the worksheet.
 		/// </summary>
@@ -237,30 +247,32 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_differentFirst == null)
-				{
-					_differentFirst = false;
-					XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
-					if (attr != null)
-					{
-						if (attr.Value == "1")
-							_differentFirst = true;
-					}
-				}
-				return _differentFirst.Value;
+                return GetXmlNodeBool(differentFirstPath);
+                //if (_differentFirst == null)
+                //{
+                //    _differentFirst = false;
+                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
+                //    if (attr != null)
+                //    {
+                //        if (attr.Value == "1")
+                //            _differentFirst = true;
+                //    }
+                //}
+                //return _differentFirst.Value;
 			}
 			set
 			{
-				_differentFirst = value;
-				XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
-				if (attr == null)
-				{
-					attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentFirst"));
-				}
-				if (value)
-					attr.Value = "1";
-				else
-					attr.Value = "0";
+                SetXmlNode(differentFirstPath, value ? "1" : "0");
+                //_differentFirst = value;
+                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
+                //if (attr == null)
+                //{
+                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentFirst"));
+                //}
+                //if (value)
+                //    attr.Value = "1";
+                //else
+                //    attr.Value = "0";
 			}
 		}
 		#endregion
@@ -310,16 +322,18 @@ namespace OfficeOpenXml
 			//  <firstHeader />
 			//  <firstFooter />
 
-			XmlNode node;
+            //XmlNode node;
 			if (_oddHeader != null)
 			{
-				node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("oddHeader", ExcelPackage.schemaMain));
-				node.InnerText = GetHeaderFooterText(oddHeader);
+                SetXmlNode("d:oddHeader", GetHeaderFooterText(oddHeader));
+                //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("oddHeader", ExcelPackage.schemaMain));
+                //node.InnerText = GetHeaderFooterText(oddHeader);
 			}
 			if (_oddFooter != null)
 			{
-				node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("oddFooter", ExcelPackage.schemaMain));
-				node.InnerText = GetHeaderFooterText(oddFooter);
+                SetXmlNode("d:oddFooter", GetHeaderFooterText(oddFooter));
+                //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("oddFooter", ExcelPackage.schemaMain));
+                //node.InnerText = GetHeaderFooterText(oddFooter);
 			}
 
 			// only set evenHeader and evenFooter 
@@ -327,13 +341,15 @@ namespace OfficeOpenXml
 			{
 				if (_evenHeader != null)
 				{
-					node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("evenHeader", ExcelPackage.schemaMain));
-					node.InnerText = GetHeaderFooterText(evenHeader);
+                    SetXmlNode("d:evenHeader", GetHeaderFooterText(evenHeader));
+                    //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("evenHeader", ExcelPackage.schemaMain));
+                    //node.InnerText = GetHeaderFooterText(evenHeader);
 				}
 				if (_evenFooter != null)
 				{
-					node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("evenFooter", ExcelPackage.schemaMain));
-					node.InnerText = GetHeaderFooterText(evenFooter);
+                    SetXmlNode("d:evenFooter", GetHeaderFooterText(evenFooter));
+                    //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("evenFooter", ExcelPackage.schemaMain));
+                    //node.InnerText = GetHeaderFooterText(evenFooter);
 				}
 			}
 
@@ -342,13 +358,15 @@ namespace OfficeOpenXml
 			{
 				if (_firstHeader != null)
 				{
-					node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("firstHeader", ExcelPackage.schemaMain));
-					node.InnerText = GetHeaderFooterText(firstHeader);
+                    SetXmlNode("d:firstHeader", GetHeaderFooterText(firstHeader));
+                    //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("firstHeader", ExcelPackage.schemaMain));
+                    //node.InnerText = GetHeaderFooterText(firstHeader);
 				}
 				if (_firstFooter != null)
 				{
-					node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("firstFooter", ExcelPackage.schemaMain));
-					node.InnerText = GetHeaderFooterText(firstFooter);
+                    SetXmlNode("d:firstFooter", GetHeaderFooterText(firstFooter));
+                    //node = _headerFooterNode.AppendChild(_headerFooterNode.OwnerDocument.CreateElement("firstFooter", ExcelPackage.schemaMain));
+                    //node.InnerText = GetHeaderFooterText(firstFooter);
 				}
 			}
 		}
