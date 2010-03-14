@@ -149,13 +149,6 @@ namespace OfficeOpenXml
 		protected internal ExcelHeaderFooter(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
 		{
-            //if (HeaderFooterNode.Name != "headerFooter")
-            //    throw new Exception("ExcelHeaderFooter Error: Passed invalid headerFooter node");
-            //else
-            //{
-            //    _headerFooterNode = HeaderFooterNode;
-            //    // TODO: populate structure based on XML content
-            //}
 		}
 		#endregion
 
@@ -169,31 +162,10 @@ namespace OfficeOpenXml
 			get
 			{
                 return GetXmlNodeBool(alignWithMarginsPath);
-                //if (_alignWithMargins == null)
-                //{
-                //    _alignWithMargins = false;
-                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
-                //    if (attr != null)
-                //    {
-                //        if (attr.Value == "1")
-                //            _alignWithMargins = true;
-                //    }
-                //}
-                //return _alignWithMargins.Value;
 			}
 			set
 			{
                 SetXmlNode(alignWithMarginsPath, value ? "1" : "0");
-                //_alignWithMargins = value;
-                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("alignWithMargins");
-                //if (attr == null)
-                //{
-                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("alignWithMargins"));
-                //}
-                //if (value)
-                //    attr.Value = "1";
-                //else
-                //    attr.Value = "0";
 			}
 		}
 		#endregion
@@ -208,31 +180,10 @@ namespace OfficeOpenXml
 			get
 			{
                 return GetXmlNodeBool(differentOddEvenPath);
-                //if (_differentOddEven == null)
-                //{
-                //    _differentOddEven = false;
-                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
-                //    if (attr != null)
-                //    {
-                //        if (attr.Value == "1")
-                //            _differentOddEven = true;
-                //    }
-                //}
-                //return _differentOddEven.Value;
 			}
 			set
 			{
                 SetXmlNode(differentOddEvenPath, value ? "1" : "0");
-                //_differentOddEven = value;
-                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentOddEven");
-                //if (attr == null)
-                //{
-                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentOddEven"));
-                //}
-                //if (value)
-                //    attr.Value = "1";
-                //else
-                //    attr.Value = "0";
 			}
 		}
 		#endregion
@@ -248,31 +199,10 @@ namespace OfficeOpenXml
 			get
 			{
                 return GetXmlNodeBool(differentFirstPath);
-                //if (_differentFirst == null)
-                //{
-                //    _differentFirst = false;
-                //    XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
-                //    if (attr != null)
-                //    {
-                //        if (attr.Value == "1")
-                //            _differentFirst = true;
-                //    }
-                //}
-                //return _differentFirst.Value;
 			}
 			set
 			{
                 SetXmlNode(differentFirstPath, value ? "1" : "0");
-                //_differentFirst = value;
-                //XmlAttribute attr = (XmlAttribute)_headerFooterNode.Attributes.GetNamedItem("differentFirst");
-                //if (attr == null)
-                //{
-                //    attr = _headerFooterNode.Attributes.Append(_headerFooterNode.OwnerDocument.CreateAttribute("differentFirst"));
-                //}
-                //if (value)
-                //    attr.Value = "1";
-                //else
-                //    attr.Value = "0";
 			}
 		}
 		#endregion

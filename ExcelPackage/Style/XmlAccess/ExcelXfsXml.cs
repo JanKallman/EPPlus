@@ -57,6 +57,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             _horizontalAlignment = GetHorizontalAlign(GetXmlNode(horizontalAlignPath));
             _wrapText = GetXmlNode(wrapTextPath) == "1" ? true : false;
             _textRotation = GetXmlNodeInt(textRotationPath);
+            _hidden = GetXmlNodeBool(hiddenPath);
+            _locked = GetXmlNodeBool(lockedPath,true);
         }
 
         private ExcelHorizontalAlignment GetHorizontalAlign(string align)
@@ -313,6 +315,32 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _textRotation = value;
             }
         }
+        const string lockedPath = "d:protection/@locked";
+        bool _locked = true;
+        public bool Locked
+        {
+            get
+            {
+                return _locked;
+            }
+            set
+            {
+                _locked = value;
+            }
+        }
+        const string hiddenPath = "d:protection/@hidden";
+        bool _hidden = false;
+        public bool Hidden
+        {
+            get
+            {
+                return _hidden;
+            }
+            set
+            {
+                _hidden = value;
+            }
+        }
         const string readingOrderPath = "d:alignment/@readingOrder";
         bool _readingOrder=false;
         public bool ReadingOrder
@@ -413,7 +441,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
             get
             {
-                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString();
+                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString(); 
                 //return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString(); 
             }
         }
@@ -430,6 +458,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             newXF.VerticalAlignment = _verticalAlignment;
             newXF.WrapText = _wrapText;
             newXF.TextRotation = _textRotation;
+            newXF.Locked = _locked;
+            newXF.Hidden = _hidden;
             return newXF;
         }
 
@@ -486,6 +516,12 @@ namespace OfficeOpenXml.Style.XmlAccess
                             break;
                         case eStyleProperty.TextRotation:
                             newXfs.TextRotation = (int)value;
+                            break;
+                        case eStyleProperty.Locked:
+                            newXfs.Locked = (bool)value;
+                            break;
+                        case eStyleProperty.Hidden:
+                            newXfs.Hidden = (bool)value;
                             break;
                         default:
                             throw (new Exception("Invalid property for class style."));
@@ -664,7 +700,6 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             return subId;
         }
-
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
             TopNode = topNode;
@@ -679,7 +714,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             if(_wrapText) this.SetXmlNode(wrapTextPath, "1");
             if(_readingOrder) this.SetXmlNode(readingOrderPath, "1");
             if (_textRotation>0) this.SetXmlNode(textRotationPath , _textRotation.ToString());
-
+            if (!_locked) this.SetXmlNode(lockedPath, "0");
+            if (_hidden) this.SetXmlNode(hiddenPath, "1");
             return TopNode;
         }
 

@@ -47,15 +47,6 @@ namespace ExcelPackageTest
         [ClassCleanup()]
         public static void MyClassCleanup()
         {
-            try
-            {
-                _pck.Save();
-            }
-            catch (Exception ex)
-            {
-                Assert.Fail(ex.Message);
-            }
-
             _pck = null;
         }
         [TestMethod]
@@ -156,7 +147,6 @@ namespace ExcelPackageTest
             ws.Column(2).Width = 8;
             ws.Column(3).Width = 20;
             ws.Column(4).Width = 14;
-
             ws.DeleteRow(1000, 3, true);
             ws.DeleteRow(2000, 1, true);
 
@@ -175,7 +165,8 @@ namespace ExcelPackageTest
             ws.DeleteRow(30, 3, true);
 
             ws.DeleteRow(15, 2, true);
-
+            ws.Cells["a1:B100"].Style.Locked = false;
+            ws.Cells["a1:B12"].Style.Hidden = true;
             TestContext.WriteLine("EndTime {0}", DateTime.Now);
         }
         [TestMethod]
@@ -191,7 +182,18 @@ namespace ExcelPackageTest
             ws.Cells["A11:B13"].Merge = true;
             ws.DeleteRow(12, 1,true);
 
+            ws.Cells["a1:B100"].Style.Locked = false;
+            ws.Cells["a1:B12"].Style.Hidden = true;
+            ws.Protection.IsProtected=true;
+            ws.Protection.SetPassword("Password");
+
             //Workbook.Worksheets.Delete(ws.Workbook.Worksheets.Count-1);
+        }
+
+        [TestMethod]
+        public void SaveWorksheet()
+        {
+            _pck.Save();
         }
     }
 }

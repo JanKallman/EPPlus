@@ -162,6 +162,23 @@ namespace OfficeOpenXml
         int _size { get; set; }
         #region "RangeID manipulation methods"
         /// <summary>
+        /// Insert a number of rows in the collecion but dont update the cell only the index
+        /// </summary>
+        /// <param name="rowID"></param>
+        /// <param name="rows"></param>
+        /// <returns>Index of first rangeItem</returns>
+        internal int InsertRowsUpdateIndex(ulong rowID, int rows)
+        {
+            int index = IndexOf(rowID);
+            if (index < 0) index = ~index; //No match found invert to get start cell
+            ulong rowAdd = (((ulong)rows) << 29);
+            for (int i = index; i < _cells.Count; i++)
+            {
+                _cellIndex[i].RangeID += rowAdd;
+            }
+            return index;
+        }
+        /// <summary>
         /// Insert a number of rows in the collecion
         /// </summary>
         /// <param name="rowID"></param>
@@ -184,13 +201,14 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="rowID"></param>
         /// <param name="rows"></param>
-        internal int DeleteRows(ulong rowID, int rows)
+        /// <param name="updateCells">Update range id's on cells</param>
+        internal int DeleteRows(ulong rowID, int rows, bool updateCells)
         {
             ulong rowAdd = (((ulong)rows) << 29);
             var index = IndexOf(rowID);
             if (index < 0) index = ~index; //No match found invert to get start cell
 
-            if (_cellIndex[index] == null) return -1;   //No row above this row
+            if (index >= _cells.Count || _cellIndex[index] == null) return -1;   //No row above this row
             while (_cellIndex[index].RangeID < rowID + rowAdd)
             {
                 Delete(_cellIndex[index].RangeID);
@@ -202,11 +220,11 @@ namespace OfficeOpenXml
             for (int i = updIndex; i < _cells.Count; i++)
             {
                 _cellIndex[i].RangeID -= rowAdd;                        //Change the index
-                _cells[_cellIndex[i].ListPointer].RangeID -= rowAdd;    //Change the cell/row or column object
+                if (updateCells) _cells[_cellIndex[i].ListPointer].RangeID -= rowAdd;    //Change the cell/row or column object
             }
             return index;
         }
-        internal void InsertColumn(ulong ColumnID,int columns)
+        internal void InsertColumn(ulong ColumnID, int columns)
         {
             throw (new Exception("Working on it..."));
         }

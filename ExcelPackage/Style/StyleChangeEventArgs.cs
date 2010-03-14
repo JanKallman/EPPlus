@@ -70,6 +70,8 @@ namespace OfficeOpenXml.Style
         ReadingOrder,
         WrapText,
         TextRotation,
+        Locked,
+        Hidden,
         ShrinkToFit,
         BorderDiagonalUp,
         BorderDiagonalDown,

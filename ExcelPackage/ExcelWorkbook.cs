@@ -181,7 +181,11 @@ namespace OfficeOpenXml
                     
                     if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
 
-                    int localSheetID = elem.GetAttribute("localSheetId") == null ? -1 : int.Parse(elem.GetAttribute("localSheetId"));
+                    int localSheetID;// = elem.GetAttribute("localSheetId")==null || elem.GetAttribute("localSheetId") == "" ? -1 : int.Parse(elem.GetAttribute("localSheetId"));
+                    if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
+                    {
+                        localSheetID = -1;
+                    }
                     ExcelNamedRange namedRange;
                     if (localSheetID > -1)
                     {

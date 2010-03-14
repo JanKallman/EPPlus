@@ -62,7 +62,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.HorizontalAlign, value, _positionID, _address));
             }
         }
-        const string verticalAlignPath = "d:alignment/@vertical";
         public ExcelVerticalAlignment VerticalAlignment
         {
             get
@@ -74,7 +73,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.VerticalAlign, value, _positionID, _address));
             }
         }
-        const string wrapTextPath = "d:alignment/@wrapText";
         public bool WrapText
         {
             get
@@ -86,7 +84,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.WrapText, value, _positionID, _address));
             }
         }
-        const string readingOrderPath = "d:alignment/@readingOrder";
         public bool ReadingOrder
         {
             get
@@ -98,7 +95,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ReadingOrder, value, _positionID, _address));
             }
         }
-        const string shrinkToFitPath = "d:alignment/@shrinkToFit";
         public bool ShrinkToFit
         {
             get
@@ -110,7 +106,6 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ShrinkToFit, value, _positionID, _address));
             }
         }
-        const string textRotationPath = "d:alignment/@textRotation";
         /// <summary>
         /// Text orientation in degrees. Values range from 0 to 180.
         /// </summary>
@@ -129,6 +124,36 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.TextRotation, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// If the cell is locked when the sheet is protected
+        /// </summary>
+        public bool Locked
+        {
+            get
+            {
+                return _styles.CellXfs[Index].Locked;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.Locked, value, _positionID, _address));
+            }
+        }
+        /// <summary>
+        /// If the cell is hidden when the sheet is protected
+        /// </summary>
+        public bool Hidden
+        {
+            get
+            {
+                return _styles.CellXfs[Index].Hidden;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.Hidden, value, _positionID, _address));
+            }
+        }
+
+
         const string xfIdPath = "@xfid";
         public int XfId 
         {

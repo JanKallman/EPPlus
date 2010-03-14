@@ -54,6 +54,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="ReadTemplate.cs" />
     <Compile Include="WorkSheet.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -64,6 +65,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="AuthoringTests.txt" />
+    <None Include="TestStart.orderedtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Resources\Test1.jpg" />
   </ItemGroup>
   <ItemGroup>

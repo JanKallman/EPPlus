@@ -92,6 +92,8 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ExcelCellAddress.cs" />
+    <Compile Include="ExcelSheetProtection.cs" />
     <Compile Include="RangeCollection.cs" />
     <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
     <Compile Include="Drawing\Chart\ExcelChartPlotArea.cs" />
@@ -140,7 +142,8 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)release</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
     <PreBuildEvent>
     </PreBuildEvent>
   </PropertyGroup>
