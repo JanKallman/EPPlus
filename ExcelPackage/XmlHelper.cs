@@ -249,13 +249,35 @@ namespace OfficeOpenXml
                 nameNode.InnerText = value;
             }
         }
-
+        internal void SetXmlNodeBool(string path, bool value, bool removeIf)
+        {
+            if (value == removeIf)
+            {
+                var node = TopNode.SelectSingleNode(path, NameSpaceManager);
+                if (node != null)
+                {
+                    TopNode.RemoveChild(node);
+                }
+            }
+            else
+            {
+                SetXmlNode(TopNode, path, value ? "1" : "0", false, false);
+            }
+        }
         internal bool GetXmlNodeBool(string path)
+        {
+            return GetXmlNodeBool(path, false);
+        }
+        internal bool GetXmlNodeBool(string path, bool blankValue)
         {
             string value=GetXmlNode(path);
             if (value == "1" || value == "-1" || value == "True")
             {
                 return true;
+            }
+            else if(value=="")
+            {
+                return blankValue;
             }
             else
             {

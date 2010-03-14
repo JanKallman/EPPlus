@@ -114,7 +114,11 @@ namespace ExcelPackageSamples
 				// now add a formula to show the total number of tins sold
 				// This actually adds "SUM(B2:B4)" as the formula
 				worksheet.Cells[5, 2].Formula = string.Format("SUM({0}:{1})", calcStartAddress, calcEndAddress);
-				// set the row height of the total row to be a bit bigger
+
+                //Create an autofilter for the range
+                worksheet.Cells["A1:C5"].AutoFilter = true;
+
+                // set the row height of the total row to be a bit bigger
 				worksheet.Row(5).Height = 20;
                 
                 // lets set the header text 
@@ -147,13 +151,12 @@ namespace ExcelPackageSamples
 				// set some custom property values
 				xlPackage.Workbook.Properties.SetCustomPropertyValue("Checked by", "John Tunnicliffe");
 				xlPackage.Workbook.Properties.SetCustomPropertyValue("EmployeeID", "1147");
-				xlPackage.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "ExcelPackage");
+				xlPackage.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
 
 				// save our new workbook and we are done!
 				xlPackage.Save();
 
 			}
-
 			// if you want to take a look at the XML created in the package, simply uncomment the following lines
 			// These copy the output file and give it a zip extension so you can open it and take a look!
 			//FileInfo zipFile = new FileInfo(outputDir.FullName + @"\sample1.zip");

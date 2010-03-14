@@ -27,7 +27,10 @@
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
- *******************************************************************************/
+ * Starnuto Di Topo & Jan Källman   Added stream constructors 
+ *                                  and Load method Save as 
+ *                                  stream                      2010-03-14
+ * *******************************************************************************/
 
 /* 
 * You may amend and distribute as you like, but don't remove this header!
@@ -76,7 +79,7 @@ namespace OfficeOpenXml
 	public class ExcelPackage : IDisposable
 	{
         internal const bool preserveWhitespace=false;
-        MemoryStream _stream = null;
+        Stream _stream = null;
 		#region Properties
 		/// <summary>
 		/// Provides access to the main schema used by all Excel components
@@ -158,6 +161,38 @@ namespace OfficeOpenXml
                 File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
             }
         }
+        /// <summary>
+        /// Creates a new instance of the Excelpackage class based on a stream
+        /// </summary>
+        /// <param name="Stream">The stream object can be empty or contain a package. For example use Response.OutputStream to output the workbook to a webclient</param>
+        public ExcelPackage(Stream newStream)
+        {
+            Init();
+            if (newStream.Length > 0)
+            {
+                _stream = newStream;
+                _stream.Seek(0, SeekOrigin.Begin);
+                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+            }
+            else
+            {
+                CreateBlankWb();
+            }
+        }
+        /// <summary>
+        /// Creates a new instance of the Excelpackage class based on a stream
+        /// </summary>
+        /// <param name="newStream">This stream is copied to the output stream at load</param>
+        /// <param name="templateStream">The output stream. For example Response.OutputStream to output the sheet to a webclient</param>
+        public ExcelPackage(Stream newStream, Stream templateStream)
+        {
+            if (newStream.Length > 0)
+            {
+                throw(new Exception("The output stream must be empty. Length > 0"));
+            }
+            Init();
+            Load(templateStream, newStream);
+        }        
         #endregion
         /// <summary>
         /// Init values here
@@ -448,7 +483,16 @@ namespace OfficeOpenXml
             File = file;
             Save();
         }
-        FileInfo _file=null;
+        /// <summary>
+        /// Copies the Package to the Outstream
+        /// Package is closed after it has been saved
+        /// </summary>
+        public void SaveAs(Stream OutputStream)
+        {
+            Save();
+            CopyStream(_stream, OutputStream);
+        }
+        FileInfo _file = null;
         /// <summary>
         /// The output file. Null if no file is used
         /// </summary>
@@ -526,6 +570,43 @@ namespace OfficeOpenXml
             Stream.Seek(pos, SeekOrigin.Begin);
             Stream.Close();
             return byRet;
+        }
+        /// <summary>
+        /// Loads the specified package data from a stream.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        public void Load(Stream input)
+        {
+            Load(input, new MemoryStream());
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="output"></param>
+        private void Load(Stream input, Stream output)
+        {
+            this._stream = output;
+            input.Seek(0, SeekOrigin.Begin);
+            CopyStream(input, this._stream);
+            this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
+        }
+        /// <summary>
+        /// Copies the input stream to the output stream.
+        /// </summary>
+        /// <param name="inputStream">The input stream.</param>
+        /// <param name="outputStream">The output stream.</param>
+        private static void CopyStream(Stream inputStream, Stream outputStream)
+        {
+            int bufferLength = 8096;
+            Byte[] buffer = new Byte[bufferLength];
+            int bytesRead = inputStream.Read(buffer, 0, bufferLength);
+            // write the required bytes
+            while (bytesRead > 0)
+            {
+                outputStream.Write(buffer, 0, bytesRead);
+                bytesRead = inputStream.Read(buffer, 0, bufferLength);
+            }
         }
 
     }

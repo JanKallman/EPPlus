@@ -297,7 +297,7 @@ namespace OfficeOpenXml
 				// <f>F6+F7+F8</f>
 				_formula = value;
                 _formulaR1C1 = "";
-                SharedFormulaID = int.MinValue;
+                _sharedFormulaID = int.MinValue;
                 if (_formula!="" && !_xlWorksheet._formulaCells.ContainsKey(CellID))
                 {
                     _xlWorksheet._formulaCells.Add(this);

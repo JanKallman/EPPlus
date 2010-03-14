@@ -339,7 +339,7 @@ namespace OfficeOpenXml
 				ExcelWorksheet xlWorksheet = null;
 				foreach (ExcelWorksheet worksheet in _worksheets.Values)
 				{
-					if (worksheet.Name == Name)
+                    if (worksheet.Name.ToLower() == Name.ToLower())
 						xlWorksheet = worksheet;
 				}
 				return (xlWorksheet);

@@ -58,7 +58,6 @@ namespace ExcelPackageTest
          [ClassCleanup()]
          public static void MyClassCleanup() 
          {
-             _pck.Save();
              _pck = null;         
          }
         
@@ -351,6 +350,11 @@ namespace ExcelPackageTest
             (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
+        }
+        [TestMethod]
+        public void SaveDrawing()
+        {
+            _pck.Save();
         }
     }
 }

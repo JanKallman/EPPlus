@@ -158,7 +158,7 @@ namespace ExcelPackageSamples
             shape.SetPosition(0, 5, 5, 5);
             shape.SetSize(400, 200);
 
-            shape.Text = "This example demonstrates how to create various drawing objects like Pictures, Shapes and charts.\n\r\n\rThe first sheet contains all subdirectories and files with an icon, name, size and dates.\n\r\n\rThe second sheet contains statistics about extensions and the top-10 largest files.";
+            shape.Text = "This example demonstrates how to create various drawing objects like pictures, shapes and charts.\n\r\n\rThe first sheet contains all subdirectories and files with an icon, name, size and dates.\n\r\n\rThe second sheet contains statistics about extensions and the top-10 largest files.";
             shape.Fill.Style = eFillStyle.SolidFill;
             shape.Fill.Color = Color.DarkSlateGray;
             shape.Fill.Transparancy = 20;

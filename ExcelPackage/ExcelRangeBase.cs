@@ -379,6 +379,39 @@ namespace OfficeOpenXml
                 return GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
             }
         }
+        ExcelCellAddress _startPosition=null;
+        /// <summary>
+        /// Gets the row and column of the top left cell.
+        /// </summary>
+        /// <value>The start row column.</value>
+        public ExcelCellAddress Start
+        {
+            get
+            {
+                if (_startPosition == null)
+                {
+                    _startPosition = new ExcelCellAddress(_fromRow, _fromCol);
+                }
+                return _startPosition;
+            }
+        }
+        ExcelCellAddress _endPosition = null;
+        /// <summary>
+        /// Gets the row and column if the bottom right cell.
+        /// </summary>
+        /// <value>The end row and column.</value>
+        public ExcelCellAddress End
+        {
+            get
+            {
+                if (_endPosition == null)
+                {
+                    _endPosition = new ExcelCellAddress(_toRow, _toCol);
+                }
+                return _endPosition;
+            }
+        }
+
         #endregion
         #region "Private Methods"
         /// <summary>
