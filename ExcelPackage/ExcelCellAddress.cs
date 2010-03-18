@@ -34,6 +34,9 @@ using System.Text;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// A single Cell address 
+    /// </summary>
     public class ExcelCellAddress
     {
         public ExcelCellAddress()

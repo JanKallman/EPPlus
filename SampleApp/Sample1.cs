@@ -78,7 +78,7 @@ namespace ExcelPackageSamples
 				xlPackage.DebugMode = true;
 
 				// add a new worksheet to the empty workbook
-				ExcelWorksheet worksheet = xlPackage.Workbook.Worksheets.Add("Tinned Goods");
+                ExcelWorksheet worksheet = xlPackage.Workbook.Worksheets.Add("Tinned Goods");
 				// write some strings into column 1
 				worksheet.Cells[1, 1].Value = "Product";
 				worksheet.Cells[2, 1].Value = "Broad Beans";
@@ -95,7 +95,7 @@ namespace ExcelPackageSamples
                 worksheet.Cells["A5:B5"].Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
                 worksheet.Cells["A5:B5"].Style.Font.Bold = true;
 
-                // increase the width of column one as these strings will be too wide to display
+                //Increase the width of column one as these strings will be too wide to display
 				worksheet.Column(1).Width = 15;
 
 				// write some values into column 2
@@ -116,7 +116,7 @@ namespace ExcelPackageSamples
 				worksheet.Cells[5, 2].Formula = string.Format("SUM({0}:{1})", calcStartAddress, calcEndAddress);
 
                 //Create an autofilter for the range
-                worksheet.Cells["A1:C5"].AutoFilter = true;
+                worksheet.Cells["A1:B5"].AutoFilter = true;
 
                 // set the row height of the total row to be a bit bigger
 				worksheet.Row(5).Height = 20;

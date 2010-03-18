@@ -119,13 +119,14 @@ namespace OfficeOpenXml.Style
             {
                 if (value < 0 || value > 180)
                 {
-                    throw new Exception("TextRotation out of range.");
+                    throw new ArgumentOutOfRangeException("TextRotation out of range.");
                 }
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.TextRotation, value, _positionID, _address));
             }
         }
         /// <summary>
-        /// If the cell is locked when the sheet is protected
+        /// If true the cell is locked for editing when the sheet is protected
+        /// <seealso cref="ExcelWorksheet.Protected"/>
         /// </summary>
         public bool Locked
         {
@@ -139,7 +140,8 @@ namespace OfficeOpenXml.Style
             }
         }
         /// <summary>
-        /// If the cell is hidden when the sheet is protected
+        /// If true the formula is hidden when the sheet is protected.
+        /// <seealso cref="ExcelWorksheet.Protected"/>
         /// </summary>
         public bool Hidden
         {

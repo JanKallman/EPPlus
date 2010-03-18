@@ -94,9 +94,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ExcelPackage\ExcelPackage.csproj">
+    <ProjectReference Include="..\ExcelPackage\EPPlus.csproj">
       <Project>{7B288026-5502-4A39-BF41-77E086F3E4A3}</Project>
-      <Name>ExcelPackage</Name>
+      <Name>EPPlus</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

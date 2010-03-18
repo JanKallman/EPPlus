@@ -27,41 +27,8 @@
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
+ * Jan Källman                      Total rewrite               2010-03-01
  *******************************************************************************/
-
-/* 
- * You may amend and distribute as you like, but don't remove this header!
- * 
- * ExcelPackage provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/ExcelPackage for details.
- * 
- * Copyright 2007 © Dr John Tunnicliffe 
- * mailto:dr.john.tunnicliffe@btinternet.com
- * All rights reserved.
- * 
- * ExcelPackage is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
- * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
- * All code and executables are provided "as is" with no warranty either express or implied. 
- * The author accepts no liability for any damage or loss of business that this product may cause.
- */
-
-/*
- * Code change notes:
- * 
- * Author							Change						Date
- * ******************************************************************************
- * John Tunnicliffe		Initial Release		01-Jan-2007
- * ******************************************************************************
- */
 using System;
 using System.Xml;
 using System.Collections.Generic;
@@ -119,9 +86,6 @@ namespace OfficeOpenXml
                     return _list.Count;
                 }
             }
-
-
-
             #region IEnumerable<T> Members
 
             public IEnumerator<T> GetEnumerator()
@@ -150,11 +114,6 @@ namespace OfficeOpenXml
         internal int _minCol = ExcelPackage.MaxColumns;
         internal int _maxCol = 0;
         internal List<ulong> _hyperLinkCells;   //Used when saving the sheet
-        /// <summary>
-		/// Temporary tag for all column numbers in the worksheet XML
-		/// For internal use only!
-		/// </summary>
-		protected internal const string tempColumnNumberTag = "colNumber"; 
 		/// <summary>
 		/// Reference to the parent package
 		/// For internal use only!
@@ -225,16 +184,17 @@ namespace OfficeOpenXml
         protected internal int PositionID { get { return (_positionID); } }
         /// <summary>
         /// Address for autofilter
+        /// <seealso cref="ExcelRangeBase.AutoFilter" />        
         /// </summary>
-        public string AutoFilterAddress
+        public ExcelAddress AutoFilterAddress
         {
             get
             {
-                return GetXmlNode("d:autoFilter/@ref");
+                return new ExcelAddress(GetXmlNode("d:autoFilter/@ref"));
             }
             internal set
             {
-                SetXmlNode("d:autoFilter/@ref", value);
+                SetXmlNode("d:autoFilter/@ref", value.Address);
             }
         }
 
@@ -909,7 +869,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Provide access to a range of cells
-        /// </summary>
+        /// </summary>  
         public ExcelRange Cells
         {
             get
@@ -918,7 +878,9 @@ namespace OfficeOpenXml
             }
         }
         MergeCellsCollection<string> _mergedCells = new MergeCellsCollection<string>();
-        //Dictionary<ulong, ExcelCell> addedMergedCells = new Dictionary<ulong, ExcelCell>();
+        /// <summary>
+        /// Addresses to merged ranges
+        /// </summary>
         public MergeCellsCollection<string> MergedCells
         {
             get
@@ -1033,84 +995,17 @@ namespace OfficeOpenXml
             View.SelectedRange = Address;
             View.ActiveCell = ExcelCell.GetAddress(fromRow, fromCol);
         }
-        /// <summary>
-        /// Inserts conditional formatting for the cell range.
-        /// Currently only supports the dataBar style.
-        /// </summary>
-        /// <param name="startCell"></param>
-        /// <param name="endCell"></param>
-        /// <param name="color"></param>
-        internal void CreateConditionalFormatting(ExcelCell startCell, ExcelCell endCell, string color)
-        {
-        //    XmlNode formatNode = WorksheetXml.SelectSingleNode("//d:conditionalFormatting", NameSpaceManager);
-        //    if (formatNode == null)
-        //    {
-        //        formatNode = WorksheetXml.CreateElement("conditionalFormatting", ExcelPackage.schemaMain);
-        //        XmlNode prevNode = WorksheetXml.SelectSingleNode("//d:mergeCells", NameSpaceManager);
-        //        if (prevNode == null)
-        //            prevNode = WorksheetXml.SelectSingleNode("//d:sheetData", NameSpaceManager);
-        //        WorksheetXml.DocumentElement.InsertAfter(formatNode, prevNode);
-        //    }
-        //    XmlAttribute attr = formatNode.Attributes["sqref"];
-        //    if (attr == null)
-        //    {
-        //        attr = WorksheetXml.CreateAttribute("sqref");
-        //        formatNode.Attributes.Append(attr);
-        //    }
-        //    attr.Value = string.Format("{0}:{1}", startCell.CellAddress, endCell.CellAddress);
-
-        //    XmlNode node = formatNode.SelectSingleNode("./d:cfRule", NameSpaceManager);
-        //    if (node == null)
-        //    {
-        //        node = WorksheetXml.CreateElement("cfRule", ExcelPackage.schemaMain);
-        //        formatNode.AppendChild(node);
-        //    }
-
-        //    attr = node.Attributes["type"];
-        //    if (attr == null)
-        //    {
-        //        attr = WorksheetXml.CreateAttribute("type");
-        //        node.Attributes.Append(attr);
-        //    }
-        //    attr.Value = "dataBar";
-
-        //    attr = node.Attributes["priority"];
-        //    if (attr == null)
-        //    {
-        //        attr = WorksheetXml.CreateAttribute("priority");
-        //        node.Attributes.Append(attr);
-        //    }
-        //    attr.Value = "1";
-
-        //    // the following is poor code, but just an example!!!
-        //    XmlNode databar = WorksheetXml.CreateElement("databar", ExcelPackage.schemaMain);
-        //    node.AppendChild(databar);
-
-        //    XmlNode child = WorksheetXml.CreateElement("cfvo", ExcelPackage.schemaMain);
-        //    databar.AppendChild(child);
-        //    attr = WorksheetXml.CreateAttribute("type");
-        //    child.Attributes.Append(attr);
-        //    attr.Value = "min";
-        //    attr = WorksheetXml.CreateAttribute("val");
-        //    child.Attributes.Append(attr);
-        //    attr.Value = "0";
-
-        //    child = WorksheetXml.CreateElement("cfvo", ExcelPackage.schemaMain);
-        //    databar.AppendChild(child);
-        //    attr = WorksheetXml.CreateAttribute("type");
-        //    child.Attributes.Append(attr);
-        //    attr.Value = "max";
-        //    attr = WorksheetXml.CreateAttribute("val");
-        //    child.Attributes.Append(attr);
-        //    attr.Value = "0";
-
-        //    child = WorksheetXml.CreateElement("color", ExcelPackage.schemaMain);
-        //    databar.AppendChild(child);
-        //    attr = WorksheetXml.CreateAttribute("rgb");
-        //    child.Attributes.Append(attr);
-        //    attr.Value = color;
-            throw(new NotImplementedException("Conditional formatting has been removed for now."));
-        }
+        ///// <summary>
+        ///// Inserts conditional formatting for the cell range.
+        ///// Currently only supports the dataBar style.
+        ///// </summary>
+        ///// <param name="startCell"></param>
+        ///// <param name="endCell"></param>
+        ///// <param name="color"></param>
+        //internal void CreateConditionalFormatting(ExcelCell startCell, ExcelCell endCell, string color)
+        //{
+        //    throw(new NotImplementedException("Conditional formatting has been removed for now."));
+        //}
 
 		#region InsertRow
 		/// <summary>
@@ -1361,16 +1256,11 @@ namespace OfficeOpenXml
         #region DeleteRow
         /// <summary>
         /// Deletes the specified row from the worksheet.
-        /// If shiftOtherRowsUp=true then all formula are updated to take account of the deleted row.
         /// </summary>
         /// <param name="rowFrom">The number of the start row to be deleted</param>
         /// <param name="rows">Number of rows to delete</param>
-        /// <param name="shiftOtherRowsUp">Set to true if you want the other rows renumbered so they all move up</param>
-        public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
-		{
-            //throw (new Exception("Insert and delete of rows has been removed for now."));
-
-            //int index = _cells.DeleteRows(ExcelRow.GetRowID(SheetID, rowFrom), rows);
+        public void DeleteRow(int rowFrom, int rows)
+        {
             ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
             _cells.DeleteRows(rowID, rows, true);
             _rows.DeleteRows(rowID, rows, true);
@@ -1378,11 +1268,31 @@ namespace OfficeOpenXml
 
             foreach (ExcelCell cell in _formulaCells)
             {
-                cell._formula= ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
+                cell._formula = ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
                 cell._formulaR1C1 = "";
             }
             FixSharedFormulasRows(rowFrom, -rows);
             AddMergedCells(rowFrom, -rows);
+        }
+        /// <summary>
+        /// Deletes the specified row from the worksheet.
+        /// </summary>
+        /// <param name="rowFrom">The number of the start row to be deleted</param>
+        /// <param name="rows">Number of rows to delete</param>
+        /// <param name="shiftOtherRowsUp">Not used. Rows are always shifted</param>
+        public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
+		{
+            if (shiftOtherRowsUp)
+            {
+                DeleteRow(rowFrom, rows);
+            }
+            else
+            {
+                ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
+                _cells.DeleteRows(rowID, rows, true);
+                _rows.DeleteRows(rowID, rows, true);
+                _formulaCells.DeleteRows(rowID, rows, false);
+            }
         }
 		#endregion
 
@@ -1432,7 +1342,7 @@ namespace OfficeOpenXml
 
                 if (_cells.Count > 0)
                 {
-                    this.SetXmlNode("d:dimension/@ref", Dimension);
+                    this.SetXmlNode("d:dimension/@ref", Dimension.Address);
                 }
 
                 SaveXml();
@@ -1805,25 +1715,29 @@ namespace OfficeOpenXml
             return _worksheetXml.DocumentElement.InsertAfter(hl, prevNode);
         }
         /// <summary>
-        /// Dimension address. 
+        /// Dimension address if the worksheet. 
         /// Top left cell to Bottom right.
+        /// If the worksheet has no cells, null is returned
         /// </summary>
-        public string Dimension
+        public ExcelAddress Dimension
         {
             get
             {
                 if (_cells.Count > 0)
                 {
-                    return ExcelCellBase.GetAddress((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
+                    return new ExcelAddress((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
                 }
                 else
                 {
-                    return "";
+                    return null;
                 }
 
             }
         }
         ExcelSheetProtection _protection=null;
+        /// <summary>
+        /// Access to sheet protection properties
+        /// </summary>
         public ExcelSheetProtection Protection
         {
             get

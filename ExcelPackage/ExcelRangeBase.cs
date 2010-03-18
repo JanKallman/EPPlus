@@ -36,11 +36,9 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml
 {
-    public class ExcelRangeBase : ExcelCellBase, IExcelCell, IDisposable
+    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable
     {
         protected ExcelWorksheet _worksheet;
-        protected int _fromRow = 1, _toRow = 1, _fromCol = 1, _toCol = 1;
-        protected string _address;
 
         #region "Constructors"
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
@@ -65,21 +63,6 @@ namespace OfficeOpenXml
         }   
         #endregion
         #region "Public Properties"
-        /// <summary>
-        /// The address for the range
-        /// </summary>
-        public string Address
-        {
-            get
-            {
-                return _address;
-            }
-            set
-            {
-                _address = value;
-                GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
-            }
-        }
         /// <summary>
         /// The styleobject for the range.
         /// </summary>
@@ -286,15 +269,14 @@ namespace OfficeOpenXml
         {
             get
             {
-                int autoFilterFromRow, autoFilterFromCol, autoFilterToRow, autoFilterToCol;
-                GetRowColFromAddress(_worksheet.AutoFilterAddress, out autoFilterFromRow, out autoFilterFromCol, out autoFilterToRow, out autoFilterToCol);
-                if (_fromRow >= autoFilterFromRow
+                ExcelAddress address = _worksheet.AutoFilterAddress;
+                if (_fromRow >= address.Start.Row
                     &&
-                    _toRow <= autoFilterToRow
+                    _toRow <= address.End.Row
                     &&
-                    _fromCol >= autoFilterFromCol
+                    _fromCol >= address.Start.Column
                     &&
-                    _toCol <= autoFilterToCol)
+                    _toCol <= address.End.Column)
                 {
                     return true;
                 }
@@ -302,7 +284,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                _worksheet.AutoFilterAddress = _address;
+                _worksheet.AutoFilterAddress = new ExcelAddress(_address);
                 if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
                 {
                     _worksheet.Names.Remove("_xlnm._FilterDatabase");
@@ -379,38 +361,34 @@ namespace OfficeOpenXml
                 return GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
             }
         }
-        ExcelCellAddress _startPosition=null;
-        /// <summary>
-        /// Gets the row and column of the top left cell.
-        /// </summary>
-        /// <value>The start row column.</value>
-        public ExcelCellAddress Start
-        {
-            get
-            {
-                if (_startPosition == null)
-                {
-                    _startPosition = new ExcelCellAddress(_fromRow, _fromCol);
-                }
-                return _startPosition;
-            }
-        }
-        ExcelCellAddress _endPosition = null;
-        /// <summary>
-        /// Gets the row and column if the bottom right cell.
-        /// </summary>
-        /// <value>The end row and column.</value>
-        public ExcelCellAddress End
-        {
-            get
-            {
-                if (_endPosition == null)
-                {
-                    _endPosition = new ExcelCellAddress(_toRow, _toCol);
-                }
-                return _endPosition;
-            }
-        }
+        //ExcelCellAddress _startPosition=null;
+        //public ExcelCellAddress Start
+        //{
+        //    get
+        //    {
+        //        if (_startPosition == null)
+        //        {
+        //            _startPosition = new ExcelCellAddress(_fromRow, _fromCol);
+        //        }
+        //        return _startPosition;
+        //    }
+        //}
+        //ExcelCellAddress _endPosition = null;
+        ///// <summary>
+        ///// Gets the row and column if the bottom right cell.
+        ///// </summary>
+        ///// <value>The end row and column.</value>
+        //public ExcelCellAddress End
+        //{
+        //    get
+        //    {
+        //        if (_endPosition == null)
+        //        {
+        //            _endPosition = new ExcelCellAddress(_toRow, _toCol);
+        //        }
+        //        return _endPosition;
+        //    }
+        //}
 
         #endregion
         #region "Private Methods"

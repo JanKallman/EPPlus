@@ -291,10 +291,6 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				// Example cell content for formulas
-				// <f>D7</f>
-				// <f>SUM(D6:D8)</f>
-				// <f>F6+F7+F8</f>
 				_formula = value;
                 _formulaR1C1 = "";
                 _sharedFormulaID = int.MinValue;
@@ -305,6 +301,9 @@ namespace OfficeOpenXml
 			}
         }
         internal string _formulaR1C1="";
+        /// <summary>
+        /// Provides read/write access to the cell's formula using R1C1 style.
+        /// </summary>
         public string FormulaR1C1
         {
             get

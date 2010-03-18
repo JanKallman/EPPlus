@@ -27,41 +27,8 @@
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
- *******************************************************************************/
-
-/* 
- * You may amend and distribute as you like, but don't remove this header!
- * 
- * ExcelPackage provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/ExcelPackage for details.
- * 
- * Copyright 2007 © Dr John Tunnicliffe 
- * mailto:dr.john.tunnicliffe@btinternet.com
- * All rights reserved.
- * 
- * ExcelPackage is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
- * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
- * All code and executables are provided "as is" with no warranty either express or implied. 
- * The author accepts no liability for any damage or loss of business that this product may cause.
- */
-
-/*
- * Code change notes:
- * 
- * Author							Change						Date
- * ******************************************************************************
- * John Tunnicliffe		Initial Release		01-Jan-2007
- * ******************************************************************************
- */
+ * Jan Källman                      Total rewrite               2010-03-01
+ * *******************************************************************************/
 using System;
 using System.Xml;
 using System.IO;
@@ -71,7 +38,7 @@ using System.Globalization;
 namespace OfficeOpenXml
 {
 	/// <summary>
-	/// Provides access to the properties bag of any office document (i.e. Word, Excel etc.)
+	/// Provides access to the properties bag of the package
 	/// </summary>
 	public class OfficeProperties : XmlHelper
 	{
@@ -87,7 +54,7 @@ namespace OfficeOpenXml
         XmlHelper _coreHelper;
         XmlHelper _extendedHelper;
         XmlHelper _customHelper;
-        private ExcelPackage _xlPackage;
+        private ExcelPackage _package;
 		#endregion 
 
 		#region ExcelProperties Constructor
@@ -98,7 +65,7 @@ namespace OfficeOpenXml
 		public OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) : 
             base(ns)
 		{
-			_xlPackage = xlPackage;
+			_package = xlPackage;
             _coreHelper = new XmlHelper(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));             
             _extendedHelper = new XmlHelper(ns, ExtendedPropertiesXml);
             _customHelper = new XmlHelper(ns, CustomPropertiesXml);
@@ -132,8 +99,8 @@ namespace OfficeOpenXml
 			{
 				if (_xmlPropertiesCore == null)
 				{
-					if (_xlPackage.Package.PartExists(CorePropertiesUri))
-						_xmlPropertiesCore = _xlPackage.GetXmlFromUri(CorePropertiesUri);
+					if (_package.Package.PartExists(CorePropertiesUri))
+						_xmlPropertiesCore = _package.GetXmlFromUri(CorePropertiesUri);
 					else
 					{
                         _xmlPropertiesCore = new XmlDocument();
@@ -145,7 +112,7 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaXsi));
 
                         // create a new document properties part and add to the package
-						PackagePart partCore = _xlPackage.Package.CreatePart(CorePropertiesUri, @"application/vnd.openxmlformats-package.core-properties+xml");
+						PackagePart partCore = _package.Package.CreatePart(CorePropertiesUri, @"application/vnd.openxmlformats-package.core-properties+xml");
 
 						// create the document properties XML (with no entries in it)
 
@@ -154,11 +121,11 @@ namespace OfficeOpenXml
 						StreamWriter streamCore = new StreamWriter(partCore.GetStream(FileMode.Create, FileAccess.Write));
 						_xmlPropertiesCore.Save(streamCore);
 						streamCore.Close();
-						_xlPackage.Package.Flush();
+						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						_xlPackage.Package.CreateRelationship(CorePropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
-						_xlPackage.Package.Flush();
+						_package.Package.CreateRelationship(CorePropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
+						_package.Package.Flush();
 					}
 				}
 				return (_xmlPropertiesCore);
@@ -320,8 +287,8 @@ namespace OfficeOpenXml
 			{
                 if (_xmlPropertiesExtended == null)
                 {
-                    if (_xlPackage.Package.PartExists(ExtendedPropertiesUri))
-                        _xmlPropertiesExtended = _xlPackage.GetXmlFromUri(ExtendedPropertiesUri);
+                    if (_package.Package.PartExists(ExtendedPropertiesUri))
+                        _xmlPropertiesExtended = _package.GetXmlFromUri(ExtendedPropertiesUri);
                     else
                     {
                         _xmlPropertiesExtended = new XmlDocument();
@@ -330,17 +297,17 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaExtended));
 
                         // create a new document properties part and add to the package
-                        PackagePart partExtended = _xlPackage.Package.CreatePart(ExtendedPropertiesUri, @"application/vnd.openxmlformats-officedocument.extended-properties+xml");
+                        PackagePart partExtended = _package.Package.CreatePart(ExtendedPropertiesUri, @"application/vnd.openxmlformats-officedocument.extended-properties+xml");
 
                         // save it to the package
                         StreamWriter streamExtended = new StreamWriter(partExtended.GetStream(FileMode.Create, FileAccess.Write));
                         _xmlPropertiesExtended.Save(streamExtended);
                         streamExtended.Close();
-                        _xlPackage.Package.Flush();
+                        _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _xlPackage.Package.CreateRelationship(ExtendedPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
-                        _xlPackage.Package.Flush();
+                        _package.Package.CreateRelationship(ExtendedPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
+                        _package.Package.Flush();
                     }
                 }
                 return (_xmlPropertiesExtended);
@@ -423,8 +390,8 @@ namespace OfficeOpenXml
 			{
                 if (_xmlPropertiesCustom == null)
                 {
-                    if (_xlPackage.Package.PartExists(CustomPropertiesUri))
-                        _xmlPropertiesCustom = _xlPackage.GetXmlFromUri(CustomPropertiesUri);
+                    if (_package.Package.PartExists(CustomPropertiesUri))
+                        _xmlPropertiesCustom = _package.GetXmlFromUri(CustomPropertiesUri);
                     else
                     {
                         _xmlPropertiesCustom = new XmlDocument();
@@ -433,17 +400,17 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaCustom));
 
                         // create a new document properties part and add to the package
-                        PackagePart partCustom = _xlPackage.Package.CreatePart(CustomPropertiesUri, @"application/vnd.openxmlformats-officedocument.custom-properties+xml");
+                        PackagePart partCustom = _package.Package.CreatePart(CustomPropertiesUri, @"application/vnd.openxmlformats-officedocument.custom-properties+xml");
 
                         // save it to the package
                         StreamWriter streamCustom = new StreamWriter(partCustom.GetStream(FileMode.Create, FileAccess.Write));
                         _xmlPropertiesCustom.Save(streamCustom);
                         streamCustom.Close();
-                        _xlPackage.Package.Flush();
+                        _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _xlPackage.Package.CreateRelationship(CustomPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
-                        _xlPackage.Package.Flush();
+                        _package.Package.CreateRelationship(CustomPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
+                        _package.Package.Flush();
                     }
                 }
                 return (_xmlPropertiesCustom);
@@ -609,24 +576,24 @@ namespace OfficeOpenXml
 
 		#region Save  // OfficeProperties save
 		/// <summary>
-		/// Saves the office document properties back to the package (if they exist!).
+		/// Saves the office document properties back to the package.
 		/// </summary>
 		protected internal void Save()
 		{
 			if (_xmlPropertiesCore != null)
 			{
-				_xlPackage.WriteDebugFile(_xmlPropertiesCore, "docProps", "core.xml");
-				_xlPackage.SavePart(CorePropertiesUri, _xmlPropertiesCore);
+				_package.WriteDebugFile(_xmlPropertiesCore, "docProps", "core.xml");
+				_package.SavePart(CorePropertiesUri, _xmlPropertiesCore);
 			}
 			if (_xmlPropertiesExtended != null)
 			{
-				_xlPackage.WriteDebugFile(_xmlPropertiesExtended, "docProps", "app.xml");
-				_xlPackage.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
+				_package.WriteDebugFile(_xmlPropertiesExtended, "docProps", "app.xml");
+				_package.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
 			}
 			if (_xmlPropertiesCustom != null)
 			{
-				_xlPackage.WriteDebugFile(_xmlPropertiesCustom, "docProps", "custom.xml");
-				_xlPackage.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
+				_package.WriteDebugFile(_xmlPropertiesCustom, "docProps", "custom.xml");
+				_package.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
 			}
 
 		}

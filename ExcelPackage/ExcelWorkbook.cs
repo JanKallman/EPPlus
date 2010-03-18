@@ -28,40 +28,6 @@
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
  *******************************************************************************/
-
-/* 
- * You may amend and distribute as you like, but don't remove this header!
- * 
- * ExcelPackage provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/ExcelPackage for details.
- * 
- * Copyright 2007 © Dr John Tunnicliffe 
- * mailto:dr.john.tunnicliffe@btinternet.com
- * All rights reserved.
- * 
- * ExcelPackage is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
- * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
- * All code and executables are provided "as is" with no warranty either express or implied. 
- * The author accepts no liability for any damage or loss of business that this product may cause.
- */
-
-/*
- * Code change notes:
- * 
- * Author							Change						Date
- * ******************************************************************************
- * John Tunnicliffe		Initial Release		01-Jan-2007
- * ******************************************************************************
- */
 using System;
 using System.Xml;
 using System.IO;
@@ -106,7 +72,7 @@ namespace OfficeOpenXml
             internal bool isRichText = false;
         }
         #region Private Properties
-		internal ExcelPackage _xlPackage;
+		internal ExcelPackage _package;
 		// we have to hard code these uris as we need them to create a workbook from scratch
 		private Uri _uriWorkbook = new Uri("/xl/workbook.xml", UriKind.Relative);
 		private Uri _uriSharedStrings = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
@@ -132,7 +98,7 @@ namespace OfficeOpenXml
 		protected internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
             base(namespaceManager)
 		{
-			_xlPackage = xlPackage;
+			_package = xlPackage;
             CreateWorkbookXml();
             TopNode = WorkbookXml.DocumentElement;
             SchemaNodeOrder= new string[] {"fileVersion", "workbookPr", "bookViews", "sheets", "definedNames", "calcPr"};
@@ -209,7 +175,7 @@ namespace OfficeOpenXml
 			{
 				if (_worksheets == null)
 				{
-					_worksheets = new ExcelWorksheets(_xlPackage);
+					_worksheets = new ExcelWorksheets(_package);
 				}
 				return (_worksheets);
 			}
@@ -253,7 +219,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Returns a reference to the workbook's part within the package
 		/// </summary>
-		protected internal PackagePart Part { get { return (_xlPackage.Package.GetPart(WorkbookUri)); } }
+		protected internal PackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
 		
 		#region WorkbookXml
 		/// <summary>
@@ -275,12 +241,12 @@ namespace OfficeOpenXml
         /// </summary>
         private void CreateWorkbookXml()
         {
-            if (_xlPackage.Package.PartExists(WorkbookUri))
-                _xmlWorkbook = _xlPackage.GetXmlFromUri(WorkbookUri);
+            if (_package.Package.PartExists(WorkbookUri))
+                _xmlWorkbook = _package.GetXmlFromUri(WorkbookUri);
             else
             {
                 // create a new workbook part and add to the package
-                PackagePart partWorkbook = _xlPackage.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _xlPackage.Compression);
+                PackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
 
                 // create the workbook
                 _xmlWorkbook = new XmlDocument();
@@ -305,7 +271,7 @@ namespace OfficeOpenXml
                 StreamWriter streamWorkbook = new StreamWriter(partWorkbook.GetStream(FileMode.Create, FileAccess.Write));
                 _xmlWorkbook.Save(streamWorkbook);
                 streamWorkbook.Close();
-                _xlPackage.Package.Flush();
+                _package.Package.Flush();
             }
         }
 		#endregion
@@ -321,12 +287,12 @@ namespace OfficeOpenXml
 			{
 				if (_xmlSharedStrings == null)
 				{
-					if (_xlPackage.Package.PartExists(SharedStringsUri))
-						_xmlSharedStrings = _xlPackage.GetXmlFromUri(SharedStringsUri);
+					if (_package.Package.PartExists(SharedStringsUri))
+						_xmlSharedStrings = _package.GetXmlFromUri(SharedStringsUri);
 					else
 					{
 						// create a new sharedStrings part and add to the package
-                        PackagePart partStrings = _xlPackage.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _xlPackage.Compression);
+                        PackagePart partStrings = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
 
 						// create the shared strings xml doc (with no entries in it)
 						_xmlSharedStrings = new XmlDocument();
@@ -337,11 +303,11 @@ namespace OfficeOpenXml
 						StreamWriter streamStrings = new StreamWriter(partStrings.GetStream(FileMode.Create, FileAccess.Write));
 						_xmlSharedStrings.Save(streamStrings);
 						streamStrings.Close();
-						_xlPackage.Package.Flush();
+						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
 						Part.CreateRelationship(SharedStringsUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
-						_xlPackage.Package.Flush();
+						_package.Package.Flush();
 					}
 				}
 				return (_xmlSharedStrings);
@@ -359,12 +325,12 @@ namespace OfficeOpenXml
 			{
 				if (_xmlStyles == null)
 				{
-					if (_xlPackage.Package.PartExists(StylesUri))
-						_xmlStyles = _xlPackage.GetXmlFromUri(StylesUri);
+					if (_package.Package.PartExists(StylesUri))
+						_xmlStyles = _package.GetXmlFromUri(StylesUri);
 					else
 					{
 						// create a new styles part and add to the package
-                        PackagePart partSyles = _xlPackage.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _xlPackage.Compression);
+                        PackagePart partSyles = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
 						// create the style sheet
 						_xmlStyles = new XmlDocument();
 						XmlElement tagStylesheet = _xmlStyles.CreateElement("styleSheet", ExcelPackage.schemaMain);
@@ -452,11 +418,11 @@ namespace OfficeOpenXml
 
 						_xmlStyles.Save(streamStyles);
 						streamStyles.Close();
-						_xlPackage.Package.Flush();
+						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						_xlPackage.Workbook.Part.CreateRelationship(StylesUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
-						_xlPackage.Package.Flush();
+						_package.Workbook.Part.CreateRelationship(StylesUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
+						_package.Package.Flush();
 					}
 				}
 				return (_xmlStyles);
@@ -494,7 +460,7 @@ namespace OfficeOpenXml
                 {
                     //  Create a NamespaceManager to handle the default namespace, 
                     //  and create a prefix for the default namespace:                   
-                    _properties = new OfficeProperties(_xlPackage, NameSpaceManager);
+                    _properties = new OfficeProperties(_package, NameSpaceManager);
                 }
 				return _properties;
 			}
@@ -558,7 +524,6 @@ namespace OfficeOpenXml
 				element.SetAttribute("calcMode", actualValue);
 			}
 			#endregion
-
 		}
 		#endregion
 
@@ -578,20 +543,20 @@ namespace OfficeOpenXml
 			#region Delete calcChain component
 			// if the calcChain component exists, we should delete it to force Excel to recreate it
 			// when the spreadsheet is next opened
-			if (_xlPackage.Package.PartExists(_uriCalcChain))
+			if (_package.Package.PartExists(_uriCalcChain))
 			{
 				//  there will be a relationship with the workbook, so first delete the relationship
 				Uri calcChain = new Uri("calcChain.xml", UriKind.Relative);
-				foreach (PackageRelationship relationship in _xlPackage.Workbook.Part.GetRelationships())
+				foreach (PackageRelationship relationship in _package.Workbook.Part.GetRelationships())
 				{
 					if (relationship.TargetUri == calcChain)
 					{
-						_xlPackage.Workbook.Part.DeleteRelationship(relationship.Id);
+						_package.Workbook.Part.DeleteRelationship(relationship.Id);
 						break;
 					}
 				}
 				// delete the calcChain component
-				_xlPackage.Package.DeletePart(_uriCalcChain);
+				_package.Package.DeletePart(_uriCalcChain);
 			}
 			#endregion
 
@@ -599,8 +564,8 @@ namespace OfficeOpenXml
 			// save the workbook
 			if (_xmlWorkbook != null)
 			{
-				_xlPackage.SavePart(WorkbookUri, _xmlWorkbook);
-				_xlPackage.WriteDebugFile(_xmlWorkbook, "xl", "workbook.xml");
+				_package.SavePart(WorkbookUri, _xmlWorkbook);
+				_package.WriteDebugFile(_xmlWorkbook, "xl", "workbook.xml");
 			}
 
 			// save the properties of the workbook
@@ -611,34 +576,22 @@ namespace OfficeOpenXml
 
 			// save the style sheet
             Styles.UpdateXml();
-			_xlPackage.SavePart(StylesUri, _xmlStyles);
-			_xlPackage.WriteDebugFile(_xmlStyles, "xl", "styles.xml");
+			_package.SavePart(StylesUri, _xmlStyles);
+			_package.WriteDebugFile(_xmlStyles, "xl", "styles.xml");
 
             // save all the open worksheets
             foreach (ExcelWorksheet worksheet in Worksheets)
             {
                 worksheet.Save();
             }
-
-            ////Update the sheet xml
-            //foreach (ExcelWorksheet worksheet in Worksheets)
-            //{
-            //    worksheet.UpdateSheetXml();
-            //}
             
             // save the shared strings
 			if (_xmlSharedStrings != null)
 			{
                 UpdateSharedStringsXml();
-                _xlPackage.SavePart(SharedStringsUri, _xmlSharedStrings);
-				_xlPackage.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
+                _package.SavePart(SharedStringsUri, _xmlSharedStrings);
+				_package.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
 			}
-
-            //// save all the open worksheets
-            //foreach (ExcelWorksheet worksheet in Worksheets)
-            //{
-            //    worksheet.Save();
-            //}
 		}
 
         private void UpdateSharedStringsXml()
