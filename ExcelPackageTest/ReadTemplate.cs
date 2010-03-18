@@ -35,7 +35,7 @@ namespace ExcelPackageTest
         [TestMethod]
         public void ReadStreamWithTemplateWorkSheet()
         {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.Read);
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(stream, instream))
             {

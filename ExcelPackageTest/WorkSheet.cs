@@ -138,11 +138,11 @@ namespace ExcelPackageTest
                 ws.Cells[i, 2].Style.WrapText = true;
                 ws.Cells[i,3].Value=DateTime.Now;
                 ws.Cells[i, 4].Value = r.NextDouble()*100000;                
-            }
+            }            
             ws.Cells[1, 2, PERF_ROWS, 2].Style.Numberformat.Format="#,##0";
             ws.Cells[1, 3, PERF_ROWS, 3].Style.Numberformat.Format = "yyyy-MM-dd HH:mm:ss";
             ws.Cells[1, 4, PERF_ROWS, 4].Style.Numberformat.Format = "#,##0.00";
-
+            ws.Cells[PERF_ROWS + 1, 2].Formula = "SUM(B1:B" + PERF_ROWS.ToString() +")";
             ws.Column(1).Width = 12;
             ws.Column(2).Width = 8;
             ws.Column(3).Width = 20;
@@ -154,13 +154,17 @@ namespace ExcelPackageTest
 
             ws.InsertRow(2010, 1);
 
+            ws.InsertRow(20000, 2);
+
+            ws.DeleteRow(20005, 4, false);
+
             //Single formula
             ws.Cells["H3"].Formula = "B2+B3";
             ws.DeleteRow(2, 1, true);
 
             //Shared formula
             ws.Cells["H5:H30"].Formula = "B4+B5";
-            ws.InsertRow(7, 1);
+            ws.InsertRow(7, 3);
             ws.InsertRow(2, 1);
             ws.DeleteRow(30, 3, true);
 

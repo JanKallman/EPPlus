@@ -31,40 +31,6 @@
  *                                  and Load method Save as 
  *                                  stream                      2010-03-14
  * *******************************************************************************/
-
-/* 
-* You may amend and distribute as you like, but don't remove this header!
-* 
-* ExcelPackage provides server-side generation of Excel 2007 spreadsheets.
-* See http://www.codeplex.com/ExcelPackage for details.
-* 
-* Copyright 2007 © Dr John Tunnicliffe 
-* mailto:dr.john.tunnicliffe@btinternet.com
-* All rights reserved.
-* 
-* ExcelPackage is an Open Source project provided under the 
-* GNU General Public License (GPL) as published by the 
-* Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-* 
-* The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
-* If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
-* 
-* The code for this project may be used and redistributed by any means PROVIDING it is 
-* not sold for profit without the author's written consent, and providing that this notice 
-* and the author's name and all copyright notices remain intact.
-* 
-* All code and executables are provided "as is" with no warranty either express or implied. 
-* The author accepts no liability for any damage or loss of business that this product may cause.
-*/
-
-/*
- * Code change notes:
- * 
- * Author							Change						Date
- * ******************************************************************************
- * John Tunnicliffe		Initial Release		01-Jan-2007
- * ******************************************************************************
- */
 using System;
 using System.Xml;
 using System.IO;
@@ -167,11 +133,18 @@ namespace OfficeOpenXml
         /// <param name="Stream">The stream object can be empty or contain a package. For example use Response.OutputStream to output the workbook to a webclient</param>
         public ExcelPackage(Stream newStream)
         {
+            if (!(newStream.CanRead && newStream.CanWrite))
+            {
+                throw new Exception("The stream must be read/write");
+            }
             Init();
             if (newStream.Length > 0)
             {
                 _stream = newStream;
-                _stream.Seek(0, SeekOrigin.Begin);
+                if (newStream.CanSeek)
+                {
+                    _stream.Seek(0, SeekOrigin.Begin);
+                }
                 _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
@@ -189,6 +162,10 @@ namespace OfficeOpenXml
             if (newStream.Length > 0)
             {
                 throw(new Exception("The output stream must be empty. Length > 0"));
+            }
+            else if (!(newStream.CanRead && newStream.CanWrite))
+            {
+                throw new Exception("The stream must be read/write");
             }
             Init();
             Load(templateStream, newStream);
@@ -219,7 +196,6 @@ namespace OfficeOpenXml
                 throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
             //return newFile;
         }
-
         private void ConstructNewFile()
         {
             _stream = new MemoryStream();
@@ -235,7 +211,6 @@ namespace OfficeOpenXml
                 CreateBlankWb();
             }
         }
-
         private void CreateBlankWb()
         {
             // save a temporary part to create the default application/xml content type
@@ -324,60 +299,6 @@ namespace OfficeOpenXml
 				}
 				XmlDoc.Save(file.FullName);
 			}
-		}
-		#endregion
-
-		
-		///// <summary>
-		///// Returns the Uri to a parent part (e.g. workbook.xml) 
-		///// </summary>
-		///// <param name="Relationship">The relationship the </param>
-		///// <returns></returns>
-		//protected internal Uri GetMainUri(string Relationship)
-		//{
-		//  Uri uriMain = null;
-		//  //  Get the Uri to the main part
-		//  Uri uriParent = new Uri("/", UriKind.Relative);
-		//  PackageRelationship relationship = GetMainRelationship(Relationship);
-		//  if (relationship != null)
-		//    uriMain = PackUriHelper.ResolvePartUri(uriParent, relationship.TargetUri);
-		//  return (uriMain);
-		//}
-
-		///// <summary>
-		///// 
-		///// </summary>
-		///// <param name="Relationship"></param>
-		///// <returns></returns>
-		//protected internal PackageRelationship GetMainRelationship(string Relationship)
-		//{
-		//  PackageRelationship relMain = null;
-		//  foreach (PackageRelationship relationship in _package.GetRelationshipsByType(schemaRelationships + "/" + Relationship))
-		//  {
-		//    relMain = relationship;
-		//    break;  //  There should only be one main part
-		//  }
-		//  return (relMain);
-		//}
-
-		#region GetSharedUri
-		/// <summary>
-		/// Obtains the Uri to a shared part (e.g. sharedstrings.xml)
-		/// </summary>
-		/// <param name="uriParent">Uri to the parent component</param>
-		/// <param name="Relationship">The relationship to the parent component</param>
-		/// <returns>The Uri to a shared part</returns>
-		protected internal Uri GetSharedUri(Uri uriParent, string Relationship)
-		{
-			Uri uriShared = null;
-			PackagePart partParent = _package.GetPart(uriParent);
-			//  Get the Uri to the shared part
-			foreach (System.IO.Packaging.PackageRelationship relationship in partParent.GetRelationshipsByType(schemaRelationships + "/" + Relationship))
-			{
-				uriShared = PackUriHelper.ResolvePartUri(uriParent, relationship.TargetUri);
-				break;  //  There should only be one shared resource
-			}
-			return (uriShared);
 		}
 		#endregion
 
@@ -490,7 +411,7 @@ namespace OfficeOpenXml
         public void SaveAs(Stream OutputStream)
         {
             Save();
-            CopyStream(_stream, OutputStream);
+            CopyStream(_stream, ref OutputStream);
         }
         FileInfo _file = null;
         /// <summary>
@@ -587,8 +508,7 @@ namespace OfficeOpenXml
         private void Load(Stream input, Stream output)
         {
             this._stream = output;
-            input.Seek(0, SeekOrigin.Begin);
-            CopyStream(input, this._stream);
+            CopyStream(input, ref this._stream);
             this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
         }
         /// <summary>
@@ -596,8 +516,21 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="inputStream">The input stream.</param>
         /// <param name="outputStream">The output stream.</param>
-        private static void CopyStream(Stream inputStream, Stream outputStream)
+        private static void CopyStream(Stream inputStream, ref Stream outputStream)
         {
+            if (!inputStream.CanRead)
+            {
+                throw (new Exception("Can not read from inputstream"));
+            }
+            if (!outputStream.CanWrite)
+            {
+                throw (new Exception("Can not write to outputstream"));
+            }
+            if (inputStream.CanSeek)
+            {
+                inputStream.Seek(0, SeekOrigin.Begin);
+            }
+
             int bufferLength = 8096;
             Byte[] buffer = new Byte[bufferLength];
             int bytesRead = inputStream.Read(buffer, 0, bufferLength);
@@ -608,6 +541,5 @@ namespace OfficeOpenXml
                 bytesRead = inputStream.Read(buffer, 0, bufferLength);
             }
         }
-
     }
 }
