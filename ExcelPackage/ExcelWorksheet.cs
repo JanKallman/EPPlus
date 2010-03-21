@@ -140,13 +140,13 @@ namespace OfficeOpenXml
         /// <param name="sheetName">Name of the sheet</param>
         /// <param name="SheetID">Sheet id</param>
         /// <param name="PositionID">Position</param>
-        /// <param name="Hide">Hidden</param>
+        /// <param name="Hide">hide</param>
         public ExcelWorksheet(XmlNamespaceManager ns, ExcelPackage excelPackage, string relID, 
                               Uri uriWorksheet, string sheetName, int sheetID, int positionID,
                               bool hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "drawing" };
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing" };
             xlPackage = excelPackage;
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -186,11 +186,11 @@ namespace OfficeOpenXml
         /// Address for autofilter
         /// <seealso cref="ExcelRangeBase.AutoFilter" />        
         /// </summary>
-        public ExcelAddress AutoFilterAddress
+        public ExcelAddressBase AutoFilterAddress
         {
             get
             {
-                return new ExcelAddress(GetXmlNode("d:autoFilter/@ref"));
+                return new ExcelAddressBase(GetXmlNode("d:autoFilter/@ref"));
             }
             internal set
             {
@@ -540,7 +540,6 @@ namespace OfficeOpenXml
             //if (xml != "")
             //{
                 //var xr=new XmlTextReader(new StringReader(xml));
-                xr.Read(); 
                 while(xr.Read())
                 {
                     if(xr.Name!="col") break;
@@ -860,7 +859,7 @@ namespace OfficeOpenXml
 		/// <returns></returns>		
         internal ExcelCell Cell(int row, int col)
         {
-            ulong cellID=ExcelCell.GetCellID(SheetID, row,col);
+            ulong cellID=ExcelCell.GetCellID(SheetID, row, col);
             if (!_cells.ContainsKey(cellID))
             {
                 _cells.Add(new ExcelCell(this, row, col));
@@ -1450,10 +1449,7 @@ namespace OfficeOpenXml
                 {
                     sw.Write(" bestFit=\"1\"");
                 }
-                if (col.Width != defaultColWidth)
-                {
-                    sw.Write(string.Format(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width));
-                }
+                sw.Write(string.Format(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width));
                 if (col.OutlineLevel > 0)
                 {                    
                     sw.Write(" outlineLevel=\"{0}\" ", col.OutlineLevel);
@@ -1719,13 +1715,13 @@ namespace OfficeOpenXml
         /// Top left cell to Bottom right.
         /// If the worksheet has no cells, null is returned
         /// </summary>
-        public ExcelAddress Dimension
+        public ExcelAddressBase Dimension
         {
             get
             {
                 if (_cells.Count > 0)
                 {
-                    return new ExcelAddress((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
+                    return new ExcelAddressBase((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
                 }
                 else
                 {

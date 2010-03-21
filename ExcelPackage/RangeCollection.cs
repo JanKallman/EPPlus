@@ -41,7 +41,7 @@ namespace OfficeOpenXml
     /// </summary>
     internal class RangeCollection : IEnumerator<IRangeID>, IEnumerable
     {
-        private sealed class IndexItem : IComparer<IndexItem>
+        private class IndexItem //: IComparer<IndexItem>
         {
             internal IndexItem(ulong cellId)
             {
@@ -54,10 +54,10 @@ namespace OfficeOpenXml
 	        }
             internal ulong RangeID;
             internal int ListPointer;
-            int IComparer<IndexItem>.Compare(IndexItem x, IndexItem y)
-            {
-                return x.RangeID < y.RangeID ? -1 : x.RangeID > y.RangeID ? 1 : 0;
-            }
+            //int IComparer<IndexItem>.Compare(IndexItem x, IndexItem y)
+            //{
+            //    return x.RangeID < y.RangeID ? -1 : x.RangeID > y.RangeID ? 1 : 0;
+            //}
         }
         /// <summary>
         /// Compares an IndexItem
@@ -65,7 +65,6 @@ namespace OfficeOpenXml
         internal class Compare : IComparer<IndexItem>
         {
             #region IComparer<IndexItem> Members
-
             int IComparer<IndexItem>.Compare(IndexItem x, IndexItem y)
             {
                 return x.RangeID < y.RangeID ? -1 : x.RangeID > y.RangeID ? 1 : 0;
@@ -81,7 +80,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="cells">The Cells. This list must be sorted</param>
         internal RangeCollection(List<IRangeID> cells)
-        {
+        {   
             _cells = cells;
             _comparer = new Compare();
             InitSize(_cells);

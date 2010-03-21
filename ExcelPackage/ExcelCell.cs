@@ -182,13 +182,17 @@ namespace OfficeOpenXml
 			{
 				if(_styleID>0)
                     return _styleID;
-                else if (_xlWorksheet._rows != null && _xlWorksheet.Row(Row).StyleID > 0)
+                else if (_xlWorksheet._rows != null && _xlWorksheet._rows.ContainsKey(ExcelRow.GetRowID(_xlWorksheet.SheetID, Row)))
                 {
                     return _xlWorksheet.Row(Row).StyleID;
                 }
+                else if (_xlWorksheet._columns != null && _xlWorksheet._columns.ContainsKey(ExcelColumn.GetColumnID(_xlWorksheet.SheetID, Column)))
+                {
+                    return _xlWorksheet.Column(Column).StyleID;
+                }
                 else
                 {
-                    return _xlWorksheet.Column(Column).StyleID;                    
+                    return 0;
                 }
 
 			}

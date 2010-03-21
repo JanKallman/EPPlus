@@ -269,7 +269,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                ExcelAddress address = _worksheet.AutoFilterAddress;
+                ExcelAddressBase address = _worksheet.AutoFilterAddress;
                 if (_fromRow >= address.Start.Row
                     &&
                     _toRow <= address.End.Row
@@ -284,7 +284,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                _worksheet.AutoFilterAddress = new ExcelAddress(_address);
+                _worksheet.AutoFilterAddress = new ExcelAddressBase(_address);
                 if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
                 {
                     _worksheet.Names.Remove("_xlnm._FilterDatabase");
@@ -518,13 +518,13 @@ namespace OfficeOpenXml
         {            
             if(_fromRow+RowOffset<1 || _fromCol+ColumnOffset<1 || _fromRow+RowOffset>ExcelPackage.MaxRows || _fromCol+ColumnOffset>ExcelPackage.MaxColumns)
             {
-                throw(new Exception("Offset value out of range"));
+                throw(new ArgumentOutOfRangeException("Offset value out of range"));
             }
-            string address = GetAddress(_fromRow+RowOffset, _fromCol+ColumnOffset);
+            string address = GetAddress(_fromRow+RowOffset, _fromCol+ColumnOffset, _toRow+RowOffset, _toCol+ColumnOffset);
             return new ExcelRangeBase(_worksheet, address);
         }
         /// <summary>
-        /// Get a range with an offset offset from the top left cell.
+        /// Get a range with an offset from the top left cell.
         /// </summary>
         /// <param name="RowOffset">Row Offset</param>
         /// <param name="ColumnOffset">Column Offset</param>

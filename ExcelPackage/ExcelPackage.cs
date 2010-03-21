@@ -130,13 +130,14 @@ namespace OfficeOpenXml
         /// <summary>
         /// Creates a new instance of the Excelpackage class based on a stream
         /// </summary>
-        /// <param name="Stream">The stream object can be empty or contain a package. For example use Response.OutputStream to output the workbook to a webclient</param>
+        /// <param name="Stream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
         public ExcelPackage(Stream newStream)
         {
             if (!(newStream.CanRead && newStream.CanWrite))
             {
                 throw new Exception("The stream must be read/write");
             }
+
             Init();
             if (newStream.Length > 0)
             {
@@ -155,8 +156,8 @@ namespace OfficeOpenXml
         /// <summary>
         /// Creates a new instance of the Excelpackage class based on a stream
         /// </summary>
-        /// <param name="newStream">This stream is copied to the output stream at load</param>
-        /// <param name="templateStream">The output stream. For example Response.OutputStream to output the sheet to a webclient</param>
+        /// <param name="newStream">The output stream. Must be an empty read/write stream.</param>
+        /// <param name="templateStream">This stream is copied to the output stream at load</param>
         public ExcelPackage(Stream newStream, Stream templateStream)
         {
             if (newStream.Length > 0)
@@ -179,7 +180,7 @@ namespace OfficeOpenXml
             Compression = CompressionOption.Normal;
         }
         /// <summary>
-        /// Create a new file frp, a template
+        /// Create a new file from a template
         /// </summary>
         /// <param name="template"></param>
         /// <returns></returns>
@@ -507,9 +508,24 @@ namespace OfficeOpenXml
         /// <param name="output"></param>
         private void Load(Stream input, Stream output)
         {
+            //Release some resources:
+            if (this._package != null)
+            {
+                this._package.Close();
+                this._package = null;
+            }
+            if (this._stream != null)
+            {
+                this._stream.Close();
+                this._stream.Dispose();
+                this._stream = null;
+            }
+
             this._stream = output;
             CopyStream(input, ref this._stream);
             this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
+            //Clear the workbook so that it gets reinitialized next time
+            this._workbook = null;
         }
         /// <summary>
         /// Copies the input stream to the output stream.
@@ -540,6 +556,7 @@ namespace OfficeOpenXml
                 outputStream.Write(buffer, 0, bytesRead);
                 bytesRead = inputStream.Read(buffer, 0, bufferLength);
             }
+            outputStream.Flush();
         }
     }
 }

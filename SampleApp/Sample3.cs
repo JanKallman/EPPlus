@@ -61,7 +61,7 @@ namespace ExcelPackageSamples
 		/// <summary>
 		/// Sample 3 - creates a workbook and populates using data from the AdventureWorks database
 		/// This sample requires the AdventureWorks database.  
-        /// This one is also from the orginal Excelpackage sample project, but without the template
+        /// This one is from the orginal Excelpackage sample project, but without the template
 		/// </summary>
 		/// <param name="outputDir">The output directory</param>
 		/// <param name="templateDir">The location of the sample template</param>
