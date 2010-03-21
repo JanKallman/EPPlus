@@ -427,6 +427,12 @@ namespace OfficeOpenXml
                     col += (((int)sCol[i]) - 64) * (int)(Math.Pow(26, len - i));
                 }
             }
+            else
+            {
+                row = 0;
+                col = 0;
+                return false;
+            }
             // Get the row number
             if (sRow == "")
             {
@@ -435,16 +441,15 @@ namespace OfficeOpenXml
                 //    throw (new Exception(string.Format("Invalid Address format {0}", address)));
                 //}
                 //else
-                //{
+                //{                    
                     row = 0;
                     return false;
                 //}
             }
             else
             {
-                int.TryParse(sRow, out row);
+                return int.TryParse(sRow, out row);
             }
-            return true;
         }
         #region GetAddress
         /// <summary>

@@ -53,6 +53,7 @@ namespace OfficeOpenXml
             _worksheet = Worksheet;
             _columnMin = col;
             _columnMax = col;
+            _width = _worksheet.defaultColWidth;
         }
 		#endregion
         int _columnMin;		
@@ -129,7 +130,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Sets the width of the column in the worksheet
 		/// </summary>
-        double _width = 10;
+        double _width;
         public double Width
 		{
 			get

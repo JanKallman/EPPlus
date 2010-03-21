@@ -33,7 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using OfficeOpenXml;
+using OfficeOpenXml;    
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
@@ -43,7 +43,7 @@ namespace ExcelPackageSamples
     class Sample5
     {
         /// <summary>
-        /// Sample 5 - open Sample 1 and adds a Piechart
+        /// Sample 5 - open Sample 1 and add 2 new rows and a Piechart
         /// </summary>
         public static string RunSample5(DirectoryInfo outputDir)
         {
@@ -54,23 +54,41 @@ namespace ExcelPackageSamples
                 newFile.Delete();  // ensures we create a new workbook
                 newFile = new FileInfo(outputDir.FullName + @"\sample5.xlsx");
             }
-            using (ExcelPackage xlPackage = new ExcelPackage(newFile, templateFile))
+            using (ExcelPackage package = new ExcelPackage(newFile, templateFile))
             {
-                // this will cause the assembly to output the raw XML files in the outputDir
-                // for debug purposes.  You will see to sub-folders called 'xl' and 'docProps'.
-                xlPackage.DebugMode = true;
-
                 //Open worksheet 1
-                ExcelWorksheet worksheet = xlPackage.Workbook.Worksheets[1];
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
+                worksheet.InsertRow(5, 2);
+
+                worksheet.Cells["A5"].Value = "12010";
+                worksheet.Cells["B5"].Value = "Drill";
+                worksheet.Cells["C5"].Value = 20;
+                worksheet.Cells["D5"].Value = 8;
+
+                worksheet.Cells["A6"].Value = "12010";
+                worksheet.Cells["B6"].Value = "Crowbar";
+                worksheet.Cells["C6"].Value = 7;
+                worksheet.Cells["D6"].Value = 23.48;
+
+                worksheet.Cells["E2:E6"].FormulaR1C1 = "RC[-2]*RC[-1]";                
+
+                var name = worksheet.Names.Add("SubTotalName", worksheet.Cells["C7:E7"]);
+                name.Style.Font.Italic = true;
+                name.Formula = "SUBTOTAL(9,C2:C6)";
+
+                //Format the new rows
+                worksheet.Cells["C5:C6"].Style.Numberformat.Format = "#,##0";
+                worksheet.Cells["D5:E6"].Style.Numberformat.Format = "#,##0.00";
+
                 var chart = (worksheet.Drawings.AddChart("PieChart", eChartType.Pie3D) as ExcelPieChart);
 
                 chart.Title.Text = "Total";
-                //From row 1 colum 3 with five pixels offset
-                chart.SetPosition(0, 0, 2, 5);
+                //From row 1 colum 5 with five pixels offset
+                chart.SetPosition(0, 0, 5, 5);
                 chart.SetSize(600, 300);
 
-                string valueAddress = ExcelRange.GetAddress(2, 2, 4, 2);
-                var ser = (chart.Series.Add(valueAddress, "A2:A4") as ExcelPieChartSerie);
+                ExcelAddress valueAddress = new ExcelAddress(2, 5, 6, 5);
+                var ser = (chart.Series.Add(valueAddress.Address, "B2:B6") as ExcelPieChartSerie);
                 chart.DataLabel.ShowCategory = true;
                 chart.DataLabel.ShowPercent = true;
 
@@ -81,7 +99,7 @@ namespace ExcelPackageSamples
                 //Switch the PageLayoutView back to normal
                 worksheet.View.PageLayoutView = false;
                 // save our new workbook and we are done!
-                xlPackage.Save();
+                package.Save();
             }
 
             return newFile.FullName;

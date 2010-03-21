@@ -155,7 +155,7 @@ namespace OfficeOpenXml
                     ExcelNamedRange namedRange;
                     if (localSheetID > -1)
                     {
-                        namedRange = Worksheets.GetBySheetID(localSheetID).Names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                        namedRange = Worksheets.GetBySheetID(localSheetID+1).Names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
                     }
                     else
                     {
@@ -625,32 +625,34 @@ namespace OfficeOpenXml
         }
         private void UpdateDefinedNamesXml()
         {
-            XmlNode top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
-            if (_names.Count == 0) 
-            {
-                if (top != null) TopNode.RemoveChild(top);
-                return;
-            }
-            
-            if (top == null)
-            {
-                CreateNode("d:definedNames");
-                top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
-            }
-            else
-            {
-                top.RemoveAll();
-            }
             try
             {
-                foreach (ExcelNamedRange name in _names)
+                XmlNode top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
+                if (!ExistsNames())
                 {
+                    if (top != null) TopNode.RemoveChild(top);
+                    return;
+                }
+                else
+                {
+                    if (top == null)
+                    {
+                        CreateNode("d:definedNames");
+                        top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
+                    }
+                    else
+                    {
+                        top.RemoveAll();
+                    }
+                    foreach (ExcelNamedRange name in _names)
+                    {
 
-                    XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
-                    top.AppendChild(elem);
-                    elem.SetAttribute("name", name.Name);
-                    if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                    elem.InnerText = name.FullAddress;
+                        XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
+                        top.AppendChild(elem);
+                        elem.SetAttribute("name", name.Name);
+                        if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
+                        elem.InnerText = name.FullAddress;
+                    }
                 }
                 foreach (ExcelWorksheet ws in _worksheets)
                 {
@@ -666,10 +668,32 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+        /// <summary>
+        /// Is their any names in the workbook or in the sheets.
+        /// </summary>
+        /// <returns>?</returns>
+        private bool ExistsNames()
+        {
+            if (_names.Count > 0)
+            {
+                foreach (ExcelWorksheet ws in Worksheets)
+                {
+                    if(ws.Names.Count>0)
+                    {
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                return true;
+            }
+            return false;
         }        
         #endregion
 

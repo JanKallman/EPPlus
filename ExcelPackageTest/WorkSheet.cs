@@ -191,9 +191,24 @@ namespace ExcelPackageTest
             ws.Protection.IsProtected=true;
             ws.Protection.SetPassword("Password");
 
-            //Workbook.Worksheets.Delete(ws.Workbook.Worksheets.Count-1);
-        }
 
+            var range = ws.Cells["B2:D100"];
+
+            Assert.AreEqual(range.Start.Column, 2);
+            Assert.AreEqual(range.Start.Row, 2);
+            Assert.AreEqual(range.Start.Address, "B2");
+
+            Assert.AreEqual(range.End.Column, 4);
+            Assert.AreEqual(range.End.Row, 100);
+            Assert.AreEqual(range.End.Address, "D100");
+
+            ExcelAddress addr = new ExcelAddress("B1:D3");
+
+            Assert.AreEqual(addr.Start.Column, 2);
+            Assert.AreEqual(addr.Start.Row, 1);
+            Assert.AreEqual(addr.End.Column, 4);
+            Assert.AreEqual(addr.End.Row, 3);
+        }
         [TestMethod]
         public void SaveWorksheet()
         {

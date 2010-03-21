@@ -239,7 +239,7 @@ namespace OfficeOpenXml.Drawing
             int pix = -From.ColumnOff / EMU_PER_PIXEL;
             for (int col = From.Column + 1; col <= To.Column; col++)
             {
-                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
             pix += To.ColumnOff / EMU_PER_PIXEL;
             return pix;
@@ -252,23 +252,48 @@ namespace OfficeOpenXml.Drawing
             int pix = -(From.RowOff / EMU_PER_PIXEL);
             for (int row = From.Row + 1; row <= To.Row; row++)
             {
-                pix += (int)(ws.Row(row).Height / 0.75);
+                pix += (int)(GetRowWidth(row) / 0.75);
             }
             pix += To.RowOff / EMU_PER_PIXEL;
             return pix;
+        }
+
+        private decimal GetColumnWidth(int col)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            if (ws._columns.ContainsKey(ExcelColumn.GetColumnID(ws.SheetID, col)))   //Check that the column exists
+            {
+                return (decimal)ws.Column(col).Width;
+            }
+            else
+            {
+                return (decimal)ws.defaultColWidth;
+            }
+        }
+        private double GetRowWidth(int row)
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            if (ws._rows.ContainsKey(ExcelRow.GetRowID(ws.SheetID, row)))   //Check that the row exists
+            {
+                return (double)ws.Row(row).Height;
+            }
+            else
+            {
+                return (double)ws.defaultRowHeight;
+            }
         }
         internal void SetPixelTop(int pixels)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
             int prevPix = 0;
-            int pix = (int)(ws.Row(1).Height / 0.75);
+            int pix = (int)(GetRowWidth(1) / 0.75);
             int row = 2;
 
             while (pix < pixels)
             {
                 prevPix = pix;
-                pix += (int)(ws.Row(row++).Height / 0.75);
+                pix += (int)(GetRowWidth(row++) / 0.75);
             }
 
             if (pix == pixels)
@@ -344,14 +369,14 @@ namespace OfficeOpenXml.Drawing
             decimal mdw = ws.Workbook.MaxFontWidth;
 
             pixels = (int)(pixels / (dpi / STANDARD_DPI));
-            int pixOff = (int)pixels - ((int)decimal.Truncate(((256 * (decimal)ws.Column(From.Column + 1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL);
+            int pixOff = (int)pixels - ((int)decimal.Truncate(((256 * GetColumnWidth(From.Column + 1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL);
             int prevPixOff = From.ColumnOff / EMU_PER_PIXEL + (int)pixels;
             int col = From.Column + 2;
 
             while (pixOff >= 0)
             {
                 prevPixOff = pixOff;
-                pixOff -= (int)decimal.Truncate(((256 * (decimal)ws.Column(++col).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pixOff -= (int)decimal.Truncate(((256 * GetColumnWidth(++col) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
 
             To.Column = col - 2;
