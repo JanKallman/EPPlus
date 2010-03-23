@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
+ *
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -86,9 +86,9 @@ namespace OfficeOpenXml
 
             private void CreateSelectionElement()
             {
- 	            _selectionNode=TopNode.OwnerDocument.CreateElement("selections", ExcelPackage.schemaMain);
+ 	            _selectionNode=TopNode.OwnerDocument.CreateElement("selection", ExcelPackage.schemaMain);
                 TopNode.AppendChild(_selectionNode);
-                TopNode=_selectionNode;                
+                TopNode=_selectionNode;             
             }
             const string _selectionRangePath = "@sqref";
             /// <summary>
@@ -322,6 +322,7 @@ namespace OfficeOpenXml
             {
                 paneNode.SetAttribute("activePane", "bottomLeft");
                 XmlElement sel=TopNode.OwnerDocument.CreateElement("selection", ExcelPackage.schemaMain);
+                sel.SetAttribute("pane", "bottomLeft");
                 if (activeCell != "") sel.SetAttribute("activeCell", activeCell);
                 if (sqRef != "") sel.SetAttribute("sqref", sqRef);
                 sel.SetAttribute("sqref", sqRef);
@@ -362,7 +363,6 @@ namespace OfficeOpenXml
             }
             Panes=LoadPanes();
         }
-
         private void RemoveSelection()
         {
             //Find seletion nodes and remove them            

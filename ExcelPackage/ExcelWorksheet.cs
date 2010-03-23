@@ -2,7 +2,6 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -21,8 +20,9 @@
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * 
- * Code change notes:
+ * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
+ *
+ *  Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
@@ -992,7 +992,7 @@ namespace OfficeOpenXml
                 View.TabSelected = true;
             }
             View.SelectedRange = Address;
-            View.ActiveCell = ExcelCell.GetAddress(fromRow, fromCol);
+            View.ActiveCell = ExcelCell.GetAddress(fromRow, fromCol);            
         }
         ///// <summary>
         ///// Inserts conditional formatting for the cell range.
@@ -1486,7 +1486,7 @@ namespace OfficeOpenXml
             ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
             
             _hyperLinkCells = new List<ulong>();
-            int row = -1;
+            int row = -1, flushedRow=0;
 
             StringBuilder sbXml = new StringBuilder();
             var ss = xlPackage.Workbook._sharedStrings;
@@ -1639,10 +1639,11 @@ namespace OfficeOpenXml
                         }
                     }
                 }
-                if (row % 1000==0)    //Flush back to the stream every 1000 rows
-                {
-                    sw.Flush();
-                }
+                //if (row % 250000 == 0 && flushedRow!=row)    //Flush back to the stream every 25000 rows
+                //{
+                //    sw.Flush();
+                //    flushedRow = row;
+                //}
                 //Update hyperlinks.
                 if (cell.Hyperlink != null)
                 {

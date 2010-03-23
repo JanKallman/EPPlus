@@ -2,7 +2,6 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -58,8 +57,8 @@ namespace OfficeOpenXml
                 SetXmlNodeBool(_isProtectedPath, value, false);
                 if (value)
                 {
-                    AllowObject = true;
-                    AllowScenarios = true;
+                    AllowEditObject = true;
+                    AllowEditScenarios = true;
                 }
                 else
                 {
@@ -67,139 +66,202 @@ namespace OfficeOpenXml
                 }
             }
         }
-        private const string _allowObjectPath="d:sheetProtection/@objects";
-        public bool AllowObject
+        private const string _allowSelectLockedCellsPath = "d:sheetProtection/@selectLockedCells";
+        /// <summary>
+        /// Allow users to select locked cells
+        /// </summary>
+        public bool AllowSelectLockedCells
         {
             get
             {
-                return GetXmlNodeBool(_allowObjectPath, false);
+                return !GetXmlNodeBool(_allowSelectLockedCellsPath, false);
             }
             set
             {
-                SetXmlNodeBool(_allowObjectPath, value, false);
+                SetXmlNodeBool(_allowSelectLockedCellsPath, !value, false);
+            }
+        }
+        private const string _allowSelectUnlockedCellsPath = "d:sheetProtection/@selectUnlockedCells";
+        /// <summary>
+        /// Allow users to select unlocked cells
+        /// </summary>
+        public bool AllowSelectUnlockedCells
+        {
+            get
+            {
+                return !GetXmlNodeBool(_allowSelectUnlockedCellsPath, false);
+            }
+            set
+            {
+                SetXmlNodeBool(_allowSelectUnlockedCellsPath, !value, false);
+            }
+        }        
+        private const string _allowObjectPath="d:sheetProtection/@objects";
+        /// <summary>
+        /// Allow users to edit objects
+        /// </summary>
+        public bool AllowEditObject
+        {
+            get
+            {
+                return !GetXmlNodeBool(_allowObjectPath, false);
+            }
+            set
+            {
+                SetXmlNodeBool(_allowObjectPath, !value, false);
             }
         }
         private const string _allowScenariosPath="d:sheetProtection/@scenarios";
-        public bool AllowScenarios
+        /// <summary>
+        /// Allow users to edit senarios
+        /// </summary>
+        public bool AllowEditScenarios
         {
             get
             {
-                return GetXmlNodeBool(_allowScenariosPath, false);
+                return !GetXmlNodeBool(_allowScenariosPath, false);
             }
             set
             {
-                SetXmlNodeBool(_allowScenariosPath, value, false);
+                SetXmlNodeBool(_allowScenariosPath, !value, false);
             }
         }
         private const string _allowFormatCellsPath="d:sheetProtection/@formatCells";
+        /// <summary>
+        /// Allow users to format cells
+        /// </summary>
         public bool AllowFormatCells 
         {
             get
             {
-                return GetXmlNodeBool(_allowFormatCellsPath, true);
+                return !GetXmlNodeBool(_allowFormatCellsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowFormatCellsPath, value, true );
+                SetXmlNodeBool(_allowFormatCellsPath, !value, true );
             }
         }
         private const string _allowFormatColumnsPath = "d:sheetProtection/@formatColumns";
+        /// <summary>
+        /// Allow users to Format columns
+        /// </summary>
         public bool AllowFormatColumns
         {
             get
             {
-                return GetXmlNodeBool(_allowFormatColumnsPath, true);
+                return !GetXmlNodeBool(_allowFormatColumnsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowFormatColumnsPath, value, true);
+                SetXmlNodeBool(_allowFormatColumnsPath, !value, true);
             }
         }
         private const string _allowFormatRowsPath = "d:sheetProtection/@formatRows";
+        /// <summary>
+        /// Allow users to Format rows
+        /// </summary>
         public bool AllowFormatRows
         {
             get
             {
-                return GetXmlNodeBool(_allowFormatRowsPath, true);
+                return !GetXmlNodeBool(_allowFormatRowsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowFormatRowsPath, value, true);
+                SetXmlNodeBool(_allowFormatRowsPath, !value, true);
             }
         }
 
         private const string _allowInsertColumnsPath = "d:sheetProtection/@insertColumns ";
+        /// <summary>
+        /// Allow users to insert columns
+        /// </summary>
         public bool AllowInsertColumns
         {
             get
             {
-                return GetXmlNodeBool(_allowInsertColumnsPath, true);
+                return !GetXmlNodeBool(_allowInsertColumnsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowInsertColumnsPath, value, true);
+                SetXmlNodeBool(_allowInsertColumnsPath, !value, true);
             }
         }
 
         private const string _allowInsertRowsPath = "d:sheetProtection/@insertRows";
+        /// <summary>
+        /// Allow users to Format rows
+        /// </summary>
         public bool AllowInsertRows
         {
             get
             {
-                return GetXmlNodeBool(_allowInsertRowsPath, true);
+                return !GetXmlNodeBool(_allowInsertRowsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowInsertRowsPath, value, true);
+                SetXmlNodeBool(_allowInsertRowsPath, !value, true);
             }
         }
         private const string _allowInsertHyperlinksPath = "d:sheetProtection/@insertHyperlinks";
+        /// <summary>
+        /// Allow users to insert hyperlinks
+        /// </summary>
         public bool AllowInsertHyperlinks
         {
             get
             {
-                return GetXmlNodeBool(_allowInsertHyperlinksPath, true);
+                return !GetXmlNodeBool(_allowInsertHyperlinksPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowInsertHyperlinksPath, value, true);
+                SetXmlNodeBool(_allowInsertHyperlinksPath, !value, true);
             }
         }
         private const string _allowDeleteColumns = "d:sheetProtection/@deleteColumns";
+        /// <summary>
+        /// Allow users to delete columns
+        /// </summary>
         public bool AllowDeleteColumns
         {
             get
             {
-                return GetXmlNodeBool(_allowDeleteColumns, true);
+                return !GetXmlNodeBool(_allowDeleteColumns, true);
             }
             set
             {
-                SetXmlNodeBool(_allowDeleteColumns, value, true);
+                SetXmlNodeBool(_allowDeleteColumns, !value, true);
             }
         }
         private const string _allowDeleteRowsPath = "d:sheetProtection/@deleteRows";
+        /// <summary>
+        /// Allow users to delete rows
+        /// </summary>
         public bool AllowDeleteRows
         {
             get
             {
-                return GetXmlNodeBool(_allowDeleteRowsPath, true);
+                return !GetXmlNodeBool(_allowDeleteRowsPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowDeleteRowsPath, value, true);
+                SetXmlNodeBool(_allowDeleteRowsPath, !value, true);
             }
         }
 
         private const string _allowSortPath = "d:sheetProtection/@sort";
+        /// <summary>
+        /// Allow users to sort a range
+        /// </summary>
         public bool AllowSort
         {
             get
             {
-                return GetXmlNodeBool(_allowSortPath, true);
+                return !GetXmlNodeBool(_allowSortPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowSortPath, value, true);
+                SetXmlNodeBool(_allowSortPath, !value, true);
             }
         }
 
@@ -208,11 +270,11 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNodeBool(_allowAutoFilterPath, true);
+                return !GetXmlNodeBool(_allowAutoFilterPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowAutoFilterPath, value, true);
+                SetXmlNodeBool(_allowAutoFilterPath, !value, true);
             }
         }
         private const string _allowPivotTablesPath = "d:sheetProtection/@pivotTables";
@@ -220,11 +282,11 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNodeBool(_allowPivotTablesPath, true);
+                return !GetXmlNodeBool(_allowPivotTablesPath, true);
             }
             set
             {
-                SetXmlNodeBool(_allowPivotTablesPath, value, true);
+                SetXmlNodeBool(_allowPivotTablesPath, !value, true);
             }
         }
 

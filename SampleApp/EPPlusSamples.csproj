@@ -7,8 +7,8 @@
     <ProjectGuid>{06BF3C68-E7D4-4579-90BE-E36DACE564EF}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ExcelPackageSamples</RootNamespace>
-    <AssemblyName>ExcelPackageSamples</AssemblyName>
+    <RootNamespace>EPPlusSamples</RootNamespace>
+    <AssemblyName>EPPlusSamples</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -62,6 +62,7 @@
     <Compile Include="Sample4.cs" />
     <Compile Include="Sample5.cs" />
     <Compile Include="Sample6.cs" />
+    <Compile Include="Sample7.cs" />
     <Compile Include="Sample_Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sample2.cs" />

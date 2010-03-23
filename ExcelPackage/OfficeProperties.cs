@@ -2,7 +2,6 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -21,8 +20,9 @@
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * 
- * Code change notes:
+ * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
+ *
+ *  Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
@@ -221,59 +221,7 @@ namespace OfficeOpenXml
 		{
             get { return _coreHelper.GetXmlNode(ContentStatusPath); }
             set { _coreHelper.SetXmlNode(ContentStatusPath, value); }
-        }
-		
-		#region Get and Set Core Properties
-		/// <summary>
-		/// Gets the value of a core property
-		/// Private method, for internal use only!
-		/// </summary>
-		/// <param name="nameSpace">The namespace of the property</param>
-		/// <param name="propertyName">The property name</param>
-		/// <returns>The current value of the property</returns>
-        //private string GetCorePropertyValue(string nameSpace, string propertyName)
-        //{
-        //    string retValue = null;
-        //    string searchString = string.Format("//cp:coreProperties/{0}:{1}", nameSpace, propertyName);
-        //    XmlNode node = CorePropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
-        //    if (node != null)
-        //    {
-        //        retValue = node.InnerText;
-        //    }
-        //    return retValue;
-        //}
-
-        ///// <summary>
-        ///// Sets a core property value.
-        ///// Private method, for internal use only!
-        ///// </summary>
-        ///// <param name="nameSpace">The property's namespace</param>
-        ///// <param name="propertyName">The name of the property</param>
-        ///// <param name="propValue">The value of the property</param>
-        //private void SetCorePropertyValue(string nameSpace, string propertyName, string propValue)
-        //{
-        //    string searchString = string.Format("//cp:coreProperties/{0}:{1}", nameSpace, propertyName);
-        //    XmlNode node = CorePropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
-        //    if (node == null)
-        //    {
-        //        // the property does not exist, so create the XML node
-        //        string schema = ExcelPackage.schemaCore;
-        //        switch (nameSpace)
-        //        {
-        //            case "cp": schema = ExcelPackage.schemaCore; break;
-        //            case "dc": schema = ExcelPackage.schemaDc; break;
-        //            case "dcterms": schema = ExcelPackage.schemaDcTerms; break;
-        //            case "dcmitype": schema = ExcelPackage.schemaDcmiType; break;
-        //            case "xsi": schema = ExcelPackage.schemaXsi; break;
-        //        }
-        //        node = (XmlNode) CorePropertiesXml.CreateElement(nameSpace, propertyName, schema);
-        //        CorePropertiesXml.DocumentElement.AppendChild(node);
-				
-        //    }
-        //    node.InnerText = propValue;
-        //}
-		#endregion
-
+        }		
 		#endregion
 
 		#region Extended Properties
