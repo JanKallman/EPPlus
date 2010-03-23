@@ -2,7 +2,6 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -140,6 +139,7 @@ namespace OfficeOpenXml
             int rowFrom,rowTo, colFrom, colTo;
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
             ExcelCell.GetRowColFromAddress(e.Address, out rowFrom, out colFrom, out rowTo, out colTo);
+            var ws = _wb.Worksheets[e.PositionID];
             //Cellrange
             if (colFrom > 0 && rowFrom > 0)
             {
@@ -147,7 +147,7 @@ namespace OfficeOpenXml
                 {
                     for (int row = rowFrom; row <= rowTo; row++)
                     {
-                        ExcelCell cell = _wb.Worksheets[e.PositionID].Cell(row, col);
+                        ExcelCell cell = ws.Cell(row, col);
                         if (styleCashe.ContainsKey(cell.StyleID))
                         {
                             cell.StyleID = styleCashe[cell.StyleID];
@@ -165,8 +165,9 @@ namespace OfficeOpenXml
             else if (colFrom > 0)
             {
                 for (int col = colFrom; col <= colTo; col++)
-                {
-                    ExcelColumn column = _wb.Worksheets[e.PositionID].Column(col);
+                {                    
+                    ulong colID = ExcelColumn.GetColumnID(ws.SheetID, col);
+                    var column = ws._columns[colID] as ExcelColumn;
                     if (styleCashe.ContainsKey(column.StyleID))
                     {
                         column.StyleID = styleCashe[column.StyleID];
@@ -184,11 +185,11 @@ namespace OfficeOpenXml
             {
                 for (int rowNum = rowFrom; rowNum <= rowTo; rowNum++)
                 {
-                    ExcelRow row = _wb.Worksheets[e.PositionID].Row(rowNum);
-                    if (row.StyleID == 0 && _wb.Worksheets[e.PositionID]._columns.Count > 0)
+                    ExcelRow row = ws.Row(rowNum);
+                    if (row.StyleID == 0 && ws._columns.Count > 0)
                     {
                         //TODO: We should loop all columns here and change each cell. But for now we take style of column A.
-                        foreach(ExcelColumn column in _wb.Worksheets[e.PositionID]._columns)
+                        foreach(ExcelColumn column in ws._columns)
                         {
                             row.StyleID = column.StyleID;
                             break;  //Get the first one and break. 

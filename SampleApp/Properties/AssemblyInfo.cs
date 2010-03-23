@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
+ *
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -28,21 +28,6 @@
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
  *******************************************************************************/
-
-/*
-* Sample code demonstrating how to generate Excel spreadsheets on the server using 
-* Office Open XML and the ExcelPackage wrapper classes.
-* 
-* ExcelPackage provides server-side generation of Excel 2007 spreadsheets.
-* See http://www.codeplex.com/ExcelPackage for details.
-* 
-* Copyright 2007 © Dr John Tunnicliffe 
-* mailto:dr.john.tunnicliffe@btinternet.com
-* All rights reserved.
-* 
-* All code and executables are provided "as is" with no warranty either express or implied. 
-* The author accepts no liability for any damage or loss of business that this product may cause.
-*/
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -50,12 +35,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ExcelPackageSamples")]
+[assembly: AssemblyTitle("EPPlusSamples")]
 [assembly: AssemblyDescription("Demonstrate Excel files being created on the server")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Open Source")]
-[assembly: AssemblyProduct("ExcelPackageSamples")]
-[assembly: AssemblyCopyright("Copyright 2007 © Dr John Tunnicliffe  dr.john.tunnicliffe@btinternet.com")]
+[assembly: AssemblyCompany("")]
+[assembly: AssemblyProduct("EPPlus Samples")]
 [assembly: AssemblyTrademark("The GNU General Public License (GPL)")]
 [assembly: AssemblyCulture("")]
 

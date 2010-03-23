@@ -7,7 +7,7 @@
  * GNU General Public License (GPL) as published by the 
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
- * EPPlus is a fork of the ExcelPackage project http://excelpackage.codeplex.com/
+ * See http://epplus.codeplex.com/ for details
  * 
  * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
@@ -18,7 +18,6 @@
  * 
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
- *
  *
  * Code change notes:
  * 
@@ -186,21 +185,36 @@ namespace OfficeOpenXml
                 {
                     return _xlWorksheet.Row(Row).StyleID;
                 }
-                else if (_xlWorksheet._columns != null && _xlWorksheet._columns.ContainsKey(ExcelColumn.GetColumnID(_xlWorksheet.SheetID, Column)))
-                {
-                    return _xlWorksheet.Column(Column).StyleID;
-                }
                 else
                 {
-                    return 0;
+                    ExcelColumn col = GetColumn(Column);
+                    if(col==null)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return _xlWorksheet.Column(Column).StyleID;
+                    }
                 }
-
 			}
 			set 
             {
                 _styleID = value;
             }
 		}
+
+        private ExcelColumn GetColumn(int col)
+        {
+            foreach (ExcelColumn column in _xlWorksheet._columns)
+            {
+                if (col >= column.ColumnMin && col <= column.ColumnMax)
+                {
+                    return column;
+                }
+            }
+            return null;
+        }
         internal int GetCellStyleID()
         {
             return _styleID;

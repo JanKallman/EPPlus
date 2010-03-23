@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
+ *
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.

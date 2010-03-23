@@ -45,7 +45,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Release\ExcelPackageXmlDocumentationFile.xml</DocumentationFile>
+    <DocumentationFile>bin\Release\EPPlusXmlDocumentationFile.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />

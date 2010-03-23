@@ -10,7 +10,7 @@
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
  *
- * EPPlus is a fork of the ExcelPackage project
+ *
  * 
  * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
@@ -35,7 +35,7 @@ using System.Text;
 using System.IO;
 using OfficeOpenXml;
 
-namespace ExcelPackageSamples
+namespace EPPlusSamples
 {
 	/// <summary>
 	/// Simply opens an existing file and reads some values and properties

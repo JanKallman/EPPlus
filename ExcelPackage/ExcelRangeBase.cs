@@ -2,7 +2,6 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * EPPlus is a fork of the ExcelPackage project
  * See http://www.codeplex.com/EPPlus for details.
  * 
  * All rights reserved.
@@ -509,7 +508,8 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Get a cell with an offset offset from the top left cell.
+        /// Get a range with an offset from the top left cell.
+        /// The new range has the same dimensions as the current range
         /// </summary>
         /// <param name="RowOffset">Row Offset</param>
         /// <param name="ColumnOffset">Column Offset</param>
@@ -542,7 +542,7 @@ namespace OfficeOpenXml
             if(_fromRow+RowOffset<1 || _fromCol+ColumnOffset<1 || _fromRow+RowOffset>ExcelPackage.MaxRows || _fromCol+ColumnOffset>ExcelPackage.MaxColumns ||
                _fromRow+RowOffset+NumberOfRows<1 || _fromCol+ColumnOffset+NumberOfColumns<1 || _fromRow+RowOffset+NumberOfRows>ExcelPackage.MaxRows || _fromCol+ColumnOffset+NumberOfColumns>ExcelPackage.MaxColumns )
             {
-                throw(new Exception("Offset value out of range"));
+                throw(new ArgumentOutOfRangeException("Offset value out of range"));
             }
             string address = GetAddress(_fromRow+RowOffset, _fromCol+ColumnOffset, _fromRow+RowOffset+NumberOfRows, _fromCol+ColumnOffset+NumberOfColumns);
             return new ExcelRangeBase(_worksheet, address);

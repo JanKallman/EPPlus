@@ -10,7 +10,7 @@
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
  *
- * EPPlus is a fork of the ExcelPackage project
+ *
  * 
  * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
@@ -42,7 +42,7 @@ using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 
-namespace ExcelPackageSamples
+namespace EPPlusSamples
 {
     /// <summary>
     /// Sample 6 - Reads the filesystem and makes a report.
@@ -138,7 +138,9 @@ namespace ExcelPackageSamples
             ws.Cells["D1"].Value = "Created";
             ws.Cells["E1"].Value = "Last modified";
             ws.Cells["B1:E1"].Style.Font.Bold = true;
-            
+
+            ws.View.FreezePanes(2,1);
+            ws.Select("A2");
             //height is 20 pixels 
             double height = 20 * 0.75;
             //Start at row 2;
@@ -155,7 +157,7 @@ namespace ExcelPackageSamples
 
             //Add the textbox
             var shape = ws.Drawings.AddShape("txtDesc", eShapeStyle.Rect);
-            shape.SetPosition(0, 5, 5, 5);
+            shape.SetPosition(1, 5, 6, 5);
             shape.SetSize(400, 200);
 
             shape.Text = "This example demonstrates how to create various drawing objects like pictures, shapes and charts.\n\r\n\rThe first sheet contains all subdirectories and files with an icon, name, size and dates.\n\r\n\rThe second sheet contains statistics about extensions and the top-10 largest files.";
@@ -178,8 +180,8 @@ namespace ExcelPackageSamples
             var namedStyle = pck.Workbook.Styles.CreateNamedStyle("HyperLink");   //This one is language dependent
             namedStyle.Style.Font.UnderLine = true;
             namedStyle.Style.Font.Color.SetColor(Color.Blue);
-            ws.Cells["K12"].Hyperlink = new ExcelHyperLink("Statistics!A1", "Statistics");
-            ws.Cells["K12"].StyleName = "HyperLink";
+            ws.Cells["K13"].Hyperlink = new ExcelHyperLink("Statistics!A1", "Statistics");
+            ws.Cells["K13"].StyleName = "HyperLink";
 
             //Printer settings
             ws.PrinterSettings.FitToPage = true;
@@ -205,7 +207,7 @@ namespace ExcelPackageSamples
 
             //Set first the header and format it
             ws.Cells["A1"].Value = header;
-            using (ExcelRange r = ws.Cells["A1:N1"])
+            using (ExcelRange r = ws.Cells["A1:O1"])
             {
                 r.Merge = true;
                 r.Style.Font.SetFromFont(new Font("Arial", 22, FontStyle.Italic));
@@ -242,8 +244,8 @@ namespace ExcelPackageSamples
 
             //Add the Doughnut chart
             var doughtnutChart = ws.Drawings.AddChart("crtExtensionCount", eChartType.DoughnutExploded) as ExcelDoughnutChart;
-            //Set position to row 1 column 7 and 50 pixels offset
-            doughtnutChart.SetPosition(1, 0, 7, 50);
+            //Set position to row 1 column 7 and 16 pixels offset
+            doughtnutChart.SetPosition(1, 0, 8, 16);
             doughtnutChart.SetSize(400, 400);
             doughtnutChart.Series.Add(ExcelRange.GetAddress(17, 2, row - 1, 2), ExcelRange.GetAddress(17, 1, row - 1, 1));
 
@@ -268,8 +270,10 @@ namespace ExcelPackageSamples
             //Format the Size and Count column
             ws.Cells["B3:B42"].Style.Numberformat.Format = "#,##0";
             //Set a border around
-            ws.Cells["N1:N43"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-            ws.Cells["A43:N43"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            ws.Cells["A1:A43"].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+            ws.Cells["A1:O1"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+            ws.Cells["O1:O43"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
+            ws.Cells["A43:O43"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
 
             //And last the printersettings
             ws.PrinterSettings.Orientation = eOrientation.Landscape;
