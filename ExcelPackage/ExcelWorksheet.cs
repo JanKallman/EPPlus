@@ -49,7 +49,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-	public class ExcelWorksheet : XmlHelper
+	public sealed class ExcelWorksheet : XmlHelper
 	{
         internal class Formulas
         {
@@ -242,7 +242,10 @@ namespace OfficeOpenXml
 		}
 		#endregion // END Worksheet Name
         private ExcelNamedRangeCollection _names;
-        public ExcelNamedRangeCollection  Names 
+        /// <summary>
+        /// Provides access to named ranges
+        /// </summary>
+        public ExcelNamedRangeCollection Names 
         {
             get
             {
@@ -349,6 +352,9 @@ namespace OfficeOpenXml
         #endregion
         /** <outlinePr applyStyles="1" summaryBelow="0" summaryRight="0" /> **/
         const string outLineSummaryBelowPath = "d:sheetPr/d:outlinePr/@summaryBelow"; 
+        /// <summary>
+        /// Summary rows below details
+        /// </summary>
         public bool OutLineSummaryBelow 
         { 
             get
@@ -361,6 +367,9 @@ namespace OfficeOpenXml
             }
         }
         const string outLineSummaryRightPath = "d:sheetPr/d:outlinePr/@summaryRight";
+        /// <summary>
+        /// Summary rows to right of details
+        /// </summary>
         public bool OutLineSummaryRight
         {
             get
@@ -373,6 +382,9 @@ namespace OfficeOpenXml
             }
         }
         const string outLineApplyStylePath = "d:sheetPr/d:outlinePr/@applyStyles";
+        /// <summary>
+        /// Automatic styles
+        /// </summary>
         public bool OutLineApplyStyle
         {
             get
@@ -1657,7 +1669,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Update xml with hyperlinks 
         /// </summary>
-        /// <param name="hyperLinkCells">List containing cellid's with hyperlinks</param>
+        /// <param name="sw">The stream</param>
         private void UpdateHyperLinks(StreamWriter sw)
         {
                 sw.Write("<hyperlinks>");
@@ -1671,7 +1683,7 @@ namespace OfficeOpenXml
                         sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" display=\"{2}\" />", 
                                 Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address, 
                                 ExcelCell.GetFullAddress(Name, hl.ReferenceAddress),
-                                hl.Display);
+                                SecurityElement.Escape(hl.Display));
 
                     }
                     else

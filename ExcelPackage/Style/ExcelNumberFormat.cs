@@ -34,7 +34,10 @@ using System.Text;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelNumberFormat : StyleBase
+    /// <summary>
+    /// The numberformat of the cell
+    /// </summary>
+    public sealed class ExcelNumberFormat : StyleBase
     {
         internal ExcelNumberFormat(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string Address, int index) :
             base(styles, ChangedEvent, PositionID, Address)
@@ -53,6 +56,9 @@ namespace OfficeOpenXml.Style
             //    _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Numberformat, "NumFmtID", value, _workSheetID, _address));
             //}
         }
+        /// <summary>
+        /// The numberformat 
+        /// </summary>
         public string Format
         {
             get

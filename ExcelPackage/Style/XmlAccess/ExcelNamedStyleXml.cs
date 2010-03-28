@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelNamedStyleXml : StyleXmlHelper
+    /// <summary>
+    /// Xml access class for named styles
+    /// </summary>
+    public sealed class ExcelNamedStyleXml : StyleXmlHelper
     {
         ExcelStyles _styles;
         internal ExcelNamedStyleXml(XmlNamespaceManager nameSpaceManager, ExcelStyles styles)

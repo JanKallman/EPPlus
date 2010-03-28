@@ -35,7 +35,10 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 namespace OfficeOpenXml
 {
-	public class ExcelStyles : XmlHelper
+	/// <summary>
+	/// Containts all shared cell styles for a workbook
+	/// </summary>
+    public sealed class ExcelStyles : XmlHelper
     {
         const string NumberFormatsPath = "d:styleSheet/d:numFmts";
         const string FontsPath = "d:styleSheet/d:fonts";

@@ -36,7 +36,7 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelChartSerieDataLabel : ExcelChartDataLabel
+    public sealed class ExcelChartSerieDataLabel : ExcelChartDataLabel
     {
        public ExcelChartSerieDataLabel(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)

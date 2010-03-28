@@ -60,7 +60,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Represents the Header and Footer on an Excel Worksheet
 	/// </summary>
-	public class ExcelHeaderFooter : XmlHelper
+	public sealed class ExcelHeaderFooter : XmlHelper
 	{
 		#region Static Properties
 		/// <summary>

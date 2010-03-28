@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelNumberFormatXml : StyleXmlHelper
+    /// <summary>
+    /// Xml access class for number formats
+    /// </summary>
+    public sealed class ExcelNumberFormatXml : StyleXmlHelper
     {
         public ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
         {

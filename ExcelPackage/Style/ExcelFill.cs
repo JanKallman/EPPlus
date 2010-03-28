@@ -34,7 +34,10 @@ using System.Text;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelFill : StyleBase
+    /// <summary>
+    /// The background fill of a cell
+    /// </summary>
+    public sealed class ExcelFill : StyleBase
     {
         internal ExcelFill(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string address, int index) :
             base(styles, ChangedEvent, PositionID, address)
@@ -42,6 +45,9 @@ namespace OfficeOpenXml.Style
         {
             Index = index;
         }
+        /// <summary>
+        /// The pattern of the fill
+        /// </summary>
         public ExcelFillStyle PatternType
         {
             get
@@ -54,6 +60,9 @@ namespace OfficeOpenXml.Style
             }
         }
         ExcelColor _patternColor = null;
+        /// <summary>
+        /// The color of the pattern
+        /// </summary>
         public ExcelColor PatternColor
         {
             get
@@ -66,6 +75,9 @@ namespace OfficeOpenXml.Style
             }
         }
         ExcelColor _backgroundColor = null;
+        /// <summary>
+        /// The background color
+        /// </summary>
         public ExcelColor BackgroundColor
         {
             get

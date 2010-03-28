@@ -38,7 +38,7 @@ namespace OfficeOpenXml.Drawing.Chart
     /// <summary>
     /// An axis for a chart
     /// </summary>
-    public class ExcelChartAxis : XmlHelper
+    public sealed class ExcelChartAxis : XmlHelper
     {
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)

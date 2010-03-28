@@ -38,7 +38,7 @@ namespace OfficeOpenXml.Drawing.Chart
     /// <summary>
     /// Bar chart
     /// </summary>
-    public class ExcelBarChart : ExcelChart
+    public sealed class ExcelBarChart : ExcelChart
     {
         #region "Constructors"
         internal ExcelBarChart(ExcelDrawings drawings, XmlNode node) :

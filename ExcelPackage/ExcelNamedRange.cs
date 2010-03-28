@@ -33,7 +33,10 @@ using System.Text;
 
 namespace OfficeOpenXml
 {
-    public class ExcelNamedRange : ExcelRangeBase 
+    /// <summary>
+    /// A named range. 
+    /// </summary>
+    public sealed class ExcelNamedRange : ExcelRangeBase 
     {
         ExcelWorksheet _sheet;
         /// <summary>

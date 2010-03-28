@@ -36,7 +36,10 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Drawing
 {
-    public class ExcelDrawingFill : XmlHelper
+    /// <summary>
+    /// Fill for drawing objects
+    /// </summary>
+    public sealed class ExcelDrawingFill : XmlHelper
     {
         //ExcelShape _shp;                
         string _fillPath;

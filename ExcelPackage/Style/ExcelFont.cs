@@ -31,10 +31,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelFont : StyleBase
+    /// <summary>
+    /// Cell style Font
+    /// </summary>
+    public sealed class ExcelFont : StyleBase
     {
         internal ExcelFont(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string address, int index) :
             base(styles, ChangedEvent, PositionID, address)
@@ -42,6 +46,9 @@ namespace OfficeOpenXml.Style
         {
             Index = index;
         }
+        /// <summary>
+        /// The name of the font
+        /// </summary>
         public string Name
         {
             get
@@ -53,6 +60,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Name, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// The Size of the font
+        /// </summary>
         public float Size
         {
             get
@@ -64,6 +74,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Size, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font family
+        /// </summary>
         public int Family
         {
             get
@@ -75,6 +88,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Family, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Cell color
+        /// </summary>
         public ExcelColor Color
         {
             get
@@ -82,6 +98,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelColor(_styles, _ChangedEvent, _positionID, _address, eStyleClass.Font, this);
             }
         }
+        /// <summary>
+        /// Scheme
+        /// </summary>
         public string Scheme
         {
             get
@@ -93,6 +112,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Scheme, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font-bold
+        /// </summary>
         public bool Bold
         {
             get
@@ -104,6 +126,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Bold, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font-italic
+        /// </summary>
         public bool Italic
         {
             get
@@ -115,6 +140,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Italic, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font-Strikeout
+        /// </summary>
         public bool Strike
         {
             get
@@ -126,6 +154,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Strike, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font-Underline
+        /// </summary>
         public bool UnderLine
         {
             get
@@ -137,6 +168,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Underline, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Font-Vertical Align
+        /// </summary>
         public string VerticalAlign
         {
             get
@@ -148,7 +182,11 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.VerticalAlign, value, _positionID, _address));
             }
         }
-        public void SetFromFont(System.Drawing.Font Font)
+        /// <summary>
+        /// Set the font from a Font object
+        /// </summary>
+        /// <param name="Font"></param>
+        public void SetFromFont(Font Font)
         {
             Name = Font.Name;
             //Family=fnt.FontFamily.;

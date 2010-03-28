@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelColorXml : StyleXmlHelper
+    /// <summary>
+    /// Xml access class for color
+    /// </summary>
+    public sealed class ExcelColorXml : StyleXmlHelper
     {
         internal ExcelColorXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)

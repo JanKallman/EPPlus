@@ -51,12 +51,13 @@ namespace OfficeOpenXml
             Validate();
 
             _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
-            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
+//            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
         }
         public ExcelAddressBase(string address)
         {
             _address = address;
             GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
+            Validate();
         }
         ExcelCellAddress _start = null;
         #endregion

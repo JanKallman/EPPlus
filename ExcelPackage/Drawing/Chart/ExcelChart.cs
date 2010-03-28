@@ -183,7 +183,7 @@ namespace OfficeOpenXml.Drawing.Chart
     }
     #endregion
     /// <summary>
-   /// Provide access to Chart objects.
+   /// Base class for Chart object.
    /// </summary>
     public class ExcelChart : ExcelDrawing
     {

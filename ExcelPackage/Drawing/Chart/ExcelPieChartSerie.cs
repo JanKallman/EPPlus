@@ -36,7 +36,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelPieChartSerie : ExcelChartSerie
+    /// <summary>
+    /// A serie for a pie chart
+    /// </summary>
+    public sealed class ExcelPieChartSerie : ExcelChartSerie
     {
         /// <summary>
         /// Default constructor

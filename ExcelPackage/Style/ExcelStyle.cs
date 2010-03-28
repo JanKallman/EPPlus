@@ -35,7 +35,10 @@ using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelStyle : StyleBase
+    /// <summary>
+    /// Toplevel class for cell styling
+    /// </summary>
+    public sealed class ExcelStyle : StyleBase
     {
         internal ExcelStyle(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string Address, int xfsId) :
             base(styles, ChangedEvent, PositionID, Address)
@@ -47,10 +50,25 @@ namespace OfficeOpenXml.Style
             Fill = new ExcelFill(styles, ChangedEvent, PositionID, Address, xfs.FillId);
             Border = new Border(styles, ChangedEvent, PositionID, Address, xfs.BorderId); 
         }
+        /// <summary>
+        /// Numberformat
+        /// </summary>
         public ExcelNumberFormat Numberformat { get; set; }
+        /// <summary>
+        /// Font styling
+        /// </summary>
         public ExcelFont Font { get; set; }
+        /// <summary>
+        /// Fill Styling
+        /// </summary>
         public ExcelFill Fill { get; set; }
+        /// <summary>
+        /// Border 
+        /// </summary>
         public Border Border { get; set; }
+        /// <summary>
+        /// The horizontal alignment in the cell
+        /// </summary>
         public ExcelHorizontalAlignment HorizontalAlignment
         {
             get
@@ -62,6 +80,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.HorizontalAlign, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// The vertical alignment in the cell
+        /// </summary>
         public ExcelVerticalAlignment VerticalAlignment
         {
             get
@@ -73,6 +94,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.VerticalAlign, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Wrap the text
+        /// </summary>
         public bool WrapText
         {
             get
@@ -84,6 +108,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.WrapText, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Readingorder
+        /// </summary>
         public bool ReadingOrder
         {
             get
@@ -95,6 +122,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.ReadingOrder, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// Shrink the text to fit
+        /// </summary>
         public bool ShrinkToFit
         {
             get

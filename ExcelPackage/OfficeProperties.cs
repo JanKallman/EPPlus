@@ -40,7 +40,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Provides access to the properties bag of the package
 	/// </summary>
-	public class OfficeProperties : XmlHelper
+	public sealed class OfficeProperties : XmlHelper
 	{
 		#region Private Properties
 		private Uri _uriPropertiesCore = new Uri("/docProps/core.xml", UriKind.Relative);

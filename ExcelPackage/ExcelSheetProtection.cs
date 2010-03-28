@@ -38,7 +38,7 @@ namespace OfficeOpenXml
     /// <summary>
     /// Sheet protection
     /// </summary>
-    public class ExcelSheetProtection : XmlHelper
+    public sealed class ExcelSheetProtection : XmlHelper
     {
         public ExcelSheetProtection (XmlNamespaceManager nsm, XmlNode topNode) :
             base(nsm, topNode)

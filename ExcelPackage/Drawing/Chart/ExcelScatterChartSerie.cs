@@ -37,7 +37,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelScatterChartSerie : ExcelChartSerie
+    /// <summary>
+    /// A serie for a scatter chart
+    /// </summary>
+    public sealed class ExcelScatterChartSerie : ExcelChartSerie
     {
         /// <summary>
         /// Default constructor
