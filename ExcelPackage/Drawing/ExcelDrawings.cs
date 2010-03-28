@@ -40,8 +40,7 @@ using OfficeOpenXml.Drawing.Chart;
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
-    /// Enables access to the Drawings.
-    /// VERY basic support for Charts, Shapes and Pictures in present version.
+    /// Collection for Drawing objects.
     /// </summary>
     public class ExcelDrawings : IEnumerable
     {

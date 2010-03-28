@@ -35,7 +35,10 @@ using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelBorderItem : StyleBase
+    /// <summary>
+    /// Cell border style
+    /// </summary>
+    public sealed class ExcelBorderItem : StyleBase
     {
         eStyleClass _cls;
         StyleBase _parent;

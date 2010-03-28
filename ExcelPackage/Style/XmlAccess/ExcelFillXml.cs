@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelFillXml : StyleXmlHelper 
+    /// <summary>
+    /// Xml access class for fills
+    /// </summary>
+    public sealed class ExcelFillXml : StyleXmlHelper 
     {
         internal ExcelFillXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)

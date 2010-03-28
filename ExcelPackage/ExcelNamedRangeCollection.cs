@@ -34,6 +34,9 @@ using System.Collections;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Collection for named ranges
+    /// </summary>
     public class ExcelNamedRangeCollection : IEnumerable<ExcelNamedRange>
     {
         internal ExcelWorksheet _ws;

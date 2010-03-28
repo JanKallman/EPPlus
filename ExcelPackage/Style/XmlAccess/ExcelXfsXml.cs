@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelXfs : StyleXmlHelper
+    /// <summary>
+    /// Xml access class xfs records. This is the top level style object.
+    /// </summary>
+    public sealed class ExcelXfs : StyleXmlHelper
     {
         ExcelStyles _styles;
         internal ExcelXfs(XmlNamespaceManager nameSpaceManager, ExcelStyles styles) : base(nameSpaceManager)

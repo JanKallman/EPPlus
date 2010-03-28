@@ -55,8 +55,16 @@ namespace OfficeOpenXml.Drawing
         WordArtVerticalRightToLeft
 
     }
+    /// <summary>
+    /// Base class for drawings. 
+    /// Drawings are Charts, shapes and Pictures.
+    /// </summary>
     public class ExcelDrawing : XmlHelper 
     {
+        /// <summary>
+        /// Position of the a drawing.
+        /// 
+        /// </summary>
         public class ExcelPosition : XmlHelper
         {
             XmlNode _node;
@@ -162,10 +170,13 @@ namespace OfficeOpenXml.Drawing
             }
             _nameXPath = nameXPath;
         }
-        public ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node) :
+        internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node) :
             base(nameSpaceManager, node)
         {
         }
+        /// <summary>
+        /// The name of the drawing object
+        /// </summary>
         public string Name 
         {
             get

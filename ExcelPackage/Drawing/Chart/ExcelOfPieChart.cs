@@ -5,7 +5,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelOfPieChart :  ExcelPieChart
+    /// <summary>
+    /// Provides access to pie chart specific properties
+    /// </summary>
+    public class ExcelOfPieChart : ExcelPieChart
     {
         internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node)

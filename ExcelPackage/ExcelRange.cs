@@ -34,6 +34,9 @@ using OfficeOpenXml.Style;
 using System.Data;
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// A range of cells. 
+    /// </summary>
     public class ExcelRange : ExcelRangeBase
     {
         #region "Constructors"

@@ -35,6 +35,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Provides access to doughnut chart specific properties
+    /// </summary>
     public class ExcelDoughnutChart : ExcelPieChart
     {
         internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node) :

@@ -59,7 +59,7 @@ namespace OfficeOpenXml.Drawing
     /// <summary>
     /// Border for drawings
     /// </summary>    
-    public class ExcelDrawingBorder : XmlHelper
+    public sealed class ExcelDrawingBorder : XmlHelper
     {
         string _linePath;
         public ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 

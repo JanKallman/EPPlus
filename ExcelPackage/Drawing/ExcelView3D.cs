@@ -35,7 +35,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing
 {
-    public class ExcelView3D : XmlHelper
+    /// <summary>
+    /// 3D settings
+    /// </summary>
+    public sealed class ExcelView3D : XmlHelper
     {
        public ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)

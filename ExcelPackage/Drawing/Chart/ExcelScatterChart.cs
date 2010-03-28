@@ -35,7 +35,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelScatterChart : ExcelChart
+    /// <summary>
+    /// Provides access to scatter chart specific properties
+    /// </summary>
+    public sealed class ExcelScatterChart : ExcelChart
     {
         internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node)

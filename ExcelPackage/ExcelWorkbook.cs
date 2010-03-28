@@ -63,7 +63,7 @@ namespace OfficeOpenXml
 	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
-	public class ExcelWorkbook : XmlHelper
+	public sealed class ExcelWorkbook : XmlHelper
 	{
         internal class SharedStringItem
         {
@@ -182,6 +182,9 @@ namespace OfficeOpenXml
 		}
 		#endregion
 
+        /// <summary>
+        /// Provides access to named ranges
+        /// </summary>
         public ExcelNamedRangeCollection Names
         {
             get
@@ -191,6 +194,9 @@ namespace OfficeOpenXml
         }
 		#region Workbook Properties
         decimal _standardFontWidth = decimal.MinValue;
+        /// <summary>
+        /// Max font width for the workbook
+        /// </summary>
         public decimal MaxFontWidth 
         {
             get

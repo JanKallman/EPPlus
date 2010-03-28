@@ -40,7 +40,10 @@ using System.Diagnostics;
 
 namespace OfficeOpenXml.Drawing
 {
-    public class ExcelPicture : ExcelDrawing
+    /// <summary>
+    /// An image object
+    /// </summary>
+    public sealed class ExcelPicture : ExcelDrawing
     {
         #region "Constructors"
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node) :

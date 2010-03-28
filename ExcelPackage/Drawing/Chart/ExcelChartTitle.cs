@@ -6,6 +6,9 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// The title of a chart
+    /// </summary>
     public class ExcelChartTitle : XmlHelper
     {
         internal ExcelChartTitle(XmlNamespaceManager nameSpaceManager, XmlNode node) :

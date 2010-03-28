@@ -225,6 +225,9 @@ public enum eShapeStyle
     WedgeRoundRectCallout,
     VerticalScroll
 }
+/// <summary>
+/// Fillstyle.
+/// </summary>
 public enum eFillStyle
 {
     NoFill,
@@ -236,7 +239,10 @@ public enum eFillStyle
 }
 namespace OfficeOpenXml.Drawing
 {
-    public class ExcelShape : ExcelDrawing
+    /// <summary>
+    /// An Excel shape.
+    /// </summary>
+    public sealed class ExcelShape : ExcelDrawing
     {
         internal ExcelShape(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")

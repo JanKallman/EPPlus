@@ -35,6 +35,9 @@ using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Base class containing cell address manipulating methods.
+    /// </summary>
     public abstract class ExcelCellBase
     {
         #region "public functions"
@@ -187,8 +190,8 @@ namespace OfficeOpenXml
         /// Translates to absolute address
         /// </summary>
         /// <param name="part"></param>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
+        /// <param name="rowIncr"></param>
+        /// <param name="colIncr"></param>
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {

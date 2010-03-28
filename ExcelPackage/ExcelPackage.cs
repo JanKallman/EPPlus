@@ -42,7 +42,7 @@ namespace OfficeOpenXml
 	/// Represents an Excel 2007 XLSX file package.  Opens the file and provides access
 	/// to all the components (workbook, worksheets, properties etc.).
 	/// </summary>
-	public class ExcelPackage : IDisposable
+	public sealed class ExcelPackage : IDisposable
 	{
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
@@ -191,7 +191,7 @@ namespace OfficeOpenXml
                 _stream = new MemoryStream();
                 byte[] b = System.IO.File.ReadAllBytes(template.FullName);
                 _stream.Write(b, 0, b.Length);
-                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);                
+                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
                 throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
@@ -364,7 +364,11 @@ namespace OfficeOpenXml
             try
             {
                 Workbook.Save();
-                if (File != null)
+                if (File == null)
+                {
+                    _package.Close();
+                }
+                else
                 {                    
                     if (System.IO.File.Exists(File.FullName))
                     {
@@ -389,11 +393,17 @@ namespace OfficeOpenXml
                         System.IO.File.WriteAllBytes(File.FullName, GetAsByteArray(false));
                     }
                 }
-                _package.Close();
             }
             catch(Exception ex)
             {
-                throw (new Exception(string.Format("Error saving file {0}"), ex));
+                if(File==null)
+                {
+                    throw (ex);
+                }
+                else
+                {
+                    throw (new Exception(string.Format("Error saving file {0}", File.FullName), ex));
+                }
             }
         }
         /// <summary>

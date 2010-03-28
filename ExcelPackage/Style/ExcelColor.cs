@@ -32,10 +32,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml.Style.XmlAccess;
+using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelColor :  StyleBase
+    /// <summary>
+    /// Color for cellstyling
+    /// </summary>
+    public sealed class ExcelColor :  StyleBase
     {
         eStyleClass _cls;
         StyleBase _parent;
@@ -61,6 +65,9 @@ namespace OfficeOpenXml.Style
                 return GetSource().Tint;
             }
         }
+        /// <summary>
+        /// The RGB value
+        /// </summary>
         public string Rgb
         {
             get
@@ -72,6 +79,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(_cls, eStyleProperty.Color, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// The indexed color number.
+        /// </summary>
         public int Indexed
         {
             get
@@ -79,7 +89,11 @@ namespace OfficeOpenXml.Style
                 return GetSource().Indexed;
             }
         }
-        public void SetColor(System.Drawing.Color color)
+        /// <summary>
+        /// Set the color of the object
+        /// </summary>
+        /// <param name="color">The color</param>
+        public void SetColor(Color color)
         {
             Rgb = color.ToArgb().ToString("X");
         }

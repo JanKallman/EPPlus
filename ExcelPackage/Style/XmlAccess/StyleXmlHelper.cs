@@ -34,6 +34,9 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
+    /// <summary>
+    /// Xml helper class for cell style classes
+    /// </summary>
     public abstract class  StyleXmlHelper : XmlHelper
     {
         protected internal StyleXmlHelper(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)

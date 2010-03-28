@@ -35,7 +35,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-    public class ExcelChartPlotArea :  XmlHelper
+    /// <summary>
+    /// A charts plot area
+    /// </summary>
+    public sealed class ExcelChartPlotArea :  XmlHelper
     {
         internal ExcelChartPlotArea(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)

@@ -37,7 +37,7 @@ using System.Collections;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-   public class ExcelChartSeries : XmlHelper, IEnumerable
+   public sealed class ExcelChartSeries : XmlHelper, IEnumerable
     {
        List<ExcelChartSerie> _list=new List<ExcelChartSerie>();
        ExcelChart _chart;

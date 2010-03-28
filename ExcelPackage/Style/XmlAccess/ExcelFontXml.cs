@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelFontXml : StyleXmlHelper
+    /// <summary>
+    /// Xml access class for fonts
+    /// </summary>
+    public sealed class ExcelFontXml : StyleXmlHelper
     {
         internal ExcelFontXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)

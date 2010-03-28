@@ -34,7 +34,10 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
 {
-    public class ExcelBorderXml : StyleXmlHelper
+    /// <summary>
+    /// Xml access class for border top level
+    /// </summary>
+    public sealed class ExcelBorderXml : StyleXmlHelper
     {
         internal ExcelBorderXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)

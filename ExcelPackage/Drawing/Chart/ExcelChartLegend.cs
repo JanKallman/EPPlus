@@ -36,6 +36,9 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Chart ledgerz
+    /// </summary>
     public class ExcelChartLegend : XmlHelper
     {
         ExcelChart _chart;

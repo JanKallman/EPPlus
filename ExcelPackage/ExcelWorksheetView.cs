@@ -39,6 +39,9 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelWorksheetView : XmlHelper
 	{
+        /// <summary>
+        /// The worksheet panes after a freeze or split.
+        /// </summary>
         public class ExcelWorksheetPanes : XmlHelper
         {
             XmlElement _selectionNode = null;

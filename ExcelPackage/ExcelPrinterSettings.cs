@@ -34,6 +34,9 @@ using System.Xml;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Printer orientation
+    /// </summary>
     public enum eOrientation
     {
         Portrait,
@@ -42,7 +45,7 @@ namespace OfficeOpenXml
     /// <summary>
     /// Printer settings
     /// </summary>
-    public class ExcelPrinterSettings : XmlHelper
+    public sealed class ExcelPrinterSettings : XmlHelper
     {
         bool _marginsCreated = false;
         public ExcelPrinterSettings(XmlNamespaceManager ns) :

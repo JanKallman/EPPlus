@@ -39,7 +39,7 @@ namespace OfficeOpenXml.Style
     /// <summary>
     /// Used by Rich-text and Paragraphs.
     /// </summary>
-    public class ExcelTextFont : XmlHelper
+    public sealed class ExcelTextFont : XmlHelper
     {
         string _path;
         XmlNode _rootNode;

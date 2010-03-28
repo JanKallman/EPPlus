@@ -35,6 +35,9 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// A range of cells 
+    /// </summary>
     public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable
     {
         protected ExcelWorksheet _worksheet;
