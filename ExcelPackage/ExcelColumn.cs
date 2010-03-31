@@ -208,7 +208,15 @@ namespace OfficeOpenXml
                 _styleID = value;
             }
 		}
-		#endregion
+        /// <summary>
+        /// Adds a manual page break after the column.
+        /// </summary>
+        public bool PageBreak
+        {
+            get;
+            set;
+        }
+        #endregion
 
 		/// <summary>
 		/// Returns the range of columns covered by the column definition.
