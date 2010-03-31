@@ -286,7 +286,7 @@ namespace OfficeOpenXml
 			{
 				if(double.IsNaN(_defaultRowHeight))
                 {
-                    XmlElement sheetFormat = (XmlElement) WorksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
+                    XmlElement sheetFormat = (XmlElement)WorksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
                     if (sheetFormat == null)
                     {
                         _defaultRowHeight = 15; // Excel's default height
@@ -423,7 +423,8 @@ namespace OfficeOpenXml
             long end = stream.Position;
             LoadMergeCells(xr);
             LoadHyperLinks(xr);
-
+            LoadRowPageBreakes(xr);
+            LoadColPageBreakes(xr);
             stream.Seek(0, SeekOrigin.Begin);
             xml = GetWorkSheetXml(stream, start, end);
 
@@ -434,6 +435,45 @@ namespace OfficeOpenXml
                 _worksheetXml.LoadXml(xml);
 
             ClearNodes();
+        }
+
+        private void LoadRowPageBreakes(XmlTextReader xr)
+        {
+            if(!ReadUntil(xr, "rowBreaks","colBreaks")) return;
+            while (xr.Read())
+            {
+                if (xr.Name == "brk")
+                {
+                    int id;
+                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    {
+                        Row(id).PageBreak = true;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+        }
+        private void LoadColPageBreakes(XmlTextReader xr)
+        {
+            if (!ReadUntil(xr, "colBreaks")) return;
+            while (xr.Read())
+            {
+                if (xr.Name == "brk")
+                {
+                    int id;
+                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    {
+                        Column(id).PageBreak = true;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
 
         private void ClearNodes()
@@ -449,6 +489,14 @@ namespace OfficeOpenXml
             if (_worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager) != null)
             {
                 _worksheetXml.SelectSingleNode("//d:hyperlinks", NameSpaceManager).RemoveAll();
+            }
+            if (_worksheetXml.SelectSingleNode("//d:rowBreaks", NameSpaceManager) != null)
+            {
+                _worksheetXml.SelectSingleNode("//d:rowBreaks", NameSpaceManager).RemoveAll();
+            }
+            if (_worksheetXml.SelectSingleNode("//d:colBreaks", NameSpaceManager) != null)
+            {
+                _worksheetXml.SelectSingleNode("//d:colBreaks", NameSpaceManager).RemoveAll();
             }
         }
         const int BLOCKSIZE=8192;
@@ -534,15 +582,15 @@ namespace OfficeOpenXml
                 }
             }
         }
-        private bool ReadUntil(XmlTextReader xr, string tagName, string altTagName)
+        private bool ReadUntil(XmlTextReader xr,params string[] tagName)
         {
             if (xr.EOF) return false;
-            while (xr.Name != tagName)
+            while (!Array.Exists(tagName, tag => xr.Name.EndsWith(tag)))
             {
                 xr.Read();
-                if (xr.Name == altTagName || xr.EOF) return false;
+                if (xr.EOF) return false;
             }
-            return true;
+            return (xr.Name.EndsWith(tagName[0]));
         }
         private void LoadColumns (XmlTextReader xr)//(string xml)
         {
@@ -600,7 +648,7 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadHyperLinks(XmlTextReader xr)
         {
-            if(!ReadUntil(xr, "hyperlinks","")) return;
+            if(!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
             while (xr.Read())
             {
                 if (xr.Name == "hyperLink")
@@ -623,6 +671,10 @@ namespace OfficeOpenXml
                         cell.Hyperlink = hl;
                     }
                 }
+                else
+                {
+                    break;
+                }
             }
         }
         /// <summary>
@@ -635,7 +687,7 @@ namespace OfficeOpenXml
             var rowList = new List<IRangeID>();
             var formulaList = new List<IRangeID>();
 
-            ReadUntil(xr, "sheetData", "mergeCells");
+            ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelCell cell = null;
             xr.Read();
             
@@ -714,7 +766,7 @@ namespace OfficeOpenXml
         /// <param name="xr"></param>
         private void LoadMergeCells(XmlTextReader xr)
         {
-            if(ReadUntil(xr, "mergeCells", "hyperlinks") && !xr.EOF)
+            if(ReadUntil(xr, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
             {
                 while (xr.Read())
                 {
@@ -1019,16 +1071,39 @@ namespace OfficeOpenXml
         //}
 
 		#region InsertRow
-		/// <summary>
+        /// <summary>
+        /// Inserts a new row into the spreadsheet.  Existing rows below the position are 
+        /// shifted down.  All formula are updated to take account of the new row.
+        /// </summary>
+        /// <param name="rowFrom">The position of the new row</param>
+        /// <param name="rows">Number of rows to be deleted</param>
+        public void InsertRow(int rowFrom, int rows)
+        {
+            InsertRow(rowFrom, rows, 0);
+        }
+        /// <summary>
 		/// Inserts a new row into the spreadsheet.  Existing rows below the position are 
 		/// shifted down.  All formula are updated to take account of the new row.
 		/// </summary>
         /// <param name="rowFrom">The position of the new row</param>
         /// <param name="rows">Number of rows to be deleted</param>
-		public void InsertRow(int rowFrom, int rows)
+        /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
+		public void InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{
             //Insert the new row into the collection
+            ulong copyRowID=ExcelRow.GetRowID(SheetID, copyStylesFromRow);
+            List<ExcelCell> copyStylesCells=new List<ExcelCell>();
+            if (copyStylesFromRow > 0)
+            {
+                int startIndex = _cells.IndexOf(copyRowID);
+                startIndex = ~startIndex;
+                while(startIndex < _cells.Count && (_cells[startIndex] as ExcelCell).Row==copyStylesFromRow)
+                {
+                    copyStylesCells.Add(_cells[startIndex++] as ExcelCell);
+                }
+            }
             ulong rowID=ExcelRow.GetRowID(SheetID, rowFrom);
+
             _cells.InsertRows(rowID, rows);
             _rows.InsertRows(rowID, rows);
             _formulaCells.InsertRowsUpdateIndex(rowID, rows);
@@ -1048,6 +1123,12 @@ namespace OfficeOpenXml
             FixSharedFormulasRows(rowFrom, rows);
             
             AddMergedCells(rowFrom, rows);
+
+            //Copy the styles
+            foreach (ExcelCell cell in copyStylesCells)
+            {
+                Cells[rowFrom, cell.Column, rowFrom + rows - 1, cell.Column].StyleID = cell.StyleID;
+            }
         }
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
@@ -1387,6 +1468,8 @@ namespace OfficeOpenXml
             CreateNode("d:sheetData");
             CreateNode("d:mergeCells");
             CreateNode("d:hyperlinks");
+            CreateNode("d:rowBreaks");
+            CreateNode("d:colBreaks");
 
             string xml = _worksheetXml.OuterXml;
             PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
@@ -1396,16 +1479,17 @@ namespace OfficeOpenXml
             GetBlockPos(xml, "cols", ref colStart, ref colEnd);
 
             sw.Write(xml.Substring(0, colStart));
+            var colBreaks = new List<int>();
             if (_columns.Count > 0)
             {
-                UpdateColumnData(sw);
+                UpdateColumnData(sw, ref colBreaks);
             }
 
             int cellStart = colEnd, cellEnd = colEnd;
             GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
             sw.Write(xml.Substring(colEnd, cellStart - colEnd));
-
-            UpdateRowCellData(sw);
+            var rowBreaks=new List<int>();
+            UpdateRowCellData(sw, ref rowBreaks);
 
             int mergeStart = cellEnd, mergeEnd = cellEnd;
 
@@ -1426,13 +1510,50 @@ namespace OfficeOpenXml
                 UpdateHyperLinks(sw);
             }
 
-            sw.Write(xml.Substring(hyperEnd, xml.Length - hyperEnd));
+            int rowBreakStart = hyperEnd, rowBreakEnd = hyperEnd;
+            GetBlockPos(xml, "rowBreaks", ref rowBreakStart, ref rowBreakEnd);
+            sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
+            if (rowBreaks.Count > 0)
+            {
+                UpdateRowBreaks(sw, ref rowBreaks);
+            }
+
+            int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
+            GetBlockPos(xml, "colBreaks", ref colBreakStart, ref colBreakEnd);
+            sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
+            if (colBreaks.Count > 0)
+            {
+                UpdateColBreaks(sw, ref colBreaks);
+            }
+
+            sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
+        }
+
+        private void UpdateColBreaks(StreamWriter sw, ref List<int> colBreaks)
+        {
+            sw.Write(string.Format("<colBreaks count=\"{0}\" manualBreakCount=\"{0}\">", colBreaks.Count));
+            foreach (int col in colBreaks)
+            {
+                sw.Write("<brk id=\"{0}\" max=\"16383\" man=\"1\" />", col);
+            }
+            sw.Write("</colBreaks>");
+        }
+
+        private void UpdateRowBreaks(StreamWriter sw, ref List<int> rowBreaks)
+        {
+            sw.Write(string.Format("<rowBreaks count=\"{0}\" manualBreakCount=\"{0}\">", rowBreaks.Count));
+            foreach (int row in rowBreaks)
+            {
+                sw.Write("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", row);
+            }
+            sw.Write("</rowBreaks>");
+
         }
         /// <summary>
         /// Inserts the cols collection into the XML document
         /// </summary>
-        private void UpdateColumnData(StreamWriter sw)
+        private void UpdateColumnData(StreamWriter sw, ref List<int> colBreaks)
         {
             ExcelColumn prevCol = null;
             foreach (ExcelColumn col in _columns)
@@ -1487,18 +1608,23 @@ namespace OfficeOpenXml
                     sw.Write(" style=\"{0}\"", styleID);
                 }
                 sw.Write(" />");
+
+                if (col.PageBreak)
+                {
+                    colBreaks.Add(col.ColumnMin);
+                }
             }
             sw.Write("</cols>");
         }
         /// <summary>
         /// Insert row and cells into the XML document
         /// </summary>
-        private void UpdateRowCellData(StreamWriter sw)
+        private void UpdateRowCellData(StreamWriter sw,ref List<int> rowBreaks)
         {
             ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
             
             _hyperLinkCells = new List<ulong>();
-            int row = -1, flushedRow=0;
+            int row = -1;
 
             StringBuilder sbXml = new StringBuilder();
             var ss = xlPackage.Workbook._sharedStrings;
@@ -1568,7 +1694,11 @@ namespace OfficeOpenXml
                         {
                             sw.Write("ph=\"1\" ");
                         }
+                        if (currRow.PageBreak)
+                        {
+                            rowBreaks.Add(currRow.Row);
                         }
+                    }
                     sw.Write(">");
                     row = cell.Row;
                 }
@@ -1756,6 +1886,24 @@ namespace OfficeOpenXml
                     _protection = new ExcelSheetProtection(NameSpaceManager, TopNode);
                 }
                 return _protection;
+            }
+        }
+        public void SetPrintArea(ExcelAddress address)
+        {
+            if(Names.ContainsKey("_xlnm.Print_Area"))
+            {
+                Names["_xlnm.Print_Area"].Value = ExcelAddress.GetFullAddress(Name, address.Address);
+            }
+            else
+            {
+                Names.Add("_xlnm.Print_Area", Cells[address.Address]);
+            }
+        }
+        public void ClearPrintArea()
+        {
+            if(Names.ContainsKey("_xlnm.Print_Area"))
+            {
+                Names.Remove("_xlnm.Print_Area");
             }
         }
         #region Drawing

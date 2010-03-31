@@ -152,7 +152,7 @@ namespace ExcelPackageTest
 
             ws.InsertRow(2001, 4);
 
-            ws.InsertRow(2010, 1);
+            ws.InsertRow(2010, 1, 2010);
 
             ws.InsertRow(20000, 2);
 
@@ -162,8 +162,12 @@ namespace ExcelPackageTest
             ws.Cells["H3"].Formula = "B2+B3";
             ws.DeleteRow(2, 1, true);
 
+            ws.Cells["P3"].IsRichText = true;
+            ws.Cells["P3"].Value = "<r><rPr><sz val=\"11\" /><color rgb=\"FFFF0000\" /><rFont val=\"Calibri\" /><family val=\"2\" /><scheme val=\"minor\" /></rPr><t>te</t></r><r><rPr><b /><sz val=\"11\" /> <color theme=\"1\" /><rFont val=\"Calibri\" /><family val=\"2\" /> <scheme val=\"minor\" /> </rPr><t>st</t> </r>";
+
             //Shared formula
             ws.Cells["H5:H30"].Formula = "B4+B5";
+            ws.Cells["H5:H30"].Style.Numberformat.Format= "_(\"$\"* # ##0.00_);_(\"$\"* (# ##0.00);_(\"$\"* \"-\"??_);_(@_)";
             ws.InsertRow(7, 3);
             ws.InsertRow(2, 1);
             ws.DeleteRow(30, 3, true);
@@ -193,6 +197,15 @@ namespace ExcelPackageTest
 
 
             var range = ws.Cells["B2:D100"];
+
+            ws.ClearPrintArea();
+            ws.SetPrintArea(new ExcelAddress("B2:D99"));
+            ws.ClearPrintArea();
+            ws.Row(15).PageBreak = true;
+            ws.Column(3).PageBreak = true;
+            ws.View.PageBreakView = true;
+
+            ws.Workbook.CalcMode = ExcelCalcMode.Manual;
 
             Assert.AreEqual(range.Start.Column, 2);
             Assert.AreEqual(range.Start.Row, 2);

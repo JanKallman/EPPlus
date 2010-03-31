@@ -15,7 +15,7 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <OutputPath>.\Help\</OutputPath>
-    <HtmlHelpName>EPPlus 2.6.0.1</HtmlHelpName>
+    <HtmlHelpName>EPPlus 2.6</HtmlHelpName>
     <FrameworkVersion>3.0</FrameworkVersion>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\ExcelPackage\bin\Release\EPPlus.dll" xmlns="" />

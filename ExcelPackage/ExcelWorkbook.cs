@@ -474,67 +474,48 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region CalcMode
-		/// <summary>
+        private string CALC_MODE_PATH = "d:calcPr/@calcMode";
+        /// <summary>
 		/// Allows you to set the calculation mode for the workbook.
 		/// </summary>
 		public ExcelCalcMode CalcMode
 		{
 			get
 			{
-				ExcelCalcMode retValue = ExcelCalcMode.Automatic;
-				//  Retrieve the calcMode attribute in the calcPr element.
-				XmlNode node = WorkbookXml.SelectSingleNode("//d:calcPr", NameSpaceManager);
-				if (node != null)
+                string calcMode = GetXmlNode(CALC_MODE_PATH);
+				switch (calcMode)
 				{
-					XmlAttribute attr = node.Attributes["calcMode"];
-					if (attr != null)
-					{
-						switch (attr.Value)
-						{
-							case "auto":
-								retValue = ExcelCalcMode.Automatic;
-								break;
-							case "autoNoTable":
-								retValue = ExcelCalcMode.AutomaticNoTable;
-								break;
-							case "manual":
-								retValue = ExcelCalcMode.Manual;
-								break;
-						}
-					}
+					case "autoNoTable":
+						return ExcelCalcMode.AutomaticNoTable;
+					case "manual":
+						return ExcelCalcMode.Manual;
+                    default:
+                        return ExcelCalcMode.Automatic;
+
 				}
-				return (retValue);
 			}
 			set
 			{
-				XmlElement element = (XmlElement) WorkbookXml.SelectSingleNode("//d:calcPr", NameSpaceManager);
-				//if (element == null)
-				//{
-				//  // create the element
-				//  element = WorkbookXml.CreateElement(
-				//}
-				string actualValue = "auto";  // default
-				//  Set the value of the attribute:
 				switch (value)
 				{
-					case ExcelCalcMode.Automatic:
-						actualValue = "auto";
-						break;
 					case ExcelCalcMode.AutomaticNoTable:
-						actualValue = "autoNoTable";
+                        SetXmlNode(CALC_MODE_PATH, "autoNoTable") ;
 						break;
 					case ExcelCalcMode.Manual:
-						actualValue = "manual";
+                        SetXmlNode(CALC_MODE_PATH, "manual");
 						break;
+                    default:
+                        SetXmlNode(CALC_MODE_PATH, "auto");
+                        break;
+
 				}
-				element.SetAttribute("calcMode", actualValue);
 			}
 			#endregion
 		}
 		#endregion
 
 		#region Workbook Private Methods
-
+            
 		#region Save // Workbook Save
 		/// <summary>
 		/// Saves the workbook and all its components to the package.

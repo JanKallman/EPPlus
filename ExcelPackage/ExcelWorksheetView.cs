@@ -245,22 +245,39 @@ namespace OfficeOpenXml
         }
 
 		/// <summary>
-		/// Sets the view mode of the worksheet to pageLayout
+		/// Sets the view mode of the worksheet to pagelayout
 		/// </summary>
 		public bool PageLayoutView
 		{
 			get
 			{
-                return GetXmlNodeBool("@view");
+                return GetXmlNode("@view") == "pageLayout";
 			}
 			set
 			{
                 if (value)
-                    SetXmlNode("@view", "pageLayout"); //  SheetViewElement.SetAttribute("view", "pageLayout");
+                    SetXmlNode("@view", "pageLayout");
                 else
                     SheetViewElement.RemoveAttribute("view");
 			}
 		}
+        /// <summary>
+        /// Sets the view mode of the worksheet to pagebreak
+        /// </summary>
+        public bool PageBreakView
+        {
+            get
+            {
+                return GetXmlNode("@view") == "pageBreakPreview";
+            }
+            set
+            {
+                if (value)
+                    SetXmlNode("@view", "pageBreakPreview");
+                else
+                    SheetViewElement.RemoveAttribute("view");
+            }
+        }
         /// <summary>
         /// Show gridlines in the worksheet
         /// </summary>

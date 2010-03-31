@@ -187,7 +187,14 @@ namespace OfficeOpenXml
                 return _xlWorksheet.Workbook.Styles.GetStyleObject(StyleID,_xlWorksheet.PositionID ,Row.ToString()+":"+Row.ToString());                
             }
         }
-
+        /// <summary>
+        /// Adds a manual page break after the row.
+        /// </summary>
+        public bool PageBreak
+        {
+            get;
+            set;
+        }
         internal static ulong GetRowID(int sheetID, int row)
         {
             return ((ulong)sheetID) + (((ulong)row) << 29);

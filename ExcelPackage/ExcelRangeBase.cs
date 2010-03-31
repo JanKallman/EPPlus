@@ -149,6 +149,12 @@ namespace OfficeOpenXml
             }
             set
             {
+                 if (string.IsNullOrEmpty(value))
+                 {
+                     _worksheet.Cell(_fromRow, _fromCol).Formula = string.Empty;
+                     return;
+                 }
+                 
                 if (value[0] == '=') value = value.Substring(1, value.Length - 1); // remove any starting equalsign.
                 //If formula spans only one cell, set the formula property
                 if (_fromRow == _toRow && _fromCol == _toCol)
