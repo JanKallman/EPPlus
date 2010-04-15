@@ -55,13 +55,19 @@ namespace OfficeOpenXml
 		/// Provides access to the relationship schema
 		/// </summary>
 		protected internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-
+                                                                
         protected internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
         protected internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+        
+        protected internal const string schemaMicrosoftVml = @"urn:schemas-microsoft-com:vml";
+        protected internal const string schemaMicrosoftOffice = "urn:schemas-microsoft-com:office:office";
+        protected internal const string schemaMicrosoftExcel = "urn:schemas-microsoft-com:office:excel";
+
+        
 
         protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
         protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
-
+        protected internal const string schemaComment = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments";
         //Office properties
         protected internal const string schemaCore = @"http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
         protected internal const string schemaExtended = @"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
@@ -378,7 +384,7 @@ namespace OfficeOpenXml
                         }
                         catch (Exception ex)
                         {
-                            throw(new Exception( string.Format("Error overwriting file {0}", File.FullName), ex));
+                            throw(new Exception(string.Format("Error overwriting file {0}", File.FullName), ex));
                         }
                     }
                     if (Stream is MemoryStream)

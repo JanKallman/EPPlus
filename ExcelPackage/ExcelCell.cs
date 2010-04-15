@@ -381,17 +381,21 @@ namespace OfficeOpenXml
         }
 
 		#region ExcelCell Comment
+        ExcelComment _comment = null;
 		/// <summary>
 		/// Returns the comment as a string
 		/// </summary>
-		public string Comment
+		internal ExcelComment Comment
 		{
-			// TODO: implement get which will obtain the text of the comment from the comment1.xml file
 			get
 			{
-				throw new Exception("Function not yet implemented!");
+                return _comment;
 			}
-			// TODO: implement set which will add comments to the worksheet
+            set
+            {
+                _comment = value;
+            }
+            // TODO: implement set which will add comments to the worksheet
 			// this will require you to add entries to the Drawing.vml file to get this to work! 
 		}
 		#endregion 

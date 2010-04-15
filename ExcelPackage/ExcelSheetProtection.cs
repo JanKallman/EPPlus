@@ -62,7 +62,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    DeleteNode(_isProtectedPath); //delete the whole sheetprotection node
+                    DeleteAllNode(_isProtectedPath); //delete the whole sheetprotection node
                 }
             }
         }

@@ -235,10 +235,10 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             TopNode = topElement;
 
-            if (_bold) CreateNode(boldPath); else DeleteNode(boldPath);
-            if (_italic) CreateNode(italicPath); else DeleteNode(italicPath);
-            if (_strike) CreateNode(strikePath); else DeleteNode(strikePath);
-            if (_underline) CreateNode(underLinedPath); else DeleteNode(underLinedPath);
+            if (_bold) CreateNode(boldPath); else DeleteAllNode(boldPath);
+            if (_italic) CreateNode(italicPath); else DeleteAllNode(italicPath);
+            if (_strike) CreateNode(strikePath); else DeleteAllNode(strikePath);
+            if (_underline) CreateNode(underLinedPath); else DeleteAllNode(underLinedPath);
             if (_verticalAlign!="") SetXmlNode(verticalAlignPath, _verticalAlign.ToString());
             SetXmlNode(sizePath, _size.ToString());
             if (_color.Exists)

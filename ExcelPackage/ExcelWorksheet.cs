@@ -44,6 +44,7 @@ using System.Security;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Drawing.Vml;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -119,7 +120,7 @@ namespace OfficeOpenXml
 		/// For internal use only!
 		/// </summary>
         #region Worksheet Private Properties
-        protected internal ExcelPackage xlPackage;
+        internal ExcelPackage xlPackage;
 		private Uri _worksheetUri;
 		private string _name;
 		private int _sheetID;
@@ -127,7 +128,7 @@ namespace OfficeOpenXml
         private bool _hidden;
 		private string _relationshipID;
 		private XmlDocument _worksheetXml;
-		private ExcelWorksheetView _sheetView;
+        internal ExcelWorksheetView _sheetView;
 		private ExcelHeaderFooter _headerFooter;
         #endregion
         #region ExcelWorksheet Constructor
@@ -407,7 +408,43 @@ namespace OfficeOpenXml
 				return (_worksheetXml);
 			}
 		}
+        private ExcelVmlDrawings _vmlDrawings = null;
+        internal ExcelVmlDrawings VmlDrawings
+        {
+            get
+            {
+                if (_vmlDrawings == null)
+                {
+                    var vmlNode = _worksheetXml.DocumentElement.SelectSingleNode("d:legacyDrawing/@r:id", NameSpaceManager);
+                    if (vmlNode == null)
+                    {
+                        _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, null);
 
+                    }
+                    else
+                    {
+                        var rel = Part.GetRelationship(vmlNode.Value);
+                        var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+
+                        _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
+                        _vmlDrawings.RelId = rel.Id;
+                    }
+                }
+                return _vmlDrawings;
+            }
+        }
+        internal ExcelCommentCollection _comments = null;
+        public ExcelCommentCollection Comments
+        {
+            get
+            {
+                if (_comments == null)
+                {
+                    _comments = new ExcelCommentCollection(xlPackage, this, NameSpaceManager);
+                }
+                return _comments;
+            }
+        }
         private void CreateXml()
         {
             _worksheetXml = new XmlDocument();
@@ -416,7 +453,7 @@ namespace OfficeOpenXml
             string xml = "";
 
             Stream stream = packPart.GetStream();
-            XmlTextReader xr = new XmlTextReader(stream);
+            XmlTextReader xr = new XmlTextReader(stream);            
             LoadColumns(xr);    //columnXml
             long start = stream.Position;
             LoadCells(xr);
@@ -1107,6 +1144,8 @@ namespace OfficeOpenXml
             _cells.InsertRows(rowID, rows);
             _rows.InsertRows(rowID, rows);
             _formulaCells.InsertRowsUpdateIndex(rowID, rows);
+            if (_comments != null) _comments._comments.InsertRowsUpdateIndex(rowID, rows);
+            if (_vmlDrawings != null) _vmlDrawings._drawings.InsertRowsUpdateIndex(rowID, rows);
 
             foreach (ExcelCell cell in _formulaCells)
             {
@@ -1211,8 +1250,8 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        Cells[f.Address].SetSharedFormulaID(int.MinValue);
-                        if (position <= fromRow && position + Math.Abs(rows) >= toRow)  //Delete the formula 
+                        //Cells[f.Address].SetSharedFormulaID(int.MinValue);
+                        if (position <= fromRow && position + Math.Abs(rows) > toRow)  //Delete the formula 
                         {
                             deleted.Add(f);
                         }
@@ -1226,7 +1265,7 @@ namespace OfficeOpenXml
 
                             f.Address = ExcelCell.GetAddress(fromRow, fromCol, toRow, toCol);
                             Cells[f.Address].SetSharedFormulaID(f.Index);
-                            f.StartRow = fromRow;
+                            //f.StartRow = fromRow;
 
                             //f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0);
                        
@@ -1270,7 +1309,17 @@ namespace OfficeOpenXml
             int newFormulasCount = newFormulas.Count;
             ExcelCellBase.GetRowColFromAddress(formula.Address, out fromRow, out fromCol, out toRow, out toCol);
             //int refSplits = Regex.Split(formula.Formula, "#REF!").GetUpperBound(0);
-            string formualR1C1 = ExcelRangeBase.TranslateToR1C1(formula.Formula, formula.StartRow, formula.StartCol);
+            string formualR1C1;
+            if (rows > 0 || fromRow <= startRow)
+            {
+                formualR1C1 = ExcelRangeBase.TranslateToR1C1(formula.Formula, formula.StartRow, formula.StartCol);
+                formula.Formula = ExcelRangeBase.TranslateFromR1C1(formualR1C1, fromRow, formula.StartCol);
+            }
+            else
+            {
+                formualR1C1 = ExcelRangeBase.TranslateToR1C1(formula.Formula, formula.StartRow-rows, formula.StartCol);
+                formula.Formula = ExcelRangeBase.TranslateFromR1C1(formualR1C1, formula.StartRow, formula.StartCol);
+            }
             //bool isRef = false;
             //Formulas restFormula=formula;
             string prevFormualR1C1 = formualR1C1;
@@ -1278,8 +1327,18 @@ namespace OfficeOpenXml
             {
                 for (int col = fromCol; col <= toCol; col++)
                 {
-                    string newFormula=ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
-                    string currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
+                    string newFormula;
+                    string currentFormulaR1C1;
+                    if (rows > 0 || row < startRow)
+                    {
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
+                        currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
+                    }
+                    else
+                    {
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0);
+                        currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
+                    }
                     if (currentFormulaR1C1 != prevFormualR1C1) //newFormula.Contains("#REF!"))
                     {
                         //if (refSplits == 0 || Regex.Split(newFormula, "#REF!").GetUpperBound(0) != refSplits)
@@ -1338,6 +1397,17 @@ namespace OfficeOpenXml
                     //}
                 }
             }
+            if (rows < 0 && formula.StartRow > startRow)
+            {
+                if (formula.StartRow + rows < startRow)
+                {
+                    formula.StartRow = startRow;
+                }
+                else
+                {
+                    formula.StartRow += rows;
+                }
+            }
             if (newFormulas.Count > newFormulasCount)
             {
                 newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[newFormulas.Count - 1].StartCol, toRow, toCol);
@@ -1354,9 +1424,12 @@ namespace OfficeOpenXml
         public void DeleteRow(int rowFrom, int rows)
         {
             ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
+
             _cells.DeleteRows(rowID, rows, true);
             _rows.DeleteRows(rowID, rows, true);
             _formulaCells.DeleteRows(rowID, rows, false);
+            if (_comments != null) _comments._comments.DeleteRows(rowID, rows, false);
+            if (_vmlDrawings != null) _vmlDrawings._drawings.DeleteRows(rowID, rows, false);
 
             foreach (ExcelCell cell in _formulaCells)
             {
@@ -1384,6 +1457,8 @@ namespace OfficeOpenXml
                 _cells.DeleteRows(rowID, rows, true);
                 _rows.DeleteRows(rowID, rows, true);
                 _formulaCells.DeleteRows(rowID, rows, false);
+                if (_comments != null) _comments._comments.DeleteRows(rowID, rows, false);
+                if (_vmlDrawings != null) _vmlDrawings._drawings.DeleteRows(rowID, rows, false);
             }
         }
 		#endregion
@@ -1437,6 +1512,7 @@ namespace OfficeOpenXml
                     this.SetXmlNode("d:dimension/@ref", Dimension.Address);
                 }
 
+                SaveComments();
                 SaveXml();
 				// save worksheet to package
                 //PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
@@ -1460,6 +1536,61 @@ namespace OfficeOpenXml
                 //xlPackage.WriteDebugFile(WorksheetXml, @"xl\drawings", "drawing" + SheetID + ".xml");                
             }
 		}
+
+        private void SaveComments()
+        {
+            if (_comments != null)
+            {
+                if (_comments.Count == 0)
+                {
+                    if (_comments.Uri != null)
+                    {
+                        Part.DeleteRelationship(_comments.RelId);
+                        xlPackage.Package.DeletePart(_comments.Uri);                        
+                    }
+                }
+                else
+                {
+                    if (_comments.Uri == null)
+                    {
+                        _comments.Uri=new Uri(string.Format(@"/xl/comments{0}.xml", SheetID), UriKind.Relative);                        
+                    }
+                    if(_comments.Part==null)
+                    {
+                        _comments.Part = xlPackage.Package.CreatePart(_comments.Uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", xlPackage.Compression);
+                        var rel = Part.CreateRelationship(_comments.Uri, TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
+                    }
+                    _comments.CommentXml.Save(_comments.Part.GetStream());
+                }
+            }
+
+            if (_vmlDrawings != null)
+            {
+                if (_vmlDrawings.Count == 0)
+                {
+                    if (_vmlDrawings.Uri != null)
+                    {
+                        Part.DeleteRelationship(_vmlDrawings.RelId);
+                        xlPackage.Package.DeletePart(_vmlDrawings.Uri);
+                    }
+                }
+                else
+                {
+                    if (_vmlDrawings.Uri == null)
+                    {
+                        _vmlDrawings.Uri = new Uri(string.Format(@"/xl/drawings/vmlDrawing{0}.vml", SheetID), UriKind.Relative);
+                    }
+                    if (_vmlDrawings.Part == null)
+                    {
+                        _vmlDrawings.Part = xlPackage.Package.CreatePart(_vmlDrawings.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", xlPackage.Compression);
+                        var rel=Part.CreateRelationship(_vmlDrawings.Uri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                        SetXmlNode("d:legacyDrawing/@r:id", rel.Id);
+                        _vmlDrawings.RelId = rel.Id;
+                    }
+                    _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream());
+                }
+            }
+        }
 
         private void SaveXml()
         {

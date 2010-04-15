@@ -44,7 +44,15 @@ namespace OfficeOpenXml.Style
             base(styles, ChangedEvent, PositionID, Address)
         {
             Index = xfsId;
-            ExcelXfs xfs = _styles.CellXfs[xfsId];
+            ExcelXfs xfs;
+            if (PositionID > -1)
+            {
+                xfs = _styles.CellXfs[xfsId];
+            }
+            else
+            {
+                xfs = _styles.CellStyleXfs[xfsId];
+            }
             Numberformat = new ExcelNumberFormat(styles, ChangedEvent, PositionID, Address, xfs.NumberFormatId);
             Font = new ExcelFont(styles, ChangedEvent, PositionID, Address, xfs.FontId);
             Fill = new ExcelFill(styles, ChangedEvent, PositionID, Address, xfs.FillId);
@@ -156,7 +164,7 @@ namespace OfficeOpenXml.Style
         }
         /// <summary>
         /// If true the cell is locked for editing when the sheet is protected
-        /// <seealso cref="ExcelWorksheet.Protected"/>
+        /// <seealso cref="ExcelWorksheet.Protection"/>
         /// </summary>
         public bool Locked
         {
@@ -171,7 +179,7 @@ namespace OfficeOpenXml.Style
         }
         /// <summary>
         /// If true the formula is hidden when the sheet is protected.
-        /// <seealso cref="ExcelWorksheet.Protected"/>
+        /// <seealso cref="ExcelWorksheet.Protection"/>
         /// </summary>
         public bool Hidden
         {

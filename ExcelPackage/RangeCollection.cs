@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using OfficeOpenXml.Drawing.Vml;
 
 namespace OfficeOpenXml
 {
@@ -311,5 +312,32 @@ namespace OfficeOpenXml
         }
 
         #endregion
+        int _nextID = 0;
+        /// <summary>
+        /// returns the next drawing id.
+        /// </summary>
+        /// <returns></returns>
+        internal string GetNewId()
+        {
+            if (_nextID == 0) 
+            {
+                foreach (ExcelVmlDrawing draw in this)
+                {
+                    if (draw.Id.Length > 3 && draw.Id.StartsWith("vml"))
+                    {
+                        int id;
+                        if (int.TryParse(draw.Id.Substring(3, draw.Id.Length - 3), out id))
+                        {
+                            if (id > _nextID)
+                            {
+                                _nextID = id;
+                            }
+                        }
+                    }
+                }
+            }
+            _nextID++;
+            return "vml" + _nextID.ToString();
+        }
     }
 }

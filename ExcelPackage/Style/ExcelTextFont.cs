@@ -34,8 +34,6 @@ namespace OfficeOpenXml.Style
         No,
         Single
     }
-
-
     /// <summary>
     /// Used by Rich-text and Paragraphs.
     /// </summary>

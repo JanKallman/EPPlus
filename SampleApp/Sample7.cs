@@ -29,7 +29,7 @@ namespace EPPlusSamples
             Console.WriteLine("{0:HH.mm.ss}\tStarting...", DateTime.Now);
 
             //Load the sheet with one string column, one date column and a few random numbers.
-            var ws = package.Workbook.Worksheets.Add("Perfomance Test");
+            var ws = package.Workbook.Worksheets.Add("Performance Test");
 
             //This is a trick to format all cells in a sheet.
             //Note that this only work when no columns are changed (added)
