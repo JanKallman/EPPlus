@@ -8,6 +8,7 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
+using OfficeOpenXml.Drawing.Vml;
 
 namespace ExcelPackageTest
 {
@@ -205,7 +206,7 @@ namespace ExcelPackageTest
             ws.Column(3).PageBreak = true;
             ws.View.PageBreakView = true;
 
-            ws.Workbook.CalcMode = ExcelCalcMode.Manual;
+            ws.Workbook.CalcMode = ExcelCalcMode.Automatic;
 
             Assert.AreEqual(range.Start.Column, 2);
             Assert.AreEqual(range.Start.Row, 2);
@@ -223,9 +224,64 @@ namespace ExcelPackageTest
             Assert.AreEqual(addr.End.Row, 3);
         }
         [TestMethod]
+        public void RichTextCells()
+        {
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("RichText");
+            var rs = ws.Cells["A1"].RichText;
+
+            var r1 = rs.Add("Test");
+            r1.Bold = true;
+            r1.Color = Color.Pink;
+            
+            var r2 = rs.Add(" of");
+            r2.Size = 14;
+            r2.Italic = true;
+
+            var r3 = rs.Add(" rich");
+            r3.FontName = "Arial";
+            r3.Size = 18;
+            r3.Italic = true;
+
+            var r4 = rs.Add("text.");
+            r4.Size = 8.25f;
+            r4.Italic = true;
+            r4.UnderLine = true;
+
+            rs=ws.Cells["A3:A4"].RichText;
+
+            var r5 = rs.Add("Double");
+            r5.Color = Color.PeachPuff;
+            r5.FontName = "times new roman";
+            r5.Size = 16;
+
+            var r6 = rs.Add(" cells");
+            r6.Color = Color.Red;
+            r6.UnderLine=true;
+        }
+        [TestMethod]
         public void SaveWorksheet()
         {
             _pck.Save();
         }
+        [TestMethod]
+        public void TestComments()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Comment");            
+            var comment = ws.Comments.Add(ws.Cells["B2"], "Jan Källman\r\nAuthor\r\n", "JK");            
+
+            comment.RichText[0].Bold = true;
+            comment.RichText[0].PreserveSpace = true;
+            var rt = comment.RichText.Add("Test comment");
+            comment.VerticalAlignment = eTextAlignVerticalVml.Center;
+            comment.HorizontalAlignment = eTextAlignHorizontalVml.Center;
+            comment.Visible = true;
+            comment.BackgroundColor = Color.Green;
+            comment.To.Row += 4;
+            comment.To.Column += 2;
+            rt.Color = Color.Red;
+
+            var rt2=ws.Cells["C3"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
+            ws.Cells["c3"].Comment.AutoFit = true;
+        }        
     }
 }

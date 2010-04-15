@@ -18,7 +18,7 @@
  * not sold for profit without the author's written consent, and providing that this notice 
  * and the author's name and all copyright notices remain intact.
  * 
- * All code and executables are provided "as is" with no warranty either express or implied. 
+ * All code and executables are provided     "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
  * 

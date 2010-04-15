@@ -92,8 +92,13 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\Vml\ExcelVmlDrawing.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPosition.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawings.cs" />
     <Compile Include="ExcelAddress.cs" />
     <Compile Include="ExcelCellAddress.cs" />
+    <Compile Include="ExcelComment.cs" />
+    <Compile Include="ExcelCommentCollection.cs" />
     <Compile Include="ExcelSheetProtection.cs" />
     <Compile Include="RangeCollection.cs" />
     <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
@@ -125,6 +130,8 @@
     <Compile Include="Style\ExcelBorderItem.cs" />
     <Compile Include="Style\ExcelColor.cs" />
     <Compile Include="Style\ExcelFill.cs" />
+    <Compile Include="Style\ExcelRichText.cs" />
+    <Compile Include="Style\ExcelRichTextCollection.cs" />
     <Compile Include="Style\IExcelCell.cs" />
     <Compile Include="Style\ExcelStyle.cs" />
     <Compile Include="Style\ExcelFont.cs" />

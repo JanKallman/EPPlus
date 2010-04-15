@@ -128,7 +128,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        _sharedStringsList.Add(new SharedStringItem(){Text= node.InnerText, isRichText=true});
+                        _sharedStringsList.Add(new SharedStringItem(){Text= node.InnerXml, isRichText=true});
                     }
                 }
             }
@@ -548,7 +548,8 @@ namespace OfficeOpenXml
 			#endregion
 
             UpdateDefinedNamesXml();
-			// save the workbook
+
+            // save the workbook
 			if (_xmlWorkbook != null)
 			{
 				_package.SavePart(WorkbookUri, _xmlWorkbook);

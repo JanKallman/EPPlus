@@ -103,6 +103,7 @@ namespace OfficeOpenXml
                     if (nameSplit.Length > 1)
                     {
                         nodePrefix=nameSplit[0];
+                        if (nodePrefix[0] == '@') nodePrefix = nodePrefix.Substring(1, nodePrefix.Length - 1);
                         nameSpaceURI = NameSpaceManager.LookupNamespace(nodePrefix);
                         nodeName=nameSplit[1];
                     }
@@ -190,7 +191,7 @@ namespace OfficeOpenXml
             }
             return -1;
         }
-        internal void DeleteNode(string path)
+        internal void DeleteAllNode(string path)
         {
             string[] split = path.Split('/');
             XmlNode node = TopNode;
@@ -214,6 +215,14 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal void DeleteNode(string path)
+        {
+            var node = TopNode.SelectSingleNode(path, NameSpaceManager);
+            if (node != null)
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+        }
         internal void SetXmlNode(string path, string value)
         {
             SetXmlNode(TopNode, path, value, false, false);
@@ -234,7 +243,7 @@ namespace OfficeOpenXml
             }
             if (value == "" && removeIfBlank)
             {
-                DeleteNode(path);
+                DeleteAllNode(path);
             }
             else
             {

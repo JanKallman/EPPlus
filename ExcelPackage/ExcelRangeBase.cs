@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Data;
 using OfficeOpenXml.Style;
+using System.Xml;
 
 namespace OfficeOpenXml
 {
@@ -113,7 +114,7 @@ namespace OfficeOpenXml
                 {
                     for (int row = _fromRow; row <= _toRow; row++)
                     {
-                        _worksheet.Cell(_fromRow, _fromCol).StyleID = value;
+                        _worksheet.Cell(row, col).StyleID = value;
                     }
                 }
             }
@@ -322,23 +323,39 @@ namespace OfficeOpenXml
                 }
             }
         }
-        //public ExcelComment Comment 
-        //{
-        //    get
-        //    {
-        //        return _worksheet.Cell(_fromRow, _fromCol).Comment;
-        //    }
-        //    set
-        //    {
-        //        for (int col = _fromCol; col <= _toCol; col++)
-        //        {
-        //            for (int row = _fromRow; row <= _toRow; row++)
-        //            {
-        //                _worksheet.Cell(row, col).Comment = value;
-        //            }
-        //        }
-        //    }
-        //}
+        ExcelRichTextCollection _rtc = null;
+        public ExcelRichTextCollection RichText
+        {
+            get
+            {
+                if (_rtc == null)
+                {
+                    XmlDocument xml = new XmlDocument();
+                    if (_worksheet.Cell(_fromRow, _fromCol).Value != null)
+                    {
+                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</si>");
+                    }
+                    else
+                    {
+                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
+                    }
+                    _rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
+                }
+                return _rtc;
+            }
+        }
+        public ExcelComment Comment
+        {
+            get
+            {
+                ulong cellID= GetCellID(_worksheet.SheetID, _fromRow, _fromCol);
+                if(_worksheet._comments!=null && _worksheet._comments._comments.ContainsKey(cellID))
+                {
+                    return _worksheet._comments._comments[cellID] as ExcelComment;
+                }
+                return null;
+            }
+        }
         /// <summary>
         /// WorkSheet object 
         /// </summary>
@@ -555,7 +572,41 @@ namespace OfficeOpenXml
             }
             string address = GetAddress(_fromRow+RowOffset, _fromCol+ColumnOffset, _fromRow+RowOffset+NumberOfRows, _fromCol+ColumnOffset+NumberOfColumns);
             return new ExcelRangeBase(_worksheet, address);
-        }        
+        }
+        /// <summary>
+        /// Adds a new comment for the range.
+        /// If this range contains more than one cell, the top left cell is returned by the method.
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Author"></param>
+        /// <returns></returns>
+        public ExcelComment AddComment(string Text, string Author)
+        {
+            ExistsComment();
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
+                    Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), Text, Author);
+                }
+            }
+            return  _worksheet.Cell(_fromRow, _fromCol).Comment;
+        }
+
+        private bool ExistsComment()
+        {
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
+                    if (_worksheet.Cell(row, col).Comment != null)
+                    {
+                        throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
+                    }
+                }
+            }
+            return true;
+        }
         #endregion
         #region IDisposable Members
 
