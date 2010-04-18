@@ -452,6 +452,8 @@ namespace OfficeOpenXml
             PackagePart packPart = xlPackage.Package.GetPart(WorksheetUri);
             string xml = "";
 
+            // First Columns, rows, cells, mergecells, hyperlinks and pagebreakes are loaded from a xmlstream to optimize speed...
+
             Stream stream = packPart.GetStream();
             XmlTextReader xr = new XmlTextReader(stream);            
             LoadColumns(xr);    //columnXml
@@ -462,6 +464,7 @@ namespace OfficeOpenXml
             LoadHyperLinks(xr);
             LoadRowPageBreakes(xr);
             LoadColPageBreakes(xr);
+            //...then the rest of the Xml is extracted and loaded into the WorksheetXml document.
             stream.Seek(0, SeekOrigin.Begin);
             xml = GetWorkSheetXml(stream, start, end);
 
@@ -1912,11 +1915,6 @@ namespace OfficeOpenXml
                         }
                     }
                 }
-                //if (row % 250000 == 0 && flushedRow!=row)    //Flush back to the stream every 25000 rows
-                //{
-                //    sw.Flush();
-                //    flushedRow = row;
-                //}
                 //Update hyperlinks.
                 if (cell.Hyperlink != null)
                 {
@@ -2023,7 +2021,7 @@ namespace OfficeOpenXml
         {
             if(Names.ContainsKey("_xlnm.Print_Area"))
             {
-                Names["_xlnm.Print_Area"].Value = ExcelAddress.GetFullAddress(Name, address.Address);
+                Names["_xlnm.Print_Area"].Address = ExcelAddress.GetFullAddress(Name, address.Address);
             }
             else
             {

@@ -278,6 +278,9 @@ namespace ExcelPackageTest
             comment.BackgroundColor = Color.Green;
             comment.To.Row += 4;
             comment.To.Column += 2;
+            comment.LineStyle = eLineStyleVml.LongDash;
+            comment.LineColor = Color.Red;
+            comment.LineWidth = (Single)2.5;
             rt.Color = Color.Red;
 
             var rt2=ws.Cells["C3"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
