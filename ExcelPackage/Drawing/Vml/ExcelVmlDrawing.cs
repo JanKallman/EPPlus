@@ -18,6 +18,17 @@ namespace OfficeOpenXml.Drawing.Vml
         Center,
         Bottom
     }
+    public enum eLineStyleVml
+    {
+        Solid,
+        Round,
+        Square,
+        Dash,
+        DashDot,
+        LongDash,
+        LongDashDot,
+        LongDashDotDot
+    }
     /// <summary>
     /// Drawing object used for comments
     /// </summary>
@@ -156,6 +167,104 @@ namespace OfficeOpenXml.Drawing.Vml
                 //SetXmlNode(BACKGROUNDCOLOR2_PATH, color);
             }
         }
+        const string LINESTYLE_PATH="v:stroke/@dashstyle";
+        const string ENDCAP_PATH = "v:stroke/@endcap";
+        public eLineStyleVml LineStyle 
+        { 
+            get
+            {
+                string v=GetXmlNode(LINESTYLE_PATH);
+                if (v == "")
+                {
+                    return eLineStyleVml.Solid;
+                }
+                else if (v == "1 1")
+                {
+                    v = GetXmlNode(ENDCAP_PATH);
+                    return (eLineStyleVml)Enum.Parse(typeof(eLineStyleVml), v, true);
+                }
+                else
+                {
+                    return (eLineStyleVml)Enum.Parse(typeof(eLineStyleVml), v, true);
+                }
+            }
+            set
+            {
+                if (value == eLineStyleVml.Round || value == eLineStyleVml.Square)
+                {
+                    SetXmlNode(LINESTYLE_PATH, "1 1");
+                    if (value == eLineStyleVml.Round)
+                    {
+                        SetXmlNode(ENDCAP_PATH, "round");
+                    }
+                    else
+                    {
+                        DeleteNode(ENDCAP_PATH);
+                    }
+                }
+                else
+                {
+                    string v = value.ToString();
+                    v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                    SetXmlNode(LINESTYLE_PATH, v);
+                    DeleteNode(ENDCAP_PATH);
+                }
+            }
+        }
+        const string LINECOLOR_PATH="@strokecolor";
+        public Color LineColor
+        {
+            get
+            {
+                string col = GetXmlNode(LINECOLOR_PATH);
+                if (col == "")
+                {
+                    return Color.Black;
+                }
+                else
+                {
+                    if (col.StartsWith("#")) col = col.Substring(1, col.Length - 1);
+                    int res;
+                    if (int.TryParse(col, System.Globalization.NumberStyles.AllowHexSpecifier, ExcelWorksheet._ci, out res))
+                    {
+                        return Color.FromArgb(res);
+                    }
+                    else
+                    {
+                        return Color.Empty;
+                    }
+                }                
+            }
+            set
+            {
+                string color = "#" + value.ToArgb().ToString("X").Substring(2, 6);
+                SetXmlNode(LINECOLOR_PATH, color);
+            }
+        }
+        const string LINEWIDTH_PATH="@strokeweight";
+        public Single LineWidth 
+        {
+            get
+            {
+                string wt=GetXmlNode(LINEWIDTH_PATH);
+                if (wt == "") return (Single).75;
+                if(wt.EndsWith("pt")) wt=wt.Substring(0,wt.Length-2);
+
+                Single ret;
+                if(Single.TryParse(wt,System.Globalization.NumberStyles.Any, ExcelWorksheet._ci, out ret))
+                {
+                    return ret;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            set
+            {
+                SetXmlNode(LINEWIDTH_PATH, value.ToString(ExcelWorksheet._ci) + "pt");
+            }
+        }
         ///// <summary>
         ///// Width of the Comment 
         ///// </summary>
@@ -225,6 +334,30 @@ namespace OfficeOpenXml.Drawing.Vml
             {                
                 SetXmlNode(TEXTBOX_STYLE_PATH, SetStyle(GetXmlNode(TEXTBOX_STYLE_PATH),"mso-fit-shape-to-text", value?"t":"")); 
             }
+        }        
+        const string LOCKED_PATH = "x:ClientData/x:Locked";
+        public bool Locked 
+        {
+            get
+            {
+                return GetXmlNodeBool(LOCKED_PATH, false);
+            }
+            set
+            {
+                SetXmlNodeBool(LOCKED_PATH, value, false);                
+            }
+        }
+        const string LOCK_TEXT_PATH = "x:ClientData/x:LockText";
+        public bool LockText
+        {
+            get
+            {
+                return GetXmlNodeBool(LOCK_TEXT_PATH, false);
+            }
+            set
+            {
+                SetXmlNodeBool(LOCK_TEXT_PATH, value, false);
+            }
         }
         ExcelVmlDrawingPosition _from = null;
         public ExcelVmlDrawingPosition From
@@ -262,6 +395,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetXmlNode(STYLE_PATH, value);
             }
         }
+        #region "Style Handling methods"
         private bool GetStyle(string style, string key, out string value)
         {
             string[]styles = style.Split(';');
@@ -317,6 +451,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             return newStyle;
         }
+        #endregion
         #region IRangeID Members
 
         ulong IRangeID.RangeID

@@ -41,8 +41,6 @@ namespace EPPlusSamples
 		{
 			try
 			{
-                ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\teeeest_niedzialajacy.xlsx"));
-                var ws = pck.Workbook.Worksheets[1];
                 //Sample 3 and 4 uses the Adventureworks database. Enter then name of your SQL server into the variable below...
                 string SqlServerName = "";
 
