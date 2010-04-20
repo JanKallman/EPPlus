@@ -208,7 +208,7 @@ namespace OfficeOpenXml
             if (index < 0) index = ~index; //No match found invert to get start cell
 
             if (index >= _cells.Count || _cellIndex[index] == null) return -1;   //No row above this row
-            while (_cellIndex[index].RangeID < rowID + rowAdd)
+            while (index < _cells.Count && _cellIndex[index].RangeID < rowID + rowAdd)
             {
                 Delete(_cellIndex[index].RangeID);
             }
