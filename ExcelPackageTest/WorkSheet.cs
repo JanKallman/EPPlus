@@ -285,6 +285,29 @@ namespace ExcelPackageTest
 
             var rt2=ws.Cells["C3"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
             ws.Cells["c3"].Comment.AutoFit = true;
-        }        
+        }
+        [TestMethod]
+        public void TestDelete()
+        {
+            string file = "test.xlsx";
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            Create(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo (file ));
+            ExcelWorksheet w = pack.Workbook.Worksheets["delete"];
+            w.DeleteRow(2, 1);
+            pack.Save();
+        }
+        static void Create(string file)
+        {
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("delete");
+            w.Cells[1, 1].Value = "test";
+            w.Cells[2, 1].Value = "to delete";
+            pack.Save();
+        }
     }
 }
