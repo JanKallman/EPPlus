@@ -17,9 +17,6 @@ namespace ExcelPackageTest
     [TestClass]
     public class DrawingTest
     {
-        public DrawingTest()
-        {
-        }
         private TestContext testContextInstance;
         private static ExcelPackage _pck;
         /// <summary>
@@ -315,7 +312,18 @@ namespace ExcelPackageTest
             }
 
             (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
+            var rt = (ws.Drawings["shape1"] as ExcelShape).RichText.Add("Added formated richtext");
+            rt.Bold = true;
+            rt.Color = Color.Aquamarine;
+            rt.Italic = true;
+            rt.Size = 17;
             (ws.Drawings["shape2"] as ExcelShape).TextVertical = eTextVerticalType.Vertical;
+            rt = (ws.Drawings["shape2"] as ExcelShape).RichText.Add("\r\nAdded formated richtext");
+            rt.Bold = true;
+            rt.Color = Color.DarkGoldenrod ;
+            rt.SetFromFont(new Font("Times new roman", 18, FontStyle.Underline));
+            rt.UnderLineColor = Color.Green;
+
 
             (ws.Drawings["shape3"] as ExcelShape).TextAnchoring=eTextAnchoringType.Bottom;
             (ws.Drawings["shape3"] as ExcelShape).TextAnchoringControl=true ;

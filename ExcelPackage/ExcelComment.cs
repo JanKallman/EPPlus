@@ -50,7 +50,6 @@ namespace OfficeOpenXml
                 _commentHelper.SetXmlNode("@authorId", authorRef.ToString());
             }
         }
-
         private int GetAuthor(string value)
         {
             int authorRef = 0;

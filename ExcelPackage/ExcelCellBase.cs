@@ -344,7 +344,7 @@ namespace OfficeOpenXml
         }
         #endregion
         /// <summary>
-        /// Get the row/columns for n Cell-address
+        /// Get the row/columns for a Cell-address
         /// </summary>
         /// <param name="CellAddress">The address</param>
         /// <param name="FromRow">Returns the to column</param>
@@ -354,6 +354,11 @@ namespace OfficeOpenXml
         internal static void GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
         {
             CellAddress = CellAddress.ToUpper();
+            if(CellAddress.IndexOf(' ')>0)
+            {
+                CellAddress=CellAddress.Substring(0, CellAddress.IndexOf(' '));
+            }
+
             if (CellAddress.IndexOf(':') < 0)
             {
                 GetRowColFromAddress(CellAddress, out FromRow, out FromColumn);
@@ -431,8 +436,8 @@ namespace OfficeOpenXml
             }
             else
             {
-                row = 0;
                 col = 0;
+                int.TryParse(sRow, out row);
                 return false;
             }
             // Get the row number

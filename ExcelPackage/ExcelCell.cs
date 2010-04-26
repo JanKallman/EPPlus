@@ -116,14 +116,19 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				_value = value;
-                if (value is string) DataType = "s"; else DataType = "";
-                Formula = "";
+                SetValueRichText(value);
+                if (IsRichText) IsRichText = false;
 			}
 		}
+        internal void SetValueRichText(object value)
+        {
+            _value = value;
+            if (value is string) DataType = "s"; else DataType = "";
+            Formula = "";
+        }
+
         /// <summary>
         /// If cell has inline formating. 
-        /// Use XML format specified in the OPEN XML Documentation in the value property
         /// </summary>
         public bool IsRichText { get; set; }
         /// <summary>

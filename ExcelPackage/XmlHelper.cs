@@ -77,7 +77,10 @@ namespace OfficeOpenXml
 
         internal XmlNode CreateNode(string path)
         {
-            return CreateNode(path, false);
+            if (path == "") 
+                return TopNode;
+            else
+                return CreateNode(path, false);
         }
         internal XmlNode CreateNode(string path, bool insertFirst)
         {
