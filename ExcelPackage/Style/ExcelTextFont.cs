@@ -37,19 +37,22 @@ namespace OfficeOpenXml.Style
     /// <summary>
     /// Used by Rich-text and Paragraphs.
     /// </summary>
-    public sealed class ExcelTextFont : XmlHelper
+    public class ExcelTextFont : XmlHelper
     {
         string _path;
         XmlNode _rootNode;
-        public ExcelTextFont(XmlNamespaceManager namespaceManager, XmlNode rootNode, string path, string[] schemaNodeOrder)
+        internal ExcelTextFont(XmlNamespaceManager namespaceManager, XmlNode rootNode, string path, string[] schemaNodeOrder)
             : base(namespaceManager, rootNode)
         {
             SchemaNodeOrder = schemaNodeOrder;
             _rootNode = rootNode;
-            XmlNode node = rootNode.SelectSingleNode(path, namespaceManager);
-            if (node != null)
+            if (path != "")
             {
-                TopNode = node;
+                XmlNode node = rootNode.SelectSingleNode(path, namespaceManager);
+                if (node != null)
+                {
+                    TopNode = node;
+                }
             }
             _path = path;
         }
@@ -67,9 +70,9 @@ namespace OfficeOpenXml.Style
             }
         }
 
-        private void CreateTopNode()
+        protected internal void CreateTopNode()
         {
-            if (TopNode == _rootNode)
+            if (_path!="" && TopNode == _rootNode)
             {
                 CreateNode(_path);
                 TopNode = _rootNode.SelectSingleNode(_path, NameSpaceManager);
@@ -204,6 +207,8 @@ namespace OfficeOpenXml.Style
                     return eUnderLineType.Single;
                 case "dbl":
                     return eUnderLineType.Double;
+                case "":
+                    return eUnderLineType.None;
                 default:
                     return (eUnderLineType)Enum.Parse(typeof(eUnderLineType), text);
             }

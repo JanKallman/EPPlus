@@ -304,9 +304,13 @@ namespace OfficeOpenXml.Drawing.Chart
            foreach (XmlNode node in nl)
            {
                string id = node.Attributes["val"].Value;
-               XmlNode axisNode = ChartXml.SelectNodes(rootPath + string.Format("/*/c:axId[@val=\"{0}\"]", id), NameSpaceManager)[1].ParentNode;
-               ExcelChartAxis ax = new ExcelChartAxis(NameSpaceManager, axisNode);
-               l.Add(ax);
+               var axNode = ChartXml.SelectNodes(rootPath + string.Format("/*/c:axId[@val=\"{0}\"]", id), NameSpaceManager);
+               if (axNode != null && axNode.Count>1)
+               {
+                   XmlNode axisNode = axNode[1].ParentNode;
+                   ExcelChartAxis ax = new ExcelChartAxis(NameSpaceManager, axisNode);
+                   l.Add(ax);
+               }
            }
            _axis = l.ToArray();
        }

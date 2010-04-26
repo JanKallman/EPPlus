@@ -691,7 +691,7 @@ namespace OfficeOpenXml
             if(!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
             while (xr.Read())
             {
-                if (xr.Name == "hyperLink")
+                if (xr.Name == "hyperlink")
                 {
                     int fromRow, fromCol, toRow, toCol;
                     ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
@@ -1116,7 +1116,7 @@ namespace OfficeOpenXml
         /// shifted down.  All formula are updated to take account of the new row.
         /// </summary>
         /// <param name="rowFrom">The position of the new row</param>
-        /// <param name="rows">Number of rows to be deleted</param>
+        /// <param name="rows">Number of rows to insert</param>
         public void InsertRow(int rowFrom, int rows)
         {
             InsertRow(rowFrom, rows, 0);
@@ -1126,7 +1126,7 @@ namespace OfficeOpenXml
 		/// shifted down.  All formula are updated to take account of the new row.
 		/// </summary>
         /// <param name="rowFrom">The position of the new row</param>
-        /// <param name="rows">Number of rows to be deleted</param>
+        /// <param name="rows">Number of rows to insert.</param>
         /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
 		public void InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{

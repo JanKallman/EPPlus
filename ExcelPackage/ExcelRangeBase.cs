@@ -459,6 +459,20 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
+        /// Set the value without altering the richtext property
+        /// </summary>
+        /// <param name="value">the value</param>
+        internal void SetValueRichText(object value)
+        {
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
+                    _worksheet.Cell(row, col).SetValueRichText(value);
+                }
+            }
+        }
+        /// <summary>
         /// Removes a shared formula
         /// </summary>
         private void RemoveFormuls()

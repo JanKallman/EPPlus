@@ -2,31 +2,30 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Drawing;
+using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
-    public class ExcelRichTextCollection : XmlHelper, IEnumerable<ExcelRichText>
+    public class ExcelParagraphCollection : XmlHelper, IEnumerable<ExcelParagraph>
     {
-        List<ExcelRichText> _list = new List<ExcelRichText>();
-        ExcelRangeBase _cells=null;
-        internal ExcelRichTextCollection(XmlNamespaceManager ns, XmlNode topNode) :
+        List<ExcelParagraph> _list = new List<ExcelParagraph>();
+        string _path;
+        internal ExcelParagraphCollection(XmlNamespaceManager ns, XmlNode topNode, string path, string[] schemaNodeOrder) :
             base(ns, topNode)
         {
-            var nl = topNode.SelectNodes("r", NameSpaceManager);
+            var nl = topNode.SelectNodes(path + "/a:r", NameSpaceManager);
+            SchemaNodeOrder = schemaNodeOrder;
             if (nl != null)
             {
                 foreach (XmlNode n in nl)
                 {
-                    _list.Add(new ExcelRichText(ns, n));
+                    _list.Add(new ExcelParagraph(ns, n, "",schemaNodeOrder));
                 }
             }
+            _path = path;
         }
-        internal ExcelRichTextCollection(XmlNamespaceManager ns, XmlNode topNode, ExcelRangeBase cells) :
-            this(ns, topNode)
-        {
-            _cells = cells;
-        }        
-        public ExcelRichText this[int Index]
+        public ExcelParagraph this[int Index]
         {
             get
             {
@@ -45,7 +44,7 @@ namespace OfficeOpenXml.Style
         /// </summary>
         /// <param name="Text">The text to add</param>
         /// <returns></returns>
-        public ExcelRichText Add(string Text)
+        public ExcelParagraph Add(string Text)
         {
             XmlDocument doc;
             if (TopNode is XmlDocument)
@@ -56,60 +55,44 @@ namespace OfficeOpenXml.Style
             {
                 doc = TopNode.OwnerDocument;
             }
-            var node = doc.CreateElement("d", "r", ExcelPackage.schemaMain);
-            TopNode.AppendChild(node);
-            var rt = new ExcelRichText(NameSpaceManager, node);
-            if (_cells == null)
+            XmlNode parentNode=TopNode.SelectSingleNode(_path, NameSpaceManager);
+            if (parentNode == null)
             {
-                rt.FontName = "Calibri";
-                rt.Size = 11;
+                CreateNode(_path);
             }
-            else
-            {
-                var style = _cells.Offset(0, 0).Style;
-                rt.FontName = style.Font.Name;
-                rt.Size = style.Font.Size;
-                rt.Bold = style.Font.Bold;
-                rt.Italic = style.Font.Italic;
-                _cells.IsRichText = true;
-            }
+            
+            var node = doc.CreateElement("a", "r", ExcelPackage.schemaDrawings);
+            parentNode.AppendChild(node);
+            var childNode = doc.CreateElement("a", "rPr", ExcelPackage.schemaDrawings);
+            node.AppendChild(childNode);
+            var rt = new ExcelParagraph(NameSpaceManager, node, "", SchemaNodeOrder);
+            rt.ComplexFont = "Calibri";
+            rt.LatinFont = "Calibri"; 
+            rt.Size = 11;
+
             rt.Text = Text;
-            rt.PreserveSpace = true;
-            if(_cells!=null) rt.SetCallback(UpdateCells);
             _list.Add(rt);
             return rt;
-        }
-        internal void UpdateCells()
-        {
-            _cells.SetValueRichText(TopNode.InnerXml);
         }
         public void Clear()
         {
             _list.Clear();
             TopNode.RemoveAll();
-            if (_cells != null) _cells.IsRichText = false;
         }
         public void RemoveAt(int Index)
         {
             TopNode.RemoveChild(_list[Index].TopNode);
             _list.RemoveAt(Index);
-            if (_cells != null && _list.Count==0) _cells.IsRichText = false;
         }
         public void Remove(ExcelRichText Item)
         {
             TopNode.RemoveChild(Item.TopNode);
-            _list.Remove(Item);
-            if (_cells != null && _list.Count == 0) _cells.IsRichText = false;
         }
-        //public void Insert(int index, string Text)
-        //{
-        //    _list.Insert(index, item);
-        //}
         public string Text
         {
             get
             {
-                StringBuilder sb=new StringBuilder();
+                StringBuilder sb = new StringBuilder();
                 foreach (var item in _list)
                 {
                     sb.Append(item.Text);
@@ -134,7 +117,7 @@ namespace OfficeOpenXml.Style
         }
         #region IEnumerable<ExcelRichText> Members
 
-        IEnumerator<ExcelRichText> IEnumerable<ExcelRichText>.GetEnumerator()
+        IEnumerator<ExcelParagraph> IEnumerable<ExcelParagraph>.GetEnumerator()
         {
             return _list.GetEnumerator();
         }

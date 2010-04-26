@@ -261,7 +261,6 @@ namespace OfficeOpenXml.Drawing
             shapeNode.InnerXml = ShapeStartXml();
             node.AppendChild(shapeNode.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings));
         }
-        const string TextPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
         #region "public methods"
         const string ShapeStylePath = "xdr:sp/xdr:spPr/a:prstGeom/@prst";
         /// <summary>
@@ -318,6 +317,8 @@ namespace OfficeOpenXml.Drawing
                 return _border;
             }
         }
+        string[] paragraphNodeOrder = new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
+        const string PARAGRAPH_PATH = "xdr:sp/xdr:txBody/a:p";
         ExcelTextFont _font=null;
         public ExcelTextFont Font
         {
@@ -325,17 +326,18 @@ namespace OfficeOpenXml.Drawing
             {
                 if (_font == null)
                 {
-                    XmlNode node = TopNode.SelectSingleNode("xdr:sp/xdr:txBody/a:p", NameSpaceManager);
+                    XmlNode node = TopNode.SelectSingleNode(PARAGRAPH_PATH, NameSpaceManager);
                     if(node==null)
                     {
                         Text="";    //Creates the node p element
-                        node = TopNode.SelectSingleNode("xdr:sp/xdr:txBody/a:p", NameSpaceManager);
+                        node = TopNode.SelectSingleNode(PARAGRAPH_PATH, NameSpaceManager);
                     }
-                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "xdr:sp/xdr:txBody/a:p/a:pPr/a:defRPr", new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t"});
+                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "xdr:sp/xdr:txBody/a:p/a:pPr/a:defRPr", paragraphNodeOrder);
                 }
                 return _font;
             }
         }
+        const string TextPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
         /// <summary>
         /// Text
         /// </summary>
@@ -347,13 +349,28 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
-                //We need this one 
-                //CreateNode("xdr:sp/xdr:txBody/a:p/a:r/a:rPr");
                 SetXmlNode(TextPath, value);
             }
 
         }
-        public const string TextAnchoringPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchor";
+        ExcelParagraphCollection _richText = null;
+        public ExcelParagraphCollection RichText
+        {
+            get
+            {
+                if (_richText == null)
+                {
+                    //XmlNode node=TopNode.SelectSingleNode(PARAGRAPH_PATH, NameSpaceManager);
+                    //if (node == null)
+                    //{
+                    //    CreateNode(PARAGRAPH_PATH);
+                    //}
+                        _richText = new ExcelParagraphCollection(NameSpaceManager, TopNode, PARAGRAPH_PATH, paragraphNodeOrder);
+                }
+                return _richText;
+            }
+        }
+        const string TextAnchoringPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchor";
         /// <summary>
         /// Text Anchoring
         /// </summary>
@@ -368,7 +385,7 @@ namespace OfficeOpenXml.Drawing
                 SetXmlNode(TextAnchoringPath, GetTextAchoringText(value));
             }
         }
-        public const string TextAnchoringCtlPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchorCtr";
+        const string TextAnchoringCtlPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchorCtr";
         public bool TextAnchoringControl
         {
             get

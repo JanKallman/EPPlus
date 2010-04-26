@@ -146,8 +146,8 @@ namespace OfficeOpenXml.Style.XmlAccess
                     if (PatternColor.Exists)
                     {
                         CreateNode(_patternColorPath);
-                        //topNode.SelectSingleNode(_bgColorPath, NameSpaceManager).AppendChild(PatternColor.CreateXmlNode(TopNode.OwnerDocument.CreateElement("bgColor", ExcelPackage.schemaMain)));
-                        topNode.AppendChild(PatternColor.CreateXmlNode(topNode.SelectSingleNode(_patternColorPath, NameSpaceManager)));
+                        //topNode.AppendChild(PatternColor.CreateXmlNode(topNode.SelectSingleNode(_patternColorPath, NameSpaceManager)));
+                        PatternColor.CreateXmlNode(topNode.SelectSingleNode(_patternColorPath, NameSpaceManager));
                     }
                 }
             }

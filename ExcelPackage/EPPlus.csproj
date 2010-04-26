@@ -126,6 +126,8 @@
     <Compile Include="ExcelPrinterSettings.cs" />
     <Compile Include="ExcelRangeBase.cs" />
     <Compile Include="IRangeID.cs" />
+    <Compile Include="Style\ExcelParagraph.cs" />
+    <Compile Include="Style\ExcelParagraphCollection.cs" />
     <Compile Include="Style\ExcelBorder.cs" />
     <Compile Include="Style\ExcelBorderItem.cs" />
     <Compile Include="Style\ExcelColor.cs" />
