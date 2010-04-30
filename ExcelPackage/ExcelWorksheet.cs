@@ -456,6 +456,7 @@ namespace OfficeOpenXml
 
             Stream stream = packPart.GetStream();
             XmlTextReader xr = new XmlTextReader(stream);            
+            
             LoadColumns(xr);    //columnXml
             long start = stream.Position;
             LoadCells(xr);
@@ -574,18 +575,18 @@ namespace OfficeOpenXml
                 {
                     if (sr.Peek() != -1)
                     {
-                        if (end - BLOCKSIZE > stream.Position)
+                        if (end - BLOCKSIZE > 0)
                         {
                             stream.Seek(end - BLOCKSIZE, SeekOrigin.Begin);
+                            int size = stream.Length - stream.Position < BLOCKSIZE ? (int)(stream.Length - stream.Position) : BLOCKSIZE;
+                            block = new char[size];
+                            sr = new StreamReader(stream);
+                            pos = sr.ReadBlock(block, 0, size);
+                            sb = new StringBuilder();
+                            sb.Append(block);
+                            s = sb.ToString();
                         }
-                        int size = stream.Length - stream.Position < BLOCKSIZE ? (int)(stream.Length - stream.Position) : BLOCKSIZE;
-                        block = new char[size];
-                        sr = new StreamReader(stream);
-                        pos = sr.ReadBlock(block, 0, size);
-                        sb = new StringBuilder();
-                        sb.Append(block);
                     }
-                    s = sb.ToString();
                     endMatch = Regex.Match(s, string.Format("(</[^>]*{0}[^>]*>)", "sheetData"));
                     xml += "<sheetData/>" + s.Substring(endMatch.Index + endMatch.Length, s.Length - (endMatch.Index + endMatch.Length));
                 }
