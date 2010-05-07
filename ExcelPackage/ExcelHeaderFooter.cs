@@ -91,6 +91,10 @@ namespace OfficeOpenXml
 		/// Use this to insert the current time into the header or footer of the worksheet
 		/// </summary>
 		public const string CurrentTime = @"&T";
+        /// <summary>
+        /// Use this if you have an Image in a template and want to rewrite the header containing the image.
+        /// </summary>
+        public const string Image = @"&G";
 		#endregion
 
 		#region ExcelHeaderFooter Private Properties

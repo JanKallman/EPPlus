@@ -333,5 +333,19 @@ namespace ExcelPackageTest
             package.SaveAs(newFile);
 
         }
+        [TestMethod]
+        public void HideTest()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Hidden");
+            ws.Cells["a1"].Value = "This workbook is hidden";
+            ws.Hidden = eWorkSheetHidden.Hidden;
+        }
+        [TestMethod]
+        public void VeryHideTest()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("VeryHidden");
+            ws.Cells["a1"].Value = "This workbook is hidden";
+            ws.Hidden = eWorkSheetHidden.VeryHidden;
+        }
     }
 }

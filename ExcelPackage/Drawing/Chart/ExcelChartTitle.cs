@@ -28,11 +28,13 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNode(titlePath);
+                //return GetXmlNode(titlePath);
+                return RichText.Text;
             }
             set
             {
-                SetXmlNode(titlePath, value);
+                //SetXmlNode(titlePath, value);
+                RichText.Text = value;
             }
         }
         ExcelDrawingBorder _border = null;
@@ -59,16 +61,34 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _fill;
             }
         }
-        ExcelTextFont _font = null;
+        //ExcelTextFont _font = null;
         public ExcelTextFont Font
         {
             get
             {
-                if (_font == null)
+                //if (_font == null)
+                //{
+                //    _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:tx/c:rich/a:p/a:r/a:rPr", new string[] { "rPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+                //}
+                //return _font;
+                if (_richText==null || _richText.Count == 0)
                 {
-                    _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:tx/c:rich/a:p/a:r/a:rPr", new string[] { "rPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+                    RichText.Add("");
                 }
-                return _font;
+                return _richText[0];
+            }
+        }
+        string[] paragraphNodeOrder = new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
+        ExcelParagraphCollection _richText = null;
+        public ExcelParagraphCollection RichText
+        {
+            get
+            {
+                if (_richText == null)
+                {
+                    _richText = new ExcelParagraphCollection(NameSpaceManager, TopNode, "c:tx/c:rich/a:p", paragraphNodeOrder);
+                }
+                return _richText;
             }
         }
     }

@@ -47,6 +47,21 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 namespace OfficeOpenXml
 {
+    public enum eWorkSheetHidden
+    {
+        /// <summary>
+        /// The worksheet is visible
+        /// </summary>
+        Visible,
+        /// <summary>
+        /// The worksheet is hidden but can be shown by the user via the user interface
+        /// </summary>
+        Hidden,
+        /// <summary>
+        /// The worksheet is hidden and cannot be shown by the user via the user interface
+        /// </summary>
+        VeryHidden
+    }
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
@@ -125,7 +140,7 @@ namespace OfficeOpenXml
 		private string _name;
 		private int _sheetID;
         private int _positionID;
-        private bool _hidden;
+        private eWorkSheetHidden _hidden;
 		private string _relationshipID;
 		private XmlDocument _worksheetXml;
         internal ExcelWorksheetView _sheetView;
@@ -144,11 +159,11 @@ namespace OfficeOpenXml
         /// <param name="Hide">hide</param>
         public ExcelWorksheet(XmlNamespaceManager ns, ExcelPackage excelPackage, string relID, 
                               Uri uriWorksheet, string sheetName, int sheetID, int positionID,
-                              bool hide) :
+                              eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing" };
-            xlPackage = excelPackage;
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
+            xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
             _name = sheetName;
@@ -257,19 +272,26 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Indicates if the worksheet is hidden in the workbook
 		/// </summary>
-		public bool Hidden
+		public eWorkSheetHidden Hidden
 		{
 			get { return (_hidden); }
 			set
 			{
-				XmlNode sheetNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode(string.Format("//d:sheet[@sheetId={0}]", _sheetID), NameSpaceManager);
+				XmlElement sheetNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode(string.Format("//d:sheet[@sheetId={0}]", _sheetID), NameSpaceManager) as XmlElement;
 				if (sheetNode != null)
 				{
-					XmlAttribute nameAttr = (XmlAttribute)sheetNode.Attributes.GetNamedItem("hidden");
-					if (nameAttr != null)
-					{
-						nameAttr.Value = value.ToString();
-					}
+                    if (value==eWorkSheetHidden.Hidden)
+                    {
+                        sheetNode.SetAttribute("state", "hidden");
+                    }
+                    else if (value == eWorkSheetHidden.VeryHidden)
+                    {
+                        sheetNode.SetAttribute("state", "veryHidden");
+                    }
+                    else
+                    {
+                        sheetNode.RemoveAttribute("state");
+                    }
 				}
 				_hidden = value;
 			}
@@ -352,9 +374,9 @@ namespace OfficeOpenXml
         }
         #endregion
         /** <outlinePr applyStyles="1" summaryBelow="0" summaryRight="0" /> **/
-        const string outLineSummaryBelowPath = "d:sheetPr/d:outlinePr/@summaryBelow"; 
+        const string outLineSummaryBelowPath = "d:sheetPr/d:outlinePr/@summaryBelow";
         /// <summary>
-        /// Summary rows below details
+        /// Summary rows below details 
         /// </summary>
         public bool OutLineSummaryBelow 
         { 

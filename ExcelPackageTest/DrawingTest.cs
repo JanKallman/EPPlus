@@ -176,7 +176,12 @@ namespace ExcelPackageTest
            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
             chrt.To.Row = 23;
             chrt.To.Column = 12;
-            chrt.Title.Text = "Header Text";
+            //chrt.Title.Text = "Header Text";
+            var r1=chrt.Title.RichText.Add("Header");
+            r1.Bold = true;
+            var r2=chrt.Title.RichText.Add("  Text");
+            r2.UnderLine = eUnderLineType.WavyHeavy;
+
             chrt.Title.Fill.Style = eFillStyle.SolidFill;
             chrt.Title.Fill.Color = Color.LightBlue;
             chrt.Title.Fill.Transparancy = 50;
@@ -277,7 +282,7 @@ namespace ExcelPackageTest
         public void Line()
         {
             var ws = _pck.Workbook.Worksheets.Add("Line");
-            var chrt = ws.Drawings.AddChart("Line1", eChartType.Line3D);
+            var chrt = ws.Drawings.AddChart("Line1", eChartType.Line);
             AddTestSerie(ws, chrt);
             chrt.SetSize(150);
             chrt.Title.Text = "Line 3D";
