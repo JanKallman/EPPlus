@@ -306,7 +306,7 @@ namespace OfficeOpenXml.Drawing
         /// <summary>
         /// Border
         /// </summary>
-        public ExcelDrawingBorder Border
+        public ExcelDrawingBorder Border        
         {
             get
             {

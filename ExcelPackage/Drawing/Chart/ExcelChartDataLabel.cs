@@ -154,6 +154,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return _border;
            }
        }
+       string[] _paragraphSchemaOrder = new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
        ExcelTextFont _font = null;
        public ExcelTextFont Font
        {
@@ -166,12 +167,11 @@ namespace OfficeOpenXml.Drawing.Chart
                        CreateNode("c:txPr/a:bodyPr");
                        CreateNode("c:txPr/a:lstStyle");
                    }
-                   _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:txPr/a:p/a:pPr/a:defRPr", new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" });
+                   _font = new ExcelTextFont(NameSpaceManager, TopNode, "c:txPr/a:p/a:pPr/a:defRPr", _paragraphSchemaOrder);
                }
                return _font;
            }
        }
-       
        #endregion
        #region "Position Enum Traslation"
        protected string GetPosText(eLabelPosition pos)

@@ -86,10 +86,10 @@ namespace OfficeOpenXml
 				string relId = sheetNode.Attributes["r:id"].Value;
 				int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 				// get hidden attribute (if present)
-				bool hidden = false;
-				XmlNode attr = sheetNode.Attributes["hidden"];
+				eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
+				XmlNode attr = sheetNode.Attributes["state"];
 				if (attr != null)
-					hidden = Convert.ToBoolean(attr.Value);
+					hidden = TranslateHidden(attr.Value);
 
 				//string type = "";
 				//attr = sheetNode.Attributes["type"];
@@ -104,6 +104,19 @@ namespace OfficeOpenXml
 				positionID++;
 			}
 		}
+
+        private eWorkSheetHidden TranslateHidden(string value)
+        {
+            switch (value)
+            {
+                case "hidden":
+                    return eWorkSheetHidden.Hidden;
+                case "veryHidden":
+                    return eWorkSheetHidden.VeryHidden;
+                default:
+                    return eWorkSheetHidden.Visible;
+            }
+        }
 		#endregion
 
 		#region ExcelWorksheets Public Properties
@@ -200,7 +213,7 @@ namespace OfficeOpenXml
 
 			// create a reference to the new worksheet in our collection
 			int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet = new ExcelWorksheet(_nsManager, _xlPackage, rel.Id, uriWorksheet, Name, sheetID, positionID, false);
+            ExcelWorksheet worksheet = new ExcelWorksheet(_nsManager, _xlPackage, rel.Id, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
 
 			_worksheets.Add(positionID, worksheet);
 			return worksheet;
