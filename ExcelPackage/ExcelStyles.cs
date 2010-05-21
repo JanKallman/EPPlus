@@ -139,16 +139,177 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal int PropertyChange(StyleBase sender, Style.StyleChangeEventArgs e)
         {
-            int rowFrom,rowTo, colFrom, colTo;
-            Dictionary<int, int> styleCashe = new Dictionary<int, int>();
-            ExcelCell.GetRowColFromAddress(e.Address, out rowFrom, out colFrom, out rowTo, out colTo);
+            var address = new ExcelAddressBase(e.Address);
             var ws = _wb.Worksheets[e.PositionID];
-            //Cellrange
-            if (colFrom > 0 && rowFrom > 0)
+            Dictionary<int, int> styleCashe = new Dictionary<int, int>();
+            //Set single address
+            SetStyleAddress(sender, e, address, ws, ref styleCashe);
+            if (address.Addresses != null)
             {
-                for (int col = colFrom; col <= colTo; col++)
+                //Handle multiaddresses
+                foreach (var innerAddress in address.Addresses)
                 {
-                    for (int row = rowFrom; row <= rowTo; row++)
+                    SetStyleAddress(sender, e, innerAddress, ws, ref styleCashe);
+                }
+            }
+            return 0;
+        }
+
+        private void SetStyleAddress(StyleBase sender, Style.StyleChangeEventArgs e, ExcelAddressBase address, ExcelWorksheet ws, ref Dictionary<int, int> styleCashe)
+        {
+            if (address.Start.Column == 0 || address.Start.Row == 0)
+            {
+                throw (new Exception("error address"));
+            }
+            //Columns
+            else if (address.Start.Row == 1 && address.End.Row == ExcelPackage.MaxRows)
+            {
+                ExcelColumn column;
+                //Get the startcolumn
+                ulong colID = ExcelColumn.GetColumnID(ws.SheetID, address.Start.Column);
+                if (!ws._columns.ContainsKey(colID))
+                {
+                    column=ws.Column(address.Start.Column);
+                }
+                else
+                {
+                    column = ws._columns[colID] as ExcelColumn;
+                }
+
+                var index = ws._columns.IndexOf(colID);
+                while(column.ColumnMin <= address.End.Column)
+                {
+                    if (column.ColumnMax > address.End.Column)
+                    {
+                        var newCol=ws.CopyColumn(column, address.End.Column+1);
+                        newCol.ColumnMax = column.ColumnMax;
+                        column.ColumnMax = address.End.Column;
+                    }
+
+                    if (styleCashe.ContainsKey(column.StyleID))
+                    {
+                        column.StyleID = styleCashe[column.StyleID];
+                    }
+                    else
+                    {
+                        ExcelXfs st = CellXfs[column.StyleID];
+                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                        styleCashe.Add(column.StyleID, newId);
+                        column.StyleID = newId;
+                    }
+
+                    index++;
+                    if (index >= ws._columns.Count)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        column = (ws._columns[index] as ExcelColumn);
+                    }
+                }
+
+                if (column._columnMax < address.End.Column)
+                {
+                    var newCol = ws.Column(column._columnMax + 1) as ExcelColumn;
+                    newCol._columnMax = address.End.Column;
+
+                    if (styleCashe.ContainsKey(column.StyleID))
+                    {
+                        newCol.StyleID = styleCashe[column.StyleID];
+                    }
+                    else
+                    {
+                        ExcelXfs st = CellXfs[column.StyleID];
+                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                        styleCashe.Add(newCol.StyleID, newId);
+                        newCol.StyleID = newId;
+                    }
+                    
+                    //column._columnMax = address.End.Column;
+                }
+
+                //Set for individual cells in the spann. We loop all cells here since the cells are sorted on with columns first.
+                foreach (ExcelCell cell in ws._cells)
+                {
+                    if (cell.Column >= address.Start.Column &&
+                       cell.Column <= address.End.Column)
+                    {
+                        if (styleCashe.ContainsKey(cell.StyleID))
+                        {
+                            cell.StyleID = styleCashe[cell.StyleID];
+                        }
+                        else
+                        {
+                            ExcelXfs st = CellXfs[cell.StyleID];
+                            int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                            styleCashe.Add(cell.StyleID, newId);
+                            cell.StyleID = newId;
+                        }
+                    }
+
+                }
+            }
+            //Rows
+            else if(address.Start.Column==1 && address.End.Column==ExcelPackage.MaxColumns)
+            {
+                for (int rowNum = address.Start.Row; rowNum <= address.End.Row; rowNum++)
+                {
+                    ExcelRow row = ws.Row(rowNum);
+                    if (row.StyleID == 0 && ws._columns.Count > 0)
+                    {
+                        //TODO: We should loop all columns here and change each cell. But for now we take style of column A.
+                        foreach (ExcelColumn column in ws._columns)
+                        {
+                            row.StyleID = column.StyleID;
+                            break;  //Get the first one and break. 
+                        }
+
+                    }
+                    if (styleCashe.ContainsKey(row.StyleID))
+                    {
+                        row.StyleID = styleCashe[row.StyleID];
+                    }
+                    else
+                    {
+                        ExcelXfs st = CellXfs[row.StyleID];
+                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                        styleCashe.Add(row.StyleID, newId);
+                        row.StyleID = newId;
+                    }
+                }
+
+                //Get Start Cell
+                ulong rowID = ExcelRow.GetRowID(ws.SheetID, address.Start.Row);
+                int index = ws._cells.IndexOf(rowID);
+
+                index = ~index;
+                while (index < ws._cells.Count)
+                {                        
+                    var cell = ws._cells[index] as ExcelCell;
+                    if(cell.Row > address.End.Row)
+                    {
+                        break;
+                    }
+                    if (styleCashe.ContainsKey(cell.StyleID))
+                    {
+                        cell.StyleID = styleCashe[cell.StyleID];
+                    }
+                    else
+                    {
+                        ExcelXfs st = CellXfs[cell.StyleID];
+                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                        styleCashe.Add(cell.StyleID, newId);
+                        cell.StyleID = newId;
+                    }
+                    index++;
+                }
+            }
+            else             //Cellrange
+            {
+                for (int col = address.Start.Column; col <= address.End.Column; col++)
+                {
+                    for (int row = address.Start.Row; row <= address.End.Row; row++)
                     {
                         ExcelCell cell = ws.Cell(row, col);
                         if (styleCashe.ContainsKey(cell.StyleID))
@@ -163,56 +324,8 @@ namespace OfficeOpenXml
                             cell.StyleID = newId;
                         }
                     }
-                }
+                }            
             }
-            else if (colFrom > 0)
-            {
-                for (int col = colFrom; col <= colTo; col++)
-                {                    
-                    ulong colID = ExcelColumn.GetColumnID(ws.SheetID, col);
-                    var column = ws._columns[colID] as ExcelColumn;
-                    if (styleCashe.ContainsKey(column.StyleID))
-                    {
-                        column.StyleID = styleCashe[column.StyleID];
-                    }
-                    else
-                    {
-                        ExcelXfs st = CellXfs[column.StyleID];
-                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
-                        styleCashe.Add(column.StyleID, newId);
-                        column.StyleID = newId;
-                    }
-                }
-            }
-            else
-            {
-                for (int rowNum = rowFrom; rowNum <= rowTo; rowNum++)
-                {
-                    ExcelRow row = ws.Row(rowNum);
-                    if (row.StyleID == 0 && ws._columns.Count > 0)
-                    {
-                        //TODO: We should loop all columns here and change each cell. But for now we take style of column A.
-                        foreach(ExcelColumn column in ws._columns)
-                        {
-                            row.StyleID = column.StyleID;
-                            break;  //Get the first one and break. 
-                        }                        
-                        
-                    }
-                    if (styleCashe.ContainsKey(row.StyleID))
-                    {
-                        row.StyleID = styleCashe[row.StyleID];
-                    }
-                    else
-                    {
-                        ExcelXfs st = CellXfs[row.StyleID];
-                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
-                        styleCashe.Add(row.StyleID, newId);
-                        row.StyleID = newId;
-                    }
-                }
-            }
-            return 0;
         }
         /// <summary>
         /// Handles property changes on Named styles.

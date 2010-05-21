@@ -15,7 +15,7 @@ namespace OfficeOpenXml
     {
         XmlHelper _commentHelper;
         internal ExcelComment(XmlNamespaceManager ns, XmlNode commentTopNode, ExcelRangeBase cell)
-            : base(null, cell)
+            : base(null, cell, cell.Worksheet.VmlDrawings.NameSpaceManager)
         {
             _commentHelper = new XmlHelper(ns, commentTopNode);
             var textElem=commentTopNode.SelectSingleNode("d:text", ns);

@@ -34,8 +34,8 @@ namespace OfficeOpenXml.Drawing.Vml
     /// </summary>
     public class ExcelVmlDrawing : XmlHelper, IRangeID
     {
-        public ExcelVmlDrawing(XmlNode topNode, ExcelRangeBase range) :
-            base(range.Worksheet.VmlDrawings.NameSpaceManager, topNode)
+        public ExcelVmlDrawing(XmlNode topNode, ExcelRangeBase range, XmlNamespaceManager ns) :
+            base(ns, topNode)
         {
             Range = range;
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };

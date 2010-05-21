@@ -199,7 +199,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        return _xlWorksheet.Column(Column).StyleID;
+                        return col.StyleID;
                     }
                 }
 			}
@@ -450,5 +450,26 @@ namespace OfficeOpenXml
         }
 
         #endregion
+
+        internal ExcelCell Clone(ExcelWorksheet added)
+        {
+            ExcelCell newCell = new ExcelCell(added, _row, _col);
+            newCell.DataType = DataType;
+            //if (Formula != "" && SharedFormulaID < 0)
+            //{
+            //    newCell.Formula = Formula;
+            //    added._formulaCells.Add(newCell);
+            //}
+            if(_hyperlink!=null) newCell.Hyperlink = Hyperlink;
+            newCell._formula = _formula;
+            newCell._formulaR1C1 = _formulaR1C1;
+            newCell.IsRichText = IsRichText;
+            newCell.Merge = Merge;
+            newCell._sharedFormulaID = _sharedFormulaID;
+            newCell._styleName = _styleName;
+            newCell._styleID = _styleID;
+            newCell._value = _value;
+            return newCell;
+        }
     }
 }

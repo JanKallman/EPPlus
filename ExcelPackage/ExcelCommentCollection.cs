@@ -97,7 +97,7 @@ namespace OfficeOpenXml
             }
         }
         public ExcelComment Add(ExcelRangeBase cell, string Text, string author)
-        {
+        {            
             var elem = CommentXml.CreateElement("comment", ExcelPackage.schemaMain);
             CommentXml.SelectSingleNode("d:comments/d:commentList", NameSpaceManager).AppendChild(elem);
             elem.SetAttribute("ref", cell.Start.Address);
