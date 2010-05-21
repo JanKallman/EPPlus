@@ -44,7 +44,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 int row, col;
                 row = int.Parse(node.SelectSingleNode("x:ClientData/x:Row", NameSpaceManager).InnerText) + 1;
                 col = int.Parse(node.SelectSingleNode("x:ClientData/x:Column", NameSpaceManager).InnerText) + 1;
-                ExcelVmlDrawing drawing = new ExcelVmlDrawing(node, ws.Cells[row, col]);
+                ExcelVmlDrawing drawing = new ExcelVmlDrawing(node, ws.Cells[row, col], NameSpaceManager);
                 lst.Add(drawing);
             }
             _drawings = new RangeCollection(lst);
@@ -71,7 +71,7 @@ namespace OfficeOpenXml.Drawing.Vml
         internal ExcelVmlDrawing Add(ExcelRangeBase cell)
         {
             XmlNode node = AddDrawing(cell.Start.Row, cell.Start.Column);
-            var draw = new ExcelVmlDrawing(node, cell);
+            var draw = new ExcelVmlDrawing(node, cell, NameSpaceManager);
             _drawings.Add(draw);
             return draw;
         }

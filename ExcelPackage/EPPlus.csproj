@@ -92,6 +92,7 @@
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\Chart\ExcelLineChart.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawing.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawingPosition.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawings.cs" />

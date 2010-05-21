@@ -350,17 +350,17 @@ namespace OfficeOpenXml.Drawing
         {
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
-            pixels = (int)(pixels / (dpi / STANDARD_DPI));
+            pixels = (int)(pixels / (dpi / STANDARD_DPI) + .5);
             int pixOff = pixels - ((int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL));
             int prevPixOff = pixels;
-            int row = From.Row+2;
+            int row = From.Row+1;
 
             while (pixOff >= 0)
             {
                 prevPixOff = pixOff;
                 pixOff -= (int)(ws.Row(++row).Height / 0.75);
             }
-            To.Row = row - 2;
+            To.Row = row - 1;
             if (From.Row == To.Row)
             {
                 To.RowOff = From.RowOff + (pixels) * EMU_PER_PIXEL;
@@ -379,7 +379,7 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
 
-            pixels = (int)(pixels / (dpi / STANDARD_DPI));
+            pixels = (int)(pixels / (dpi / STANDARD_DPI) + .5);
             int pixOff = (int)pixels - ((int)decimal.Truncate(((256 * GetColumnWidth(From.Column + 1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw) - From.ColumnOff / EMU_PER_PIXEL);
             int prevPixOff = From.ColumnOff / EMU_PER_PIXEL + (int)pixels;
             int col = From.Column + 2;

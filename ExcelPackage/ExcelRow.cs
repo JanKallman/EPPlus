@@ -58,7 +58,7 @@ namespace OfficeOpenXml
 		{
 			_xlWorksheet = Worksheet;
             Row = row;
-            _height = _xlWorksheet.defaultRowHeight;            
+            //_height = _xlWorksheet.defaultRowHeight;            
 		}
 		#endregion
 
@@ -80,7 +80,7 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelRow Height
-        double _height;
+        double _height=-1;  //Set to default height
         /// <summary>
 		/// Sets the height of the row
 		/// </summary>
@@ -94,7 +94,14 @@ namespace OfficeOpenXml
                 //}
                 //else
                 //{
+                if (_height == -1)
+                {
+                    return _xlWorksheet.defaultRowHeight;
+                }
+                else
+                {
                     return _height;
+                }
                 //}
 			}
 			set	
@@ -216,5 +223,21 @@ namespace OfficeOpenXml
         }
 
         #endregion
+        /// <summary>
+        /// Copies the current row to a new worksheet
+        /// </summary>
+        /// <param name="added">The worksheet where the copy will be created</param>
+        internal void Clone(ExcelWorksheet added)
+        {
+            ExcelRow newRow = added.Row(Row);
+            newRow.Collapsed = Collapsed;
+            newRow.Height = Height;
+            newRow.Hidden = Hidden;
+            newRow.OutlineLevel = OutlineLevel;
+            newRow.PageBreak = PageBreak;
+            newRow.Phonetic = Phonetic;
+            newRow.StyleName = StyleName;
+            newRow.StyleID = StyleID;
+        }
     }
 }

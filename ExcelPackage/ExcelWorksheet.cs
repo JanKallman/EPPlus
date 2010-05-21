@@ -162,7 +162,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -437,22 +437,27 @@ namespace OfficeOpenXml
             {
                 if (_vmlDrawings == null)
                 {
-                    var vmlNode = _worksheetXml.DocumentElement.SelectSingleNode("d:legacyDrawing/@r:id", NameSpaceManager);
-                    if (vmlNode == null)
-                    {
-                        _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, null);
-
-                    }
-                    else
-                    {
-                        var rel = Part.GetRelationship(vmlNode.Value);
-                        var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
-
-                        _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
-                        _vmlDrawings.RelId = rel.Id;
-                    }
+                    CreateVmlCollection();
                 }
                 return _vmlDrawings;
+            }
+        }
+
+        private void CreateVmlCollection()
+        {
+            var vmlNode = _worksheetXml.DocumentElement.SelectSingleNode("d:legacyDrawing/@r:id", NameSpaceManager);
+            if (vmlNode == null)
+            {
+                _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, null);
+
+            }
+            else
+            {
+                var rel = Part.GetRelationship(vmlNode.Value);
+                var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+
+                _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
+                _vmlDrawings.RelId = rel.Id;
             }
         }
         internal ExcelCommentCollection _comments = null;
@@ -462,6 +467,7 @@ namespace OfficeOpenXml
             {
                 if (_comments == null)
                 {
+                    CreateVmlCollection();
                     _comments = new ExcelCommentCollection(xlPackage, this, NameSpaceManager);
                 }
                 return _comments;
@@ -874,7 +880,7 @@ namespace OfficeOpenXml
             ExcelRow r = new ExcelRow(this, row);
 
             r.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false;
-            r.Height = xr.GetAttribute("ht") == null ? defaultRowHeight : double.Parse(xr.GetAttribute("ht"), _ci);
+            if(xr.GetAttribute("ht") != null) r.Height=double.Parse(xr.GetAttribute("ht"), _ci);
             r.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false; ;
             r.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), _ci); ;
             r.Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false; ;
@@ -1055,7 +1061,7 @@ namespace OfficeOpenXml
                 {
                     int maxCol = column.ColumnMax;
                     column.ColumnMax=col;
-                    ExcelColumn copy = Copy(column, col+1);
+                    ExcelColumn copy = CopyColumn(column, col+1);
                     copy.ColumnMax = maxCol;
                 }
             }
@@ -1069,10 +1075,10 @@ namespace OfficeOpenXml
                         checkColumn.ColumnMax = col - 1;
                         if (maxCol > col)
                         {
-                            ExcelColumn newC = Copy(checkColumn, col + 1);
+                            ExcelColumn newC = CopyColumn(checkColumn, col + 1);
                             newC.ColumnMax = maxCol;
                         }
-                        return Copy(checkColumn, col);                        
+                        return CopyColumn(checkColumn, col);                        
                     }
                 }
                 column = new ExcelColumn(this, col);
@@ -1081,7 +1087,7 @@ namespace OfficeOpenXml
             return column;
 		}
 
-        private ExcelColumn Copy(ExcelColumn c, int col)
+        internal ExcelColumn CopyColumn(ExcelColumn c, int col)
         {
             ExcelColumn newC = new ExcelColumn(this, col);
             if (c.StyleName != "")
@@ -1090,6 +1096,9 @@ namespace OfficeOpenXml
                 newC.StyleID = c.StyleID;        
             newC.Width = c.Width;
             newC.Hidden = c.Hidden;
+            newC.OutlineLevel = c.OutlineLevel;
+            newC.Phonetic = c.Phonetic;
+            newC.BestFit = c.BestFit;
             _columns.Add(newC);
             return newC;
        }
@@ -1825,25 +1834,7 @@ namespace OfficeOpenXml
                                 }
                                 else
                                 {
-                                    //ulong prevRowID = ExcelRow.GetRowID(SheetID, currRow.Row - 1), nextRowID = ExcelRow.GetRowID(SheetID, currRow.Row+1);
-                                    //ExcelRow prevRow;//, nextRow;
-                                    //if (_rows.ContainsKey(prevRowID))
-                                    //{
-                                    //    prevRow = _rows[prevRowID] as ExcelRow;
-                                    //    //nextRow = _rows[nextRowID] as ExcelRow;
-                                    //    if (prevRow.Collapsed)
-                                    //    {
-                                            sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden                                        
-                                    //    }
-                                    //    else
-                                    //    {
-                                    //        sw.Write(" collapsed=\"1\""); //not hidden, only collapsed
-                                    //    }
-                                    //}
-                                    //else
-                                    //{
-                                    //    sw.Write(" collapsed=\"1\""); //Always hidden
-                                    //}
+                                    sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden                                        
                                 }
                             }
                         }
@@ -2110,6 +2101,11 @@ namespace OfficeOpenXml
                 i++;
             }
             return i;
+        }
+
+        internal ExcelCell Clone(ExcelWorksheet added)
+        {
+            throw new NotImplementedException();
         }
     }  // END class Worksheet
 }

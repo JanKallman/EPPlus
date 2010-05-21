@@ -42,7 +42,7 @@ namespace OfficeOpenXml.Drawing
     /// <summary>
     /// Collection for Drawing objects.
     /// </summary>
-    public class ExcelDrawings : IEnumerable
+    public class ExcelDrawings : IEnumerable<ExcelDrawing>
     {
         private XmlDocument _drawingsXml=new XmlDocument();
         private Dictionary<string, int> _drawingNames;
@@ -147,6 +147,15 @@ namespace OfficeOpenXml.Drawing
         {
             return (_drawings.GetEnumerator());
         }
+        #region IEnumerable<ExcelDrawing> Members
+
+        IEnumerator<ExcelDrawing> IEnumerable<ExcelDrawing>.GetEnumerator()
+        {
+            return (_drawings.GetEnumerator());
+        }
+
+        #endregion
+
         /// <summary>
         /// Returns the worksheet at the specified position.  
         /// </summary>
@@ -375,6 +384,14 @@ namespace OfficeOpenXml.Drawing
                     case eChartType.XYScatterSmooth:
                     case eChartType.XYScatterSmoothNoMarkers:
                         return new ExcelScatterChart(this, drawNode, chartType);
+                    case eChartType.Line:
+                    case eChartType.Line3D:
+                    case eChartType.LineMarkers:
+                    case eChartType.LineMarkersStacked:
+                    case eChartType.LineMarkersStacked100:
+                    case eChartType.LineStacked:
+                    case eChartType.LineStacked100:
+                        return new ExcelLineChart(this, drawNode, chartType);
                     default:
                         return new ExcelChart(this, drawNode, chartType);
                 }

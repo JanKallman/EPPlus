@@ -68,6 +68,7 @@ namespace OfficeOpenXml
         protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
         protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
         protected internal const string schemaComment = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments";
+        protected internal const string schemaImage = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
         //Office properties
         protected internal const string schemaCore = @"http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
         protected internal const string schemaExtended = @"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";

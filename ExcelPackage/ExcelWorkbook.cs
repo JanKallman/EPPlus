@@ -139,7 +139,7 @@ namespace OfficeOpenXml
             if (nl != null)
             {
                 foreach (XmlElement elem in nl)
-                {
+                { 
                     string fullAddress = elem.InnerText;
                     int splitPos = fullAddress.LastIndexOf('!');
                     string sheet = fullAddress.Substring(0, splitPos);
@@ -147,7 +147,7 @@ namespace OfficeOpenXml
                     
                     if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
 
-                    int localSheetID;// = elem.GetAttribute("localSheetId")==null || elem.GetAttribute("localSheetId") == "" ? -1 : int.Parse(elem.GetAttribute("localSheetId"));
+                    int localSheetID;
                     if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
                     {
                         localSheetID = -1;

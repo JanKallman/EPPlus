@@ -68,6 +68,8 @@ namespace ExcelPackageTest
             ws.Cells["V22"].Value = 103;
             ws.Cells["V23"].Value = 105;
             ws.Cells["V24"].Value = 104;
+            ws.Cells["v19:v24"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            ws.Cells["v19:v24"].Style.Numberformat.Format = @"$#,##0.00_);($#,##0.00)";
 
             ws.Cells["X19"].Value = 210;
             ws.Cells["X20"].Value = 212;
@@ -287,6 +289,30 @@ namespace ExcelPackageTest
             ws.Cells["c3"].Comment.AutoFit = true;
         }
         [TestMethod]
+        public void Address()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Address");
+            ws.Cells["A1:A4,B5:B7"].Value = "AddressTest";
+            ws.Cells["A1:A4,B5:B7"].Style.Font.Color.SetColor(Color.Red);
+            ws.Cells["A2:A3,B4:B8"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.LightUp;
+            ws.Cells["A2:A3,B4:B8"].Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+            ws.Cells["2:2"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+            ws.Cells["2:2"].Style.Fill.BackgroundColor.SetColor(Color.LightGreen);
+            ws.Cells["B:B"].Style.Font.Name = "Times New Roman";
+
+            ws.Cells["C4:G4,H8:H30,B15"].FormulaR1C1 = "RC[-1]+R1C[-1]";
+            ws.Cells["G1,G3"].Hyperlink = new ExcelHyperLink("Comment!$A$1","Comment");
+            ws.Cells["G1,G3"].Style.Font.Color.SetColor(Color.Blue);
+            ws.Cells["G1,G3"].Style.Font.UnderLine = true;
+        }
+        [TestMethod]
+        public void WorksheetCopy()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Copied Address", _pck.Workbook.Worksheets["Address"]);
+            var wsCopy = _pck.Workbook.Worksheets.Add("Copied Comment", _pck.Workbook.Worksheets["Comment"]);
+            Assert.AreEqual(2, wsCopy.Comments.Count);
+        }
+        [TestMethod]
         public void TestDelete()
         {
             string file = "test.xlsx";
@@ -337,7 +363,7 @@ namespace ExcelPackageTest
         public void HideTest()
         {
             var ws = _pck.Workbook.Worksheets.Add("Hidden");
-            ws.Cells["a1"].Value = "This workbook is hidden";
+            ws.Cells["A1"].Value = "This workbook is hidden";
             ws.Hidden = eWorkSheetHidden.Hidden;
         }
         [TestMethod]

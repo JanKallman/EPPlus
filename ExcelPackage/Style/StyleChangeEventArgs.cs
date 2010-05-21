@@ -92,6 +92,7 @@ namespace OfficeOpenXml.Style
         internal string PropertyName;
         internal object Value;
         internal int PositionID { get; set; }
+        //internal string Address;
         internal string Address;
     }
 }

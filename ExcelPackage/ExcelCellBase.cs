@@ -354,6 +354,7 @@ namespace OfficeOpenXml
         internal static void GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
         {
             CellAddress = CellAddress.ToUpper();
+            //This one can be removed when the worksheet Select format is fixed
             if(CellAddress.IndexOf(' ')>0)
             {
                 CellAddress=CellAddress.Substring(0, CellAddress.IndexOf(' '));
@@ -370,6 +371,11 @@ namespace OfficeOpenXml
                 string[] cells = CellAddress.Split(':');
                 GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
                 GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+
+                if (FromColumn <= 0) FromColumn = 1;
+                if (FromRow <= 0) FromRow = 1;
+                if (ToColumn <= 0) ToColumn = ExcelPackage.MaxColumns;
+                if (ToRow <= 0) ToRow = ExcelPackage.MaxRows;
             }
         }
         /// <summary>
@@ -515,8 +521,18 @@ namespace OfficeOpenXml
             }
             else
             {
-                //return GetColumnLetter(FromColumn) + FromRow.ToString() + ":" + GetColumnLetter(ToColumn) + ToRow.ToString();
-                return GetAddress(FromRow, FromColumn, Absolute) + ":" + GetAddress(ToRow, ToColumn, Absolute);
+                if (FromRow == 1 && ToRow == ExcelPackage.MaxRows)
+                {
+                    return GetColumnLetter(FromColumn) + ":" + GetColumnLetter(ToColumn);
+                }
+                else if(FromColumn==1 && ToColumn==ExcelPackage.MaxColumns)
+                {
+                    return FromRow.ToString() + ":" + ToRow.ToString();
+                }
+                else
+                {
+                    return GetAddress(FromRow, FromColumn, Absolute) + ":" + GetAddress(ToRow, ToColumn, Absolute);
+                }
             }
         }
         public static string GetFullAddress(string worksheetName, string address)

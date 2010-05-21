@@ -50,7 +50,7 @@ namespace OfficeOpenXml
             base(sheet, address)
         {
             Name = name;
-            _sheet = sheet;
+            _sheet = nameSheet;
             if (nameSheet != null)
             {
                 LocalSheetId = nameSheet.SheetID-1;

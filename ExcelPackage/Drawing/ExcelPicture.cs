@@ -56,6 +56,8 @@ namespace OfficeOpenXml.Drawing
                 UriPic = PackUriHelper.ResolvePartUri(drawings.UriDrawing, drawingRelation.TargetUri);
 
                 PackagePart part = drawings.Part.Package.GetPart(UriPic);
+                FileInfo f = new FileInfo(UriPic.OriginalString);
+                SetContentType(f.Extension);
                 _image = Image.FromStream(part.GetStream());
             }
         }
@@ -89,50 +91,7 @@ namespace OfficeOpenXml.Drawing
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
 
             Package package = drawings.Worksheet.xlPackage.Package;
-            UriPic = GetNewUri(package, "/xl/media/image{0}" + imageFile.Extension);
-            string contentType;
-            switch (imageFile.Extension.ToLower())
-            {
-                case ".bmp":
-                    contentType = "image/bmp";
-                    break;
-                case ".jpg":
-                case ".jpeg":
-                    contentType = "image/jpeg";
-                    break;
-                case ".gif":
-                    contentType = "image/gif";
-                    break;
-                case ".png":
-                    contentType = "image/png";
-                    break;
-                case ".cgm":
-                    contentType = "image/cgm";
-                    break;
-                case ".emf":
-                    contentType = "image/x-emf";
-                    break;
-                case ".eps":
-                    contentType = "image/x-eps";
-                    break;
-                case ".pcx":
-                    contentType = "image/x-pcx";
-                    break;
-                case ".tga":
-                    contentType = "image/x-tga";
-                    break;
-                case ".tif":
-                case ".tiff":
-                    contentType = "image/x-tiff";
-                    break;
-                case ".wmf":
-                    contentType = "image/x-wmf";
-                    break;
-                default:
-                    contentType = "image/jpeg";
-                    break;
-
-            }
+            SetContentType(imageFile.Extension);
             _image = Image.FromFile(imageFile.FullName);
             ImageConverter ic = new ImageConverter();
             byte[] img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
@@ -141,7 +100,8 @@ namespace OfficeOpenXml.Drawing
 
             if (relID == "")
             {
-                Part = package.CreatePart(UriPic, contentType, CompressionOption.NotCompressed);
+                UriPic = GetNewUri(package, "/xl/media/image{0}" + imageFile.Extension);
+                Part = package.CreatePart(UriPic, ContentType, CompressionOption.NotCompressed);
 
                 //Save the picture to package.
                 byte[] file = File.ReadAllBytes(imageFile.FullName);
@@ -153,10 +113,61 @@ namespace OfficeOpenXml.Drawing
                 AddNewPicture(img, relID);
 
             }
+            else
+            {
+                var rel = _drawings.Part.GetRelationship(relID);
+                UriPic = rel.TargetUri;
+            }
             SetPosDefaults(Image);
             //Create relationship
             node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
             package.Flush();
+        }
+
+        private void SetContentType(string extension)
+        {
+            switch (extension.ToLower())
+            {
+                case ".bmp":
+                    ContentType = "image/bmp";
+                    break;
+                case ".jpg":
+                case ".jpeg":
+                    ContentType = "image/jpeg";
+                    break;
+                case ".gif":
+                    ContentType = "image/gif";
+                    break;
+                case ".png":
+                    ContentType = "image/png";
+                    break;
+                case ".cgm":
+                    ContentType = "image/cgm";
+                    break;
+                case ".emf":
+                    ContentType = "image/x-emf";
+                    break;
+                case ".eps":
+                    ContentType = "image/x-eps";
+                    break;
+                case ".pcx":
+                    ContentType = "image/x-pcx";
+                    break;
+                case ".tga":
+                    ContentType = "image/x-tga";
+                    break;
+                case ".tif":
+                case ".tiff":
+                    ContentType = "image/x-tiff";
+                    break;
+                case ".wmf":
+                    ContentType = "image/x-wmf";
+                    break;
+                default:
+                    ContentType = "image/jpeg";
+                    break;
+
+            }
         }
         //Add a new image to the compare collection
         private void AddNewPicture(byte[] img, string relID)
@@ -184,12 +195,18 @@ namespace OfficeOpenXml.Drawing
             byte[] img = (byte[])ic.ConvertTo(image, typeof(byte[]));
 
             string relID = GetPictureRelID(img);
-            if (relID != "") return relID;
+            if (relID != "")
+            {
+                var rel=_drawings.Part.GetRelationship(relID);
+                UriPic = rel.TargetUri;
+                return relID;
+            }
 
             Package package = _drawings.Worksheet.xlPackage.Package;
+            ContentType = "image/jpeg";
             _imageFormat = ImageFormat.Jpeg;
             UriPic = GetNewUri(package, "/xl/media/image{0}.jpg");
-            Part = package.CreatePart(UriPic, "image/jpeg", CompressionOption.NotCompressed);
+            Part = package.CreatePart(UriPic, ContentType, CompressionOption.NotCompressed);
 
             //Set the Image and save it to the package.
             Image = image;
@@ -253,6 +270,11 @@ namespace OfficeOpenXml.Drawing
             {
                 _imageFormat = value;
             }
+        }
+        internal string ContentType
+        {
+            get;
+            set;
         }
         /// <summary>
         /// Set the size of the image in percent from the orginal size

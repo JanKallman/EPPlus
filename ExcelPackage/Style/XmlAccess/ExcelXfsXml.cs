@@ -66,7 +66,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
         private ExcelHorizontalAlignment GetHorizontalAlign(string align)
         {
-            if (align == "") return ExcelHorizontalAlignment.Left;
+            if (align == "") return ExcelHorizontalAlignment.General;
             align = align.Substring(0, 1).ToUpper() + align.Substring(1, align.Length - 1);
             try
             {
@@ -74,7 +74,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             catch
             {
-                return ExcelHorizontalAlignment.Left;
+                return ExcelHorizontalAlignment.General;
             }
         }
 
@@ -267,7 +267,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         const string horizontalAlignPath = "d:alignment/@horizontal";
-        ExcelHorizontalAlignment _horizontalAlignment = ExcelHorizontalAlignment.Left;
+        ExcelHorizontalAlignment _horizontalAlignment = ExcelHorizontalAlignment.General;
         public ExcelHorizontalAlignment HorizontalAlignment
         {
             get
@@ -710,7 +710,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             if(_fontId >= 0) SetXmlNode("@fontId", _styles.Fonts[_fontId].newID.ToString());
             if (_fillId >= 0) SetXmlNode("@fillId", _styles.Fills[_fillId].newID.ToString());
             if(_borderId >= 0) SetXmlNode("@borderId", _styles.Borders[_borderId].newID.ToString());
-            if(_horizontalAlignment != ExcelHorizontalAlignment.Left) this.SetXmlNode(horizontalAlignPath, SetAlignString(_horizontalAlignment));
+            if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNode(horizontalAlignPath, SetAlignString(_horizontalAlignment));
             if (XfId > int.MinValue) SetXmlNode("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
 
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNode(verticalAlignPath, SetAlignString(_verticalAlignment));

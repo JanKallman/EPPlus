@@ -282,7 +282,7 @@ namespace ExcelPackageTest
         public void Line()
         {
             var ws = _pck.Workbook.Worksheets.Add("Line");
-            var chrt = ws.Drawings.AddChart("Line1", eChartType.Line);
+            var chrt = ws.Drawings.AddChart("Line1", eChartType.Line) as ExcelLineChart;
             AddTestSerie(ws, chrt);
             chrt.SetSize(150);
             chrt.Title.Text = "Line 3D";
@@ -300,6 +300,8 @@ namespace ExcelPackageTest
             chrt.Title.Border.Fill.Style = eFillStyle.SolidFill;
             chrt.Title.Border.LineStyle = eLineStyle.LongDashDotDot;
             chrt.Title.Border.Fill.Color = Color.Tomato;
+            chrt.DataLabel.ShowSeriesName = true;
+            chrt.DataLabel.ShowLeaderLines=true;
         }
         [TestMethod]
         public void Drawings()
@@ -363,6 +365,13 @@ namespace ExcelPackageTest
             (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
+        }
+        [TestMethod]
+        public void DrawingWorksheetCopy()
+        {
+            var wsShapes = _pck.Workbook.Worksheets.Add("Copy Shapes", _pck.Workbook.Worksheets["Shapes"]);
+            var wsScatterChart = _pck.Workbook.Worksheets.Add("Copy Scatter", _pck.Workbook.Worksheets["Scatter"]);
+            var wsPicture = _pck.Workbook.Worksheets.Add("Copy Picture", _pck.Workbook.Worksheets["Picture"]);
         }
         [TestMethod]
         public void SaveDrawing()

@@ -174,7 +174,9 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, ExcelCell.GetColumnLetter(ColumnMin));                
+                string letter = ExcelCell.GetColumnLetter(ColumnMin);
+                string endLetter = ExcelCell.GetColumnLetter(ColumnMax);
+                return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, letter + ":" + endLetter);
             }
         }
         string _styleName="";
@@ -256,5 +258,24 @@ namespace OfficeOpenXml
         }
 
         #endregion
+
+        /// <summary>
+        /// Copies the current column to a new worksheet
+        /// </summary>
+        /// <param name="added">The worksheet where the copy will be created</param>
+        internal void Clone(ExcelWorksheet added)
+        {
+            ExcelColumn newCol = added.Column(ColumnMin);
+            newCol.ColumnMax = ColumnMax;
+            newCol.BestFit = BestFit;
+            newCol.Collapsed = Collapsed;
+            newCol.Hidden = Hidden;
+            newCol.OutlineLevel = OutlineLevel;
+            newCol.PageBreak = PageBreak;
+            newCol.Phonetic = Phonetic;
+            newCol.StyleName = StyleName;
+            newCol.StyleID = StyleID;
+            newCol.Width = Width;
+        }
     }
 }
