@@ -93,12 +93,12 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetScatterEnum(_chartXmlHelper.GetXmlNode(_scatterTypePath));
+                return GetScatterEnum(_chartXmlHelper.GetXmlNodeString(_scatterTypePath));
             }
             internal set
             {
                 _chartXmlHelper.CreateNode(_scatterTypePath, true);
-                _chartXmlHelper.SetXmlNode(_scatterTypePath, GetScatterText(value));
+                _chartXmlHelper.SetXmlNodeString(_scatterTypePath, GetScatterText(value));
             }
         }
     }

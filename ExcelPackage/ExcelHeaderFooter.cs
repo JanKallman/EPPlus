@@ -136,7 +136,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-                SetXmlNode(alignWithMarginsPath, value ? "1" : "0");
+                SetXmlNodeString(alignWithMarginsPath, value ? "1" : "0");
 			}
 		}
 		#endregion
@@ -154,7 +154,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-                SetXmlNode(differentOddEvenPath, value ? "1" : "0");
+                SetXmlNodeString(differentOddEvenPath, value ? "1" : "0");
 			}
 		}
 		#endregion
@@ -173,7 +173,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-                SetXmlNode(differentFirstPath, value ? "1" : "0");
+                SetXmlNodeString(differentFirstPath, value ? "1" : "0");
 			}
 		}
 		#endregion
@@ -226,11 +226,11 @@ namespace OfficeOpenXml
             //XmlNode node;
 			if (_oddHeader != null)
 			{
-                SetXmlNode("d:oddHeader", GetHeaderFooterText(oddHeader));
+                SetXmlNodeString("d:oddHeader", GetHeaderFooterText(oddHeader));
 			}
 			if (_oddFooter != null)
 			{
-                SetXmlNode("d:oddFooter", GetHeaderFooterText(oddFooter));
+                SetXmlNodeString("d:oddFooter", GetHeaderFooterText(oddFooter));
 			}
 
 			// only set evenHeader and evenFooter 
@@ -238,11 +238,11 @@ namespace OfficeOpenXml
 			{
 				if (_evenHeader != null)
 				{
-                    SetXmlNode("d:evenHeader", GetHeaderFooterText(evenHeader));
+                    SetXmlNodeString("d:evenHeader", GetHeaderFooterText(evenHeader));
 				}
 				if (_evenFooter != null)
 				{
-                    SetXmlNode("d:evenFooter", GetHeaderFooterText(evenFooter));
+                    SetXmlNodeString("d:evenFooter", GetHeaderFooterText(evenFooter));
 				}
 			}
 
@@ -251,11 +251,11 @@ namespace OfficeOpenXml
 			{
 				if (_firstHeader != null)
 				{
-                    SetXmlNode("d:firstHeader", GetHeaderFooterText(firstHeader));
+                    SetXmlNodeString("d:firstHeader", GetHeaderFooterText(firstHeader));
 				}
 				if (_firstFooter != null)
 				{
-                    SetXmlNode("d:firstFooter", GetHeaderFooterText(firstFooter));
+                    SetXmlNodeString("d:firstFooter", GetHeaderFooterText(firstFooter));
 				}
 			}
 		}

@@ -55,10 +55,10 @@ namespace OfficeOpenXml.Style.XmlAccess
             _fontId = GetXmlNodeInt("@fontId");
             _fillId = GetXmlNodeInt("@fillId");
             _borderId = GetXmlNodeInt("@borderId");
-            _readingOrder = GetXmlNode(readingOrderPath) == "1" ? true : false;
-            _verticalAlignment = GetVerticalAlign(GetXmlNode(verticalAlignPath));
-            _horizontalAlignment = GetHorizontalAlign(GetXmlNode(horizontalAlignPath));
-            _wrapText = GetXmlNode(wrapTextPath) == "1" ? true : false;
+            _readingOrder = GetXmlNodeString(readingOrderPath) == "1" ? true : false;
+            _verticalAlignment = GetVerticalAlign(GetXmlNodeString(verticalAlignPath));
+            _horizontalAlignment = GetHorizontalAlign(GetXmlNodeString(horizontalAlignPath));
+            _wrapText = GetXmlNodeString(wrapTextPath) == "1" ? true : false;
             _textRotation = GetXmlNodeInt(textRotationPath);
             _hidden = GetXmlNodeBool(hiddenPath);
             _locked = GetXmlNodeBool(lockedPath,true);
@@ -706,19 +706,19 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
             TopNode = topNode;
-            if(_numFmtId>=0) SetXmlNode("@numFmtId", _numFmtId.ToString());
-            if(_fontId >= 0) SetXmlNode("@fontId", _styles.Fonts[_fontId].newID.ToString());
-            if (_fillId >= 0) SetXmlNode("@fillId", _styles.Fills[_fillId].newID.ToString());
-            if(_borderId >= 0) SetXmlNode("@borderId", _styles.Borders[_borderId].newID.ToString());
-            if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNode(horizontalAlignPath, SetAlignString(_horizontalAlignment));
-            if (XfId > int.MinValue) SetXmlNode("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
+            if(_numFmtId>=0) SetXmlNodeString("@numFmtId", _numFmtId.ToString());
+            if(_fontId >= 0) SetXmlNodeString("@fontId", _styles.Fonts[_fontId].newID.ToString());
+            if (_fillId >= 0) SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
+            if(_borderId >= 0) SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
+            if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
+            if (XfId > int.MinValue) SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
 
-            if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNode(verticalAlignPath, SetAlignString(_verticalAlignment));
-            if(_wrapText) this.SetXmlNode(wrapTextPath, "1");
-            if(_readingOrder) this.SetXmlNode(readingOrderPath, "1");
-            if (_textRotation>0) this.SetXmlNode(textRotationPath , _textRotation.ToString());
-            if (!_locked) this.SetXmlNode(lockedPath, "0");
-            if (_hidden) this.SetXmlNode(hiddenPath, "1");
+            if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
+            if(_wrapText) this.SetXmlNodeString(wrapTextPath, "1");
+            if(_readingOrder) this.SetXmlNodeString(readingOrderPath, "1");
+            if (_textRotation>0) this.SetXmlNodeString(textRotationPath , _textRotation.ToString());
+            if (!_locked) this.SetXmlNodeString(lockedPath, "0");
+            if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
             return TopNode;
         }
 

@@ -61,12 +61,12 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return GetXmlNode(_fontLatinPath);
+                return GetXmlNodeString(_fontLatinPath);
             }
             set
             {
                 CreateTopNode();
-                SetXmlNode(_fontLatinPath, value);
+                SetXmlNodeString(_fontLatinPath, value);
             }
         }
 
@@ -83,12 +83,12 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return GetXmlNode(_fontCsPath);
+                return GetXmlNodeString(_fontCsPath);
             }
             set
             {
                 CreateTopNode();
-                SetXmlNode(_fontCsPath, value);
+                SetXmlNodeString(_fontCsPath, value);
             }
         }
         string _boldPath = "@b";
@@ -101,7 +101,7 @@ namespace OfficeOpenXml.Style
             set
             {
                 CreateTopNode();
-                SetXmlNode(_boldPath, value ? "1" : "0");
+                SetXmlNodeString(_boldPath, value ? "1" : "0");
             }
         }
         string _underLinePath = "@u";
@@ -109,12 +109,12 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return TranslateUnderline(GetXmlNode(_underLinePath));
+                return TranslateUnderline(GetXmlNodeString(_underLinePath));
             }
             set
             {
                 CreateTopNode();
-                SetXmlNode(_underLinePath, TranslateUnderlineText(value));
+                SetXmlNodeString(_underLinePath, TranslateUnderlineText(value));
             }
         }
         string _underLineColorPath = "a:uFill/a:solidFill/a:srgbClr/@val";
@@ -122,7 +122,7 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                string col = GetXmlNode(_underLineColorPath);
+                string col = GetXmlNodeString(_underLineColorPath);
                 if (col == "")
                 {
                     return Color.Empty;
@@ -135,7 +135,7 @@ namespace OfficeOpenXml.Style
             set
             {
                 CreateTopNode();
-                SetXmlNode(_underLineColorPath, value.ToArgb().ToString("X").Substring(2, 6));
+                SetXmlNodeString(_underLineColorPath, value.ToArgb().ToString("X").Substring(2, 6));
             }
         }
         string _italicPath = "@i";
@@ -148,7 +148,7 @@ namespace OfficeOpenXml.Style
             set
             {
                 CreateTopNode();
-                SetXmlNode(_italicPath, value ? "1" : "0");
+                SetXmlNodeString(_italicPath, value ? "1" : "0");
             }
         }
         string _strikePath = "@strike";
@@ -156,12 +156,12 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return TranslateStrike(GetXmlNode(_strikePath));
+                return TranslateStrike(GetXmlNodeString(_strikePath));
             }
             set
             {
                 CreateTopNode();
-                SetXmlNode(_strikePath, TranslateStrikeText(value));
+                SetXmlNodeString(_strikePath, TranslateStrikeText(value));
             }
         }
         string _sizePath = "@sz";
@@ -174,7 +174,7 @@ namespace OfficeOpenXml.Style
             set
             {
                 CreateTopNode();
-                SetXmlNode(_sizePath, ((int)(value * 100)).ToString());
+                SetXmlNodeString(_sizePath, ((int)(value * 100)).ToString());
             }
         }
         string _colorPath = "a:solidFill/a:srgbClr/@val";
@@ -182,7 +182,7 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                string col = GetXmlNode(_colorPath);
+                string col = GetXmlNodeString(_colorPath);
                 if (col == "")
                 {
                     return Color.Empty;
@@ -195,7 +195,7 @@ namespace OfficeOpenXml.Style
             set
             {
                 CreateTopNode();
-                SetXmlNode(_colorPath, value.ToArgb().ToString("X").Substring(2, 6));
+                SetXmlNodeString(_colorPath, value.ToArgb().ToString("X").Substring(2, 6));
             }
         }
         #region "Translate methods"

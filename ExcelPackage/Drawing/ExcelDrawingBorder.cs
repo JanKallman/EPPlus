@@ -95,12 +95,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return TranslateLineStyle(GetXmlNode(_lineStylePath));
+                return TranslateLineStyle(GetXmlNodeString(_lineStylePath));
             }
             set
             {
                 CreateNode(_linePath, false);
-                SetXmlNode(_lineStylePath, TranslateLineStyleText(value));
+                SetXmlNodeString(_lineStylePath, TranslateLineStyleText(value));
             }
         }
         string _lineCapPath = "{0}/@cap";
@@ -111,12 +111,12 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return TranslateLineCap(GetXmlNode(_lineCapPath));
+                return TranslateLineCap(GetXmlNodeString(_lineCapPath));
             }
             set
             {
                 CreateNode(_linePath, false);
-                SetXmlNode(_lineCapPath, TranslateLineCapText(value));
+                SetXmlNodeString(_lineCapPath, TranslateLineCapText(value));
             }
         }
         string _lineWidth = "{0}/@w";
@@ -131,7 +131,7 @@ namespace OfficeOpenXml.Drawing
             }
             set
             {
-                SetXmlNode(_lineWidth, (value * 12700).ToString());
+                SetXmlNodeString(_lineWidth, (value * 12700).ToString());
             }
         }
         #endregion

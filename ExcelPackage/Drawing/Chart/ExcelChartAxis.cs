@@ -53,11 +53,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNode(_formatPath);
+                return GetXmlNodeString(_formatPath);
             }
             set
             {
-                SetXmlNode(_formatPath,value);
+                SetXmlNodeString(_formatPath,value);
             }
         }
 
@@ -66,12 +66,12 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eTickLablePosition)Enum.Parse(typeof(eTickLablePosition), GetXmlNode(_lblPos), true);
+                return (eTickLablePosition)Enum.Parse(typeof(eTickLablePosition), GetXmlNodeString(_lblPos), true);
             }
             set
             {
                 string lp = value.ToString();
-                SetXmlNode(_lblPos, lp.Substring(0, 1).ToLower() + lp.Substring(1, lp.Length - 1));
+                SetXmlNodeString(_lblPos, lp.Substring(0, 1).ToLower() + lp.Substring(1, lp.Length - 1));
             }
         }
         ExcelDrawingFill _fill = null;

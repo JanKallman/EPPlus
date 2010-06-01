@@ -108,6 +108,7 @@ namespace ExcelPackageTest
             chrt.SetPosition(50, 50);
             chrt.SetSize(800, 300);
             AddTestSerie(ws, chrt);
+            chrt.VaryColors = true;
 
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
@@ -185,6 +186,7 @@ namespace ExcelPackageTest
             chrt.Title.Fill.Style = eFillStyle.SolidFill;
             chrt.Title.Fill.Color = Color.LightBlue;
             chrt.Title.Fill.Transparancy = 50;
+            chrt.VaryColors = true;
             ExcelScatterChartSerie ser = chrt.Series[0] as ExcelScatterChartSerie;
             ser.DataLabel.Position = eLabelPosition.Center;
             ser.DataLabel.ShowValue = true;
@@ -214,6 +216,7 @@ namespace ExcelPackageTest
             var chrt = ws.Drawings.AddChart("Pyramid1", eChartType.PyramidCol) as ExcelBarChart;
             AddTestSerie(ws, chrt);
             // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.VaryColors = true;
             chrt.To.Row = 23;
             chrt.To.Column = 12;
             chrt.Title.Text = "Header Text";
@@ -254,6 +257,7 @@ namespace ExcelPackageTest
             var ws = _pck.Workbook.Worksheets.Add("Cone");
             var chrt = ws.Drawings.AddChart("Cone1", eChartType.ConeBarClustered) as ExcelBarChart;
             AddTestSerie(ws, chrt);
+            chrt.VaryColors = true;
             chrt.SetSize(200);
             chrt.Title.Text = "Cone bar";
             chrt.Series[0].Header = "Serie 1";
@@ -264,6 +268,7 @@ namespace ExcelPackageTest
             var ws = _pck.Workbook.Worksheets.Add("Column");
             var chrt = ws.Drawings.AddChart("Column1", eChartType.ColumnClustered) as ExcelBarChart;
             AddTestSerie(ws, chrt);
+            chrt.VaryColors = true;
             chrt.SetSize(200);
             chrt.Title.Text = "Column";
             chrt.Series[0].Header = "Serie 1";
@@ -285,6 +290,7 @@ namespace ExcelPackageTest
             var chrt = ws.Drawings.AddChart("Line1", eChartType.Line) as ExcelLineChart;
             AddTestSerie(ws, chrt);
             chrt.SetSize(150);
+            chrt.VaryColors = true;
             chrt.Title.Text = "Line 3D";
             chrt.Series[0].Header = "Line serie 1";
             chrt.Fill.Color = Color.LightSteelBlue;

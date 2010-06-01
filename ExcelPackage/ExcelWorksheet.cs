@@ -47,6 +47,9 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Worksheet hidden enumeration
+    /// </summary>
     public enum eWorkSheetHidden
     {
         /// <summary>
@@ -152,6 +155,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="ns">Namespacemanager</param>
         /// <param name="excelPackage">Package</param>
+        /// <param name="relID">Relationship ID</param>
         /// <param name="uriWorksheet">URI</param>
         /// <param name="sheetName">Name of the sheet</param>
         /// <param name="SheetID">Sheet id</param>
@@ -162,7 +166,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -206,11 +210,11 @@ namespace OfficeOpenXml
         {
             get
             {
-                return new ExcelAddressBase(GetXmlNode("d:autoFilter/@ref"));
+                return new ExcelAddressBase(GetXmlNodeString("d:autoFilter/@ref"));
             }
             internal set
             {
-                SetXmlNode("d:autoFilter/@ref", value.Address);
+                SetXmlNodeString("d:autoFilter/@ref", value.Address);
             }
         }
 
@@ -386,7 +390,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNode(outLineSummaryBelowPath, value ? "1" : "0");
+                SetXmlNodeString(outLineSummaryBelowPath, value ? "1" : "0");
             }
         }
         const string outLineSummaryRightPath = "d:sheetPr/d:outlinePr/@summaryRight";
@@ -401,7 +405,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNode(outLineSummaryRightPath, value ? "1" : "0");
+                SetXmlNodeString(outLineSummaryRightPath, value ? "1" : "0");
             }
         }
         const string outLineApplyStylePath = "d:sheetPr/d:outlinePr/@applyStyles";
@@ -416,7 +420,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNode(outLineApplyStylePath, value ? "1" : "0");
+                SetXmlNodeString(outLineApplyStylePath, value ? "1" : "0");
             }
         }
         #region WorksheetXml
@@ -972,7 +976,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                var ps = new ExcelPrinterSettings(NameSpaceManager, TopNode);
+                var ps = new ExcelPrinterSettings(NameSpaceManager, TopNode, this);
                 ps.SchemaNodeOrder = SchemaNodeOrder;
                 return ps;
             }
@@ -1104,10 +1108,10 @@ namespace OfficeOpenXml
        }
 
         /// <summary>
-        /// Selects a range in the worksheet. The actice cell is the topmost cell.
+        /// Selects a range in the worksheet. The active cell is the topmost cell.
         /// Make the current worksheet active.
         /// </summary>
-        /// <param name="Address">A address range</param>
+        /// <param name="Address">An address range</param>
         public void Select(string Address)
         {
             Select(Address, true);
@@ -1130,17 +1134,38 @@ namespace OfficeOpenXml
             View.SelectedRange = Address;
             View.ActiveCell = ExcelCell.GetAddress(fromRow, fromCol);            
         }
-        ///// <summary>
-        ///// Inserts conditional formatting for the cell range.
-        ///// Currently only supports the dataBar style.
-        ///// </summary>
-        ///// <param name="startCell"></param>
-        ///// <param name="endCell"></param>
-        ///// <param name="color"></param>
-        //internal void CreateConditionalFormatting(ExcelCell startCell, ExcelCell endCell, string color)
-        //{
-        //    throw(new NotImplementedException("Conditional formatting has been removed for now."));
-        //}
+        /// <summary>
+        /// Selects a range in the worksheet. The active cell is the topmost cell of the first address.
+        /// Make the current worksheet active.
+        /// </summary>
+        /// <param name="Address">An address range</param>
+        public void Select(ExcelAddress Address)
+        {
+            Select(Address, true);
+        }
+        /// <summary>
+        /// Selects a range in the worksheet. The active cell is the topmost cell of the first address.
+        /// </summary>
+        /// <param name="Address">A address range</param>
+        /// <param name="SelectSheet">Make the sheet active</param>
+        public void Select(ExcelAddress Address, bool SelectSheet)
+        {
+
+            if (SelectSheet)
+            {
+                View.TabSelected = true;
+            }
+            string selAddress = ExcelCellBase.GetAddress(Address.Start.Row, Address.Start.Column) + ":" + ExcelCellBase.GetAddress(Address.End.Row, Address.End.Column);
+            if (Address.Addresses != null)
+            {
+                foreach (var a in Address.Addresses)
+                {
+                    selAddress += " " + ExcelCellBase.GetAddress(a.Start.Row, a.Start.Column) + ":" + ExcelCellBase.GetAddress(a.End.Row, a.End.Column);
+                }
+            }
+            View.SelectedRange = selAddress;
+            View.ActiveCell = ExcelCell.GetAddress(Address.Start.Row, Address.Start.Column);
+        }
 
 		#region InsertRow
         /// <summary>
@@ -1544,7 +1569,7 @@ namespace OfficeOpenXml
 
                 if (_cells.Count > 0)
                 {
-                    this.SetXmlNode("d:dimension/@ref", Dimension.Address);
+                    this.SetXmlNodeString("d:dimension/@ref", Dimension.Address);
                 }
 
                 SaveComments();
@@ -1619,7 +1644,7 @@ namespace OfficeOpenXml
                     {
                         _vmlDrawings.Part = xlPackage.Package.CreatePart(_vmlDrawings.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", xlPackage.Compression);
                         var rel=Part.CreateRelationship(_vmlDrawings.Uri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
-                        SetXmlNode("d:legacyDrawing/@r:id", rel.Id);
+                        SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
                     _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream());
@@ -1900,7 +1925,7 @@ namespace OfficeOpenXml
                                     }
                                     else
                                     {
-                                        s = Convert.ToDecimal(cell.Value, _ci).ToString(_ci);
+                                        s = Convert.ToDouble(cell.Value, _ci).ToString("g15",_ci);
                                     }
                                 }
                             }
@@ -2031,24 +2056,24 @@ namespace OfficeOpenXml
                 return _protection;
             }
         }
-        public void SetPrintArea(ExcelAddress address)
-        {
-            if(Names.ContainsKey("_xlnm.Print_Area"))
-            {
-                Names["_xlnm.Print_Area"].Address = ExcelAddress.GetFullAddress(Name, address.Address);
-            }
-            else
-            {
-                Names.Add("_xlnm.Print_Area", Cells[address.Address]);
-            }
-        }
-        public void ClearPrintArea()
-        {
-            if(Names.ContainsKey("_xlnm.Print_Area"))
-            {
-                Names.Remove("_xlnm.Print_Area");
-            }
-        }
+        //public void SetPrintArea(ExcelAddress address)
+        //{
+        //    if(Names.ContainsKey("_xlnm.Print_Area"))
+        //    {
+        //        Names["_xlnm.Print_Area"].Address = ExcelAddress.GetFullAddress(Name, address.Address);
+        //    }
+        //    else
+        //    {
+        //        Names.Add("_xlnm.Print_Area", Cells[address.Address]);
+        //    }
+        //}
+        //public void ClearPrintArea()
+        //{
+        //    if(Names.ContainsKey("_xlnm.Print_Area"))
+        //    {
+        //        Names.Remove("_xlnm.Print_Area");
+        //    }
+        //}
         #region Drawing
         ExcelDrawings _drawings = null;
         public ExcelDrawings Drawings

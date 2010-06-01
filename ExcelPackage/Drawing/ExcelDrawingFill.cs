@@ -144,7 +144,7 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                string col = GetXmlNode(_fillPath + ColorPath);
+                string col = GetXmlNodeString(_fillPath + ColorPath);
                 if (col == "")
                 {
                     return Color.FromArgb(79, 129, 189);
@@ -165,7 +165,7 @@ namespace OfficeOpenXml.Drawing
                     throw new Exception("FillStyle must be set to SolidFill");
                 }
                 CreateNode(_fillPath, false);
-                SetXmlNode(_fillPath + ColorPath, value.ToArgb().ToString("X").Substring(2, 6));
+                SetXmlNodeString(_fillPath + ColorPath, value.ToArgb().ToString("X").Substring(2, 6));
             }
         }
         const string alphaPath = "/a:solidFill/a:srgbClr/a:alpha/@val";
@@ -190,7 +190,7 @@ namespace OfficeOpenXml.Drawing
                     throw new Exception("FillStyle must be set to SolidFill");
                 }
                 //CreateNode(_fillPath, false);
-                SetXmlNode(_fillPath + alphaPath, ((100 - value) * 1000).ToString());
+                SetXmlNodeString(_fillPath + alphaPath, ((100 - value) * 1000).ToString());
             }
         }
     }

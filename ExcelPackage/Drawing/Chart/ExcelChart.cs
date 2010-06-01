@@ -210,8 +210,8 @@ namespace OfficeOpenXml.Drawing.Chart
                 Part = drawings.Part.Package.GetPart(UriChart);
                 ChartXml = new XmlDocument();
                 ChartXml.Load(Part.GetStream());
-                WorkSheet = drawings.Worksheet;
                 SetChartType();
+                Init(drawings);
                 _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
                 _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
                 LoadAxis();
@@ -224,20 +224,26 @@ namespace OfficeOpenXml.Drawing.Chart
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
-           SchemaNodeOrder = new string[] {"view3D", "plotArea", "barDir", "grouping", "ser", "dLbls", "shape", "legend" };
            ChartType = type;
            CreateNewChart(drawings, type);
-           _chartPath = rootPath + "/" + GetChartNodeText();
-           WorkSheet = drawings.Worksheet;
 
-           string chartNodeText=GetChartNodeText();
-           _groupingPath = string.Format(_groupingPath, chartNodeText);
+           Init(drawings);
 
            _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager));
            _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, ChartXml);
 
            SetTypeProperties(drawings);
            LoadAxis();
+       }
+
+       private void Init(ExcelDrawings drawings)
+       {
+           SchemaNodeOrder = new string[] { "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "shape", "legend" };
+           string chartNodeText = GetChartNodeText();
+           _chartPath = rootPath + "/" + GetChartNodeText();
+           _groupingPath = string.Format(_groupingPath, chartNodeText);
+           _varyColorsPath = string.Format(_varyColorsPath, chartNodeText);
+           WorkSheet = drawings.Worksheet;
        }
        #endregion
 
@@ -892,11 +898,33 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetGroupingEnum(_chartXmlHelper.GetXmlNode(_groupingPath));
+                return GetGroupingEnum(_chartXmlHelper.GetXmlNodeString(_groupingPath));
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNode(_groupingPath, GetGroupingText(value));
+                _chartXmlHelper.SetXmlNodeString(_groupingPath, GetGroupingText(value));
+            }
+        }
+        string _varyColorsPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:varyColors/@val";
+        /// <summary>
+        /// If the chart has only one serie this varies the colors for each point.
+        /// </summary>
+        public bool VaryColors
+        {
+            get
+            {
+                return _chartXmlHelper.GetXmlNodeBool(_varyColorsPath);
+            }
+            set
+            {
+                if (value)
+                {
+                    _chartXmlHelper.SetXmlNodeString(_varyColorsPath, "1");
+                }
+                else
+                {
+                    _chartXmlHelper.SetXmlNodeString(_varyColorsPath, "0");
+                }
             }
         }
         internal PackagePart Part { get; set; }

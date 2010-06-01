@@ -201,11 +201,12 @@ namespace ExcelPackageTest
 
             var range = ws.Cells["B2:D100"];
 
-            ws.ClearPrintArea();
-            ws.SetPrintArea(new ExcelAddress("B2:D99"));
-            ws.ClearPrintArea();
+            ws.PrinterSettings.PrintArea=null;
+            ws.PrinterSettings.PrintArea=ws.Cells["B2:D99"];
+            ws.PrinterSettings.PrintArea = null;
             ws.Row(15).PageBreak = true;
             ws.Column(3).PageBreak = true;
+            ws.View.ShowHeaders = false;
             ws.View.PageBreakView = true;
 
             ws.Workbook.CalcMode = ExcelCalcMode.Automatic;
@@ -363,7 +364,7 @@ namespace ExcelPackageTest
         public void HideTest()
         {
             var ws = _pck.Workbook.Worksheets.Add("Hidden");
-            ws.Cells["A1"].Value = "This workbook is hidden";
+            ws.Cells["A1"].Value = "This workbook is hidden"    ;
             ws.Hidden = eWorkSheetHidden.Hidden;
         }
         [TestMethod]
@@ -372,6 +373,30 @@ namespace ExcelPackageTest
             var ws = _pck.Workbook.Worksheets.Add("VeryHidden");
             ws.Cells["a1"].Value = "This workbook is hidden";
             ws.Hidden = eWorkSheetHidden.VeryHidden;
+        }
+        [TestMethod]
+        public void PrinterSettings()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("PrinterSettings");
+
+            ws.Cells[1, 1].Value = "1; 1";
+            ws.Cells[2, 1].Value = "2; 1";
+            ws.Cells[1, 2].Value = "1; 2";
+            ws.Cells[2, 2].Value = "2; 2";
+            ws.Cells[1, 1, 1, 2].AutoFilter = true;
+            ws.PrinterSettings.BlackAndWhite = true;
+            ws.PrinterSettings.ShowGridLines = true;
+            ws.PrinterSettings.ShowHeaders = true;
+            ws.PrinterSettings.PaperSize = ePaperSize.A4;
+
+            ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1");
+            ws.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
+
+            ws.PrinterSettings.Draft = true;
+
+            ws.PrinterSettings.PrintArea=ws.Cells["A1:B2"];
+
+            ws.Select(new ExcelAddress("3:4,E5:F6"));
         }
     }
 }

@@ -59,7 +59,7 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         private void SetNumber(int pos, int value)
         {
-            string anchor = GetXmlNode("x:Anchor");
+            string anchor = GetXmlNodeString("x:Anchor");
             string[] numbers = anchor.Split(',');
             if (numbers.Length == 8)
             {
@@ -69,12 +69,12 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 throw (new Exception("Anchor element is invalid in vmlDrawing"));
             }
-            SetXmlNode("x:Anchor", string.Join(",",numbers));
+            SetXmlNodeString("x:Anchor", string.Join(",",numbers));
         }
 
         private int GetNumber(int pos)
         {
-            string anchor = GetXmlNode("x:Anchor");
+            string anchor = GetXmlNodeString("x:Anchor");
             string[] numbers = anchor.Split(',');
             if (numbers.Length == 8)
             {

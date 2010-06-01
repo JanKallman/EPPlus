@@ -139,8 +139,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Title
 		{
-            get { return _coreHelper.GetXmlNode(TitlePath) ; }
-            set { _coreHelper.SetXmlNode(TitlePath, value); }
+            get { return _coreHelper.GetXmlNodeString(TitlePath) ; }
+            set { _coreHelper.SetXmlNodeString(TitlePath, value); }
 		}
 
         const string SubjectPath = "dc:subject";
@@ -149,8 +149,8 @@ namespace OfficeOpenXml
 		/// </summary>
         public string Subject
         {
-            get { return _coreHelper.GetXmlNode(SubjectPath); }
-            set { _coreHelper.SetXmlNode(SubjectPath, value); }
+            get { return _coreHelper.GetXmlNodeString(SubjectPath); }
+            set { _coreHelper.SetXmlNodeString(SubjectPath, value); }
         }
 
         const string AuthorPath = "dc:creator";
@@ -159,8 +159,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Author
 		{
-            get { return _coreHelper.GetXmlNode(AuthorPath); }
-            set { _coreHelper.SetXmlNode(AuthorPath, value); }
+            get { return _coreHelper.GetXmlNodeString(AuthorPath); }
+            set { _coreHelper.SetXmlNodeString(AuthorPath, value); }
 		}
 
         const string CommentsPath = "dc:description";
@@ -169,8 +169,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Comments
 		{
-            get { return _coreHelper.GetXmlNode(CommentsPath); }
-            set { _coreHelper.SetXmlNode(CommentsPath, value); }
+            get { return _coreHelper.GetXmlNodeString(CommentsPath); }
+            set { _coreHelper.SetXmlNodeString(CommentsPath, value); }
         }
 
         const string KeywordsPath = "cp:keywords";
@@ -179,8 +179,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Keywords
 		{
-            get { return _coreHelper.GetXmlNode(KeywordsPath); }
-            set { _coreHelper.SetXmlNode(KeywordsPath, value); }
+            get { return _coreHelper.GetXmlNodeString(KeywordsPath); }
+            set { _coreHelper.SetXmlNodeString(KeywordsPath, value); }
         }
 
         const string LastModifiedByPath = "cp:lastModifiedBy";
@@ -189,8 +189,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string LastModifiedBy
 		{
-            get { return _coreHelper.GetXmlNode(LastModifiedByPath); }
-            set { _coreHelper.SetXmlNode(LastModifiedByPath, value); }
+            get { return _coreHelper.GetXmlNodeString(LastModifiedByPath); }
+            set { _coreHelper.SetXmlNodeString(LastModifiedByPath, value); }
         }
 
         const string LastPrintedPath = "cp:lastPrinted";
@@ -199,8 +199,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string LastPrinted
 		{
-            get { return _coreHelper.GetXmlNode(LastPrintedPath); }
-            set { _coreHelper.SetXmlNode(LastPrintedPath, value); }
+            get { return _coreHelper.GetXmlNodeString(LastPrintedPath); }
+            set { _coreHelper.SetXmlNodeString(LastPrintedPath, value); }
         }
 
         const string CategoryPath = "cp:category";
@@ -209,8 +209,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Category
 		{
-            get { return _coreHelper.GetXmlNode(CategoryPath); }
-            set { _coreHelper.SetXmlNode(CategoryPath, value); }
+            get { return _coreHelper.GetXmlNodeString(CategoryPath); }
+            set { _coreHelper.SetXmlNodeString(CategoryPath, value); }
         }
 
         const string ContentStatusPath = "cp:contentStatus";
@@ -219,8 +219,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Status
 		{
-            get { return _coreHelper.GetXmlNode(ContentStatusPath); }
-            set { _coreHelper.SetXmlNode(ContentStatusPath, value); }
+            get { return _coreHelper.GetXmlNodeString(ContentStatusPath); }
+            set { _coreHelper.SetXmlNodeString(ContentStatusPath, value); }
         }		
 		#endregion
 
@@ -269,7 +269,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Application
 		{
-			get { return _extendedHelper.GetXmlNode(ApplicationPath); }
+			get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
 		}
 
         const string HyperlinkBasePath = "xp:Properties/xp:HyperlinkBase";
@@ -278,8 +278,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public Uri HyperlinkBase
 		{
-            get { return new Uri(_extendedHelper.GetXmlNode(HyperlinkBasePath), UriKind.Absolute); }
-            set { _extendedHelper.SetXmlNode(HyperlinkBasePath, value.AbsoluteUri); }
+            get { return new Uri(_extendedHelper.GetXmlNodeString(HyperlinkBasePath), UriKind.Absolute); }
+            set { _extendedHelper.SetXmlNodeString(HyperlinkBasePath, value.AbsoluteUri); }
 		}
 
         const string AppVersionPath = "xp:Properties/xp:AppVersion";
@@ -288,7 +288,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string AppVersion
 		{
-            get { return _extendedHelper.GetXmlNode(AppVersionPath); }
+            get { return _extendedHelper.GetXmlNodeString(AppVersionPath); }
         }
         const string CompanyPath = "xp:Properties/xp:Company";
 
@@ -297,8 +297,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Company
 		{
-            get { return _extendedHelper.GetXmlNode(CompanyPath); }
-            set { _extendedHelper.SetXmlNode(CompanyPath, value); }
+            get { return _extendedHelper.GetXmlNodeString(CompanyPath); }
+            set { _extendedHelper.SetXmlNodeString(CompanyPath, value); }
         }
 
         const string ManagerPath = "xp:Properties/xp:Manager";
@@ -307,8 +307,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public string Manager
 		{
-            get { return _extendedHelper.GetXmlNode(ManagerPath); }
-            set { _extendedHelper.SetXmlNode(ManagerPath, value); }
+            get { return _extendedHelper.GetXmlNodeString(ManagerPath); }
+            set { _extendedHelper.SetXmlNodeString(ManagerPath, value); }
 		}
 
 		#region Get and Set Extended Properties

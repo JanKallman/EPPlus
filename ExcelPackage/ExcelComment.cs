@@ -47,7 +47,7 @@ namespace OfficeOpenXml
             set
             {
                 int authorRef = GetAuthor(value);
-                _commentHelper.SetXmlNode("@authorId", authorRef.ToString());
+                _commentHelper.SetXmlNodeString("@authorId", authorRef.ToString());
             }
         }
         private int GetAuthor(string value)

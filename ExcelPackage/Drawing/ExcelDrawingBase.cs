@@ -84,7 +84,7 @@ namespace OfficeOpenXml.Drawing
                 }
                 set
                 {
-                    SetXmlNode(colPath, value.ToString());
+                    SetXmlNodeString(colPath, value.ToString());
                 }
             }
             const string rowPath="xdr:row";
@@ -96,7 +96,7 @@ namespace OfficeOpenXml.Drawing
                 }
                 set
                 {
-                    SetXmlNode(rowPath, value.ToString());
+                    SetXmlNodeString(rowPath, value.ToString());
                 }
             }
             const string colOffPath = "xdr:colOff";
@@ -115,7 +115,7 @@ namespace OfficeOpenXml.Drawing
                 }
                 set
                 {
-                    SetXmlNode(colOffPath, value.ToString());
+                    SetXmlNodeString(colOffPath, value.ToString());
                 }
             }
             const string rowOffPath = "xdr:rowOff";
@@ -134,7 +134,7 @@ namespace OfficeOpenXml.Drawing
                 }
                 set
                 {
-                    SetXmlNode(rowOffPath, value.ToString());
+                    SetXmlNodeString(rowOffPath, value.ToString());
                 }
             }
         }
@@ -184,7 +184,7 @@ namespace OfficeOpenXml.Drawing
                 try
                 {
                     if (_nameXPath == "") return "";
-                    return GetXmlNode(_nameXPath);
+                    return GetXmlNodeString(_nameXPath);
                 }
                 catch
                 {
@@ -196,7 +196,7 @@ namespace OfficeOpenXml.Drawing
                 try
                 {
                     if (_nameXPath == "") throw new NotImplementedException();
-                    SetXmlNode(_nameXPath, value);
+                    SetXmlNodeString(_nameXPath, value);
                 }
                 catch
                 {

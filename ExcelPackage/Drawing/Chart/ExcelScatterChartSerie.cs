@@ -81,7 +81,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                SetXmlNode(smoothPath, value.ToString());
+                SetXmlNodeString(smoothPath, value.ToString());
             }
         }
         const string markerPath = "c:marker/c:symbol/@val";
@@ -92,7 +92,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                string marker = GetXmlNode(markerPath);
+                string marker = GetXmlNodeString(markerPath);
                 if (marker == "")
                 {
                     return eMarkerStyle.Square;
@@ -104,7 +104,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                SetXmlNode(markerPath, value.ToString().ToLower());
+                SetXmlNodeString(markerPath, value.ToString().ToLower());
             }
         }        
        

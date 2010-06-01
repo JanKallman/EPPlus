@@ -59,7 +59,18 @@ namespace OfficeOpenXml.Style
             var node = doc.CreateElement("d", "r", ExcelPackage.schemaMain);
             TopNode.AppendChild(node);
             var rt = new ExcelRichText(NameSpaceManager, node);
-            if (_cells == null)
+            if (_list.Count > 0)
+            {
+                ExcelRichText prevItem = _list[_list.Count - 1];
+                rt.FontName = prevItem.FontName;
+                rt.Size = prevItem.Size;
+                rt.Color = prevItem.Color;
+                rt.PreserveSpace = rt.PreserveSpace;
+                rt.Bold = prevItem.Bold;
+                rt.Italic = prevItem.Italic;                
+                rt.UnderLine = prevItem.UnderLine;
+            }
+            else if (_cells == null)
             {
                 rt.FontName = "Calibri";
                 rt.Size = 11;

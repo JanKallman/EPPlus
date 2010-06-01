@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             if (topNode != null)
             {
-                _borderStyle = GetBorderStyle(GetXmlNode("@style"));
+                _borderStyle = GetBorderStyle(GetXmlNodeString("@style"));
                 _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
                 Exists = true;
             }
@@ -119,7 +119,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
             if (Style != ExcelBorderStyle.None)
             {
-                SetXmlNode("@style", SetBorderString(Style));
+                SetXmlNodeString("@style", SetBorderString(Style));
                 if (Color.Exists)
                 {
                     CreateNode(_colorPath);

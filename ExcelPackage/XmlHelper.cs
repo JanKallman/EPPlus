@@ -226,19 +226,19 @@ namespace OfficeOpenXml
                 node.ParentNode.RemoveChild(node);
             }
         }
-        internal void SetXmlNode(string path, string value)
+        internal void SetXmlNodeString(string path, string value)
         {
-            SetXmlNode(TopNode, path, value, false, false);
+            SetXmlNodeString(TopNode, path, value, false, false);
         }
-        internal void SetXmlNode(XmlNode node, string path, string value)
+        internal void SetXmlNodeString(XmlNode node, string path, string value)
         {
-            SetXmlNode(node, path, value, false, false);
+            SetXmlNodeString(node, path, value, false, false);
         }
-        internal void SetXmlNode(XmlNode node, string path, string value, bool removeIfBlank)
+        internal void SetXmlNodeString(XmlNode node, string path, string value, bool removeIfBlank)
         {
-            SetXmlNode(node, path, value, removeIfBlank, false);
+            SetXmlNodeString(node, path, value, removeIfBlank, false);
         }
-        internal void SetXmlNode(XmlNode node, string path, string value, bool removeIfBlank, bool insertFirst)
+        internal void SetXmlNodeString(XmlNode node, string path, string value, bool removeIfBlank, bool insertFirst)
         {
             if (node == null)
             {
@@ -272,7 +272,7 @@ namespace OfficeOpenXml
             }
             else
             {
-                SetXmlNode(TopNode, path, value ? "1" : "0", false, false);
+                SetXmlNodeString(TopNode, path, value ? "1" : "0", false, false);
             }
         }
         internal bool GetXmlNodeBool(string path)
@@ -281,7 +281,7 @@ namespace OfficeOpenXml
         }
         internal bool GetXmlNodeBool(string path, bool blankValue)
         {
-            string value=GetXmlNode(path);
+            string value=GetXmlNodeString(path);
             if (value == "1" || value == "-1" || value == "True")
             {
                 return true;
@@ -298,7 +298,7 @@ namespace OfficeOpenXml
         internal int GetXmlNodeInt(string path)
         {
             int i;
-            if (int.TryParse(GetXmlNode(path), out i))
+            if (int.TryParse(GetXmlNodeString(path), out i))
             {
                 return i;
             }
@@ -310,7 +310,7 @@ namespace OfficeOpenXml
         internal decimal GetXmlNodeDecimal(string path)
         {
             decimal d;
-            if (decimal.TryParse(GetXmlNode(path), out d))
+            if (decimal.TryParse(GetXmlNodeString(path), out d))
             {
                 return d;
             }
@@ -319,7 +319,7 @@ namespace OfficeOpenXml
                 return 0;
             }
         }
-        internal string GetXmlNode(string path)
+        internal string GetXmlNodeString(string path)
         {
             if (TopNode == null)
             {

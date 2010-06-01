@@ -182,11 +182,11 @@ namespace OfficeOpenXml.Style.XmlAccess
             topNode.AppendChild(_diagonal.CreateXmlNode(TopNode.SelectSingleNode(diagonalPath, NameSpaceManager)));
             if (_diagonalUp)
             {
-                SetXmlNode(diagonalUpPath, "1");
+                SetXmlNodeString(diagonalUpPath, "1");
             }
             if (_diagonalDown)
             {
-                SetXmlNode(diagonalDownPath, "1");
+                SetXmlNodeString(diagonalDownPath, "1");
             }
             return topNode;
         }

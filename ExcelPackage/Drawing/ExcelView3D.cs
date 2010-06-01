@@ -53,7 +53,7 @@ namespace OfficeOpenXml.Drawing
            }
            set
            {
-               SetXmlNode(perspectivePath, value.ToString());
+               SetXmlNodeString(perspectivePath, value.ToString());
            }
        }
        const string rotXPath = "c:rotX/@val";
@@ -66,7 +66,7 @@ namespace OfficeOpenXml.Drawing
            set
            {
                CreateNode(rotXPath);
-               SetXmlNode(rotXPath, value.ToString());
+               SetXmlNodeString(rotXPath, value.ToString());
            }
        }
     }
