@@ -66,7 +66,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNode(showValPath, value ? "1" : "0");
+               SetXmlNodeString(showValPath, value ? "1" : "0");
            }
        }
        const string showCatPath = "c:showCatName/@val";
@@ -78,7 +78,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNode(showCatPath, value ? "1" : "0");
+               SetXmlNodeString(showCatPath, value ? "1" : "0");
            }
        }
        const string showSerPath = "c:showSerName/@val";
@@ -90,7 +90,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNode(showSerPath, value ? "1" : "0");
+               SetXmlNodeString(showSerPath, value ? "1" : "0");
            }
        }
        const string showPerentPath = "c:showPercent/@val";
@@ -102,7 +102,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNode(showPerentPath, value ? "1" : "0");
+               SetXmlNodeString(showPerentPath, value ? "1" : "0");
            }
        }
        const string showLeaderLinesPath = "c:showLeaderLines/@val";
@@ -114,7 +114,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNode(showLeaderLinesPath, value ? "1" : "0");
+               SetXmlNodeString(showLeaderLinesPath, value ? "1" : "0");
            }
        }
        const string separatorPath = "c:separator";
@@ -122,11 +122,11 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            get
            {
-               return GetXmlNode(separatorPath);
+               return GetXmlNodeString(separatorPath);
            }
            set
            {
-               SetXmlNode(separatorPath, value);
+               SetXmlNodeString(separatorPath, value);
            }
        }
 

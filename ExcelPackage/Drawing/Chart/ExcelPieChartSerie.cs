@@ -65,7 +65,7 @@ namespace OfficeOpenXml.Drawing.Chart
             internal set
             {
                 //Where need this one 
-                SetXmlNode(explosionPath, value.ToString());
+                SetXmlNodeString(explosionPath, value.ToString());
             }
         }
         ExcelChartSerieDataLabel _DataLabel = null;

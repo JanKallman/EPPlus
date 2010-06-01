@@ -45,11 +45,11 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                return GetXmlNode("@id");
+                return GetXmlNodeString("@id");
             }
             set
             {
-                SetXmlNode("@id",value);
+                SetXmlNodeString("@id",value);
             }
         }
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
@@ -57,7 +57,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                switch (GetXmlNode(VERTICAL_ALIGNMENT_PATH))
+                switch (GetXmlNodeString(VERTICAL_ALIGNMENT_PATH))
                 {
                     case "Center":
                         return eTextAlignVerticalVml.Center;
@@ -72,10 +72,10 @@ namespace OfficeOpenXml.Drawing.Vml
                 switch (value)
                 {
                     case eTextAlignVerticalVml.Center:
-                        SetXmlNode(VERTICAL_ALIGNMENT_PATH, "Center");
+                        SetXmlNodeString(VERTICAL_ALIGNMENT_PATH, "Center");
                         break;
                     case eTextAlignVerticalVml.Bottom:
-                        SetXmlNode(VERTICAL_ALIGNMENT_PATH, "Bottom");
+                        SetXmlNodeString(VERTICAL_ALIGNMENT_PATH, "Bottom");
                         break;
                     default:
                         DeleteNode(VERTICAL_ALIGNMENT_PATH);
@@ -88,7 +88,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                switch (GetXmlNode(HORIZONTAL_ALIGNMENT_PATH))
+                switch (GetXmlNodeString(HORIZONTAL_ALIGNMENT_PATH))
                 {
                     case "Center":
                         return eTextAlignHorizontalVml.Center;
@@ -103,10 +103,10 @@ namespace OfficeOpenXml.Drawing.Vml
                 switch (value)
                 {
                     case eTextAlignHorizontalVml.Center:
-                        SetXmlNode(HORIZONTAL_ALIGNMENT_PATH, "Center");
+                        SetXmlNodeString(HORIZONTAL_ALIGNMENT_PATH, "Center");
                         break;
                     case eTextAlignHorizontalVml.Right:
-                        SetXmlNode(HORIZONTAL_ALIGNMENT_PATH, "Right");
+                        SetXmlNodeString(HORIZONTAL_ALIGNMENT_PATH, "Right");
                         break;
                     default:
                         DeleteNode(HORIZONTAL_ALIGNMENT_PATH);
@@ -141,7 +141,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                string col = GetXmlNode(BACKGROUNDCOLOR_PATH);
+                string col = GetXmlNodeString(BACKGROUNDCOLOR_PATH);
                 if (col == "")
                 {
                     return Color.FromArgb(0xff, 0xff, 0xe1);
@@ -163,7 +163,7 @@ namespace OfficeOpenXml.Drawing.Vml
             set
             {
                 string color = "#" + value.ToArgb().ToString("X").Substring(2, 6);
-                SetXmlNode(BACKGROUNDCOLOR_PATH, color);
+                SetXmlNodeString(BACKGROUNDCOLOR_PATH, color);
                 //SetXmlNode(BACKGROUNDCOLOR2_PATH, color);
             }
         }
@@ -173,14 +173,14 @@ namespace OfficeOpenXml.Drawing.Vml
         { 
             get
             {
-                string v=GetXmlNode(LINESTYLE_PATH);
+                string v=GetXmlNodeString(LINESTYLE_PATH);
                 if (v == "")
                 {
                     return eLineStyleVml.Solid;
                 }
                 else if (v == "1 1")
                 {
-                    v = GetXmlNode(ENDCAP_PATH);
+                    v = GetXmlNodeString(ENDCAP_PATH);
                     return (eLineStyleVml)Enum.Parse(typeof(eLineStyleVml), v, true);
                 }
                 else
@@ -192,10 +192,10 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 if (value == eLineStyleVml.Round || value == eLineStyleVml.Square)
                 {
-                    SetXmlNode(LINESTYLE_PATH, "1 1");
+                    SetXmlNodeString(LINESTYLE_PATH, "1 1");
                     if (value == eLineStyleVml.Round)
                     {
-                        SetXmlNode(ENDCAP_PATH, "round");
+                        SetXmlNodeString(ENDCAP_PATH, "round");
                     }
                     else
                     {
@@ -206,7 +206,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 {
                     string v = value.ToString();
                     v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
-                    SetXmlNode(LINESTYLE_PATH, v);
+                    SetXmlNodeString(LINESTYLE_PATH, v);
                     DeleteNode(ENDCAP_PATH);
                 }
             }
@@ -216,7 +216,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                string col = GetXmlNode(LINECOLOR_PATH);
+                string col = GetXmlNodeString(LINECOLOR_PATH);
                 if (col == "")
                 {
                     return Color.Black;
@@ -238,7 +238,7 @@ namespace OfficeOpenXml.Drawing.Vml
             set
             {
                 string color = "#" + value.ToArgb().ToString("X").Substring(2, 6);
-                SetXmlNode(LINECOLOR_PATH, color);
+                SetXmlNodeString(LINECOLOR_PATH, color);
             }
         }
         const string LINEWIDTH_PATH="@strokeweight";
@@ -246,7 +246,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                string wt=GetXmlNode(LINEWIDTH_PATH);
+                string wt=GetXmlNodeString(LINEWIDTH_PATH);
                 if (wt == "") return (Single).75;
                 if(wt.EndsWith("pt")) wt=wt.Substring(0,wt.Length-2);
 
@@ -262,7 +262,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             set
             {
-                SetXmlNode(LINEWIDTH_PATH, value.ToString(ExcelWorksheet._ci) + "pt");
+                SetXmlNodeString(LINEWIDTH_PATH, value.ToString(ExcelWorksheet._ci) + "pt");
             }
         }
         ///// <summary>
@@ -327,12 +327,12 @@ namespace OfficeOpenXml.Drawing.Vml
             get
             {
                 string value;
-                GetStyle(GetXmlNode(TEXTBOX_STYLE_PATH), "mso-fit-shape-to-text", out value);
+                GetStyle(GetXmlNodeString(TEXTBOX_STYLE_PATH), "mso-fit-shape-to-text", out value);
                 return value=="t";
             }
             set
             {                
-                SetXmlNode(TEXTBOX_STYLE_PATH, SetStyle(GetXmlNode(TEXTBOX_STYLE_PATH),"mso-fit-shape-to-text", value?"t":"")); 
+                SetXmlNodeString(TEXTBOX_STYLE_PATH, SetStyle(GetXmlNodeString(TEXTBOX_STYLE_PATH),"mso-fit-shape-to-text", value?"t":"")); 
             }
         }        
         const string LOCKED_PATH = "x:ClientData/x:Locked";
@@ -388,11 +388,11 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             get
             {
-                return GetXmlNode(STYLE_PATH);
+                return GetXmlNodeString(STYLE_PATH);
             }
             set
             {
-                SetXmlNode(STYLE_PATH, value);
+                SetXmlNodeString(STYLE_PATH, value);
             }
         }
         #region "Style Handling methods"

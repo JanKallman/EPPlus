@@ -51,7 +51,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             base(nsm, topNode)
         {
             _numFmtId = GetXmlNodeInt("@numFmtId");
-            _format = GetXmlNode("@formatCode");
+            _format = GetXmlNodeString("@formatCode");
         }
         public bool BuildIn { get; private set; }
         int _numFmtId;
@@ -297,8 +297,8 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
             TopNode = topNode;
-            SetXmlNode("@numFmtId", NumFmtId.ToString());
-            SetXmlNode("@formatCode", Format);
+            SetXmlNodeString("@numFmtId", NumFmtId.ToString());
+            SetXmlNodeString("@formatCode", Format);
             return TopNode;
         }
     }

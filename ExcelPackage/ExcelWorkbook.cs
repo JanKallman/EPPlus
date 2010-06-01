@@ -141,25 +141,26 @@ namespace OfficeOpenXml
                 foreach (XmlElement elem in nl)
                 { 
                     string fullAddress = elem.InnerText;
-                    int splitPos = fullAddress.LastIndexOf('!');
-                    string sheet = fullAddress.Substring(0, splitPos);
-                    string address = fullAddress.Substring(splitPos + 1, fullAddress.Length - splitPos - 1);
+                    //int splitPos = fullAddress.LastIndexOf('!');
+                    //string sheet = fullAddress.Substring(0, splitPos);
+                    //string address = fullAddress.Substring(splitPos + 1, fullAddress.Length - splitPos - 1);
                     
-                    if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
+                    //if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
 
                     int localSheetID;
                     if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
                     {
                         localSheetID = -1;
                     }
+                    ExcelAddress addr = new ExcelAddress(fullAddress);
                     ExcelNamedRange namedRange;
                     if (localSheetID > -1)
                     {
-                        namedRange = Worksheets.GetBySheetID(localSheetID+1).Names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                        namedRange = Worksheets.GetBySheetID(localSheetID + 1).Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
                     }
                     else
                     {
-                        namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRange(Worksheets[sheet], address));
+                        namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
                     }
                     if (elem.GetAttribute("hidden") == "1") namedRange.IsNameHidden = true;
                 }
@@ -482,7 +483,7 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                string calcMode = GetXmlNode(CALC_MODE_PATH);
+                string calcMode = GetXmlNodeString(CALC_MODE_PATH);
 				switch (calcMode)
 				{
 					case "autoNoTable":
@@ -499,13 +500,13 @@ namespace OfficeOpenXml
 				switch (value)
 				{
 					case ExcelCalcMode.AutomaticNoTable:
-                        SetXmlNode(CALC_MODE_PATH, "autoNoTable") ;
+                        SetXmlNodeString(CALC_MODE_PATH, "autoNoTable") ;
 						break;
 					case ExcelCalcMode.Manual:
-                        SetXmlNode(CALC_MODE_PATH, "manual");
+                        SetXmlNodeString(CALC_MODE_PATH, "manual");
 						break;
                     default:
-                        SetXmlNode(CALC_MODE_PATH, "auto");
+                        SetXmlNodeString(CALC_MODE_PATH, "auto");
                         break;
 
 				}

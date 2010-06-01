@@ -223,7 +223,8 @@ namespace OfficeOpenXml
         private void Set_Comment(object value, int row, int col)
         {
             string[] v = (string[])value;
-            Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), v[0], v[1]);
+            var comment = Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), v[0], v[1]);
+            _worksheet.Cell(row, col).Comment = comment;
         }
         #endregion
         private void SetToSelectedRange()
@@ -533,7 +534,15 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetFullAddress(_worksheet.Name, _address);
+                string fullAddress=GetFullAddress(_worksheet.Name, _address);
+                if (Addresses != null)
+                {
+                    foreach (var a in Addresses)
+                    {
+                        fullAddress += "," + GetFullAddress(_worksheet.Name, a.Address); ;
+                    }
+                }
+                return fullAddress;
             }
         }
         /// <summary>
@@ -543,7 +552,15 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+                string fullAddress = GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+                if (Addresses != null)
+                {
+                    foreach (var a in Addresses)
+                    {
+                        fullAddress += "," + GetFullAddress(_worksheet.Name, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); ;
+                    }
+                }
+                return fullAddress;
             }
         }
         //ExcelCellAddress _startPosition=null;

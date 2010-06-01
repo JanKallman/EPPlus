@@ -41,31 +41,12 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node)
         {
-            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
+            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
         }
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
-            varyColorsPath = string.Format(varyColorsPath, GetChartNodeText());
-        }
-        string varyColorsPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:varyColors/@val";
-        public bool VaryColors
-        {
-            get
-            {
-                return _chartXmlHelper.GetXmlNodeBool(varyColorsPath);
-            }
-            internal set
-            {
-                if (value)
-                {
-                    _chartXmlHelper.SetXmlNode(varyColorsPath, "1");
-                }
-                else
-                {
-                    _chartXmlHelper.SetXmlNode(varyColorsPath, "0");
-                }
-            }
+            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
         }
         ExcelChartDataLabel _DataLabel = null;
         public ExcelChartDataLabel DataLabel

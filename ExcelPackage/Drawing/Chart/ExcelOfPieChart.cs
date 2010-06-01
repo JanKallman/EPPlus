@@ -38,7 +38,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                if (_chartXmlHelper.GetXmlNode(pieTypePath) == "bar")
+                if (_chartXmlHelper.GetXmlNodeString(pieTypePath) == "bar")
                     return ePieType.Bar;
                 else
                 {
@@ -48,7 +48,7 @@ namespace OfficeOpenXml.Drawing.Chart
             internal set
             {
                 _chartXmlHelper.CreateNode(pieTypePath,true);
-                _chartXmlHelper.SetXmlNode(pieTypePath, value == ePieType.Bar ? "bar" : "pie");
+                _chartXmlHelper.SetXmlNodeString(pieTypePath, value == ePieType.Bar ? "bar" : "pie");
             }
         }
 

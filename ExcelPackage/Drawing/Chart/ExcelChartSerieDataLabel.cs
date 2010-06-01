@@ -50,11 +50,11 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            get
            {
-               return GetPosEnum(GetXmlNode(positionPath));
+               return GetPosEnum(GetXmlNodeString(positionPath));
            }
            set
            {
-               SetXmlNode(positionPath,GetPosText(value));
+               SetXmlNodeString(positionPath,GetPosText(value));
            }
        }
        ExcelDrawingFill _fill = null;

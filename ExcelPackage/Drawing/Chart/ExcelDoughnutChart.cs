@@ -66,7 +66,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNode(_firstSliceAngPath, value.ToString());
+                _chartXmlHelper.SetXmlNodeString(_firstSliceAngPath, value.ToString());
             }
         }
         string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize/@val";
@@ -78,7 +78,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNode(_holeSizePath, value.ToString());
+                _chartXmlHelper.SetXmlNodeString(_holeSizePath, value.ToString());
             }
         }
     }

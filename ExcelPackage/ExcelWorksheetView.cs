@@ -62,7 +62,7 @@ namespace OfficeOpenXml
             {
                 get
                 {
-                    string address = GetXmlNode(_activeCellPath);
+                    string address = GetXmlNodeString(_activeCellPath);
                     if (address == "")
                     {
                         return "A1";
@@ -74,7 +74,7 @@ namespace OfficeOpenXml
                     int fromCol, fromRow, toCol, toRow;
                     if(_selectionNode==null) CreateSelectionElement();
                     ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
-                    SetXmlNode(_activeCellPath, value);
+                    SetXmlNodeString(_activeCellPath, value);
                     if (((XmlElement)TopNode).GetAttribute("sqref") == "")
                     {
 
@@ -101,7 +101,7 @@ namespace OfficeOpenXml
             {
                 get
                 {
-                    string address = GetXmlNode(_selectionRangePath);
+                    string address = GetXmlNodeString(_selectionRangePath);
                     if (address == "")
                     {
                         return "A1";
@@ -113,7 +113,7 @@ namespace OfficeOpenXml
                     int fromCol, fromRow, toCol, toRow;
                     if(_selectionNode==null) CreateSelectionElement();
                     ExcelCellBase.GetRowColFromAddress(value, out fromRow, out fromCol, out toRow, out toCol);
-                    SetXmlNode(_selectionRangePath, value);
+                    SetXmlNodeString(_selectionRangePath, value);
                     if (((XmlElement)TopNode).GetAttribute("activeCell") == "")
                     {
 
@@ -239,7 +239,7 @@ namespace OfficeOpenXml
                     }
                 }
                 else
-                    SetXmlNode("@tabSelected", "0");
+                    SetXmlNodeString("@tabSelected", "0");
 
             }
         }
@@ -251,12 +251,12 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                return GetXmlNode("@view") == "pageLayout";
+                return GetXmlNodeString("@view") == "pageLayout";
 			}
 			set
 			{
                 if (value)
-                    SetXmlNode("@view", "pageLayout");
+                    SetXmlNodeString("@view", "pageLayout");
                 else
                     SheetViewElement.RemoveAttribute("view");
 			}
@@ -268,12 +268,12 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNode("@view") == "pageBreakPreview";
+                return GetXmlNodeString("@view") == "pageBreakPreview";
             }
             set
             {
                 if (value)
-                    SetXmlNode("@view", "pageBreakPreview");
+                    SetXmlNodeString("@view", "pageBreakPreview");
                 else
                     SheetViewElement.RemoveAttribute("view");
             }
@@ -289,7 +289,21 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNode("@showGridLines", value ? "1" : "0");
+                SetXmlNodeString("@showGridLines", value ? "1" : "0");
+            }
+        }
+        /// <summary>
+        /// Show the Column/Row headers (containg column letters and row numbers)
+        /// </summary>
+        public bool ShowHeaders
+        {
+            get
+            {
+                return GetXmlNodeBool("@showRowColHeaders");
+            }
+            set
+            {
+                SetXmlNodeString("@showRowColHeaders", value ? "1" : "0");
             }
         }
         /// <summary>
@@ -303,7 +317,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNode("@zoomScale", value.ToString());
+                SetXmlNodeString("@zoomScale", value.ToString());
             }
         }
         public ExcelWorksheetPanes[] Panes

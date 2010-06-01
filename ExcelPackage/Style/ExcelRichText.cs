@@ -26,11 +26,11 @@ namespace OfficeOpenXml.Style
 
             get
             {
-                return GetXmlNode(TEXT_PATH);
+                return GetXmlNodeString(TEXT_PATH);
             }
             set
             {
-                SetXmlNode(TEXT_PATH, value);
+                SetXmlNodeString(TEXT_PATH, value);
                 if (PreserveSpace)
                 {
                     XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
@@ -83,7 +83,7 @@ namespace OfficeOpenXml.Style
                 }
                 else
                 {
-                    DeleteAllNode(BOLD_PATH);
+                    DeleteNode(BOLD_PATH);
                 }
                 if(_callback!=null) _callback();
             }
@@ -103,7 +103,7 @@ namespace OfficeOpenXml.Style
                 }
                 else
                 {
-                    DeleteAllNode(ITALIC_PATH);
+                    DeleteNode(ITALIC_PATH);
                 }
                 if (_callback != null) _callback();
             }
@@ -123,7 +123,7 @@ namespace OfficeOpenXml.Style
                 }
                 else
                 {
-                    DeleteAllNode(UNDERLINE_PATH);
+                    DeleteNode(UNDERLINE_PATH);
                 }
                 if (_callback != null) _callback();
             }
@@ -137,7 +137,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                SetXmlNode(SIZE_PATH, value.ToString(ExcelWorksheet._ci));
+                SetXmlNodeString(SIZE_PATH, value.ToString(ExcelWorksheet._ci));
                 if (_callback != null) _callback();
             }
         }
@@ -146,11 +146,11 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return GetXmlNode(FONT_PATH);
+                return GetXmlNodeString(FONT_PATH);
             }
             set
             {
-                SetXmlNode(FONT_PATH, value);
+                SetXmlNodeString(FONT_PATH, value);
                 if (_callback != null) _callback();
             }
         }
@@ -159,7 +159,7 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                string col = GetXmlNode(COLOR_PATH);
+                string col = GetXmlNodeString(COLOR_PATH);
                 if (col == "")
                 {
                     return Color.Empty;
@@ -171,7 +171,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                SetXmlNode(COLOR_PATH, value.ToArgb().ToString("X")/*.Substring(2, 6)*/);
+                SetXmlNodeString(COLOR_PATH, value.ToArgb().ToString("X")/*.Substring(2, 6)*/);
                 if (_callback != null) _callback();
             }
         }

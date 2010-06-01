@@ -56,16 +56,16 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal ExcelFontXml(XmlNamespaceManager nsm, XmlNode topNode) :
             base(nsm, topNode)
         {
-            _name = GetXmlNode(namePath);
+            _name = GetXmlNodeString(namePath);
             _size = GetXmlNodeInt(sizePath);
             _family = GetXmlNodeInt(familyPath);
-            _scheme = GetXmlNode(schemePath);
+            _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
             _bold = (topNode.SelectSingleNode(boldPath, NameSpaceManager) != null);
             _italic = (topNode.SelectSingleNode(italicPath, NameSpaceManager) != null);
             _strike = (topNode.SelectSingleNode(strikePath, NameSpaceManager) != null);
             _underline = (topNode.SelectSingleNode(underLinedPath, NameSpaceManager) != null);
-            _verticalAlign = GetXmlNode(verticalAlignPath);
+            _verticalAlign = GetXmlNodeString(verticalAlignPath);
         }
         internal override string Id
         {
@@ -239,16 +239,16 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_italic) CreateNode(italicPath); else DeleteAllNode(italicPath);
             if (_strike) CreateNode(strikePath); else DeleteAllNode(strikePath);
             if (_underline) CreateNode(underLinedPath); else DeleteAllNode(underLinedPath);
-            if (_verticalAlign!="") SetXmlNode(verticalAlignPath, _verticalAlign.ToString());
-            SetXmlNode(sizePath, _size.ToString());
+            if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
+            SetXmlNodeString(sizePath, _size.ToString());
             if (_color.Exists)
             {
                 CreateNode(_colorPath);
                 TopNode.AppendChild(_color.CreateXmlNode(TopNode.SelectSingleNode(_colorPath, NameSpaceManager)));
             }
-            SetXmlNode(namePath, _name);
-            if(_family>int.MinValue) SetXmlNode(familyPath, _family.ToString());
-            if (_scheme != "") SetXmlNode(schemePath, _scheme.ToString());
+            SetXmlNodeString(namePath, _name);
+            if(_family>int.MinValue) SetXmlNodeString(familyPath, _family.ToString());
+            if (_scheme != "") SetXmlNodeString(schemePath, _scheme.ToString());
 
             return TopNode;
         }

@@ -324,7 +324,7 @@ namespace OfficeOpenXml
             hash ^= (0x8000 | ('N' << 8) | 'K');
             hash ^= (ushort)Password.Length;
 
-            SetXmlNode(_passwordPath, ((int)hash).ToString("x"));
+            SetXmlNodeString(_passwordPath, ((int)hash).ToString("x"));
         }
 
     }

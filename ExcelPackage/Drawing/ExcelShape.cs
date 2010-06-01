@@ -270,7 +270,7 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                string v = GetXmlNode(ShapeStylePath);
+                string v = GetXmlNodeString(ShapeStylePath);
                 try
                 {
                     return (eShapeStyle)Enum.Parse(typeof(eShapeStyle), v, true);
@@ -284,7 +284,7 @@ namespace OfficeOpenXml.Drawing
             {
                 string v = value.ToString();
                 v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
-                SetXmlNode(ShapeStylePath, v);
+                SetXmlNodeString(ShapeStylePath, v);
             }
         }
         ExcelDrawingFill _fill = null;
@@ -345,11 +345,11 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetXmlNode(TextPath);
+                return GetXmlNodeString(TextPath);
             }
             set
             {
-                SetXmlNode(TextPath, value);
+                SetXmlNodeString(TextPath, value);
             }
 
         }
@@ -378,11 +378,11 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetTextAchoringEnum(GetXmlNode(TextAnchoringPath));
+                return GetTextAchoringEnum(GetXmlNodeString(TextAnchoringPath));
             }
             set
             {
-                SetXmlNode(TextAnchoringPath, GetTextAchoringText(value));
+                SetXmlNodeString(TextAnchoringPath, GetTextAchoringText(value));
             }
         }
         const string TextAnchoringCtlPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchorCtr";
@@ -396,11 +396,11 @@ namespace OfficeOpenXml.Drawing
             {
                 if (value)
                 {
-                    SetXmlNode(TextAnchoringCtlPath, "1");
+                    SetXmlNodeString(TextAnchoringCtlPath, "1");
                 }
                 else
                 {
-                    SetXmlNode(TextAnchoringCtlPath, "0");
+                    SetXmlNodeString(TextAnchoringCtlPath, "0");
                 }
             }
         }
@@ -413,11 +413,11 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                return GetTextVerticalEnum(GetXmlNode(TextVerticalPath));
+                return GetTextVerticalEnum(GetXmlNodeString(TextVerticalPath));
             }
             set
             {
-                SetXmlNode(TextVerticalPath, GetTextVerticalText(value));
+                SetXmlNodeString(TextVerticalPath, GetTextVerticalText(value));
             }
         }
         #endregion

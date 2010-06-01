@@ -84,13 +84,13 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            get
            {
-                return GetXmlNode(headerPath);
+                return GetXmlNodeString(headerPath);
             }
             set
             {
                 //Where need this one 
                 CreateNode(headerPath);
-                SetXmlNode(headerPath, value);            
+                SetXmlNodeString(headerPath, value);            
             }
         }
 
@@ -103,7 +103,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            get
            {
-               return GetXmlNode(_seriesPath);
+               return GetXmlNodeString(_seriesPath);
            }
            set
            {
@@ -112,7 +112,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    throw(new Exception("Bubble charts is not supported yet"));
                }
                CreateNode(_seriesPath,true);
-               SetXmlNode(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
+               SetXmlNodeString(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
                
                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
                if (cache != null)
@@ -137,7 +137,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            get
            {
-               return GetXmlNode(_xSeriesPath);
+               return GetXmlNodeString(_xSeriesPath);
            }
            set
            {
@@ -147,7 +147,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    node = TopNode.OwnerDocument.CreateElement(_xSeriesTopPath, ExcelPackage.schemaChart);
                    InserAfter(TopNode, "c:dLbls,c:tx,c:order", node);
                }
-               SetXmlNode(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
+               SetXmlNodeString(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_xSeriesTopPath), _ns);
                if (cache != null)

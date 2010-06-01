@@ -20,12 +20,12 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return GetXmlNode(TextPath);
+                return GetXmlNodeString(TextPath);
             }
             set
             {
                 CreateTopNode();
-                SetXmlNode(TextPath, value);
+                SetXmlNodeString(TextPath, value);
             }
 
         }

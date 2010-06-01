@@ -49,7 +49,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal ExcelFillXml(XmlNamespaceManager nsm, XmlNode topNode):
             base(nsm, topNode)
         {
-            PatternType = GetPatternType(GetXmlNode(fillPatternTypePath));
+            PatternType = GetPatternType(GetXmlNodeString(fillPatternTypePath));
             _backgroundColor = new ExcelColorXml(nsm, topNode.SelectSingleNode(_backgroundColorPath, nsm));
             _patternColor = new ExcelColorXml(nsm, topNode.SelectSingleNode(_patternColorPath, nsm));
         }
@@ -135,7 +135,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
             TopNode = topNode;
-            SetXmlNode(fillPatternTypePath, SetPatternString(_fillPatternType));
+            SetXmlNodeString(fillPatternTypePath, SetPatternString(_fillPatternType));
             if (PatternType != ExcelFillStyle.None)
             {
                 XmlNode pattern = topNode.SelectSingleNode(fillPatternTypePath, NameSpaceManager);

@@ -166,11 +166,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetDirectionEnum(_chartXmlHelper.GetXmlNode(_directionPath));
+                return GetDirectionEnum(_chartXmlHelper.GetXmlNodeString(_directionPath));
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNode(_directionPath, GetDirectionText(value));
+                _chartXmlHelper.SetXmlNodeString(_directionPath, GetDirectionText(value));
             }
         }
         string _shapePath = "{0}/c:shape/@val";
@@ -178,11 +178,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetShapeEnum(_chartXmlHelper.GetXmlNode(_shapePath));
+                return GetShapeEnum(_chartXmlHelper.GetXmlNodeString(_shapePath));
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNode(_shapePath, GetShapeText(value));
+                _chartXmlHelper.SetXmlNodeString(_shapePath, GetShapeText(value));
             }
         }
         ExcelChartDataLabel _DataLabel = null;

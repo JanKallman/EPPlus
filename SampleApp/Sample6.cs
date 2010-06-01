@@ -187,9 +187,51 @@ namespace EPPlusSamples
             ws.PrinterSettings.FitToPage = true;
             ws.PrinterSettings.FitToWidth = 1;
             ws.PrinterSettings.FitToHeight = 0;
+            ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1"); //Print titles
+            ws.PrinterSettings.PrintArea = ws.Cells[1, 1, row - 1, 5];
 
             //Done! save the sheet
             pck.Save();
+        }
+        /// <summary>
+        /// This method adds the comment to the header row
+        /// </summary>
+        /// <param name="ws"></param>
+        private static void AddComments(ExcelWorksheet ws)
+        {
+            //Add Comments using the range class
+            var comment = ws.Cells["A3"].AddComment("Jan Källman:\r\n", "JK");
+            comment.Font.Bold = true;
+            var rt = comment.RichText.Add("This column contains the extensions.");
+            rt.Bold = false;
+            comment.AutoFit = true;
+            
+            //Add a comment using the Comment collection
+            comment = ws.Comments.Add(ws.Cells["B3"],"This column contains the size of the files.", "JK");
+            //This sets the size and position. (The position is only when the comment is visible)
+            comment.From.Column = 7;
+            comment.From.Row = 3;
+            comment.To.Column = 16;
+            comment.To.Row = 8;
+            comment.BackgroundColor = Color.White;
+            comment.RichText.Add("\r\nTo format the numbers use the Numberformat-property like:\r\n");
+
+            ws.Cells["B3:B42"].Style.Numberformat.Format = "#,##0";
+
+            //Format the code using the RichText Collection
+            var rc = comment.RichText.Add("//Format the Size and Count column\r\n");
+            rc.FontName = "Courier New";
+            rc.Color = Color.FromArgb(0, 128, 0);
+            rc = comment.RichText.Add("ws.Cells[");
+            rc.Color = Color.Black;
+            rc = comment.RichText.Add("\"B3:B42\"");
+            rc.Color = Color.FromArgb(123, 21, 21);
+            rc = comment.RichText.Add("].Style.Numberformat.Format = ");
+            rc.Color = Color.Black;
+            rc = comment.RichText.Add("\"#,##0\"");
+            rc.Color = Color.FromArgb(123, 21, 21);
+            rc = comment.RichText.Add(";");
+            rc.Color = Color.Black;
         }
         /// <summary>
         /// Add the second sheet containg the graphs
@@ -223,6 +265,9 @@ namespace EPPlusSamples
 
             //Add rows
             int row=AddStatRows(ws, lst, 2, "Extensions", "Size");
+
+            //Add commets to the Extensions header
+            AddComments(ws);
 
             //Add the piechart
             var pieChart = ws.Drawings.AddChart("crtExtensionsSize", eChartType.PieExploded3D) as ExcelPieChart;
@@ -266,7 +311,7 @@ namespace EPPlusSamples
             barChart.Series.Add(ExcelRange.GetAddress(31, 2, row - 1, 2), ExcelRange.GetAddress(31, 1, row - 1, 1));
             barChart.Series[0].Header = "Size";
             barChart.Title.Text = "Top File size";
-
+            barChart.VaryColors = true;
             //Format the Size and Count column
             ws.Cells["B3:B42"].Style.Numberformat.Format = "#,##0";
             //Set a border around
@@ -351,7 +396,7 @@ namespace EPPlusSamples
                     rest += lst[i].Count;
                 }
             }
-            //... and add an others row
+            //... and add anothers row
             if (rest > 0)
             {
                 ws.Cells[row, 1].Value = "Others";

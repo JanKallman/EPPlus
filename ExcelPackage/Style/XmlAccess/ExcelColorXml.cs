@@ -58,10 +58,10 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 _exists = true;
-                _auto = GetXmlNode("@auto");
-                _theme = GetXmlNode("@theme");
+                _auto = GetXmlNodeString("@auto");
+                _theme = GetXmlNodeString("@theme");
                 _tint = GetXmlNodeDecimal("@tint");
-                _rgb = GetXmlNode("@rgb");
+                _rgb = GetXmlNodeString("@rgb");
                 _indexed = GetXmlNodeInt("@indexed");
             }
         }
@@ -137,20 +137,20 @@ namespace OfficeOpenXml.Style.XmlAccess
             TopNode = topNode;
             if(_rgb!="")
             {
-                SetXmlNode("@rgb", _rgb);
+                SetXmlNodeString("@rgb", _rgb);
             }
             else if (_indexed >= 0)
             {
-                SetXmlNode("@indexed", _indexed.ToString());
+                SetXmlNodeString("@indexed", _indexed.ToString());
             }
             else if (_auto != "")
             {
-                SetXmlNode("@auto", _auto);
+                SetXmlNodeString("@auto", _auto);
             }
             else
             {
-                SetXmlNode("@theme", _theme.ToString());
-                SetXmlNode("@tint", _tint.ToString());
+                SetXmlNodeString("@theme", _theme.ToString());
+                SetXmlNodeString("@tint", _tint.ToString());
             }
             return TopNode;
         }

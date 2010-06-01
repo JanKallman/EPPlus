@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             base(NameSpaceManager, topNode)
         {
             StyleXfId = GetXmlNodeInt(idPath);
-            Name = GetXmlNode(namePath);
+            Name = GetXmlNodeString(namePath);
             BuildInId = GetXmlNodeInt(buildInIdPath);
             _styles = styles;
             _style = new ExcelStyle(styles, styles.NamedStylePropertyChange, -1, Name, _styleXfId);
@@ -118,9 +118,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
             TopNode = topNode;
-            SetXmlNode(namePath, _name);
-            SetXmlNode("@xfId", _styles.CellStyleXfs[StyleXfId].newID.ToString());
-            if (BuildInId>=0) SetXmlNode("@builtinId", BuildInId.ToString());
+            SetXmlNodeString(namePath, _name);
+            SetXmlNodeString("@xfId", _styles.CellStyleXfs[StyleXfId].newID.ToString());
+            if (BuildInId>=0) SetXmlNodeString("@builtinId", BuildInId.ToString());
             return TopNode;            
         }
     }

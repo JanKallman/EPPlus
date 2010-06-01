@@ -37,6 +37,7 @@ namespace OfficeOpenXml
     public class ExcelAddressBase : ExcelCellBase
     {
         protected int _fromRow=-1, _toRow, _fromCol, _toCol;
+        internal protected string _ws;
         protected string _address;
         #region "Constructors"
         internal ExcelAddressBase()
@@ -61,22 +62,33 @@ namespace OfficeOpenXml
         protected internal void SetAddress(string address)
         {
             _address = address;
-            if (address.IndexOf(',') > 0)
+            if(address.IndexOfAny(new char[] {',','!'}) > -1)
             {
-                var subAddresses = address.Split(new char[] { ',' });
-                GetRowColFromAddress(subAddresses[0], out _fromRow, out _fromCol, out _toRow, out  _toCol);
-                _addresses = new List<ExcelAddress>();
-                _firstAddress = subAddresses[0];
-                for (int i = 1; i < subAddresses.Length; i++)
-                {
-                    _addresses.Add(new ExcelAddress(subAddresses[i]));
-                }
+                //Advanced address. Including Sheet or multi
+                ExtractAddress(_address);
             }
             else
             {
+                //Simple address
                 GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
                 _addresses = null;
             }
+                //if (address.IndexOf(',') > 0)
+            //{
+            //    var subAddresses = address.Split(new char[] { ',' });
+            //    GetRowColFromAddress(subAddresses[0], out _fromRow, out _fromCol, out _toRow, out  _toCol);
+            //    _addresses = new List<ExcelAddress>();
+            //    _firstAddress = subAddresses[0];
+            //    for (int i = 1; i < subAddresses.Length; i++)
+            //    {
+            //        _addresses.Add(new ExcelAddress(subAddresses[i]));
+            //    }
+            //}
+            //else
+            //{
+            //    GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
+            //    _addresses = null;
+            //}
             Validate();
         }
         ExcelCellAddress _start = null;
@@ -151,6 +163,13 @@ namespace OfficeOpenXml
                 throw new ArgumentOutOfRangeException("Start cell Address must be less or equal to End cell address");
             }
         }
+        internal string WorkSheet
+        {
+            get
+            {
+                return _ws;
+            }
+        }
         List<ExcelAddress> _addresses = null;
         internal List<ExcelAddress> Addresses
         {
@@ -159,7 +178,73 @@ namespace OfficeOpenXml
                 return _addresses;
             }
         }
-    }
+
+        private void ExtractAddress(string fullAddress)
+        {
+            string first="", second="";
+            bool isText=false, hasSheet=false;
+            foreach (char c in fullAddress)
+            {
+                if(c=='\'')
+                {
+                    isText=!isText;
+                }
+                else
+                {
+                    if(c=='!' && !isText)
+                    {
+                        hasSheet=true;
+                    }
+                    else if (c == ',' && !isText)
+                    {
+                        SetAddress(ref first, ref second, ref hasSheet);
+                    }
+                    else
+                    {
+                        if (hasSheet)
+                        {
+                            second += c;
+                        }
+                        else
+                        {
+                            first += c;
+                        }
+                    }
+                }
+            }
+            SetAddress(ref first, ref second, ref hasSheet);
+        }
+
+        private void SetAddress(ref string first, ref string second, ref bool hasSheet)
+        {
+            string ws, address;
+            if (hasSheet)
+            {
+                ws = first;
+                address = second;
+                first = "";
+                second = "";
+            }
+            else
+            {
+                address = first;
+                ws = "";
+                first = "";
+            }
+            hasSheet = false;
+            if (string.IsNullOrEmpty(_firstAddress))
+            {
+                _ws = ws;
+                _firstAddress = address;
+                GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
+            }
+            else
+            {
+                if (_addresses == null) _addresses = new List<ExcelAddress>();
+                _addresses.Add(new ExcelAddress(_ws, address));
+            }
+        }
+}
     /// <summary>
     /// Range address with the address property readonly
     /// </summary>
@@ -174,14 +259,16 @@ namespace OfficeOpenXml
         public ExcelAddress(int fromRow, int fromCol, int toRow, int toColumn)
             : base(fromRow, fromCol, toRow, toColumn)
         {
-
+            _ws = "";
         }
         public ExcelAddress(string address)
             : base(address)
         {
-            //Validate();
-            //GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
-            //Address = address;
+        }
+        internal ExcelAddress(string ws, string address)
+            : base(address)
+        {
+            _ws = ws;
         }
         /// <summary>
         /// The address for the range
