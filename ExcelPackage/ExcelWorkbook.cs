@@ -156,7 +156,7 @@ namespace OfficeOpenXml
                     ExcelNamedRange namedRange;
                     if (localSheetID > -1)
                     {
-                        namedRange = Worksheets.GetBySheetID(localSheetID + 1).Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
+                        namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
                     }
                     else
                     {
