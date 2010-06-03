@@ -1534,28 +1534,7 @@ namespace OfficeOpenXml
 		protected internal void Save()  // Worksheet Save
 		{
 			#region Delete the printer settings component (if it exists)
-			// we also need to delete the relationship from the pageSetup tag
-			XmlNode pageSetup = WorksheetXml.SelectSingleNode("//d:pageSetup", NameSpaceManager);
-			if (pageSetup != null)
-			{
-				XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
-				if (attr != null)
-				{
-					string relID = attr.Value;
-					// first delete the attribute from the XML
-					pageSetup.Attributes.Remove(attr);
-
-					// get the URI
-					PackageRelationship relPrinterSettings = Part.GetRelationship(relID);
-					Uri printerSettingsUri = new Uri("/xl" + relPrinterSettings.TargetUri.ToString().Replace("..", ""), UriKind.Relative);
-
-					// now delete the relationship
-					Part.DeleteRelationship(relPrinterSettings.Id);
-
-					// now delete the part from the package
-					xlPackage.Package.DeletePart(printerSettingsUri);
-				}
-			}
+            DeletePrinterSettings();
 			#endregion
 
 			if (_worksheetXml != null)
@@ -1596,6 +1575,41 @@ namespace OfficeOpenXml
                 //xlPackage.WriteDebugFile(WorksheetXml, @"xl\drawings", "drawing" + SheetID + ".xml");                
             }
 		}
+
+        /// <summary>
+        /// Delete the printersettings relationship and part.
+        /// </summary>
+        private void DeletePrinterSettings()
+        {
+            // we also need to delete the relationship from the pageSetup tag
+            XmlNode pageSetup = WorksheetXml.SelectSingleNode("//d:pageSetup", NameSpaceManager);
+            if (pageSetup != null)
+            {
+                XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
+                if (attr != null)
+                {
+                    string relID = attr.Value;
+                    // first delete the attribute from the XML
+                    pageSetup.Attributes.Remove(attr);
+
+                    //get the URI
+                    if(Part.RelationshipExists(relID))
+                    {
+                        PackageRelationship relPrinterSettings = Part.GetRelationship(relID);
+                        Uri printerSettingsUri = new Uri("/xl" + relPrinterSettings.TargetUri.ToString().Replace("..", ""), UriKind.Relative);
+
+                        // Now delete the relationship
+                        Part.DeleteRelationship(relPrinterSettings.Id);
+
+                        //Now delete the part from the package
+                        if(xlPackage.Package.PartExists(printerSettingsUri))
+                        {
+                            xlPackage.Package.DeletePart(printerSettingsUri);
+                        }
+                    }
+                }
+            }
+        }
 
         private void SaveComments()
         {
