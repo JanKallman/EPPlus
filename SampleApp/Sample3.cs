@@ -171,7 +171,6 @@ namespace EPPlusSamples
                                 worksheet.Column(5).Width = 10;
                                 worksheet.Column(6).Width = 10;
                                 worksheet.Column(7).Width = 12;
-                                //worksheet.Cells[startRow, 7, row - 1, 7].Formula = "=IF(E5=0,0,F5/E5)";
                             }
 						}
 						sqlConn.Close();
