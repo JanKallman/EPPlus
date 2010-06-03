@@ -9,6 +9,7 @@ using System.IO;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
 using OfficeOpenXml.Drawing.Vml;
+using OfficeOpenXml.Style;
 
 namespace ExcelPackageTest
 {
@@ -68,7 +69,7 @@ namespace ExcelPackageTest
             ws.Cells["V22"].Value = 103;
             ws.Cells["V23"].Value = 105;
             ws.Cells["V24"].Value = 104;
-            ws.Cells["v19:v24"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            ws.Cells["v19:v24"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             ws.Cells["v19:v24"].Style.Numberformat.Format = @"$#,##0.00_);($#,##0.00)";
 
             ws.Cells["X19"].Value = 210;

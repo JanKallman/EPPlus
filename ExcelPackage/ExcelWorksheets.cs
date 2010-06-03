@@ -213,7 +213,7 @@ namespace OfficeOpenXml
                 CopyComment(Copy, added);
             }
 
-            //Copy all relationships            
+            //Copy all relationships 
             //CopyRelationShips(Copy, added);
             if (Copy.Drawings.Count > 0)
             {
@@ -224,6 +224,20 @@ namespace OfficeOpenXml
             CloneCells(Copy, added);
 
             _worksheets.Add(_worksheets.Count + 1, added);
+            
+            //Remove any relation to printersettings.
+            XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _nsManager);
+            if (pageSetup != null)
+            {
+                XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
+                if (attr != null)
+                {
+                    relID = attr.Value;
+                    // first delete the attribute from the XML
+                    pageSetup.Attributes.Remove(attr);
+                }
+            }
+
             return added;
         }
 
