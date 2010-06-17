@@ -6,12 +6,15 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// A richtext part
+    /// </summary>
     public class ExcelRichText : XmlHelper
     {
         internal ExcelRichText(XmlNamespaceManager ns, XmlNode topNode) :
             base(ns, topNode)
         {
-            SchemaNodeOrder=new string[] {"rPr", "t", "b", "i", "u", "sz", "color", "rFont", "family", "scheme", "charset"};
+            SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
             PreserveSpace = false;
         }
         internal delegate void CallbackDelegate();
@@ -21,6 +24,9 @@ namespace OfficeOpenXml.Style
             _callback=callback;
         }
         const string TEXT_PATH="d:t";
+        /// <summary>
+        /// The text
+        /// </summary>
         public string Text 
         { 
 
@@ -40,6 +46,9 @@ namespace OfficeOpenXml.Style
             }
         }
         bool _preserveSpace=false;
+        /// <summary>
+        /// Preserves whitespace. Default true
+        /// </summary>
         public bool PreserveSpace
         {
             get
@@ -69,6 +78,9 @@ namespace OfficeOpenXml.Style
             }
         }
         const string BOLD_PATH = "d:rPr/d:b";
+        /// <summary>
+        /// Bold text
+        /// </summary>
         public bool Bold
         {
             get
@@ -89,6 +101,9 @@ namespace OfficeOpenXml.Style
             }
         }
         const string ITALIC_PATH = "d:rPr/d:i";
+        /// <summary>
+        /// Italic text
+        /// </summary>
         public bool Italic
         {
             get
@@ -108,7 +123,33 @@ namespace OfficeOpenXml.Style
                 if (_callback != null) _callback();
             }
         }
+        const string STRIKE_PATH = "d:rPr/d:strike";
+        /// <summary>
+        /// Strike-out text
+        /// </summary>
+        public bool Strike
+        {
+            get
+            {
+                return GetXmlNodeBool(STRIKE_PATH, false);
+            }
+            set
+            {
+                if (value)
+                {
+                    CreateNode(STRIKE_PATH);
+                }
+                else
+                {
+                    DeleteNode(STRIKE_PATH);
+                }
+                if (_callback != null) _callback();
+            }
+        }
         const string UNDERLINE_PATH = "d:rPr/d:u";
+        /// <summary>
+        /// Underlined text
+        /// </summary>
         public bool UnderLine
         {
             get
@@ -128,7 +169,41 @@ namespace OfficeOpenXml.Style
                 if (_callback != null) _callback();
             }
         }
+
+        const string VERT_ALIGN_PATH = "d:rPr/d:vertAlign/@val";
+        /// <summary>
+        /// Vertical Alignment
+        /// </summary>
+        public ExcelVerticalAlignmentFont VerticalAlign
+        {
+            get
+            {
+                string v=GetXmlNodeString(VERT_ALIGN_PATH);
+                if(v=="")
+                {
+                    return ExcelVerticalAlignmentFont.None;
+                }
+                else
+                {
+                    try
+                    {
+                        return (ExcelVerticalAlignmentFont)Enum.Parse(typeof(ExcelVerticalAlignmentFont), v, true);
+                    }
+                    catch
+                    {
+                        return ExcelVerticalAlignmentFont.None;
+                    }
+                }
+            }
+            set
+            {
+                SetXmlNodeString(VERT_ALIGN_PATH,((ExcelVerticalAlignmentFont)value) == ExcelVerticalAlignmentFont.None ? "" : value.ToString().ToLower());
+            }
+        }
         const string SIZE_PATH = "d:rPr/d:sz/@val";
+        /// <summary>
+        /// Font size
+        /// </summary>
         public float Size
         {
             get
@@ -142,6 +217,9 @@ namespace OfficeOpenXml.Style
             }
         }
         const string FONT_PATH = "d:rPr/d:rFont/@val";
+        /// <summary>
+        /// Name of the font
+        /// </summary>
         public string FontName
         {
             get
@@ -155,6 +233,9 @@ namespace OfficeOpenXml.Style
             }
         }
         const string COLOR_PATH = "d:rPr/d:color/@rgb";
+        /// <summary>
+        /// Text color
+        /// </summary>
         public Color Color
         {
             get

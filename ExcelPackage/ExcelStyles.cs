@@ -214,9 +214,9 @@ namespace OfficeOpenXml
                     var newCol = ws.Column(column._columnMax + 1) as ExcelColumn;
                     newCol._columnMax = address.End.Column;
 
-                    if (styleCashe.ContainsKey(column.StyleID))
+                    if (styleCashe.ContainsKey(newCol.StyleID))
                     {
-                        newCol.StyleID = styleCashe[column.StyleID];
+                        newCol.StyleID = styleCashe[newCol.StyleID];
                     }
                     else
                     {

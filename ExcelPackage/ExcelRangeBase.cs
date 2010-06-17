@@ -33,6 +33,8 @@ using System.Text;
 using System.Data;
 using OfficeOpenXml.Style;
 using System.Xml;
+using System.Drawing;
+using System.Globalization;
 
 namespace OfficeOpenXml
 {
@@ -281,13 +283,6 @@ namespace OfficeOpenXml
             }
             set
             {
-                //for (int col = _fromCol; col <= _toCol; col++)
-                //{
-                //    for (int row = _fromRow; row <= _toRow; row++)
-                //    {
-                //        _worksheet.Cell(row, col).StyleID = value;
-                //    }
-                //}
                 _changePropMethod(Set_StyleID, value);
             }
         }
@@ -302,13 +297,6 @@ namespace OfficeOpenXml
             }
             set
             {
-                //for (int col = _fromCol; col <= _toCol; col++)
-                //{
-                //    for (int row = _fromRow; row <= _toRow; row++)
-                //    {
-                //        _worksheet.Cell(row, col).Value = value;
-                //    }
-                //}
                 _changePropMethod(Set_Value, value);
             }
         }
@@ -378,13 +366,6 @@ namespace OfficeOpenXml
             }
             set
             {
-                //for (int col = _fromCol; col <= _toCol; col++)
-                //{
-                //    for (int row = _fromRow; row <= _toRow; row++)
-                //    {
-                //        _worksheet.Cell(row, col).Hyperlink = value;
-                //    }
-                //}
                 _changePropMethod(Set_HyperLink, value);
             }
         }
@@ -471,7 +452,6 @@ namespace OfficeOpenXml
         }        
         /// <summary>
         /// If the value is in richtext format.
-        /// Then the value propery contains the raw XML. Please check the openXML documentation for info;
         /// </summary>
         public bool IsRichText
         {
@@ -485,6 +465,9 @@ namespace OfficeOpenXml
             }
         }
         ExcelRichTextCollection _rtc = null;
+        /// <summary>
+        /// Cell value is richtext formated. 
+        /// </summary>
         public ExcelRichTextCollection RichText
         {
             get
@@ -494,17 +477,38 @@ namespace OfficeOpenXml
                     XmlDocument xml = new XmlDocument();
                     if (_worksheet.Cell(_fromRow, _fromCol).Value != null)
                     {
-                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</si>");
+                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:t></d:r></d:si>");
                     }
                     else
                     {
                         xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
                     }
+                    IsRichText = true;
                     _rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
+                    if (_rtc.Count == 1)
+                    {
+                        var fnt = _worksheet.Cell(_fromRow, _fromCol).Style.Font;
+                        _rtc[0].PreserveSpace = true;
+                        _rtc[0].Bold = fnt.Bold;
+                        _rtc[0].FontName = fnt.Name;
+                        _rtc[0].Italic = fnt.Italic;
+                        _rtc[0].Size = fnt.Size;
+                        _rtc[0].UnderLine = fnt.UnderLine;
+                        
+                        int hex;
+                        if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber,null, out hex))
+                        {
+                            _rtc[0].Color = Color.FromArgb(hex);
+                        }
+
+                    }
                 }
                 return _rtc;
             }
         }
+        /// <summary>
+        /// returns the comment object of the first cell in the range
+        /// </summary>
         public ExcelComment Comment
         {
             get
@@ -563,34 +567,6 @@ namespace OfficeOpenXml
                 return fullAddress;
             }
         }
-        //ExcelCellAddress _startPosition=null;
-        //public ExcelCellAddress Start
-        //{
-        //    get
-        //    {
-        //        if (_startPosition == null)
-        //        {
-        //            _startPosition = new ExcelCellAddress(_fromRow, _fromCol);
-        //        }
-        //        return _startPosition;
-        //    }
-        //}
-        //ExcelCellAddress _endPosition = null;
-        ///// <summary>
-        ///// Gets the row and column if the bottom right cell.
-        ///// </summary>
-        ///// <value>The end row and column.</value>
-        //public ExcelCellAddress End
-        //{
-        //    get
-        //    {
-        //        if (_endPosition == null)
-        //        {
-        //            _endPosition = new ExcelCellAddress(_toRow, _toCol);
-        //        }
-        //        return _endPosition;
-        //    }
-        //}
 
         #endregion
         #region "Private Methods"

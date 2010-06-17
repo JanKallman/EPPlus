@@ -69,6 +69,12 @@ namespace OfficeOpenXml.Style
         Distributed,
         Justify
     }
+    public enum ExcelVerticalAlignmentFont
+    {
+        None,
+        Subscript,
+        Superscript
+    }
     public enum ExcelFillStyle
     {
         None,

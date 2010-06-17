@@ -378,6 +378,34 @@ namespace ExcelPackageTest
             var wsShapes = _pck.Workbook.Worksheets.Add("Copy Shapes", _pck.Workbook.Worksheets["Shapes"]);
             var wsScatterChart = _pck.Workbook.Worksheets.Add("Copy Scatter", _pck.Workbook.Worksheets["Scatter"]);
             var wsPicture = _pck.Workbook.Worksheets.Add("Copy Picture", _pck.Workbook.Worksheets["Picture"]);
+        }    
+        [TestMethod]
+        public void Line2Test()
+        {
+           ExcelWorksheet worksheet = _pck.Workbook.Worksheets.Add("LineIssue");
+
+           ExcelChart chart = worksheet.Drawings.AddChart("LineChart", eChartType.Line);
+           
+           worksheet.Cells["A1"].Value=1;
+           worksheet.Cells["A2"].Value=2;
+           worksheet.Cells["A3"].Value=3;
+           worksheet.Cells["A4"].Value=4;
+           worksheet.Cells["A5"].Value=5;
+           worksheet.Cells["A6"].Value=6;
+
+           worksheet.Cells["B1"].Value=10000;
+           worksheet.Cells["B2"].Value=10100;
+           worksheet.Cells["B3"].Value=10200;
+           worksheet.Cells["B4"].Value=10150;
+           worksheet.Cells["B5"].Value=10250;
+           worksheet.Cells["B6"].Value=10200;
+
+           chart.Series.Add(ExcelRange.GetAddress(1, 2, worksheet.Dimension.End.Row, 2),
+                            ExcelRange.GetAddress(1, 1, worksheet.Dimension.End.Row, 1));
+
+           var Series = chart.Series[0];
+           
+           chart.Series[0].Header = "Blah";
         }
         [TestMethod]
         public void SaveDrawing()

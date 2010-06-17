@@ -102,6 +102,22 @@ namespace ExcelPackageTest
             ws.Workbook.Names["TestName"].Offset(1, 0).Value = "Offset test 1";
             ws.Workbook.Names["TestName"].Offset(2,-1, 2, 2).Value = "Offset test 2";
 
+            //Test vertical align
+            ws.Cells["E19"].Value = "Subscript";
+            ws.Cells["E19"].Style.Font.VerticalAlign = ExcelVerticalAlignmentFont.Subscript;
+            ws.Cells["E20"].Value = "Subscript";
+            ws.Cells["E20"].Style.Font.VerticalAlign = ExcelVerticalAlignmentFont.Superscript;
+            ws.Cells["E21"].Value = "Superscript";
+            ws.Cells["E21"].Style.Font.VerticalAlign = ExcelVerticalAlignmentFont.Superscript;
+            ws.Cells["E21"].Style.Font.VerticalAlign = ExcelVerticalAlignmentFont.None;
+
+
+            ws.Cells["E22"].Value = "Indent 2";
+            ws.Cells["E22"].Style.Indent = 2;
+            ws.Cells["E23"].Value = "Shrink to fit";
+            ws.Cells["E23"].Style.ShrinkToFit=true;
+
+
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
 
@@ -378,7 +394,7 @@ namespace ExcelPackageTest
         [TestMethod]
         public void PrinterSettings()
         {
-            var ws = _pck.Workbook.Worksheets.Add("PrinterSettings");
+            var ws = _pck.Workbook.Worksheets.Add("Sod/Hydroseed");
 
             ws.Cells[1, 1].Value = "1; 1";
             ws.Cells[2, 1].Value = "2; 1";

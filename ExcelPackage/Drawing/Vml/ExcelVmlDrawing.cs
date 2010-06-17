@@ -53,6 +53,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
+        /// <summary>
+        /// Vertical alignment for text
+        /// </summary>
         public eTextAlignVerticalVml VerticalAlignment
         {
             get
@@ -84,6 +87,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         const string HORIZONTAL_ALIGNMENT_PATH="x:ClientData/x:TextHAlign";
+        /// <summary>
+        /// Horizontal alignment for text
+        /// </summary>
         public eTextAlignHorizontalVml HorizontalAlignment
         {
             get
@@ -115,6 +121,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         const string VISIBLE_PATH = "x:ClientData/x:Visible";
+        /// <summary>
+        /// If the drawing object is visible.
+        /// </summary>
         public bool Visible 
         { 
             get
@@ -137,6 +146,9 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         const string BACKGROUNDCOLOR_PATH = "@fillcolor";
         const string BACKGROUNDCOLOR2_PATH = "v:fill/@color2";
+        /// <summary>
+        /// Background color
+        /// </summary>
         public Color BackgroundColor
         {
             get
@@ -169,6 +181,9 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         const string LINESTYLE_PATH="v:stroke/@dashstyle";
         const string ENDCAP_PATH = "v:stroke/@endcap";
+        /// <summary>
+        /// Linestyle for border
+        /// </summary>
         public eLineStyleVml LineStyle 
         { 
             get
@@ -212,6 +227,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         const string LINECOLOR_PATH="@strokecolor";
+        /// <summary>
+        /// Line color 
+        /// </summary>
         public Color LineColor
         {
             get
@@ -242,6 +260,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         const string LINEWIDTH_PATH="@strokeweight";
+        /// <summary>
+        /// Width of the border
+        /// </summary>
         public Single LineWidth 
         {
             get
@@ -322,6 +343,9 @@ namespace OfficeOpenXml.Drawing.Vml
         //    }
         //}
         const string TEXTBOX_STYLE_PATH = "v:textbox/@style";
+        /// <summary>
+        /// Autofits the drawingobject 
+        /// </summary>
         public bool AutoFit
         {
             get
@@ -336,6 +360,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }        
         const string LOCKED_PATH = "x:ClientData/x:Locked";
+        /// <summary>
+        /// If the object is locked when the sheet is protected
+        /// </summary>
         public bool Locked 
         {
             get
@@ -347,7 +374,10 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetXmlNodeBool(LOCKED_PATH, value, false);                
             }
         }
-        const string LOCK_TEXT_PATH = "x:ClientData/x:LockText";
+        const string LOCK_TEXT_PATH = "x:ClientData/x:LockText";        
+        /// <summary>
+        /// Specifies that the object's text is locked
+        /// </summary>
         public bool LockText
         {
             get
@@ -360,6 +390,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         ExcelVmlDrawingPosition _from = null;
+        /// <summary>
+        /// From position. For comments only when Visible=true.
+        /// </summary>
         public ExcelVmlDrawingPosition From
         {
             get
@@ -372,6 +405,9 @@ namespace OfficeOpenXml.Drawing.Vml
             }
         }
         ExcelVmlDrawingPosition _to = null;
+        /// <summary>
+        /// To position. For comments only when Visible=true.
+        /// </summary>
         public ExcelVmlDrawingPosition To
         {
             get

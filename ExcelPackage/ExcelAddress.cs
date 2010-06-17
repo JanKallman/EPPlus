@@ -34,11 +34,12 @@ namespace OfficeOpenXml
     /// <summary>
     /// A range address
     /// </summary>
+    /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
     public class ExcelAddressBase : ExcelCellBase
     {
-        protected int _fromRow=-1, _toRow, _fromCol, _toCol;
+        internal protected int _fromRow=-1, _toRow, _fromCol, _toCol;
         internal protected string _ws;
-        protected string _address;
+        internal protected string _address;
         #region "Constructors"
         internal ExcelAddressBase()
         {
@@ -54,6 +55,11 @@ namespace OfficeOpenXml
             _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
 //            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
         }
+        /// <summary>
+        /// Creates an Address object
+        /// </summary>
+        /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
+        /// <param name="address">The Excel Address</param>
         public ExcelAddressBase(string address)
         {
             SetAddress(address);
@@ -265,6 +271,7 @@ namespace OfficeOpenXml
             : base(address)
         {
         }
+        
         internal ExcelAddress(string ws, string address)
             : base(address)
         {
@@ -273,6 +280,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// The address for the range
         /// </summary>
+        /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
         public string Address
         {
             get

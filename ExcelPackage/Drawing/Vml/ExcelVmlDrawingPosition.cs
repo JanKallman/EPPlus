@@ -13,6 +13,9 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             _startPos = startPos;
         }
+        /// <summary>
+        /// Row. Zero based
+        /// </summary>
         public int Row
         {
             get
@@ -24,6 +27,9 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetNumber(2, value);
             } 
         }
+        /// <summary>
+        /// Row offset in pixels. Zero based
+        /// </summary>
         public int RowOffset
         {
             get
@@ -35,6 +41,9 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetNumber(3, value);
             }
         }
+        /// <summary>
+        /// Column. Zero based
+        /// </summary>
         public int Column
         {
             get
@@ -46,6 +55,9 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetNumber(0, value);
             }
         }
+        /// <summary>
+        /// Column offset. Zero based
+        /// </summary>
         public int ColumnOffset
         {
             get

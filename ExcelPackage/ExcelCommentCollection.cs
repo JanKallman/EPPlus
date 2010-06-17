@@ -96,6 +96,13 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Adds a comment to the top left cell of the range
+        /// </summary>
+        /// <param name="cell">The cell</param>
+        /// <param name="Text">The comment text</param>
+        /// <param name="author">Author</param>
+        /// <returns>The comment</returns>
         public ExcelComment Add(ExcelRangeBase cell, string Text, string author)
         {            
             var elem = CommentXml.CreateElement("comment", ExcelPackage.schemaMain);

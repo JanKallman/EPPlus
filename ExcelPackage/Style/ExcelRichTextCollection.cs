@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// Collection of Richtext objects
+    /// </summary>
     public class ExcelRichTextCollection : XmlHelper, IEnumerable<ExcelRichText>
     {
         List<ExcelRichText> _list = new List<ExcelRichText>();
@@ -12,7 +15,7 @@ namespace OfficeOpenXml.Style
         internal ExcelRichTextCollection(XmlNamespaceManager ns, XmlNode topNode) :
             base(ns, topNode)
         {
-            var nl = topNode.SelectNodes("r", NameSpaceManager);
+            var nl = topNode.SelectNodes("d:r", NameSpaceManager);
             if (nl != null)
             {
                 foreach (XmlNode n in nl)
@@ -26,6 +29,11 @@ namespace OfficeOpenXml.Style
         {
             _cells = cells;
         }        
+        /// <summary>
+        /// Collection containing the richtext objects
+        /// </summary>
+        /// <param name="Index"></param>
+        /// <returns></returns>
         public ExcelRichText this[int Index]
         {
             get
@@ -33,6 +41,9 @@ namespace OfficeOpenXml.Style
                 return _list[Index];
             }
         }
+        /// <summary>
+        /// Items in the list
+        /// </summary>
         public int Count
         {
             get
@@ -94,18 +105,29 @@ namespace OfficeOpenXml.Style
         {
             _cells.SetValueRichText(TopNode.InnerXml);
         }
+        /// <summary>
+        /// Clear the collection
+        /// </summary>
         public void Clear()
         {
             _list.Clear();
             TopNode.RemoveAll();
             if (_cells != null) _cells.IsRichText = false;
         }
+        /// <summary>
+        /// Removes an item at the specific index
+        /// </summary>
+        /// <param name="Index"></param>
         public void RemoveAt(int Index)
         {
             TopNode.RemoveChild(_list[Index].TopNode);
             _list.RemoveAt(Index);
             if (_cells != null && _list.Count==0) _cells.IsRichText = false;
         }
+        /// <summary>
+        /// Removes an item
+        /// </summary>
+        /// <param name="Item"></param>
         public void Remove(ExcelRichText Item)
         {
             TopNode.RemoveChild(Item.TopNode);
@@ -116,6 +138,10 @@ namespace OfficeOpenXml.Style
         //{
         //    _list.Insert(index, item);
         //}
+        
+        /// <summary>
+        /// The text
+        /// </summary>
         public string Text
         {
             get

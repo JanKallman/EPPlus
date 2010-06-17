@@ -33,8 +33,9 @@ namespace EPPlusSamples
 
             //This is a trick to format all cells in a sheet.
             //Note that this only work when no columns are changed (added)
-            ExcelColumn cols = ws.Column(1);
-            cols.ColumnMax = ExcelPackage.MaxColumns;
+            //ExcelColumn cols = ws.Column(1);
+            //cols.ColumnMax = ExcelPackage.MaxColumns;
+            ExcelRange cols = ws.Cells["A:XFD"];
             cols.Style.Fill.PatternType = ExcelFillStyle.Solid;
             cols.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
 

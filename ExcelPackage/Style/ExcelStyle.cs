@@ -145,6 +145,24 @@ namespace OfficeOpenXml.Style
             }
         }
         /// <summary>
+        /// The margin between the border and the text
+        /// </summary>
+        public int Indent
+        {
+            get
+            {
+                return _styles.CellXfs[Index].Indent;
+            }
+            set
+            {
+                if (value <0 || value > 250)
+                {
+                    throw(new ArgumentOutOfRangeException("Indent must be between 0 and 250"));
+                }
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.Indent, value, _positionID, _address));
+            }
+        }
+        /// <summary>
         /// Text orientation in degrees. Values range from 0 to 180.
         /// </summary>
         public int TextRotation
