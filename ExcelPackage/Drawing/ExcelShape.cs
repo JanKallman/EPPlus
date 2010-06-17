@@ -339,7 +339,7 @@ namespace OfficeOpenXml.Drawing
         }
         const string TextPath = "xdr:sp/xdr:txBody/a:p/a:r/a:t";
         /// <summary>
-        /// Text
+        /// Text inside the shape
         /// </summary>
         public string Text
         {
@@ -354,6 +354,9 @@ namespace OfficeOpenXml.Drawing
 
         }
         ExcelParagraphCollection _richText = null;
+        /// <summary>
+        /// Richtext collection. Used to format specific parts of the text
+        /// </summary>
         public ExcelParagraphCollection RichText
         {
             get
@@ -386,6 +389,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         const string TextAnchoringCtlPath = "xdr:sp/xdr:txBody/a:bodyPr/@anchorCtr";
+        /// <summary>
+        /// Specifies the centering of the text box.
+        /// </summary>
         public bool TextAnchoringControl
         {
             get

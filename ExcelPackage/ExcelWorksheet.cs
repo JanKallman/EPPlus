@@ -425,7 +425,8 @@ namespace OfficeOpenXml
         }
         #region WorksheetXml
 		/// <summary>
-		/// The XML document holding all the worksheet data.
+		/// The XML document holding the worksheet data.
+        /// All column, row, cell, pagebreak, merged cell and hyperlink-data are loaded into memory and removed from the document when loading the document.        
 		/// </summary>
 		public XmlDocument WorksheetXml
 		{
@@ -435,6 +436,9 @@ namespace OfficeOpenXml
 			}
 		}
         private ExcelVmlDrawings _vmlDrawings = null;
+        /// <summary>
+        /// Vml drawings. underlaying object for comments and some images
+        /// </summary>
         internal ExcelVmlDrawings VmlDrawings
         {
             get
@@ -465,6 +469,9 @@ namespace OfficeOpenXml
             }
         }
         internal ExcelCommentCollection _comments = null;
+        /// <summary>
+        /// Collection of comments
+        /// </summary>
         public ExcelCommentCollection Comments
         {
             get
@@ -954,8 +961,20 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// A reference to the header and footer class which allows you to 
 		/// set the header and footer for all odd, even and first pages of the worksheet
-		/// </summary>
-		public ExcelHeaderFooter HeaderFooter
+        /// </summary>
+        /// <remarks>
+        /// To format the text you can use the following format
+        /// <list type="table">
+        /// <listheader><term>Prefix</term><description>Description</description></listheader>
+        /// <item><term>&amp;U</term><description>Underlined</description></item>
+        /// <item><term>&amp;E</term><description>Double Underline</description></item>
+        /// <item><term>&amp;K:xxxxxx</term><description>Color. ex &amp;K:FF0000 for red</description></item>
+        /// <item><term>&amp;"Font,Regular Bold Italic"</term><description>Changes the font. Regular or Bold or Italic or Bold Italic can be used. ex &amp;"Arial,Bold Italic"</description></item>
+        /// <item><term>&amp;nn</term><description>Change font size. nn is an integer. ex &amp;24</description></item>
+        /// <item><term>&amp;G</term><description>Placeholder for images. Images can not be added by the library, but its possible to use in a template.</description></item>
+        /// </list>
+        /// </remarks>
+        public ExcelHeaderFooter HeaderFooter
 		{
 			get
 			{
@@ -982,7 +1001,6 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-        // TODO: implement freeze pane. 
 
 		#endregion // END Worksheet Public Properties
 
@@ -2090,6 +2108,9 @@ namespace OfficeOpenXml
         //}
         #region Drawing
         ExcelDrawings _drawings = null;
+        /// <summary>
+        /// Collection of drawing-objects like shapes, images and charts
+        /// </summary>
         public ExcelDrawings Drawings
         {
             get

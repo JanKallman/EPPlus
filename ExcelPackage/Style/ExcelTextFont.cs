@@ -251,6 +251,10 @@ namespace OfficeOpenXml.Style
             }
         }
         #endregion
+        /// <summary>
+        /// Set the font style from a font object
+        /// </summary>
+        /// <param name="Font"></param>
         public void SetFromFont(Font Font)
         {
             LatinFont = Font.Name;

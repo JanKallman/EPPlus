@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 using OfficeOpenXml.Drawing.Vml;
-
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -41,7 +40,7 @@ namespace OfficeOpenXml
     /// </summary>
     internal class RangeCollection : IEnumerator<IRangeID>, IEnumerable
     {
-        private class IndexItem //: IComparer<IndexItem>
+        private class IndexItem
         {
             internal IndexItem(ulong cellId)
             {
@@ -54,10 +53,6 @@ namespace OfficeOpenXml
 	        }
             internal ulong RangeID;
             internal int ListPointer;
-            //int IComparer<IndexItem>.Compare(IndexItem x, IndexItem y)
-            //{
-            //    return x.RangeID < y.RangeID ? -1 : x.RangeID > y.RangeID ? 1 : 0;
-            //}
         }
         /// <summary>
         /// Compares an IndexItem

@@ -56,6 +56,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             _fillId = GetXmlNodeInt("@fillId");
             _borderId = GetXmlNodeInt("@borderId");
             _readingOrder = GetXmlNodeString(readingOrderPath) == "1" ? true : false;
+            _indent = GetXmlNodeInt(indentPath);
+            _shrinkToFit = GetXmlNodeString(shrinkToFitPath) == "1" ? true : false; 
             _verticalAlignment = GetVerticalAlign(GetXmlNodeString(verticalAlignPath));
             _horizontalAlignment = GetHorizontalAlign(GetXmlNodeString(horizontalAlignPath));
             _wrapText = GetXmlNodeString(wrapTextPath) == "1" ? true : false;
@@ -370,6 +372,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _shrinkToFit = value;
             }
         }
+        const string indentPath = "d:alignment/@indent";
+        int _indent = 0;
+        public int Indent
+        {
+            get
+            {
+                return _indent;
+            }
+            set
+            {
+                _indent=value;
+            }
+        }
         #endregion
         internal void SyncIds(ExcelStyleCollection<ExcelNumberFormatXml> numberFormats, ExcelStyleCollection<ExcelFontXml> fonts, ExcelStyleCollection<ExcelFillXml> fills, ExcelStyleCollection<ExcelBorderXml> borders)
         {
@@ -444,7 +459,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
             get
             {
-                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString(); 
+                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString() + ShrinkToFit.ToString() + Indent.ToString(); 
                 //return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString(); 
             }
         }
@@ -460,6 +475,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             newXF.HorizontalAlignment = _horizontalAlignment;
             newXF.VerticalAlignment = _verticalAlignment;
             newXF.WrapText = _wrapText;
+            newXF.ShrinkToFit = _shrinkToFit;
+            newXF.Indent = _indent;
             newXF.TextRotation = _textRotation;
             newXF.Locked = _locked;
             newXF.Hidden = _hidden;
@@ -516,6 +533,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                             break;
                         case eStyleProperty.ShrinkToFit:
                             newXfs.ShrinkToFit=(bool)value;
+                            break;
+                        case eStyleProperty.Indent:
+                            newXfs.Indent = (int)value;
                             break;
                         case eStyleProperty.TextRotation:
                             newXfs.TextRotation = (int)value;
@@ -689,7 +709,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     fnt.Color.Rgb=value.ToString();
                     break;
                 case eStyleProperty.VerticalAlign:
-                    fnt.VerticalAlign = value.ToString();
+                    fnt.VerticalAlign = ((ExcelVerticalAlignmentFont)value) == ExcelVerticalAlignmentFont.None ? "" : value.ToString().ToLower();
                     break;
                 default:
                     throw (new Exception("Invalid property for class Font"));
@@ -716,7 +736,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
             if(_wrapText) this.SetXmlNodeString(wrapTextPath, "1");
             if(_readingOrder) this.SetXmlNodeString(readingOrderPath, "1");
-            if (_textRotation>0) this.SetXmlNodeString(textRotationPath , _textRotation.ToString());
+            if (_shrinkToFit) this.SetXmlNodeString(shrinkToFitPath, "1");
+            if (_indent > 0) SetXmlNodeString(indentPath, _indent.ToString());
+            if (_textRotation > 0) this.SetXmlNodeString(textRotationPath, _textRotation.ToString());
             if (!_locked) this.SetXmlNodeString(lockedPath, "0");
             if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
             return TopNode;

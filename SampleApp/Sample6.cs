@@ -174,7 +174,7 @@ namespace EPPlusSamples
             shape.TextAnchoringControl=false;
 
             //Add graph sheet
-            AddGraphs(pck, row, string.Format("Statistics for {0}",dir.FullName));
+            AddGraphs(pck, row, dir.FullName);
 
             //Add a HyperLink to the statistics sheet. 
             var namedStyle = pck.Workbook.Styles.CreateNamedStyle("HyperLink");   //This one is language dependent
@@ -239,7 +239,7 @@ namespace EPPlusSamples
         /// <param name="pck">Package</param>
         /// <param name="rows"></param>
         /// <param name="header"></param>
-        private static void AddGraphs(ExcelPackage pck, int rows, string header)
+        private static void AddGraphs(ExcelPackage pck, int rows, string dir)
         {
             var ws = pck.Workbook.Worksheets.Add("Statistics");
             ws.View.ShowGridLines = false;
@@ -248,16 +248,21 @@ namespace EPPlusSamples
             ws.Column(2).Width = 20;
 
             //Set first the header and format it
-            ws.Cells["A1"].Value = header;
+            ws.Cells["A1"].Value = "Statistics for ";
             using (ExcelRange r = ws.Cells["A1:O1"])
             {
                 r.Merge = true;
-                r.Style.Font.SetFromFont(new Font("Arial", 22, FontStyle.Italic));
+                r.Style.Font.SetFromFont(new Font("Arial", 22, FontStyle.Regular));
                 r.Style.Font.Color.SetColor(Color.White);
                 r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
                 r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
                 r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(23, 55, 93));
             }
+            
+            //Use the RichText property to change the font for the directory part of the cell
+            var rtDir = ws.Cells["A1"].RichText.Add(dir);
+            rtDir.FontName = "Consolas";
+            rtDir.Size=18;
 
             //Start with the Extention Size 
             List<StatItem> lst = new List<StatItem>(_extStat.Values);           
@@ -311,7 +316,7 @@ namespace EPPlusSamples
             barChart.Series.Add(ExcelRange.GetAddress(31, 2, row - 1, 2), ExcelRange.GetAddress(31, 1, row - 1, 1));
             barChart.Series[0].Header = "Size";
             barChart.Title.Text = "Top File size";
-            barChart.VaryColors = true;
+
             //Format the Size and Count column
             ws.Cells["B3:B42"].Style.Numberformat.Format = "#,##0";
             //Set a border around

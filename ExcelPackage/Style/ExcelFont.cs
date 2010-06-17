@@ -171,11 +171,11 @@ namespace OfficeOpenXml.Style
         /// <summary>
         /// Font-Vertical Align
         /// </summary>
-        public string VerticalAlign
+        public ExcelVerticalAlignmentFont VerticalAlign
         {
             get
             {
-                return _styles.Fonts[Index].VerticalAlign;
+                return (ExcelVerticalAlignmentFont)Enum.Parse(typeof(ExcelVerticalAlignmentFont), _styles.Fonts[Index].VerticalAlign, true);
             }
             set
             {

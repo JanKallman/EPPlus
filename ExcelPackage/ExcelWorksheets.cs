@@ -188,6 +188,10 @@ namespace OfficeOpenXml
         public ExcelWorksheet Add(string Name, ExcelWorksheet Copy)
         {
             //Copy worksheet XML
+            if (Copy.Workbook != _xlPackage.Workbook)
+            {
+                throw(new InvalidOperationException("The worksheet copy must be in the same workbook"));
+            }
             int sheetID;
             Uri uriWorksheet;
 
@@ -421,12 +425,12 @@ namespace OfficeOpenXml
             //remove invalid characters
             if (ValidateName(Name))
             {
-                Name = Name.Remove(0, ':');
-                Name = Name.Remove(0, '/');
-                Name = Name.Remove(0, '\\');
-                Name = Name.Remove(0, '?');
-                Name = Name.Remove(0, '[');
-                Name = Name.Remove(0, ']');
+                if (Name.IndexOf(':') > -1) Name = Name.Replace(":"," ");
+                if (Name.IndexOf('/') > -1) Name = Name.Replace("/"," ");
+                if (Name.IndexOf('\\') > -1) Name = Name.Replace("\\"," ");
+                if (Name.IndexOf('?') > -1) Name = Name.Replace("?"," ");
+                if (Name.IndexOf('[') > -1) Name = Name.Replace("["," ");
+                if (Name.IndexOf(']') > -1) Name = Name.Replace("]"," ");
             }
 
             if (Name.Trim() == "")
@@ -558,7 +562,6 @@ namespace OfficeOpenXml
 						xlWorksheet = worksheet;
 				}
 				return (xlWorksheet);
-				//throw new Exception(string.Format("ExcelWorksheets Error: Worksheet '{0}' not found!",Name));
 			}
 		}
 
@@ -567,12 +570,16 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="Name">The name of the existing worksheet</param>
 		/// <param name="NewName">The name of the new worksheet to create</param>
-		/// <returns></returns>
+		/// <returns>The new copy added to the end of the worksheets collection</returns>
 		public ExcelWorksheet Copy(string Name, string NewName)
 		{
-			// TODO: implement copy worksheet
-			throw new Exception("The method or operation is not implemented.");
-		}
+            ExcelWorksheet Copy = this[Name];
+            if (Copy == null)
+                throw new Exception(string.Format("Copy worksheet error: Could not find worksheet to copy '{0}'", Name));
+
+            ExcelWorksheet added = Add(NewName, Copy);
+            return added;
+        }
 		#endregion
 
         internal ExcelWorksheet GetBySheetID(int localSheetID)

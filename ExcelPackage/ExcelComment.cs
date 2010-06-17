@@ -71,6 +71,9 @@ namespace OfficeOpenXml
             }
             return authorRef;
         }
+        /// <summary>
+        /// The comment text 
+        /// </summary>
         public string Text
         {
             get
@@ -83,7 +86,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Sets the font the first richtext item.
+        /// Sets the font of the first richtext item.
         /// </summary>
         public ExcelRichText Font
         {

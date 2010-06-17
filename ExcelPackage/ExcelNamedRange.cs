@@ -53,7 +53,7 @@ namespace OfficeOpenXml
             _sheet = nameSheet;
             if (nameSheet != null)
             {
-                LocalSheetId = nameSheet.SheetID-1;
+                LocalSheetId = nameSheet.PositionID-1;
             }
             else
             {

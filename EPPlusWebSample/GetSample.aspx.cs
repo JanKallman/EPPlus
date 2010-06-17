@@ -97,7 +97,7 @@ namespace EPPlusWebSample
 
             Response.BinaryWrite(pck.GetAsByteArray());
             Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            Response.AddHeader("content-disposition", "attachment;  filename=Sample1.xlsx");
+            Response.AddHeader("content-disposition", "attachment;  filename=Sample2.xlsx");
         }
         /// <summary>
         /// Sample 3
@@ -122,6 +122,7 @@ namespace EPPlusWebSample
 
                 Application["Sample3Template"] = pckTemplate.Stream;
             }
+
             //Open the new package with the template stream.
             //The template stream is copied to the new stream in the constructor
             ExcelPackage pck = new ExcelPackage(new MemoryStream(), Application["Sample3Template"] as Stream);
@@ -133,7 +134,7 @@ namespace EPPlusWebSample
 
             Response.BinaryWrite(pck.GetAsByteArray());
             Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-            Response.AddHeader("content-disposition", "attachment;  filename=Sample1.xlsx");
+            Response.AddHeader("content-disposition", "attachment;  filename=Sample3.xlsx");
         }
     }
 }

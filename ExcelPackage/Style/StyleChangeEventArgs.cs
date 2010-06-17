@@ -75,7 +75,8 @@ namespace OfficeOpenXml.Style
         ShrinkToFit,
         BorderDiagonalUp,
         BorderDiagonalDown,
-        XfId
+        XfId,
+        Indent
     }
     public class StyleChangeEventArgs : EventArgs
     {

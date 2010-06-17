@@ -46,6 +46,9 @@ namespace OfficeOpenXml
 
         }        
         private const string _isProtectedPath="d:sheetProtection/@sheet";
+        /// <summary>
+        /// If the worksheet is protected.
+        /// </summary>
         public bool IsProtected
         {
             get

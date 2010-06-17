@@ -109,7 +109,7 @@ namespace EPPlusSamples
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 // lets set the header text 
-                worksheet.HeaderFooter.oddHeader.CenteredText = "Inventory";
+                worksheet.HeaderFooter.oddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";
                 // add the page number to the footer plus the total number of pages
                 worksheet.HeaderFooter.oddFooter.RightAlignedText =
                     string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
