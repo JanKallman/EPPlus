@@ -44,7 +44,6 @@ namespace ExcelPackageTest
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
             instream.Close();
-
         }
         [TestMethod]
         public void ReadStreamSaveAsStream()

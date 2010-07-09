@@ -107,17 +107,17 @@ namespace EPPlusSamples
                 Sample7.RunSample7(outputDir, 65534);
                 Console.WriteLine("Sample 7 created:", output);
                 Console.WriteLine();
+            
+                LinqSample.RunLinqSample(outputDir);
+
             }
 			catch (Exception ex)
-			
             {
-				
                 Console.WriteLine("Error: {0}", ex.Message);
 			}
 			Console.WriteLine();
 			Console.WriteLine("Press the return key to exit...");
 			Console.Read();
-
 		}
 	}
 }

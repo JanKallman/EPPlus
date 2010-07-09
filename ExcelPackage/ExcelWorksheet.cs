@@ -827,6 +827,15 @@ namespace OfficeOpenXml
                             xr.Read();  //Something is wrong in the sheet, read next
                         }
                     }
+                    else if (t == "array") //TODO: Array functions are not support yet. Read the formula for the start cell only.
+                    {
+                        cell._formula = xr.ReadElementContentAsString();
+                        formulaList.Add(cell);
+                    }
+                    else // ??? some other type
+                    {
+                        xr.Read();  //Something is wrong in the sheet, read next
+                    }
                     
                 }
                 else
@@ -1022,7 +1031,7 @@ namespace OfficeOpenXml
             return _cells[cellID] as ExcelCell;
         }
         /// <summary>
-        /// Provide access to a range of cells
+        /// Provides access to a range of cells
         /// </summary>  
         public ExcelRange Cells
         {
@@ -1124,7 +1133,6 @@ namespace OfficeOpenXml
             _columns.Add(newC);
             return newC;
        }
-
         /// <summary>
         /// Selects a range in the worksheet. The active cell is the topmost cell.
         /// Make the current worksheet active.
@@ -1137,7 +1145,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Selects a range in the worksheet. The actice cell is the topmost cell.
         /// </summary>
-        /// <param name="Address">A address range</param>
+        /// <param name="Address">A range of cells</param>
         /// <param name="SelectSheet">Make the sheet active</param>
         public void Select(string Address, bool SelectSheet)
         {
@@ -1164,7 +1172,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Selects a range in the worksheet. The active cell is the topmost cell of the first address.
         /// </summary>
-        /// <param name="Address">A address range</param>
+        /// <param name="Address">A range of cells</param>
         /// <param name="SelectSheet">Make the sheet active</param>
         public void Select(ExcelAddress Address, bool SelectSheet)
         {

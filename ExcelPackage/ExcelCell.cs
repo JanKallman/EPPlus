@@ -94,7 +94,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Read-only reference to the cell's column number
 		/// </summary>
-        public int Column { get { return _col; } internal set { _row = value; } }
+        public int Column { get { return _col; } internal set { _col = value; } }
 		/// <summary>
 		/// Returns the current cell address in the standard Excel format (e.g. 'E5')
 		/// </summary>

@@ -399,7 +399,7 @@ namespace OfficeOpenXml
         }
         private void RemoveSelection()
         {
-            //Find seletion nodes and remove them            
+            //Find selection nodes and remove them            
             XmlNodeList selections = TopNode.SelectNodes(_selectionNodePath, NameSpaceManager);
             foreach (XmlNode sel in selections)
             {
