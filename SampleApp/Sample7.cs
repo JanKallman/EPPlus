@@ -5,7 +5,6 @@ using System.IO;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
-
 namespace EPPlusSamples
 {
     class Sample7
@@ -31,10 +30,7 @@ namespace EPPlusSamples
             //Load the sheet with one string column, one date column and a few random numbers.
             var ws = package.Workbook.Worksheets.Add("Performance Test");
 
-            //This is a trick to format all cells in a sheet.
-            //Note that this only work when no columns are changed (added)
-            //ExcelColumn cols = ws.Column(1);
-            //cols.ColumnMax = ExcelPackage.MaxColumns;
+            //Format all cells
             ExcelRange cols = ws.Cells["A:XFD"];
             cols.Style.Fill.PatternType = ExcelFillStyle.Solid;
             cols.Style.Fill.BackgroundColor.SetColor(Color.LightGray);
@@ -47,7 +43,8 @@ namespace EPPlusSamples
                 ws.Cells[row, 3].Value = DateTime.Today.AddDays(row);
                 ws.Cells[row, 4].Value = rnd.NextDouble() * 10000;
                 ws.Cells[row, 5].FormulaR1C1 = "RC[-4]+RC[-1]";
-                if (row % 10000==0)
+
+                if (row % 10000 == 0)
                 {
                     Console.WriteLine("{0:HH.mm.ss}\tWriting row {1}...", DateTime.Now, row);
                 }

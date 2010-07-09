@@ -465,7 +465,11 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal ExcelXfs Copy()
         {
-            ExcelXfs newXF = new ExcelXfs(NameSpaceManager, _styles);
+            return Copy(_styles);
+        }        
+        internal ExcelXfs Copy(ExcelStyles styles)
+        {
+            ExcelXfs newXF = new ExcelXfs(NameSpaceManager, styles);
             newXF.NumberFormatId = _numFmtId;
             newXF.FontId = _fontId;
             newXF.FillId = _fillId;

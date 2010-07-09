@@ -85,7 +85,7 @@ namespace OfficeOpenXml
 
 		private ExcelWorkbook _workbook;
         public const int MaxColumns = 16384;
-        public const int MaxRows = 16777216;
+        public const int MaxRows = 1048576;
 		#endregion
 
 		#region ExcelPackage Constructors

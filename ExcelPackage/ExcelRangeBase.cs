@@ -35,13 +35,14 @@ using OfficeOpenXml.Style;
 using System.Xml;
 using System.Drawing;
 using System.Globalization;
+using System.Collections;
 
 namespace OfficeOpenXml
 {
     /// <summary>
     /// A range of cells 
     /// </summary>
-    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable
+    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
     {
         protected ExcelWorksheet _worksheet;
         private delegate void _changeProp(_setValue method, object value);
@@ -742,7 +743,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Adds a new comment for the range.
-        /// If this range contains more than one cell, the top left cell is returned by the method.
+        /// If this range contains more than one cell, the top left comment is returned by the method.
         /// </summary>
         /// <param name="Text"></param>
         /// <param name="Author"></param>
@@ -757,28 +758,232 @@ namespace OfficeOpenXml
             return  _worksheet.Cell(_fromRow, _fromCol).Comment;
         }
 
-        //private bool ExistsComment()
-        //{
-        //    for (int col = _fromCol; col <= _toCol; col++)
-        //    {
-        //        for (int row = _fromRow; row <= _toRow; row++)
-        //        {
-        //            if (_worksheet.Cell(row, col).Comment != null)
-        //            {
-        //                throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
-        //            }
-        //        }
-        //    }
-        //    return true;
-        //}
+        /// <summary>
+        /// Copies the range of cells to an other range
+        /// </summary>
+        /// <param name="Source">The start cell where the range will be copied.</param>
+        public void Copy(ExcelRangeBase Destination)
+        {
+            bool sameWorkbook=Destination._worksheet == _worksheet;
+            ExcelStyles sourceStyles=_worksheet.Workbook.Styles,
+                        styles = Destination._worksheet.Workbook.Styles;
+            Dictionary<int,int> styleCashe=new Dictionary<int,int>();
+
+            //Delete all existing cells;            
+            List<ExcelCell> newCells=new List<ExcelCell>();
+            foreach (var cell in this)
+            {
+                //Clone the cell
+                var newCell=(_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell).Clone(Destination._worksheet);
+
+                //Set the correct row/column
+                newCell.Row = Destination._fromRow + (newCell.Row - _fromRow);
+                newCell.Column = Destination._fromCol + (newCell.Column - _fromCol);
+
+                //If the formula is shared, remove the shared ID and set the formula for the cell.
+                if (newCell._sharedFormulaID >= 0)
+                {
+                    newCell._sharedFormulaID = int.MinValue;
+                    newCell.Formula = cell.Formula;
+                }
+                
+                //If its not the same workbook whe must copy the styles to the new workbook.
+                if (!sameWorkbook)
+                {
+                    if (styleCashe.ContainsKey(cell.StyleID))
+                    {
+                        newCell.StyleID = styleCashe[cell.StyleID];
+                    }
+                    else
+                    {
+                        newCell.StyleID = styles.CloneStyle(sourceStyles, cell.StyleID);
+                        styleCashe.Add(cell.StyleID, newCell.StyleID);
+                    }
+                }
+                newCells.Add(newCell);
+            }
+
+            //Now clear the workbook.
+            Delete(Destination.Offset(0,0,(_toRow-_fromRow)+1, (_toCol-_fromCol)+1));
+
+            //And last add the new cells to the worksheet
+            foreach (var cell in newCells)
+            {
+                Destination.Worksheet._cells.Add(cell);
+            }
+        }
+        /// <summary>
+        /// Clear all cells
+        /// </summary>
+        public void Clear()
+        {
+            Delete(this);
+        }
+        private void Delete(ExcelAddressBase Range)
+        {
+            //First find the start cell
+            ulong startID=GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
+            int index = _worksheet._cells.IndexOf(startID);
+            if (index < 0)
+            {
+                index = ~index;
+            }
+            ExcelCell cell;
+            //int row=cell.Row, col=cell.Column;
+            //Remove all cells in the range
+            while (index < _worksheet._cells.Count)
+            {
+                cell = _worksheet._cells[index] as ExcelCell;
+                if (cell.Row > Range._toRow || cell.Row == Range._toRow && cell.Column > Range._toCol)
+                {
+                    break;
+                }
+                else
+                {
+                    if (cell.Column >= Range._fromCol && cell.Column <= Range._toCol)
+                    {
+                        _worksheet._cells.Delete(cell.CellID);
+                    }
+                    else
+                    {
+                        index++;
+                    }
+                }
+            }
+
+            //Delete multi addresses as well
+            if (Addresses != null)
+            {
+                foreach (var sub in Addresses)
+                {
+                    Delete(sub);
+                }
+            }
+        }
         #endregion
         #region IDisposable Members
 
         public void Dispose()
         {
-            _worksheet = null;
+            //_worksheet = null;
         }
 
         #endregion
+        #region "Enumerator"
+        int _index;
+        ulong _toCellId;
+        int _enumAddressIx;
+        public IEnumerator<ExcelRangeBase> GetEnumerator()
+        {
+            Reset();
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            Reset();
+            return this;
+        }
+
+        public ExcelRangeBase Current
+        {
+            get 
+            {
+                return new ExcelRangeBase(_worksheet, (_worksheet._cells[_index] as ExcelCell).CellAddress);
+            }
+        }
+
+        object IEnumerator.Current
+        {
+            get
+            {
+                return ((object)(new ExcelRangeBase(_worksheet, (_worksheet._cells[_index] as ExcelCell).CellAddress)));
+            }
+        }
+
+        public bool MoveNext()
+        {
+            _index++;
+            if (_enumAddressIx == -1)
+            {
+                GetNextIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
+                
+                if (_index >= _worksheet._cells.Count || _worksheet._cells[_index].RangeID > _toCellId)
+                {
+                    if (Addresses == null)
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        _enumAddressIx++;
+                        GetStartIndexEnum(Addresses[0].Start.Row, Addresses[0].Start.Column, Addresses[0].End.Row, Addresses[0].End.Column);
+                        return MoveNext();
+                    }
+                }
+                
+            }
+            else
+            {
+                GetNextIndexEnum(Addresses[_enumAddressIx].Start.Row, Addresses[_enumAddressIx].Start.Column, Addresses[_enumAddressIx].End.Row, Addresses[_enumAddressIx].End.Column);
+                if (_index >= _worksheet._cells.Count || _worksheet._cells[_index].RangeID > _toCellId)
+                {
+                    if (++_enumAddressIx < Addresses.Count)
+                    {
+                        GetStartIndexEnum(Addresses[_enumAddressIx].Start.Row, Addresses[_enumAddressIx].Start.Column, Addresses[_enumAddressIx].End.Row, Addresses[_enumAddressIx].End.Column);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }                
+            }
+            return true;
+        }
+
+        private void GetNextIndexEnum(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            if (_index >= _worksheet._cells.Count) return;
+            ExcelCell cell = _worksheet._cells[_index] as ExcelCell;
+            while (cell.Column > toCol || cell.Column < fromCol)
+            {
+                if (cell.Column < fromCol)
+                {
+                    _index = _worksheet._cells.IndexOf(ExcelAddress.GetCellID(_worksheet.SheetID, cell.Row, fromCol));
+                }
+                else
+                {
+                    _index = _worksheet._cells.IndexOf(ExcelAddress.GetCellID(_worksheet.SheetID, cell.Row + 1, fromCol));
+                }
+
+                if (_index < 0)
+                {
+                    _index = ~_index;
+                }
+                if (_index >= _worksheet._cells.Count || _worksheet._cells[_index].RangeID > _toCellId)
+                {
+                    break;
+                }
+                cell = _worksheet._cells[_index] as ExcelCell;
+            }
+        }
+
+        public void Reset()
+        {
+            _enumAddressIx = -1;
+            GetStartIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
+        }
+
+        private void GetStartIndexEnum(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            _index = _worksheet._cells.IndexOf(ExcelCellBase.GetCellID(_worksheet.SheetID, fromRow, fromCol));
+            _toCellId = ExcelCellBase.GetCellID(_worksheet.SheetID, toRow, toCol);
+            if (_index < 0)
+            {
+                _index = ~_index;
+            }
+            _index--;
+        }
     }
+        #endregion
 }

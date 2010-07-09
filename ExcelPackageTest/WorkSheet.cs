@@ -121,6 +121,30 @@ namespace ExcelPackageTest
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
 
+            foreach (ExcelRangeBase cell in ws.Cells["A1"])
+            {
+                Assert.Fail("A1 is not set");
+            }
+
+            //foreach (ExcelRangeBase cell in ws.Cells["B1:G25,A1"])
+            //{
+            //    TestContext.WriteLine(cell.Address);
+            //}
+
+            foreach (ExcelRangeBase cell in ws.Cells[ws.Dimension.Address])
+            {
+                //TestContext.WriteLine(cell.Address);
+                System.Diagnostics.Debug.WriteLine(cell.Address);
+            }
+            
+            ////Linq test
+            var res = from c in ws.Cells[ws.Dimension.Address] where c.Value !=null &&  c.Value.ToString() == "Offset test 1" select c;
+
+            foreach (ExcelRangeBase cell in res)
+            {
+                System.Diagnostics.Debug.WriteLine(cell.Address);
+            }
+
             _pck.Workbook.Properties.Author = "Jan Källman";
             _pck.Workbook.Properties.Category="Category";
             _pck.Workbook.Properties.Comments = "Comments";
@@ -128,12 +152,9 @@ namespace ExcelPackageTest
             _pck.Workbook.Properties.Keywords = "Keywords";
             _pck.Workbook.Properties.Title = "Title";
             _pck.Workbook.Properties.Subject = "Subject";
-            _pck.Workbook.Properties.Status = "status";
+            _pck.Workbook.Properties.Status = "Status";
             _pck.Workbook.Properties.HyperlinkBase = new Uri("http://serversideexcel.com",UriKind.Absolute );
             _pck.Workbook.Properties.Manager= "Manager";
-            //_pck.Workbook.Properties.LastModifiedBy = "jk";
-            //_pck.Workbook.Properties.LastPrinted = "Yesterday";
-
 
             _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
             TestContext.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
@@ -181,9 +202,6 @@ namespace ExcelPackageTest
             //Single formula
             ws.Cells["H3"].Formula = "B2+B3";
             ws.DeleteRow(2, 1, true);
-
-            ws.Cells["P3"].IsRichText = true;
-            ws.Cells["P3"].Value = "<r><rPr><sz val=\"11\" /><color rgb=\"FFFF0000\" /><rFont val=\"Calibri\" /><family val=\"2\" /><scheme val=\"minor\" /></rPr><t>te</t></r><r><rPr><b /><sz val=\"11\" /> <color theme=\"1\" /><rFont val=\"Calibri\" /><family val=\"2\" /> <scheme val=\"minor\" /> </rPr><t>st</t> </r>";
 
             //Shared formula
             ws.Cells["H5:H30"].Formula = "B4+B5";
@@ -322,12 +340,19 @@ namespace ExcelPackageTest
             ws.Cells["G1,G3"].Hyperlink = new ExcelHyperLink("Comment!$A$1","Comment");
             ws.Cells["G1,G3"].Style.Font.Color.SetColor(Color.Blue);
             ws.Cells["G1,G3"].Style.Font.UnderLine = true;
+
+            ws.Cells["A1:G5"].Copy(ws.Cells["A50"]);
         }
         [TestMethod]
         public void WorksheetCopy()
         {
             var ws = _pck.Workbook.Worksheets.Add("Copied Address", _pck.Workbook.Worksheets["Address"]);
             var wsCopy = _pck.Workbook.Worksheets.Add("Copied Comment", _pck.Workbook.Worksheets["Comment"]);
+
+            ExcelPackage pck2 = new ExcelPackage();
+            pck2.Workbook.Worksheets.Add("Copy From other pck", _pck.Workbook.Worksheets["Address"]);
+            pck2.SaveAs(new FileInfo("test\\copy.xlsx"));
+            pck2=null;
             Assert.AreEqual(2, wsCopy.Comments.Count);
         }
         [TestMethod]

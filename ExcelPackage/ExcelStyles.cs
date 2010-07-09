@@ -229,7 +229,7 @@ namespace OfficeOpenXml
                     //column._columnMax = address.End.Column;
                 }
 
-                //Set for individual cells in the spann. We loop all cells here since the cells are sorted on with columns first.
+                //Set for individual cells in the spann. We loop all cells here since the cells are sorted with columns first.
                 foreach (ExcelCell cell in ws._cells)
                 {
                     if (cell.Column >= address.Start.Column &&
@@ -606,5 +606,68 @@ namespace OfficeOpenXml
         }
 
 #endregion
+
+        internal int CloneStyle(ExcelStyles style, int styleID)
+        {
+            ExcelXfs xfs=style.CellXfs[styleID];
+            ExcelXfs newXfs=xfs.Copy(this);
+            //Numberformat
+            if (xfs.NumberFormatId > -1)
+            {
+                string format = xfs.Numberformat.Format;
+                int ix=NumberFormats.FindIndexByID(format);
+                if (ix<0)
+                {
+                    ExcelNumberFormatXml item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = style.NumberFormats.NextId++ };
+                    NumberFormats.Add(format, item);
+                    ix=item.NumFmtId;
+                }
+                newXfs.NumberFormatId= ix;
+            }
+
+            //Font
+            if (xfs.FontId > -1)
+            {
+                int ix=Fonts.FindIndexByID(xfs.Font.Id);
+                if (ix<0)
+                {
+                    ExcelFontXml item = style.Fonts[xfs.FontId].Copy();
+                    ix=Fonts.Add(xfs.Font.Id, item);
+                }
+                newXfs.FontId=ix;
+            }
+
+            //Border
+            if (xfs.BorderId > -1)
+            {
+                int ix = Borders.FindIndexByID(xfs.Border.Id);
+                if (ix < 0)
+                {
+                    ExcelBorderXml item = style.Borders[xfs.BorderId].Copy();
+                    ix = Borders.Add(xfs.Border.Id, item);
+                }
+                newXfs.BorderId = ix;
+            }
+
+            //Fill
+            if (xfs.FillId > -1)
+            {
+                int ix = Fills.FindIndexByID(xfs.Fill.Id);
+                if (ix < 0)
+                {
+                    ExcelFillXml item = style.Fills[xfs.FillId].Copy();
+                    ix = Fills.Add(xfs.Fill.Id, item);
+                }
+                newXfs.FillId = ix;
+            }
+
+            int id = CellXfs.FindIndexByID(newXfs.Id);
+            if (id < 0)
+            {
+                id = CellXfs.Add(newXfs.Id, newXfs);
+            }
+
+            return id;
+        }
     }
 }
