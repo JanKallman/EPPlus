@@ -548,6 +548,7 @@ namespace OfficeOpenXml
 			}
 			#endregion
 
+            
             UpdateDefinedNamesXml();
 
             // save the workbook
@@ -668,7 +669,7 @@ namespace OfficeOpenXml
         /// <returns>?</returns>
         private bool ExistsNames()
         {
-            if (_names.Count > 0)
+            if (_names.Count == 0)
             {
                 foreach (ExcelWorksheet ws in Worksheets)
                 {

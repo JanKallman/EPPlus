@@ -320,6 +320,18 @@ namespace OfficeOpenXml
                 SetXmlNodeString("@zoomScale", value.ToString());
             }
         }
+        public bool RightToLeft
+        {
+            get
+            {
+                return GetXmlNodeBool("@rightToLeft");
+            }
+            set
+            {
+                SetXmlNodeString("@rightToLeft", value == true ? "1" : "0");
+            }
+        }
+
         public ExcelWorksheetPanes[] Panes
         {
             get;

@@ -95,7 +95,7 @@ namespace OfficeOpenXml
         public ExcelPackage()
         {
             Init();
-            ConstructNewFile();
+            ConstructNewFile(null);
         }
         /// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
@@ -105,9 +105,19 @@ namespace OfficeOpenXml
 		{
             Init();
             File = newFile;
-            ConstructNewFile();
+            ConstructNewFile(null);
         }
-
+        /// <summary>
+        /// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+        /// </summary>
+        /// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
+        /// <param name="password">Password for an encrypted package</param>
+        public ExcelPackage(FileInfo newFile, string password)
+        {
+            Init();
+            File = newFile;
+            ConstructNewFile(password);
+        }
 		/// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing template.
 		/// WARNING: If newFile exists, it is deleted!
@@ -118,8 +128,21 @@ namespace OfficeOpenXml
 		{
             Init();
             File = newFile;
-            CreateFromTemplate(template);
+            CreateFromTemplate(template, null);
 		}
+        /// <summary>
+        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// WARNING: If newFile exists, it is deleted!
+        /// </summary>
+        /// <param name="newFile">The name of the Excel file to be created</param>
+        /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
+        /// <param name="password">Password for the encrypted template</param>
+        public ExcelPackage(FileInfo newFile, FileInfo template, string password)
+        {
+            Init();
+            File = newFile;
+            CreateFromTemplate(template, password);
+        }
         /// <summary>
         /// Creates a new instance of the ExcelPackage class based on a existing template.
         /// </summary>
@@ -128,7 +151,22 @@ namespace OfficeOpenXml
         public ExcelPackage(FileInfo template, bool useStream)
         {
             Init();
-            CreateFromTemplate(template);
+            CreateFromTemplate(template, null);
+            if (useStream == false)
+            {
+                File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
+            }
+        }
+        /// <summary>
+        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// </summary>
+        /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
+        /// <param name="useStream">if true use a stream. If false create a file in the temp dir with a random name</param>
+        /// <param name="password">Password for the encrypted template</param>
+        public ExcelPackage(FileInfo template, bool useStream, string password)
+        {
+            Init();
+            CreateFromTemplate(template, password);
             if (useStream == false)
             {
                 File = new FileInfo(Path.GetTempPath() + Guid.NewGuid().ToString() + ".xlsx");
@@ -137,7 +175,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Creates a new instance of the Excelpackage class based on a stream
         /// </summary>
-        /// <param name="Stream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
+        /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
         public ExcelPackage(Stream newStream)
         {
             if (!(newStream.CanRead && newStream.CanWrite))
@@ -191,26 +229,45 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="template"></param>
         /// <returns></returns>
-        private void CreateFromTemplate(FileInfo template)
+        private void CreateFromTemplate(FileInfo template, string password)
         {
             if (template.Exists)
             {
                 _stream = new MemoryStream();
-                byte[] b = System.IO.File.ReadAllBytes(template.FullName);
-                _stream.Write(b, 0, b.Length);
+                if (password != null)
+                {
+                    var encrHandler = new EncryptedPackageHandler();
+                    _stream = encrHandler.GetStream(template, password);
+                    encrHandler = null;
+                    //throw (new NotImplementedException("No support for Encrypted packages in this version"));
+                }
+                else
+                {
+                    byte[] b = System.IO.File.ReadAllBytes(template.FullName);
+                    _stream.Write(b, 0, b.Length);
+                }
                 _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
                 throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
             //return newFile;
         }
-        private void ConstructNewFile()
+        private void ConstructNewFile(string password)
         {
             _stream = new MemoryStream();
             if (File != null && File.Exists)
             {
-                byte[] b = System.IO.File.ReadAllBytes(File.FullName);
-                _stream.Write(b, 0, b.Length);
+                if (password != null)
+                {
+                    var encrHandler = new EncryptedPackageHandler();
+                    _stream = encrHandler.GetStream(File, password);
+                    encrHandler = null;
+                }
+                else
+                {
+                    byte[] b = System.IO.File.ReadAllBytes(File.FullName);
+                    _stream.Write(b, 0, b.Length);
+                }
                 _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
             }
             else
