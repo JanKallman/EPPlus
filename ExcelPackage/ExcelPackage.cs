@@ -136,7 +136,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="newFile">The name of the Excel file to be created</param>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
-        /// <param name="password">Password for the encrypted template</param>
+        /// <param name="password">Password to decrypted the template</param>
         public ExcelPackage(FileInfo newFile, FileInfo template, string password)
         {
             Init();
@@ -162,7 +162,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="useStream">if true use a stream. If false create a file in the temp dir with a random name</param>
-        /// <param name="password">Password for the encrypted template</param>
+        /// <param name="password">Password to decrypted the template</param>
         public ExcelPackage(FileInfo template, bool useStream, string password)
         {
             Init();
@@ -227,17 +227,21 @@ namespace OfficeOpenXml
         /// <summary>
         /// Create a new file from a template
         /// </summary>
-        /// <param name="template"></param>
+        /// <param name="template">An existing xlsx file to use as a template</param>
+        /// <param name="password">The password to decrypt the package.</param>
         /// <returns></returns>
         private void CreateFromTemplate(FileInfo template, string password)
         {
+            EncryptionAlgorithm algorithm=EncryptionAlgorithm.AES128;
             if (template.Exists)
             {
                 _stream = new MemoryStream();
                 if (password != null)
                 {
+                    Encryption.IsEncrypted = true;
+                    Encryption.Password = password;
                     var encrHandler = new EncryptedPackageHandler();
-                    _stream = encrHandler.GetStream(template, password);
+                    _stream = encrHandler.GetStream(template, Encryption);
                     encrHandler = null;
                     //throw (new NotImplementedException("No support for Encrypted packages in this version"));
                 }
@@ -247,20 +251,24 @@ namespace OfficeOpenXml
                     _stream.Write(b, 0, b.Length);
                 }
                 _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                Encryption.Algorithm = algorithm;
             }
             else
-                throw new Exception("ExcelPackage Error: Passed invalid TemplatePath to Excel Template");
+                throw new Exception("Passed invalid TemplatePath to Excel Template");
             //return newFile;
         }
         private void ConstructNewFile(string password)
         {
+            EncryptionAlgorithm algorithm=EncryptionAlgorithm.AES128;
             _stream = new MemoryStream();
             if (File != null && File.Exists)
             {
                 if (password != null)
                 {
                     var encrHandler = new EncryptedPackageHandler();
-                    _stream = encrHandler.GetStream(File, password);
+                    Encryption.IsEncrypted = true;
+                    Encryption.Password = password;
+                    _stream = encrHandler.GetStream(File, Encryption);
                     encrHandler = null;
                 }
                 else
@@ -275,6 +283,7 @@ namespace OfficeOpenXml
                 _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
                 CreateBlankWb();
             }
+            Encryption.Algorithm = algorithm;
         }
         private void CreateBlankWb()
         {
@@ -301,7 +310,21 @@ namespace OfficeOpenXml
 		/// Returns a reference to the package
 		/// </summary>
 		public Package Package { get { return (_package); } }
-
+        ExcelEncryption _encryption=null;
+        /// <summary>
+        /// Information how and if the package is encrypted
+        /// </summary>
+        public ExcelEncryption Encryption
+        {
+            get
+            {
+                if (_encryption == null)
+                {
+                    _encryption = new ExcelEncryption();
+                }
+                return _encryption;
+            }
+        }
 		/// <summary>
 		/// Returns a reference to the workbook component within the package.
 		/// All worksheets and cells can be accessed through the workbook.
@@ -418,13 +441,13 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region Save  // ExcelPackage save
-		/// <summary>
-		/// Saves all the components back into the package.
-		/// This method recursively calls the Save method on all sub-components.
+        /// <summary>
+        /// Saves all the components back into the package.
+        /// This method recursively calls the Save method on all sub-components.
         /// We close the package after the save is done.
-		/// </summary>
-		public void Save()
-		{
+        /// </summary>
+        public void Save()
+        {
             try
             {
                 Workbook.Save();
@@ -433,7 +456,7 @@ namespace OfficeOpenXml
                     _package.Close();
                 }
                 else
-                {                    
+                {
                     if (System.IO.File.Exists(File.FullName))
                     {
                         try
@@ -442,14 +465,26 @@ namespace OfficeOpenXml
                         }
                         catch (Exception ex)
                         {
-                            throw(new Exception(string.Format("Error overwriting file {0}", File.FullName), ex));
+                            throw (new Exception(string.Format("Error overwriting file {0}", File.FullName), ex));
                         }
                     }
                     if (Stream is MemoryStream)
                     {
                         _package.Close();
                         var fi = new FileStream(File.FullName, FileMode.Create);
-                        fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                        //EncryptPackage
+                        if (Encryption.IsEncrypted)
+                        {
+                            byte[] file = ((MemoryStream)Stream).ToArray();
+                            EncryptedPackageHandler eph = new EncryptedPackageHandler();
+                            var ms = eph.EncryptPackage(file, Encryption);
+
+                            fi.Write(ms.GetBuffer(), 0, (int)ms.Length);
+                        }
+                        else
+                        {
+                            fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                        }
                         fi.Close();
                     }
                     else
@@ -458,9 +493,9 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                if(File==null)
+                if (File == null)
                 {
                     throw (ex);
                 }
@@ -469,6 +504,18 @@ namespace OfficeOpenXml
                     throw (new Exception(string.Format("Error saving file {0}", File.FullName), ex));
                 }
             }
+        }
+        /// <summary>
+        /// Saves all the components back into the package.
+        /// This method recursively calls the Save method on all sub-components.
+        /// We close the package after the save is done.
+        /// </summary>
+        /// <param name="password">The password to encrypt the workbook with. 
+        /// This parameter overrides the Workbook.Protection.EncryptionPassword.</param>
+        public void Save(string password)
+		{
+            Encryption.Password = password;
+            Save();
         }
         /// <summary>
         /// Saves the workbook to a new file
@@ -480,15 +527,59 @@ namespace OfficeOpenXml
             Save();
         }
         /// <summary>
+        /// Saves the workbook to a new file
+        /// Package is closed after it has been saved
+        /// </summary>
+        /// <param name="file">The file</param>
+        /// <param name="password">The password to encrypt the workbook with. 
+        /// This parameter overrides the Encryption.Password.</param>
+        public void SaveAs(FileInfo file, string password)
+        {
+            File = file;
+            Encryption.Password = password;
+            Save();
+        }
+        /// <summary>
         /// Copies the Package to the Outstream
         /// Package is closed after it has been saved
         /// </summary>
+        /// <param name="OutputStream">The stream to copy the package to</param>
         public void SaveAs(Stream OutputStream)
         {
+            File = null;
             Save();
-            CopyStream(_stream, ref OutputStream);
+
+            if (Encryption.IsEncrypted)
+            {
+                //Encrypt Workbook
+                Byte[] file = new byte[Stream.Length];
+                long pos = Stream.Position;
+                Stream.Seek(0, SeekOrigin.Begin);
+                Stream.Read(file, 0, (int)Stream.Length);
+
+                EncryptedPackageHandler eph = new EncryptedPackageHandler();
+                var ms = eph.EncryptPackage(file, Encryption);
+                CopyStream(ms, ref OutputStream);
+            }
+            else
+            {
+                CopyStream(_stream, ref OutputStream);
+            }
+        }
+        /// <summary>
+        /// Copies the Package to the Outstream
+        /// Package is closed after it has been saved
+        /// </summary>
+        /// <param name="OutputStream">The stream to copy the package to</param>
+        /// <param name="password">The password to encrypt the workbook with. 
+        /// This parameter overrides the Encryption.Password.</param>
+        public void SaveAs(Stream OutputStream, string password)
+        {
+            Encryption.Password = password;
+            SaveAs(OutputStream);
         }
         FileInfo _file = null;
+
         /// <summary>
         /// The output file. Null if no file is used
         /// </summary>
@@ -505,7 +596,8 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// The output stream
+        /// The output stream. This stream is the not the encrypted package.
+        /// To get the encrypted package use the SaveAs(stream) method.
         /// </summary>
         public Stream Stream
         {
@@ -554,14 +646,49 @@ namespace OfficeOpenXml
         {
            return GetAsByteArray(true);
         }
-        internal  byte[] GetAsByteArray(bool save)
+        /// <summary>
+        /// Saves and returns the Excel files as a bytearray
+        /// Can only be used when working with a stream. That is .. new ExcelPackage() or new ExcelPackage("file", true)
+        /// </summary>
+        /// <example>      
+        /// Example how to return a document from a Webserver...
+        /// <code> 
+        ///  ExcelPackage package=new ExcelPackage();
+        ///  /**** ... Create the document ****/
+        ///  Byte[] bin = package.GetAsByteArray();
+        ///  Response.ContentType = "Application/vnd.ms-Excel";
+        ///  Response.AddHeader("content-disposition", "attachment;  filename=TheFile.xlsx");
+        ///  Response.BinaryWrite(bin);
+        /// </code>
+        /// </example>
+        /// <param name="password">The password to encrypt the workbook with. 
+        /// This parameter overrides the Encryption.Password.</param>
+        /// <returns></returns>
+        public byte[] GetAsByteArray(string password)
+        {
+            if (password != null)
+            {
+                Encryption.Password = password;
+            }
+            return GetAsByteArray(true);
+        }
+        internal byte[] GetAsByteArray(bool save)
         {
             if(save) Workbook.Save();
             _package.Close();
+
             Byte[] byRet = new byte[Stream.Length];
             long pos = Stream.Position;            
             Stream.Seek(0, SeekOrigin.Begin);
             Stream.Read(byRet, 0, (int)Stream.Length);
+
+            //Encrypt Workbook?
+            if (Encryption.IsEncrypted)
+            {
+                EncryptedPackageHandler eph=new EncryptedPackageHandler();
+                var ms = eph.EncryptPackage(byRet, Encryption);
+                byRet = ms.ToArray();
+            }
 
             Stream.Seek(pos, SeekOrigin.Begin);
             Stream.Close();

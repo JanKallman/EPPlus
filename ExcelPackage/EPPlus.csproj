@@ -64,10 +64,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Lyquidity.OleStorage, Version=1.0.2006.207, Culture=neutral, PublicKeyToken=bdfb096d7c39d1bc, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\Lyquidity.OleStorage.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
@@ -84,6 +80,7 @@
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
+    <Compile Include="ExcelEncryption.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
     <Compile Include="ExcelColumn.cs" />
     <Compile Include="Drawing\ExcelDrawings.cs" />
@@ -93,6 +90,7 @@
     <Compile Include="ExcelRow.cs" />
     <Compile Include="Drawing\ExcelShape.cs" />
     <Compile Include="ExcelStyles.cs" />
+    <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
     <Compile Include="Style\IStyle.cs" />

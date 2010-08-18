@@ -313,20 +313,7 @@ namespace OfficeOpenXml
                 return;
             }
 
-            //Calculate the hash
-            //Thanks to Kohei Yoshida for the sample http://kohei.us/2008/01/18/excel-sheet-protection-password-hash/
-            ushort hash = 0;                
-            for (int i = Password.Length-1; i >= 0; i--) 
-            {
-                hash ^= Password[i];
-                hash = (ushort)(((ushort)((hash >> 14) & 0x01))
-                                |
-                                ((ushort)((hash << 1) & 0x7FFF)));
-            }
-
-            hash ^= (0x8000 | ('N' << 8) | 'K');
-            hash ^= (ushort)Password.Length;
-
+            int hash = EncryptedPackageHandler.CalculatePasswordHash(Password);
             SetXmlNodeString(_passwordPath, ((int)hash).ToString("x"));
         }
 
