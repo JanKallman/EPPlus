@@ -101,7 +101,7 @@ namespace OfficeOpenXml
 			_package = xlPackage;
             CreateWorkbookXml();
             TopNode = WorkbookXml.DocumentElement;
-            SchemaNodeOrder= new string[] {"fileVersion", "workbookPr", "bookViews", "sheets", "definedNames", "calcPr"};
+            SchemaNodeOrder = new string[] { "fileVersion", "workbookPr", "workbookProtection", "bookViews", "sheets", "definedNames", "calcPr" };
             GetSharedStrings();
 		}
 		#endregion
@@ -209,6 +209,19 @@ namespace OfficeOpenXml
                     _standardFontWidth=(decimal)(System.Windows.Forms.TextRenderer.MeasureText("00", f).Width - System.Windows.Forms.TextRenderer.MeasureText("0", f).Width);
                 }
                 return _standardFontWidth;
+            }
+        }
+        ExcelProtection _protection = null;
+        public ExcelProtection Protection
+        {
+            get
+            {
+                if (_protection == null)
+                {
+                    _protection = new ExcelProtection(NameSpaceManager, TopNode);
+                    _protection.SchemaNodeOrder = SchemaNodeOrder;
+                }
+                return _protection;
             }
         }
         /// <summary>
