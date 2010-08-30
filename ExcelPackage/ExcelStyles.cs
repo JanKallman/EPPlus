@@ -479,6 +479,20 @@ namespace OfficeOpenXml
             }
             (styleXfsNode as XmlElement).SetAttribute("count", count.ToString());
 
+            //NamedStyles
+            count = 0;
+            XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
+            cellStyleNode.RemoveAll();
+            foreach (ExcelNamedStyleXml style in NamedStyles)
+            {
+                cellStyleNode.AppendChild(style.CreateXmlNode(_styleXml.CreateElement("cellStyle", ExcelPackage.schemaMain)));
+                style.newID = count;
+                if (style.XfId >= 0) style.XfId = CellXfs[style.XfId].newID;
+                count++;
+            }
+            (cellStyleNode as XmlElement).SetAttribute("count", count.ToString());
+
+
             //CellStyle
             count = 0;
             XmlNode cellXfsNode = _styleXml.SelectSingleNode(CellXfsPath, _nameSpaceManager);
@@ -493,19 +507,6 @@ namespace OfficeOpenXml
                 }
             }
             (cellXfsNode as XmlElement).SetAttribute("count", count.ToString());
-
-            //NamedStyles
-            count = 0;
-            XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
-            cellStyleNode.RemoveAll();
-            foreach (ExcelNamedStyleXml style in NamedStyles)
-            {
-                cellStyleNode.AppendChild(style.CreateXmlNode(_styleXml.CreateElement("cellStyle", ExcelPackage.schemaMain)));
-                //style.XfId = CellXfs[style.XfId].newID;
-                count++;
-            }
-            (cellStyleNode as XmlElement).SetAttribute("count", count.ToString());
-
         }
 
         private void RemoveUnusedStyles()

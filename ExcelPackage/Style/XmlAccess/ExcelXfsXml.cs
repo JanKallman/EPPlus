@@ -49,7 +49,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             base(nsm, topNode)
         {
             _styles = styles;
-            _xfID = GetXmlNodeInt("@xfid");
+            _xfID = GetXmlNodeInt("@xfId");
             if (_xfID == 0) isBuildIn = true; //Normal taggen
             _numFmtId = GetXmlNodeInt("@numFmtId");
             _fontId = GetXmlNodeInt("@fontId");
@@ -735,7 +735,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_fillId >= 0) SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
             if(_borderId >= 0) SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
             if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
-            if (XfId > int.MinValue) SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
+            if (XfId > int.MinValue) 
+                SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
 
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
             if(_wrapText) this.SetXmlNodeString(wrapTextPath, "1");

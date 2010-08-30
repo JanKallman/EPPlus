@@ -592,7 +592,7 @@ namespace OfficeOpenXml
             set
             {
                 _file = value;
-                _outputFolderPath = _file.DirectoryName;
+                if(_file!=null) _outputFolderPath = _file.DirectoryName;
             }
         }
         /// <summary>

@@ -71,7 +71,7 @@ namespace OfficeOpenXml
                 _changePropMethod = SetUnknown;
             }
             //Single cell
-            else if (_fromRow == _toRow && _fromCol == _toRow)
+            else if (_fromRow == _toRow && _fromCol == _toCol && Addresses==null)
             {
                 _changePropMethod = SetSingle;
             }

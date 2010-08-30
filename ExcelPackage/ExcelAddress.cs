@@ -40,6 +40,13 @@ namespace OfficeOpenXml
         internal protected int _fromRow=-1, _toRow, _fromCol, _toCol;
         internal protected string _ws;
         internal protected string _address;
+        internal enum eAddressCollition
+        {
+            No,
+            Partly,
+            Inside,
+            Equal
+        }
         #region "Constructors"
         internal ExcelAddressBase()
         {
@@ -220,7 +227,27 @@ namespace OfficeOpenXml
             }
             SetAddress(ref first, ref second, ref hasSheet);
         }
-
+        internal eAddressCollition Collide(ExcelAddressBase address)
+        {
+            if (address._fromRow > _toRow || address._fromCol > _toCol
+                ||
+                _fromRow > address._toRow || _fromCol > address._toCol)
+            {
+                return eAddressCollition.No;
+            }
+            else if (address._fromRow == _fromRow && address._fromCol == _fromCol &&
+                    address._toRow == _toRow && address._toCol == _toCol)
+            {
+                return eAddressCollition.Equal;
+            }
+            else if (address._fromRow >= _fromRow && address._toRow <= _toRow &&
+                     address._fromCol >= _fromCol && address._toCol <= _toCol)
+            {
+                return eAddressCollition.Inside;
+            }
+            else
+                return eAddressCollition.Partly;
+        }
         private void SetAddress(ref string first, ref string second, ref bool hasSheet)
         {
             string ws, address;

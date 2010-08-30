@@ -316,7 +316,7 @@ namespace OfficeOpenXml
                     XmlElement sheetFormat = (XmlElement)WorksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
                     if (sheetFormat == null)
                     {
-                        _defaultRowHeight = 15; // Excel's default height
+                        _defaultRowHeight = 15; // Excel default height
                     }
                     else
                     {
@@ -340,6 +340,19 @@ namespace OfficeOpenXml
 					WorksheetXml.DocumentElement.InsertAfter(sheetFormat, sheetViews);
 				}
 				sheetFormat.SetAttribute("defaultRowHeight", value.ToString());
+                if (value == 15)
+                {
+                    sheetFormat.SetAttribute("customHeight", "0");
+                }
+                else
+                {
+                    sheetFormat.SetAttribute("customHeight", "1");
+                }
+
+                if (sheetFormat.GetAttribute("defaultColWidth") == "")
+                {
+                    defaultColWidth = 9.140625;
+                }
 			}
 		}
 		#endregion
@@ -374,6 +387,10 @@ namespace OfficeOpenXml
                     WorksheetXml.DocumentElement.InsertAfter(sheetFormat, sheetViews);
                 }
                 sheetFormat.SetAttribute("defaultColWidth", value.ToString());
+                if (sheetFormat.GetAttribute("defaultRowHeight") == "")
+                {
+                    defaultRowHeight = 15;
+                }
             }
         }
         #endregion
@@ -522,7 +539,7 @@ namespace OfficeOpenXml
             if(!ReadUntil(xr, "rowBreaks","colBreaks")) return;
             while (xr.Read())
             {
-                if (xr.Name == "brk")
+                if (xr.LocalName == "brk")
                 {
                     int id;
                     if (int.TryParse(xr.GetAttribute("id"), out id))
@@ -541,7 +558,7 @@ namespace OfficeOpenXml
             if (!ReadUntil(xr, "colBreaks")) return;
             while (xr.Read())
             {
-                if (xr.Name == "brk")
+                if (xr.LocalName == "brk")
                 {
                     int id;
                     if (int.TryParse(xr.GetAttribute("id"), out id))
@@ -665,12 +682,12 @@ namespace OfficeOpenXml
         private bool ReadUntil(XmlTextReader xr,params string[] tagName)
         {
             if (xr.EOF) return false;
-            while (!Array.Exists(tagName, tag => xr.Name.EndsWith(tag)))
+            while (!Array.Exists(tagName, tag => xr.LocalName.EndsWith(tag)))
             {
                 xr.Read();
                 if (xr.EOF) return false;
             }
-            return (xr.Name.EndsWith(tagName[0]));
+            return (xr.LocalName.EndsWith(tagName[0]));
         }
         private void LoadColumns (XmlTextReader xr)//(string xml)
         {
@@ -682,7 +699,7 @@ namespace OfficeOpenXml
                 //var xr=new XmlTextReader(new StringReader(xml));
                 while(xr.Read())
                 {
-                    if(xr.Name!="col") break;
+                    if(xr.LocalName!="col") break;
                     int min = int.Parse(xr.GetAttribute("min"));
 
                     int style;
@@ -716,7 +733,7 @@ namespace OfficeOpenXml
         {
             do
             {
-                if (xr.Name == nodeText || xr.Name == altNode) return true;
+                if (xr.LocalName == nodeText || xr.LocalName == altNode) return true;
             }
             while(xr.Read());
             xr.Close();
@@ -731,7 +748,7 @@ namespace OfficeOpenXml
             if(!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
             while (xr.Read())
             {
-                if (xr.Name == "hyperlink")
+                if (xr.LocalName == "hyperlink")
                 {
                     int fromRow, fromCol, toRow, toCol;
                     ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
@@ -777,7 +794,7 @@ namespace OfficeOpenXml
                 {
                     xr.Read();
                 }
-                if (xr.Name == "row")
+                if (xr.LocalName == "row")
                 {
                     int row = Convert.ToInt32(xr.GetAttribute("r"));
 
@@ -787,7 +804,7 @@ namespace OfficeOpenXml
                     }
                     xr.Read();
                 }
-                else if (xr.Name == "c")
+                else if (xr.LocalName == "c")
                 {
                     if (cell != null) cellList.Add(cell);
                     cell = new ExcelCell(this, xr.GetAttribute("r"));
@@ -795,12 +812,12 @@ namespace OfficeOpenXml
                     cell.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"));
                     xr.Read();
                 }
-                else if (xr.Name == "v")
+                else if (xr.LocalName == "v")
                 {
                     cell._value = GetValueFromXml(cell, xr);
                     xr.Read();
                 }
-                else if (xr.Name == "f")
+                else if (xr.LocalName == "f")
                 {
                     string t = xr.GetAttribute("t");
                     if (t == null)
@@ -859,7 +876,7 @@ namespace OfficeOpenXml
             {
                 while (xr.Read())
                 {
-                    if (xr.Name != "mergeCell") break;
+                    if (xr.LocalName != "mergeCell") break;
 
                     string address = xr.GetAttribute("ref");
                     int fromRow, fromCol, toRow, toCol;
