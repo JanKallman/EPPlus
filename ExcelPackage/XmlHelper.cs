@@ -275,6 +275,17 @@ namespace OfficeOpenXml
                 SetXmlNodeString(TopNode, path, value ? "1" : "0", false, false);
             }
         }
+        internal bool ExistNode(string path)
+        {
+            if (TopNode==null || TopNode.SelectSingleNode(path, NameSpaceManager) == null)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
         internal bool GetXmlNodeBool(string path)
         {
             return GetXmlNodeBool(path, false);

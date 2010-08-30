@@ -97,7 +97,11 @@ namespace OfficeOpenXml.Style
             }
             rt.Text = Text;
             rt.PreserveSpace = true;
-            if(_cells!=null) rt.SetCallback(UpdateCells);
+            if(_cells!=null) 
+            {
+                rt.SetCallback(UpdateCells);
+                UpdateCells();
+            }
             _list.Add(rt);
             return rt;
         }

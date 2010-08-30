@@ -273,27 +273,39 @@ namespace OfficeOpenXml
         internal MemoryStream EncryptPackage(byte[] package, ExcelEncryption encryption)
         {
             byte[] encryptionKey;
-            var encryptionInfo = CreateEncryptionInfo(encryption.Password, encryption.Algorithm == EncryptionAlgorithm.AES128 ? AlgorithmID.AES128 : encryption.Algorithm == EncryptionAlgorithm.AES192 ? AlgorithmID.AES192 : AlgorithmID.AES256, out encryptionKey);
+            //Create the Encryption Info. This also returns the Encryptionkey
+            var encryptionInfo = CreateEncryptionInfo(encryption.Password, 
+                    encryption.Algorithm == EncryptionAlgorithm.AES128 ? 
+                        AlgorithmID.AES128 : 
+                    encryption.Algorithm == EncryptionAlgorithm.AES192 ? 
+                        AlgorithmID.AES192 : 
+                        AlgorithmID.AES256, out encryptionKey);
+
             ILockBytes lb;
-            IStorage storage = null;
-            MemoryStream ret = null;
             var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
 
+            IStorage storage = null;
+            MemoryStream ret = null;
+
+            //Create the document in-memory
             if (StgCreateDocfileOnILockBytes(lb,
                     STGM.CREATE | STGM.READWRITE | STGM.SHARE_EXCLUSIVE | STGM.TRANSACTED, 
                     0,
                     out storage)==0)
             {
+                //First create the dataspace storage
                 CreateDataSpaces(storage);
 
+                //Create the Encryption info Stream
                 comTypes.IStream stream;
-
                 storage.CreateStream("EncryptionInfo", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), (uint)0, (uint)0, out stream);
                 byte[] ei=encryptionInfo.WriteBinary();
                 stream.Write(ei, ei.Length, IntPtr.Zero);
                 stream = null;
 
+                //Encrypt the package
                 byte[] encryptedPackage=EncryptData(encryptionKey, package, false);
+
                 storage.CreateStream("EncryptedPackage", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), (uint)0, (uint)0, out stream);
 
                 //Write Size here
@@ -302,13 +314,15 @@ namespace OfficeOpenXml
                 bw.Write((ulong)package.LongLength);
                 bw.Flush();
                 byte[] length = ms.ToArray();
-
+                //Write Encrypted data length first as an unsigned long
                 stream.Write(length, length.Length, IntPtr.Zero);
+                //And now the Encrypted data
                 stream.Write(encryptedPackage, encryptedPackage.Length, IntPtr.Zero);
                 stream = null;
                 storage.Commit(0);
                 lb.Flush();
 
+                //Now copy the unmanaged stream to a byte array --> memory stream
                 var statstg = new comTypes.STATSTG();
                 lb.Stat(out statstg, 0);
                 int size = (int)statstg.cbSize;
@@ -317,6 +331,7 @@ namespace OfficeOpenXml
                 byte[] pack=new byte[size];
                 lb.ReadAt(0, buffer, size, out readSize);
                 Marshal.Copy(buffer, pack, 0, size);
+                Marshal.FreeHGlobal(buffer);
 
                 ret = new MemoryStream();
                 ret.Write(pack, 0, size);
@@ -533,7 +548,7 @@ namespace OfficeOpenXml
             IEnumSTATSTG pIEnumStatStg = null;
             storage.EnumElements(0, IntPtr.Zero, 0, out pIEnumStatStg);
 
-            System.Runtime.InteropServices.ComTypes.STATSTG[] regelt = { statstg };
+            comTypes.STATSTG[] regelt = { statstg };
             uint fetched = 0;
             uint res = pIEnumStatStg.Next(1, regelt, out fetched);
 
@@ -551,12 +566,15 @@ namespace OfficeOpenXml
                     {
                         case "EncryptionInfo":
                             data = GetOleStream(storage, statstg);
-                            File.WriteAllBytes(@"c:\temp\EncInfo1.bin", data);
+                            //File.WriteAllBytes(@"c:\temp\EncInfo1.bin", data);
                             encryptionInfo = new EncryptionInfo();
                             encryptionInfo.ReadBinary(data);
 
-                            encryption.Algorithm = encryptionInfo.Header.AlgID == AlgorithmID.AES128 ? EncryptionAlgorithm.AES128 :
-                                encryptionInfo.Header.AlgID == AlgorithmID.AES192 ? EncryptionAlgorithm.AES192 : EncryptionAlgorithm.AES256;
+                            encryption.Algorithm = encryptionInfo.Header.AlgID == AlgorithmID.AES128 ? 
+                                EncryptionAlgorithm.AES128 :
+                            encryptionInfo.Header.AlgID == AlgorithmID.AES192 ? 
+                                EncryptionAlgorithm.AES192 : 
+                                EncryptionAlgorithm.AES256;
                             break;
                         case "EncryptedPackage":
                             data = GetOleStream(storage, statstg);
@@ -695,9 +713,9 @@ namespace OfficeOpenXml
 
             dataStream = new MemoryStream(encryptionInfo.Verifier.EncryptedVerifierHash);
 
-            cryptoStream = new CryptoStream(dataStream,
-                                                          decryptor,
-                                                          CryptoStreamMode.Read);
+            cryptoStream = new CryptoStream(    dataStream,
+                                                decryptor,
+                                                CryptoStreamMode.Read);
 
             //Decrypt the verifier hash
             var decryptedVerifierHash = new byte[16];

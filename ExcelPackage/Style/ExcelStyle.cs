@@ -212,7 +212,7 @@ namespace OfficeOpenXml.Style
         }
 
 
-        const string xfIdPath = "@xfid";
+        const string xfIdPath = "@xfId";
         public int XfId 
         {
             get

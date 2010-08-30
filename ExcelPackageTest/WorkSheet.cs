@@ -440,5 +440,42 @@ namespace ExcelPackageTest
 
             ws.Select(new ExcelAddress("3:4,E5:F6"));
         }
+        [TestMethod]
+        public void StyleNameTest()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("StyleNameTest");
+
+            ws.Cells[1, 1].Value = "R1 C1";
+            ws.Cells[1, 2].Value = "R1 C2";
+            ws.Cells[1, 3].Value = "R1 C3";
+            ws.Cells[2, 1].Value = "R2 C1";
+            ws.Cells[2, 2].Value = "R2 C2";
+            ws.Cells[2, 3].Value = "R2 C3";
+
+            var ns=_pck.Workbook.Styles.CreateNamedStyle("TestStyle");
+            ns.Style.Font.Bold = true;
+
+            ws.Cells["A1:C1"].StyleName = "TestStyle";
+            ws.defaultRowHeight = 35;
+        }
+        [TestMethod]
+        public void ValueError()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("ValueError");
+
+            ws.Cells[1, 1].Value = "Domestic Violence&#xB; and the Professional";
+            var rt=ws.Cells[1, 2].RichText.Add("Domestic Violence&#xB; and the Professional 2");
+            TestContext.WriteLine(rt.Bold.ToString());
+            rt.Bold = true;
+            TestContext.WriteLine(rt.Bold.ToString());
+        }
+        [TestMethod]
+        public void FormulaError()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("FormulaError");
+
+            ws.Cells["A1:K3"].Formula = "A3+A4";
+            //ws.Cells["B2:I2"].Formula = "";   //Error
+        }
     }
 }

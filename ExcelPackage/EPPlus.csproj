@@ -108,6 +108,7 @@
     <Compile Include="Style\XmlAccess\ExcelFontXml.cs" />
     <Compile Include="Style\XmlAccess\ExcelNumberFormatXml.cs" />
     <Compile Include="Style\StyleChangeEventArgs.cs" />
+    <Compile Include="Table\ExcelTable.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
