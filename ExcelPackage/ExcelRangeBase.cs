@@ -36,6 +36,7 @@ using System.Xml;
 using System.Drawing;
 using System.Globalization;
 using System.Collections;
+using OfficeOpenXml.Table;
 
 namespace OfficeOpenXml
 {
@@ -669,6 +670,13 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Public Methods"
+        public void LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
+        {
+            LoadFromDataTable(Table, PrintHeaders);
+            var tbl=_worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow+Table.Rows.Count, _fromCol+Table.Columns.Count), Table.TableName);
+            tbl.ShowHeader = PrintHeaders;
+            tbl.TableStyle = TableStyle;
+        }
         /// <summary>
         /// Load the data from the datatable starting from the top left cell of the range
         /// </summary>
