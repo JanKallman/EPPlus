@@ -45,6 +45,7 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
+using OfficeOpenXml.Table;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -166,7 +167,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF"};
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF", "tableParts" };
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -1595,6 +1596,7 @@ namespace OfficeOpenXml
                 }
 
                 SaveComments();
+                SaveTables();
                 SaveXml();
 				// save worksheet to package
                 //PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
@@ -1708,7 +1710,96 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Save all table data
+        /// </summary>
+        private void SaveTables()
+        {
+            foreach (var tbl in Tables)
+            {
+                if (tbl.ShowHeader || tbl.ShowTotal)
+                {
+                    int colNum = tbl.Address._fromCol;
+                    foreach (var col in tbl.Columns)
+                    {
+                        if (tbl.ShowHeader)
+                        {
+                            Cell(tbl.Address._fromRow, colNum).Value = col.Name;
+                        }
+                        if (tbl.ShowTotal)
+                        {
+                            if (col.TotalsRowFunction == RowFunctions.Custom)
+                            {
+                                Cell(tbl.Address._toRow, colNum).Formula = col.TotalsRowFormula;
+                            }
+                            else if (col.TotalsRowFunction != RowFunctions.None)
+                            {
+                                switch (col.TotalsRowFunction)
+                                {
+                                    case RowFunctions.Average:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "101");
+                                        break;
+                                    case RowFunctions.Count:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "102");
+                                        break;
+                                    case RowFunctions.CountNums:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "103");
+                                        break;
+                                    case RowFunctions.Max:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "104");
+                                        break;
+                                    case RowFunctions.Min:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "105");
+                                        break;
+                                    case RowFunctions.StdDev:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "107");
+                                        break;
+                                    case RowFunctions.Var:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "110");
+                                        break;
+                                    case RowFunctions.Sum:
+                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "109");
+                                        break;
+                                    default:
+                                        throw (new Exception("Unknown RowFunction enum"));
+                                }
+                            }
+                            else
+                            {
+                                Cell(tbl.Address._toRow, colNum).Value = col.TotalsRowLabel;
+                            }
+                        }
+                        colNum++;
+                    }
+                }                
+                if (tbl.Part == null)
+                {
+                    tbl.TableUri = new Uri(string.Format(@"/xl/tables/table{0}.xml", tbl.Id), UriKind.Relative);
+                    tbl.Part = xlPackage.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml");
+                    var stream = tbl.Part.GetStream(FileMode.Create);
+                    tbl.TableXml.Save(stream);
+                    var rel = Part.CreateRelationship(tbl.TableUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                    tbl.RelationshipID = rel.Id;
 
+                    CreateNode("d:tableParts");
+                    XmlNode tbls = TopNode.SelectSingleNode("d:tableParts",NameSpaceManager);
+
+                    var tblNode = tbls.OwnerDocument.CreateElement("tablePart",ExcelPackage.schemaMain);
+                    tbls.AppendChild(tblNode);
+                    tblNode.SetAttribute("id",ExcelPackage.schemaRelationships, rel.Id);
+                }
+                else
+                {
+                    var stream = tbl.Part.GetStream(FileMode.Create);
+                    tbl.TableXml.Save(stream);
+                }
+            }
+        }
+
+        private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
+        {
+            return string.Format("SUBTOTAL({0},[{1}])", FunctionNum, col.Name);
+        }
         private void SaveXml()
         {
             //Create the nodes if they do not exist.
@@ -2079,7 +2170,7 @@ namespace OfficeOpenXml
             return _worksheetXml.DocumentElement.InsertAfter(hl, prevNode);
         }
         /// <summary>
-        /// Dimension address if the worksheet. 
+        /// Dimension address for the worksheet. 
         /// Top left cell to Bottom right.
         /// If the worksheet has no cells, null is returned
         /// </summary>
@@ -2113,24 +2204,6 @@ namespace OfficeOpenXml
                 return _protection;
             }
         }
-        //public void SetPrintArea(ExcelAddress address)
-        //{
-        //    if(Names.ContainsKey("_xlnm.Print_Area"))
-        //    {
-        //        Names["_xlnm.Print_Area"].Address = ExcelAddress.GetFullAddress(Name, address.Address);
-        //    }
-        //    else
-        //    {
-        //        Names.Add("_xlnm.Print_Area", Cells[address.Address]);
-        //    }
-        //}
-        //public void ClearPrintArea()
-        //{
-        //    if(Names.ContainsKey("_xlnm.Print_Area"))
-        //    {
-        //        Names.Remove("_xlnm.Print_Area");
-        //    }
-        //}
         #region Drawing
         ExcelDrawings _drawings = null;
         /// <summary>
@@ -2148,7 +2221,21 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-
+        ExcelTableCollection _tables = null;
+        /// <summary>
+        /// Tables defined in the worksheet.
+        /// </summary>
+        public ExcelTableCollection Tables
+        {
+            get
+            {
+                if (_tables == null)
+                {
+                    _tables = new ExcelTableCollection(this);
+                }
+                return _tables;
+            }
+        }
 		/// <summary>
 		/// Returns the style ID given a style name.  
 		/// The style ID will be created if not found, but only if the style name exists!

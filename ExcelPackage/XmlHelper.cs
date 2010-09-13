@@ -223,7 +223,15 @@ namespace OfficeOpenXml
             var node = TopNode.SelectSingleNode(path, NameSpaceManager);
             if (node != null)
             {
-                node.ParentNode.RemoveChild(node);
+                if (node is XmlAttribute)
+                {
+                    var att = (XmlAttribute)node;
+                    att.OwnerElement.Attributes.Remove(att);
+                }
+                else
+                {
+                    node.ParentNode.RemoveChild(node);
+                }
             }
         }
         internal void SetXmlNodeString(string path, string value)

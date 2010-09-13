@@ -70,7 +70,7 @@ namespace EPPlusSamples
             ws.Cells["B1"].Value = "Text";
             ws.Cells["C1"].Value = "Date";
             ws.Cells["D1"].Value = "Number";
-            ws.Cells["E1"].Value = "For-\r\nmula";
+            ws.Cells["E1"].Value = "Formula";
             ws.View.FreezePanes(2, 1);
 
             using(var rng = ws.Cells["A1:E1"])
@@ -95,13 +95,13 @@ namespace EPPlusSamples
             ws.Cells[2, 3, Rows + 1, 4].Style.Fill.PatternType = ExcelFillStyle.Solid;
             ws.Cells[2, 3, Rows + 1, 4].Style.Fill.BackgroundColor.SetColor(Color.White);
             ws.Cells[1, 5, Rows + 2, 5].Style.Hidden = true;    //Hide the formula
+
             ws.Protection.SetPassword("EPPlus");
 
             ws.Select("C2");
             Console.WriteLine("{0:HH.mm.ss}\tSaving...", DateTime.Now);
             package.SaveAs(newFile);
             Console.WriteLine("{0:HH.mm.ss}\tDone!!", DateTime.Now);
-            
         }
     }
 }

@@ -477,5 +477,51 @@ namespace ExcelPackageTest
             ws.Cells["A1:K3"].Formula = "A3+A4";
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
+        [TestMethod]
+        public void TableTest()
+        {            
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            ws.Cells["B1"].Value = 123;
+            var tbl = ws.Tables.Add(ws.Cells["B1:U12"], "TestTable");
+            tbl.TableStyle = OfficeOpenXml.Table.TableStyles.Custom;
+
+            tbl.ShowFirstColumn = true;
+            tbl.ShowTotal = true;
+            tbl.ShowHeader = true;
+            tbl.ShowLastColumn = true;
+
+            ws.Cells["K2"].Value = 5;
+            ws.Cells["J3"].Value = 4;
+
+            tbl.Columns[8].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
+            tbl.Columns[9].TotalsRowFormula = string.Format("SUM([{0}])",tbl.Columns[9].Name);
+
+            ws.Cells["B2"].Value = 1;
+            ws.Cells["B3"].Value = 2;
+            ws.Cells["B4"].Value = 3;
+            ws.Cells["B5"].Value = 4;
+            ws.Cells["B6"].Value = 5;
+            ws.Cells["B7"].Value = 6;
+            ws.Cells["B8"].Value = 7;
+            ws.Cells["B9"].Value = 8;
+            ws.Cells["B10"].Value = 9;
+            ws.Cells["B11"].Value = 10;
+            ws.Cells["B12"].Value = 11;
+
+
+            ws.Cells["C7"].Value = "Table test";
+            ws.Cells["C8"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            ws.Cells["C8"].Style.Fill.BackgroundColor.SetColor(Color.Red);
+
+            tbl=ws.Tables.Add(ws.Cells["a12:a13"], "Table2");
+
+            tbl = ws.Tables.Add(ws.Cells["C16:Y35"], "Table3");
+            tbl.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
+            tbl.ShowFirstColumn = true;
+            tbl.ShowLastColumn = true;
+            tbl.ShowColumnStripes = true;
+            tbl.Columns[2].Name = "Test Column Name";
+        
+        }
     }
 }

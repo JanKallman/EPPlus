@@ -541,7 +541,7 @@ namespace OfficeOpenXml
         private MemoryStream GetStreamFromPackage(IStorage storage, ExcelEncryption encryption)
         {
             MemoryStream ret=null;        
-            System.Runtime.InteropServices.ComTypes.STATSTG statstg;
+            comTypes.STATSTG statstg;
 
             storage.Stat(out statstg, (uint)STATFLAG.STATFLAG_DEFAULT);
 

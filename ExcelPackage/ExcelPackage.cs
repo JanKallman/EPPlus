@@ -63,8 +63,6 @@ namespace OfficeOpenXml
         protected internal const string schemaMicrosoftOffice = "urn:schemas-microsoft-com:office:office";
         protected internal const string schemaMicrosoftExcel = "urn:schemas-microsoft-com:office:excel";
 
-        
-
         protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
         protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
         protected internal const string schemaComment = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments";
