@@ -520,8 +520,79 @@ namespace ExcelPackageTest
             tbl.ShowFirstColumn = true;
             tbl.ShowLastColumn = true;
             tbl.ShowColumnStripes = true;
-            tbl.Columns[2].Name = "Test Column Name";
-        
+            tbl.Columns[2].Name = "Test Column Name";        
+        }
+
+        [TestMethod]
+        public void Stylebug()
+        {
+            ExcelPackage p = new ExcelPackage(new FileInfo(@"c:\temp\FullProjecte.xlsx"));
+
+            var ws = p.Workbook.Worksheets.First();
+            ws.Cells[12, 1].Value = 0;
+            ws.Cells[12, 2].Value = new DateTime(2010,9,14);
+            ws.Cells[12, 3].Value = "Federico Lois";
+            ws.Cells[12, 4].Value = "Nakami";
+            ws.Cells[12, 5].Value = "Hores";
+            ws.Cells[12, 7].Value = 120;
+            ws.Cells[12, 8].Value="A definir";
+            ws.Cells[12, 9].Value = new DateTime(2010,9,14);
+            ws.Cells[12, 10].Value = new DateTime(2010,9,14);
+            ws.Cells[12, 11].Value = "Transferència";
+
+            ws.InsertRow(13, 1, 12);
+            ws.Cells[13, 1].Value = 0;
+            ws.Cells[13, 2].Value = new DateTime(2010, 9, 14);
+            ws.Cells[13, 3].Value = "Federico Lois";
+            ws.Cells[13, 4].Value = "Nakami";
+            ws.Cells[13, 5].Value = "Hores";
+            ws.Cells[13, 7].Value = 120;
+            ws.Cells[13, 8].Value = "A definir";
+            ws.Cells[13, 9].Value = new DateTime(2010, 9, 14);
+            ws.Cells[13, 10].Value = new DateTime(2010, 9, 14);
+            ws.Cells[13, 11].Value = "Transferència";
+
+            ws.InsertRow(14, 1, 13);
+
+            ws.InsertRow(19, 1, 19);
+            ws.InsertRow(26, 1, 26);
+            ws.InsertRow(33, 1, 33);
+            p.SaveAs(new FileInfo(@"c:\temp\FullProjecte_new.xlsx"));
+        }
+        [TestMethod]
+        public void FormulaOverwrite()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("FormulaOverwrite");
+            //Inside
+            ws.Cells["A1:G12"].Formula = "B1+C1";
+            ws.Cells["B2:C3"].Formula = "G2+E1";
+
+
+            //Top bottom overwrite
+            ws.Cells["A14:G26"].Formula = "B1+C1+D1";
+            ws.Cells["B13:C28"].Formula = "G2+E1";
+
+            //Top bottom overwrite
+            ws.Cells["B30:E42"].Formula = "B1+C1+$D$1";
+            ws.Cells["A32:H33"].Formula = "G2+E1";
+
+            ws.Cells["A50:A59"].CreateArrayFormula("C50+D50");
+
+            ws.Cells["A15"].Value = "Värde";
+            ws.Cells["C12"].AddComment("Test", "JJOD");
+            ws.Cells["D12:I12"].Merge = true;
+            ws.Cells["D12:I12"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            ws.Cells["D12:I12"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
+            ws.Cells["D12:I12"].Style.WrapText = true;
+        }
+        [TestMethod]
+        public void DefinedName()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Names");
+            ws.Names.Add("RefError", ws.Cells["#REF!"]);
+
+            ws.Cells["A1"].Value = "Test";
+            ws.Cells["A1"].Style.Font.Size = 8.5F;
         }
     }
 }

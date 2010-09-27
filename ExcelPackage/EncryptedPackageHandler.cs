@@ -843,7 +843,7 @@ namespace OfficeOpenXml
         {
             if (password == "")
             {
-                password = "VelvetSweatshop";   //Used if Password if blank
+                password = "VelvetSweatshop";   //Used if Password is blank
             }
             // Convert password to unicode...
             byte[] passwordBuf = UnicodeEncoding.Unicode.GetBytes(password);

@@ -57,7 +57,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             base(nsm, topNode)
         {
             _name = GetXmlNodeString(namePath);
-            _size = GetXmlNodeInt(sizePath);
+            _size = (float)GetXmlNodeDecimal(sizePath);
             _family = GetXmlNodeInt(familyPath);
             _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
@@ -240,7 +240,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_strike) CreateNode(strikePath); else DeleteAllNode(strikePath);
             if (_underline) CreateNode(underLinedPath); else DeleteAllNode(underLinedPath);
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
-            SetXmlNodeString(sizePath, _size.ToString());
+            SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (_color.Exists)
             {
                 CreateNode(_colorPath);

@@ -75,6 +75,7 @@ namespace OfficeOpenXml
         {
             internal int Index { get; set; }
             internal string Address { get; set; }
+            internal bool IsArray { get; set; }
             public string Formula { get; set; }
             public int StartRow { get; set; }
             public int StartCol { get; set; }
@@ -129,6 +130,7 @@ namespace OfficeOpenXml
         internal RangeCollection _rows;
 
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
+        internal Dictionary<int, Formulas> _arrayFormulas = new Dictionary<int, Formulas>();
         internal RangeCollection _formulaCells;
         internal static CultureInfo _ci=new CultureInfo("en-US");
         internal int _minCol = ExcelPackage.MaxColumns;
@@ -167,7 +169,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawingHF", "tableParts" };
+            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawing", "legacyDrawingHF", "tableParts" };
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -847,8 +849,10 @@ namespace OfficeOpenXml
                     }
                     else if (t == "array") //TODO: Array functions are not support yet. Read the formula for the start cell only.
                     {
+                        string address = xr.GetAttribute("ref");
                         cell._formula = xr.ReadElementContentAsString();
-                        formulaList.Add(cell);
+                        cell._sharedFormulaID = GetMaxShareFunctionIndex(true); //We use the shared formula id here, just so we can use the same dictionary for both Array and Shared forulas.
+                        _sharedFormulas.Add(cell._sharedFormulaID, new Formulas() { Index = cell._sharedFormulaID, Formula = cell._formula, Address = address, StartRow = cell.Row, StartCol = cell.Column, IsArray = true });
                     }
                     else // ??? some other type
                     {
@@ -1401,7 +1405,7 @@ namespace OfficeOpenXml
             //Add new formulas
             foreach (Formulas f in added)
             {
-                f.Index = GetMaxShareFunctionIndex();
+                f.Index = GetMaxShareFunctionIndex(false);
                 _sharedFormulas.Add(f.Index, f);
                 Cells[f.Address].SetSharedFormulaID(f.Index);
             }
@@ -2030,7 +2034,19 @@ namespace OfficeOpenXml
                     {
                         if (f.StartCol == cell.Column && f.StartRow == cell.Row)
                         {
-                            sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
+                            if (f.IsArray)
+                            {
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula));
+                            }
+                            else
+                            {
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
+                            }
+                            
+                        }
+                        else if (f.IsArray)
+                        {
+                            sw.Write("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
                         }
                         else
                         {
@@ -2265,9 +2281,18 @@ namespace OfficeOpenXml
 		#endregion
         #endregion  // END Worksheet Private Methods
 
-        internal int GetMaxShareFunctionIndex()
+        /// <summary>
+        /// Get the next ID from a shared formula or an Array formula
+        /// Sharedforumlas will have an id from 0-x. Array formula ids start from 0x4000001-. 
+        /// </summary>
+        /// <param name="isArray">If the formula is an array formula</param>
+        /// <returns></returns>
+        internal int GetMaxShareFunctionIndex(bool isArray)
         {
-            int i = _sharedFormulas.Count + 1;
+            int i=_sharedFormulas.Count + 1;
+            if (isArray)
+                i |= 0x40000000;
+
             while(_sharedFormulas.ContainsKey(i))
             {
                 i++;

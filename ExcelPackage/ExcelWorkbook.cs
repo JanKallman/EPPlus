@@ -156,7 +156,14 @@ namespace OfficeOpenXml
                     ExcelNamedRange namedRange;
                     if (localSheetID > -1)
                     {
-                        namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
+                        if (string.IsNullOrEmpty(addr._ws))
+                        {
+                            namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[localSheetID + 1], fullAddress));
+                        }
+                        else
+                        {
+                            namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
+                        }
                     }
                     else
                     {
@@ -654,7 +661,7 @@ namespace OfficeOpenXml
                         top.AppendChild(elem);
                         elem.SetAttribute("name", name.Name);
                         if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                        elem.InnerText = name.FullAddress;
+                        elem.InnerText = name.FullAddressAbsolute;
                     }
                 }
                 foreach (ExcelWorksheet ws in _worksheets)
@@ -673,7 +680,7 @@ namespace OfficeOpenXml
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                throw new Exception("Internal error updating named ranges ",ex);
             }
         }
         /// <summary>

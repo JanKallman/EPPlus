@@ -161,19 +161,24 @@ namespace OfficeOpenXml
         }
         private void Set_Value(object value, int row, int col)
         {
+            ExcelCell c = _worksheet.Cell(row, col);
+            if (c._sharedFormulaID > 0) SplitFormulas();
             _worksheet.Cell(row, col).Value = value;
         }
         private void Set_Formula(object value, int row, int col)
         {
-            string formula=value.ToString();
+            ExcelCell c = _worksheet.Cell(row, col);
+            if (c._sharedFormulaID > 0) SplitFormulas();
+
+            string formula = value.ToString();
             if (string.IsNullOrEmpty(formula))
             {
-                _worksheet.Cell(row, col).Formula = string.Empty;
+                c.Formula = string.Empty;
             }
             else
             {
                 if (formula[0] == '=') value = formula.Substring(1, formula.Length - 1); // remove any starting equalsign.
-                _worksheet.Cell(row,col).Formula = formula;
+                c.Formula = formula;
             }
         }
         /// <summary>
@@ -181,7 +186,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="value"></param>
         /// <param name="address"></param>
-        private void Set_SharedFormula(string value, ExcelAddress address)
+        private void Set_SharedFormula(string value, ExcelAddress address, bool IsArray)
         {
             if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column)             //is it really a shared formula?
             {
@@ -189,10 +194,39 @@ namespace OfficeOpenXml
                 Set_Formula(value, address.Start.Row, address.Start.Column);
                 return;
             }
+            //RemoveFormuls(address);
+            CheckAndSplitSharedFormula();
+            ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas();
+            f.Formula = value;
+            f.Index = _worksheet.GetMaxShareFunctionIndex(IsArray);
+            f.Address = address.FirstAddress;
+            f.StartCol = address.Start.Column;
+            f.StartRow = address.Start.Row;
+            f.IsArray = IsArray;
+
+            _worksheet._sharedFormulas.Add(f.Index, f);
+            _worksheet.Cell(address.Start.Row, address.Start.Column).SharedFormulaID = f.Index;
+            _worksheet.Cell(address.Start.Row, address.Start.Column).Formula = value;
+
+            for (int col = address.Start.Column; col <= address.End.Column; col++)
+            {
+                for (int row = address.Start.Row; row <= address.End.Row; row++)
+                {
+                    _worksheet.Cell(row, col).SharedFormulaID = f.Index;
+                }
+            }
+       }
+        /// <summary>
+        /// Handles array formulas
+        /// </summary>
+        /// <param name="value"></param>
+        /// <param name="address"></param>
+        private void Set_ArrayFormula(string value, ExcelAddress address)
+        {
             RemoveFormuls(address);
             ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas();
             f.Formula = value;
-            f.Index = _worksheet.GetMaxShareFunctionIndex();
+            f.Index = _worksheet.GetMaxShareFunctionIndex(true);
             f.Address = address.FirstAddress;
             f.StartCol = address.Start.Column;
             f.StartRow = address.Start.Row;
@@ -208,7 +242,7 @@ namespace OfficeOpenXml
                     _worksheet.Cell(row, col).SharedFormulaID = f.Index;
                 }
             }
-       }
+        }
         private void Set_HyperLink(object value, int row, int col)
         {
             _worksheet.Cell(row, col).Hyperlink = value as Uri;
@@ -312,19 +346,19 @@ namespace OfficeOpenXml
                 return _worksheet.Cell(_fromRow, _fromCol).Formula;
             }
             set
-            {                
-                if(_fromRow==_toRow && _fromCol==_toCol)
+            {
+                if (_fromRow == _toRow && _fromCol == _toCol)
                 {
                     Set_Formula(value, _fromRow, _fromCol);
                 }
                 else
                 {
-                    Set_SharedFormula(value, this);
+                    Set_SharedFormula(value, this, false);
                     if (Addresses != null)
                     {
                         foreach (var address in Addresses)
                         {
-                            Set_SharedFormula(value, address);
+                            Set_SharedFormula(value, address, false);
                         }
                     }
                 }
@@ -345,14 +379,14 @@ namespace OfficeOpenXml
 
                 if (Addresses == null)
                 {
-                    Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, _fromRow, _fromCol), this);
+                    Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, _fromRow, _fromCol), this,false);
                 }
                 else
                 {
-                    Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(FirstAddress));
+                    Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(FirstAddress), false);
                     foreach (var address in Addresses)
                     {
-                        Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address);
+                        Set_SharedFormula(ExcelCell.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address, false);
                     }
                 }
             }
@@ -464,6 +498,13 @@ namespace OfficeOpenXml
             set
             {
                 _changePropMethod(Set_IsRichText, value);
+            }
+        }
+        public bool IsArrayFormula
+        {
+            get
+            {
+                return _worksheet.Cell(_fromRow, _fromCol).IsArrayFormula;
             }
         }
         ExcelRichTextCollection _rtc = null;
@@ -668,6 +709,176 @@ namespace OfficeOpenXml
                     }
                 }
         }
+        private void CheckAndSplitSharedFormula()
+        {            
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
+                    if (_worksheet.Cell(row, col).SharedFormulaID >= 0)
+                    {
+                        SplitFormulas();
+                        return;
+                    }
+                }
+            }
+            
+            //foreach (var ix in _worksheet._sharedFormulas.Keys)
+            //{
+            //    var f = _worksheet._sharedFormulas[ix];
+            //    var collide = new ExcelAddressBase(f.Address).Collide(this);
+            //    if (collide != eAddressCollition.Inside)
+            //    {
+            //        _worksheet._sharedFormulas.Remove(ix);
+            //    }
+            //    else if(collide != eAddressCollition.Partly)
+            //    {
+            //        SplitFormula(ix,f);
+            //    }
+            //}
+        }
+
+        private void SplitFormulas()
+        {
+            List<int> formulas=new List<int>();
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
+                    int id = _worksheet.Cell(row, col).SharedFormulaID;
+                    if (id >= 0 && !formulas.Contains(id))
+                    {
+                        if (_worksheet._sharedFormulas[id].IsArray && 
+                            Collide(_worksheet.Cells[_worksheet._sharedFormulas[id].Address])==eAddressCollition.Partly) // If the formula is an array formula and its on inside the overwriting range throw an exception
+                        {
+                            throw (new Exception("Can not overwrite a part of an array-formula"));
+                        }
+                        formulas.Add(_worksheet.Cell(row, col).SharedFormulaID);
+                    }
+                }
+            }
+
+            foreach (int ix in formulas)
+            {
+                SplitFormula(ix);
+            }
+        }
+
+        private void SplitFormula(int ix)
+        {
+            var f = _worksheet._sharedFormulas[ix];
+            var fRange = _worksheet.Cells[f.Address];
+            var collide = Collide(fRange);
+            
+            //The formula is inside the currenct range, remove it
+            if (collide == eAddressCollition.Inside)
+            {
+                _worksheet._sharedFormulas.Remove(ix);
+                fRange.SetSharedFormulaID(int.MinValue);
+            }
+            else if (collide == eAddressCollition.Partly)
+            {
+                //The formula partly collides with the current range
+                bool fIsSet = false;
+                string formulaR1C1 = fRange.FormulaR1C1;
+                //Top Range
+                if (fRange._fromRow < _fromRow)
+                {
+                    f.Address = ExcelCell.GetAddress(fRange._fromRow, fRange._fromCol, _fromRow - 1, fRange._toCol);
+                    fIsSet=true;
+                }
+                //Left Range
+                if (fRange._fromCol < _fromCol)
+                {
+                    if (fIsSet)
+                    {
+                        f = new ExcelWorksheet.Formulas();
+                        f.Index = _worksheet.GetMaxShareFunctionIndex(false);
+                        f.StartCol = fRange._fromCol;
+                        f.IsArray = false;
+                        _worksheet._sharedFormulas.Add(f.Index, f);
+                    }
+                    else
+                    {
+                        fIsSet = true;                        
+                    }
+                    if (fRange._fromRow < _fromRow)
+                        f.StartRow = _fromRow;
+                    else
+                    {
+                        f.StartRow = fRange._fromRow;
+                    }
+                    if (fRange._toRow < _toRow)
+                    {
+                        f.Address = ExcelCell.GetAddress(f.StartRow, f.StartCol,
+                            fRange._toRow, _fromCol - 1);
+                    }
+                    else
+                    {
+                        f.Address = ExcelCell.GetAddress(f.StartRow, f.StartCol,
+                           _toRow, _fromCol - 1);                    
+                    }
+                    f.Formula = TranslateFromR1C1(formulaR1C1, f.StartRow, f.StartCol);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+                }
+                //Right Range
+                if (fRange._toCol > _toCol)
+                {
+                    if (fIsSet)
+                    {
+                        f = new ExcelWorksheet.Formulas();
+                        f.Index = _worksheet.GetMaxShareFunctionIndex(false);
+                        f.IsArray = false;
+                        _worksheet._sharedFormulas.Add(f.Index, f);
+                    }
+                    else
+                    {
+                        fIsSet = true;
+                    }
+                    f.StartCol = _toCol+1;
+                    if (_fromRow < fRange._fromRow)
+                        f.StartRow = fRange._fromRow;
+                    else
+                    {
+                        f.StartRow = _fromRow;
+                    }
+
+                    if (fRange._toRow < _toRow)
+                    {
+                        f.Address = ExcelCell.GetAddress(f.StartRow, f.StartCol,
+                            fRange._toRow, fRange._toCol);
+                    }
+                    else
+                    {
+                        f.Address = ExcelCell.GetAddress(f.StartRow, f.StartCol,
+                            _toRow, fRange._toCol);
+                    }
+                        f.Formula = TranslateFromR1C1(formulaR1C1, f.StartRow, f.StartCol);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+                }
+                //Bottom Range
+                if (fRange._toRow > _toRow)
+                {
+                    if (fIsSet)
+                    {
+                        f = new ExcelWorksheet.Formulas();
+                        f.Index = _worksheet.GetMaxShareFunctionIndex(false);
+                        f.IsArray = false;
+                        _worksheet._sharedFormulas.Add(f.Index, f);
+                    }
+
+                    f.StartCol = fRange._fromCol;
+                    f.StartRow = _toRow + 1;
+
+                    f.Formula = TranslateFromR1C1(formulaR1C1, f.StartRow, f.StartCol);
+
+                    f.Address = ExcelCell.GetAddress(f.StartRow, f.StartCol,
+                        fRange._toRow, fRange._toCol);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+
+                }
+            }
+        }
         #endregion
         #region "Public Methods"
         public void LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
@@ -686,7 +897,7 @@ namespace OfficeOpenXml
         {
             if (Table == null)
             {
-                throw (new Exception("Table can't be null"));
+                throw (new ArgumentNullException("Table can't be null"));
             }
 
             int col = _fromCol, row = _fromRow;
@@ -709,6 +920,30 @@ namespace OfficeOpenXml
                 col = _fromCol;
             }
         }
+        /// <summary>
+		/// Loads data from the collection of arrays of objects into the range, starting from
+		/// the top-left cell.
+		/// </summary>
+		/// <param name="Data">The data.</param>
+		public ExcelRangeBase LoadFromArrays(IEnumerable<object[]> Data)
+		{
+			//thanx to Abdullin for the code contibution
+            if (Data == null) throw new ArgumentNullException("data");
+
+            int column = _fromCol, row = _fromRow;
+
+			foreach (var rowData in Data)
+			{
+                column = _fromCol;
+                foreach (var cellData in rowData)
+				{
+					_worksheet.Cell(row, column).Value = cellData;
+					column += 1;
+				}
+				row += 1;
+			}
+            return _worksheet.Cells[_fromRow,_fromCol, row-1, column-1];
+		}
         /// <summary>
         /// Get a range with an offset from the top left cell.
         /// The new range has the same dimensions as the current range
@@ -826,6 +1061,18 @@ namespace OfficeOpenXml
         public void Clear()
         {
             Delete(this);
+        }
+        /// <summary>
+        /// Create an array-formula.
+        /// </summary>
+        /// <param name="ArrayFormula">The formula</param>
+        public void CreateArrayFormula(string ArrayFormula)
+        {
+            if (Addresses != null)
+            {
+                throw (new Exception("An Arrayformula can not have more than one address"));
+            }
+            Set_SharedFormula(ArrayFormula, this,true);
         }
         private void Delete(ExcelAddressBase Range)
         {

@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 namespace OfficeOpenXml.Style.XmlAccess
 {
     /// <summary>
@@ -150,7 +151,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 SetXmlNodeString("@theme", _theme.ToString());
-                SetXmlNodeString("@tint", _tint.ToString());
+                SetXmlNodeString("@tint", _tint.ToString(CultureInfo.InvariantCulture));
             }
             return TopNode;
         }

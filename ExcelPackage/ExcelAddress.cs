@@ -196,6 +196,11 @@ namespace OfficeOpenXml
         {
             string first="", second="";
             bool isText=false, hasSheet=false;
+            if (fullAddress == "#REF!")
+            {
+                SetAddress(ref fullAddress, ref second, ref hasSheet );
+                return;
+            }
             foreach (char c in fullAddress)
             {
                 if(c=='\'')
@@ -204,7 +209,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if(c=='!' && !isText)
+                    if(c=='!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
                     {
                         hasSheet=true;
                     }
