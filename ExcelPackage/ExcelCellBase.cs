@@ -205,12 +205,13 @@ namespace OfficeOpenXml
             }
 
             int cStart = check.IndexOf("C");
+            bool absoluteRow, absoluteCol;
             if (cStart == -1)
             {
-                int RNum = GetRC(part.Substring(1, cStart), row);
+                int RNum = GetRC(part.Substring(1, cStart), row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
-                    return GetAddress(RNum, col); ;
+                    return GetAddress(RNum, absoluteRow, col, false); 
                 }
                 else
                 {
@@ -219,11 +220,11 @@ namespace OfficeOpenXml
             }
             else
             {
-                int RNum = GetRC(part.Substring(1, cStart - 1), row);
-                int CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col);
+                int RNum = GetRC(part.Substring(1, cStart - 1), row, out absoluteRow);
+                int CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
                 if (RNum > int.MinValue && CNum > int.MinValue)
                 {
-                    return GetAddress(RNum, CNum);
+                    return GetAddress(RNum,absoluteRow, CNum, absoluteCol);
                 }
                 else
                 {
@@ -290,12 +291,17 @@ namespace OfficeOpenXml
         /// <param name="value"></param>
         /// <param name="OffsetValue"></param>
         /// <returns></returns>
-        private static int GetRC(string value, int OffsetValue)
+        private static int GetRC(string value, int OffsetValue, out bool fixedAddr)
         {
-            if (value == "") return OffsetValue;
+            if (value == "")
+            {
+                fixedAddr = false;
+                return OffsetValue;
+            }
             int num;
             if (value[0] == '[' && value[value.Length - 1] == ']') //Offset?
             {
+                fixedAddr = false;
                 if (int.TryParse(value.Substring(1, value.Length - 2), out num))
                 {
                     return (OffsetValue + num);
@@ -307,6 +313,7 @@ namespace OfficeOpenXml
             }
             else
             {
+                fixedAddr = true;
                 if (int.TryParse(value, out num))
                 {
                     return num;
@@ -330,7 +337,8 @@ namespace OfficeOpenXml
 
             if (iColumnNumber < 1)
             {
-                throw new Exception("Column number is out of range");
+                //throw new Exception("Column number is out of range");
+                return "#REF!";
             }
 
             string sCol = "";
@@ -406,6 +414,13 @@ namespace OfficeOpenXml
             {
                 address = address.Substring(0, address.IndexOf(':'));
             }
+            if (address == "#REF!")
+            {
+                row = 0;
+                col = 0;
+                return true;
+            }
+
             for (int i = 0; i < address.Length; i++)
             {
                 if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)
@@ -481,8 +496,22 @@ namespace OfficeOpenXml
         /// <param name="Row">The number of the row</param>
         /// <param name="Column">The number of the column in the worksheet</param>
         /// <returns>The cell address in the format A1</returns>
+        public static string GetAddress(int Row, bool AbsoluteRow, int Column, bool AbsoluteCol)
+        {
+            return ( AbsoluteCol ? "$" : "") + GetColumnLetter(Column) + ( AbsoluteRow ? "$" : "") + Row.ToString();
+        }
+        /// <summary>
+        /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
+        /// </summary>
+        /// <param name="Row">The number of the row</param>
+        /// <param name="Column">The number of the column in the worksheet</param>
+        /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int Row, int Column, bool Absolute)
         {
+            if (Row == 0 || Column == 0)
+            {
+                return "#REF!";
+            }
             if (Absolute)
             {
                 return ("$" + GetColumnLetter(Column) + "$" + Row.ToString());
@@ -537,7 +566,7 @@ namespace OfficeOpenXml
         }
         public static string GetFullAddress(string worksheetName, string address)
         {
-               if (address.IndexOf("!") == -1)
+               if (address.IndexOf("!") == -1 || address=="#REF!")
                {
                    string[] cells = address.Split(':');
                    if (cells.Length > 0)

@@ -384,6 +384,7 @@ namespace OfficeOpenXml
                 if(_xlWorksheet._formulaCells.ContainsKey(CellID)) _xlWorksheet._formulaCells.Delete(CellID);
             }
         }
+        public bool IsArrayFormula { get; internal set; }
 
 		#region ExcelCell Comment
         ExcelComment _comment = null;

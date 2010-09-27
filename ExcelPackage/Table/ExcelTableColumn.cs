@@ -147,5 +147,53 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString(TOTALSROWFORMULA_PATH, value);
             }
         }
+        const string DATACELLSTYLE_PATH = "dataCellStyle";
+        public string DataCellStyleName
+        {
+            get
+            {
+                return GetXmlNodeString(DATACELLSTYLE_PATH);
+            }
+            set
+            {
+                if(_tbl.WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value)<0)
+                {
+                    throw(new Exception(string.Format("Named style {0} does not exist.",value)));
+                }
+                SetXmlNodeString(TopNode, DATACELLSTYLE_PATH, value,true);
+            }
+        }
+        const string TOTALSROWCELLSTYLE_PATH = "totalsRowCellStyle";
+        public string TotalsRowCellStyle
+        {
+            get
+            {
+                return GetXmlNodeString(TOTALSROWCELLSTYLE_PATH);
+            }
+            set
+            {
+                if(_tbl.WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value)<0)
+                {
+                    throw(new Exception(string.Format("Named style {0} does not exist.",value)));
+                }
+                SetXmlNodeString(TopNode, TOTALSROWCELLSTYLE_PATH, value, true);
+            }
+        }
+        const string HEADERROWCELLSTYLE_PATH = "headerRowCellStyle";
+        public string HeaderRowCellStyle
+        {
+            get
+            {
+                return GetXmlNodeString(HEADERROWCELLSTYLE_PATH);
+            }
+            set
+            {
+                if(_tbl.WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value)<0)
+                {
+                    throw(new Exception(string.Format("Named style {0} does not exist.",value)));
+                }
+                SetXmlNodeString(TopNode, HEADERROWCELLSTYLE_PATH, value, true);
+            }
+        }        
     }
 }

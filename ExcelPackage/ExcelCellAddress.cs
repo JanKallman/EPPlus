@@ -82,7 +82,10 @@ namespace OfficeOpenXml
                     throw new ArgumentOutOfRangeException("value", "Row cannot be less then 1.");
                 }
                 this._row = value;
-                if(_column>0) _address = ExcelCellBase.GetAddress(_row, _column);
+                if(_column>0) 
+                    _address = ExcelCellBase.GetAddress(_row, _column);
+                else
+                    _address = "#REF!";
             }
         }
         /// <summary>
@@ -101,7 +104,10 @@ namespace OfficeOpenXml
                     throw new ArgumentOutOfRangeException("value", "Column cannot be less then 1.");
                 }
                 this._column = value;
-                if (_row > 0) _address = ExcelCellBase.GetAddress(_row, _column);
+                if (_row > 0)
+                    _address = ExcelCellBase.GetAddress(_row, _column);
+                else
+                    _address = "#REF!";
             }
         }
         /// <summary>
@@ -119,5 +125,13 @@ namespace OfficeOpenXml
                 ExcelCellBase.GetRowColFromAddress(_address, out _row, out _column);
             }
         }
+        public bool IsRef
+        {
+            get
+            {
+                return _row <= 0;
+            }
+        }
     }
 }
+

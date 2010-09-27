@@ -34,6 +34,7 @@ using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
 using System.IO.Packaging;
+using System.Globalization;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -329,7 +330,7 @@ namespace OfficeOpenXml
         internal decimal GetXmlNodeDecimal(string path)
         {
             decimal d;
-            if (decimal.TryParse(GetXmlNodeString(path), out d))
+            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
             {
                 return d;
             }
