@@ -230,7 +230,7 @@ namespace OfficeOpenXml.Drawing
             }
             else if (node.SelectSingleNode("xdr:graphicFrame", drawings.NameSpaceManager) != null)
             {
-                return new ExcelChart(drawings, node);
+                return ExcelChart.GetChart(drawings, node);
             }
             else
             {

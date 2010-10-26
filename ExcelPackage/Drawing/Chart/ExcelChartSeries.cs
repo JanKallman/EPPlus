@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Drawing.Chart
            _chart=chart;
            _node=node;
 
-           foreach(XmlNode n in node.SelectNodes("//c:ser",ns))
+           foreach(XmlNode n in node.SelectNodes("c:ser",ns))
            {
                ExcelChartSerie s = new ExcelChartSerie(this, ns, n);
                _list.Add(s);
@@ -109,7 +109,7 @@ namespace OfficeOpenXml.Drawing.Chart
        private ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress)
         {
                XmlElement ser = _node.OwnerDocument.CreateElement("ser", ExcelPackage.schemaChart);
-               XmlNodeList node = _node.SelectNodes("//c:ser", _ns);
+               XmlNodeList node = _node.SelectNodes("c:ser", _ns);
                if (node.Count > 0)
                {
                    _node.InsertAfter(ser, node[node.Count-1]);
@@ -118,7 +118,8 @@ namespace OfficeOpenXml.Drawing.Chart
                {
                    InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle", ser);
                 }
-               ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), _list.Count, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
+               int idx = FindIndex();
+               ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), idx, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
                ExcelChartSerie serie;
                switch (Chart.ChartType)
                {
@@ -148,6 +149,42 @@ namespace OfficeOpenXml.Drawing.Chart
                _list.Add(serie);
                return serie;
         }
+
+       private int FindIndex()
+       {
+           int ret = 0, newID=0;
+           if (_chart.PlotArea.ChartTypes.Count > 1)
+           {
+               bool chartAdded = false;
+               foreach (var chart in _chart.PlotArea.ChartTypes)
+               {
+                   if (newID>0)
+                   {
+                       foreach (ExcelChartSerie serie in chart.Series)
+                       {
+                           serie.SetID((++newID).ToString());
+                       }
+                   }
+                   else
+                   {
+                       if (chart == _chart)
+                       {
+                           ret += _list.Count + 1;
+                           newID=ret;
+                       }
+                       else
+                       {
+                           ret += chart.Series.Count;
+                       }
+                   }
+               }
+               return ret-1;
+           }
+           else
+           {
+               return _list.Count;
+           }
+       }
        #endregion
        #region "Xml init Functions"
        private string AddMarker(eChartType chartType)

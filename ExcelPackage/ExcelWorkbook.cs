@@ -110,6 +110,7 @@ namespace OfficeOpenXml
         internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
         internal ExcelNamedRangeCollection _names=new ExcelNamedRangeCollection();
         internal int _nextDrawingID = 0;
+        internal int _nextTableID = 1;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
@@ -708,5 +709,17 @@ namespace OfficeOpenXml
         #endregion
 
 		#endregion
-	} // end Workbook
+
+        internal bool ExistsTableName(string Name)
+        {
+            foreach (var ws in Worksheets)
+            {
+                if(ws.Tables._tableNames.ContainsKey(Name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    } // end Workbook
 }

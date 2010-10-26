@@ -41,27 +41,49 @@ namespace OfficeOpenXml.Drawing.Chart
     public sealed class ExcelBarChart : ExcelChart
     {
         #region "Constructors"
-        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node)
+        //internal ExcelBarChart(ExcelDrawings drawings, XmlNode node) :
+        //    base(drawings, node/*, 1*/)
+        //{
+        //    SetChartNodeText("");
+        //}
+        //internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+        //    base(drawings, node, type)
+        //{
+        //    SetChartNodeText("");
+
+        //    SetTypeProperties(drawings, type);
+        //}
+        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
+            base(drawings, node, type, topChart)
         {
-            SetChartNodeText();
-        }
-        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
-        {
-            SetChartNodeText();
+            SetChartNodeText("");
 
             SetTypeProperties(drawings, type);
         }
+
+        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+           base(drawings, node, uriChart, part, chartXml, chartNode)
+        {
+            SetChartNodeText(chartNode.Name);
+        }
+
+        internal ExcelBarChart(ExcelChart topChart, XmlNode chartNode) : 
+            base(topChart, chartNode)
+        {
+            SetChartNodeText(chartNode.Name);
+        }
         #endregion
         #region "Private functions"
-        string _chartTopPath="c:chartSpace/c:chart/c:plotArea/{0}";
-        private void SetChartNodeText()
+        //string _chartTopPath="c:chartSpace/c:chart/c:plotArea/{0}";
+        private void SetChartNodeText(string chartNodeText)
         {
-            string text = GetChartNodeText();
-            _chartTopPath=string.Format(_chartTopPath, text);
-            _directionPath = string.Format(_directionPath, _chartTopPath);
-            _shapePath = string.Format(_shapePath, _chartTopPath);
+            if(string.IsNullOrEmpty(chartNodeText))
+            {
+                chartNodeText = GetChartNodeText();
+            }
+            //_chartTopPath = string.Format(_chartTopPath, chartNodeText);
+            //_directionPath = string.Format(_directionPath, _chartTopPath);
+            //_shapePath = string.Format(_shapePath, _chartTopPath);
         }
         private void SetTypeProperties(ExcelDrawings drawings, eChartType type)
         {
@@ -161,7 +183,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         #endregion
         #region "Properties"
-        string _directionPath = "{0}/c:barDir/@val";
+        string _directionPath = "c:barDir/@val";
         public eDirection Direction
         {
             get
@@ -173,7 +195,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(_directionPath, GetDirectionText(value));
             }
         }
-        string _shapePath = "{0}/c:shape/@val";
+        string _shapePath = "c:shape/@val";
         public eShape Shape
         {
             get
@@ -186,13 +208,16 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelChartDataLabel _DataLabel = null;
+        private ExcelDrawings drawings;
+        private XmlNode node;
+        private ExcelChart topChart;
         public ExcelChartDataLabel DataLabel
         {
             get
             {
                 if (_DataLabel == null)
                 {
-                    _DataLabel = new ExcelChartDataLabel(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode(_chartTopPath, NameSpaceManager));
+                    _DataLabel = new ExcelChartDataLabel(NameSpaceManager, ChartNode);
                 }
                 return _DataLabel;
             }

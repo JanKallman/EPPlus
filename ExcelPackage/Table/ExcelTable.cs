@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
+using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml.Table
 {
@@ -38,6 +39,7 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public enum TableStyles
     {
+        None,
         Custom,
         Light1,
         Light2,
@@ -162,7 +164,8 @@ namespace OfficeOpenXml.Table
     }
     public class ExcelTable : XmlHelper
     {
-        internal ExcelTable(PackageRelationship rel, ExcelWorksheet sheet) : base(sheet.NameSpaceManager)
+        internal ExcelTable(PackageRelationship rel, ExcelWorksheet sheet) : 
+            base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
             TableUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
@@ -175,12 +178,13 @@ namespace OfficeOpenXml.Table
             init();
             Address = new ExcelAddressBase(GetXmlNodeString("@ref"));
         }
-        internal ExcelTable (ExcelWorksheet sheet, ExcelAddressBase address, string name) : base(sheet.NameSpaceManager)
+        internal ExcelTable(ExcelWorksheet sheet, ExcelAddressBase address, string name, int tblId) : 
+            base(sheet.NameSpaceManager)
 	    {
             WorkSheet = sheet;
             Address = address;
             TableXml = new XmlDocument();
-            TableXml.LoadXml(GetStartXml(name));
+            TableXml.LoadXml(GetStartXml(name, tblId)); 
             TopNode = TableXml.DocumentElement;
 
             init();
@@ -198,14 +202,14 @@ namespace OfficeOpenXml.Table
             SchemaNodeOrder = new string[] { "autoFilter", "tableColumns", "tableStyleInfo" };
         }
 
-        private string GetStartXml(string name)
+        private string GetStartXml(string name, int tblId)
         {
             string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>";
-            xml += string.Format("<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" id=\"{0}\" name=\"{1}\" displayName=\"{1}\" ref=\"{2}\" headerRowCount=\"1\">", 
-                    WorkSheet.Tables.NextID++, 
-                    name, 
-                    Address.Address);
-
+            xml += string.Format("<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" id=\"{0}\" name=\"{1}\" displayName=\"{2}\" ref=\"{3}\" headerRowCount=\"1\">",
+            tblId,
+            name,
+            cleanDisplayName(name),
+            Address.Address);
             xml += string.Format("<autoFilter ref=\"{0}\" />", Address.Address);
 
             int cols=Address._toCol-Address._fromCol+1;
@@ -230,6 +234,10 @@ namespace OfficeOpenXml.Table
             xml += "</table>";
 
             return xml;
+        }
+        private string cleanDisplayName(string name) 
+        {
+            return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
         internal PackagePart Part
         {
@@ -280,7 +288,7 @@ namespace OfficeOpenXml.Table
             set
             {
                 SetXmlNodeString(NAME_PATH, value);
-                SetXmlNodeString(DISPLAY_NAME_PATH, value);
+                SetXmlNodeString(DISPLAY_NAME_PATH, cleanDisplayName(value));
             }
         }
         /// <summary>
@@ -343,7 +351,7 @@ namespace OfficeOpenXml.Table
                 if (Address._toRow - Address._fromRow < 1 && value ||
                     Address._toRow - Address._fromRow == 1 && value && ShowTotal)
                 {
-                    throw (new Exception("Cant set ShowHeader-property. Table has to few rows"));
+                    throw (new Exception("Cant set ShowHeader-property. Table has too few rows"));
                 }
 
                 if(value)
@@ -388,7 +396,7 @@ namespace OfficeOpenXml.Table
                 if (Address._toRow - Address._fromRow < 1 && value ||
                     Address._toRow - Address._fromRow == 1 && value && ShowHeader)
                 {
-                    throw (new Exception("Can't set ShowTotal-property. Table has to few rows"));
+                    throw (new Exception("Can't set ShowTotal-property. Table has too few rows"));
                 }
                 if (value)
                 {
@@ -433,11 +441,16 @@ namespace OfficeOpenXml.Table
                         _tableStyle = TableStyles.Custom;
                     }
                 }
+                else if (value == "None")
+                {
+                    _tableStyle = TableStyles.None;
+                    value = "";
+                }
                 else
                 {
                     _tableStyle = TableStyles.Custom;
                 }
-                SetXmlNodeString(STYLENAME_PATH,value);
+                SetXmlNodeString(STYLENAME_PATH,value,true);
             }
         }
         const string SHOWFIRSTCOLUMN_PATH = "d:tableStyleInfo/@showFirstColumn";

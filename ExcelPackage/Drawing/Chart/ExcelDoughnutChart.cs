@@ -40,24 +40,41 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public class ExcelDoughnutChart : ExcelPieChart
     {
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node)
-        {
-            SetPaths();
-        }
+        //internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node) :
+        //    base(drawings, node)
+        //{
+        //    SetPaths();
+        //}
         internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
-            SetPaths();
+            //SetPaths();
+        }
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
+            base(drawings, node, type, topChart)
+        {
+            //SetPaths();
+        }        
+        public ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+           base(drawings, node, uriChart, part, chartXml, chartNode)
+        {
+            //SetPaths();
         }
 
-        private void SetPaths()
+        public ExcelDoughnutChart(ExcelChart topChart, XmlNode chartNode) :
+            base(topChart, chartNode)
         {
-            string chartNodeText = GetChartNodeText();
-            _firstSliceAngPath = string.Format(_firstSliceAngPath, chartNodeText);
-            _holeSizePath = string.Format(_holeSizePath, chartNodeText);
+            //SetPaths();
         }
-        string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng/@val";
+
+        //private void SetPaths()
+        //{
+        //    string chartNodeText = GetChartNodeText();
+        //    _firstSliceAngPath = string.Format(_firstSliceAngPath, chartNodeText);
+        //    _holeSizePath = string.Format(_holeSizePath, chartNodeText);
+        //}
+        //string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng/@val";
+        string _firstSliceAngPath = "c:firstSliceAng/@val";
         public decimal FirstSliceAngle
         {
             get
@@ -69,7 +86,11 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(_firstSliceAngPath, value.ToString());
             }
         }
-        string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize/@val";
+        //string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize/@val";
+        string _holeSizePath = "c:holeSize/@val";
+        private ExcelDrawings drawings;
+        private XmlNode node;
+        private ExcelChart topChart;
         public decimal HoleSize
         {
             get

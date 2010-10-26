@@ -32,30 +32,49 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
 
     public class ExcelPieChart : ExcelChart
     {
-        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node)
-        {
-            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
-        }
+        //internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
+        //    base(drawings, node/*, 1*/)
+        //{
+        //    //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
+        //}
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
             //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
         }
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
+            base(drawings, node, type, topChart)
+        {
+            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
+        }
+
+        public ExcelPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+           base(drawings, node, uriChart, part, chartXml, chartNode)
+        {
+        }
+
+        public ExcelPieChart(ExcelChart topChart, XmlNode chartNode) :
+            base(topChart, chartNode)
+        {
+        }
         ExcelChartDataLabel _DataLabel = null;
+        private ExcelDrawings drawings;
+        private XmlNode node;
+        private ExcelChart topChart;
         public ExcelChartDataLabel DataLabel
         {
             get
             {
                 if (_DataLabel == null)
                 {
-                    _DataLabel = new ExcelChartDataLabel(NameSpaceManager, _chartXmlHelper.TopNode.SelectSingleNode(string.Format("c:chartSpace/c:chart/c:plotArea/{0}",GetChartNodeText()), NameSpaceManager));
+                    _DataLabel = new ExcelChartDataLabel(NameSpaceManager, ChartNode);
                 }
                 return _DataLabel;
             }

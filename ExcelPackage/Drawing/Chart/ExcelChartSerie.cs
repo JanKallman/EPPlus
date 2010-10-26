@@ -42,7 +42,7 @@ namespace OfficeOpenXml.Drawing.Chart
    /// </summary>
     public class ExcelChartSerie : XmlHelper
    {
-       protected ExcelChartSeries _chartSeries;
+       private ExcelChartSeries _chartSeries;
        protected XmlNode _node;
        protected XmlNamespaceManager _ns;
         /// <summary>
@@ -76,6 +76,12 @@ namespace OfficeOpenXml.Drawing.Chart
                _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath);
            }
        }
+       internal void SetID(string id)
+       {
+           SetXmlNodeString("c:idx/@val",id);
+           SetXmlNodeString("c:order/@val", id);
+       }
+       
        const string headerPath="c:tx/c:v";
        /// <summary>
        /// Header for the serie.
@@ -93,7 +99,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeString(headerPath, value);            
             }
         }
-
         string _seriesTopPath;
         string _seriesPath = "{0}/c:numRef/c:f";       
        /// <summary>

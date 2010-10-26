@@ -239,6 +239,10 @@ namespace OfficeOpenXml
         {
             SetXmlNodeString(TopNode, path, value, false, false);
         }
+        internal void SetXmlNodeString(string path, string value, bool removeIfBlank)
+        {
+            SetXmlNodeString(TopNode, path, value, removeIfBlank, false);
+        }
         internal void SetXmlNodeString(XmlNode node, string path, string value)
         {
             SetXmlNodeString(node, path, value, false, false);
@@ -276,7 +280,14 @@ namespace OfficeOpenXml
                 var node = TopNode.SelectSingleNode(path, NameSpaceManager);
                 if (node != null)
                 {
-                    TopNode.RemoveChild(node);
+                    if (node is XmlAttribute)
+                    {
+                        TopNode.RemoveChild((node as XmlAttribute).OwnerElement);
+                    }
+                    else
+                    {
+                        TopNode.RemoveChild(node);
+                    }
                 }
             }
             else
@@ -337,6 +348,26 @@ namespace OfficeOpenXml
             else
             {
                 return 0;
+            }
+        }
+        internal double? GetXmlNodeDoubleNull(string path)
+        {
+            string s = GetXmlNodeString(path);
+            if (s == "")
+            {
+                return null;
+            }
+            else
+            {
+                double v;
+                if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                {
+                    return v;
+                }
+                else
+                {
+                    return null;
+                }
             }
         }
         internal string GetXmlNodeString(string path)

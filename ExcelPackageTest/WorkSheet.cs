@@ -10,6 +10,7 @@ using OfficeOpenXml.Drawing;
 using System.Drawing;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Style;
+using System.Data;
 
 namespace ExcelPackageTest
 {
@@ -513,9 +514,9 @@ namespace ExcelPackageTest
             ws.Cells["C8"].Style.Fill.PatternType = ExcelFillStyle.Solid;
             ws.Cells["C8"].Style.Fill.BackgroundColor.SetColor(Color.Red);
 
-            tbl=ws.Tables.Add(ws.Cells["a12:a13"], "Table2");
+            tbl=ws.Tables.Add(ws.Cells["a12:a13"], "");
 
-            tbl = ws.Tables.Add(ws.Cells["C16:Y35"], "Table3");
+            tbl = ws.Tables.Add(ws.Cells["C16:Y35"], "");
             tbl.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
             tbl.ShowFirstColumn = true;
             tbl.ShowLastColumn = true;
@@ -593,6 +594,70 @@ namespace ExcelPackageTest
 
             ws.Cells["A1"].Value = "Test";
             ws.Cells["A1"].Style.Font.Size = 8.5F;
+        }
+        [TestMethod]
+        public void LoadDataTable()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Loaded DataTable");
+
+            var dt = new DataTable();
+            dt.Columns.Add("String", typeof(string));
+            dt.Columns.Add("Int", typeof(int));
+            dt.Columns.Add("Bool", typeof(bool));
+            dt.Columns.Add("Double", typeof(double));
+
+
+            var dr=dt.NewRow();
+            dr[0] = "Row1";
+            dr[1] = 1;
+            dr[2] = true;
+            dr[3] = 1.5;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr[0] = "Row2";
+            dr[1] = 2;
+            dr[2] = false;
+            dr[3] = 2.25;
+            dt.Rows.Add(dr);
+
+            dr = dt.NewRow();
+            dr[0] = "Row3";
+            dr[1] = 3;
+            dr[2] = true;
+            dr[3] = 3.125;
+            dt.Rows.Add(dr);
+
+            ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
+        }
+        [TestMethod]
+        public void LoadText()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Loaded Text");
+
+            ws.Cells["A1"].LoadFromText("1.2");
+            ws.Cells["A2"].LoadFromText("1,\"Test av data\",\"12,2\",\"\"Test\"\"");
+            ws.Cells["A3"].LoadFromText("\"1,3\",\"Test av \"\"data\",\"12,2\",\"Test\"\"\"", new ExcelTextFormat() { TextQualifier = '"' });
+
+            ws = _pck.Workbook.Worksheets.Add("File1");
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
+
+            ws = _pck.Workbook.Worksheets.Add("File2");
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\etiv2812.csv"), new ExcelTextFormat() { SkipLinesBeginning = 3, SkipLinesEnd = 1, EOL = "\n" });
+
+            //ws = _pck.Workbook.Worksheets.Add("File3");
+            //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\last_gics.txt"), new ExcelTextFormat() { SkipLinesBeginning = 1, Delimiter='|'});
+
+            ws = _pck.Workbook.Worksheets.Add("File4");
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new ExcelTextFormat.eDataTypes[] {ExcelTextFormat.eDataTypes.Number,ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number}},
+                OfficeOpenXml.Table.TableStyles.Medium27, true);            
+        }
+        [TestMethod]
+        public void LoadArray()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Loaded Array");
+            List<object[]> testArray = new List<object[]>() { new object[] { 3, 4, 5, 6 }, new string[] { "Test1", "test", "5", "6" } };
+            ws.Cells["A1"].LoadFromArrays(testArray);
         }
     }
 }

@@ -208,6 +208,10 @@ namespace OfficeOpenXml
         [DllImport("ole32.dll")]
         private static extern int StgIsStorageFile(
             [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
+        [DllImport("ole32.dll")]
+        private static extern int StgIsStorageILockBytes(
+            ILockBytes plkbyt);
+
 
         [DllImport("ole32.dll")]
         static extern int StgOpenStorage(
@@ -233,20 +237,18 @@ namespace OfficeOpenXml
             out ILockBytes ppLkbyt);
         [DllImport("ole32.dll")]
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
-
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
         /// <param name="fi">The file</param>
         /// <param name="encryption"></param>
         /// <returns></returns>
-        internal MemoryStream GetStream(FileInfo fi, ExcelEncryption encryption)
+        internal MemoryStream DecryptPackage(FileInfo fi, ExcelEncryption encryption)
         {
             MemoryStream ret = null;
             if (StgIsStorageFile(fi.FullName) == 0)
             {
                 IStorage storage = null;
-                //IStorage pIChildStorage;
                 if (StgOpenStorage(
                     fi.FullName,
                     null,
@@ -255,13 +257,57 @@ namespace OfficeOpenXml
                     0,
                     out storage) == 0)
                 {
-                    ret = GetStreamFromPackage(storage, encryption);
+                    ret = GetStreamFromPackage(storage, encryption);                    
+                    Marshal.ReleaseComObject(storage);
                 }
             }
             else
             {
                 throw(new Exception(string.Format("File {0} is not an encrypted package",fi.FullName)));
             }
+            return ret;
+        }
+        /// <summary>
+        /// Read the package from the OLE document and decrypt it using the supplied password
+        /// </summary>
+        /// <param name="stream">The memory stream. </param>
+        /// <param name="encryption">The encryption object from the Package</param>
+        /// <returns></returns>
+        internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
+        {
+            //Create the lockBytes object.
+            ILockBytes lb;
+            var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
+            byte[] docArray=stream.GetBuffer();
+            IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
+            Marshal.Copy(docArray, 0, buffer, docArray.Length);
+            UIntPtr readSize;
+            lb.WriteAt(0, buffer, docArray.Length, out readSize);
+            Marshal.FreeHGlobal(buffer);
+
+            MemoryStream ret = null;
+
+            if (StgIsStorageILockBytes(lb) == 0)
+            {
+                IStorage storage = null;
+                if (StgOpenStorageOnILockBytes(
+                        lb,
+                        null,
+                        STGM.DIRECT | STGM.READ | STGM.SHARE_EXCLUSIVE,
+                        IntPtr.Zero,
+                        0,
+                        out storage) == 0)
+                {
+                    ret = GetStreamFromPackage(storage, encryption);
+                }
+                Marshal.ReleaseComObject(storage);
+            }
+            else
+            {
+                throw (new Exception("The stream is not an encrypted package"));
+            }
+            Marshal.ReleaseComObject(lb);
+
             return ret;
         }
         /// <summary>
@@ -336,10 +382,12 @@ namespace OfficeOpenXml
                 ret = new MemoryStream();
                 ret.Write(pack, 0, size);
             }
+            Marshal.ReleaseComObject(storage);
+            Marshal.ReleaseComObject(lb);
             return ret;
         }
         #region "Dataspaces Stream methods"
-        private static void CreateDataSpaces(IStorage storage)
+        private void CreateDataSpaces(IStorage storage)
         {
             IStorage dataSpaces;
             storage.CreateStorage("\x06" + "DataSpaces", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out dataSpaces);
@@ -381,7 +429,7 @@ namespace OfficeOpenXml
             tranformInfo.Commit(0);
             dataSpaces.Commit(0);
         }
-        private static byte[] CreateStrongEncryptionDataSpaceStream()
+        private byte[] CreateStrongEncryptionDataSpaceStream()
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(ms);
@@ -396,7 +444,7 @@ namespace OfficeOpenXml
             bw.Flush(); 
             return ms.ToArray();
         }
-        private static byte[] CreateVersionStream()
+        private byte[] CreateVersionStream()
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(ms);
@@ -411,7 +459,7 @@ namespace OfficeOpenXml
             bw.Flush();
             return ms.ToArray();
         }
-        private static byte[] CreateDataSpaceMap()
+        private byte[] CreateDataSpaceMap()
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(ms);
@@ -431,7 +479,7 @@ namespace OfficeOpenXml
             bw.Flush();
             return ms.ToArray();
         }
-        private static byte[] CreateTransformInfoPrimary()
+        private byte[] CreateTransformInfoPrimary()
         {
             MemoryStream ms = new MemoryStream();
             BinaryWriter bw = new BinaryWriter(ms);
@@ -490,14 +538,14 @@ namespace OfficeOpenXml
             encryptionInfo.Verifier = new EncryptionVerifier();
             encryptionInfo.Verifier.Salt = new byte[16];
 
-            var rnd = new Random();
-            rnd.NextBytes(encryptionInfo.Verifier.Salt);
+            var rnd = RandomNumberGenerator.Create();
+            rnd.GetBytes(encryptionInfo.Verifier.Salt);
             encryptionInfo.Verifier.SaltSize = 0x10;
 
             key = GetPasswordHash(password, encryptionInfo);
             
             var verifier = new byte[16];
-            rnd.NextBytes(verifier);
+            rnd.GetBytes(verifier);
             encryptionInfo.Verifier.EncryptedVerifier = EncryptData(key, verifier,true);
 
             //AES = 32 Bits
@@ -529,7 +577,7 @@ namespace OfficeOpenXml
             {
                 ret = new byte[data.Length];
                 ms.Seek(0, SeekOrigin.Begin);
-                ms.Read(ret, 0, data.Length);  //Truncate any padded Zeros;
+                ms.Read(ret, 0, data.Length);  //Truncate any padded Zeros
                 return ret;
             }
             else
@@ -588,6 +636,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
+            Marshal.ReleaseComObject(pIEnumStatStg);
             return ret;
         }
         // Help method to print a storage part binary to c:\temp
@@ -626,6 +675,7 @@ namespace OfficeOpenXml
         //        }
         //    }
         //}
+
         /// <summary>
         /// Decrypt a document
         /// </summary>
@@ -753,6 +803,8 @@ namespace OfficeOpenXml
 
             byte[] data = new byte[statstg.cbSize];
             pIStream.Read(data, (int)statstg.cbSize, IntPtr.Zero);
+            Marshal.ReleaseComObject(pIStream);
+
             return data;
         } 
         /// <summary>
@@ -839,7 +891,7 @@ namespace OfficeOpenXml
             Array.Copy(hash, buff, size);
             return buff;
         }
-        private static byte[] CombinePassword(byte[] salt, string password)
+        private byte[] CombinePassword(byte[] salt, string password)
         {
             if (password == "")
             {

@@ -174,7 +174,18 @@ namespace OfficeOpenXml
         /// Creates a new instance of the Excelpackage class based on a stream
         /// </summary>
         /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
-        public ExcelPackage(Stream newStream)
+        /// <param name="Password">The password to decrypt the document</param>
+        public ExcelPackage(Stream newStream) 
+        {
+            Init();
+            Load(newStream);
+        }
+        /// <summary>
+        /// Creates a new instance of the Excelpackage class based on a stream
+        /// </summary>
+        /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
+        /// <param name="Password">The password to decrypt the document</param>
+        public ExcelPackage(Stream newStream, string Password)
         {
             if (!(newStream.CanRead && newStream.CanWrite))
             {
@@ -184,15 +195,18 @@ namespace OfficeOpenXml
             Init();
             if (newStream.Length > 0)
             {
-                _stream = newStream;
-                if (newStream.CanSeek)
-                {
-                    _stream.Seek(0, SeekOrigin.Begin);
-                }
-                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+            //    _stream = newStream;
+            //    if (newStream.CanSeek)
+            //    {
+            //        _stream.Seek(0, SeekOrigin.Begin);
+            //    }
+            //    _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                Load(newStream,Password);
             }
             else
             {
+                _stream = newStream;
+                _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
                 CreateBlankWb();
             }
         }
@@ -212,8 +226,27 @@ namespace OfficeOpenXml
                 throw new Exception("The stream must be read/write");
             }
             Init();
-            Load(templateStream, newStream);
-        }        
+            Load(templateStream, newStream, null);
+        }
+        /// <summary>
+        /// Creates a new instance of the Excelpackage class based on a stream
+        /// </summary>
+        /// <param name="newStream">The output stream. Must be an empty read/write stream.</param>
+        /// <param name="templateStream">This stream is copied to the output stream at load</param>
+        /// <param name="Password">Password to decrypted the template</param>
+        public ExcelPackage(Stream newStream, Stream templateStream, string Password)
+        {
+            if (newStream.Length > 0)
+            {
+                throw (new Exception("The output stream must be empty. Length > 0"));
+            }
+            else if (!(newStream.CanRead && newStream.CanWrite))
+            {
+                throw new Exception("The stream must be read/write");
+            }
+            Init();
+            Load(templateStream, newStream, Password);
+        }
         #endregion
         /// <summary>
         /// Init values here
@@ -239,7 +272,7 @@ namespace OfficeOpenXml
                     Encryption.IsEncrypted = true;
                     Encryption.Password = password;
                     var encrHandler = new EncryptedPackageHandler();
-                    _stream = encrHandler.GetStream(template, Encryption);
+                    _stream = encrHandler.DecryptPackage(template, Encryption);
                     encrHandler = null;
                     //throw (new NotImplementedException("No support for Encrypted packages in this version"));
                 }
@@ -266,7 +299,7 @@ namespace OfficeOpenXml
                     var encrHandler = new EncryptedPackageHandler();
                     Encryption.IsEncrypted = true;
                     Encryption.Password = password;
-                    _stream = encrHandler.GetStream(File, Encryption);
+                    _stream = encrHandler.DecryptPackage(File, Encryption);
                     encrHandler = null;
                 }
                 else
@@ -509,7 +542,7 @@ namespace OfficeOpenXml
         /// We close the package after the save is done.
         /// </summary>
         /// <param name="password">The password to encrypt the workbook with. 
-        /// This parameter overrides the Workbook.Protection.EncryptionPassword.</param>
+        /// This parameter overrides the Workbook.Encryption.Password.</param>
         public void Save(string password)
 		{
             Encryption.Password = password;
@@ -698,14 +731,24 @@ namespace OfficeOpenXml
         /// <param name="input">The input.</param>
         public void Load(Stream input)
         {
-            Load(input, new MemoryStream());
+            Load(input, new MemoryStream(), null);
+        }
+        /// <summary>
+        /// Loads the specified package data from a stream.
+        /// </summary>
+        /// <param name="input">The input.</param>
+        /// <param name="Password">The password to decrypt the document</param>
+        public void Load(Stream input, string Password)
+        {
+            Load(input, new MemoryStream(), Password);
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="input"></param>
         /// <param name="output"></param>
-        private void Load(Stream input, Stream output)
+        /// <param name="Password"></param>
+        private void Load(Stream input, Stream output, string Password)
         {
             //Release some resources:
             if (this._package != null)
@@ -720,8 +763,20 @@ namespace OfficeOpenXml
                 this._stream = null;
             }
 
-            this._stream = output;
-            CopyStream(input, ref this._stream);
+            if (Password != null)
+            {
+                Stream encrStream = new MemoryStream();
+                CopyStream(input, ref encrStream);
+                EncryptedPackageHandler eph=new EncryptedPackageHandler();
+                Encryption.Password = Password;
+                this._stream = eph.DecryptPackage((MemoryStream)encrStream, Encryption);
+            }
+            else
+            {
+                this._stream = output;
+                CopyStream(input, ref this._stream);
+            }
+
             this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
             //Clear the workbook so that it gets reinitialized next time
             this._workbook = null;

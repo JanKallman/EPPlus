@@ -234,6 +234,11 @@ namespace OfficeOpenXml
         }
         internal eAddressCollition Collide(ExcelAddressBase address)
         {
+            if (address.WorkSheet != WorkSheet)
+            {
+                return eAddressCollition.No;
+            }
+
             if (address._fromRow > _toRow || address._fromCol > _toCol
                 ||
                 _fromRow > address._toRow || _fromCol > address._toCol)
