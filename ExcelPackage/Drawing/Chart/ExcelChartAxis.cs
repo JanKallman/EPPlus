@@ -33,19 +33,165 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
+using System.Globalization;
 namespace OfficeOpenXml.Drawing.Chart
 {
+    public enum eAxisPosition
+    {
+        Left = 0,
+        Bottom = 1,
+        Right = 2,
+        Top = 3
+    }
+    public enum eYAxisPosition
+    {
+        Left = 0,
+        Right = 2,
+    }
+    public enum eXAxisPosition
+    {
+        Bottom = 1,
+        Top = 3
+    }
+    public enum eCrossBetween
+    {
+        /// <summary>
+        /// Specifies the value axis shall cross the category axis between data markers
+        /// </summary>
+        Between,
+        /// <summary>
+        /// Specifies the value axis shall cross the category axis at the midpoint of a category.
+        /// </summary>
+        MidCat
+    }
+    public enum eCrosses
+    {
+        /// <summary>
+        /// (Axis Crosses at Zero) The category axis crosses at the zero point of the valueaxis (if possible), or the minimum value (if theminimum is greater than zero) or the maximum (if the maximum is less than zero).
+        /// </summary>
+        AutoZero,
+        /// <summary>
+        /// The axis crosses at the maximum value
+        /// </summary>
+        Max,
+        /// <summary>
+        /// (Axis crosses at the minimum value of the chart.
+        /// </summary>
+        Min
+    }
     /// <summary>
     /// An axis for a chart
     /// </summary>
     public sealed class ExcelChartAxis : XmlHelper
     {
+        internal enum eAxisType
+        {
+            Val,
+            Cat,
+            Date
+        }
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] {"axId","scaling","delete","axPos","numFmt", "tickLblPos","spPr", "txPr"};
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "numFmt", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
         }
-        const string _formatPath="c:numFmt/@formatCode";
+        internal string Id
+        {
+            get
+            {
+                return GetXmlNodeString("c:axId/@val");
+            }
+        }
+        internal eAxisType AxisType
+        {
+            get
+            {
+                try
+                {
+                    return (eAxisType)Enum.Parse(typeof(eAxisType), TopNode.LocalName, true);
+                }
+                catch
+                {
+                    return eAxisType.Val;
+                }
+            }
+        }
+        private string AXIS_POSITION_PATH = "c:axPos/@val";
+        public eAxisPosition AxisPosition
+        {
+            get
+            {                
+                switch(GetXmlNodeString(AXIS_POSITION_PATH))
+                {
+                    case "b":
+                        return eAxisPosition.Bottom;
+                    case "r":
+                        return eAxisPosition.Right;
+                    case "t":
+                        return eAxisPosition.Top;
+                    default: 
+                        return eAxisPosition.Left;
+                }
+            }
+            internal set
+            {
+                SetXmlNodeString(AXIS_POSITION_PATH, value.ToString().ToLower().Substring(0,1));
+            }
+        }
+        const string _crossesPath = "c:crosses/@val";
+        public eCrosses Crosses
+        {
+            get
+            {
+                return (eCrosses)Enum.Parse(typeof(eCrosses), GetXmlNodeString(_crossesPath), true);
+            }
+            set
+            {
+                var v = value.ToString();
+                v = v.Substring(1).ToLower() + v.Substring(1, v.Length - 1);
+                SetXmlNodeString(_crossesPath, v);
+            }
+
+        }
+        const string _crossBetweenPath = "c:crossBetween/@val";        
+        public eCrossBetween CrossBetween
+        {
+            get
+            {
+                return (eCrossBetween)Enum.Parse(typeof(eCrossBetween), GetXmlNodeString(_crossBetweenPath), true);
+            }
+            set
+            {
+                var v = value.ToString();
+                v = v.Substring(1).ToLower() + v.Substring(1, v.Length - 1);
+                SetXmlNodeString(_crossBetweenPath, v);
+            }
+
+        }
+        const string _crossesAtPath = "c:crossesAt/@val";
+        /// <summary>
+        /// The value where the axis cross. 
+        /// Null is automatic
+        /// </summary>
+        public double? CrossesAt
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_crossesAtPath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_crossesAtPath);
+                }
+                else
+                {
+                    SetXmlNodeString(_crossesAtPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        const string _formatPath = "c:numFmt/@formatCode";
         /// <summary>
         /// Numberformat
         /// </summary>
@@ -62,11 +208,11 @@ namespace OfficeOpenXml.Drawing.Chart
         }
 
         const string _lblPos = "c:tickLblPos/@val";
-        public eTickLablePosition LabelPosition
+        public eTickLabelPosition LabelPosition
         {
             get
             {
-                return (eTickLablePosition)Enum.Parse(typeof(eTickLablePosition), GetXmlNodeString(_lblPos), true);
+                return (eTickLabelPosition)Enum.Parse(typeof(eTickLabelPosition), GetXmlNodeString(_lblPos), true);
             }
             set
             {
@@ -115,5 +261,161 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _font;
             }
         }
+
+        public bool Deleted 
+        {
+            get
+            {
+                return GetXmlNodeBool("c:delete/@val", false);
+            }
+            set
+            {
+                SetXmlNodeBool("c:delete/@val", value, false);
+            }
+        }
+        const string _ticLblPos_Path = "c:tickLblPos/@val";
+        public eTickLabelPosition TickLabelPosition 
+        {
+            get
+            {
+                string v = GetXmlNodeString(_ticLblPos_Path);
+                if (v == "")
+                {
+                    return eTickLabelPosition.None;
+                }
+                else
+                {
+                    return (eTickLabelPosition)Enum.Parse(typeof(eTickLabelPosition), v, true);
+                }
+            }
+            set
+            {
+                string v = value.ToString();
+                v=v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                SetXmlNodeString(_ticLblPos_Path,v);
+            }
+        }
+        #region "Scaling"
+        const string _minValuePath = "c:scaling/c:min/@val";
+        /// <summary>
+        /// Minimum value for the axis.
+        /// Null is automatic
+        /// </summary>
+        public double? MinValue
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_minValuePath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_minValuePath);
+                }
+                else
+                {
+                    SetXmlNodeString(_minValuePath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        const string _maxValuePath = "c:scaling/c:max/@val";
+        /// <summary>
+        /// Max value for the axis.
+        /// Null is automatic
+        /// </summary>
+        public double? MaxValue
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_maxValuePath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_maxValuePath);
+                }
+                else
+                {
+                    SetXmlNodeString(_maxValuePath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        const string _majorUnitPath = "c:majorUnit/@val";
+        /// <summary>
+        /// Major unit for the axis.
+        /// Null is automatic
+        /// </summary>
+        public double? MajorUnit
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_majorUnitPath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_majorUnitPath);
+                }
+                else
+                {
+                    SetXmlNodeString(_majorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        const string _minorUnitPath = "c:minorUnit/@val";
+        /// <summary>
+        /// Minor unit for the axis.
+        /// Null is automatic
+        /// </summary>
+        public double? MinorUnit
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_minorUnitPath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_minorUnitPath);
+                }
+                else
+                {
+                    SetXmlNodeString(_minorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        const string _logbasePath = "c:scaling/c:logBase/@val";
+        /// <summary>
+        /// The base for a logaritmic scale
+        /// Null for a normal scale
+        /// </summary>
+        public double? LogBase
+        {
+            get
+            {
+                return GetXmlNodeDoubleNull(_logbasePath);
+            }
+            set
+            {
+                if (value == null)
+                {
+                    DeleteNode(_logbasePath);
+                }
+                else
+                {
+                    double v = ((double)value);
+                    if (v < 2 || v > 1000)
+                    {
+                        throw(new ArgumentOutOfRangeException("Value must be between 2 and 1000"));
+                    }
+                    SetXmlNodeString(_logbasePath, v.ToString("0.0", CultureInfo.InvariantCulture));
+                }
+            }
+        }
+        #endregion
     }
 }

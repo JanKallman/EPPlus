@@ -40,11 +40,25 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public sealed class ExcelChartPlotArea :  XmlHelper
     {
-        internal ExcelChartPlotArea(XmlNamespaceManager ns, XmlNode node)
+        ExcelChart _firstChart;
+        internal ExcelChartPlotArea(XmlNamespaceManager ns, XmlNode node, ExcelChart firstChart)
            : base(ns,node)
        {
+           _firstChart = firstChart;
        }
 
+        ExcelChartCollection _chartTypes;
+        public ExcelChartCollection ChartTypes
+        {
+            get
+            {
+                if (_chartTypes == null)
+                {
+                    _chartTypes = new ExcelChartCollection(_firstChart); 
+                }
+                return _chartTypes;
+            }
+        }
         ExcelDrawingFill _fill = null;
         public ExcelDrawingFill Fill
         {

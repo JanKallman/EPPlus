@@ -36,25 +36,29 @@ namespace OfficeOpenXml.Table
     public class ExcelTableCollection : IEnumerable<ExcelTable>
     {
         List<ExcelTable> _tables = new List<ExcelTable>();
-        Dictionary<string, int> _tableNames = new Dictionary<string, int>();
+        internal Dictionary<string, int> _tableNames = new Dictionary<string, int>();
         ExcelWorksheet _ws;        
         internal ExcelTableCollection(ExcelWorksheet ws)
         {
             Package pck = ws.xlPackage.Package;
             _ws = ws;
-            NextID = 1;
             foreach(XmlElement node in ws.WorksheetXml.SelectNodes("//d:tableParts/d:tablePart", ws.NameSpaceManager))
             {
                 var rel = ws.Part.GetRelationship(node.GetAttribute("id",ExcelPackage.schemaRelationships));
                 var tbl = new ExcelTable(rel, ws);
-                _tables.Add(tbl);
-                _tableNames.Add(tbl.Name, _tables.Count - 1);
-                if (tbl.Id >= NextID)
-                {
-                    NextID = tbl.Id + 1;
-                }
             }
         }
+        private ExcelTable Add(ExcelTable tbl)
+        {
+            _tables.Add(tbl);
+            _tableNames.Add(tbl.Name, _tables.Count - 1);
+            if (tbl.Id >= _ws.Workbook._nextTableID)
+            {
+                _ws.Workbook._nextTableID = tbl.Id + 1;
+            }
+            return tbl;
+        }
+
         /// <summary>
         /// Create a table on the supplied range
         /// </summary>
@@ -63,7 +67,16 @@ namespace OfficeOpenXml.Table
         /// <returns>The table object</returns>
         public ExcelTable Add(ExcelAddressBase Range, string Name)
         {
-            if (_tableNames.ContainsKey(Name))
+            if (string.IsNullOrEmpty(Name))
+            {
+                Name = "Table1";
+                int i=2;
+                while (_ws.Workbook.ExistsTableName(Name))
+                {
+                    Name=string.Format("Table{0}", i++);
+                }
+            }
+            else if (_ws.Workbook.ExistsTableName(Name))
             {
                 throw (new ArgumentException("Tablename is not unique"));
             }
@@ -74,10 +87,11 @@ namespace OfficeOpenXml.Table
                     throw (new ArgumentException(string.Format("Table range collides with table {0}", t.Name)));
                 }
             }
-            var tbl = new ExcelTable(_ws, Range, Name);
-            _tables.Add(tbl);
-            _tableNames.Add(Name, _tables.Count - 1);
-            return tbl;
+            return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
+            //var tbl = new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID++);
+            //_tables.Add(tbl);
+            //_tableNames.Add(Name, _tables.Count - 1);
+            //return tbl;
         }
         public int Count
         {
@@ -125,7 +139,5 @@ namespace OfficeOpenXml.Table
         {
             return _tables.GetEnumerator();
         }
-
-        internal int NextID { get; set; }
     }
 }

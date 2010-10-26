@@ -38,8 +38,8 @@ namespace OfficeOpenXml
     {
 		#region Cell Private Properties
 		private ExcelWorksheet _xlWorksheet;
-		private int _row;
-		private int _col;
+        private int _row;
+        private int _col;
 		internal string _formula="";
 		private Uri _hyperlink=null;
         static CultureInfo _ci=new CultureInfo("en-US");
@@ -137,25 +137,25 @@ namespace OfficeOpenXml
         public bool Merge { get; internal set; }
 		#endregion  
 
-		#region ExcelCell DataType
-        string _dataType="";
+        #region ExcelCell DataType
+        string _dataType = "";
         /// <summary>
-		/// Gets/sets the cell's data type.  
-		/// Not currently implemented correctly!
-		/// </summary>       
-        public string DataType
-		{
-			// TODO: complete DataType
-			get
-			{
-				return (_dataType);
-			}
-			set
-			{
-				_dataType = value;
-			}
-		}
-		#endregion
+        /// Gets/sets the cell's data type.  
+        /// Not currently implemented correctly!
+        /// </summary>       
+        internal string DataType
+        {
+            // TODO: complete DataType
+            get
+            {
+                return (_dataType);
+            }
+            set
+            {
+                _dataType = value;
+            }
+        }
+        #endregion
 
 		#region ExcelCell Style
         string _styleName="Normal";
@@ -401,8 +401,6 @@ namespace OfficeOpenXml
             {
                 _comment = value;
             }
-            // TODO: implement set which will add comments to the worksheet
-			// this will require you to add entries to the Drawing.vml file to get this to work! 
 		}
 		#endregion 
 
@@ -455,7 +453,7 @@ namespace OfficeOpenXml
         internal ExcelCell Clone(ExcelWorksheet added)
         {
             ExcelCell newCell = new ExcelCell(added, _row, _col);
-            newCell.DataType = DataType;
+            //newCell.DataType = DataType;
             //if (Formula != "" && SharedFormulaID < 0)
             //{
             //    newCell.Formula = Formula;

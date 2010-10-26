@@ -37,7 +37,8 @@ using System.Drawing;
 using System.Globalization;
 using System.Collections;
 using OfficeOpenXml.Table;
-
+using System.Text.RegularExpressions;
+using System.IO;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -54,6 +55,7 @@ namespace OfficeOpenXml
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
         {
             _worksheet = xlWorksheet;
+            _ws = _worksheet.Name;
             SetDelegate();
         }
 
@@ -61,6 +63,7 @@ namespace OfficeOpenXml
             base(address)
         {
             _worksheet = xlWorksheet;
+            _ws = _worksheet.Name;
             SetDelegate();
         }   
         #endregion
@@ -881,18 +884,30 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Public Methods"
+        #region "LoadFromDataTable"
+        /// <summary>
+        /// Load the data from the datatable starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Table">The datatable to load</param>
+        /// <param name="PrintHeaders">Print the column names on first row</param>
+        /// <param name="TableStyle">The table style to apply to the data</param>
         public void LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
         {
             LoadFromDataTable(Table, PrintHeaders);
-            var tbl=_worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow+Table.Rows.Count, _fromCol+Table.Columns.Count), Table.TableName);
-            tbl.ShowHeader = PrintHeaders;
-            tbl.TableStyle = TableStyle;
+
+            int rows = Table.Rows.Count + (PrintHeaders ? 1 : 0)-1;
+            if (rows > 0 && Table.Columns.Count>0)
+            {
+                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + rows, _fromCol + Table.Columns.Count-1), Table.TableName);
+                tbl.ShowHeader = PrintHeaders;
+                tbl.TableStyle = TableStyle;
+            }
         }
         /// <summary>
         /// Load the data from the datatable starting from the top left cell of the range
         /// </summary>
         /// <param name="Table">The datatable to load</param>
-        /// <param name="PrintHeaders">print column names on first row</param>
+        /// <param name="PrintHeaders">Print the column names on first row</param>
         public void LoadFromDataTable(DataTable Table, bool PrintHeaders)
         {
             if (Table == null)
@@ -920,6 +935,8 @@ namespace OfficeOpenXml
                 col = _fromCol;
             }
         }
+        #endregion
+
         /// <summary>
 		/// Loads data from the collection of arrays of objects into the range, starting from
 		/// the top-left cell.
@@ -944,6 +961,160 @@ namespace OfficeOpenXml
 			}
             return _worksheet.Cells[_fromRow,_fromCol, row-1, column-1];
 		}
+        #region LoadFromText
+        public ExcelRangeBase LoadFromText(string Text)
+        {
+            return LoadFromText(Text, new ExcelTextFormat());
+        }
+        public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
+        {
+            if (Format == null) Format = new ExcelTextFormat();
+            string[] lines = Regex.Split(Text, Format.EOL);
+            int row = _fromRow;
+            int col = _fromCol;
+            int lineNo = 1;
+            if (Text == "")
+            {
+                _worksheet.Cells[_fromRow, _fromCol].Value = "";
+            }
+            else
+            {
+                foreach (string line in lines)
+                {
+                    if (lineNo > Format.SkipLinesBeginning && lineNo < lines.Length - Format.SkipLinesEnd)
+                    {
+                        col = _fromCol;
+                        string v = "";
+                        bool isText = false, isQualifier = false;
+                        int QCount = 0;
+                        foreach (char c in line)
+                        {
+                            if (Format.TextQualifier != 0 && c == Format.TextQualifier)
+                            {
+                                if (!isText && v != "")
+                                {
+                                    throw (new Exception(string.Format("Invalid Text delimiter in line : {0}", line)));
+                                }
+                                isQualifier = !isQualifier;
+                                QCount += 1;
+                                isText = true;
+                            }
+                            else
+                            {
+                                if (QCount > 1)
+                                {
+                                    v += new string(Format.TextQualifier, QCount / 2);
+                                }
+                                if (isQualifier)
+                                {
+                                    v += c;
+                                }
+                                else
+                                {
+                                    if (c == Format.Delimiter)
+                                    {
+                                        _worksheet.Cell(row, col).Value = ConvertData(Format, v, col - _fromCol, isText);
+                                        v = "";
+                                        isText = false;
+                                        col++;
+                                    }
+                                    else
+                                    {
+                                        if (QCount % 2 == 1)
+                                        {
+                                            throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
+                                        }
+                                        v += c;
+                                    }
+                                }
+                                QCount = 0;
+                            }
+                        }
+                        if (QCount > 1)
+                        {
+                            v += new string(Format.TextQualifier, QCount / 2);
+                        }
+
+                        _worksheet.Cell(row, col).Value = ConvertData(Format, v, col - _fromCol, isText);
+                        row++;
+                    }
+                    lineNo++;
+                }
+            }
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, col];
+        }
+        public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
+        {
+            var r = LoadFromText(Text, Format);
+
+            var tbl = _worksheet.Tables.Add(r,"");
+            tbl.ShowHeader = FirstRowIsHeader;
+            tbl.TableStyle = TableStyle;
+
+            return r;
+        }
+        public ExcelRangeBase LoadFromText(FileInfo TextFile)
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Encoding.ASCII));
+        }
+        public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format)
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format);
+        }
+        public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
+        }
+        private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
+        {
+            if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return v;
+
+            double d;
+            DateTime dt;
+            if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == ExcelTextFormat.eDataTypes.Unknown)
+            {
+                if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
+                {
+                    return d;
+                }
+                if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                {
+                    return dt;
+                }
+                else
+                {
+                    return v;
+                }
+            }
+            else
+            {
+                switch (Format.DataTypes[col])
+                {
+                    case ExcelTextFormat.eDataTypes.Number:
+                        if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    case ExcelTextFormat.eDataTypes.DateTime:
+                        if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                        {
+                            return dt;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    default:
+                        return v;
+
+                }
+            }
+        }
+        #endregion
         /// <summary>
         /// Get a range with an offset from the top left cell.
         /// The new range has the same dimensions as the current range

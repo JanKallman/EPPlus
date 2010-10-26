@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -40,12 +41,29 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public sealed class ExcelScatterChart : ExcelChart
     {
-        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node)
+        //internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node) :
+        //    base(drawings, node/*, 1*/)
+        //{
+        //}
+        //internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+        //    base(drawings, node, type)
+        //{
+        //    SetTypeProperties();
+        //}
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
+            base(drawings, node, type, topChart)
         {
+            SetTypeProperties();
         }
-        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
+
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+            base(drawings, node, uriChart, part, chartXml, chartNode)
+        {
+            SetTypeProperties();
+        }
+
+        internal ExcelScatterChart(ExcelChart topChart, XmlNode chartNode) : 
+            base(topChart, chartNode)
         {
             SetTypeProperties();
         }
@@ -66,7 +84,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
         }
         #region "Grouping Enum Translation"
-        string _scatterTypePath = "c:chartSpace/c:chart/c:plotArea/c:scatterChart/c:scatterStyle/@val";
+        string _scatterTypePath = "c:scatterStyle/@val";
         private eScatterStyle GetScatterEnum(string text)
         {
             switch (text)
@@ -89,6 +107,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         #endregion
+        /// <summary>
+        /// If the scatter has LineMarkers or SmoothMarkers
+        /// </summary>
         public eScatterStyle ScatterStyle
         {
             get

@@ -77,6 +77,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Drawing\ExcelShape.cs" />
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
+    <Compile Include="ExcelTextFormat.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
     <Compile Include="Style\IStyle.cs" />

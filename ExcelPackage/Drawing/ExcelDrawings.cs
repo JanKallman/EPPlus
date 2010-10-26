@@ -157,9 +157,9 @@ namespace OfficeOpenXml.Drawing
         #endregion
 
         /// <summary>
-        /// Returns the worksheet at the specified position.  
+        /// Returns the drawing at the specified position.  
         /// </summary>
-        /// <param name="PositionID">The position of the worksheet. 1-base</param>
+        /// <param name="PositionID">The position of the drawing. 0-base</param>
         /// <returns></returns>
         public ExcelDrawing this[int PositionID]
         {
@@ -247,13 +247,13 @@ namespace OfficeOpenXml.Drawing
                     ChartType == eChartType.SurfaceTopViewWireframe ||
                     ChartType == eChartType.SurfaceWireframe)
                 {
-                    throw(new NotImplementedException("Chart type not supported in this version"));
+                    throw(new NotImplementedException("Chart type is not supported in the current version"));
                 }
 
                 XmlElement drawNode = CreateDrawingXml();
 
                 
-                ExcelChart chart = GetNewChart(drawNode, ChartType);
+                ExcelChart chart = ExcelChart.GetNewChart(this, drawNode, ChartType, null);
                 chart.Name = Name;
                 _drawings.Add(chart);
                 _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
@@ -327,74 +327,6 @@ namespace OfficeOpenXml.Drawing
                 _drawings.Add(shape);
                 _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                 return shape;
-            }
-            private ExcelChart GetNewChart(XmlNode drawNode, eChartType chartType)
-            {
-                switch(chartType)
-                {
-                    case eChartType.Pie:
-                    case eChartType.PieExploded:
-                    case eChartType.Pie3D:
-                    case eChartType.PieExploded3D:
-                        return new ExcelPieChart(this, drawNode, chartType);
-                    case eChartType.BarOfPie:
-                    case eChartType.PieOfPie:
-                        return new ExcelOfPieChart(this, drawNode, chartType);
-                    case eChartType.Doughnut:
-                    case eChartType.DoughnutExploded:
-                        return new ExcelDoughnutChart(this, drawNode, chartType);
-                    case eChartType.BarClustered:
-                    case eChartType.BarStacked:
-                    case eChartType.BarStacked100:
-                    case eChartType.BarClustered3D:
-                    case eChartType.BarStacked3D:
-                    case eChartType.BarStacked1003D:
-                    case eChartType.ConeBarClustered:
-                    case eChartType.ConeBarStacked:
-                    case eChartType.ConeBarStacked100:
-                    case eChartType.CylinderBarClustered:
-                    case eChartType.CylinderBarStacked:
-                    case eChartType.CylinderBarStacked100:
-                    case eChartType.PyramidBarClustered:
-                    case eChartType.PyramidBarStacked:
-                    case eChartType.PyramidBarStacked100:
-                    case eChartType.ColumnClustered:
-                    case eChartType.ColumnStacked:
-                    case eChartType.ColumnStacked100:
-                    case eChartType.Column3D:
-                    case eChartType.ColumnClustered3D:
-                    case eChartType.ColumnStacked3D:
-                    case eChartType.ColumnStacked1003D:
-                    case eChartType.ConeCol:
-                    case eChartType.ConeColClustered:
-                    case eChartType.ConeColStacked:
-                    case eChartType.ConeColStacked100:
-                    case eChartType.CylinderCol:
-                    case eChartType.CylinderColClustered:
-                    case eChartType.CylinderColStacked:
-                    case eChartType.CylinderColStacked100:
-                    case eChartType.PyramidCol:
-                    case eChartType.PyramidColClustered:
-                    case eChartType.PyramidColStacked:
-                    case eChartType.PyramidColStacked100:
-                        return new ExcelBarChart(this, drawNode, chartType);
-                    case eChartType.XYScatter:
-                    case eChartType.XYScatterLines:
-                    case eChartType.XYScatterLinesNoMarkers:
-                    case eChartType.XYScatterSmooth:
-                    case eChartType.XYScatterSmoothNoMarkers:
-                        return new ExcelScatterChart(this, drawNode, chartType);
-                    case eChartType.Line:
-                    case eChartType.Line3D:
-                    case eChartType.LineMarkers:
-                    case eChartType.LineMarkersStacked:
-                    case eChartType.LineMarkersStacked100:
-                    case eChartType.LineStacked:
-                    case eChartType.LineStacked100:
-                        return new ExcelLineChart(this, drawNode, chartType);
-                    default:
-                        return new ExcelChart(this, drawNode, chartType);
-                }
             }
             private XmlElement CreateDrawingXml()
             {

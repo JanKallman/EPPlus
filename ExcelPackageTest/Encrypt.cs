@@ -12,27 +12,31 @@ namespace ExcelPackageTest
     public class Encrypt
     {
         [TestMethod]
-        public void ReadEncrypt()
+        public void ReadWriteEncrypt()
         {
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\SampleApp\sample7.xlsx"), true))
-            //using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\sample7Encr_Test.xlsx"), true, "EPPlus"))
-    
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\Drawing.xlsx"), true))   
             {
                 pck.Encryption.Password = "EPPlus";
                 pck.Encryption.Algorithm = EncryptionAlgorithm.AES192;
                 pck.Workbook.Protection.SetPassword("test");
                 pck.Workbook.Protection.LockStructure = true;
-                //pck.Workbook.Protection.LockWindows = true;
+                pck.Workbook.Protection.LockWindows = true;
 
-                pck.SaveAs(new FileInfo(@"c:\temp\sample7Encr_Test.xlsx"));
+                pck.SaveAs(new FileInfo(@"Test\DrawingEncr.xlsx"));                
             }
 
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\sample7Encr_Test.xlsx"), true, "EPPlus"))            
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\DrawingEncr.xlsx"), true, "EPPlus"))            
             {
                 pck.Encryption.IsEncrypted = false;
-                pck.SaveAs(new FileInfo(@"c:\temp\sample7NotEncr.xlsx"));
+                pck.SaveAs(new FileInfo(@"Test\DrawingNotEncr.xlsx"));
             }
-            
+
+            FileStream fs = new FileStream(@"Test\DrawingEncr.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            using (ExcelPackage pck = new ExcelPackage(fs, "EPPlus"))
+            {
+                pck.Encryption.IsEncrypted = false;
+                pck.SaveAs(new FileInfo(@"Test\DrawingNotEncr.xlsx"));
+            }
 
         }
         [TestMethod]
