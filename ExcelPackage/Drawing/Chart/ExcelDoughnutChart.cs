@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -83,7 +84,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNodeString(_firstSliceAngPath, value.ToString());
+                _chartXmlHelper.SetXmlNodeString(_firstSliceAngPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         //string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize/@val";
@@ -99,7 +100,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                _chartXmlHelper.SetXmlNodeString(_holeSizePath, value.ToString());
+                _chartXmlHelper.SetXmlNodeString(_holeSizePath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
     }

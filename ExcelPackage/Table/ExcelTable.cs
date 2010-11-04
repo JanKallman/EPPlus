@@ -285,8 +285,19 @@ namespace OfficeOpenXml.Table
             {
                 return GetXmlNodeString(NAME_PATH);
             }
-            set
+            set 
             {
+                if(WorkSheet.Workbook.ExistsTableName(value))
+                {
+                    throw (new ArgumentException("Tablename is not unique"));
+                }
+                string prevName = Name;
+                if (WorkSheet.Tables._tableNames.ContainsKey(prevName))
+                {
+                    int ix=WorkSheet.Tables._tableNames[prevName];
+                    WorkSheet.Tables._tableNames.Remove(prevName);
+                    WorkSheet.Tables._tableNames.Add(value,ix);
+                }
                 SetXmlNodeString(NAME_PATH, value);
                 SetXmlNodeString(DISPLAY_NAME_PATH, cleanDisplayName(value));
             }
@@ -393,20 +404,32 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                if (Address._toRow - Address._fromRow < 1 && value ||
-                    Address._toRow - Address._fromRow == 1 && value && ShowHeader)
+                //if (Address._toRow - Address._fromRow < 1 && value ||
+                //    Address._toRow - Address._fromRow == 1 && value && ShowHeader)
+                //{
+                //    throw (new Exception("Can't set ShowTotal-property. Table has too few rows"));
+                //}
+                if (value != ShowTotal)
                 {
-                    throw (new Exception("Can't set ShowTotal-property. Table has too few rows"));
+                    if (value)
+                    {
+                        Address=new ExcelAddress(WorkSheet.Name, ExcelAddressBase.GetAddress(Address.Start.Row, Address.Start.Column, Address.End.Row+1, Address.End.Column));
+                    }
+                    else
+                    {
+                        Address = new ExcelAddress(WorkSheet.Name, ExcelAddressBase.GetAddress(Address.Start.Row, Address.Start.Column, Address.End.Row - 1, Address.End.Column));
+                    }
+                    SetXmlNodeString("@ref", Address.Address);
+                    if (value)
+                    {
+                        SetXmlNodeString(TOTALSROWCOUNT_PATH, "1");
+                    }
+                    else
+                    {
+                        DeleteNode(TOTALSROWCOUNT_PATH);
+                    }
+                    WriteAutoFilter(value);
                 }
-                if (value)
-                {
-                    SetXmlNodeString(TOTALSROWCOUNT_PATH, "1");
-                }   
-                else
-                {
-                    DeleteNode(TOTALSROWCOUNT_PATH);
-                }
-                WriteAutoFilter(value);
             }
         }
 
@@ -501,5 +524,73 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeBool(SHOWCOLUMNSTRIPES_PATH, value, false);
             }
         }
+
+        const string TOTALSROWCELLSTYLE_PATH = "@totalsRowCellStyle";
+        public string TotalsRowCellStyle
+        {
+            get
+            {
+                return GetXmlNodeString(TOTALSROWCELLSTYLE_PATH);
+            }
+            set
+            {
+                if (WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value) < 0)
+                {
+                    throw (new Exception(string.Format("Named style {0} does not exist.", value)));
+                }
+                SetXmlNodeString(TopNode, TOTALSROWCELLSTYLE_PATH, value, true);
+
+                if (ShowTotal)
+                {
+                    WorkSheet.Cells[Address._toRow, Address._fromCol, Address._toRow, Address._toCol].StyleName = value;
+                }
+            }
+        }
+        const string DATACELLSTYLE_PATH = "@dataCellStyle";
+        public string DataCellStyleName
+        {
+            get
+            {
+                return GetXmlNodeString(DATACELLSTYLE_PATH);
+            }
+            set
+            {
+                if (WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value) < 0)
+                {
+                    throw (new Exception(string.Format("Named style {0} does not exist.", value)));
+                }
+                SetXmlNodeString(TopNode, DATACELLSTYLE_PATH, value, true);
+
+                int fromRow = Address._fromRow + (ShowHeader ? 1 : 0),
+                    toRow = Address._toRow - (ShowTotal ? 1 : 0);
+
+                if (fromRow < toRow)
+                {
+                    WorkSheet.Cells[fromRow, Address._fromCol, toRow, Address._toCol].StyleName = value;
+                }
+            }
+        }
+        const string HEADERROWCELLSTYLE_PATH = "@headerRowCellStyle";
+        public string HeaderRowCellStyle
+        {
+            get
+            {
+                return GetXmlNodeString(HEADERROWCELLSTYLE_PATH);
+            }
+            set
+            {
+                if (WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value) < 0)
+                {
+                    throw (new Exception(string.Format("Named style {0} does not exist.", value)));
+                }
+                SetXmlNodeString(TopNode, HEADERROWCELLSTYLE_PATH, value, true);
+
+                if (ShowHeader)
+                {
+                    WorkSheet.Cells[Address._fromRow, Address._fromCol, Address._fromRow, Address._toCol].StyleName = value;
+                }
+
+            }
+        }        
     }
 }

@@ -93,6 +93,7 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
     <Compile Include="Style\IStyle.cs" />

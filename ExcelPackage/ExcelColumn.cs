@@ -126,14 +126,10 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelColumn Width
-		/// <summary>
-		/// Sets the width of the column in the worksheet
-		/// </summary>
-        double _width;
-        public double Width
-		{
-			get
-			{
+        internal double VisualWidth
+        {
+            get
+            {
                 if (_hidden || (Collapsed && OutlineLevel>0))
                 {
                     return 0;
@@ -142,6 +138,17 @@ namespace OfficeOpenXml
                 {
                     return _width;
                 }
+            }
+        }
+        double _width;
+        /// <summary>
+        /// Sets the width of the column in the worksheet
+        /// </summary>
+        public double Width
+		{
+			get
+			{
+                return _width;
 			}
 			set	
             {

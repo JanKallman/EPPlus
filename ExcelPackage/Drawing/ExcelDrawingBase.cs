@@ -141,7 +141,7 @@ namespace OfficeOpenXml.Drawing
         protected ExcelDrawings _drawings;
         protected XmlNode _topNode;
         string _nameXPath;
-        int _id;
+        protected internal int _id;
         const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
 
@@ -274,7 +274,7 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             if (ws._columns.ContainsKey(ExcelColumn.GetColumnID(ws.SheetID, col)))   //Check that the column exists
             {
-                return (decimal)ws.Column(col).Width;
+                return (decimal)ws.Column(col).VisualWidth;
             }
             else
             {
@@ -323,13 +323,13 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
             int prevPix = 0;
-            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(1).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(1).VisualWidth + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             int col = 2;
 
             while (pix < pixels)
             {
                 prevPix = pix;
-                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col++).Width + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col++).VisualWidth + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
             if (pix == pixels)
             {

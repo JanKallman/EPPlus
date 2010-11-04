@@ -55,10 +55,11 @@ namespace OfficeOpenXml.Table
     public class ExcelTableColumn : XmlHelper
     {
         ExcelTable _tbl;
-        internal ExcelTableColumn(XmlNamespaceManager ns, XmlNode topNode, ExcelTable tbl) :
+        internal ExcelTableColumn(XmlNamespaceManager ns, XmlNode topNode, ExcelTable tbl, int pos) :
             base(ns, topNode)
         {
             _tbl = tbl;
+            Position = pos;
         }
 
         public int Id 
@@ -71,6 +72,11 @@ namespace OfficeOpenXml.Table
             {
                 SetXmlNodeString("@id", value.ToString());
             }
+        }
+        public int Position
+        {
+            get;
+            private set;
         }
         public string Name
         {
@@ -95,7 +101,6 @@ namespace OfficeOpenXml.Table
             set
             {
                 SetXmlNodeString("@totalsRowLabel", value);
-                //_tbl.WorkSheet.Cell(_tbl.Address._toRow, _tbl.Address._fromCol+Id-1).Value = value;
             }
         }
         /// <summary>
@@ -127,7 +132,7 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString("@totalsRowFunction", s);
             }
         }
-        const string TOTALSROWFORMULA_PATH = "totalsRowFormula";
+        const string TOTALSROWFORMULA_PATH = "@totalsRowFormula";
         /// <summary>
         /// Sets a custom Totals row Formula.
         /// Be carefull with this property since no validation. 
@@ -147,7 +152,7 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString(TOTALSROWFORMULA_PATH, value);
             }
         }
-        const string DATACELLSTYLE_PATH = "dataCellStyle";
+        const string DATACELLSTYLE_PATH = "@dataCellStyle";
         public string DataCellStyleName
         {
             get
@@ -161,39 +166,16 @@ namespace OfficeOpenXml.Table
                     throw(new Exception(string.Format("Named style {0} does not exist.",value)));
                 }
                 SetXmlNodeString(TopNode, DATACELLSTYLE_PATH, value,true);
+               
+                int fromRow=_tbl.Address._fromRow + (_tbl.ShowHeader?1:0),
+                    toRow=_tbl.Address._toRow - (_tbl.ShowTotal?1:0),
+                    col=_tbl.Address._fromCol+Position;
+
+                if (fromRow < toRow)
+                {
+                    _tbl.WorkSheet.Cells[fromRow, col, toRow, col].StyleName = value;
+                }
             }
         }
-        const string TOTALSROWCELLSTYLE_PATH = "totalsRowCellStyle";
-        public string TotalsRowCellStyle
-        {
-            get
-            {
-                return GetXmlNodeString(TOTALSROWCELLSTYLE_PATH);
-            }
-            set
-            {
-                if(_tbl.WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value)<0)
-                {
-                    throw(new Exception(string.Format("Named style {0} does not exist.",value)));
-                }
-                SetXmlNodeString(TopNode, TOTALSROWCELLSTYLE_PATH, value, true);
-            }
-        }
-        const string HEADERROWCELLSTYLE_PATH = "headerRowCellStyle";
-        public string HeaderRowCellStyle
-        {
-            get
-            {
-                return GetXmlNodeString(HEADERROWCELLSTYLE_PATH);
-            }
-            set
-            {
-                if(_tbl.WorkSheet.Workbook.Styles.NamedStyles.FindIndexByID(value)<0)
-                {
-                    throw(new Exception(string.Format("Named style {0} does not exist.",value)));
-                }
-                SetXmlNodeString(TopNode, HEADERROWCELLSTYLE_PATH, value, true);
-            }
-        }        
     }
 }

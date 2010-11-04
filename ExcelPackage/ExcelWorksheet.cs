@@ -161,9 +161,9 @@ namespace OfficeOpenXml
         /// <param name="relID">Relationship ID</param>
         /// <param name="uriWorksheet">URI</param>
         /// <param name="sheetName">Name of the sheet</param>
-        /// <param name="SheetID">Sheet id</param>
-        /// <param name="PositionID">Position</param>
-        /// <param name="Hide">hide</param>
+        /// <param name="sheetID">Sheet id</param>
+        /// <param name="positionID">Position</param>
+        /// <param name="hide">hide</param>
         public ExcelWorksheet(XmlNamespaceManager ns, ExcelPackage excelPackage, string relID, 
                               Uri uriWorksheet, string sheetName, int sheetID, int positionID,
                               eWorkSheetHidden hide) :
@@ -342,7 +342,7 @@ namespace OfficeOpenXml
 					// insert the new node
 					WorksheetXml.DocumentElement.InsertAfter(sheetFormat, sheetViews);
 				}
-				sheetFormat.SetAttribute("defaultRowHeight", value.ToString());
+				sheetFormat.SetAttribute("defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
                 if (value == 15)
                 {
                     sheetFormat.SetAttribute("customHeight", "0");
@@ -389,7 +389,7 @@ namespace OfficeOpenXml
                     // insert the new node
                     WorksheetXml.DocumentElement.InsertAfter(sheetFormat, sheetViews);
                 }
-                sheetFormat.SetAttribute("defaultColWidth", value.ToString());
+                sheetFormat.SetAttribute("defaultColWidth", value.ToString(CultureInfo.InvariantCulture));
                 if (sheetFormat.GetAttribute("defaultRowHeight") == "")
                 {
                     defaultRowHeight = 15;
@@ -954,7 +954,7 @@ namespace OfficeOpenXml
                 if ((n >= 14 && n <= 22) || (n >= 45 && n <= 47))
                 {
                     double res;
-                    if (double.TryParse(v, out res))
+                    if (double.TryParse(v, NumberStyles.Any, _ci, out res))
                     {
                         value = DateTime.FromOADate(res);
                     }
@@ -1779,7 +1779,7 @@ namespace OfficeOpenXml
                 if (tbl.Part == null)
                 {
                     tbl.TableUri = new Uri(string.Format(@"/xl/tables/table{0}.xml", tbl.Id), UriKind.Relative);
-                    tbl.Part = xlPackage.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml");
+                    tbl.Part = xlPackage.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
                     var rel = Part.CreateRelationship(tbl.TableUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");

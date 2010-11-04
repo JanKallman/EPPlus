@@ -84,7 +84,7 @@ namespace EPPlusSamples
                 }
 
                 //Sample 5
-                //Open sample 1 and adds a pie chart.
+                //Open sample 1 and add a pie chart.
                 Console.WriteLine("Running sample 5");
                 Sample5.RunSample5(outputDir);
                 Console.WriteLine("Sample 5 created:", output);
@@ -93,10 +93,10 @@ namespace EPPlusSamples
                 //Sample 6
                 //Makes an advanced report on a directory in the filesystem.
                 //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if true (Set this to true to improve performance)
-                //
-                //This example demonstrates how to use outlines, shapes, pictures and charts.                
+                //This example demonstrates how to use outlines,tables, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
                 Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
+                
                 Console.WriteLine("Sample 6 created:", output);
                 Console.WriteLine();
 
@@ -107,9 +107,25 @@ namespace EPPlusSamples
                 Sample7.RunSample7(outputDir, 65534);
                 Console.WriteLine("Sample 7 created:", output);
                 Console.WriteLine();
-            
-                LinqSample.RunLinqSample(outputDir);
 
+                //Sample 8 - Linq
+                //Opens Sample 7 and perform some Linq queries
+                Console.WriteLine("Running sample 8-Linq");
+                LinqSample.RunLinqSample(outputDir);
+                Console.WriteLine();
+
+                //Sample 9 Loads two csv files into tables and creates an area chart and a Column/Line chart on the data.
+                //This sample also shows how to use a secondary axis.
+                Console.WriteLine("Running sample 9");
+                Sample9.RunSample9(outputDir);
+                Console.WriteLine("Sample 9 created: {0}", output);
+                Console.WriteLine();
+
+                //Sample 10 Swedish Quiz  : Shows Encryption and workbook and sheet protection.
+                Console.WriteLine("Running sample 10");
+                Sample10.RunSample10(outputDir);
+                Console.WriteLine("Sample 10 created: {0}", output);
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {

@@ -46,6 +46,8 @@ namespace OfficeOpenXml.Table
             {
                 var rel = ws.Part.GetRelationship(node.GetAttribute("id",ExcelPackage.schemaRelationships));
                 var tbl = new ExcelTable(rel, ws);
+                _tableNames.Add(tbl.Name, _tables.Count);
+                _tables.Add(tbl);
             }
         }
         private ExcelTable Add(ExcelTable tbl)
@@ -69,12 +71,7 @@ namespace OfficeOpenXml.Table
         {
             if (string.IsNullOrEmpty(Name))
             {
-                Name = "Table1";
-                int i=2;
-                while (_ws.Workbook.ExistsTableName(Name))
-                {
-                    Name=string.Format("Table{0}", i++);
-                }
+                Name = GetNewTableName();
             }
             else if (_ws.Workbook.ExistsTableName(Name))
             {
@@ -88,10 +85,17 @@ namespace OfficeOpenXml.Table
                 }
             }
             return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
-            //var tbl = new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID++);
-            //_tables.Add(tbl);
-            //_tableNames.Add(Name, _tables.Count - 1);
-            //return tbl;
+        }
+
+        internal string GetNewTableName()
+        {
+            string name = "Table1";
+            int i = 2;
+            while (_ws.Workbook.ExistsTableName(name))
+            {
+                name = string.Format("Table{0}", i++);
+            }
+            return name;
         }
         public int Count
         {

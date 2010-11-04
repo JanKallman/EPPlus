@@ -523,7 +523,11 @@ namespace ExcelPackageTest
             tbl.ShowColumnStripes = true;
             tbl.Columns[2].Name = "Test Column Name";        
         }
-
+        [TestMethod]
+        public void CopyTable()
+        {
+            _pck.Workbook.Worksheets.Copy("File4", "Copied table");
+        }
         [TestMethod]
         public void Stylebug()
         {
@@ -649,8 +653,17 @@ namespace ExcelPackageTest
             //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\last_gics.txt"), new ExcelTextFormat() { SkipLinesBeginning = 1, Delimiter='|'});
 
             ws = _pck.Workbook.Worksheets.Add("File4");
-            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new ExcelTextFormat.eDataTypes[] {ExcelTextFormat.eDataTypes.Number,ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.String, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number, ExcelTextFormat.eDataTypes.Number}},
-                OfficeOpenXml.Table.TableStyles.Medium27, true);            
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
+                OfficeOpenXml.Table.TableStyles.Medium27, true);
+            
+            var style = _pck.Workbook.Styles.CreateNamedStyle("RedStyle");
+            style.Style.Fill.PatternType=ExcelFillStyle.Solid;
+            style.Style.Fill.BackgroundColor.SetColor(Color.Red);
+            
+            var tbl = ws.Tables[ws.Tables.Count - 1];
+            tbl.ShowTotal = true;
+            tbl.TotalsRowCellStyle = "RedStyle";
+            tbl.HeaderRowCellStyle = "RedStyle";
         }
         [TestMethod]
         public void LoadArray()
