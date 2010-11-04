@@ -94,11 +94,38 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                //Where need this one 
+                //We need this one 
                 CreateNode(headerPath);
                 SetXmlNodeString(headerPath, value);            
             }
         }
+       const string headerAddressPath = "c:tx/c:strRef/c:f";
+        /// <summary>
+       /// Header address for the serie.
+       /// </summary>
+       public ExcelAddressBase HeaderAddress
+       {
+           get
+           {
+               string address = GetXmlNodeString(headerAddressPath);
+               if (address == "")
+               {
+                   return null;
+               }
+               else
+               {
+                   return new ExcelAddressBase(address);
+               }
+            }
+            set
+            {
+                if (value._fromCol != value._toCol || value._fromRow != value._toRow || value.Addresses != null)
+                {
+                    throw (new Exception("Address must be a single cell"));
+                }
+                SetXmlNodeString(headerAddressPath, ExcelCell.GetFullAddress(value.WorkSheet, value.Address));    
+            }
+        }        
         string _seriesTopPath;
         string _seriesPath = "{0}/c:numRef/c:f";       
        /// <summary>

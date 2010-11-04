@@ -65,7 +65,7 @@ namespace EPPlusSamples
                 worksheet.Cells["C5"].Value = 20;
                 worksheet.Cells["D5"].Value = 8;
 
-                worksheet.Cells["A6"].Value = "12010";
+                worksheet.Cells["A6"].Value = "12011";
                 worksheet.Cells["B6"].Value = "Crowbar";
                 worksheet.Cells["C6"].Value = 7;
                 worksheet.Cells["D6"].Value = 23.48;

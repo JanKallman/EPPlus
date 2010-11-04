@@ -31,6 +31,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 namespace OfficeOpenXml
 {
@@ -340,7 +341,7 @@ namespace OfficeOpenXml
             set
             {
                CreateMargins();
-               SetXmlNodeString(_leftMarginPath, value.ToString());
+               SetXmlNodeString(_leftMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _rightMarginPath = "d:pageMargins/@right";
@@ -356,7 +357,7 @@ namespace OfficeOpenXml
             set
             {
                 CreateMargins();
-                SetXmlNodeString(_rightMarginPath, value.ToString());
+                SetXmlNodeString(_rightMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _topMarginPath = "d:pageMargins/@top";
@@ -372,7 +373,7 @@ namespace OfficeOpenXml
             set
             {
                 CreateMargins();
-                SetXmlNodeString(_topMarginPath, value.ToString());
+                SetXmlNodeString(_topMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _bottomMarginPath = "d:pageMargins/@bottom";
@@ -388,7 +389,7 @@ namespace OfficeOpenXml
             set
             {
                 CreateMargins();
-                SetXmlNodeString(_bottomMarginPath, value.ToString());
+                SetXmlNodeString(_bottomMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _headerMarginPath = "d:pageMargins/@header";
@@ -404,7 +405,7 @@ namespace OfficeOpenXml
             set
             {
                 CreateMargins();
-                SetXmlNodeString(_headerMarginPath, value.ToString());
+                SetXmlNodeString(_headerMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _footerMarginPath = "d:pageMargins/@footer";
@@ -420,7 +421,7 @@ namespace OfficeOpenXml
             set
             {
                 CreateMargins();
-                SetXmlNodeString(_footerMarginPath, value.ToString());
+                SetXmlNodeString(_footerMarginPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string _orientationPath = "d:pageSetup/@orientation";

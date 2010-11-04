@@ -32,6 +32,11 @@ using System.Text;
 using System.Xml;
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Sets protection on the workbook level
+    ///<seealso cref="ExcelEncryption"/> 
+    ///<seealso cref="ExcelSheetProtection"/> 
+    /// </summary>
     public class ExcelProtection : XmlHelper
     {
         public ExcelProtection(XmlNamespaceManager ns, XmlNode topNode) :
@@ -55,6 +60,9 @@ namespace OfficeOpenXml
             }
         }
         const string lockStructurePath = "d:workbookProtection/@lockStructure";
+        /// <summary>
+        /// Locks the structure,which prevents users from adding or deleting worksheets or from displaying hidden worksheets.
+        /// </summary>
         public bool LockStructure
         {
             get
@@ -67,6 +75,9 @@ namespace OfficeOpenXml
             }
         }
         const string lockWindowsPath = "d:workbookProtection/@lockWindows";
+        /// <summary>
+        /// Locks the position of the workbook window.
+        /// </summary>
         public bool LockWindows
         {
             get
@@ -79,6 +90,10 @@ namespace OfficeOpenXml
             }
         }
         const string lockRevisionPath = "d:workbookProtection/@lockRevision";
+
+        /// <summary>
+        /// Lock the workbook for revision
+        /// </summary>
         public bool LockRevision
         {
             get

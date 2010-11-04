@@ -98,9 +98,9 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        #region "Add Series"
 
-       public ExcelChartSerie Add(ExcelRange Serie, ExcelRange XSerie)
+       public ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie)
        {
-           return AddSeries(Serie.Address, XSerie.Address);
+           return AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute);
        }
        public ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
        {

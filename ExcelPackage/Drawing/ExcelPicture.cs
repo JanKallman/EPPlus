@@ -224,7 +224,7 @@ namespace OfficeOpenXml.Drawing
         private string PicStartXml()
         {
             StringBuilder xml = new StringBuilder();
-            xml.AppendFormat("<xdr:nvPicPr><xdr:cNvPr id=\"2\" descr=\"\" />");
+            xml.AppendFormat("<xdr:nvPicPr><xdr:cNvPr id=\"{0}\" descr=\"\" />", _id);
             xml.Append("<xdr:cNvPicPr><a:picLocks noChangeAspect=\"1\" /></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"\" cstate=\"print\" /><a:stretch><a:fillRect /> </a:stretch> </xdr:blipFill> <xdr:spPr> <a:xfrm> <a:off x=\"0\" y=\"0\" />  <a:ext cx=\"0\" cy=\"0\" /> </a:xfrm> <a:prstGeom prst=\"rect\"> <a:avLst /> </a:prstGeom> </xdr:spPr>");
             return xml.ToString();
         }

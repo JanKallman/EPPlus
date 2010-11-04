@@ -972,6 +972,7 @@ namespace OfficeOpenXml
             string[] lines = Regex.Split(Text, Format.EOL);
             int row = _fromRow;
             int col = _fromCol;
+            int maxCol = col;
             int lineNo = 1;
             if (Text == "")
             {
@@ -981,7 +982,7 @@ namespace OfficeOpenXml
             {
                 foreach (string line in lines)
                 {
-                    if (lineNo > Format.SkipLinesBeginning && lineNo < lines.Length - Format.SkipLinesEnd)
+                    if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
                     {
                         col = _fromCol;
                         string v = "";
@@ -993,7 +994,7 @@ namespace OfficeOpenXml
                             {
                                 if (!isText && v != "")
                                 {
-                                    throw (new Exception(string.Format("Invalid Text delimiter in line : {0}", line)));
+                                    throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
                                 }
                                 isQualifier = !isQualifier;
                                 QCount += 1;
@@ -1036,12 +1037,13 @@ namespace OfficeOpenXml
                         }
 
                         _worksheet.Cell(row, col).Value = ConvertData(Format, v, col - _fromCol, isText);
+                        if (col > maxCol) maxCol = col;
                         row++;
                     }
                     lineNo++;
                 }
             }
-            return _worksheet.Cells[_fromRow, _fromCol, row - 1, col];
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
         }
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
         {
@@ -1071,11 +1073,19 @@ namespace OfficeOpenXml
 
             double d;
             DateTime dt;
-            if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == ExcelTextFormat.eDataTypes.Unknown)
+            if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == eDataTypes.Unknown)
             {
-                if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
+                string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
                 {
-                    return d;
+                    if (v2 == v)
+                    {
+                        return d;
+                    }
+                    else
+                    {
+                        return d / 100;
+                    }
                 }
                 if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
                 {
@@ -1090,7 +1100,7 @@ namespace OfficeOpenXml
             {
                 switch (Format.DataTypes[col])
                 {
-                    case ExcelTextFormat.eDataTypes.Number:
+                    case eDataTypes.Number:
                         if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
                         {
                             return d;
@@ -1099,7 +1109,7 @@ namespace OfficeOpenXml
                         {
                             return v;
                         }
-                    case ExcelTextFormat.eDataTypes.DateTime:
+                    case eDataTypes.DateTime:
                         if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
                         {
                             return dt;
@@ -1108,6 +1118,17 @@ namespace OfficeOpenXml
                         {
                             return v;
                         }
+                    case eDataTypes.Percent:
+                        string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                        if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d / 100;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+
                     default:
                         return v;
 
@@ -1357,6 +1378,7 @@ namespace OfficeOpenXml
                     if (++_enumAddressIx < Addresses.Count)
                     {
                         GetStartIndexEnum(Addresses[_enumAddressIx].Start.Row, Addresses[_enumAddressIx].Start.Column, Addresses[_enumAddressIx].End.Row, Addresses[_enumAddressIx].End.Column);
+                        MoveNext();
                     }
                     else
                     {

@@ -331,7 +331,17 @@ namespace OfficeOpenXml
                 SetXmlNodeString("@rightToLeft", value == true ? "1" : "0");
             }
         }
-
+        internal bool WindowProtection 
+        {
+            get
+            {
+                return GetXmlNodeBool("@windowProtection",false);
+            }
+            set
+            {
+                SetXmlNodeBool("@windowProtection",value,false);
+            }
+        }
         public ExcelWorksheetPanes[] Panes
         {
             get;

@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 namespace OfficeOpenXml.Drawing
 {
@@ -53,7 +54,7 @@ namespace OfficeOpenXml.Drawing
            }
            set
            {
-               SetXmlNodeString(perspectivePath, value.ToString());
+               SetXmlNodeString(perspectivePath, value.ToString(CultureInfo.InvariantCulture));
            }
        }
        const string rotXPath = "c:rotX/@val";
@@ -66,7 +67,7 @@ namespace OfficeOpenXml.Drawing
            set
            {
                CreateNode(rotXPath);
-               SetXmlNodeString(rotXPath, value.ToString());
+               SetXmlNodeString(rotXPath, value.ToString(CultureInfo.InvariantCulture));
            }
        }
     }

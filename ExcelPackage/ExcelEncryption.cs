@@ -55,6 +55,11 @@ namespace OfficeOpenXml
         /// </summary>
         AES256
     }
+    /// <summary>
+    /// How and if the workbook is encrypted
+    ///<seealso cref="ExcelProtection"/> 
+    ///<seealso cref="ExcelSheetProtection"/> 
+    /// </summary>
     public class ExcelEncryption
     {
         /// <summary>

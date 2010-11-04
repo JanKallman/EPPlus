@@ -41,6 +41,7 @@ using OfficeOpenXml.Drawing.Chart;
 using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Table;
 
 namespace EPPlusSamples
 {
@@ -123,7 +124,7 @@ namespace EPPlusSamples
             ws.Column(2).Width = 60;
             ws.Column(3).Width = 16;
             ws.Column(4).Width = 20;
-            ws.Column(5).Width = 20;
+            ws.Column(5).Width =20;
             
             //This set the outline for column 4 and 5 and hide them
             ws.Column(4).OutlineLevel = 1;
@@ -173,7 +174,7 @@ namespace EPPlusSamples
             shape.TextVertical = eTextVerticalType.Horizontal;
             shape.TextAnchoringControl=false;
 
-            //Add graph sheet
+            //Add the graph sheet
             AddGraphs(pck, row, dir.FullName);
 
             //Add a HyperLink to the statistics sheet. 
@@ -279,7 +280,7 @@ namespace EPPlusSamples
             //Set top left corner to row 1 column 2
             pieChart.SetPosition(1, 0, 2, 0);
             pieChart.SetSize(400, 400);
-            pieChart.Series.Add(ExcelRange.GetAddress(4, 2, row-1, 2), ExcelRange.GetAddress(4, 1, row-1, 1));
+            pieChart.Series.Add(ExcelRange.GetAddress(3, 2, row-1, 2), ExcelRange.GetAddress(3, 1, row-1, 1));
 
             pieChart.Title.Text = "Extension Size";
             //Set datalabels and remove the legend
@@ -297,12 +298,12 @@ namespace EPPlusSamples
             //Set position to row 1 column 7 and 16 pixels offset
             doughtnutChart.SetPosition(1, 0, 8, 16);
             doughtnutChart.SetSize(400, 400);
-            doughtnutChart.Series.Add(ExcelRange.GetAddress(17, 2, row - 1, 2), ExcelRange.GetAddress(17, 1, row - 1, 1));
+            doughtnutChart.Series.Add(ExcelRange.GetAddress(16, 2, row - 1, 2), ExcelRange.GetAddress(16, 1, row - 1, 1));
 
             doughtnutChart.Title.Text = "Extension Count";
             doughtnutChart.DataLabel.ShowPercent = true;
             doughtnutChart.DataLabel.ShowLeaderLines = true;
-
+            doughtnutChart.Style = eChartStyle.Style26; //3D look
             //Top-10 filesize
             _fileSize.Sort();
             row=AddStatRows(ws, _fileSize, 29, "Files", "Size");
@@ -313,8 +314,8 @@ namespace EPPlusSamples
 
             barChart.SetPosition(22, 0, 2, 0);
             barChart.SetSize(800, 398);
-            barChart.Series.Add(ExcelRange.GetAddress(31, 2, row - 1, 2), ExcelRange.GetAddress(31, 1, row - 1, 1));
-            barChart.Series[0].Header = "Size";
+            barChart.Series.Add(ExcelRange.GetAddress(30, 2, row - 1, 2), ExcelRange.GetAddress(30, 1, row - 1, 1));
+            //barChart.Series[0].Header = "Size";
             barChart.Title.Text = "Top File size";
 
             //Format the Size and Count column
@@ -357,14 +358,15 @@ namespace EPPlusSamples
                 }
                 row++;
             }
-            
+
+            int tblStart=row;
             //Header 2
             ws.Cells[row, 1].Value = "Name";
             ws.Cells[row, 2].Value = propertyName;
             using (ExcelRange r = ws.Cells[row, 1, row, 2])
             {
                 r.Style.Font.SetFromFont(new Font("Arial", 12, FontStyle.Bold));
-                AlterColor(ws, row);
+                //AlterColor(ws, row);
             }
 
             row++;
@@ -383,7 +385,7 @@ namespace EPPlusSamples
                         ws.Cells[row, 2].Value = lst[lst.Count - i - 1].Count;
                     }
 
-                    AlterColor(ws, row);
+                    //AlterColor(ws, row);
                     row++;
                 }
             }
@@ -408,10 +410,14 @@ namespace EPPlusSamples
                 ws.Cells[row, 2].Value = rest;
                 ws.Cells[row, 1, row, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 ws.Cells[row, 1, row, 2].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                AlterColor(ws, row);
+                //AlterColor(ws, row);
                 row++;
             }
 
+            var tbl = ws.Tables.Add(ws.Cells[tblStart, 1, row - 1, 2], null);
+            tbl.TableStyle = TableStyles.Medium16;
+            tbl.ShowTotal = true;
+            tbl.Columns[1].TotalsRowFunction = RowFunctions.Sum;
             return row;
         }
         /// <summary>

@@ -232,6 +232,18 @@ namespace OfficeOpenXml
                 return _protection;
             }
         }
+        ExcelWorkbookView _view = null;
+        public ExcelWorkbookView View
+        {
+            get
+            {
+                if (_view == null)
+                {
+                    _view = new ExcelWorkbookView(NameSpaceManager, TopNode);
+                }
+                return _view;
+            }
+        }
         /// <summary>
 		/// The Uri to the workbook in the package
 		/// </summary>
@@ -591,8 +603,13 @@ namespace OfficeOpenXml
 			_package.WriteDebugFile(_xmlStyles, "xl", "styles.xml");
 
             // save all the open worksheets
+            var isProtected = Protection.LockWindows || Protection.LockStructure;
             foreach (ExcelWorksheet worksheet in Worksheets)
             {
+                if (isProtected)
+                {
+                    worksheet.View.WindowProtection = true;
+                }
                 worksheet.Save();
             }
             

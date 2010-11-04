@@ -37,6 +37,8 @@ namespace OfficeOpenXml
 {
     /// <summary>
     /// Sheet protection
+    ///<seealso cref="ExcelEncryption"/> 
+    ///<seealso cref="ExcelProtection"/> 
     /// </summary>
     public sealed class ExcelSheetProtection : XmlHelper
     {

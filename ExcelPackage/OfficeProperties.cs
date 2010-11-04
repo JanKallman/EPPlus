@@ -80,7 +80,7 @@ namespace OfficeOpenXml
 		protected internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
 		/// <summary>
 		/// The URI to the extended properties component (app.xml)
-		/// </summary
+		/// </summary>
 		protected internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
 		/// <summary>
 		/// The URI to the custom properties component (custom.xml)
@@ -440,7 +440,7 @@ namespace OfficeOpenXml
 		/// Currently only supports string values.
 		/// </summary>
 		/// <param name="propertyName">The name of the property</param>
-		/// <param name="propValue">The value of the property</param>
+		/// <param name="value">The value of the property</param>
 		public void SetCustomPropertyValue(string propertyName, object value)
 		{
 			// TODO:  provide support for other custom property data types

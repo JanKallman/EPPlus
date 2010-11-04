@@ -116,14 +116,14 @@ namespace OfficeOpenXml
     internal class EncryptionHeader
     {
         internal Flags Flags;
-        internal int SizeExtra; //MUST be 0x00000000.
-        internal AlgorithmID AlgID;      //MUST be 0x0000660E (AES-128), 0x0000660F (AES-192), or 0x00006610 (AES-256).
-        internal AlgorithmHashID AlgIDHash;  //MUST be 0x00008004 (SHA-1).
-        internal int KeySize;    //MUST be 0x00000080 (AES-128), 0x000000C0 (AES-192), or 0x00000100 (AES-256).
-        internal ProviderType ProviderType;    //SHOULD<10> be 0x00000018 (AES).
-        internal int Reserved1;      //Undefined and MUST be ignored.
-        internal int Reserved2;      //MUST be 0x00000000 and MUST be ignored.
-        internal string CSPName;     //SHOULD<11> be set to either "Microsoft Enhanced RSA and AES Cryptographic Provider" or "Microsoft Enhanced RSA and AES Cryptographic Provider (Prototype)" as a null-terminated Unicode string.
+        internal int SizeExtra;             //MUST be 0x00000000.
+        internal AlgorithmID AlgID;         //MUST be 0x0000660E (AES-128), 0x0000660F (AES-192), or 0x00006610 (AES-256).
+        internal AlgorithmHashID AlgIDHash; //MUST be 0x00008004 (SHA-1).
+        internal int KeySize;               //MUST be 0x00000080 (AES-128), 0x000000C0 (AES-192), or 0x00000100 (AES-256).
+        internal ProviderType ProviderType; //SHOULD<10> be 0x00000018 (AES).
+        internal int Reserved1;             //Undefined and MUST be ignored.
+        internal int Reserved2;             //MUST be 0x00000000 and MUST be ignored.
+        internal string CSPName;            //SHOULD<11> be set to either "Microsoft Enhanced RSA and AES Cryptographic Provider" or "Microsoft Enhanced RSA and AES Cryptographic Provider (Prototype)" as a null-terminated Unicode string.
 
 
         internal byte[] WriteBinary()
@@ -509,6 +509,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="password">The password</param>
         /// <param name="algID"></param>
+        /// <param name="key">The Encryption key</param>
         /// <returns></returns>
         private EncryptionInfo CreateEncryptionInfo(string password, AlgorithmID algID, out byte[] key)
         {

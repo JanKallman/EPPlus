@@ -387,7 +387,7 @@ namespace OfficeOpenXml.Drawing.Chart
                XmlElement graphFrame = TopNode.OwnerDocument.CreateElement("graphicFrame", ExcelPackage.schemaSheetDrawings);
                graphFrame.SetAttribute("macro", "");
                TopNode.AppendChild(graphFrame);
-               graphFrame.InnerXml = "<xdr:nvGraphicFramePr><xdr:cNvPr id=\"2\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>";
+               graphFrame.InnerXml = string.Format("<xdr:nvGraphicFramePr><xdr:cNvPr id=\"{0}\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>",_id);
                TopNode.AppendChild(TopNode.OwnerDocument.CreateElement("clientData", ExcelPackage.schemaSheetDrawings));
 
                Package package = drawings.Worksheet.xlPackage.Package;
@@ -565,6 +565,10 @@ namespace OfficeOpenXml.Drawing.Chart
            xml.Append(AddShape(type));
            xml.Append(AddFirstSliceAng(type));
            xml.Append(AddHoleSize(type));
+           if (IsTypeStacked() || IsTypePercentStacked())
+           {
+               xml.Append("<c:overlap val=\"100\"/>");
+           }
            xml.Append(AddAxisId(axID, xAxID));
 
            return xml.ToString();
@@ -795,6 +799,9 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             return ChartType == eChartType.AreaStacked100 ||
                            ChartType == eChartType.BarStacked100 ||
+                           ChartType == eChartType.BarStacked1003D ||
+                           ChartType == eChartType.ColumnStacked100 ||
+                           ChartType == eChartType.ColumnStacked1003D ||
                            ChartType == eChartType.ConeBarStacked100 ||
                            ChartType == eChartType.ConeColStacked100 ||
                            ChartType == eChartType.CylinderBarStacked100 ||
@@ -807,8 +814,11 @@ namespace OfficeOpenXml.Drawing.Chart
         protected bool IsTypeStacked()
         {
             return ChartType == eChartType.AreaStacked ||
+                           ChartType == eChartType.AreaStacked3D ||
                            ChartType == eChartType.BarStacked ||
+                           ChartType == eChartType.BarStacked3D ||
                            ChartType == eChartType.ColumnStacked3D ||
+                           ChartType == eChartType.ColumnStacked ||
                            ChartType == eChartType.ConeBarStacked ||
                            ChartType == eChartType.ConeColStacked ||
                            ChartType == eChartType.CylinderBarStacked ||

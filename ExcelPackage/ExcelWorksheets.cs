@@ -220,6 +220,10 @@ namespace OfficeOpenXml
                 CopyDrawing(Copy, added);
             }
 
+            if (Copy.Tables.Count > 0)
+            {
+                CopyTable(Copy, added);
+            }
             //Copy all cells
             CloneCells(Copy, added);
 
@@ -239,6 +243,51 @@ namespace OfficeOpenXml
             }
 
             return added;
+        }
+
+        private void CopyTable(ExcelWorksheet Copy, ExcelWorksheet added)
+        {
+            //First copy the drawing XML
+            foreach (var tbl in Copy.Tables)
+            {
+                string xml=tbl.TableXml.OuterXml;
+                int Id = _xlPackage.Workbook._nextTableID++;
+                string name = Copy.Tables.GetNewTableName();
+                XmlDocument xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(xml);
+                xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
+                xmlDoc.SelectSingleNode("//d:table/@name", tbl.NameSpaceManager).Value = name;
+                xmlDoc.SelectSingleNode("//d:table/@displayName", tbl.NameSpaceManager).Value = name;
+                xml = xmlDoc.OuterXml;
+
+                var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
+                var part = _xlPackage.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _xlPackage.Compression);
+                StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
+                streamTbl.Write(xml);
+                streamTbl.Close();
+
+                //create the relationship and add the ID to the worksheet xml.
+                var rel = added.Part.CreateRelationship(uriTbl, TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+
+                if (tbl.RelationshipID == null)
+                {
+                    var topNode = added.WorksheetXml.SelectSingleNode("//d:tableParts", tbl.NameSpaceManager);
+                    if (topNode == null)
+                    {
+                        added.CreateNode("d:tableParts");
+                        topNode = added.WorksheetXml.SelectSingleNode("//d:tableParts", tbl.NameSpaceManager);
+                    }
+                    XmlElement elem = added.WorksheetXml.CreateElement("tablePart", ExcelPackage.schemaMain);
+                    topNode.AppendChild(elem);
+                    elem.SetAttribute("id",ExcelPackage.schemaRelationships, rel.Id);
+                }
+                else
+                {
+                    XmlAttribute relAtt;
+                    relAtt = added.WorksheetXml.SelectSingleNode(string.Format("//d:tableParts/d:tablePart/@r:id[.='{0}']", tbl.RelationshipID), tbl.NameSpaceManager) as XmlAttribute;
+                    relAtt.Value = rel.Id;
+                }
+            }
         }
         private void CloneCells(ExcelWorksheet Copy, ExcelWorksheet added)
         {
@@ -343,29 +392,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-        private void CopyRelationShips(ExcelWorksheet Copy, ExcelWorksheet workSheet)
-        {
-            foreach (var r in Copy.Part.GetRelationships())
-            {
-                switch (r.RelationshipType)
-                {
-                    case ExcelPackage.schemaRelationships + "/drawing":
-                        //CopyDrawing(Copy, workSheet, r);
-                        break;
-                    case ExcelPackage.schemaHyperlink:
-                        //Do nothing. Hyperlinks are handled in memory.
-                        break;
-                    case ExcelPackage.schemaComment:
-                        break;
-                    case ExcelPackage.schemaImage:
-                        //
-                        break;
-                    default:    //Other rels are not copied
-                        break;
-                }
-            }
-        }
-
         private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
         {
             //First copy the drawing XML
