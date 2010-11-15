@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
@@ -75,7 +76,14 @@ namespace OfficeOpenXml.Style
                 ExcelRichText prevItem = _list[_list.Count - 1];
                 rt.FontName = prevItem.FontName;
                 rt.Size = prevItem.Size;
-                rt.Color = prevItem.Color;
+                if (prevItem.Color.IsEmpty)
+                {
+                    rt.Color = Color.Black;
+                }
+                else
+                {
+                    rt.Color = prevItem.Color;
+                }
                 rt.PreserveSpace = rt.PreserveSpace;
                 rt.Bold = prevItem.Bold;
                 rt.Italic = prevItem.Italic;                

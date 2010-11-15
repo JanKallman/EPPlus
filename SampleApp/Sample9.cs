@@ -148,7 +148,7 @@ namespace EPPlusSamples
             var format = new ExcelTextFormat();
             format.Delimiter='\t'; //Tab
             format.SkipLinesBeginning = 1;
-            CultureInfo ci = new CultureInfo("sv-SE");          //Use your choise of Culture
+            CultureInfo ci = new CultureInfo("sv-SE");          //Use your choice of Culture
             ci.NumberFormat.NumberDecimalSeparator = ",";       //Decimal is comma
             format.Culture = ci;
 
@@ -163,7 +163,7 @@ namespace EPPlusSamples
             var tbl = sheet.Tables.Add(range.Offset(0,0,range.End.Row-range.Start.Row+1, range.End.Column-range.Start.Column+2),"Table");
             tbl.ShowTotal = true;
             tbl.Columns[0].TotalsRowLabel = "Total";
-            tbl.Columns[1].TotalsRowFormula = "=COUNT(3,[Product])";    //Add a custom formula
+            tbl.Columns[1].TotalsRowFormula = "COUNT(3,[Product])";    //Add a custom formula
             tbl.Columns[2].TotalsRowFunction = RowFunctions.Sum;
             tbl.Columns[3].TotalsRowFunction = RowFunctions.Sum;
             tbl.Columns[4].TotalsRowFunction = RowFunctions.Sum;

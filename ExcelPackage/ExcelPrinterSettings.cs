@@ -314,6 +314,21 @@ namespace OfficeOpenXml
         /// </summary>
         A3ExtraTransverse = 68
     }
+    /// <summary>
+    /// Specifies printed page order
+    /// </summary>
+    public enum ePageOrder
+    {
+
+        /// <summary>
+        /// Order pages vertically first, then move horizontally.
+        /// </summary>
+        DownThenOver,
+        /// <summary>
+        /// Order pages horizontally first, then move vertically
+        /// </summary>
+        OverThenDown
+    }
     #endregion
     /// <summary>
     /// Printer settings
@@ -323,7 +338,7 @@ namespace OfficeOpenXml
         ExcelWorksheet _ws;
         bool _marginsCreated = false;
 
-        public ExcelPrinterSettings(XmlNamespaceManager ns, XmlNode topNode,ExcelWorksheet ws) :
+        internal ExcelPrinterSettings(XmlNamespaceManager ns, XmlNode topNode,ExcelWorksheet ws) :
             base(ns, topNode)
         {
             _ws = ws;
@@ -680,6 +695,65 @@ namespace OfficeOpenXml
             set
             {
                 SetXmlNodeBool(_gridLinesPath, value, false);
+            }
+        }
+        const string _horizontalCenteredPath = "d:printOptions/@horizontalCentered";
+        /// <summary>
+        /// Horizontal centered when printing 
+        /// </summary>w
+        public bool HorizontalCentered
+        {
+            get
+            {
+                return GetXmlNodeBool(_horizontalCenteredPath, false);
+            }
+            set
+            {
+                SetXmlNodeBool(_horizontalCenteredPath, value, false);
+            }
+        }
+        const string _verticalCenteredPath = "d:printOptions/@verticalCentered";
+        /// <summary>
+        /// Vertical centered when printing 
+        /// </summary>
+        public bool VerticalCentered
+        {
+            get
+            {
+                return GetXmlNodeBool(_verticalCenteredPath, false);
+            }
+            set
+            {
+                SetXmlNodeBool(_verticalCenteredPath, value, false);
+            }
+        }
+        const string _pageOrderPath = "d:pageSetup/@pageOrder";        
+        /// <summary>
+        /// Specifies printed page order
+        /// </summary>
+        public ePageOrder PageOrder
+        {
+            get
+            {
+                if (GetXmlNodeString(_pageOrderPath) == "overThenDown")
+                {
+                    return ePageOrder.OverThenDown;
+                }
+                else
+                {
+                    return ePageOrder.DownThenOver;
+                }
+            }
+            set
+            {
+                if (value == ePageOrder.OverThenDown)
+                {
+                    SetXmlNodeString(_pageOrderPath, "overThenDown");
+                }
+                else
+                {
+                    DeleteNode(_pageOrderPath);
+                }
             }
         }
         const string _blackAndWhitePath = "d:pageSetup/@blackAndWhite";

@@ -7,6 +7,9 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// A collection of Paragraph objects
+    /// </summary>
     public class ExcelParagraphCollection : XmlHelper, IEnumerable<ExcelParagraph>
     {
         List<ExcelParagraph> _list = new List<ExcelParagraph>();

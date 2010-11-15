@@ -56,7 +56,7 @@ namespace OfficeOpenXml
         {
             _worksheet = xlWorksheet;
             _ws = _worksheet.Name;
-            SetDelegate();
+            SetDelegate();  
         }
 
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
@@ -429,31 +429,43 @@ namespace OfficeOpenXml
             }
             set
             {
-                if (!value)
+                SetMerge(value, FirstAddress);
+                if (Addresses != null)
                 {
-                    if (_worksheet.MergedCells.List.Contains(_address))
+                    foreach (var address in Addresses)
                     {
-                        SetCellMerge(false);
-                        _worksheet.MergedCells.List.Remove(_address);
+                        SetMerge(value, address._address);
                     }
-                    else if (!CheckMergeDiff(false))
-                    {
-                        throw (new Exception("Range is not fully merged.Specify the exact range"));
-                    }
+                }
+            }
+        }
+
+        private void SetMerge(bool value, string address)
+        {
+            if (!value)
+            {
+                if (_worksheet.MergedCells.List.Contains(address))
+                {
+                    SetCellMerge(false,address);
+                    _worksheet.MergedCells.List.Remove(address);
+                }
+                else if (!CheckMergeDiff(false, address))
+                {
+                    throw (new Exception("Range is not fully merged.Specify the exact range"));
+                }
+            }
+            else
+            {
+                if (CheckMergeDiff(false, address))
+                {
+                    SetCellMerge(true, address);
+                    _worksheet.MergedCells.List.Add(address);
                 }
                 else
                 {
-                    if (CheckMergeDiff(false))
+                    if (!_worksheet.MergedCells.List.Contains(address))
                     {
-                        SetCellMerge(true);
-                        _worksheet.MergedCells.List.Add(_address);
-                    }
-                    else
-                    {
-                        if (!_worksheet.MergedCells.List.Contains(_address))
-                        {
-                            throw (new Exception("Cells are already merged"));
-                        }
+                        throw (new Exception("Cells are already merged"));
                     }
                 }
             }
@@ -503,6 +515,9 @@ namespace OfficeOpenXml
                 _changePropMethod(Set_IsRichText, value);
             }
         }
+        /// <summary>
+        /// Is the range a part of an Arrayformula
+        /// </summary>
         public bool IsArrayFormula
         {
             get
@@ -619,21 +634,15 @@ namespace OfficeOpenXml
         /// <summary>
         /// Check if the range is partly merged
         /// </summary>
-        /// <returns></returns>
-        private bool CheckMergeDiff()
-        {
-            return CheckMergeDiff(_worksheet.Cell(_fromRow, _fromCol).Merge);
-        }
-        /// <summary>
-        /// Check if the range is partly merged
-        /// </summary>
         /// <param name="startValue">the starting value</param>
+        /// <param name="address">the address</param>
         /// <returns></returns>
-        private bool CheckMergeDiff(bool startValue)
+        private bool CheckMergeDiff(bool startValue, string address)
         {
-            for (int col = _fromCol; col <= _toCol; col++)
+            ExcelAddress a = new ExcelAddress(address);
+            for (int col = a._fromCol; col <= a._toCol; col++)
             {
-                for (int row = _fromRow; row <= _toRow; row++)
+                for (int row = a._fromRow; row <= a._toRow; row++)
                 {
                     if (_worksheet.Cell(row, col).Merge != startValue)
                     {
@@ -647,11 +656,12 @@ namespace OfficeOpenXml
         /// Set the merge flag for the range
         /// </summary>
         /// <param name="value"></param>
-        internal void SetCellMerge(bool value)
+        internal void SetCellMerge(bool value, string address)
         {
-            for (int col = _fromCol; col <= _toCol; col++)
+            ExcelAddress a = new ExcelAddress(address);
+            for (int col = a._fromCol; col <= a._toCol; col++)
             {
-                for (int row = _fromRow; row <= _toRow; row++)
+                for (int row = a._fromRow; row <= a._toRow; row++)
                 {
                     _worksheet.Cell(row, col).Merge = value;
                 }
@@ -725,20 +735,6 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            
-            //foreach (var ix in _worksheet._sharedFormulas.Keys)
-            //{
-            //    var f = _worksheet._sharedFormulas[ix];
-            //    var collide = new ExcelAddressBase(f.Address).Collide(this);
-            //    if (collide != eAddressCollition.Inside)
-            //    {
-            //        _worksheet._sharedFormulas.Remove(ix);
-            //    }
-            //    else if(collide != eAddressCollition.Partly)
-            //    {
-            //        SplitFormula(ix,f);
-            //    }
-            //}
         }
 
         private void SplitFormulas()
@@ -962,10 +958,22 @@ namespace OfficeOpenXml
             return _worksheet.Cells[_fromRow,_fromCol, row-1, column-1];
 		}
         #region LoadFromText
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// Default settings is Comma separation
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <returns>The range containg the data</returns>
         public ExcelRangeBase LoadFromText(string Text)
         {
             return LoadFromText(Text, new ExcelTextFormat());
         }
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <returns>The range containg the data</returns>
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
         {
             if (Format == null) Format = new ExcelTextFormat();
@@ -1045,6 +1053,14 @@ namespace OfficeOpenXml
             }
             return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
         }
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <param name="TableStyle">Create a table with this style</param>
+        /// <param name="FirstRowIsHeader">Use the first row as header</param>
+        /// <returns></returns>
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
         {
             var r = LoadFromText(Text, Format);
@@ -1055,18 +1071,38 @@ namespace OfficeOpenXml
 
             return r;
         }
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile)
         {
             return LoadFromText(File.ReadAllText(TextFile.FullName, Encoding.ASCII));
         }
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="TextFile">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format)
         {
             return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format);
         }
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <param name="TableStyle">Create a table with this style</param>
+        /// <param name="FirstRowIsHeader">Use the first row as header</param>
+        /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
         {
             return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
         }
+        #endregion
         private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
         {
             if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return v;
@@ -1135,7 +1171,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-        #endregion
         /// <summary>
         /// Get a range with an offset from the top left cell.
         /// The new range has the same dimensions as the current range
@@ -1196,7 +1231,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Copies the range of cells to an other range
         /// </summary>
-        /// <param name="Source">The start cell where the range will be copied.</param>
+        /// <param name="Destination">The start cell where the range will be copied.</param>
         public void Copy(ExcelRangeBase Destination)
         {
             bool sameWorkbook=Destination._worksheet == _worksheet;
@@ -1255,7 +1290,7 @@ namespace OfficeOpenXml
             Delete(this);
         }
         /// <summary>
-        /// Create an array-formula.
+        /// Creates an array-formula.
         /// </summary>
         /// <param name="ArrayFormula">The formula</param>
         public void CreateArrayFormula(string ArrayFormula)
@@ -1389,6 +1424,12 @@ namespace OfficeOpenXml
             return true;
         }
 
+        public void Reset()
+        {
+            _enumAddressIx = -1;
+            GetStartIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
+        }
+
         private void GetNextIndexEnum(int fromRow, int fromCol, int toRow, int toCol)
         {
             if (_index >= _worksheet._cells.Count) return;
@@ -1414,12 +1455,6 @@ namespace OfficeOpenXml
                 }
                 cell = _worksheet._cells[_index] as ExcelCell;
             }
-        }
-
-        public void Reset()
-        {
-            _enumAddressIx = -1;
-            GetStartIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
         }
 
         private void GetStartIndexEnum(int fromRow, int fromCol, int toRow, int toCol)

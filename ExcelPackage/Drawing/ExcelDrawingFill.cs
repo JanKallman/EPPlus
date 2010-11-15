@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Drawing
           //  _shp=shp;
             _fillPath = fillPath;
             _fillNode = topNode.SelectSingleNode(_fillPath, NameSpaceManager);
-            SchemaNodeOrder = new string[] { "spPr", "showVal", "prstGeom", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "ln", "prstDash" };
+            SchemaNodeOrder = new string[] { "tickLblPos", "spPr", "txPr","dLblPos", "crossAx", "printSettings", "showVal", "prstGeom", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "ln", "prstDash" };
             //Setfill node
             if (_fillNode != null)
             {

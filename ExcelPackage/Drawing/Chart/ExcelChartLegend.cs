@@ -36,8 +36,16 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    public enum eLegendPosition
+    {
+        Top,
+        Left,
+        Right,
+        Bottom,
+        TopRight
+    }
     /// <summary>
-    /// Chart ledgerz
+    /// Chart ledger
     /// </summary>
     public class ExcelChartLegend : XmlHelper
     {
@@ -46,9 +54,63 @@ namespace OfficeOpenXml.Drawing.Chart
            : base(ns,node)
        {
            _chart=chart;
-           SchemaNodeOrder = new string[] { "legendPos", "layout", "txPr", "bodyPr", "lstStyle", "spPr" };
+           SchemaNodeOrder = new string[] { "legendPos", "layout","overlay", "txPr", "bodyPr", "lstStyle", "spPr" };
        }
-
+        const string POSITION_PATH = "c:legendPos/@val";
+        public eLegendPosition Position 
+        {
+            get
+            {
+                switch(GetXmlNodeString(POSITION_PATH).ToLower())
+                {
+                    case "t":
+                        return eLegendPosition.Top;
+                    case "b":
+                        return eLegendPosition.Bottom;
+                    case "l":
+                        return eLegendPosition.Left;
+                    case "tr":
+                        return eLegendPosition.TopRight;
+                    default:
+                        return eLegendPosition.Right;
+                }
+            }
+            set
+            {
+                if (TopNode == null) throw(new Exception("Can't set position. Chart has no legend"));
+                switch (value)
+                {
+                    case eLegendPosition.Top:
+                        SetXmlNodeString(POSITION_PATH, "t");
+                        break;
+                    case eLegendPosition.Bottom:
+                        SetXmlNodeString(POSITION_PATH, "b");
+                        break;
+                    case eLegendPosition.Left:
+                        SetXmlNodeString(POSITION_PATH, "l");
+                        break;
+                    case eLegendPosition.TopRight:
+                        SetXmlNodeString(POSITION_PATH, "tr");
+                        break;
+                    default:
+                        SetXmlNodeString(POSITION_PATH, "r");
+                        break;
+                }
+            }
+        }
+        const string OVERLAY_PATH = "c:overlay/@val";
+        public bool Overlay
+        {
+            get
+            {
+                return GetXmlNodeBool(OVERLAY_PATH,false);
+            }
+            set
+            {
+                if (TopNode == null) throw (new Exception("Can't set overlay. Chart has no legend"));
+                SetXmlNodeBool(OVERLAY_PATH, value, false);
+            }
+        }
         ExcelDrawingFill _fill = null;
         public ExcelDrawingFill Fill
         {

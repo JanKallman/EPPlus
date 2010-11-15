@@ -57,6 +57,8 @@ namespace OfficeOpenXml.Drawing.Chart
            _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
+           SchemaNodeOrder = new string[] { "idx", "order", "tx", "explosion", "dLbls", "cat", "val", "yVal","xVal" };
+
            if (chartSeries.Chart.ChartType == eChartType.XYScatter ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLinesNoMarkers ||
@@ -94,11 +96,19 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                //We need this one 
-                CreateNode(headerPath);
+                Cleartx();
                 SetXmlNodeString(headerPath, value);            
             }
         }
+
+       private void Cleartx()
+       {
+           var n = TopNode.SelectSingleNode("c:tx", NameSpaceManager);
+           if (n != null)
+           {
+               n.InnerXml = "";
+           }
+       }
        const string headerAddressPath = "c:tx/c:strRef/c:f";
         /// <summary>
        /// Header address for the serie.
@@ -123,7 +133,10 @@ namespace OfficeOpenXml.Drawing.Chart
                 {
                     throw (new Exception("Address must be a single cell"));
                 }
-                SetXmlNodeString(headerAddressPath, ExcelCell.GetFullAddress(value.WorkSheet, value.Address));    
+
+                Cleartx();
+                SetXmlNodeString(headerAddressPath, ExcelCell.GetFullAddress(value.WorkSheet, value.Address));
+                SetXmlNodeString("c:tx/c:strRef/c:strCache/c:ptCount/@val", "0");
             }
         }        
         string _seriesTopPath;
@@ -173,12 +186,13 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               XmlNode node = TopNode.SelectSingleNode(_xSeriesTopPath, NameSpaceManager);
-               if(node==null)
-               {
-                   node = TopNode.OwnerDocument.CreateElement(_xSeriesTopPath, ExcelPackage.schemaChart);
-                   InserAfter(TopNode, "c:dLbls,c:tx,c:order", node);
-               }
+               //XmlNode node = TopNode.SelectSingleNode(_xSeriesTopPath, NameSpaceManager);
+               //if(node==null)
+               //{
+               //    node = TopNode.OwnerDocument.CreateElement(_xSeriesTopPath, ExcelPackage.schemaChart);
+               //    InserAfter(TopNode, "c:dLbls,c:tx,c:order", node);
+               //}
+               CreateNode(_xSeriesPath, true);
                SetXmlNodeString(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_xSeriesTopPath), _ns);

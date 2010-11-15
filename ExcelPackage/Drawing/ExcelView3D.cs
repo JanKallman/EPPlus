@@ -43,7 +43,8 @@ namespace OfficeOpenXml.Drawing
     {
        public ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
-       {       
+       {
+           SchemaNodeOrder = new string[] { "rotX", "perspective" };
        }
        const string perspectivePath = "c:perspective/@val";
        public decimal Perspective

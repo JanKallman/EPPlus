@@ -42,6 +42,7 @@ namespace EPPlusSamples
 			try
 			{
                 //Sample 3 and 4 uses the Adventureworks database. Enter then name of your SQL server into the variable below...
+                //Leave this blank if you don't have access to the Adventureworks database 
                 string SqlServerName = "";
 
                 // change this line to contain the path to the output folder
@@ -65,17 +66,18 @@ namespace EPPlusSamples
 
                 if (SqlServerName != "")
                 {
-                    // Sample 3 - creates a workbook from scratch and 
-                    // populates using data from the AdventureWorks database
+                    // Sample 3 - creates a workbook from scratch 
+                    // This is the same sample as the original Excelpackage, sample 4, but without the template
                     // This sample requires the AdventureWorks database.  
+                    //Shows how to use Ranges, Styling, Namedstyles and Hyperlinks
                     string connectionStr = string.Format(@"server={0};database=AdventureWorks;Integrated Security=true;", SqlServerName);
                     Console.WriteLine("Running sample 3");
                     output = Sample3.RunSample3(outputDir, connectionStr);
                     Console.WriteLine("Sample 3 created: {0}", output);
                     Console.WriteLine();
 
-                    // Sample 4 - creates a workbook based on a template to demonstrat the use of a chart and 
-                    // populates using data from the AdventureWorks database
+                    // Sample 4 - creates a workbook based on a template.
+                    // Populates a range with data and set the series of a linechart.
                     // This sample requires the AdventureWorks database.  
                     Console.WriteLine("Running sample 4");
                     output = Sample4.RunSample4(connectionStr, new FileInfo("..\\..\\GraphTemplate.xlsx"), outputDir);      //Template path from /bin/debug or /bin/release
@@ -91,12 +93,11 @@ namespace EPPlusSamples
                 Console.WriteLine();
 
                 //Sample 6
-                //Makes an advanced report on a directory in the filesystem.
-                //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if true (Set this to true to improve performance)
-                //This example demonstrates how to use outlines,tables, shapes, pictures and charts.                
+                //Creates an advanced report on a directory in the filesystem.
+                //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
+                //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
-                Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
-                
+                Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);                
                 Console.WriteLine("Sample 6 created:", output);
                 Console.WriteLine();
 
@@ -121,7 +122,7 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 9 created: {0}", output);
                 Console.WriteLine();
 
-                //Sample 10 Swedish Quiz  : Shows Encryption and workbook and sheet protection.
+                //Sample 10 Swedish Quiz : Shows Encryption and workbook and sheet protection.
                 Console.WriteLine("Running sample 10");
                 Sample10.RunSample10(outputDir);
                 Console.WriteLine("Sample 10 created: {0}", output);

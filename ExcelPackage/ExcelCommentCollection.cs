@@ -7,6 +7,9 @@ using System.Collections;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Collection of Excelcomment objects
+    /// </summary>  
     public class ExcelCommentCollection : IEnumerable
     {
         internal RangeCollection _comments;

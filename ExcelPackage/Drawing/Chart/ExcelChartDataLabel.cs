@@ -51,7 +51,7 @@ namespace OfficeOpenXml.Drawing.Chart
                topNode = node.OwnerDocument.CreateElement("c", "dLbls", ExcelPackage.schemaChart);
                //node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
                InserAfter(node, "c:marker,c:tx,c:order,c:ser", topNode);
-               SchemaNodeOrder = new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines","spPr", "txPr" };
+               SchemaNodeOrder = new string[] { "spPr", "txPr","dLblPos", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines"};
                topNode.InnerXml = "<c:showVal val=\"0\" />";
            }
            TopNode = topNode;
@@ -154,7 +154,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return _border;
            }
        }
-       string[] _paragraphSchemaOrder = new string[] { "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
+       string[] _paragraphSchemaOrder = new string[] { "spPr", "txPr", "dLblPos", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
        ExcelTextFont _font = null;
        public ExcelTextFont Font
        {
@@ -173,7 +173,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        #endregion
-       #region "Position Enum Traslation"
+       #region "Position Enum Translation"
        protected string GetPosText(eLabelPosition pos)
        {
            switch (pos)

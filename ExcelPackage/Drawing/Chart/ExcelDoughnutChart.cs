@@ -103,5 +103,20 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(_holeSizePath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
+        internal override eChartType GetChartType(string name)
+        {
+            if (name == "doughnutChart")
+            {
+                if (((ExcelPieChartSerie)Series[0]).Explosion > 0)
+                {
+                    return eChartType.DoughnutExploded;
+                }
+                else
+                {
+                    return eChartType.Doughnut;
+                }
+            }
+            return base.GetChartType(name);
+        }
     }
 }

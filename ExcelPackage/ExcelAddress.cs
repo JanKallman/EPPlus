@@ -86,22 +86,6 @@ namespace OfficeOpenXml
                 GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
                 _addresses = null;
             }
-                //if (address.IndexOf(',') > 0)
-            //{
-            //    var subAddresses = address.Split(new char[] { ',' });
-            //    GetRowColFromAddress(subAddresses[0], out _fromRow, out _fromCol, out _toRow, out  _toCol);
-            //    _addresses = new List<ExcelAddress>();
-            //    _firstAddress = subAddresses[0];
-            //    for (int i = 1; i < subAddresses.Length; i++)
-            //    {
-            //        _addresses.Add(new ExcelAddress(subAddresses[i]));
-            //    }
-            //}
-            //else
-            //{
-            //    GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
-            //    _addresses = null;
-            //}
             Validate();
         }
         ExcelCellAddress _start = null;

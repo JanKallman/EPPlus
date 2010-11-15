@@ -33,6 +33,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table
 {
+    /// <summary>
+    /// A collection of table objects
+    /// </summary>
     public class ExcelTableCollection : IEnumerable<ExcelTable>
     {
         List<ExcelTable> _tables = new List<ExcelTable>();

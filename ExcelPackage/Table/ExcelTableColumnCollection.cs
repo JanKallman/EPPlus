@@ -32,13 +32,15 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table
 {
+    /// <summary>
+    /// A collection of table columns
+    /// </summary>
     public class ExcelTableColumnCollection : IEnumerable<ExcelTableColumn>
     {
         List<ExcelTableColumn> _cols = new List<ExcelTableColumn>();
         Dictionary<string, int> _colNames = new Dictionary<string, int>();
         public ExcelTableColumnCollection(ExcelTable table)
         {
-            // TODO: Complete member initialization
             Table = table;
             foreach(XmlNode node in table.TableXml.SelectNodes("//d:table/d:tableColumns/d:tableColumn",table.NameSpaceManager))
             {

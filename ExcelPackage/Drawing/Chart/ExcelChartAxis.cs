@@ -53,6 +53,14 @@ namespace OfficeOpenXml.Drawing.Chart
         Bottom = 1,
         Top = 3
     }
+    public enum eAxisOrientation
+    {
+        MaxMin,
+        MinMax
+    }
+    /// <summary>
+    /// How the axis are crossed
+    /// </summary>
     public enum eCrossBetween
     {
         /// <summary>
@@ -64,6 +72,9 @@ namespace OfficeOpenXml.Drawing.Chart
         /// </summary>
         MidCat
     }
+    /// <summary>
+    /// Where the axis cross. 
+    /// </summary>
     public enum eCrosses
     {
         /// <summary>
@@ -84,10 +95,22 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public sealed class ExcelChartAxis : XmlHelper
     {
+        /// <summary>
+        /// Type of axis
+        /// </summary>
         internal enum eAxisType
         {
+            /// <summary>
+            /// Value axis
+            /// </summary>
             Val,
+            /// <summary>
+            /// Category axis
+            /// </summary>
             Cat,
+            /// <summary>
+            /// Date axis
+            /// </summary>
             Date
         }
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
@@ -102,13 +125,16 @@ namespace OfficeOpenXml.Drawing.Chart
                 return GetXmlNodeString("c:axId/@val");
             }
         }
+        /// <summary>
+        /// Type of axis
+        /// </summary>
         internal eAxisType AxisType
         {
             get
             {
                 try
                 {
-                    return (eAxisType)Enum.Parse(typeof(eAxisType), TopNode.LocalName, true);
+                    return (eAxisType)Enum.Parse(typeof(eAxisType), TopNode.LocalName.Substring(0,3), true);
                 }
                 catch
                 {
@@ -117,6 +143,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         private string AXIS_POSITION_PATH = "c:axPos/@val";
+        /// <summary>
+        /// Where the axis is located
+        /// </summary>
         public eAxisPosition AxisPosition
         {
             get
@@ -139,6 +168,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         const string _crossesPath = "c:crosses/@val";
+        /// <summary>
+        /// Where the axis cross
+        /// </summary>
         public eCrosses Crosses
         {
             get
@@ -153,7 +185,10 @@ namespace OfficeOpenXml.Drawing.Chart
             }
 
         }
-        const string _crossBetweenPath = "c:crossBetween/@val";        
+        const string _crossBetweenPath = "c:crossBetween/@val";
+        /// <summary>
+        /// How the axis are crossed
+        /// </summary>
         public eCrossBetween CrossBetween
         {
             get
@@ -208,6 +243,9 @@ namespace OfficeOpenXml.Drawing.Chart
         }
 
         const string _lblPos = "c:tickLblPos/@val";
+        /// <summary>
+        /// Position of the labels
+        /// </summary>
         public eTickLabelPosition LabelPosition
         {
             get
@@ -221,6 +259,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Access to fill properties
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get
@@ -233,6 +274,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// Access to border properties
+        /// </summary>
         public ExcelDrawingBorder Border
         {
             get
@@ -245,6 +289,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelTextFont _font = null;
+        /// <summary>
+        /// Access to font properties
+        /// </summary>
         public ExcelTextFont Font
         {
             get
@@ -261,7 +308,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _font;
             }
         }
-
+        /// <summary>
+        /// If the axis is deleted
+        /// </summary>
         public bool Deleted 
         {
             get
@@ -274,6 +323,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         const string _ticLblPos_Path = "c:tickLblPos/@val";
+        /// <summary>
+        /// Position of the Lables
+        /// </summary>
         public eTickLabelPosition TickLabelPosition 
         {
             get
@@ -343,6 +395,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         const string _majorUnitPath = "c:majorUnit/@val";
+        const string _majorUnitCatPath = "c:tickLblSkip/@val";
         /// <summary>
         /// Major unit for the axis.
         /// Null is automatic
@@ -351,21 +404,37 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeDoubleNull(_majorUnitPath);
+                if (AxisType == eAxisType.Cat)
+                {
+                    return GetXmlNodeDoubleNull(_majorUnitCatPath);
+                }
+                else
+                {
+                    return GetXmlNodeDoubleNull(_majorUnitPath);
+                }
             }
             set
             {
                 if (value == null)
                 {
                     DeleteNode(_majorUnitPath);
+                    DeleteNode(_majorUnitCatPath);
                 }
                 else
                 {
-                    SetXmlNodeString(_majorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    if (AxisType == eAxisType.Cat)
+                    {
+                        SetXmlNodeString(_majorUnitCatPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        SetXmlNodeString(_majorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    }
                 }
             }
         }
         const string _minorUnitPath = "c:minorUnit/@val";
+        const string _minorUnitCatPath = "c:tickMarkSkip/@val";
         /// <summary>
         /// Minor unit for the axis.
         /// Null is automatic
@@ -374,17 +443,32 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeDoubleNull(_minorUnitPath);
+                if (AxisType == eAxisType.Cat)
+                {
+                    return GetXmlNodeDoubleNull(_minorUnitCatPath);
+                }
+                else
+                {
+                    return GetXmlNodeDoubleNull(_minorUnitPath);
+                }
             }
             set
             {
                 if (value == null)
                 {
                     DeleteNode(_minorUnitPath);
+                    DeleteNode(_minorUnitCatPath);
                 }
                 else
                 {
-                    SetXmlNodeString(_minorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    if (AxisType == eAxisType.Cat)
+                    {
+                        SetXmlNodeString(_minorUnitCatPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    }
+                    else
+                    {
+                        SetXmlNodeString(_minorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
+                    }
                 }
             }
         }
@@ -414,6 +498,31 @@ namespace OfficeOpenXml.Drawing.Chart
                     }
                     SetXmlNodeString(_logbasePath, v.ToString("0.0", CultureInfo.InvariantCulture));
                 }
+            }
+        }
+        const string _orientationPath = "c:scaling/c:orientation/@val";
+        /// <summary>
+        /// 
+        /// </summary>
+        public eAxisOrientation Orientation
+        {
+            get
+            {
+                string v = GetXmlNodeString(_orientationPath);
+                if (v == "")
+                {
+                    return eAxisOrientation.MinMax;
+                }
+                else
+                {
+                    return (eAxisOrientation)Enum.Parse(typeof(eAxisOrientation), v, true);
+                }
+            }
+            set
+            {
+                string s=value.ToString();
+                s=s.Substring(0,1).ToLower() + s.Substring(1,s.Length-1);
+                SetXmlNodeString(_orientationPath, s);
             }
         }
         #endregion

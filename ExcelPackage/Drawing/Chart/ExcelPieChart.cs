@@ -39,15 +39,9 @@ namespace OfficeOpenXml.Drawing.Chart
 
     public class ExcelPieChart : ExcelChart
     {
-        //internal ExcelPieChart(ExcelDrawings drawings, XmlNode node) :
-        //    base(drawings, node/*, 1*/)
-        //{
-        //    //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
-        //}
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
-            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
         }
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
             base(drawings, node, type, topChart)
@@ -78,6 +72,32 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
                 return _DataLabel;
             }
+        }
+        internal override eChartType GetChartType(string name)
+        {
+            if (name == "pieChart")
+            {
+                if (((ExcelPieChartSerie)Series[0]).Explosion>0)
+                {
+                    return eChartType.PieExploded;
+                }
+                else
+                {
+                    return eChartType.Pie;
+                }
+            }
+            else if (name == "pie3DChart")
+            {
+                if (((ExcelPieChartSerie)Series[0]).Explosion > 0)
+                {
+                    return eChartType.PieExploded3D;
+                }
+                else
+                {
+                    return eChartType.Pie3D;
+                }
+            }
+            return base.GetChartType(name);
         }
     }
 }

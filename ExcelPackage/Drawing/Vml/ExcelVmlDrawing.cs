@@ -6,18 +6,27 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Drawing.Vml
 {
+    /// <summary>
+    /// Horizontal Alingment
+    /// </summary>
     public enum eTextAlignHorizontalVml
     {
         Left,
         Center,
         Right
     }
+    /// <summary>
+    /// Vertical Alingment
+    /// </summary>
     public enum eTextAlignVerticalVml
     {
         Top,
         Center,
         Bottom
     }
+    /// <summary>
+    /// Linestyle
+    /// </summary>
     public enum eLineStyleVml
     {
         Solid,
