@@ -352,7 +352,7 @@ namespace OfficeOpenXml
                     sheetFormat.SetAttribute("customHeight", "1");
                 }
 
-                if (sheetFormat.GetAttribute("defaultColWidth") == "")
+                if (string.IsNullOrEmpty(sheetFormat.GetAttribute("defaultColWidth")))
                 {
                     defaultColWidth = 9.140625;
                 }
@@ -390,7 +390,7 @@ namespace OfficeOpenXml
                     WorksheetXml.DocumentElement.InsertAfter(sheetFormat, sheetViews);
                 }
                 sheetFormat.SetAttribute("defaultColWidth", value.ToString(CultureInfo.InvariantCulture));
-                if (sheetFormat.GetAttribute("defaultRowHeight") == "")
+                if (string.IsNullOrEmpty(sheetFormat.GetAttribute("defaultRowHeight")))
                 {
                     defaultRowHeight = 15;
                 }
@@ -1022,6 +1022,9 @@ namespace OfficeOpenXml
 		#endregion
 
         #region "PrinterSettings"
+        /// <summary>
+        /// Printer settings
+        /// </summary>
         public ExcelPrinterSettings PrinterSettings
         {
             get
@@ -1146,7 +1149,8 @@ namespace OfficeOpenXml
             if (c.StyleName != "")
                 newC.StyleName = c.StyleName;
             else
-                newC.StyleID = c.StyleID;        
+                newC.StyleID = c.StyleID;
+
             newC.Width = c.Width;
             newC.Hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
@@ -1659,7 +1663,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private void SaveComments()
         {
             if (_comments != null)
@@ -1825,14 +1828,14 @@ namespace OfficeOpenXml
             var colBreaks = new List<int>();
             if (_columns.Count > 0)
             {
-                UpdateColumnData(sw, ref colBreaks);
+                UpdateColumnData(sw);
             }
 
             int cellStart = colEnd, cellEnd = colEnd;
             GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
             sw.Write(xml.Substring(colEnd, cellStart - colEnd));
             var rowBreaks=new List<int>();
-            UpdateRowCellData(sw, ref rowBreaks);
+            UpdateRowCellData(sw);
 
             int mergeStart = cellEnd, mergeEnd = cellEnd;
 
@@ -1856,47 +1859,61 @@ namespace OfficeOpenXml
             int rowBreakStart = hyperEnd, rowBreakEnd = hyperEnd;
             GetBlockPos(xml, "rowBreaks", ref rowBreakStart, ref rowBreakEnd);
             sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
-            if (rowBreaks.Count > 0)
-            {
-                UpdateRowBreaks(sw, ref rowBreaks);
-            }
+            //if (rowBreaks.Count > 0)
+            //{
+                UpdateRowBreaks(sw);
+            //}
 
             int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
             GetBlockPos(xml, "colBreaks", ref colBreakStart, ref colBreakEnd);
             sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
-            if (colBreaks.Count > 0)
-            {
-                UpdateColBreaks(sw, ref colBreaks);
-            }
+            //if (colBreaks.Count > 0)
+            //{
+                UpdateColBreaks(sw);
+            //}
 
             sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
         }
-
-        private void UpdateColBreaks(StreamWriter sw, ref List<int> colBreaks)
+        private void UpdateColBreaks(StreamWriter sw)
         {
-            sw.Write(string.Format("<colBreaks count=\"{0}\" manualBreakCount=\"{0}\">", colBreaks.Count));
-            foreach (int col in colBreaks)
+            StringBuilder breaks = new StringBuilder();
+            int count = 0;
+            foreach (ExcelColumn col in _columns)
             {
-                sw.Write("<brk id=\"{0}\" max=\"16383\" man=\"1\" />", col);
+                if (col.PageBreak)
+                {
+                    breaks.AppendFormat("<brk id=\"{0}\" max=\"16383\" man=\"1\" />", col.ColumnMin);
+                    count++;
+                }
             }
-            sw.Write("</colBreaks>");
+            if (count > 0)
+            {
+                sw.Write(string.Format("<colBreaks count=\"{0}\" manualBreakCount=\"{0}\">{1}</colBreaks>", count, breaks.ToString()));
+            }
         }
 
-        private void UpdateRowBreaks(StreamWriter sw, ref List<int> rowBreaks)
+        private void UpdateRowBreaks(StreamWriter sw)
         {
-            sw.Write(string.Format("<rowBreaks count=\"{0}\" manualBreakCount=\"{0}\">", rowBreaks.Count));
-            foreach (int row in rowBreaks)
+            StringBuilder breaks=new StringBuilder();
+            int count = 0;
+            foreach(ExcelRow row in _rows)            
             {
-                sw.Write("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", row);
+                if (row.PageBreak)
+                {
+                    breaks.AppendFormat("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", row.Row);
+                    count++;
+                }
             }
-            sw.Write("</rowBreaks>");
-
+            if (count>0)
+            {
+                sw.Write(string.Format("<rowBreaks count=\"{0}\" manualBreakCount=\"{0}\">{1}</rowBreaks>", count, breaks.ToString()));                
+            }
         }
         /// <summary>
         /// Inserts the cols collection into the XML document
         /// </summary>
-        private void UpdateColumnData(StreamWriter sw, ref List<int> colBreaks)
+        private void UpdateColumnData(StreamWriter sw)
         {
             ExcelColumn prevCol = null;
             foreach (ExcelColumn col in _columns)
@@ -1952,17 +1969,17 @@ namespace OfficeOpenXml
                 }
                 sw.Write(" />");
 
-                if (col.PageBreak)
-                {
-                    colBreaks.Add(col.ColumnMin);
-                }
+                //if (col.PageBreak)
+                //{
+                //    colBreaks.Add(col.ColumnMin);
+                //}
             }
             sw.Write("</cols>");
         }
         /// <summary>
         /// Insert row and cells into the XML document
         /// </summary>
-        private void UpdateRowCellData(StreamWriter sw,ref List<int> rowBreaks)
+        private void UpdateRowCellData(StreamWriter sw)
         {
             ExcelStyleCollection<ExcelXfs> cellXfs = xlPackage.Workbook.Styles.CellXfs;
             
@@ -2019,10 +2036,10 @@ namespace OfficeOpenXml
                         {
                             sw.Write("ph=\"1\" ");
                         }
-                        if (currRow.PageBreak)
-                        {
-                            rowBreaks.Add(currRow.Row);
-                        }
+                        //if (currRow.PageBreak)
+                        //{
+                        //    rowBreaks.Add(currRow.Row);
+                        //}
                     }
                     sw.Write(">");
                     row = cell.Row;

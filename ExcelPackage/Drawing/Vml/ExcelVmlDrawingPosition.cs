@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Vml
 {
+    /// <summary>
+    /// The position of a VML drawing. Used for comments
+    /// </summary>
     public class ExcelVmlDrawingPosition : XmlHelper
     {
         int _startPos;

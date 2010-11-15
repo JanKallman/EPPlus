@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// Handels paragraph text
+    /// </summary>
     public sealed class ExcelParagraph : ExcelTextFont
     {
         public ExcelParagraph(XmlNamespaceManager ns, XmlNode rootNode, string path, string[] schemaNodeOrder) : 

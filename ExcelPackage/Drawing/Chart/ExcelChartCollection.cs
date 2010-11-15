@@ -5,6 +5,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Enumerates charttypes 
+    /// </summary>
     public class ExcelChartCollection : IEnumerable<ExcelChart>
     {
         List<ExcelChart> _list = new List<ExcelChart>();

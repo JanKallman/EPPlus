@@ -41,15 +41,6 @@ namespace OfficeOpenXml.Drawing.Chart
     /// </summary>
     public sealed class ExcelScatterChart : ExcelChart
     {
-        //internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node) :
-        //    base(drawings, node/*, 1*/)
-        //{
-        //}
-        //internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-        //    base(drawings, node, type)
-        //{
-        //    SetTypeProperties();
-        //}
         internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
             base(drawings, node, type, topChart)
         {
@@ -122,5 +113,57 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(_scatterTypePath, GetScatterText(value));
             }
         }
+        string MARKER_PATH = "c:marker/@val";
+        /// <summary>
+        /// If the series has markers
+        /// </summary>
+        public bool Marker
+        {
+            get
+            {
+                return GetXmlNodeBool(MARKER_PATH, false);
+            }
+            set
+            {
+                SetXmlNodeBool(MARKER_PATH, value, false);
+            }
+        }
+        internal override eChartType GetChartType(string name)
+        {
+            if (name == "scatterChart")
+            {
+                if (ScatterStyle==eScatterStyle.LineMarker)
+                {
+                    if (((ExcelScatterChartSerie)Series[0]).Marker == eMarkerStyle.None)
+                    {
+                        return eChartType.XYScatterLinesNoMarkers;
+                    }
+                    else
+                    {
+                        if(ExistNode("c:ser/c:spPr/a:ln/noFill"))
+                        {
+                            return eChartType.XYScatter;
+                        }
+                        else
+                        {
+                            return eChartType.XYScatterLines;
+                        }
+                    }
+                }
+                else if (ScatterStyle == eScatterStyle.SmoothMarker)
+                {
+                    if (((ExcelScatterChartSerie)Series[0]).Marker == eMarkerStyle.None)
+                    {
+                        return eChartType.XYScatterSmoothNoMarkers;
+                    }
+                    else
+                    {
+                        return eChartType.XYScatterSmooth;
+                    }
+                }
+            }
+            return base.GetChartType(name);
+        }
+
     }
 }

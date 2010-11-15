@@ -111,7 +111,7 @@ namespace EPPlusSamples
                 sheet.Column(3).Width = 20;
 
                 sheet.Cells["A7"].Value = "What is the name of the capital of Sweden?";
-                sheet.Cells["A9"].Value = "At which place did the Swedish team end up in the Soccer World Cup 1994?";
+                sheet.Cells["A9"].Value = "At which place did the Swedish team end up in the Soccer Worldcup 1994?";
                 sheet.Cells["A11"].Value = "What is the first name of the famous Swedish inventor/scientist that founded the Nobel-prize?";
 
                 using (var r = sheet.Cells["B3,C7,C9,C11"])
@@ -145,7 +145,7 @@ namespace EPPlusSamples
                     sheetAnswers.Cells["C11"].Value = "Alfred";
 
                     packageAnswers.Encryption.Algorithm = EncryptionAlgorithm.AES192;   //For the answers we want a little bit stronger encryption
-                    packageAnswers.SaveAs(answerFile, "EPPlus");
+                    packageAnswers.SaveAs(answerFile, "EPPlus");                        //Save and set the password to EPPlus. The password can also be set using packageAnswers.Encryption.Password property
                 }
 
                 //Ok, Since this is an example we create one user answer...

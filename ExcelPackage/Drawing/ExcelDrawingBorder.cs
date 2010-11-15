@@ -65,7 +65,7 @@ namespace OfficeOpenXml.Drawing
         public ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "chart", "spPr", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "prstDash" };
+            SchemaNodeOrder = new string[] { "chart","tickLblPos", "spPr", "txPr","crossAx", "printSettings", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "prstDash" };
             _linePath = linePath;   
             _lineStylePath = string.Format(_lineStylePath, linePath);
             _lineCapPath = string.Format(_lineCapPath, linePath);

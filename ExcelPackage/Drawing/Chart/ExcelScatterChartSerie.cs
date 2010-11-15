@@ -95,7 +95,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 string marker = GetXmlNodeString(markerPath);
                 if (marker == "")
                 {
-                    return eMarkerStyle.Square;
+                    return eMarkerStyle.None;
                 }
                 else
                 {
@@ -106,7 +106,6 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 SetXmlNodeString(markerPath, value.ToString().ToLower());
             }
-        }        
-       
+        }
     }
 }

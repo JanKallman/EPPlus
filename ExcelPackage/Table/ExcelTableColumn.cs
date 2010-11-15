@@ -132,10 +132,10 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString("@totalsRowFunction", s);
             }
         }
-        const string TOTALSROWFORMULA_PATH = "@totalsRowFormula";
+        const string TOTALSROWFORMULA_PATH = "d:totalsRowFormula";
         /// <summary>
         /// Sets a custom Totals row Formula.
-        /// Be carefull with this property since no validation. 
+        /// Be carefull with this property since it is not validated. 
         /// <example>
         /// tbl.Columns[9].TotalsRowFormula = string.Format("SUM([{0}])",tbl.Columns[9].Name);
         /// </example>
@@ -148,7 +148,8 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                SetXmlNodeString("@totalsRowFunction", "custom");
+                if (value.StartsWith("=")) value = value.Substring(1, value.Length - 1);
+                SetXmlNodeString("@totalsRowFunction", "custom");                
                 SetXmlNodeString(TOTALSROWFORMULA_PATH, value);
             }
         }

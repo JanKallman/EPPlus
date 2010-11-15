@@ -6,14 +6,12 @@ using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// A line chart
+    /// </summary>
     public class ExcelLineChart  : ExcelChart
     {
         #region "Constructors"
-        //internal ExcelLineChart(ExcelDrawings drawings, XmlNode node) :
-        //    base(drawings, node)
-        //{
-        //    _chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
-        //}
         internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
             base(drawings, node, type)
         {
@@ -37,6 +35,21 @@ namespace OfficeOpenXml.Drawing.Chart
             //_chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
         }
         #endregion
+        string MARKER_PATH="c:marker/@val";
+        /// <summary>
+        /// If the series has markers
+        /// </summary>
+        public bool Marker
+        {
+            get
+            {
+                return GetXmlNodeBool(MARKER_PATH, false);
+            }
+            set
+            {
+                SetXmlNodeBool(MARKER_PATH, value, false);
+            }
+        }
         //string _chartTopPath = "c:chartSpace/c:chart/c:plotArea/{0}";
         ExcelChartDataLabel _DataLabel = null;
         private ExcelChart topChart;
@@ -50,6 +63,46 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
                 return _DataLabel;
             }
-        }    
+        }
+        internal override eChartType GetChartType(string name)
+        {
+               if(name=="lineChart")
+               {
+                   if(Marker)
+                   {
+                       if(Grouping==eGrouping.Stacked)
+                       {
+                           return eChartType.LineMarkersStacked;
+                       }
+                       else if (Grouping == eGrouping.PercentStacked)
+                       {
+                           return eChartType.LineMarkersStacked100;
+                       }
+                       else
+                       {
+                           return eChartType.LineMarkers;
+                       }
+                   }
+                   else
+                   {
+                       if(Grouping==eGrouping.Stacked)
+                       {
+                           return eChartType.LineStacked;
+                       }
+                       else if (Grouping == eGrouping.PercentStacked)
+                       {
+                           return eChartType.LineStacked100;
+                       }
+                       else
+                       {
+                           return eChartType.Line;
+                       }
+                   }
+               }
+               else if (name=="line3DChart")
+               {
+                   return eChartType.Line3D;                              }
+               return base.GetChartType(name);
+        }
     }
 }

@@ -49,10 +49,25 @@ namespace OfficeOpenXml.Drawing.Chart
            _ns = ns;
            _chart=chart;
            _node=node;
-
+           SchemaNodeOrder = new string[] { "view3D", "plotArea", "barDir", "grouping", "scatterStyle", "varyColors", "ser", "explosion", "dLbls", "firstSliceAng", "holeSize", "shape", "legend", "axId" };
            foreach(XmlNode n in node.SelectNodes("c:ser",ns))
            {
-               ExcelChartSerie s = new ExcelChartSerie(this, ns, n);
+               ExcelChartSerie s;
+               if (chart.ChartNode.LocalName == "scatterChart")
+               {
+                   s= new ExcelScatterChartSerie(this, ns, n);
+               }
+               else if (chart.ChartNode.LocalName == "pieChart" ||
+                        chart.ChartNode.LocalName == "ofPieChart" ||
+                        chart.ChartNode.LocalName == "pie3DChart" ||
+                        chart.ChartNode.LocalName == "doughnutChart")                                                                       
+               {
+                   s = new ExcelPieChartSerie(this, ns, n);
+               }
+               else
+               {
+                   s = new ExcelChartSerie(this, ns, n);
+               }
                _list.Add(s);
            }
        }
@@ -115,8 +130,8 @@ namespace OfficeOpenXml.Drawing.Chart
                    _node.InsertAfter(ser, node[node.Count-1]);
                }
                else
-               {
-                   InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle", ser);
+               {                   
+                   InserAfter(_node, "c:grouping,c:barDir,c:scatterStyle,c:varyColors", ser);
                 }
                int idx = FindIndex();
                ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), idx, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));

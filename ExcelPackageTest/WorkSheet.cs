@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -436,8 +435,12 @@ namespace ExcelPackageTest
             ws.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
 
             ws.PrinterSettings.Draft = true;
-
+            var r = ws.Cells["A26"];
+            r.Value = "X";
+            r.Worksheet.Row(26).PageBreak = true;
             ws.PrinterSettings.PrintArea=ws.Cells["A1:B2"];
+            ws.PrinterSettings.HorizontalCentered = true;
+            ws.PrinterSettings.VerticalCentered = true;
 
             ws.Select(new ExcelAddress("3:4,E5:F6"));
         }
@@ -666,11 +669,76 @@ namespace ExcelPackageTest
             tbl.HeaderRowCellStyle = "RedStyle";
         }
         [TestMethod]
+        public void Merge()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Merge");
+            ws.Cells["A1:A4"].Merge=true;
+            ws.Cells["C1:C4,C8:C12"].Merge=true;
+            ws.Cells["D13:E18,G5,U32:U45"].Merge = true;
+        }
+
+        [TestMethod]
+        public void DefaultColWidth()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("DefColWidth");
+            ws.defaultColWidth = 45;
+        }
+        [TestMethod]
         public void LoadArray()
         {
             var ws = _pck.Workbook.Worksheets.Add("Loaded Array");
             List<object[]> testArray = new List<object[]>() { new object[] { 3, 4, 5, 6 }, new string[] { "Test1", "test", "5", "6" } };
             ws.Cells["A1"].LoadFromArrays(testArray);
+        }
+        [TestMethod]
+        public void DefColWidthBug()
+        {
+            ExcelWorkbook book = _pck.Workbook;
+            ExcelWorksheet sheet = book.Worksheets.Add("Gebruikers");
+
+            sheet.defaultColWidth = 25d;
+            //sheet.defaultRowHeight = 15d; // needed to make sure the resulting file is valid!
+
+            // Create the header row
+            sheet.Cells[1, 1].Value = "Afdeling code";
+            sheet.Cells[1, 2].Value = "Afdeling naam";
+            sheet.Cells[1, 3].Value = "Voornaam";
+            sheet.Cells[1, 4].Value = "Tussenvoegsel";
+            sheet.Cells[1, 5].Value = "Achternaam";
+            sheet.Cells[1, 6].Value = "Gebruikersnaam";
+            sheet.Cells[1, 7].Value = "E-mail adres";
+            ExcelRange headerRow = sheet.Cells[1, 1, 1, 7];
+            headerRow.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            headerRow.Style.Font.Size = 12;
+            headerRow.Style.Font.Bold = true;
+
+            //// Create a context for retrieving the users
+            //using (PalauDataContext context = new PalauDataContext())
+            //{
+            //    int currentRow = 2;
+
+            //    // iterate through all users in the export and add their info
+            //    // to the worksheet.
+            //    foreach (vw_ExportUser user in
+            //      context.vw_ExportUsers
+            //      .OrderBy(u => u.DepartmentCode)
+            //      .ThenBy(u => u.AspNetUserName))
+            //    {
+            //        sheet.Cells[currentRow, 1].Value = user.DepartmentCode;
+            //        sheet.Cells[currentRow, 2].Value = user.DepartmentName;
+            //        sheet.Cells[currentRow, 3].Value = user.UserFirstName;
+            //        sheet.Cells[currentRow, 4].Value = user.UserInfix;
+            //        sheet.Cells[currentRow, 5].Value = user.UserSurname;
+            //        sheet.Cells[currentRow, 6].Value = user.AspNetUserName;
+            //        sheet.Cells[currentRow, 7].Value = user.AspNetEmail;
+
+            //        currentRow++;
+            //    }
+            //}
+
+            // return the filled Excel workbook
+          //  return pkg
+
         }
     }
 }

@@ -43,15 +43,15 @@ namespace OfficeOpenXml
     public enum EncryptionAlgorithm
     {
         /// <summary>
-        /// // 128-bit AES. Default
+        /// 128-bit AES. Default
         /// </summary>
         AES128,
         /// <summary>
-        /// // 192-bit AES.
+        /// 192-bit AES.
         /// </summary>
         AES192,
         /// <summary>
-        /// // 256-bit AES. 
+        /// 256-bit AES. 
         /// </summary>
         AES256
     }

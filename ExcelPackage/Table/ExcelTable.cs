@@ -162,6 +162,9 @@ namespace OfficeOpenXml.Table
         //PivotStyleDark10,
         //PivotStyleDark11    
     }
+    /// <summary>
+    /// An Excel Table
+    /// </summary>
     public class ExcelTable : XmlHelper
     {
         internal ExcelTable(PackageRelationship rel, ExcelWorksheet sheet) : 

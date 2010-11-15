@@ -65,6 +65,20 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(pieTypePath, value == ePieType.Bar ? "bar" : "pie");
             }
         }
-
+        internal override eChartType GetChartType(string name)
+        {
+            if (name == "ofPieChart")
+            {
+                if (OfPieType==ePieType.Bar)
+                {
+                    return eChartType.BarOfPie;
+                }
+                else
+                {
+                    return eChartType.PieOfPie;
+                }
+            }
+            return base.GetChartType(name);
+        }
     }
 }

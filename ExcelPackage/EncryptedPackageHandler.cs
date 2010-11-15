@@ -124,8 +124,6 @@ namespace OfficeOpenXml
         internal int Reserved1;             //Undefined and MUST be ignored.
         internal int Reserved2;             //MUST be 0x00000000 and MUST be ignored.
         internal string CSPName;            //SHOULD<11> be set to either "Microsoft Enhanced RSA and AES Cryptographic Provider" or "Microsoft Enhanced RSA and AES Cryptographic Provider (Prototype)" as a null-terminated Unicode string.
-
-
         internal byte[] WriteBinary()
         {
             MemoryStream ms = new MemoryStream();
@@ -206,10 +204,10 @@ namespace OfficeOpenXml
     internal class EncryptedPackageHandler
     {
         [DllImport("ole32.dll")]
-        private static extern int StgIsStorageFile(
+        internal static extern int StgIsStorageFile(
             [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
         [DllImport("ole32.dll")]
-        private static extern int StgIsStorageILockBytes(
+        internal static extern int StgIsStorageILockBytes(
             ILockBytes plkbyt);
 
 
@@ -276,14 +274,7 @@ namespace OfficeOpenXml
         internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
         {
             //Create the lockBytes object.
-            ILockBytes lb;
-            var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
-            byte[] docArray=stream.GetBuffer();
-            IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
-            Marshal.Copy(docArray, 0, buffer, docArray.Length);
-            UIntPtr readSize;
-            lb.WriteAt(0, buffer, docArray.Length, out readSize);
-            Marshal.FreeHGlobal(buffer);
+            ILockBytes lb = GetLockbyte(stream);
 
             MemoryStream ret = null;
 
@@ -309,6 +300,19 @@ namespace OfficeOpenXml
             Marshal.ReleaseComObject(lb);
 
             return ret;
+        }
+
+        internal ILockBytes GetLockbyte(MemoryStream stream)
+        {
+            ILockBytes lb;
+            var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
+            byte[] docArray = stream.GetBuffer();
+            IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
+            Marshal.Copy(docArray, 0, buffer, docArray.Length);
+            UIntPtr readSize;
+            lb.WriteAt(0, buffer, docArray.Length, out readSize);
+            Marshal.FreeHGlobal(buffer);
+            return lb;
         }
         /// <summary>
         /// Encrypts a package
@@ -591,7 +595,7 @@ namespace OfficeOpenXml
         {
             MemoryStream ret=null;        
             comTypes.STATSTG statstg;
-
+            
             storage.Stat(out statstg, (uint)STATFLAG.STATFLAG_DEFAULT);
 
             IEnumSTATSTG pIEnumStatStg = null;

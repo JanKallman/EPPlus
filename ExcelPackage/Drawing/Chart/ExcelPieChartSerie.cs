@@ -62,9 +62,12 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetXmlNodeInt(explosionPath);
             }
-            internal set
+            set
             {
-                //Where need this one 
+                if (value < 0 || value > 400)
+                {
+                    throw(new ArgumentOutOfRangeException("Explosion range is 0-400"));
+                }
                 SetXmlNodeString(explosionPath, value.ToString());
             }
         }

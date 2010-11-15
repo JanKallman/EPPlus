@@ -82,7 +82,13 @@ namespace OfficeOpenXml
 		private string _outputFolderPath;
 
 		private ExcelWorkbook _workbook;
+        /// <summary>
+        /// Maximum number of columns in a worksheet (16384). 
+        /// </summary>
         public const int MaxColumns = 16384;
+        /// <summary>
+        /// Maximum number of rows in a worksheet (1048576). 
+        /// </summary>
         public const int MaxRows = 1048576;
 		#endregion
 
@@ -263,7 +269,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private void CreateFromTemplate(FileInfo template, string password)
         {
-            EncryptionAlgorithm algorithm=EncryptionAlgorithm.AES128;
+            if (template != null) template.Refresh();
             if (template.Exists)
             {
                 _stream = new MemoryStream();
@@ -281,8 +287,21 @@ namespace OfficeOpenXml
                     byte[] b = System.IO.File.ReadAllBytes(template.FullName);
                     _stream.Write(b, 0, b.Length);
                 }
-                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
-                Encryption.Algorithm = algorithm;
+                try
+                {
+                    _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                }
+                catch (Exception ex)
+                {
+                    if (password == null && EncryptedPackageHandler.StgIsStorageFile(template.FullName)==0)
+                    {
+                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                    }
+                    else
+                    {
+                        throw (ex);
+                    }
+                }
             }
             else
                 throw new Exception("Passed invalid TemplatePath to Excel Template");
@@ -290,8 +309,8 @@ namespace OfficeOpenXml
         }
         private void ConstructNewFile(string password)
         {
-            EncryptionAlgorithm algorithm=EncryptionAlgorithm.AES128;
             _stream = new MemoryStream();
+            if (File != null) File.Refresh();
             if (File != null && File.Exists)
             {
                 if (password != null)
@@ -307,14 +326,27 @@ namespace OfficeOpenXml
                     byte[] b = System.IO.File.ReadAllBytes(File.FullName);
                     _stream.Write(b, 0, b.Length);
                 }
-                _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                try
+                {
+                    _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                }
+                catch (Exception ex)
+                {
+                    if (password == null && EncryptedPackageHandler.StgIsStorageFile(File.FullName) == 0)
+                    {
+                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                    }
+                    else
+                    {
+                        throw (ex);
+                    }
+                }
             }
             else
             {
                 _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
                 CreateBlankWb();
             }
-            Encryption.Algorithm = algorithm;
         }
         private void CreateBlankWb()
         {
@@ -777,7 +809,23 @@ namespace OfficeOpenXml
                 CopyStream(input, ref this._stream);
             }
 
-            this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
+            try
+            {
+                this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
+            }
+            catch (Exception ex)
+            {
+                EncryptedPackageHandler eph = new EncryptedPackageHandler();
+                if (Password == null && EncryptedPackageHandler.StgIsStorageILockBytes(eph.GetLockbyte((MemoryStream)_stream)) == 0)
+                {
+                    throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                }
+                else
+                {
+                    throw (ex);
+                }
+            }
+            
             //Clear the workbook so that it gets reinitialized next time
             this._workbook = null;
         }

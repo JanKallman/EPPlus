@@ -15,23 +15,24 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <OutputPath>.\Help\</OutputPath>
-    <HtmlHelpName>EPPlus 2.7</HtmlHelpName>
+    <HtmlHelpName>EPPlus 2.8</HtmlHelpName>
     <FrameworkVersion>3.0</FrameworkVersion>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\ExcelPackage\bin\Release\EPPlus.dll" xmlns="" />
       <DocumentationSource sourceFile="..\ExcelPackage\bin\Release\EPPlusXmlDocumentationFile.xml" xmlns="" />
     </DocumentationSources>
-    <ProjectSummary>EPPlus is a .net library that reads and writes Excel 2007 files using the Open Office Xml format. 
-EPPlus supports ranges, cell styling, charts, picture, shapes, named ranges, Autofilter and a lot of other stuff.
+    <ProjectSummary>EPPlus is a .net library that reads and writes Excel files using the Open Office Xml format. 
+EPPlus supports ranges, cell styling, charts, picture, shapes, named ranges, comments,tables and a lot of other stuff.
 EPPlus started with the source from the ExcelPackage project hosted on CodePlex.</ProjectSummary>
     <NamespaceSummaries>
-      <NamespaceSummaryItem name="OfficeOpenXml" isDocumented="True" xmlns="">This is the main namespace for EPPlus</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="OfficeOpenXml.Drawing" isDocumented="True" xmlns="">Contains all classes related to drawings. Drawing objects are Charts, Shapes and pictures</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="OfficeOpenXml.Drawing.Chart" isDocumented="True" xmlns="">Contains chart classes</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="OfficeOpenXml.Style" isDocumented="True" xmlns="">Contains classes for cell styling and named styles</NamespaceSummaryItem>
-      <NamespaceSummaryItem name="OfficeOpenXml.Style.XmlAccess" isDocumented="True" xmlns="">Contains the classes that write the style xml</NamespaceSummaryItem>
-    </NamespaceSummaries>
-    <HelpTitle>EPPlus 2.7.0.1</HelpTitle>
+      <NamespaceSummaryItem name="OfficeOpenXml" isDocumented="True">This is the main namespace for EPPlus</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Drawing" isDocumented="True">Contains all classes related to drawings. Drawing objects are Charts, Shapes and pictures</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Chart" isDocumented="True">Contains chart classes</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Style" isDocumented="True">Contains classes for cell styling and named styles</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Style.XmlAccess" isDocumented="True">Contains the classes that write the style xml</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Vml" isDocumented="True">Contains classes used for Vml drawings. Vml drawings are used for comments</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Table" isDocumented="True">Contains the classes used for Excel tables</NamespaceSummaryItem></NamespaceSummaries>
+    <HelpTitle>EPPlus 2.8</HelpTitle>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

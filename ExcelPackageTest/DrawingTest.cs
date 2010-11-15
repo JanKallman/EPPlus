@@ -109,6 +109,8 @@ namespace ExcelPackageTest
             chrt.SetSize(800, 300);
             AddTestSerie(ws, chrt);
             chrt.VaryColors = true;
+            chrt.XAxis.Orientation = eAxisOrientation.MaxMin;
+            chrt.YAxis.Orientation = eAxisOrientation.MaxMin;
 
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
@@ -149,6 +151,7 @@ namespace ExcelPackageTest
             chrt.DataLabel.ShowPercent = true;
             chrt.Legend.Font.Color = Color.SteelBlue;
             chrt.Title.Border.Fill.Style = eFillStyle.SolidFill;
+            chrt.Legend.Position = eLegendPosition.TopRight;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -164,6 +167,7 @@ namespace ExcelPackageTest
             chrt.To.Column = 12;
 
             chrt.DataLabel.ShowValue = true;
+            chrt.Legend.Position = eLegendPosition.Left;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie3D, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -204,6 +208,7 @@ namespace ExcelPackageTest
             chrt.From.Row=25;
             chrt.To.Row = 53;
             chrt.To.Column = 12;
+            chrt.Legend.Position = eLegendPosition.Bottom;
             
             ////chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
             //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
@@ -237,6 +242,7 @@ namespace ExcelPackageTest
             chrt.PlotArea.Border.LineStyle = eLineStyle.LongDash;
 
             chrt.Legend.Fill.Color = Color.Aquamarine;
+            chrt.Legend.Position = eLegendPosition.Top;
             chrt.Axis[0].Fill.Style = eFillStyle.SolidFill;
             chrt.Axis[0].Fill.Color = Color.Black;
             chrt.Axis[0].Font.Color = Color.White;
@@ -261,6 +267,7 @@ namespace ExcelPackageTest
             chrt.SetSize(200);
             chrt.Title.Text = "Cone bar";
             chrt.Series[0].Header = "Serie 1";
+            chrt.Legend.Position = eLegendPosition.Right;
         }
         [TestMethod]
         public void Column()
@@ -416,6 +423,7 @@ namespace ExcelPackageTest
             chart.SetPosition(100, 100);
             chart.SetSize(800,600);
             AddTestSerie(worksheet, chart);
+            chart.Series[0].Header = "Serie5";
             chart.Style = eChartStyle.Style27;
             worksheet.Cells["W19"].Value = 120;
             worksheet.Cells["W20"].Value = 122;
@@ -432,12 +440,13 @@ namespace ExcelPackageTest
             worksheet.Cells["X24"].Value = 99;
             
             var cs2 = chart.PlotArea.ChartTypes.Add(eChartType.ColumnClustered);
-            cs2.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["U19:U24"]);
+            var s = cs2.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["U19:U24"]);
+            s.Header = "Serie4";
             cs2.YAxis.MaxValue = 300;
             cs2.YAxis.MinValue = -5.5;
             var cs3 = chart.PlotArea.ChartTypes.Add(eChartType.Line);
-            cs3.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["U19:U24"]);
-
+            s=cs3.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["U19:U24"]);
+            s.Header = "Serie1";
             cs3.UseSecondaryAxis = true;
                         
             cs3.XAxis.Deleted = false;
@@ -448,18 +457,28 @@ namespace ExcelPackageTest
             cs3.YAxis.LogBase = 10.2;
 
             var chart2 = worksheet.Drawings.AddChart("scatter1", eChartType.XYScatterSmooth);
-            chart2.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["U19:U24"]);
+            s=chart2.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["U19:U24"]);
+            s.Header = "Serie2";
 
             var c2ct2 = chart2.PlotArea.ChartTypes.Add(eChartType.XYScatterSmooth);
-            c2ct2.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["V19:V24"]);
-            c2ct2.Series.Add(worksheet.Cells["W19:X24"], worksheet.Cells["V19:V24"]);
+            s=c2ct2.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["V19:V24"]);
+            s.Header="Serie3";
+            s=c2ct2.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["V19:V24"]);
+            s.Header = "Serie4";
+
             c2ct2.UseSecondaryAxis = true;
             c2ct2.XAxis.Deleted = false;
             c2ct2.XAxis.TickLabelPosition = eTickLabelPosition.High;
 
-            c2ct2.XAxis.MinValue = 100;
-            c2ct2.XAxis.MaxValue = 105; 
-            c2ct2.XAxis.MajorUnit = .3;
+            ExcelChart chart3 = worksheet.Drawings.AddChart("chart", eChartType.LineMarkers);
+            chart3.SetPosition(300, 1000);
+            var s31=chart3.Series.Add(worksheet.Cells["W19:W24"], worksheet.Cells["U19:U24"]);
+            s31.Header = "Serie1";
+
+            var c3ct2 = chart3.PlotArea.ChartTypes.Add(eChartType.LineMarkers);
+            var c32 = c3ct2.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["V19:V24"]);
+            c3ct2.UseSecondaryAxis = true;
+            c32.Header = "Serie2";
         }
         [TestMethod]
         public void ReadDocument()
@@ -470,7 +489,10 @@ namespace ExcelPackageTest
             {
                 foreach(ExcelDrawing d in pck.Workbook.Worksheets[1].Drawings)
                 {
-                    
+                    if (d is ExcelChart)
+                    {
+                        TestContext.WriteLine(((ExcelChart)d).ChartType.ToString());
+                    }
                 }
             }
         }
@@ -478,7 +500,7 @@ namespace ExcelPackageTest
         public void SaveDrawing()
         {
             _pck.Save();
-        }
+        }   
         [TestMethod]
         public void ReadMultiChartSeries()
         {

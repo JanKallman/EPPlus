@@ -7,6 +7,9 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// Linestyle
+    /// </summary>
     public enum eUnderLineType
     {
         Dash,
@@ -28,6 +31,9 @@ namespace OfficeOpenXml.Style
         WavyHeavy,
         Words
     }
+    /// <summary>
+    /// Type of font strike
+    /// </summary>
     public enum eStrikeType
     {
         Double,

@@ -31,6 +31,9 @@ namespace OfficeOpenXml
         /// </summary>
         Percent
     }
+    /// <summary>
+    /// Describes how to split a CSV text. Used by the ExcelRange.LoadFromText method
+    /// </summary>
     public class ExcelTextFormat
     {
         /// <summary>
