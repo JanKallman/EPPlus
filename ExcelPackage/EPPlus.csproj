@@ -66,6 +66,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
+    </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
@@ -82,6 +85,7 @@
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
     <Compile Include="ExcelEncryption.cs" />
+    <Compile Include="ExcelExtensions.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
     <Compile Include="ExcelColumn.cs" />
     <Compile Include="Drawing\ExcelDrawings.cs" />
