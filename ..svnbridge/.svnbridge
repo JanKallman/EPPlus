@@ -2,4 +2,8 @@
 </Value></Property><Property><Name>svn:ignore</Name><Value>tmpTest
 *.user
 *.suo
+</Value></Property><Property><Name>svn:ignore</Name><Value>tmpTest
+*.user
+*.suo
+TestResults
 </Value></Property></Properties></ItemProperties>
