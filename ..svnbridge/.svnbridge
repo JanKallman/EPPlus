@@ -6,4 +6,9 @@
 *.user
 *.suo
 TestResults
+</Value></Property><Property><Name>svn:ignore</Name><Value>tmpTest
+*.user
+*.suo
+TestResults
+_ReSharper.EPPlus
 </Value></Property></Properties></ItemProperties>

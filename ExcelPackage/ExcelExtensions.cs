@@ -31,7 +31,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 
 namespace OfficeOpenXml
 {
@@ -41,16 +40,33 @@ namespace OfficeOpenXml
 	public static class ExcelExtensions
 	{
 		#region ExcelRange Extensions
+		///<summary>
+		/// Get the current cell column
+		///</summary>
+		///<param name="excelRange">Current cell</param>
+		///<returns>The column</returns>
 		public static ExcelColumn Column(this ExcelRange excelRange)
 		{
 			return GetColumn(excelRange.Worksheet, excelRange._fromCol);
 		}
 
+		///<summary>
+		/// Get the current cell row
+		///</summary>
+		///<param name="excelRange">Currnet cell</param>
+		///<returns>The column</returns>
 		public static ExcelRow Row(this ExcelRange excelRange)
 		{
 			return GetRow(excelRange.Worksheet, excelRange._fromRow);
 		}
 
+		///<summary>
+		/// Set a strongly type value to the current cell
+		///</summary>
+		///<param name="excelRange">Current cell</param>
+		///<param name="value">The strongly type value</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The current cell</returns>
 		public static ExcelRange SetValue<TValue>(this ExcelRange excelRange, TValue value)
 		{
 			excelRange.Value = value;
@@ -59,51 +75,138 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region Worksheet Extensions
+		///<summary>
+		/// Set value to a cell with the worksheet
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRow">The cell row</param>
+		///<param name="cellColumn">The cell column</param>
+		///<param name="value">The value</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The effected cell</returns>
 		public static ExcelRange SetCellValue<TValue>(this ExcelWorksheet sheet, int cellRow, int cellColumn, TValue value)
 		{
 			return sheet.Cells[cellRow, cellColumn].SetValue(value);
 		}
 
+		///<summary>
+		/// Set value to a cell with the worksheet
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellAddress">The cell address</param>
+		///<param name="value">The value</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The effected cell</returns>
 		public static ExcelRange SetCellValue<TValue>(this ExcelWorksheet sheet, string cellAddress, TValue value)
 		{
 			return sheet.Cells[cellAddress].SetValue(value);
 		}
 
+		///<summary>
+		/// Set value to a cell with the worksheet
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRowFrom">From cell row</param>
+		///<param name="cellRowTo">To cell row</param>
+		///<param name="cellColumnFrom">From cell column</param>
+		///<param name="cellColumnTo">To cell column</param>
+		///<param name="value">The value</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The effected cell</returns>
 		public static ExcelRange SetCellValue<TValue>(this ExcelWorksheet sheet, int cellRowFrom, int cellRowTo, int cellColumnFrom, int cellColumnTo, TValue value)
 		{
 			return sheet.Cells[cellRowFrom, cellColumnFrom, cellRowTo, cellColumnTo].SetValue(value);
 		}
 
+		///<summary>
+		/// Get a strongly type value from the cell
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRow">Cell row</param>
+		///<param name="cellColumn">Cell column</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The strongly type value</returns>
 		public static TValue GetCellValue<TValue>(this ExcelWorksheet sheet, int cellRow, int cellColumn)
 		{
 			return sheet.GetCellValue(cellRow, cellColumn, default(TValue));
 		}
 
+		///<summary>
+		/// Get a strongly type value from the cell
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRow">Cell row</param>
+		///<param name="cellColumn">Cell column</param>
+		///<param name="defaultValue">The default value</param>
+		///<typeparam name="TValue">Type of value to expect</typeparam>
+		///<returns>The strongly type value</returns>
 		public static TValue GetCellValue<TValue>(this ExcelWorksheet sheet, int cellRow, int cellColumn, TValue defaultValue)
 		{
 			return ConvertTo(sheet.Cell(cellRow, cellColumn).Value, defaultValue);
 		}
 
+		///<summary>
+		/// Get the cell
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRow">Cell row</param>
+		///<param name="cellColumn">Cell column</param>
+		///<returns>The cell</returns>
 		public static ExcelRange GetCell(this ExcelWorksheet sheet, int cellRow, int cellColumn)
 		{
 			return sheet.Cells[cellRow, cellColumn];
 		}
 
+		///<summary>
+		/// Get the cell
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="cellRowFrom">From cell row</param>
+		///<param name="cellRowTo">To cell row</param>
+		///<param name="cellColumnFrom">From cell column</param>
+		///<param name="cellColumnTo">To cell column</param>
+		///<returns>The cell</returns>
 		public static ExcelRange GetCell(this ExcelWorksheet sheet, int cellRowFrom, int cellColumnFrom, int cellRowTo, int cellColumnTo)
 		{
 			return sheet.Cells[cellRowFrom, cellColumnFrom, cellRowTo, cellColumnTo];
 		}
 
+		///<summary>
+		/// Get the row
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="rowNumber">Row number to get</param>
+		///<returns>The excel row</returns>
 		public static ExcelRow GetRow(this ExcelWorksheet sheet, int rowNumber)
 		{
 			return sheet.Row(rowNumber);
 		}
 
+		///<summary>
+		/// Get the column
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="columnNumber">Column number to get</param>
+		///<returns>The excel column</returns>
 		public static ExcelColumn GetColumn(this ExcelWorksheet sheet, int columnNumber)
 		{
 			return sheet.Column(columnNumber);
 		}
 
+		///<summary>
+		/// Add an IEnumerable of data start from cell
+		///</summary>
+		///<param name="sheet">Current worksheet</param>
+		///<param name="excelRange">Starting from cell</param>
+		///<param name="direction">Insert direction</param>
+		///<param name="values">IEnumberable of data</param>
+		///<typeparam name="TValue">Type</typeparam>
+		///<returns>The excelrange with start and ending range</returns>
+		/// <example>
+		/// // get worksheet
+		/// var sheet = package.Workbook.Worksheets["Sheet1"];
+		/// // get 
+		/// </example>
 		public static ExcelRange Add<TValue>(this ExcelWorksheet sheet, ExcelRange excelRange, InsertDirection direction, IEnumerable<TValue> values)
 		{
 			var rowNumber = excelRange._fromRow;
@@ -125,11 +228,22 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelColumn Extensions
+		///<summary>
+		/// Hide the current column
+		///</summary>
+		///<param name="column">Current column</param>
+		///<returns>Current column</returns>
 		public static ExcelColumn Hide(this ExcelColumn column)
 		{
 			return column.Hide(true);
 		}
 
+		///<summary>
+		/// Hide or show the current column
+		///</summary>
+		///<param name="column">Current column</param>
+		///<param name="hide">Hide or show</param>
+		///<returns>Current column</returns>
 		public static ExcelColumn Hide(this ExcelColumn column, bool hide)
 		{
 			column.Hidden = hide;
@@ -138,11 +252,22 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelRow Extensions
+		///<summary>
+		/// Hide the current row
+		///</summary>
+		///<param name="row">Current row</param>
+		///<returns>Current row</returns>
 		public static ExcelRow Hide(this ExcelRow row)
 		{
 			return row.Hide(true);
 		}
 
+		///<summary>
+		/// Hide or show the current row
+		///</summary>
+		///<param name="row">Current row</param>
+		///<param name="hide">Hide or show</param>
+		///<returns>Current row</returns>
 		public static ExcelRow Hide(this ExcelRow row, bool hide)
 		{
 			row.Hidden = hide;
@@ -204,9 +329,18 @@ namespace OfficeOpenXml
 		#endregion
 	}
 
+	///<summary>
+	/// Insert direction
+	///</summary>
 	public enum InsertDirection
 	{
+		///<summary>
+		/// Insert horizontally
+		///</summary>
 		Across,
+		///<summary>
+		/// Insert vertically
+		///</summary>
 		Down
 	}
 }

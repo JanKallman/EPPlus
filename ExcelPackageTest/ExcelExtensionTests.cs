@@ -11,6 +11,8 @@ namespace ExcelPackageTest
 	[TestClass]
 	public class ExcelExtensionTests
 	{
+		private const string TestValue = "test";
+
 		#region Test Initialize
 		private static ExcelPackage _pck;
 		//
@@ -38,13 +40,12 @@ namespace ExcelPackageTest
 			// Arrange
 			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
 			var cell = sheet.GetCell(1, 1);
-			var value = "test";
 
 			// Act
-			var result = cell.SetValue(value);
+			var result = cell.SetValue(TestValue);
 
 			// Assert
-			Assert.AreEqual(result.Value, value);
+			Assert.AreEqual(result.Value, TestValue);
 			Assert.IsNotNull(result.Value);
 		}
 
@@ -86,6 +87,101 @@ namespace ExcelPackageTest
 			// Act
 
 			// Assert
+		}
+		#endregion
+
+		#region ExcelWorksheet Tests
+		[TestMethod]
+		public void AddIEnumberable()
+		{
+			// Arrange
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+			var startingCell = sheet.GetCell(1, 1);
+			var listOfData = new List<string> {"test1", "test2", "test3"};
+
+			// Act
+			var modifiedCells = sheet.Add(startingCell, InsertDirection.Across, listOfData);
+
+			// Assert
+			Assert.AreEqual(modifiedCells.GetType(), typeof(ExcelRange));
+			Assert.AreEqual(modifiedCells.Value, listOfData[0]);
+		}
+
+		[TestMethod]
+		public void GetCellValue()
+		{
+			// Arrange
+			// create new sheet
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+			// set cell value
+			sheet.SetCellValue(1, 1, TestValue);
+
+			// Act
+			var result = sheet.GetCellValue<string>(1, 1);
+
+			// Assert
+			Assert.AreEqual(result, TestValue);
+			Assert.AreNotEqual(result, 123);
+		}
+
+		[TestMethod]
+		public void GetCell()
+		{
+			// Arrange
+			// create new sheet
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+			// set cell value
+			sheet.SetCellValue(1, 1, TestValue);
+
+			// Act
+			var result = sheet.GetCell(1, 1);
+
+			// Assert
+			Assert.AreEqual(result.GetType(), typeof (ExcelRange));
+			Assert.AreEqual(result.Value, TestValue);
+		}
+
+		[TestMethod]
+		public void GetColumn()
+		{
+			// Arrange
+			// create new sheet
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+
+			// Act
+			var result = sheet.GetColumn(1);
+
+			// Assert
+			Assert.AreEqual(result.GetType(), typeof (ExcelColumn));
+		}
+
+		[TestMethod]
+		public void GetRow()
+		{
+			// Arrange
+			// create new sheet
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+
+			// Act
+			var result = sheet.GetRow(1);
+
+			// Assert
+			Assert.AreEqual(result.GetType(), typeof(ExcelRow));
+		}
+
+		[TestMethod]
+		public void SetCellValue()
+		{
+			// Arrange
+			// create new sheet
+			var sheet = _pck.Workbook.Worksheets.Add("newsheet");
+
+			// Act
+			var result = sheet.SetCellValue(1, 1, TestValue);
+
+			// Assert
+			Assert.AreEqual(result.GetType(), typeof(ExcelRange));
+			Assert.AreEqual(result.Value, TestValue);
 		}
 		#endregion
 	}
