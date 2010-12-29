@@ -31,18 +31,24 @@ using System.Text;
 using System.Globalization;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
-
 namespace OfficeOpenXml
 {
     internal class ExcelCell : ExcelCellBase, IExcelCell, IRangeID
     {
+        [Flags]
+        private enum flags
+        {
+            isMerged=1,
+            isRichText=2,
+
+        }
 		#region Cell Private Properties
 		private ExcelWorksheet _xlWorksheet;
         private int _row;
         private int _col;
 		internal string _formula="";
 		private Uri _hyperlink=null;
-        static CultureInfo _ci=new CultureInfo("en-US");
+        private byte _flags;
         #endregion
 		#region ExcelCell Constructor
 		/// <summary>
@@ -126,7 +132,6 @@ namespace OfficeOpenXml
             if (value is string) DataType = "s"; else DataType = "";
             Formula = "";
         }
-
         /// <summary>
         /// If cell has inline formating. 
         /// </summary>
@@ -449,16 +454,9 @@ namespace OfficeOpenXml
         }
 
         #endregion
-
         internal ExcelCell Clone(ExcelWorksheet added)
         {
             ExcelCell newCell = new ExcelCell(added, _row, _col);
-            //newCell.DataType = DataType;
-            //if (Formula != "" && SharedFormulaID < 0)
-            //{
-            //    newCell.Formula = Formula;
-            //    added._formulaCells.Add(newCell);
-            //}
             if(_hyperlink!=null) newCell.Hyperlink = Hyperlink;
             newCell._formula = _formula;
             newCell._formulaR1C1 = _formulaR1C1;

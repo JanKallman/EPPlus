@@ -73,9 +73,7 @@ namespace OfficeOpenXml
             {
                 _schemaNodeOrder = value;
             }
-
         }
-
         internal XmlNode CreateNode(string path)
         {
             if (path == "") 
@@ -130,7 +128,15 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            subNode = node.OwnerDocument.CreateElement(nodePrefix, nodeName, nameSpaceURI);
+                            if (nodePrefix == "" || (node.OwnerDocument != null && node.OwnerDocument.DocumentElement != null && node.OwnerDocument.DocumentElement.NamespaceURI == nameSpaceURI &&
+                                node.OwnerDocument.DocumentElement.Prefix==""))
+                            {
+                                subNode = node.OwnerDocument.CreateElement(nodeName, nameSpaceURI);
+                            }
+                            else
+                            {
+                                subNode = node.OwnerDocument.CreateElement(nodePrefix, nodeName, nameSpaceURI);
+                            }
                         }
                         if(prependNode!=null)
                         {
@@ -272,6 +278,10 @@ namespace OfficeOpenXml
                 //if (nameNode.InnerText != value) HasChanged();
                 nameNode.InnerText = value;
             }
+        }
+        internal void SetXmlNodeBool(string path, bool value)
+        {
+            SetXmlNodeString(TopNode, path, value ? "1" : "0", false, false);
         }
         internal void SetXmlNodeBool(string path, bool value, bool removeIf)
         {

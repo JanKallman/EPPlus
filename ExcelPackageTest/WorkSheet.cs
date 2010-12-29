@@ -295,6 +295,14 @@ namespace ExcelPackageTest
             var r6 = rs.Add(" cells");
             r6.Color = Color.Red;
             r6.UnderLine=true;
+
+
+            rs = ws.Cells["C8"].RichText;
+            r1 = rs.Add("Blue ");
+            r1.Color = Color.Blue;
+
+            r2 = rs.Add("Red");
+            r2.Color = Color.Red;
         }
         [TestMethod]
         public void SaveWorksheet()
@@ -311,15 +319,15 @@ namespace ExcelPackageTest
             comment.RichText[0].PreserveSpace = true;
             var rt = comment.RichText.Add("Test comment");
             comment.VerticalAlignment = eTextAlignVerticalVml.Center;
-            comment.HorizontalAlignment = eTextAlignHorizontalVml.Center;
-            comment.Visible = true;
-            comment.BackgroundColor = Color.Green;
-            comment.To.Row += 4;
-            comment.To.Column += 2;
-            comment.LineStyle = eLineStyleVml.LongDash;
-            comment.LineColor = Color.Red;
-            comment.LineWidth = (Single)2.5;
-            rt.Color = Color.Red;
+            //comment.HorizontalAlignment = eTextAlignHorizontalVml.Center;
+            //comment.Visible = true;
+            //comment.BackgroundColor = Color.Green;
+            //comment.To.Row += 4;
+            //comment.To.Column += 2;
+            //comment.LineStyle = eLineStyleVml.LongDash;
+            //comment.LineColor = Color.Red;
+            //comment.LineWidth = (Single)2.5;
+            //rt.Color = Color.Red;
 
             var rt2=ws.Cells["C3"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
             ws.Cells["c3"].Comment.AutoFit = true;
@@ -368,6 +376,8 @@ namespace ExcelPackageTest
             ExcelPackage pack = new ExcelPackage(new FileInfo (file ));
             ExcelWorksheet w = pack.Workbook.Worksheets["delete"];
             w.DeleteRow(2, 1);
+            var d=w.GetCellValue<DateTime>(1, 1);
+           
             pack.Save();
         }
         static void Create(string file)
@@ -524,7 +534,18 @@ namespace ExcelPackageTest
             tbl.ShowFirstColumn = true;
             tbl.ShowLastColumn = true;
             tbl.ShowColumnStripes = true;
-            tbl.Columns[2].Name = "Test Column Name";        
+            tbl.Columns[2].Name = "Test Column Name";
+
+            ws.Cells["G50"].Value = "Timespan";
+            ws.Cells["G51"].Value = new DateTime(new TimeSpan(1, 1, 10).Ticks); //new DateTime(1899, 12, 30, 1, 1, 10);
+            ws.Cells["G52"].Value = new DateTime(1899, 12, 30, 2, 3, 10);
+            ws.Cells["G53"].Value = new DateTime(1899, 12, 30, 3, 4, 10);
+            ws.Cells["G54"].Value = new DateTime(1899, 12, 30, 4, 5, 10);
+            
+            ws.Cells["G51:G55"].Style.Numberformat.Format = "HH:MM:SS";
+            tbl = ws.Tables.Add(ws.Cells["G50:G54"], "");
+            tbl.ShowTotal = true;
+            tbl.Columns[0].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
         }
         [TestMethod]
         public void CopyTable()
@@ -739,6 +760,206 @@ namespace ExcelPackageTest
             // return the filled Excel workbook
           //  return pkg
 
+        }
+        [TestMethod]
+        public void CloseProblem()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Manual Receipts");
+
+            ws.Cells["A1"].Value = " SpaceNeedle Manual Receipt Form";
+
+            using (ExcelRange r = ws.Cells["A1:F1"])
+            {
+                r.Merge = true;
+                r.Style.Font.SetFromFont(new Font("Arial", 18, FontStyle.Italic));
+                r.Style.Font.Color.SetColor(Color.DarkRed);
+                r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
+                //r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                //r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(23, 55, 93));
+            }
+            //			ws.Column(1).BestFit = true;
+            ws.Column(1).Width = 17;
+            ws.Column(5).Width = 20;
+
+
+            ws.Cells["A2"].Value = "Date Produced";
+
+            ws.Cells["A2"].Style.Font.Bold = true;
+            ws.Cells["B2"].Value = DateTime.Now.ToShortDateString();
+            ws.Cells["D2"].Value = "Quantity";
+            ws.Cells["D2"].Style.Font.Bold = true;
+            ws.Cells["E2"].Value = "txt";
+
+            ws.Cells["C4"].Value = "Receipt Number";
+            ws.Cells["C4"].Style.WrapText = true;
+            ws.Cells["C4"].Style.Font.Bold = true;
+
+            int rowNbr = 5;
+            for (int entryNbr = 1; entryNbr <= 1; entryNbr += 1)
+            {
+                ws.Cells["B" + rowNbr].Value = entryNbr;
+                ws.Cells["C" + rowNbr].Value = 1 + entryNbr - 1;
+                rowNbr += 1;
+            }
+            pck.SaveAs(new FileInfo(".\\test.xlsx"));
+        }
+        [TestMethod]
+        public void OpenXlsm()
+        {
+            ExcelPackage p=new ExcelPackage(new FileInfo("c:\\temp\\book1.xlsm"));
+
+            p.Save();
+        }
+        [TestMethod]
+        public void Mergebug()
+        {
+            var xlPackage = new ExcelPackage();
+            var xlWorkSheet = xlPackage.Workbook.Worksheets.Add("Test Sheet");
+            var Cells = xlWorkSheet.Cells;
+            var TitleCell = Cells[1, 1, 1, 3];
+
+            TitleCell.Merge = true;
+            TitleCell.Value = "Test Spreadsheet";
+            Cells[2, 1].Value = "Test Sub Heading\r\ntest"+(char)22;
+            for (int i = 0; i < 256; i++)
+            {
+                Cells[3, i + 1].Value = (char)i;
+            }
+            Cells[2, 1].Style.WrapText = true;
+            xlWorkSheet.Row(1).Height=50;
+            xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
+        }
+        [TestMethod]
+        public void OpenProblem()
+        {
+            var xlPackage = new ExcelPackage();
+            var ws = xlPackage.Workbook.Worksheets.Add("W1");
+            xlPackage.Workbook.Worksheets.Add("W2");
+
+            ws.Cells["A1:A10"].Formula = "W2!A1+C1";
+            ws.Cells["B1:B10"].FormulaR1C1 = "W2!R1C1+C1";
+            xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
+        }
+        [TestMethod]
+        public void PivotTable()
+        {
+            var wsPivot1 = _pck.Workbook.Worksheets.Add("Rows-Data on columns");
+            var wsPivot2 = _pck.Workbook.Worksheets.Add("Rows-Data on rows");
+            var wsPivot3 = _pck.Workbook.Worksheets.Add("Columns-Data on columns");
+            var wsPivot4 = _pck.Workbook.Worksheets.Add("Columns-Data on rows");
+            var wsPivot5 = _pck.Workbook.Worksheets.Add("Columns/Rows-Data on columns");
+            var wsPivot6 = _pck.Workbook.Worksheets.Add("Columns/Rows-Data on rows");
+            var wsPivot7 = _pck.Workbook.Worksheets.Add("Rows/Page-Data on Columns");
+
+            var ws = _pck.Workbook.Worksheets.Add("Data");
+            ws.Cells["K1"].Value = "Item";
+            ws.Cells["L1"].Value = "Category";
+            ws.Cells["M1"].Value = "Stock";
+            ws.Cells["N1"].Value = "Price";
+
+            ws.Cells["K2"].Value = "Crowbar";
+            ws.Cells["L2"].Value = "Hardware";
+            ws.Cells["M2"].Value = 12;
+            ws.Cells["N2"].Value = 85.2;
+
+            ws.Cells["K3"].Value = "Crowbar";
+            ws.Cells["L3"].Value = "Hardware";
+            ws.Cells["M3"].Value = 15;
+            ws.Cells["N4"].Value = 12.2;
+
+            ws.Cells["K4"].Value = "Hammer";
+            ws.Cells["L4"].Value = "Hardware";
+            ws.Cells["M4"].Value = 550;
+            ws.Cells["N4"].Value = 72.7;
+
+            ws.Cells["K5"].Value = "Hammer";
+            ws.Cells["L5"].Value = "Hardware";
+            ws.Cells["M5"].Value = 120;
+            ws.Cells["N5"].Value = 11.3;
+
+            ws.Cells["K6"].Value = "Crowbar";
+            ws.Cells["L6"].Value = "Hardware";
+            ws.Cells["M6"].Value = 120;
+            ws.Cells["N6"].Value = 173.2;
+
+            ws.Cells["K7"].Value = "Hammer";
+            ws.Cells["L7"].Value = "Hardware";
+            ws.Cells["M7"].Value = 1;
+            ws.Cells["N7"].Value = 4.2;
+
+            ws.Cells["K8"].Value = "Saw";
+            ws.Cells["L8"].Value = "Hardware";
+            ws.Cells["M8"].Value = 4;
+            ws.Cells["N8"].Value = 33.12;
+
+            ws.Cells["K9"].Value = "Screwdriver";
+            ws.Cells["L9"].Value = "Hardware";
+            ws.Cells["M9"].Value = 1200;
+            ws.Cells["N9"].Value = 45.2;
+
+            ws.Cells["K10"].Value = "Apple";
+            ws.Cells["L10"].Value = "Groceries";
+            ws.Cells["M10"].Value = 807;
+            ws.Cells["N10"].Value = 1.2;
+
+            ws.Cells["K11"].Value = "Butter";
+            ws.Cells["L11"].Value = "Groceries";
+            ws.Cells["M11"].Value = 52;
+            ws.Cells["N11"].Value = 7.2;
+           
+            var pt = wsPivot1.PivotTables.Add(wsPivot1.Cells["A1"], ws.Cells["K1:N11"], "Pivottable1");
+            pt.GrandTotalCaption = "Total amount";
+            pt.RowFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.Fields[3].DataFieldSettings.Function = OfficeOpenXml.Table.DataFieldFunctions.Product;
+            pt.DataOnRows = false;
+
+            pt = wsPivot2.PivotTables.Add(wsPivot2.Cells["A1"], ws.Cells["K1:N11"], "Pivottable2");
+            pt.RowFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.Fields[3].DataFieldSettings.Function = OfficeOpenXml.Table.DataFieldFunctions.Average;
+            pt.DataOnRows = true;
+
+            pt = wsPivot3.PivotTables.Add(wsPivot3.Cells["A1"], ws.Cells["K1:N11"], "Pivottable3");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.ColumnFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = false;
+
+            pt = wsPivot4.PivotTables.Add(wsPivot4.Cells["A1"], ws.Cells["K1:N11"], "Pivottable4");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.ColumnFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = true;
+
+            pt = wsPivot5.PivotTables.Add(wsPivot5.Cells["A1"], ws.Cells["K1:N11"], "Pivottable5");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = false;
+
+            pt = wsPivot6.PivotTables.Add(wsPivot6.Cells["A1"], ws.Cells["K1:N11"], "Pivottable6");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = true;
+
+            pt = wsPivot7.PivotTables.Add(wsPivot7.Cells["A3"], ws.Cells["K1:N11"], "Pivottable7");
+            pt.PageFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = false;
+            pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
         }
     }
 }

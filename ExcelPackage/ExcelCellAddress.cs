@@ -119,7 +119,7 @@ namespace OfficeOpenXml
             {
                 return _address;
             }
-            private set
+            internal set
             {
                 _address = value;
                 ExcelCellBase.GetRowColFromAddress(_address, out _row, out _column);

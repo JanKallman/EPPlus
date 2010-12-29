@@ -19,9 +19,10 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 topNode = node.OwnerDocument.CreateElement("c", "title", ExcelPackage.schemaChart);
                 node.InsertBefore(topNode, node.ChildNodes[0]);
-                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout />";
+                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
             }
             TopNode = topNode;
+            SchemaNodeOrder = new string[] { "tx", "layout", "overlay" };
         }
         const string titlePath = "c:tx/c:rich/a:p/a:r/a:t";
         public string Text
@@ -89,6 +90,17 @@ namespace OfficeOpenXml.Drawing.Chart
                     _richText = new ExcelParagraphCollection(NameSpaceManager, TopNode, "c:tx/c:rich/a:p", paragraphNodeOrder);
                 }
                 return _richText;
+            }
+        }       
+        public bool Overlay
+        {
+            get
+            {
+                return GetXmlNodeBool("overlay/@val");
+            }
+            set
+            {
+                SetXmlNodeBool("overlay/@val", value);
             }
         }
     }

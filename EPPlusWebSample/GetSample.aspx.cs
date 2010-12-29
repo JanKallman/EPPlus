@@ -34,7 +34,6 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Style;
 using System.Drawing;
-
 namespace EPPlusWebSample
 {
     public partial class GetSample : System.Web.UI.Page

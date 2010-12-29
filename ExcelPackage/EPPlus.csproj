@@ -25,7 +25,7 @@
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <TargetFrameworkVersion>v3.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -41,6 +41,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -100,6 +101,9 @@
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
+    <Compile Include="Table\ExcelPivotTablePageFieldSettings.cs" />
+    <Compile Include="Table\ExcelPivotTableDataFieldSettings.cs" />
+    <Compile Include="Table\ExcelPivotTableFieldCollection.cs" />
     <Compile Include="Style\IStyle.cs" />
     <Compile Include="OfficeProperties.cs" />
     <Compile Include="ExcelWorkbook.cs" />
@@ -115,6 +119,10 @@
     <Compile Include="Style\XmlAccess\ExcelFontXml.cs" />
     <Compile Include="Style\XmlAccess\ExcelNumberFormatXml.cs" />
     <Compile Include="Style\StyleChangeEventArgs.cs" />
+    <Compile Include="Table\ExcelPivotCacheDefinition.cs" />
+    <Compile Include="Table\ExcelPivotTableField.cs" />
+    <Compile Include="Table\ExcelPivotTableCollection.cs" />
+    <Compile Include="Table\ExcelPivotTable.cs" />
     <Compile Include="Table\ExcelTableColumnCollection.cs" />
     <Compile Include="Table\ExcelTable.cs" />
     <Compile Include="Table\ExcelTableCollection.cs" />

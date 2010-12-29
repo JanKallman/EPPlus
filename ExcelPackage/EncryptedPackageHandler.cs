@@ -153,7 +153,6 @@ namespace OfficeOpenXml
         internal byte[] EncryptedVerifier;   //(16 bytes): MUST be the randomly generated Verifier value encrypted using the algorithm chosen by the implementation.
         internal uint VerifierHashSize;      //(4 bytes): An unsigned integer that specifies the number of bytes needed to contain the hash of the data used to generate the EncryptedVerifier field.
         internal byte[] EncryptedVerifierHash; //(variable): An array of bytes that contains the encrypted form of the hash of the randomly generated Verifier value. The length of the array MUST be the size of the encryption block size multiplied by the number of blocks needed to encrypt the hash of the Verifier. If the encryption algorithm is RC4, the length MUST be 20 bytes. If the encryption algorithm is AES, the length MUST be 32 bytes.
-
         internal byte[] WriteBinary()
         {
             MemoryStream ms = new MemoryStream();
@@ -920,10 +919,10 @@ namespace OfficeOpenXml
                 hash ^= Password[i];
                 hash = (ushort)(((ushort)((hash >> 14) & 0x01))
                                 |
-                                ((ushort)((hash << 1) & 0x7FFF)));
+                                ((ushort)((hash << 1) & 0x7FFF)));  //Shift 1 to the left. Overflowing bit 15 goes into bit 0
             }
 
-            hash ^= (0x8000 | ('N' << 8) | 'K');
+            hash ^= (0x8000 | ('N' << 8) | 'K'); //Xor NK with high bit set(0xCE4B)
             hash ^= (ushort)Password.Length;
 
             return hash;

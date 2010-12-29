@@ -44,7 +44,7 @@ namespace OfficeOpenXml.Drawing
        public ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           SchemaNodeOrder = new string[] { "rotX", "perspective" };
+           SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };
        }
        const string perspectivePath = "c:perspective/@val";
        public decimal Perspective
@@ -69,6 +69,19 @@ namespace OfficeOpenXml.Drawing
            {
                CreateNode(rotXPath);
                SetXmlNodeString(rotXPath, value.ToString(CultureInfo.InvariantCulture));
+           }
+       }
+       const string rotYPath = "c:rotY/@val";
+       public decimal RotY
+       {
+           get
+           {
+               return GetXmlNodeDecimal(rotYPath);
+           }
+           set
+           {
+               CreateNode(rotYPath);
+               SetXmlNodeString(rotYPath, value.ToString(CultureInfo.InvariantCulture));
            }
        }
     }

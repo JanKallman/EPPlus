@@ -29,6 +29,12 @@ namespace ExcelPackageTest
             {
                 var ws = pck.Workbook.Worksheets["Perf"];
                 Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["Comment"];
+                var comment = ws.Cells["B2"].Comment;
+
+                Assert.AreNotEqual(comment, null);
+                Assert.AreEqual(comment.Author, "JK");
             }
             instream.Close();
         }

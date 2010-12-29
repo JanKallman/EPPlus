@@ -103,12 +103,12 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool(OVERLAY_PATH,false);
+                return GetXmlNodeBool(OVERLAY_PATH);
             }
             set
             {
                 if (TopNode == null) throw (new Exception("Can't set overlay. Chart has no legend"));
-                SetXmlNodeBool(OVERLAY_PATH, value, false);
+                SetXmlNodeBool(OVERLAY_PATH, value);
             }
         }
         ExcelDrawingFill _fill = null;

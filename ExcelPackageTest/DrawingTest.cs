@@ -9,6 +9,7 @@ using OfficeOpenXml.Drawing.Chart;
 using System.IO;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using System.Xml;
 namespace ExcelPackageTest
 {
     /// <summary>
@@ -479,6 +480,11 @@ namespace ExcelPackageTest
             var c32 = c3ct2.Series.Add(worksheet.Cells["X19:X24"], worksheet.Cells["V19:V24"]);
             c3ct2.UseSecondaryAxis = true;
             c32.Header = "Serie2";
+            
+            XmlNamespaceManager ns=new XmlNamespaceManager(new NameTable());
+            ns.AddNamespace("c","http://schemas.openxmlformats.org/drawingml/2006/chart");
+            var element = chart.ChartXml.SelectSingleNode("//c:plotVisOnly", ns);
+            if (element!=null) element.ParentNode.RemoveChild(element);
         }
         [TestMethod]
         public void ReadDocument()
