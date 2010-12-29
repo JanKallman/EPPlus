@@ -225,6 +225,16 @@ public enum eShapeStyle
     WedgeRoundRectCallout,
     VerticalScroll
 }
+public enum eTextAlignment
+{
+    Left,
+    Center,
+    Right,
+    Distributed,
+    Justified,
+    JustifiedLow,
+    ThaiDistributed
+}
 /// <summary>
 /// Fillstyle.
 /// </summary>
@@ -410,7 +420,79 @@ namespace OfficeOpenXml.Drawing
                 }
             }
         }
-
+        const string TEXT_ALIGN_PATH = "xdr:sp/xdr:txBody/a:p/a:pPr/@algn";
+        /// <summary>
+        /// How the text is aligned
+        /// </summary>
+        public eTextAlignment TextAlignment
+        {
+            get
+            {
+               switch(GetXmlNodeString(TEXT_ALIGN_PATH))
+               {
+                   case "ctr":
+                       return eTextAlignment.Center;
+                   case "r":
+                       return eTextAlignment.Right;
+                   case "dist":
+                       return eTextAlignment.Distributed;
+                   case "just":
+                       return eTextAlignment.Justified;
+                   case "justLow":
+                       return eTextAlignment.JustifiedLow;
+                   case "thaiDist":
+                       return eTextAlignment.ThaiDistributed;
+                   default: 
+                       return eTextAlignment.Left;
+               }
+            }
+            set
+            {
+                switch (value)
+                {
+                    case eTextAlignment.Right:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "r");
+                        break;
+                    case eTextAlignment.Center:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "ctr");
+                        break;
+                    case eTextAlignment.Distributed:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "dist");
+                        break;
+                    case eTextAlignment.Justified:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "just");
+                        break;
+                    case eTextAlignment.JustifiedLow:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "justLow");
+                        break;
+                    case eTextAlignment.ThaiDistributed:
+                        SetXmlNodeString(TEXT_ALIGN_PATH, "thaiDist");
+                        break;
+                    default:
+                        DeleteNode(TEXT_ALIGN_PATH);
+                        break;
+                }                
+            }
+        }
+        const string INDENT_ALIGN_PATH = "xdr:sp/xdr:txBody/a:p/a:pPr/@lvl";
+        /// <summary>
+        /// Indentation
+        /// </summary>
+        public int Indent
+        {
+            get
+            {
+                return GetXmlNodeInt(INDENT_ALIGN_PATH);
+            }
+            set
+            {
+                if (value < 0 || value > 8)
+                {
+                    throw(new ArgumentOutOfRangeException("Indent level must be between 0 and 8"));
+                }
+                SetXmlNodeString(INDENT_ALIGN_PATH, value.ToString());
+            }
+        }
         const string TextVerticalPath = "xdr:sp/xdr:txBody/a:bodyPr/@vert";
         /// <summary>
         /// Vertical text

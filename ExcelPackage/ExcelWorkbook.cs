@@ -101,7 +101,7 @@ namespace OfficeOpenXml
 			_package = xlPackage;
             CreateWorkbookXml();
             TopNode = WorkbookXml.DocumentElement;
-            SchemaNodeOrder = new string[] { "fileVersion", "workbookPr", "workbookProtection", "bookViews", "sheets", "definedNames", "calcPr" };
+            SchemaNodeOrder = new string[] { "fileVersion", "workbookPr", "workbookProtection", "bookViews", "sheets", "definedNames", "calcPr", "pivotCaches" };
             GetSharedStrings();
 		}
 		#endregion
@@ -111,6 +111,7 @@ namespace OfficeOpenXml
         internal ExcelNamedRangeCollection _names=new ExcelNamedRangeCollection();
         internal int _nextDrawingID = 0;
         internal int _nextTableID = 1;
+        internal int _nextPivotTableID = 1;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
@@ -737,6 +738,31 @@ namespace OfficeOpenXml
                 }
             }
             return false;
+        }
+        internal bool ExistsPivotTableName(string Name)
+        {
+            foreach (var ws in Worksheets)
+            {
+                if (ws.PivotTables._pivotTableNames.ContainsKey(Name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        internal void AddPivotTable(string cacheID, Uri defUri)
+        {
+            CreateNode("d:pivotCaches");
+
+            XmlElement item = WorkbookXml.CreateElement("pivotCache", ExcelPackage.schemaMain);
+            item.SetAttribute("cacheId", cacheID);
+            var rel = Part.CreateRelationship(PackUriHelper.ResolvePartUri(WorkbookUri, defUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
+            item.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
+
+
+            var pivotCashes = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
+            pivotCashes.AppendChild(item);
         }
     } // end Workbook
 }

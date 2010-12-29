@@ -387,7 +387,7 @@ namespace OfficeOpenXml.Drawing
             while (pixOff >= 0)
             {
                 prevPixOff = pixOff;
-                pixOff -= (int)decimal.Truncate(((256 * GetColumnWidth(++col) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pixOff -= (int)decimal.Truncate(((256 * GetColumnWidth(col++) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
 
             To.Column = col - 2;

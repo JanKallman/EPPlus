@@ -315,11 +315,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool("c:delete/@val", false);
+                return GetXmlNodeBool("c:delete/@val");
             }
             set
             {
-                SetXmlNodeBool("c:delete/@val", value, false);
+                SetXmlNodeBool("c:delete/@val", value);
             }
         }
         const string _ticLblPos_Path = "c:tickLblPos/@val";

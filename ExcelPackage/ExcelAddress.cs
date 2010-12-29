@@ -85,6 +85,8 @@ namespace OfficeOpenXml
                 //Simple address
                 GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
                 _addresses = null;
+                _start = null;
+                _end = null;
             }
             Validate();
         }

@@ -77,7 +77,11 @@ namespace OfficeOpenXml
         protected internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
         protected internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
 
-                                                           
+        //Pivottables
+        protected internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
+        protected internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
+        protected internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
+
         private Package _package;
 		private string _outputFolderPath;
 

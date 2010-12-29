@@ -51,8 +51,8 @@ namespace OfficeOpenXml.Drawing.Chart
                topNode = node.OwnerDocument.CreateElement("c", "dLbls", ExcelPackage.schemaChart);
                //node.InsertAfter(_topNode, node.SelectSingleNode("c:order", NameSpaceManager));
                InserAfter(node, "c:marker,c:tx,c:order,c:ser", topNode);
-               SchemaNodeOrder = new string[] { "spPr", "txPr","dLblPos", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines"};
-               topNode.InnerXml = "<c:showVal val=\"0\" />";
+               SchemaNodeOrder = new string[] { "spPr", "txPr", "dLblPos", "showLegendKey", "showVal", "showCatName", "showSerName", "showPercent", "showBubbleSize", "separator", "showLeaderLines" };
+               topNode.InnerXml = "<c:showLegendKey val=\"0\" /><c:showVal val=\"0\" /><c:showCatName val=\"0\" /><c:showSerName val=\"0\" /><c:showPercent val=\"0\" /><c:showBubbleSize val=\"0\" /> <c:separator>\r\n</c:separator><c:showLeaderLines val=\"0\" />";                      
            }
            TopNode = topNode;
        }
@@ -117,6 +117,30 @@ namespace OfficeOpenXml.Drawing.Chart
                SetXmlNodeString(showLeaderLinesPath, value ? "1" : "0");
            }
        }
+       const string showBubbleSizePath = "c:showBubbleSize/@val";
+       public bool ShowBubbleSize
+       {
+           get
+           {
+               return GetXmlNodeBool(showBubbleSizePath);
+           }
+           set
+           {
+               SetXmlNodeString(showBubbleSizePath, value ? "1" : "0");
+           }
+       }
+       const string showLegendKeyPath = "c:showLegendKey/@val";
+       public bool ShowLegendKey
+       {
+           get
+           {
+               return GetXmlNodeBool(showLegendKeyPath);
+           }
+           set
+           {
+               SetXmlNodeString(showLegendKeyPath, value ? "1" : "0");
+           }
+       }
        const string separatorPath = "c:separator";
        public string Separator
        {
@@ -126,7 +150,14 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               SetXmlNodeString(separatorPath, value);
+               if (string.IsNullOrEmpty(value))
+               {
+                   DeleteNode(separatorPath);
+               }
+               else
+               {
+                   SetXmlNodeString(separatorPath, value);
+               }
            }
        }
 

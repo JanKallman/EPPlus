@@ -46,6 +46,7 @@ using OfficeOpenXml.Style.XmlAccess;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Table;
+using OfficeOpenXml.Table;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -367,7 +368,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                double retValue = 9.140625 ; // Excel's default height
+                double retValue = 9.140625; // Excel's default height
                 XmlElement sheetFormat = (XmlElement)WorksheetXml.SelectSingleNode("//d:sheetFormatPr", NameSpaceManager);
                 if (sheetFormat != null)
                 {
@@ -1605,6 +1606,7 @@ namespace OfficeOpenXml
 
                 SaveComments();
                 SaveTables();
+                SavePivotTables();
                 SaveXml();
 				// save worksheet to package
                 //PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
@@ -1802,7 +1804,39 @@ namespace OfficeOpenXml
                 }
             }
         }
-
+        private void SavePivotTables()
+        {
+            foreach (var pt in PivotTables)
+            {
+                if (pt.DataFields.Count > 1)
+                {
+                    XmlElement parentNode;
+                    if(pt.DataOnRows==true)
+                    {
+                        parentNode =  pt.PivotXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
+                        if (parentNode == null)
+                        {
+                            pt.CreateNode("d:rowFields");
+                            parentNode = pt.PivotXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
+                        }
+                    }
+                    else
+                    {
+                        parentNode =  pt.PivotXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
+                        if (parentNode == null)
+                        {
+                            pt.CreateNode("d:colFields");
+                            parentNode = pt.PivotXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
+                        }
+                    }
+                    XmlElement fieldNode = pt.PivotXml.CreateElement("field",ExcelPackage.schemaMain);
+                    fieldNode.SetAttribute("x", "-2");
+                    parentNode.AppendChild(fieldNode);
+                }
+                pt.PivotXml.Save(pt.Part.GetStream());
+                pt.CacheDefinition.CacheDefinitionXml.Save(pt.CacheDefinition.Part.GetStream());
+            }
+        }
         private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
         {
             return string.Format("SUBTOTAL({0},[{1}])", FunctionNum, col.Name);
@@ -2269,7 +2303,22 @@ namespace OfficeOpenXml
                 return _tables;
             }
         }
-		/// <summary>
+        ExcelPivotTableCollection _pivotTables = null;
+        /// <summary>
+        /// Pivottables defined in the worksheet.
+        /// </summary>
+        public ExcelPivotTableCollection PivotTables
+        {
+            get
+            {
+                if (_pivotTables == null)
+                {
+                    _pivotTables = new ExcelPivotTableCollection(this);
+                }
+                return _pivotTables;
+            }
+        }
+        /// <summary>
 		/// Returns the style ID given a style name.  
 		/// The style ID will be created if not found, but only if the style name exists!
 		/// </summary>

@@ -42,7 +42,7 @@ namespace OfficeOpenXml
             get
             {
                 int authorRef = _commentHelper.GetXmlNodeInt("@authorId");
-                return TopNode.OwnerDocument.SelectSingleNode(string.Format("{0}[{1}]", AUTHOR_PATH, authorRef), NameSpaceManager).InnerText;
+                return _commentHelper.TopNode.OwnerDocument.SelectSingleNode(string.Format("{0}[{1}]", AUTHOR_PATH, authorRef+1), _commentHelper.NameSpaceManager).InnerText;
             }
             set
             {
