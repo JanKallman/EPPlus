@@ -85,6 +85,10 @@
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
+    <Compile Include="ExcelDataValidation.cs" />
+    <Compile Include="ExcelDataValidationCollection.cs" />
+    <Compile Include="ExcelDataValidations.cs" />
+    <Compile Include="ExcelDataValidationType.cs" />
     <Compile Include="ExcelEncryption.cs" />
     <Compile Include="ExcelExtensions.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
@@ -127,6 +131,10 @@
     <Compile Include="Table\ExcelTable.cs" />
     <Compile Include="Table\ExcelTableCollection.cs" />
     <Compile Include="Table\ExcelTableColumn.cs" />
+    <Compile Include="Utils\Argument.cs" />
+    <Compile Include="Utils\ArgumentExtensions.cs" />
+    <Compile Include="Utils\IArgument.cs" />
+    <Compile Include="Utils\Require.cs" />
     <Compile Include="XmlHelper.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -201,6 +209,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

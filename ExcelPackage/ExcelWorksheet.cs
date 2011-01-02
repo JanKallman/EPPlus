@@ -46,7 +46,7 @@ using OfficeOpenXml.Style.XmlAccess;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Table;
-using OfficeOpenXml.Table;
+
 namespace OfficeOpenXml
 {
     /// <summary>

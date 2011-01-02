@@ -79,6 +79,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReadTemplate.cs" />
+    <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="WorkSheet.cs" />
   </ItemGroup>
   <ItemGroup>
