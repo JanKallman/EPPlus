@@ -82,6 +82,9 @@
   <ItemGroup>
     <Compile Include="DataValidation\ExcelDataValidationOperator.cs" />
     <Compile Include="DataValidation\ExcelDataValidationWarningStyle.cs" />
+    <Compile Include="DataValidation\ExcelDecimalDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelListDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelIntDataValidation.cs" />
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />

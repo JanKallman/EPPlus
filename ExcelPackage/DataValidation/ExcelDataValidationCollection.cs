@@ -62,7 +62,7 @@ namespace OfficeOpenXml.DataValidation
                     var addr = node.Attributes["sqref"].Value;
                     var dataValidationType = (eDataValidationType)Enum.Parse(typeof(eDataValidationType), node.Attributes["type"].Value);
                     var type = ExcelDataValidationType.GetByValidationType(dataValidationType);
-                    _validations.Add(new ExcelDataValidation(worksheet.NameSpaceManager, node, addr, type));
+                    _validations.Add(new ExcelDataValidation(worksheet, addr, type, node));
                 }
             }
 
@@ -85,28 +85,70 @@ namespace OfficeOpenXml.DataValidation
             return _worksheet.WorksheetXml.SelectSingleNode(DataValidationPath, _worksheet.NameSpaceManager);
         }
 
+        ///// <summary>
+        ///// Creates an <see cref="ExcelDataValidation"/> instance
+        ///// </summary>
+        ///// <param name="address"></param>
+        ///// <param name="validationType">Validation type</param>
+        ///// <returns>An instance of <see cref="ExcelDataValidation"/></returns>
+        ///// <exception cref="ArgumentNullException">If address is null</exception>
+        //private ExcelDataValidation Create(string address, ExcelDataValidationType validationType)
+        //{
+        //    return new ExcelDataValidation(_worksheet.NameSpaceManager, GetRootNode(), address, validationType);
+        //}
+
         /// <summary>
-        /// Creates an <see cref="ExcelDataValidation"/> instance
+        /// Adds an <see cref="ExcelIntDataValidation"/> to the worksheet. Whole means that the only accepted values
+        /// are integer values.
         /// </summary>
-        /// <param name="address"></param>
-        /// <param name="validationType">Validation type</param>
-        /// <returns>An instance of <see cref="ExcelDataValidation"/></returns>
-        /// <exception cref="ArgumentNullException">If address is null</exception>
-        public ExcelDataValidation Create(string address, ExcelDataValidationType validationType)
+        /// <param name="address">the range/address to validate</param>
+        public ExcelIntDataValidation AddWholeValidation(string address)
         {
-            return new ExcelDataValidation(_worksheet.NameSpaceManager, GetRootNode(), address, validationType);
+            EnsureRootElementExists(); 
+            var item = new ExcelIntDataValidation(_worksheet, address, ExcelDataValidationType.Whole);
+            _validations.Add(item);
+            return item;
         }
 
         /// <summary>
-        /// Adds an <see cref="ExcelDataValidation"/> to the collection.
+        /// Addes an <see cref="ExcelDataValidation"/> to the worksheet. The only accepted values are
+        /// decimal values.
         /// </summary>
-        /// <param name="item">The item to add</param>
-        /// <exception cref="ArgumentNullException">if <paramref name="item"/> is null</exception>
-        public void Add(ExcelDataValidation item)
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public ExcelDecimalDataValidation AddDecimalValidation(string address)
         {
-            Require.Argument(item).IsNotNull("item");
-            item.SaveToXml();
+            EnsureRootElementExists();
+            var item = new ExcelDecimalDataValidation(_worksheet, address, ExcelDataValidationType.Decimal);
             _validations.Add(item);
+            return item;
+        }
+
+        /// <summary>
+        /// Adds an <see cref="ExcelListDataValidation"/> to the worksheet. The accepted values are defined
+        /// in a list.
+        /// </summary>
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public ExcelListDataValidation AddListValidation(string address)
+        {
+            EnsureRootElementExists();
+            var item = new ExcelListDataValidation(_worksheet, address, ExcelDataValidationType.List);
+            _validations.Add(item);
+            return item;
+        }
+
+        /// <summary>
+        /// Adds an <see cref="ExcelIntDataValidation"/> regarding text length to the worksheet.
+        /// </summary>
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public ExcelIntDataValidation AddTextLengthValidation(string address)
+        {
+            EnsureRootElementExists();
+            var item = new ExcelIntDataValidation(_worksheet, address, ExcelDataValidationType.TextLength);
+            _validations.Add(item);
+            return item;
         }
 
         /// <summary>
@@ -129,6 +171,7 @@ namespace OfficeOpenXml.DataValidation
         public ExcelDataValidation this[int index]
         {
             get { return _validations[index]; }
+            set { _validations[index] = value; }
         }
 
         public IEnumerable<ExcelDataValidation> FindAll(Predicate<ExcelDataValidation> match)
@@ -143,6 +186,7 @@ namespace OfficeOpenXml.DataValidation
 
         public void Clear()
         {
+            DeleteAllNode(DataValidationItemsPath);
             _validations.Clear();
         }
 

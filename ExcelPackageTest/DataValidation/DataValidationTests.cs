@@ -46,54 +46,59 @@ namespace ExcelPackageTest.DataValidation
 
 
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void DataValidations_AddOneValidationOfTypeWhole()
         {
-            var validation = _sheet.DataValidation.Create("A1", ExcelDataValidationType.Whole);
+            var validation = _sheet.DataValidation.AddDecimalValidation("A1");
             validation.ShowErrorMessage = true;
+            validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
+            validation.ErrorTitle = "Invalid value was entered";
+            validation.Error = "Value must be greater than 1.4";
+            validation.PromptTitle = "Enter value here";
+            validation.Prompt = "Enter a value that is greater than 1.4";
             validation.ShowInputMessage = true;
             validation.Operator = ExcelDataValidationOperator.greaterThan;
-            validation.Formula1 = "1";
-            _sheet.DataValidation.Add(validation);
+            validation.Value = (decimal)1.4;
 
             _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeWhole.xlsx")));
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void DataValidations_AddOneValidationOfTypeListOfTypeList()
         {
-            var validation = _sheet.DataValidation.Create("A1", ExcelDataValidationType.List);
+            var validation = _sheet.DataValidation.AddListValidation("A1");
             validation.ShowErrorMessage = true;
             validation.ShowInputMessage = true;
-            validation.Operator = ExcelDataValidationOperator.greaterThan;
-            validation.Formula1 = "\"1, 2, 3, 4\"";
-            _sheet.DataValidation.Add(validation);
+            validation.Values.Add("1");
+            validation.Values.Add("2");
+            validation.Values.Add("3");
+            validation.Validate();
 
-            _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidation.xlsx")));
+            _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeList.xlsx")));
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsEqualAndFormula1IsEmpty()
         {
-            var validations = _sheet.DataValidation.Create("A1", ExcelDataValidationType.Whole);
+            var validations = _sheet.DataValidation.AddWholeValidation("A1");
             validations.Operator = ExcelDataValidationOperator.equal;
-            _sheet.DataValidation.Add(validations);
+            validations.Validate();
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsBetweenAndFormula2IsEmpty()
         {
-            var validation = _sheet.DataValidation.Create("A1", ExcelDataValidationType.Whole);
+            var validation = _sheet.DataValidation.AddWholeValidation("A1");
             validation.Operator = ExcelDataValidationOperator.between;
-            _sheet.DataValidation.Add(validation);
+            validation.Validate();
         }
 
         [TestMethod, ExpectedException(typeof(FormatException))]
         public void DataValidations_ShouldThrowIfValidationTypeIsListAndFormula1DoesNotContainCommas()
         {
-            var validation = _sheet.DataValidation.Create("A1", ExcelDataValidationType.List);
-            validation.Formula1 = "1";
-            _sheet.DataValidation.Add(validation);
+            var validation = _sheet.DataValidation.AddListValidation("A1");
+            validation.Values.Add("1");
+            validation.Validate();
         }
     }
 }
