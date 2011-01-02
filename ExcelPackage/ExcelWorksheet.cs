@@ -2322,8 +2322,10 @@ namespace OfficeOpenXml
 
         private ExcelDataValidationCollection _dataValidation = null;
         /// <summary>
-        /// DataValidation defined in the worksheet
+        /// DataValidation defined in the worksheet. Use the Add methods to create DataValidations and add them to the worksheet. Then
+        /// set the properties on the instance returned.
         /// </summary>
+        /// <seealso cref="ExcelDataValidationCollection"/>
         public ExcelDataValidationCollection DataValidation
         {
             get

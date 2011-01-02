@@ -316,6 +316,15 @@ namespace OfficeOpenXml
                 return true;
             }
         }
+        internal bool? GetXmlNodeBoolNullable(string path)
+        {
+            var value = GetXmlNodeString(path);
+            if (string.IsNullOrEmpty(value))
+            {
+                return null;
+            }
+            return GetXmlNodeBool(path);
+        }
         internal bool GetXmlNodeBool(string path)
         {
             return GetXmlNodeBool(path, false);

@@ -41,43 +41,52 @@ namespace OfficeOpenXml.DataValidation
     /// </summary>
     public class ExcelDataValidation : XmlHelper
     {
-        private const string _rootElement = "d:dataValidation";
+        private const string _itemElementNodeName = "d:dataValidation";
 
         private static string CreatePathFromRoot(string path)
         {
-            return string.Concat(_rootElement, "/", path);
+            return path;
         }
 
         private readonly string _errorStylePath = CreatePathFromRoot("@errorStyle");
+        private readonly string _errorTitlePath = CreatePathFromRoot("@errorTitle");
+        private readonly string _errorPath = CreatePathFromRoot("@error");
+        private readonly string _promptTitlePath = CreatePathFromRoot("@promptTitle");
+        private readonly string _promptPath = CreatePathFromRoot("@prompt");
         private readonly string _operatorPath = CreatePathFromRoot("@operator");
         private readonly string _showErrorMessagePath = CreatePathFromRoot("@showErrorMessage");
-        private readonly string _showInfoMessagePath = CreatePathFromRoot("@showInputMessage");
+        private readonly string _showInputMessagePath = CreatePathFromRoot("@showInputMessage");
         private readonly string _typeMessagePath = CreatePathFromRoot("@type");
         private readonly string _sqrefPath = CreatePathFromRoot("@sqref");
         private readonly string _allowBlankPath = CreatePathFromRoot("@allowBlank");
-        private readonly string _formula1Path = CreatePathFromRoot("d:formula1");
-        private readonly string _formula2Path = CreatePathFromRoot("d:formula2");
+        protected readonly string _formula1Path = CreatePathFromRoot("d:formula1");
+        protected readonly string _formula2Path = CreatePathFromRoot("d:formula2");
+
+        internal ExcelDataValidation(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType)
+            : this(worksheet, address, validationType, null)
+        { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="namespaceManager">Xml namespace manager</param>
-        /// <param name="topNode">Xml top node</param>
+        /// <param name="topNode">Xml top node (dataValidations)</param>
         /// <param name="validationType">Data validation type</param>
         /// <param name="address">address for data validation</param>
-        internal ExcelDataValidation(XmlNamespaceManager namespaceManager, XmlNode topNode, string address, ExcelDataValidationType validationType)
-            : base(namespaceManager, topNode)
+        internal ExcelDataValidation(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode)
+            : base(worksheet.NameSpaceManager)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
-            Require.Argument(topNode).IsNotNull("topNode");
+            if (itemElementNode == null)
+            {
+                TopNode = worksheet.WorksheetXml.SelectSingleNode("//d:dataValidations", worksheet.NameSpaceManager);
+                itemElementNode = CreateNode(_itemElementNodeName);
+            }
+            TopNode = itemElementNode;
             ValidationType = validationType;
-            _address = new ExcelAddress(address);
-            _topNode = topNode;
+            Address = new ExcelAddress(address);
             Init();
         }
-
-        private ExcelAddress _address;
-        private XmlNode _topNode;
 
         private void Init()
         {
@@ -105,23 +114,14 @@ namespace OfficeOpenXml.DataValidation
             {
                 SetXmlNodeBool(path, val.Value);
             }
+            else
+            {
+                DeleteNode(path);
+            }
         }
 
-        internal void SaveToXml()
+        public void Validate()
         {
-            CreateNode(_rootElement);
-            SetXmlNodeString(_typeMessagePath, ValidationType.SchemaName);
-            if (ValidationType.AllowOperator)
-            {
-                SetXmlNodeString(_operatorPath, Operator.ToString());
-            }
-            if (ErrorStyle != ExcelDataValidationWarningStyle.undefined)
-            {
-                SetXmlNodeString(_errorStylePath, ErrorStyle.ToString());
-            }
-            SetNullableBoolValue(_showInfoMessagePath, ShowInputMessage);
-            SetNullableBoolValue(_showErrorMessagePath, ShowErrorMessage);
-            SetNullableBoolValue(_allowBlankPath, AllowBlank);
             // validate and set Formula1
             if (string.IsNullOrEmpty(Formula1))
             {
@@ -135,26 +135,42 @@ namespace OfficeOpenXml.DataValidation
                     throw new FormatException("When validationtype is list, Formula 1 should be a commaseparated list of values");
                 }
             }
-            SetXmlNodeString(_formula1Path, Formula1);
             if (Operator == ExcelDataValidationOperator.between || Operator == ExcelDataValidationOperator.notBetween)
             {
                 if (string.IsNullOrEmpty(Formula2))
                 {
                     throw new InvalidOperationException("Formula2 must be set if operator is 'between' or 'notBetween'");
                 }
-                SetXmlNodeString(_formula2Path, Formula2);
             }
-            SetXmlNodeString(_sqrefPath, _address.Address);
         }
 
         #region Public properties
+
+        public ExcelAddress Address
+        {
+            get
+            {
+                return new ExcelAddress(GetXmlNodeString(_sqrefPath));
+            }
+            set
+            {
+                SetXmlNodeString(_sqrefPath, value.Address);
+            }
+        }
         /// <summary>
         /// Validation type
         /// </summary>
         public ExcelDataValidationType ValidationType
         {
-            get;
-            private set;
+            get
+            {
+                var typeString = GetXmlNodeString(_typeMessagePath);
+                return ExcelDataValidationType.GetBySchemaName(typeString);
+            }
+            private set
+            {
+                SetXmlNodeString(_typeMessagePath, value.SchemaName);
+            }
         }
 
         /// <summary>
@@ -162,8 +178,23 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         public ExcelDataValidationOperator Operator
         {
-            get;
-            set;
+            get
+            {
+                var operatorString = GetXmlNodeString(_operatorPath);
+                if (!string.IsNullOrEmpty(operatorString))
+                {
+                    return (ExcelDataValidationOperator)Enum.Parse(typeof(ExcelDataValidationOperator), operatorString);
+                }
+                return default(ExcelDataValidationOperator);
+            }
+            set
+            {
+                if (!ValidationType.AllowOperator)
+                {
+                    throw new InvalidOperationException("The current validation type does not allow operator to be set");
+                }
+                SetXmlNodeString(_operatorPath, value.ToString());
+            }
         }
 
         /// <summary>
@@ -171,8 +202,23 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         public ExcelDataValidationWarningStyle ErrorStyle
         {
-            set;
-            get;
+            get
+            {
+                var errorStyleString = GetXmlNodeString(_errorStylePath);
+                if (!string.IsNullOrEmpty(errorStyleString))
+                {
+                    return (ExcelDataValidationWarningStyle)Enum.Parse(typeof(ExcelDataValidationWarningStyle), errorStyleString);
+                }
+                return ExcelDataValidationWarningStyle.undefined;
+            }
+            set
+            {
+                if(value == ExcelDataValidationWarningStyle.undefined)
+                {
+                    DeleteNode(_errorStylePath);
+                }
+                SetXmlNodeString(_errorStylePath, value.ToString());
+            }
         }
 
         /// <summary>
@@ -180,8 +226,14 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         public bool? AllowBlank
         {
-            get;
-            set;
+            get
+            {
+                return GetXmlNodeBoolNullable(_allowBlankPath);
+            }
+            set
+            {
+                SetNullableBoolValue(_allowBlankPath, value);
+            }
         }
 
         /// <summary>
@@ -189,8 +241,14 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         public bool? ShowInputMessage
         {
-            get;
-            set;
+            get
+            {
+                return GetXmlNodeBoolNullable(_showInputMessagePath);
+            }
+            set
+            {
+                SetNullableBoolValue(_showInputMessagePath, value);
+            }
         }
 
         /// <summary>
@@ -198,28 +256,103 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         public bool? ShowErrorMessage
         {
-            set;
-            get;
+            get
+            {
+                return GetXmlNodeBoolNullable(_showErrorMessagePath);
+            }
+            set
+            {
+                SetNullableBoolValue(_showErrorMessagePath, value);
+            }
+        }
+
+        /// <summary>
+        /// Title of error message box
+        /// </summary>
+        public string ErrorTitle
+        {
+            get
+            {
+                return GetXmlNodeString(_errorTitlePath);
+            }
+            set
+            {
+                SetXmlNodeString(_errorTitlePath, value);
+            }
+        }
+
+        /// <summary>
+        /// Error message box text
+        /// </summary>
+        public string Error
+        {
+            get
+            {
+                return GetXmlNodeString(_errorPath);
+            }
+            set
+            {
+                SetXmlNodeString(_errorPath, value);
+            }
+        }
+
+        public string PromptTitle
+        {
+            get
+            {
+                return GetXmlNodeString(_promptTitlePath);
+            }
+            set
+            {
+                SetXmlNodeString(_promptTitlePath, value);
+            }
+        }
+
+        public string Prompt
+        {
+            get
+            {
+                return GetXmlNodeString(_promptPath);
+            }
+            set
+            {
+                SetXmlNodeString(_promptPath, value);
+            }
         }
 
         /// <summary>
         /// Formula 1
         /// </summary>
-        public string Formula1
+        internal virtual string Formula1
         {
-            set;
-            get;
+            get
+            {
+                return GetXmlNodeString(_formula1Path);
+            }
         }
 
         /// <summary>
         /// Formula 2
         /// </summary>
-        public string Formula2
+        internal virtual string Formula2
         {
-            get;
-            set;
+            get
+            {
+                return GetXmlNodeString(_formula2Path);
+            }
         }
 
         #endregion
+
+        protected void SetValue<T>(Nullable<T> val, string path)
+            where T : struct
+        {
+            if (!val.HasValue)
+            {
+                DeleteNode(path);
+            }
+            var stringValue = val.Value.ToString().Replace(',', '.');
+            SetXmlNodeString(path, stringValue);
+        }
     }
 }

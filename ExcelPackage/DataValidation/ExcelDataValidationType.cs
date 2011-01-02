@@ -49,7 +49,19 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// List of values
         /// </summary>
-        List
+        List,
+        /// <summary>
+        /// Text length validation
+        /// </summary>
+        TextLength
+    }
+
+    internal static class DataValidationSchemaNames
+    {
+        public const string Whole = "whole";
+        public const string Decimal = "decimal";
+        public const string List = "list";
+        public const string TextLength = "textLength";
     }
 
     /// <summary>
@@ -104,8 +116,27 @@ namespace OfficeOpenXml.DataValidation
                     return ExcelDataValidationType.List;
                 case eDataValidationType.Decimal:
                     return ExcelDataValidationType.Decimal;
+                case eDataValidationType.TextLength:
+                    return ExcelDataValidationType.TextLength;
                 default:
                     throw new InvalidOperationException("Non supported Validationtype : " + type.ToString());
+            }
+        }
+
+        internal static ExcelDataValidationType GetBySchemaName(string schemaName)
+        {
+            switch (schemaName)
+            {
+                case DataValidationSchemaNames.Whole:
+                    return ExcelDataValidationType.Whole;
+                case DataValidationSchemaNames.Decimal:
+                    return ExcelDataValidationType.Decimal;
+                case DataValidationSchemaNames.List:
+                    return ExcelDataValidationType.List;
+                case DataValidationSchemaNames.TextLength:
+                    return ExcelDataValidationType.TextLength;
+                default:
+                    throw new ArgumentException("Invalid schemaname: " + schemaName);
             }
         }
 
@@ -142,7 +173,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 if(_whole == null)
                 {
-                    _whole = new ExcelDataValidationType(eDataValidationType.Whole, true, "whole"); 
+                    _whole = new ExcelDataValidationType(eDataValidationType.Whole, true, DataValidationSchemaNames.Whole); 
                 }
                 return _whole;
             }
@@ -158,7 +189,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 if (_list == null)
                 {
-                    _list = new ExcelDataValidationType(eDataValidationType.List, false, "list");
+                    _list = new ExcelDataValidationType(eDataValidationType.List, false, DataValidationSchemaNames.List);
                 }
                 return _list;
             }
@@ -171,9 +202,22 @@ namespace OfficeOpenXml.DataValidation
             {
                 if (_decimal == null)
                 {
-                    _decimal = new ExcelDataValidationType(eDataValidationType.Decimal, true, "decimal");
+                    _decimal = new ExcelDataValidationType(eDataValidationType.Decimal, true, DataValidationSchemaNames.Decimal);
                 }
                 return _decimal;
+            }
+        }
+
+        private static ExcelDataValidationType _textLength;
+        public static ExcelDataValidationType TextLength
+        {
+            get
+            {
+                if (_textLength == null)
+                {
+                    _textLength = new ExcelDataValidationType(eDataValidationType.TextLength, true, DataValidationSchemaNames.TextLength);
+                }
+                return _textLength;
             }
         }
     }
