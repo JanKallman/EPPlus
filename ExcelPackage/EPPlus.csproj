@@ -80,15 +80,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataValidation\ExcelDataValidationOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWarningStyle.cs" />
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />
-    <Compile Include="ExcelDataValidation.cs" />
-    <Compile Include="ExcelDataValidationCollection.cs" />
-    <Compile Include="ExcelDataValidations.cs" />
-    <Compile Include="ExcelDataValidationType.cs" />
+    <Compile Include="DataValidation\ExcelDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationType.cs" />
     <Compile Include="ExcelEncryption.cs" />
     <Compile Include="ExcelExtensions.cs" />
     <Compile Include="ExcelStyleCollection.cs" />

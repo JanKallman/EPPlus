@@ -46,6 +46,7 @@ using OfficeOpenXml.Style.XmlAccess;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Table;
+using OfficeOpenXml.DataValidation;
 
 namespace OfficeOpenXml
 {
@@ -2316,6 +2317,22 @@ namespace OfficeOpenXml
                     _pivotTables = new ExcelPivotTableCollection(this);
                 }
                 return _pivotTables;
+            }
+        }
+
+        private ExcelDataValidationCollection _dataValidation = null;
+        /// <summary>
+        /// DataValidation defined in the worksheet
+        /// </summary>
+        public ExcelDataValidationCollection DataValidation
+        {
+            get
+            {
+                if (_dataValidation == null)
+                {
+                    _dataValidation = new ExcelDataValidationCollection(this);
+                }
+                return _dataValidation;
             }
         }
         /// <summary>
