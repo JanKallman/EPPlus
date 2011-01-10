@@ -162,7 +162,8 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             if(TopNode!=null) return;
 
-            XmlHelper xml = new XmlHelper(NameSpaceManager, _chart.ChartXml);
+            //XmlHelper xml = new XmlHelper(NameSpaceManager, _chart.ChartXml);
+            XmlHelper xml = XmlHelperFactory.Create(NameSpaceManager, _chart.ChartXml);
             xml.SchemaNodeOrder=_chart.SchemaNodeOrder;
 
             xml.CreateNode("c:chartSpace/c:chart/c:legend");

@@ -33,34 +33,31 @@ using System.Text;
 using OfficeOpenXml.Utils;
 using System.Xml;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.DataValidation.Formulas.Contracts;
 
 namespace OfficeOpenXml.DataValidation
 {
     /// <summary>
     /// Excel datavalidation
     /// </summary>
-    public class ExcelDataValidation : XmlHelper
+    public abstract class ExcelDataValidation : XmlHelper   
     {
         private const string _itemElementNodeName = "d:dataValidation";
 
-        private static string CreatePathFromRoot(string path)
-        {
-            return path;
-        }
 
-        private readonly string _errorStylePath = CreatePathFromRoot("@errorStyle");
-        private readonly string _errorTitlePath = CreatePathFromRoot("@errorTitle");
-        private readonly string _errorPath = CreatePathFromRoot("@error");
-        private readonly string _promptTitlePath = CreatePathFromRoot("@promptTitle");
-        private readonly string _promptPath = CreatePathFromRoot("@prompt");
-        private readonly string _operatorPath = CreatePathFromRoot("@operator");
-        private readonly string _showErrorMessagePath = CreatePathFromRoot("@showErrorMessage");
-        private readonly string _showInputMessagePath = CreatePathFromRoot("@showInputMessage");
-        private readonly string _typeMessagePath = CreatePathFromRoot("@type");
-        private readonly string _sqrefPath = CreatePathFromRoot("@sqref");
-        private readonly string _allowBlankPath = CreatePathFromRoot("@allowBlank");
-        protected readonly string _formula1Path = CreatePathFromRoot("d:formula1");
-        protected readonly string _formula2Path = CreatePathFromRoot("d:formula2");
+        private readonly string _errorStylePath = "@errorStyle";
+        private readonly string _errorTitlePath = "@errorTitle";
+        private readonly string _errorPath = "@error";
+        private readonly string _promptTitlePath = "@promptTitle";
+        private readonly string _promptPath = "@prompt";
+        private readonly string _operatorPath = "@operator";
+        private readonly string _showErrorMessagePath = "@showErrorMessage";
+        private readonly string _showInputMessagePath = "@showInputMessage";
+        private readonly string _typeMessagePath = "@type";
+        private readonly string _sqrefPath = "@sqref";
+        private readonly string _allowBlankPath = "@allowBlank";
+        protected readonly string _formula1Path = "d:formula1";
+        protected readonly string _formula2Path = "d:formula2";
 
         internal ExcelDataValidation(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType)
             : this(worksheet, address, validationType, null)
@@ -69,18 +66,35 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="namespaceManager">Xml namespace manager</param>
-        /// <param name="topNode">Xml top node (dataValidations)</param>
+        /// <param name="worksheet">worksheet that owns the validation</param>
+        /// <param name="itemElementNode">Xml top node (dataValidations)</param>
         /// <param name="validationType">Data validation type</param>
         /// <param name="address">address for data validation</param>
         internal ExcelDataValidation(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode)
-            : base(worksheet.NameSpaceManager)
+            : this(worksheet, address, validationType, itemElementNode, null)
+        {
+
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="worksheet">worksheet that owns the validation</param>
+        /// <param name="itemElementNode">Xml top node (dataValidations)</param>
+        /// <param name="validationType">Data validation type</param>
+        /// <param name="address">address for data validation</param>
+        internal ExcelDataValidation(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
+            : base(namespaceManager != null ? namespaceManager : worksheet.NameSpaceManager)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
             if (itemElementNode == null)
             {
+                var xmlDoc = worksheet.WorksheetXml;
                 TopNode = worksheet.WorksheetXml.SelectSingleNode("//d:dataValidations", worksheet.NameSpaceManager);
-                itemElementNode = CreateNode(_itemElementNodeName);
+                // did not succeed using the XmlHelper methods here... so I'm creating the new node using XmlDocument...
+                var nsUri = NameSpaceManager.LookupNamespace("d");
+                itemElementNode = xmlDoc.CreateElement(_itemElementNodeName, nsUri);
+                TopNode.AppendChild(itemElementNode);
             }
             TopNode = itemElementNode;
             ValidationType = validationType;
@@ -120,32 +134,32 @@ namespace OfficeOpenXml.DataValidation
             }
         }
 
+        /// <summary>
+        /// This method will validate the state of the validation
+        /// </summary>
+        /// <exception cref="InvalidOperationException">If the state breaks the rules of the validation</exception>
         public void Validate()
         {
-            // validate and set Formula1
-            if (string.IsNullOrEmpty(Formula1))
+            var address = Address.Address;
+            // validate Formula1
+            if (string.IsNullOrEmpty(Formula1Internal))
             {
-                throw new InvalidOperationException("Formula1 cannot be empty");
-            }
-            // lists should always be comma separated
-            else if (ValidationType.ValidationType == eDataValidationType.List)
-            {
-                if (!Formula1.Contains(','))
-                {
-                    throw new FormatException("When validationtype is list, Formula 1 should be a commaseparated list of values");
-                }
+                throw new InvalidOperationException("Validation of " + address + " failed: Formula1 cannot be empty");
             }
             if (Operator == ExcelDataValidationOperator.between || Operator == ExcelDataValidationOperator.notBetween)
             {
-                if (string.IsNullOrEmpty(Formula2))
+                if (string.IsNullOrEmpty(Formula2Internal))
                 {
-                    throw new InvalidOperationException("Formula2 must be set if operator is 'between' or 'notBetween'");
+                    throw new InvalidOperationException("Validation of " + address + " failed: Formula2 must be set if operator is 'between' or 'notBetween'");
                 }
             }
         }
 
         #region Public properties
 
+        /// <summary>
+        /// Address of data validation
+        /// </summary>
         public ExcelAddress Address
         {
             get
@@ -323,7 +337,7 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Formula 1
         /// </summary>
-        internal virtual string Formula1
+        private string Formula1Internal
         {
             get
             {
@@ -334,7 +348,7 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Formula 2
         /// </summary>
-        internal virtual string Formula2
+        private string Formula2Internal
         {
             get
             {

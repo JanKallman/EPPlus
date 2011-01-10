@@ -41,7 +41,7 @@ namespace OfficeOpenXml
     /// Help class containing XML functions. 
     /// Can be Inherited 
     /// </summary>
-    public class XmlHelper
+    public abstract class XmlHelper
     {
         internal delegate int ChangedEventHandler(StyleBase sender, Style.StyleChangeEventArgs e);
 

@@ -339,7 +339,8 @@ namespace OfficeOpenXml.Drawing.Chart
 
        private void Init(ExcelDrawings drawings, XmlNode chartNode)
        {
-           _chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
+           //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
+           _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper.SchemaNodeOrder = new string[] { "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "shape", "legend", "overlap", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }

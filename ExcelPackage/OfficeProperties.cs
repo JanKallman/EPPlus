@@ -66,9 +66,13 @@ namespace OfficeOpenXml
             base(ns)
 		{
 			_package = xlPackage;
-            _coreHelper = new XmlHelper(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));             
-            _extendedHelper = new XmlHelper(ns, ExtendedPropertiesXml);
-            _customHelper = new XmlHelper(ns, CustomPropertiesXml);
+            //_coreHelper = new XmlHelper(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));  
+            //_extendedHelper
+            //_customHelper = new XmlHelper(ns, CustomPropertiesXml);
+
+            _coreHelper = XmlHelperFactory.Create(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));
+            _extendedHelper = XmlHelperFactory.Create(ns, ExtendedPropertiesXml);
+            _customHelper = XmlHelperFactory.Create(ns, CustomPropertiesXml);
 
 		}
 		#endregion

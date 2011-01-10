@@ -80,11 +80,31 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataValidation\ExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationFactory.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\ExcelTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaWithValue.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaInt.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaValue.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaInt.cs" />
     <Compile Include="DataValidation\ExcelDataValidationOperator.cs" />
     <Compile Include="DataValidation\ExcelDataValidationWarningStyle.cs" />
-    <Compile Include="DataValidation\ExcelDecimalDataValidation.cs" />
-    <Compile Include="DataValidation\ExcelListDataValidation.cs" />
-    <Compile Include="DataValidation\ExcelIntDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
@@ -140,6 +160,7 @@
     <Compile Include="Utils\IArgument.cs" />
     <Compile Include="Utils\Require.cs" />
     <Compile Include="XmlHelper.cs" />
+    <Compile Include="XmlHelperFactory.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\Chart\ExcelLineChart.cs" />

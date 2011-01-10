@@ -53,7 +53,15 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Text length validation
         /// </summary>
-        TextLength
+        TextLength,
+        /// <summary>
+        /// DateTime validation
+        /// </summary>
+        DateTime,
+        /// <summary>
+        /// Time validation
+        /// </summary>
+        Time
     }
 
     internal static class DataValidationSchemaNames
@@ -62,6 +70,8 @@ namespace OfficeOpenXml.DataValidation
         public const string Decimal = "decimal";
         public const string List = "list";
         public const string TextLength = "textLength";
+        public const string Date = "date";
+        public const string Time = "time";
     }
 
     /// <summary>
@@ -118,6 +128,10 @@ namespace OfficeOpenXml.DataValidation
                     return ExcelDataValidationType.Decimal;
                 case eDataValidationType.TextLength:
                     return ExcelDataValidationType.TextLength;
+                case eDataValidationType.DateTime:
+                    return ExcelDataValidationType.DateTime;
+                case eDataValidationType.Time:
+                    return ExcelDataValidationType.Time;
                 default:
                     throw new InvalidOperationException("Non supported Validationtype : " + type.ToString());
             }
@@ -135,6 +149,10 @@ namespace OfficeOpenXml.DataValidation
                     return ExcelDataValidationType.List;
                 case DataValidationSchemaNames.TextLength:
                     return ExcelDataValidationType.TextLength;
+                case DataValidationSchemaNames.Date:
+                    return ExcelDataValidationType.DateTime;
+                case DataValidationSchemaNames.Time:
+                    return ExcelDataValidationType.Time;
                 default:
                     throw new ArgumentException("Invalid schemaname: " + schemaName);
             }
@@ -218,6 +236,32 @@ namespace OfficeOpenXml.DataValidation
                     _textLength = new ExcelDataValidationType(eDataValidationType.TextLength, true, DataValidationSchemaNames.TextLength);
                 }
                 return _textLength;
+            }
+        }
+
+        private static ExcelDataValidationType _dateTime;
+        public static ExcelDataValidationType DateTime
+        {
+            get
+            {
+                if (_dateTime == null)
+                {
+                    _dateTime = new ExcelDataValidationType(eDataValidationType.DateTime, true, DataValidationSchemaNames.Date);
+                }
+                return _dateTime;
+            }
+        }
+
+        private static ExcelDataValidationType _time;
+        public static ExcelDataValidationType Time
+        {
+            get
+            {
+                if (_time == null)
+                {
+                    _time = new ExcelDataValidationType(eDataValidationType.Time, true, DataValidationSchemaNames.Time);
+                }
+                return _time;
             }
         }
     }
