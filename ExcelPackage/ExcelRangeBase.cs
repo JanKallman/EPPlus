@@ -41,6 +41,7 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
+using OfficeOpenXml.DataValidation;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -882,6 +883,61 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Public Methods"
+        #region DataValidation
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationInt"/> to the range
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationInt"/> that can be configured for integer data validation</returns>
+        public ExcelDataValidationInt AddIntegerDataValidation()
+        {
+            return _worksheet.DataValidation.AddWholeValidation(Address);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationDecimal"/> to the range
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationDecimal"/> that can be configured for decimal data validation</returns>
+        public ExcelDataValidationDecimal AddDecimalDataValidation()
+        {
+            return _worksheet.DataValidation.AddDecimalValidation(Address);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationDateTime"/> to the range
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationDecimal"/> that can be configured for datetime data validation</returns>
+        public ExcelDataValidationDateTime AddDateTimeDataValidation()
+        {
+            return _worksheet.DataValidation.AddDateTimeValidation(Address);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationList"/> to the range
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationList"/> that can be configured for datetime data validation</returns>
+        public ExcelDataValidationList AddListDataValidation()
+        {
+            return _worksheet.DataValidation.AddListValidation(Address);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationInt"/> regarding text length validation to the range.
+        /// </summary>
+        /// <returns></returns>
+        public ExcelDataValidationInt AddTextLengthDataValidation()
+        {
+            return _worksheet.DataValidation.AddTextLengthValidation(Address);
+        }
+        
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationTime"/> to the range.
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationTime"/> that can be configured for time data validation</returns>
+        public ExcelDataValidationTime AddTimeDataValidation()
+        {
+            return _worksheet.DataValidation.AddTimeValidation(Address);
+        }
+        #endregion
         #region "LoadFromDataTable"
         /// <summary>
         /// Load the data from the datatable starting from the top left cell of the range

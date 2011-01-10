@@ -5,6 +5,9 @@ using System.Text;
 
 namespace OfficeOpenXml.DataValidation
 {
+    /// <summary>
+    /// Operator for comparison between Formula and Formula2 in a validation.
+    /// </summary>
     public enum ExcelDataValidationOperator
     {
         any,

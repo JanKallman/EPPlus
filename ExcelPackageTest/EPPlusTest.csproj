@@ -70,6 +70,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataValidation\DataValidationTests.cs" />
+    <Compile Include="DataValidation\DecimaDataValidationTests.cs" />
+    <Compile Include="DataValidation\ExcelTimeTests.cs" />
+    <Compile Include="DataValidation\Formulas\DateTimeFormulaTests.cs" />
+    <Compile Include="DataValidation\Formulas\DecimalFormulaTests.cs" />
+    <Compile Include="DataValidation\Formulas\IntegerFormulaTests.cs" />
+    <Compile Include="DataValidation\Formulas\ListFormulaTests.cs" />
+    <Compile Include="DataValidation\Formulas\TimeFormulaTests.cs" />
+    <Compile Include="DataValidation\IntegrationTests\IntegrationTests.cs" />
+    <Compile Include="DataValidation\ListDataValidationTests.cs" />
+    <Compile Include="DataValidation\RangeBaseTests.cs" />
+    <Compile Include="DataValidation\ValidationCollectionTests.cs" />
+    <Compile Include="DataValidation\ValidationTestBase.cs" />
     <Compile Include="Encrypt.cs" />
     <Compile Include="ExcelExtensionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

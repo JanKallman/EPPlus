@@ -10,71 +10,18 @@ using System.IO;
 namespace ExcelPackageTest.DataValidation
 {
     [TestClass]
-    public class DataValidationTests
+    public class DataValidationTests : ValidationTestBase
     {
-        private ExcelPackage _package;
-        private ExcelWorksheet _sheet;
-
         [TestInitialize]
         public void Setup()
         {
-            _package = new ExcelPackage();
-            _sheet = _package.Workbook.Worksheets.Add("test");
+            SetupTestData();
         }
 
         [TestCleanup]
         public void Cleanup()
         {
-            _package = null;
-            _sheet = null;
-        }
-
-        private string GetTestOutputPath(string fileName)
-        {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
-        }
-
-        private void SaveTestOutput(string fileName)
-        {
-            var path = GetTestOutputPath(fileName);
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
-            _package.SaveAs(new FileInfo(path));
-        }
-
-
-
-        [TestMethod]
-        public void DataValidations_AddOneValidationOfTypeWhole()
-        {
-            var validation = _sheet.DataValidation.AddDecimalValidation("A1");
-            validation.ShowErrorMessage = true;
-            validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
-            validation.ErrorTitle = "Invalid value was entered";
-            validation.Error = "Value must be greater than 1.4";
-            validation.PromptTitle = "Enter value here";
-            validation.Prompt = "Enter a value that is greater than 1.4";
-            validation.ShowInputMessage = true;
-            validation.Operator = ExcelDataValidationOperator.greaterThan;
-            validation.Value = (decimal)1.4;
-
-            _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeWhole.xlsx")));
-        }
-
-        [TestMethod]
-        public void DataValidations_AddOneValidationOfTypeListOfTypeList()
-        {
-            var validation = _sheet.DataValidation.AddListValidation("A1");
-            validation.ShowErrorMessage = true;
-            validation.ShowInputMessage = true;
-            validation.Values.Add("1");
-            validation.Values.Add("2");
-            validation.Values.Add("3");
-            validation.Validate();
-
-            _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeList.xlsx")));
+            CleanupTestData();
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
@@ -85,20 +32,88 @@ namespace ExcelPackageTest.DataValidation
             validations.Validate();
         }
 
+        [TestMethod]
+        public void DataValidations_ShouldSetShowErrorMessageFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", true, false);
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.IsTrue(validation.ShowErrorMessage ?? false);
+        }
+
+        [TestMethod]
+        public void DataValidations_ShouldSetShowInputMessageFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", false, true);
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.IsTrue(validation.ShowInputMessage ?? false);
+        }
+
+        [TestMethod]
+        public void DataValidations_ShouldSetPromptFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", "Prompt", "PromptTitle", "Error", "ErrorTitle");
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.AreEqual("Prompt", validation.Prompt);
+        }
+
+        [TestMethod]
+        public void DataValidations_ShouldSetPromptTitleFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", "Prompt", "PromptTitle", "Error", "ErrorTitle");
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.AreEqual("PromptTitle", validation.PromptTitle);
+        }
+
+        [TestMethod]
+        public void DataValidations_ShouldSetErrorFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", "Prompt", "PromptTitle", "Error", "ErrorTitle");
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.AreEqual("Error", validation.Error);
+        }
+
+        [TestMethod]
+        public void DataValidations_ShouldSetErrorTitleFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "1", "Prompt", "PromptTitle", "Error", "ErrorTitle");
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.AreEqual("ErrorTitle", validation.ErrorTitle);
+        }
+
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsBetweenAndFormula2IsEmpty()
         {
             var validation = _sheet.DataValidation.AddWholeValidation("A1");
+            validation.Formula.Value = 1;
             validation.Operator = ExcelDataValidationOperator.between;
             validation.Validate();
         }
 
-        [TestMethod, ExpectedException(typeof(FormatException))]
-        public void DataValidations_ShouldThrowIfValidationTypeIsListAndFormula1DoesNotContainCommas()
+        [TestMethod]
+        public void DataValidations_ShouldAcceptOneItemOnly()
         {
             var validation = _sheet.DataValidation.AddListValidation("A1");
-            validation.Values.Add("1");
+            validation.Formula.Values.Add("1");
             validation.Validate();
         }
+
     }
 }
