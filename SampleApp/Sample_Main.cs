@@ -127,6 +127,12 @@ namespace EPPlusSamples
                 Sample10.RunSample10(outputDir);
                 Console.WriteLine("Sample 10 created: {0}", output);
                 Console.WriteLine();
+
+                //Sample 11 - Data validation
+                Console.WriteLine("Running sample 11");
+                Sample11.RunSample11(outputDir);
+                Console.WriteLine("Sample 11 created {0}", output);
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {

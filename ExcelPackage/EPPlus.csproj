@@ -80,6 +80,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCustom.cs" />
     <Compile Include="DataValidation\ExcelDataValidationDateTime.cs" />
     <Compile Include="DataValidation\ExcelDataValidationFactory.cs" />
     <Compile Include="DataValidation\ExcelDataValidationTime.cs" />
@@ -91,6 +102,7 @@
     <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaTime.cs" />
     <Compile Include="DataValidation\Formulas\ExcelDataValidationFormula.cs" />
     <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaCustom.cs" />
     <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDateTime.cs" />
     <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaList.cs" />
     <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaWithValue.cs" />

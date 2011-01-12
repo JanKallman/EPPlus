@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Sample10.cs" />
+    <Compile Include="Sample11.cs" />
     <Compile Include="Sample8.cs" />
     <Compile Include="Sample1.cs" />
     <Compile Include="Sample3.cs" />

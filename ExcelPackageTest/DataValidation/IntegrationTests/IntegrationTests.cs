@@ -30,7 +30,7 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         public void DataValidations_AddOneValidationOfTypeWhole()
         {
             _sheet.Cells["B1"].Value = 2;
-            var validation = _sheet.DataValidation.AddWholeValidation("A1");
+            var validation = _sheet.DataValidations.AddIntegerValidation("A1");
             validation.ShowErrorMessage = true;
             validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
             validation.ErrorTitle = "Invalid value was entered";
@@ -44,7 +44,7 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         [TestMethod, Ignore]
         public void DataValidations_AddOneValidationOfTypeDecimal()
         {
-            var validation = _sheet.DataValidation.AddDecimalValidation("A1");
+            var validation = _sheet.DataValidations.AddDecimalValidation("A1");
             validation.ShowErrorMessage = true;
             validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
             validation.ErrorTitle = "Invalid value was entered";
@@ -61,7 +61,7 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         [TestMethod]
         public void DataValidations_AddOneValidationOfTypeListOfTypeList()
         {
-            var validation = _sheet.DataValidation.AddListValidation("A1");
+            var validation = _sheet.DataValidations.AddListValidation("A1");
             validation.ShowErrorMessage = true;
             validation.ShowInputMessage = true;
             validation.Formula.Values.Add("1");
@@ -75,7 +75,7 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         [TestMethod]
         public void DataValidations_AddOneValidationOfTypeListOfTypeTime()
         {
-            var validation = _sheet.DataValidation.AddTimeValidation("A1");
+            var validation = _sheet.DataValidations.AddTimeValidation("A1");
             validation.ShowErrorMessage = true;
             validation.ShowInputMessage = true;
             validation.Formula.Value.Hour = 14;

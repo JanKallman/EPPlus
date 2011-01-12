@@ -2326,7 +2326,7 @@ namespace OfficeOpenXml
         /// set the properties on the instance returned.
         /// </summary>
         /// <seealso cref="ExcelDataValidationCollection"/>
-        public ExcelDataValidationCollection DataValidation
+        public ExcelDataValidationCollection DataValidations
         {
             get
             {

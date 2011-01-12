@@ -26,51 +26,51 @@ namespace ExcelPackageTest.DataValidation
         public void ExcelDataValidationCollection_AddDecimal_ShouldThrowWhenAddressIsNullOrEmpty()
         {
             // Act
-            _sheet.DataValidation.AddDecimalValidation(string.Empty);
+            _sheet.DataValidations.AddDecimalValidation(string.Empty);
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void ExcelDataValidationCollection_AddDecimal_ShouldThrowWhenNewValidationCollidesWithExisting()
         {
             // Act
-            _sheet.DataValidation.AddDecimalValidation("A1");
-            _sheet.DataValidation.AddDecimalValidation("A1");
+            _sheet.DataValidations.AddDecimalValidation("A1");
+            _sheet.DataValidations.AddDecimalValidation("A1");
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void ExcelDataValidationCollection_AddInteger_ShouldThrowWhenNewValidationCollidesWithExisting()
         {
             // Act
-            _sheet.DataValidation.AddWholeValidation("A1");
-            _sheet.DataValidation.AddWholeValidation("A1");
+            _sheet.DataValidations.AddIntegerValidation("A1");
+            _sheet.DataValidations.AddIntegerValidation("A1");
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void ExcelDataValidationCollection_AddTextLength_ShouldThrowWhenNewValidationCollidesWithExisting()
         {
             // Act
-            _sheet.DataValidation.AddTextLengthValidation("A1");
-            _sheet.DataValidation.AddTextLengthValidation("A1");
+            _sheet.DataValidations.AddTextLengthValidation("A1");
+            _sheet.DataValidations.AddTextLengthValidation("A1");
         }
 
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void ExcelDataValidationCollection_AddDateTime_ShouldThrowWhenNewValidationCollidesWithExisting()
         {
             // Act
-            _sheet.DataValidation.AddDateTimeValidation("A1");
-            _sheet.DataValidation.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
         }
 
         [TestMethod]
         public void ExcelDataValidationCollection_Index_ShouldReturnItemAtIndex()
         {
             // Arrange
-            _sheet.DataValidation.AddDateTimeValidation("A1");
-            _sheet.DataValidation.AddDateTimeValidation("A2");
-            _sheet.DataValidation.AddDateTimeValidation("B1");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A2");
+            _sheet.DataValidations.AddDateTimeValidation("B1");
 
             // Act
-            var result = _sheet.DataValidation[1];
+            var result = _sheet.DataValidations[1];
 
             // Assert
             Assert.AreEqual("A2", result.Address.Address);
@@ -80,12 +80,12 @@ namespace ExcelPackageTest.DataValidation
         public void ExcelDataValidationCollection_FindAll_ShouldReturnValidationInColumnAonly()
         {
             // Arrange
-            _sheet.DataValidation.AddDateTimeValidation("A1");
-            _sheet.DataValidation.AddDateTimeValidation("A2");
-            _sheet.DataValidation.AddDateTimeValidation("B1");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A2");
+            _sheet.DataValidations.AddDateTimeValidation("B1");
 
             // Act
-            var result = _sheet.DataValidation.FindAll(x => x.Address.Address.StartsWith("A"));
+            var result = _sheet.DataValidations.FindAll(x => x.Address.Address.StartsWith("A"));
 
             // Assert
             Assert.AreEqual(2, result.Count());
@@ -96,11 +96,11 @@ namespace ExcelPackageTest.DataValidation
         public void ExcelDataValidationCollection_Find_ShouldReturnFirstMatchOnly()
         {
             // Arrange
-            _sheet.DataValidation.AddDateTimeValidation("A1");
-            _sheet.DataValidation.AddDateTimeValidation("A2");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A2");
 
             // Act
-            var result = _sheet.DataValidation.Find(x => x.Address.Address.StartsWith("A"));
+            var result = _sheet.DataValidations.Find(x => x.Address.Address.StartsWith("A"));
 
             // Assert
             Assert.AreEqual("A1", result.Address.Address);
@@ -111,13 +111,13 @@ namespace ExcelPackageTest.DataValidation
         public void ExcelDataValidationCollection_Clear_ShouldBeEmpty()
         {
             // Arrange
-            _sheet.DataValidation.AddDateTimeValidation("A1");
+            _sheet.DataValidations.AddDateTimeValidation("A1");
 
             // Act
-            _sheet.DataValidation.Clear();
+            _sheet.DataValidations.Clear();
 
             // Assert
-            Assert.AreEqual(0, _sheet.DataValidation.Count);
+            Assert.AreEqual(0, _sheet.DataValidations.Count);
 
         }
 
@@ -125,15 +125,15 @@ namespace ExcelPackageTest.DataValidation
         public void ExcelDataValidationCollection_RemoveAll_ShouldRemoveMatchingEntries()
         {
             // Arrange
-            _sheet.DataValidation.AddWholeValidation("A1");
-            _sheet.DataValidation.AddWholeValidation("A2");
-            _sheet.DataValidation.AddWholeValidation("B1");
+            _sheet.DataValidations.AddIntegerValidation("A1");
+            _sheet.DataValidations.AddIntegerValidation("A2");
+            _sheet.DataValidations.AddIntegerValidation("B1");
 
             // Act
-            _sheet.DataValidation.RemoveAll(x => x.Address.Address.StartsWith("B"));
+            _sheet.DataValidations.RemoveAll(x => x.Address.Address.StartsWith("B"));
 
             // Assert
-            Assert.AreEqual(2, _sheet.DataValidation.Count);
+            Assert.AreEqual(2, _sheet.DataValidations.Count);
         }
     }
 }

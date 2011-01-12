@@ -27,7 +27,7 @@ namespace ExcelPackageTest.DataValidation
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsEqualAndFormula1IsEmpty()
         {
-            var validations = _sheet.DataValidation.AddWholeValidation("A1");
+            var validations = _sheet.DataValidations.AddIntegerValidation("A1");
             validations.Operator = ExcelDataValidationOperator.equal;
             validations.Validate();
         }
@@ -101,7 +101,7 @@ namespace ExcelPackageTest.DataValidation
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsBetweenAndFormula2IsEmpty()
         {
-            var validation = _sheet.DataValidation.AddWholeValidation("A1");
+            var validation = _sheet.DataValidations.AddIntegerValidation("A1");
             validation.Formula.Value = 1;
             validation.Operator = ExcelDataValidationOperator.between;
             validation.Validate();
@@ -110,7 +110,7 @@ namespace ExcelPackageTest.DataValidation
         [TestMethod]
         public void DataValidations_ShouldAcceptOneItemOnly()
         {
-            var validation = _sheet.DataValidation.AddListValidation("A1");
+            var validation = _sheet.DataValidations.AddListValidation("A1");
             validation.Formula.Values.Add("1");
             validation.Validate();
         }

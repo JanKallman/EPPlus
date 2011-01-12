@@ -33,6 +33,7 @@ using System.Text;
 using System.Collections;
 using OfficeOpenXml.Utils;
 using System.Xml;
+using OfficeOpenXml.DataValidation.Contracts;
 
 namespace OfficeOpenXml.DataValidation
 {
@@ -45,7 +46,7 @@ namespace OfficeOpenXml.DataValidation
     /// validation has been created changes to the properties will affect the workbook immediately.
     /// </para>
     /// <para>
-    /// Each type of validation has either a formula or a typed value.
+    /// Each type of validation has either a formula or a typed value/values, except for custom validation which has a formula only.
     /// </para>
     /// <code>
     /// // Add a date time validation
@@ -60,9 +61,9 @@ namespace OfficeOpenXml.DataValidation
     /// validation.Operator = ExcelDataValidationOperator.between;
     /// </code>
     /// </summary>
-    public class ExcelDataValidationCollection : XmlHelper, IEnumerable<ExcelDataValidation>
+    public class ExcelDataValidationCollection : XmlHelper, IEnumerable<IExcelDataValidation>
     {
-        private List<ExcelDataValidation> _validations = new List<ExcelDataValidation>();
+        private List<IExcelDataValidation> _validations = new List<IExcelDataValidation>();
         private ExcelWorksheet _worksheet = null;
 
         private const string DataValidationPath = "//d:dataValidations";
@@ -108,7 +109,12 @@ namespace OfficeOpenXml.DataValidation
             return _worksheet.WorksheetXml.SelectSingleNode(DataValidationPath, _worksheet.NameSpaceManager);
         }
 
-        private void ValidateAddress(string address)
+        /// <summary>
+        /// Validates address - not empty, collisions
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="validatingValidation"></param>
+        private void ValidateAddress(string address, IExcelDataValidation validatingValidation)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
             
@@ -118,21 +124,43 @@ namespace OfficeOpenXml.DataValidation
             {
                 foreach (var validation in _validations)
                 {
+                    if (validatingValidation != null && validatingValidation == validation)
+                    {
+                        continue;
+                    }
                     var result = validation.Address.Collide(newAddress);
                     if (result != ExcelAddressBase.eAddressCollition.No)
                     {
-                        throw new InvalidOperationException(string.Format("The new address ({0}) collides with an existing validation ({1})", address, validation.Address.Address));
+                        throw new InvalidOperationException(string.Format("The address ({0}) collides with an existing validation ({1})", address, validation.Address.Address));
                     }
                 }
             }
         }
 
+        private void ValidateAddress(string address)
+        {
+            ValidateAddress(address, null);
+        }
+
         /// <summary>
-        /// Adds an <see cref="ExcelDataValidationInt"/> to the worksheet. Whole means that the only accepted values
+        /// Validates all data validations.
+        /// </summary>
+        internal void ValidateAll()
+        {
+            foreach (var validation in _validations)
+            {
+                validation.Validate();
+
+                ValidateAddress(validation.Address.Address, validation);
+            }
+        }
+
+        /// <summary>
+        /// Adds an <see cref="IExcelDataValidationInt"/> to the worksheet. Whole means that the only accepted values
         /// are integer values.
         /// </summary>
         /// <param name="address">the range/address to validate</param>
-        public ExcelDataValidationInt AddWholeValidation(string address)
+        public IExcelDataValidationInt AddIntegerValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists(); 
@@ -142,12 +170,12 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Addes an <see cref="ExcelDataValidation"/> to the worksheet. The only accepted values are
+        /// Addes an <see cref="IExcelDataValidationDecimal"/> to the worksheet. The only accepted values are
         /// decimal values.
         /// </summary>
         /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public ExcelDataValidationDecimal AddDecimalValidation(string address)
+        public IExcelDataValidationDecimal AddDecimalValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists();
@@ -157,12 +185,12 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Adds an <see cref="ExcelDataValidationList"/> to the worksheet. The accepted values are defined
+        /// Adds an <see cref="IExcelDataValidationList"/> to the worksheet. The accepted values are defined
         /// in a list.
         /// </summary>
         /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public ExcelDataValidationList AddListValidation(string address)
+        public IExcelDataValidationList AddListValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists();
@@ -172,11 +200,11 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Adds an <see cref="ExcelDataValidationInt"/> regarding text length to the worksheet.
+        /// Adds an <see cref="IExcelDataValidationInt"/> regarding text length to the worksheet.
         /// </summary>
         /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public ExcelDataValidationInt AddTextLengthValidation(string address)
+        public IExcelDataValidationInt AddTextLengthValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists();
@@ -186,11 +214,11 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Adds an <see cref="ExcelDataValidationDateTime"/> to the worksheet.
+        /// Adds an <see cref="IExcelDataValidationDateTime"/> to the worksheet.
         /// </summary>
         /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public ExcelDataValidationDateTime AddDateTimeValidation(string address)
+        public IExcelDataValidationDateTime AddDateTimeValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists();
@@ -200,15 +228,28 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Adds a <see cref="ExcelDataValidationTime"/> to the worksheet.
+        /// Adds a <see cref="IExcelDataValidationTime"/> to the worksheet.
         /// </summary>
-        /// <param name="address">The range/address to validation</param>
+        /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public ExcelDataValidationTime AddTimeValidation(string address)
+        public IExcelDataValidationTime AddTimeValidation(string address)
         {
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationTime(_worksheet, address, ExcelDataValidationType.Time);
+            _validations.Add(item);
+            return item;
+        }
+        /// <summary>
+        /// Adds a <see cref="ExcelDataValidationCustom"/> to the worksheet.
+        /// </summary>
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public IExcelDataValidationCustom AddCustomValidation(string address)
+        {
+            ValidateAddress(address);
+            EnsureRootElementExists();
+            var item = new ExcelDataValidationCustom(_worksheet, address, ExcelDataValidationType.Custom);
             _validations.Add(item);
             return item;
         }
@@ -219,10 +260,14 @@ namespace OfficeOpenXml.DataValidation
         /// <param name="item">The item to remove</param>
         /// <returns>True if remove succeeds, otherwise false</returns>
         /// <exception cref="ArgumentNullException">if <paramref name="item"/> is null</exception>
-        public bool Remove(ExcelDataValidation item)
+        public bool Remove(IExcelDataValidation item)
         {
+            if (!(item is ExcelDataValidation))
+            {
+                throw new InvalidCastException("The supplied item must inherit OpenOfficeXml.DataValidation.ExcelDataValidation");
+            }
             Require.Argument(item).IsNotNull("item");
-            TopNode.RemoveChild(item.TopNode);
+            TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
             return _validations.Remove(item);
         }
 
@@ -239,7 +284,7 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
-        public ExcelDataValidation this[int index]
+        public IExcelDataValidation this[int index]
         {
             get { return _validations[index]; }
             set { _validations[index] = value; }
@@ -250,7 +295,7 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="address">A cell address or range</param>
         /// <returns>A <see cref="ExcelDataValidation"/> or null if no match</returns>
-        public ExcelDataValidation this[string address]
+        public IExcelDataValidation this[string address]
         {
             get
             {
@@ -264,7 +309,7 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="match">predicate to filter out matching validations</param>
         /// <returns></returns>
-        public IEnumerable<ExcelDataValidation> FindAll(Predicate<ExcelDataValidation> match)
+        public IEnumerable<IExcelDataValidation> FindAll(Predicate<IExcelDataValidation> match)
         {
             return _validations.FindAll(match);
         }
@@ -274,7 +319,7 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="match"></param>
         /// <returns></returns>
-        public ExcelDataValidation Find(Predicate<ExcelDataValidation> match)
+        public IExcelDataValidation Find(Predicate<IExcelDataValidation> match)
         {
             return _validations.Find(match);
         }
@@ -292,17 +337,21 @@ namespace OfficeOpenXml.DataValidation
         /// Removes the validations that matches the predicate
         /// </summary>
         /// <param name="match"></param>
-        public void RemoveAll(Predicate<ExcelDataValidation> match)
+        public void RemoveAll(Predicate<IExcelDataValidation> match)
         {
             var matches = _validations.FindAll(match);
             foreach (var m in matches)
             {
-                TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(m.TopNode);
+                if (!(m is ExcelDataValidation))
+                {
+                    throw new InvalidCastException("The supplied item must inherit OpenOfficeXml.DataValidation.ExcelDataValidation");
+                }
+                TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(((ExcelDataValidation)m).TopNode);
             }
             _validations.RemoveAll(match);
         }
 
-        IEnumerator<ExcelDataValidation> IEnumerable<ExcelDataValidation>.GetEnumerator()
+        IEnumerator<IExcelDataValidation> IEnumerable<IExcelDataValidation>.GetEnumerator()
         {
             return _validations.GetEnumerator();
         }

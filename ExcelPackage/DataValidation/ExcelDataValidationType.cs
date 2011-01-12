@@ -61,7 +61,11 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Time validation
         /// </summary>
-        Time
+        Time,
+        /// <summary>
+        /// Custom validation
+        /// </summary>
+        Custom
     }
 
     internal static class DataValidationSchemaNames
@@ -72,6 +76,7 @@ namespace OfficeOpenXml.DataValidation
         public const string TextLength = "textLength";
         public const string Date = "date";
         public const string Time = "time";
+        public const string Custom = "custom";
     }
 
     /// <summary>
@@ -81,7 +86,7 @@ namespace OfficeOpenXml.DataValidation
     {
         private ExcelDataValidationType(eDataValidationType validationType, bool allowOperator, string schemaName)
         {
-            ValidationType = validationType;
+            Type = validationType;
             AllowOperator = allowOperator;
             SchemaName = schemaName;
         }
@@ -89,7 +94,7 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Validation type
         /// </summary>
-        public eDataValidationType ValidationType
+        public eDataValidationType Type
         {
             get;
             private set;
@@ -132,6 +137,8 @@ namespace OfficeOpenXml.DataValidation
                     return ExcelDataValidationType.DateTime;
                 case eDataValidationType.Time:
                     return ExcelDataValidationType.Time;
+                case eDataValidationType.Custom:
+                    return ExcelDataValidationType.Custom;
                 default:
                     throw new InvalidOperationException("Non supported Validationtype : " + type.ToString());
             }
@@ -153,6 +160,8 @@ namespace OfficeOpenXml.DataValidation
                     return ExcelDataValidationType.DateTime;
                 case DataValidationSchemaNames.Time:
                     return ExcelDataValidationType.Time;
+                case DataValidationSchemaNames.Custom:
+                    return ExcelDataValidationType.Custom;
                 default:
                     throw new ArgumentException("Invalid schemaname: " + schemaName);
             }
@@ -169,7 +178,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 return false;
             }
-            return ((ExcelDataValidationType)obj).ValidationType == ValidationType;
+            return ((ExcelDataValidationType)obj).Type == Type;
         }
 
         /// <summary>
@@ -262,6 +271,19 @@ namespace OfficeOpenXml.DataValidation
                     _time = new ExcelDataValidationType(eDataValidationType.Time, true, DataValidationSchemaNames.Time);
                 }
                 return _time;
+            }
+        }
+
+        private static ExcelDataValidationType _custom;
+        public static ExcelDataValidationType Custom
+        {
+            get
+            {
+                if (_custom == null)
+                {
+                    _custom = new ExcelDataValidationType(eDataValidationType.Custom, true, DataValidationSchemaNames.Custom);
+                }
+                return _custom;
             }
         }
     }
