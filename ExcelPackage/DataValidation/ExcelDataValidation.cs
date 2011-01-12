@@ -34,13 +34,14 @@ using OfficeOpenXml.Utils;
 using System.Xml;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.DataValidation.Formulas.Contracts;
+using OfficeOpenXml.DataValidation.Contracts;
 
 namespace OfficeOpenXml.DataValidation
 {
     /// <summary>
     /// Excel datavalidation
     /// </summary>
-    public abstract class ExcelDataValidation : XmlHelper   
+    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation  
     {
         private const string _itemElementNodeName = "d:dataValidation";
 
@@ -138,7 +139,7 @@ namespace OfficeOpenXml.DataValidation
         /// This method will validate the state of the validation
         /// </summary>
         /// <exception cref="InvalidOperationException">If the state breaks the rules of the validation</exception>
-        public void Validate()
+        public virtual void Validate()
         {
             var address = Address.Address;
             // validate Formula1
@@ -146,16 +147,20 @@ namespace OfficeOpenXml.DataValidation
             {
                 throw new InvalidOperationException("Validation of " + address + " failed: Formula1 cannot be empty");
             }
-            if (Operator == ExcelDataValidationOperator.between || Operator == ExcelDataValidationOperator.notBetween)
-            {
-                if (string.IsNullOrEmpty(Formula2Internal))
-                {
-                    throw new InvalidOperationException("Validation of " + address + " failed: Formula2 must be set if operator is 'between' or 'notBetween'");
-                }
-            }
         }
 
         #region Public properties
+
+        /// <summary>
+        /// True if the validation type allows operator to be set.
+        /// </summary>
+        public bool AllowsOperator
+        {
+            get
+            {
+                return ValidationType.AllowOperator;
+            }
+        }
 
         /// <summary>
         /// Address of data validation
@@ -166,7 +171,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 return new ExcelAddress(GetXmlNodeString(_sqrefPath));
             }
-            set
+            private set
             {
                 SetXmlNodeString(_sqrefPath, value.Address);
             }
@@ -188,7 +193,7 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
-        /// Operator
+        /// Operator for comparison between the entered value and Formula/Formulas.
         /// </summary>
         public ExcelDataValidationOperator Operator
         {
@@ -337,7 +342,7 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Formula 1
         /// </summary>
-        private string Formula1Internal
+        protected string Formula1Internal
         {
             get
             {
@@ -348,7 +353,7 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Formula 2
         /// </summary>
-        private string Formula2Internal
+        protected string Formula2Internal
         {
             get
             {

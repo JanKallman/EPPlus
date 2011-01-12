@@ -69,9 +69,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataValidation\CustomValidationTests.cs" />
     <Compile Include="DataValidation\DataValidationTests.cs" />
     <Compile Include="DataValidation\DecimaDataValidationTests.cs" />
     <Compile Include="DataValidation\ExcelTimeTests.cs" />
+    <Compile Include="DataValidation\Formulas\CustomFormulaTests.cs" />
     <Compile Include="DataValidation\Formulas\DateTimeFormulaTests.cs" />
     <Compile Include="DataValidation\Formulas\DecimalFormulaTests.cs" />
     <Compile Include="DataValidation\Formulas\IntegerFormulaTests.cs" />

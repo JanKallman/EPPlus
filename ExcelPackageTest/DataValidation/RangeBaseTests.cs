@@ -28,7 +28,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddIntegerDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -38,7 +38,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddIntegerDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
 
         [TestMethod]
@@ -48,7 +48,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddDecimalDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddDecimalDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddTextLengthDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -78,7 +78,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddTextLengthDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
 
         [TestMethod]
@@ -88,7 +88,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddDateTimeDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -98,7 +98,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddDateTimeDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
 
         [TestMethod]
@@ -108,7 +108,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddListDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddListDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
 
         [TestMethod]
@@ -128,7 +128,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddTimeDataValidation();
 
             // Assert
-            Assert.AreEqual(1, _sheet.DataValidation.Count);
+            Assert.AreEqual(1, _sheet.DataValidations.Count);
         }
 
         [TestMethod]
@@ -138,7 +138,7 @@ namespace ExcelPackageTest.DataValidation
             _sheet.Cells["A1:A2"].AddTimeDataValidation();
 
             // Assert
-            Assert.AreEqual("A1:A2", _sheet.DataValidation[0].Address.Address);
+            Assert.AreEqual("A1:A2", _sheet.DataValidations[0].Address.Address);
         }
     }
 }

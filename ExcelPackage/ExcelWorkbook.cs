@@ -621,7 +621,18 @@ namespace OfficeOpenXml
                 _package.SavePart(SharedStringsUri, _xmlSharedStrings);
 				_package.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
 			}
+            
+            // Data validation
+            ValidateDataValidations();
 		}
+
+        private void ValidateDataValidations()
+        {
+            foreach (var sheet in _package.Workbook.Worksheets)
+            {
+                sheet.DataValidations.ValidateAll();
+            }
+        }
 
         private void UpdateSharedStringsXml()
         {

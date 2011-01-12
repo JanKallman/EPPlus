@@ -42,6 +42,7 @@ using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.DataValidation.Contracts;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -885,57 +886,66 @@ namespace OfficeOpenXml
         #region "Public Methods"
         #region DataValidation
         /// <summary>
-        /// Adds a <see cref="ExcelDataValidationInt"/> to the range
+        /// Adds a <see cref="IExcelDataValidationInt"/> to the range
         /// </summary>
         /// <returns>A <see cref="ExcelDataValidationInt"/> that can be configured for integer data validation</returns>
-        public ExcelDataValidationInt AddIntegerDataValidation()
+        public IExcelDataValidationInt AddIntegerDataValidation()
         {
-            return _worksheet.DataValidation.AddWholeValidation(Address);
+            return _worksheet.DataValidations.AddIntegerValidation(Address);
         }
 
         /// <summary>
         /// Adds a <see cref="ExcelDataValidationDecimal"/> to the range
         /// </summary>
         /// <returns>A <see cref="ExcelDataValidationDecimal"/> that can be configured for decimal data validation</returns>
-        public ExcelDataValidationDecimal AddDecimalDataValidation()
+        public IExcelDataValidationDecimal AddDecimalDataValidation()
         {
-            return _worksheet.DataValidation.AddDecimalValidation(Address);
+            return _worksheet.DataValidations.AddDecimalValidation(Address);
         }
 
         /// <summary>
         /// Adds a <see cref="ExcelDataValidationDateTime"/> to the range
         /// </summary>
         /// <returns>A <see cref="ExcelDataValidationDecimal"/> that can be configured for datetime data validation</returns>
-        public ExcelDataValidationDateTime AddDateTimeDataValidation()
+        public IExcelDataValidationDateTime AddDateTimeDataValidation()
         {
-            return _worksheet.DataValidation.AddDateTimeValidation(Address);
+            return _worksheet.DataValidations.AddDateTimeValidation(Address);
         }
 
         /// <summary>
-        /// Adds a <see cref="ExcelDataValidationList"/> to the range
+        /// Adds a <see cref="IExcelDataValidationList"/> to the range
         /// </summary>
         /// <returns>A <see cref="ExcelDataValidationList"/> that can be configured for datetime data validation</returns>
-        public ExcelDataValidationList AddListDataValidation()
+        public IExcelDataValidationList AddListDataValidation()
         {
-            return _worksheet.DataValidation.AddListValidation(Address);
+            return _worksheet.DataValidations.AddListValidation(Address);
         }
 
         /// <summary>
-        /// Adds a <see cref="ExcelDataValidationInt"/> regarding text length validation to the range.
+        /// Adds a <see cref="IExcelDataValidationInt"/> regarding text length validation to the range.
         /// </summary>
         /// <returns></returns>
-        public ExcelDataValidationInt AddTextLengthDataValidation()
+        public IExcelDataValidationInt AddTextLengthDataValidation()
         {
-            return _worksheet.DataValidation.AddTextLengthValidation(Address);
+            return _worksheet.DataValidations.AddTextLengthValidation(Address);
         }
         
         /// <summary>
-        /// Adds a <see cref="ExcelDataValidationTime"/> to the range.
+        /// Adds a <see cref="IExcelDataValidationTime"/> to the range.
         /// </summary>
-        /// <returns>A <see cref="ExcelDataValidationTime"/> that can be configured for time data validation</returns>
-        public ExcelDataValidationTime AddTimeDataValidation()
+        /// <returns>A <see cref="IExcelDataValidationTime"/> that can be configured for time data validation</returns>
+        public IExcelDataValidationTime AddTimeDataValidation()
         {
-            return _worksheet.DataValidation.AddTimeValidation(Address);
+            return _worksheet.DataValidations.AddTimeValidation(Address);
+        }
+
+        /// <summary>
+        /// Adds a <see cref="IExcelDataValidationCustom"/> to the range.
+        /// </summary>
+        /// <returns>A <see cref="IExcelDataValidationCustom"/> that can be configured for custom validation</returns>
+        public IExcelDataValidationCustom AddCustomDataValidation()
+        {
+            return _worksheet.DataValidations.AddCustomValidation(Address);
         }
         #endregion
         #region "LoadFromDataTable"

@@ -4,19 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.DataValidation.Contracts;
 
 namespace ExcelPackageTest.DataValidation
 {
     [TestClass]
     public class DecimaDataValidationTests : ValidationTestBase
     {
-        private ExcelDataValidationDecimal _validation;
+        private IExcelDataValidationDecimal _validation;
 
         [TestInitialize]
         public void Setup()
         {
             SetupTestData();
-            _validation = _package.Workbook.Worksheets[1].DataValidation.AddDecimalValidation("A1");
+            _validation = _package.Workbook.Worksheets[1].DataValidations.AddDecimalValidation("A1");
         }
 
         [TestCleanup]

@@ -30,38 +30,40 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Xml;
 using OfficeOpenXml.DataValidation.Formulas.Contracts;
-using System.Globalization;
+using System.Xml;
 
 namespace OfficeOpenXml.DataValidation.Formulas
 {
     /// <summary>
     /// 
     /// </summary>
-    internal class ExcelDataValidationFormulaDecimal : ExcelDataValidationFormulaValue<double?>, IExcelDataValidationFormulaDecimal
+    internal class ExcelDataValidationFormulaCustom : ExcelDataValidationFormula, IExcelDataValidationFormula
     {
-        public ExcelDataValidationFormulaDecimal(XmlNamespaceManager namespaceManager, XmlNode topNode, string formulaPath)
+        public ExcelDataValidationFormulaCustom(XmlNamespaceManager namespaceManager, XmlNode topNode, string formulaPath)
             : base(namespaceManager, topNode, formulaPath)
         {
             var value = GetXmlNodeString(formulaPath);
             if (!string.IsNullOrEmpty(value))
             {
-                double dValue = default(double);
-                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
-                {
-                    Value = dValue;
-                }
-                else
-                {
-                    ExcelFormula = value;
-                }
+                ExcelFormula = value;
             }
+            State = FormulaState.Formula;
+        }
+
+        internal override string GetXmlValue()
+        {
+            return ExcelFormula;
         }
 
         protected override string GetValueAsString()
         {
-            return Value.HasValue ? Value.Value.ToString("g15", CultureInfo.InvariantCulture) : string.Empty;
+            return ExcelFormula;
+        }
+
+        internal override void ResetValue()
+        {
+            ExcelFormula = null;
         }
     }
 }
