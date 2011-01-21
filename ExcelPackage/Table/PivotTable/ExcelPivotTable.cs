@@ -1,4 +1,32 @@
-﻿using System;
+﻿/*******************************************************************************
+ * You may amend and distribute as you like, but don't remove this header!
+ * 
+ * All rights reserved.
+ * 
+ * EPPlus is an Open Source project provided under the 
+ * GNU General Public License (GPL) as published by the 
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * 
+ * See http://epplus.codeplex.com/ for details
+ * 
+ * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ * 
+ * The code for this project may be used and redistributed by any means PROVIDING it is 
+ * not sold for profit without the author's written consent, and providing that this notice 
+ * and the author's name and all copyright notices remain intact.
+ * 
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ *******************************************************************************
+ * Jan Källman		Added		21-MAR-2011
+ *******************************************************************************/
+using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -6,7 +34,7 @@ using System.IO.Packaging;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Table;
 
-namespace OfficeOpenXml.Table
+namespace OfficeOpenXml.Table.PivotTable
 {
     public class ExcelPivotTable : XmlHelper
     {
@@ -22,9 +50,82 @@ namespace OfficeOpenXml.Table
             PivotXml = new XmlDocument();
             PivotXml.Load(Part.GetStream());
             init();
+            TopNode = PivotXml.DocumentElement;
+            Address = new ExcelAddressBase(GetXmlNodeString("d:location/@ref"));
 
-            Address = new ExcelAddressBase(GetXmlNodeString("@ref"));
+            _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this);
+
+            LoadFields();
+            int index=0;
+            ////Add fields.
+            //foreach (XmlElement fieldElem in TopNode.SelectNodes("d:pivotFields/d:pivotField", NameSpaceManager))
+            //{
+            //    var fld=new ExcelPivotTableField(NameSpaceManager, fieldElem, this, index++);
+            //    Fields.AddInternal(fld);
+            //}
+
+            ////Add fields.
+            //index = 0;
+            //foreach (XmlElement fieldElem in _cacheDefinition.TopNode.SelectNodes("d:cacheFields/d:cacheField", NameSpaceManager))
+            //{
+            //    var fld = Fields[index++];
+            //    fld.SetCacheFieldNode(fieldElem);
+            //}
+
+            //Add row fields.
+            foreach (XmlElement rowElem in TopNode.SelectNodes("d:rowFields/d:field", NameSpaceManager))
+            {
+                int x;
+                if (int.TryParse(rowElem.GetAttribute("x"), out x) && x >= 0)
+                {
+                    RowFields.AddInternal(Fields[x]);
+                }
+                else
+                {
+                    rowElem.ParentNode.RemoveChild(rowElem);
+                }
             }
+
+            ////Add column fields.
+            foreach (XmlElement colElem in TopNode.SelectNodes("d:colFields/d:field", NameSpaceManager))
+            {
+                int x;
+                if(int.TryParse(colElem.GetAttribute("x"),out x) && x >= 0)
+                {
+                    ColumnFields.AddInternal(Fields[x]);
+                }
+                else
+                {
+                    colElem.ParentNode.RemoveChild(colElem);
+                }
+            }
+
+            //Add Page elements
+            index = 0;
+            foreach (XmlElement pageElem in TopNode.SelectNodes("d:pageFields/d:pageField", NameSpaceManager))
+            {
+                int fld;
+                if (int.TryParse(pageElem.GetAttribute("fld"), out fld) && fld >= 0)
+                {
+                    var field = Fields[fld];
+                    field._pageFieldSettings = new ExcelPivotTablePageFieldSettings(NameSpaceManager, pageElem, field, fld);
+                    PageFields.AddInternal(field);
+                }
+            }
+
+            //Add data elements
+            index = 0;
+            foreach (XmlElement dataElem in TopNode.SelectNodes("d:dataFields/d:dataField", NameSpaceManager))
+            {
+                int fld;
+                if (int.TryParse(dataElem.GetAttribute("fld"), out fld) && fld >= 0)
+                {
+                    var field = Fields[fld];
+                    field._dataFieldSettings = new ExcelPivotTableDataFieldSettings(NameSpaceManager, dataElem, field, fld);
+                    DataFields.AddInternal(field);
+                }
+            }
+        }
         /// <summary>
         /// Add a new pivottable
         /// </summary>
@@ -66,31 +167,49 @@ namespace OfficeOpenXml.Table
         }
         private void init()
         {
-            SchemaNodeOrder = new string[] { "location", "pivotFields", "rowFields", "rowItems", "colFields","colItems","pageFields","pageItems","dataFields","dataItems","pivotTableStyleInfo" };
+            SchemaNodeOrder = new string[] { "location", "pivotFields", "rowFields", "rowItems", "colFields", "colItems", "pageFields", "pageItems", "dataFields", "dataItems", "formats", "pivotTableStyleInfo" };
         }
         private void LoadFields()
         {
-            Fields.Clear();
-            int ix=0;
-            foreach(XmlElement fieldNode in PivotXml.SelectNodes("//d:pivotFields/d:pivotField",NameSpaceManager))
+            //Fields.Clear();
+            //int ix=0;
+            //foreach(XmlElement fieldNode in PivotXml.SelectNodes("//d:pivotFields/d:pivotField",NameSpaceManager))
+            //{
+            //    Fields.AddInternal(new ExcelPivotTableField(NameSpaceManager, fieldNode, this, ix++));
+            //}
+
+            int index = 0;
+            //Add fields.
+            foreach (XmlElement fieldElem in TopNode.SelectNodes("d:pivotFields/d:pivotField", NameSpaceManager))
             {
-                Fields.AddInternal(new ExcelPivotTableField(NameSpaceManager, fieldNode, this, ix++));
+                var fld = new ExcelPivotTableField(NameSpaceManager, fieldElem, this, index++);
+                Fields.AddInternal(fld);
             }
+
+            //Add fields.
+            index = 0;
+            foreach (XmlElement fieldElem in _cacheDefinition.TopNode.SelectNodes("d:cacheFields/d:cacheField", NameSpaceManager))
+            {
+                var fld = Fields[index++];
+                fld.SetCacheFieldNode(fieldElem);
+            }
+
+
         }
         private string GetStartXml(string name, int id, ExcelAddressBase address, ExcelAddressBase sourceAddress)
         {
             string xml = string.Format("<pivotTableDefinition xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" name=\"{0}\" cacheId=\"{1}\" dataOnRows=\"1\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"0\" applyPatternFormats=\"0\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"1\" dataCaption=\"Data\" updatedVersion=\"3\" showMemberPropertyTips=\"0\" useAutoFormatting=\"1\" itemPrintTitles=\"1\" createdVersion=\"1\" indent=\"0\" compact=\"0\" compactData=\"0\" gridDropZones=\"1\">",name, id);
 
-            xml+=string.Format("<location ref=\"{0}\" firstHeaderRow=\"1\" firstDataRow=\"1\" firstDataCol=\"1\" /> ", address.FirstAddress);
-            xml+=string.Format("<pivotFields count=\"{0}\">", sourceAddress._toCol-sourceAddress._fromCol+1);
+            xml += string.Format("<location ref=\"{0}\" firstHeaderRow=\"1\" firstDataRow=\"1\" firstDataCol=\"1\" /> ", address.FirstAddress);
+            xml += string.Format("<pivotFields count=\"{0}\">", sourceAddress._toCol-sourceAddress._fromCol+1);
             for (int col = sourceAddress._fromCol; col <= sourceAddress._toCol; col++)
             {
-                xml += "<pivotField showAll=\"0\" />"; //compact=\"0\" outline=\"0\" subtotalTop=\"0\" includeNewItemsInFilter=\"1\" 
-                
+                xml += "<pivotField showAll=\"0\" />"; //compact=\"0\" outline=\"0\" subtotalTop=\"0\" includeNewItemsInFilter=\"1\"     
             }
-            xml+="</pivotFields>";
-            xml+="<pivotTableStyleInfo name=\"PivotStyleMedium9\" showRowHeaders=\"1\" showColHeaders=\"1\" showRowStripes=\"0\" showColStripes=\"0\" showLastColumn=\"1\" />";
-            xml+="</pivotTableDefinition>";
+
+            xml += "</pivotFields>";
+            xml += "<pivotTableStyleInfo name=\"PivotStyleMedium9\" showRowHeaders=\"1\" showColHeaders=\"1\" showRowStripes=\"0\" showColStripes=\"0\" showLastColumn=\"1\" />";
+            xml += "</pivotTableDefinition>";
             return xml;
         }
         internal PackagePart Part

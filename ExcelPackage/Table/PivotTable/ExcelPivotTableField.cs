@@ -1,9 +1,37 @@
-﻿using System;
+﻿/*******************************************************************************
+ * You may amend and distribute as you like, but don't remove this header!
+ * 
+ * All rights reserved.
+ * 
+ * EPPlus is an Open Source project provided under the 
+ * GNU General Public License (GPL) as published by the 
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * 
+ * See http://epplus.codeplex.com/ for details
+ * 
+ * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ * 
+ * The code for this project may be used and redistributed by any means PROVIDING it is 
+ * not sold for profit without the author's written consent, and providing that this notice 
+ * and the author's name and all copyright notices remain intact.
+ * 
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ *******************************************************************************
+ * Jan Källman		Added		21-MAR-2011
+ *******************************************************************************/
+using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 
-namespace OfficeOpenXml.Table
+namespace OfficeOpenXml.Table.PivotTable
 {
     
     /// <summary>
@@ -49,7 +77,7 @@ namespace OfficeOpenXml.Table
     }
     public class ExcelPivotTableField : XmlHelper
     {
-        ExcelPivotTable _table;
+        internal ExcelPivotTable _table;
         public ExcelPivotTableField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTable table, int index) :
             base(ns, topNode)
         {
@@ -285,6 +313,10 @@ namespace OfficeOpenXml.Table
                 }
             }
         }
+        //public ExcelPivotGrouping DateGrouping
+        //{
+
+        //}
         internal ExcelPivotTableDataFieldSettings _dataFieldSettings = null;
         public ExcelPivotTableDataFieldSettings DataFieldSettings
         {
@@ -301,7 +333,19 @@ namespace OfficeOpenXml.Table
                 return _pageFieldSettings;
             }
         }
-        #region "Private Methods"
+        internal ExcelPivotTableFieldGroupCollection _groups = null;
+        public ExcelPivotTableFieldGroupCollection Grouping
+        {
+            get
+            {
+                if (_groups == null)
+                {
+                    _groups = new ExcelPivotTableFieldGroupCollection(this);
+                }
+                return _groups;
+            }
+        }
+        #region Private & internal Methods
         private XmlElement AppendField(XmlNode rowsNode, int index, string fieldNodeText, string indexAttrText)
         {
             XmlElement prevField = null, newElement;
@@ -329,6 +373,11 @@ namespace OfficeOpenXml.Table
             rowsNode.InsertAfter(newElement, prevField);
 
             return newElement;
+        }
+        internal XmlHelperInstance _cacheFieldHelper = null;
+        internal void SetCacheFieldNode(XmlNode cacheField)
+        {
+            _cacheFieldHelper = new XmlHelperInstance(NameSpaceManager, cacheField);
         }
         #endregion
     }

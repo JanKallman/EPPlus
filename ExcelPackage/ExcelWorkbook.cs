@@ -169,9 +169,17 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
+                        var ws = Worksheets[addr._ws];
+                        if (ws == null)
+                        {
+                            namedRange = null;// _names.Add(elem.GetAttribute("name"), null);
+                        }
+                        else
+                        {
+                            namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRangeBase(ws, fullAddress));
+                        }
                     }
-                    if (elem.GetAttribute("hidden") == "1") namedRange.IsNameHidden = true;
+                    if (elem.GetAttribute("hidden") == "1" && namedRange!=null) namedRange.IsNameHidden = true;
                 }
             }
         }
@@ -771,9 +779,8 @@ namespace OfficeOpenXml
             var rel = Part.CreateRelationship(PackUriHelper.ResolvePartUri(WorkbookUri, defUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
             item.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
 
-
-            var pivotCashes = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
-            pivotCashes.AppendChild(item);
+            var pivotCaches = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
+            pivotCaches.AppendChild(item);
         }
     } // end Workbook
 }

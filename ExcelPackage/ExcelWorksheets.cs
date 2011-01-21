@@ -599,12 +599,12 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Delete a worksheet from the workbook package
 		/// </summary>
-		/// <param name="positionID">The position of the worksheet in the workbook</param>
-		public void Delete(int positionID)
+		/// <param name="Index">The position of the worksheet in the workbook</param>
+		public void Delete(int Index)
 		{
 			if (_worksheets.Count == 1)
 				throw new Exception("Error: You are attempting to delete the last worksheet in the workbook.  One worksheet MUST be present in the workbook!");
-			ExcelWorksheet worksheet = _worksheets[positionID];
+			ExcelWorksheet worksheet = _worksheets[Index];
 
 			// delete the worksheet from the package 
 			_xlPackage.Package.DeletePart(worksheet.WorksheetUri);
@@ -623,9 +623,24 @@ namespace OfficeOpenXml
 				}
 			}
 			// delete worksheet from the Dictionary object
-			_worksheets.Remove(positionID);
+			_worksheets.Remove(Index);
 		}
-		#endregion
+        /// <summary>
+        /// Delete a worksheet from the workbook package
+        /// </summary>
+        /// <param name="Worksheet">The worksheet to delete</param>
+        public void Delete(ExcelWorksheet Worksheet)
+		{
+            if (Worksheet.PositionID <= _worksheets.Count && Worksheet == _worksheets[Worksheet.PositionID])
+            {
+                Delete(Worksheet.PositionID);
+            }
+            else
+            {
+                throw (new ArgumentException("Worksheet is not in the collection."));
+            }
+        }
+        #endregion
 
 		/// <summary>
 		/// Returns the worksheet at the specified position.  
