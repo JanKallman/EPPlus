@@ -47,6 +47,7 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Table;
 using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml
 {
@@ -148,7 +149,6 @@ namespace OfficeOpenXml
 		private string _name;
 		private int _sheetID;
         private int _positionID;
-        private eWorkSheetHidden _hidden;
 		private string _relationshipID;
 		private XmlDocument _worksheetXml;
         internal ExcelWorksheetView _sheetView;
@@ -207,6 +207,11 @@ namespace OfficeOpenXml
         /// The position of the worksheet.
         /// </summary>
         protected internal int PositionID { get { return (_positionID); } }
+        /// <summary>
+        /// The index in the worksheets collection
+
+        /// </summary>
+        public int Index { get { return (_positionID); } }
         /// <summary>
         /// Address for autofilter
         /// <seealso cref="ExcelRangeBase.AutoFilter" />        
@@ -283,7 +288,23 @@ namespace OfficeOpenXml
 		/// </summary>
 		public eWorkSheetHidden Hidden
 		{
-			get { return (_hidden); }
+			get 
+            {
+                XmlElement sheetNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode(string.Format("//d:sheet[@sheetId={0}]", _sheetID), NameSpaceManager) as XmlElement;
+                if (sheetNode != null)
+                {
+                    string state=sheetNode.GetAttribute("state");
+                    if (state == "hidden")
+                    {
+                        return eWorkSheetHidden.Hidden;
+                    }
+                    else if (state == "veryHidden")
+                    {
+                        return eWorkSheetHidden.VeryHidden;
+                    }
+                }
+                return eWorkSheetHidden.Visible;
+            }
 			set
 			{
 				XmlElement sheetNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode(string.Format("//d:sheet[@sheetId={0}]", _sheetID), NameSpaceManager) as XmlElement;
@@ -302,11 +323,9 @@ namespace OfficeOpenXml
                         sheetNode.RemoveAttribute("state");
                     }
 				}
-				_hidden = value;
 			}
 		}
 		#endregion
-
 		#region defaultRowHeight
         double _defaultRowHeight = double.NaN;
         /// <summary>

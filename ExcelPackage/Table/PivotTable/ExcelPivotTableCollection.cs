@@ -23,15 +23,16 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		13-SEP-2010
+ * Jan Källman		Added		21-MAR-2011
  *******************************************************************************/
+using System;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO.Packaging;
 using System.Xml;
 
-namespace OfficeOpenXml.Table
+namespace OfficeOpenXml.Table.PivotTable
 {
     /// <summary>
     /// A collection of pivottable objects

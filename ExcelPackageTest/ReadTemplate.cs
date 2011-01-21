@@ -35,6 +35,12 @@ namespace ExcelPackageTest
 
                 Assert.AreNotEqual(comment, null);
                 Assert.AreEqual(comment.Author, "JK");
+
+                ws = pck.Workbook.Worksheets["Hidden"];
+                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.Hidden);
+
+                ws = pck.Workbook.Worksheets["VeryHidden"];
+                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.VeryHidden);
             }
             instream.Close();
         }
@@ -45,7 +51,7 @@ namespace ExcelPackageTest
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(stream, instream))
             {
-                var ws = pck.Workbook.Worksheets["Perf"];
+                var ws = pck.Workbook.Worksheets["Perf"];                
                 Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
