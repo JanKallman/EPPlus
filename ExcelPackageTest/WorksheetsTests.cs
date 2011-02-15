@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 
 namespace ExcelPackageTest
@@ -30,6 +31,20 @@ namespace ExcelPackageTest
 			workbook.Worksheets.Add("NEW2");
 			workbook.Worksheets.Delete(1);
 			workbook.Worksheets.Add("NEW3");
+		}
+
+		[TestMethod]
+		public void DeleteByNameWhereWorkSheetExists()
+		{
+			workbook.Worksheets.Add("NEW2");
+			workbook.Worksheets.Delete("NEW2");
+		}
+
+		[TestMethod, ExpectedException(typeof(Exception))]
+		public void DeleteByNameWhereWorkSheetDoesNotExist()
+		{
+			workbook.Worksheets.Add("NEW2");
+			workbook.Worksheets.Delete("NEW3");
 		}
 	}
 }
