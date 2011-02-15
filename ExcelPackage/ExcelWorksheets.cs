@@ -654,7 +654,22 @@ namespace OfficeOpenXml
 
 			ReindexWorksheetDictionary();
 		}
-        /// <summary>
+
+		/// <summary>
+		/// Delete a worksheet from the workbook package
+		/// </summary>
+		/// <param name="name">The name of the worksheet in the workbook</param>
+		public void Delete(string name)
+		{
+			var sheet = this[name];
+			if (sheet == null)
+			{
+				throw new Exception(string.Format("Could not find worksheet to delete '{0}'", name));
+			}
+			Delete(sheet.PositionID);
+		}
+
+		/// <summary>
         /// Delete a worksheet from the workbook package
         /// </summary>
         /// <param name="Worksheet">The worksheet to delete</param>
