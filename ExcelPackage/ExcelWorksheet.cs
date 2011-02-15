@@ -206,8 +206,9 @@ namespace OfficeOpenXml
         /// <summary>
         /// The position of the worksheet.
         /// </summary>
-        protected internal int PositionID { get { return (_positionID); } }
-        /// <summary>
+        protected internal int PositionID { get { return (_positionID); } set { _positionID = value; } }
+
+    	/// <summary>
         /// The index in the worksheets collection
 
         /// </summary>

@@ -96,6 +96,7 @@
     <Compile Include="ReadTemplate.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="WorkSheet.cs" />
+    <Compile Include="WorksheetsTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ExcelPackage\EPPlus.csproj">
