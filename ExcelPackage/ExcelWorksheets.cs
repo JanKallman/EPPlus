@@ -651,6 +651,8 @@ namespace OfficeOpenXml
 			}
 			// delete worksheet from the Dictionary object
 			_worksheets.Remove(Index);
+
+			ReindexWorksheetDictionary();
 		}
         /// <summary>
         /// Delete a worksheet from the workbook package
@@ -668,6 +670,18 @@ namespace OfficeOpenXml
             }
         }
         #endregion
+
+		private void ReindexWorksheetDictionary()
+		{
+			var index = 1;
+			var worksheets = new Dictionary<int, ExcelWorksheet>();
+			foreach (var entry in _worksheets)
+			{
+				entry.Value.PositionID = index;
+				worksheets.Add(index++, entry.Value);
+			}
+			_worksheets = worksheets;
+		}
 
 		/// <summary>
 		/// Returns the worksheet at the specified position.  
