@@ -759,6 +759,134 @@ namespace OfficeOpenXml
             return null;
         }
 
+		#region MoveBefore and MoveAfter Methods
+		/// <summary>
+		/// Moves the source worksheet to the position before the target worksheet
+		/// </summary>
+		/// <param name="sourceName">The name of the source worksheet</param>
+		/// <param name="targetName">The name of the target worksheet</param>
+		public void MoveBefore(string sourceName, string targetName)
+		{
+			Move(sourceName, targetName, false);
+		}
+
+		/// <summary>
+		/// Moves the source worksheet to the position before the target worksheet
+		/// </summary>
+		/// <param name="sourcePositionId">The id of the source worksheet</param>
+		/// <param name="targetPositionId">The id of the target worksheet</param>
+		public void MoveBefore(int sourcePositionId, int targetPositionId)
+		{
+			Move(sourcePositionId, targetPositionId, false);
+		}
+
+		/// <summary>
+		/// Moves the source worksheet to the position after the target worksheet
+		/// </summary>
+		/// <param name="sourceName">The name of the source worksheet</param>
+		/// <param name="targetName">The name of the target worksheet</param>
+		public void MoveAfter(string sourceName, string targetName)
+		{
+			Move(sourceName, targetName, true);
+		}
+
+		/// <summary>
+		/// Moves the source worksheet to the position after the target worksheet
+		/// </summary>
+		/// <param name="sourcePositionId">The id of the source worksheet</param>
+		/// <param name="targetPositionId">The id of the target worksheet</param>
+		public void MoveAfter(int sourcePositionId, int targetPositionId)
+		{
+			Move(sourcePositionId, targetPositionId, true);
+		}
+
+		private void Move(string sourceName, string targetName, bool placeAfter)
+		{
+			var sourceSheet = this[sourceName];
+			if (sourceSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", sourceName));
+			}
+			var targetSheet = this[targetName];
+			if (targetSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", targetName));
+			}
+			Move(sourceSheet.PositionID, targetSheet.PositionID, placeAfter);
+		}
+
+		private void Move(int sourcePositionId, int targetPositionId, bool placeAfter)
+		{
+			var sourceSheet = this[sourcePositionId];
+			if (sourceSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", sourcePositionId));
+			}
+			var targetSheet = this[targetPositionId];
+			if (targetSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", targetPositionId));
+			}
+			if (_worksheets.Count < 2)
+			{
+				return;		//--- no reason to attempt to re-arrange a single item with itself
+			}
+
+			var index = 1;
+			var newOrder = new Dictionary<int, ExcelWorksheet>();
+			foreach (var entry in _worksheets)
+			{
+				if (entry.Key == targetPositionId)
+				{
+					if (!placeAfter)
+					{
+						sourceSheet.PositionID = index;
+						newOrder.Add(index++, sourceSheet);
+					}
+
+					entry.Value.PositionID = index;
+					newOrder.Add(index++, entry.Value);
+
+					if (placeAfter)
+					{
+						sourceSheet.PositionID = index;
+						newOrder.Add(index++, sourceSheet);
+					}
+				}
+				else if (entry.Key == sourcePositionId)
+				{
+					//--- do nothing
+				}
+				else
+				{
+					entry.Value.PositionID = index;
+					newOrder.Add(index++, entry.Value);
+				}
+			}
+			_worksheets = newOrder;
+
+			MoveSheetXmlNode(sourceSheet, targetSheet, placeAfter);
+		}
+
+		private void MoveSheetXmlNode(ExcelWorksheet sourceSheet, ExcelWorksheet targetSheet, bool placeAfter)
+		{
+			var sourceNode = _worksheetsNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", sourceSheet.SheetID), _nsManager);
+			var targetNode = _worksheetsNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", targetSheet.SheetID), _nsManager);
+			if (sourceNode == null || targetNode == null)
+			{
+				throw new Exception("Source SheetId and Target SheetId must be valid");
+			}
+			if (placeAfter)
+			{
+				_worksheetsNode.InsertAfter(sourceNode, targetNode);
+			}
+			else
+			{
+				_worksheetsNode.InsertBefore(sourceNode, targetNode);
+			}
+		}
+
+		#endregion
     } // end class Worksheets
 }
 
