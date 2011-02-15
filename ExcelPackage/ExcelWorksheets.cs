@@ -219,8 +219,11 @@ namespace OfficeOpenXml
             {
                 CopyDrawing(Copy, added);
             }
-
-            if (Copy.Tables.Count > 0)
+			if (Copy.VmlDrawings.Count > 0)
+			{
+				CopyVmlDrawing(Copy, added);
+			}
+			if (Copy.Tables.Count > 0)
             {
                 CopyTable(Copy, added);
             }
@@ -496,8 +499,32 @@ namespace OfficeOpenXml
                 streamDrawing.Write(drawXml.OuterXml);
                 streamDrawing.Close();
             //}
-        } 
-        string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
+        }
+
+		private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)
+		{
+			var xml = origSheet.VmlDrawings.VmlDrawingXml.OuterXml;
+			var vmlUri = new Uri(string.Format("/xl/drawings/vmlDrawing{0}.vml", newSheet.SheetID), UriKind.Relative);
+			var part = _xlPackage.Package.CreatePart(vmlUri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
+			using (var streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
+			{
+				streamDrawing.Write(xml);
+			}
+
+			//Add the relationship ID to the worksheet xml.
+			PackageRelationship vmlRelation = newSheet.Part.CreateRelationship(vmlUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _nsManager) as XmlElement;
+			if (e == null)
+			{
+				e = newSheet.WorksheetXml.CreateNode(XmlNodeType.Entity, "//d:legacyDrawing", _nsManager.LookupNamespace("d")) as XmlElement;
+			}
+			if (e != null)
+			{
+				e.SetAttribute("id", ExcelPackage.schemaRelationships, vmlRelation.Id);
+			}
+		}
+
+		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
         {
             // create the relationship between the workbook and the new worksheet
             PackageRelationship rel = _xlPackage.Workbook.Part.CreateRelationship(uriWorksheet, TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
