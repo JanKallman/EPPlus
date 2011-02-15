@@ -498,15 +498,17 @@ namespace OfficeOpenXml
             if (vmlNode == null)
             {
                 _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, null);
-
             }
             else
             {
-                var rel = Part.GetRelationship(vmlNode.Value);
-                var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+				if (Part.RelationshipExists(vmlNode.Value))
+				{
+					var rel = Part.GetRelationship(vmlNode.Value);
+					var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
 
-                _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
-                _vmlDrawings.RelId = rel.Id;
+					_vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
+					_vmlDrawings.RelId = rel.Id;
+				}
             }
         }
         internal ExcelCommentCollection _comments = null;

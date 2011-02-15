@@ -37,18 +37,26 @@ namespace OfficeOpenXml.Drawing.Vml
 
         private void AddDrawingsFromXml(ExcelWorksheet ws)
         {
-            var nl = VmlDrawingXml.SelectNodes("//v:shape", NameSpaceManager);
-            List<IRangeID> lst = new List<IRangeID>();
-            foreach (XmlNode node in nl)
+            var nodes = VmlDrawingXml.SelectNodes("//v:shape", NameSpaceManager);
+            var list = new List<IRangeID>();
+            foreach (XmlNode node in nodes)
             {
-                int row, col;
-                row = int.Parse(node.SelectSingleNode("x:ClientData/x:Row", NameSpaceManager).InnerText) + 1;
-                col = int.Parse(node.SelectSingleNode("x:ClientData/x:Column", NameSpaceManager).InnerText) + 1;
-                ExcelVmlDrawing drawing = new ExcelVmlDrawing(node, ws.Cells[row, col], NameSpaceManager);
-                lst.Add(drawing);
+            	var rowNode = node.SelectSingleNode("x:ClientData/x:Row", NameSpaceManager);
+				var colNode = node.SelectSingleNode("x:ClientData/x:Column", NameSpaceManager);
+				if (rowNode != null && colNode != null)
+				{
+					var row = int.Parse(rowNode.InnerText) + 1;
+					var col = int.Parse(colNode.InnerText) + 1;
+					list.Add(new ExcelVmlDrawing(node, ws.Cells[row, col], NameSpaceManager));
+				}
+				else
+				{
+					list.Add(new ExcelVmlDrawing(node, ws.Cells[1, 1], NameSpaceManager));
+				}
             }
-            _drawings = new RangeCollection(lst);
+            _drawings = new RangeCollection(list);
         }
+
         private string CreateVmlDrawings()
         {
             string vml=string.Format("<xml xmlns:v=\"{0}\" xmlns:o=\"{1}\" xmlns:x=\"{2}\">", 
