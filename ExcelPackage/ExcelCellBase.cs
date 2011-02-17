@@ -590,12 +590,14 @@ namespace OfficeOpenXml
         public static bool IsValidCellAddress(string cellAddress)
         {
             int row, col;
-            GetRowColFromAddress(cellAddress, out row, out col);
-
-            if (GetAddress(row, col) == cellAddress)
-                return (true);
-            else
-                return (false);
+            if (GetRowColFromAddress(cellAddress, out row, out col)) 
+            {
+                if (row>0 && col>0 && row<=ExcelPackage.MaxRows && col<=ExcelPackage.MaxColumns)
+                    return true;
+                else
+                    return false;
+            }
+            return false;
         }
         #endregion
         #region UpdateFormulaReferences

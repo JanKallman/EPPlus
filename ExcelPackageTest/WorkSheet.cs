@@ -623,6 +623,12 @@ namespace ExcelPackageTest
 
             ws.Cells["A1"].Value = "Test";
             ws.Cells["A1"].Style.Font.Size = 8.5F;
+
+            ws.Names.Add("Address", ws.Cells["A2:A3"]);
+            ws.Cells["Address"].Value = 1;
+            ws.Names.AddValue("Value", 5);            
+            //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
+            ws.Names.AddFormla("Formula", "Names!A2+Names!A3+Names!Value");
         }
         [TestMethod]
         public void LoadDataTable()
@@ -843,6 +849,22 @@ namespace ExcelPackageTest
             xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
         }
         [TestMethod]
+        public void ProtectionProblem()
+        {
+            var xlPackage = new ExcelPackage(new FileInfo("c:\\temp\\CovenantsCheckReportTemplate.xlsx"));
+            var ws = xlPackage.Workbook.Worksheets.First();
+            ws.Protection.SetPassword("Test");
+            xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
+        }
+        [TestMethod]
+        public void Nametest()
+        {
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\nametest.xlsx"));
+            var ws = pck.Workbook.Worksheets.First();
+            ws.Cells["H37"].Formula = "\"Test\"";
+            pck.SaveAs(new FileInfo(@"c:\\temp\\nametest_new.xlsx"));
+        }
+        [TestMethod]
         public void PivotTable()
         {
             var wsPivot1 = _pck.Workbook.Worksheets.Add("Rows-Data on columns");
@@ -975,7 +997,7 @@ namespace ExcelPackageTest
             pt.DataOnRows = false;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
 
-            pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A3"], ws.Cells["K1:o11"], "Pivottable8");
+            pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A3"], ws.Cells["K1:O11"], "Pivottable8");
             pt.RowFields.Add(pt.Fields[4]);
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);

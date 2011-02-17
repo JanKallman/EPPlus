@@ -28,6 +28,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
@@ -38,6 +39,7 @@ namespace OfficeOpenXml
     public class ExcelAddressBase : ExcelCellBase
     {
         internal protected int _fromRow=-1, _toRow, _fromCol, _toCol;
+        internal protected string _wb;
         internal protected string _ws;
         internal protected string _address;
         internal enum eAddressCollition
@@ -60,7 +62,6 @@ namespace OfficeOpenXml
             Validate();
 
             _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
-//            GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
         }
         /// <summary>
         /// Creates an Address object
@@ -72,10 +73,46 @@ namespace OfficeOpenXml
             SetAddress(address);
         }
 
+        /// <summary>
+        /// Address is an defined name
+        /// </summary>
+        /// <param name="address">the name</param>
+        /// <param name="isName">Should always be true</param>
+        internal ExcelAddressBase(string address, bool isName)
+        {
+            if (isName)
+            {
+                _address = address;
+                _fromRow = -1;
+                _fromCol = -1;
+                _toRow = -1;
+                _toCol = -1;
+                _start = null;
+                _end = null;
+            }
+            else
+            {
+                SetAddress(address);
+            }
+        }
+
         protected internal void SetAddress(string address)
         {
-            _address = address;
-            if(address.IndexOfAny(new char[] {',','!'}) > -1)
+            if(address.StartsWith("'"))
+            {
+                int pos = address.LastIndexOf("'");
+                SetWbWs(address.Substring(1,pos-1).Replace("''","'"));
+                _address = address.Substring(pos + 2);
+            }
+            else if (address.StartsWith("[")) //Remove any external reference
+            {
+                SetWbWs(address);
+            }
+            else
+            {
+                _address = address;
+            }
+            if(_address.IndexOfAny(new char[] {',','!'}) > -1)
             {
                 //Advanced address. Including Sheet or multi
                 ExtractAddress(_address);
@@ -88,7 +125,30 @@ namespace OfficeOpenXml
                 _start = null;
                 _end = null;
             }
+            _address = address;
             Validate();
+        }
+
+        private void SetWbWs(string address)
+        {
+            int pos;
+            if (address[0] == '[')
+            {
+                pos = address.LastIndexOf("]");
+                _wb = address.Substring(1, pos - 1);                
+                _ws = address.Substring(pos + 1);
+            }
+            else
+            {
+                _wb = "";
+                _ws = address;
+            }
+            pos = _ws.IndexOf("!");
+            if (pos > -1)
+            {
+                _address = _ws.Substring(pos + 1);
+                _ws = _ws.Substring(0, pos);
+            }
         }
         ExcelCellAddress _start = null;
         #endregion
@@ -131,6 +191,13 @@ namespace OfficeOpenXml
             get
             {
                 return _address;
+            }
+        }
+        public bool IsName
+        {
+            get
+            {
+                return _fromRow < 0;
             }
         }
         string _firstAddress;
@@ -263,7 +330,7 @@ namespace OfficeOpenXml
             hasSheet = false;
             if (string.IsNullOrEmpty(_firstAddress))
             {
-                _ws = ws;
+                if(string.IsNullOrEmpty(_ws) || !string.IsNullOrEmpty(ws))_ws = ws;
                 _firstAddress = address;
                 GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
             }
@@ -273,7 +340,87 @@ namespace OfficeOpenXml
                 _addresses.Add(new ExcelAddress(_ws, address));
             }
         }
-}
+        internal enum AddressType
+        {
+            Invalid,
+            InternalAddress,
+            ExternalAddress,
+            InternalName,
+            ExternalName
+        }
+
+        internal static AddressType IsValid(string Address)
+        {
+            string ws="";
+            if (Address.IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=','^','&','%','\"' })>-1)
+            {
+                return AddressType.Invalid;
+            }
+            if (Address.IndexOf('!') > 0)
+            {
+                string[] split = Address.Split('!');
+                if (split.Length == 2)
+                {
+                    ws = split[0];
+                    Address = split[1];
+                }
+                else
+                {
+                    return AddressType.Invalid;
+                }
+            }
+            int row, col;
+            if(ExcelAddressBase.GetRowCol(Address,out row, out col, false))
+            {
+                if (row > 0 && col > 0 && row <= ExcelPackage.MaxRows && col <= ExcelPackage.MaxColumns)
+                {
+                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+                    {
+                        return AddressType.ExternalAddress;
+                    }
+                    else
+                    {
+                        return AddressType.InternalAddress;
+                    }
+                }
+                else
+                {
+                    return AddressType.Invalid;
+                }
+            }
+            else
+            {
+                if(IsValidName(Address))
+                {
+                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+                    {
+                        return AddressType.ExternalName;
+                    }
+                    else
+                    {
+                        return AddressType.InternalName;
+                    }
+                }
+                else
+                {
+                    return AddressType.Invalid;
+                }
+            }
+
+        }
+
+        private static bool IsValidName(string address)
+        {
+            if (Regex.IsMatch(address, "[^0-9./*-+,½!\"@#£%&/{}()\\[\\]=?`^~':;<>|][^/*-+,½!\"@#£%&/{}()\\[\\]=?`^~':;<>|]*"))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+    }
     /// <summary>
     /// Range address with the address property readonly
     /// </summary>
@@ -298,7 +445,12 @@ namespace OfficeOpenXml
         internal ExcelAddress(string ws, string address)
             : base(address)
         {
-            _ws = ws;
+            if (string.IsNullOrEmpty(_ws)) _ws = ws;
+        }
+        internal ExcelAddress(string ws, string address, bool isName)
+            : base(address, isName)
+        {
+            if (string.IsNullOrEmpty(_ws)) _ws = ws;
         }
         /// <summary>
         /// The address for the range
@@ -311,12 +463,8 @@ namespace OfficeOpenXml
                 return _address;
             }
             set
-            {
+            {                
                 SetAddress(value);
-                //base.Address = value;
-                //_address = value;
-                //GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
-                //Validate();
             }
         }
     }

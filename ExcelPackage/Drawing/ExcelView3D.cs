@@ -44,7 +44,8 @@ namespace OfficeOpenXml.Drawing
        public ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };
+           //SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };
+           SchemaNodeOrder = new string[] { "rotX", "hPercent", "rotY", "depthPercent", "perspective", "rAngAx"};
        }
        const string perspectivePath = "c:perspective/@val";
        public decimal Perspective
@@ -82,6 +83,50 @@ namespace OfficeOpenXml.Drawing
            {
                CreateNode(rotYPath);
                SetXmlNodeString(rotYPath, value.ToString(CultureInfo.InvariantCulture));
+           }
+       }
+       const string rAngAxPath = "c:rAngAx/@val";
+       public bool RightAngleAxes
+       {
+           get
+           {
+               return GetXmlNodeBool(rAngAxPath);
+           }
+           set
+           {
+               SetXmlNodeBool(rAngAxPath, value);
+           }
+       }
+       const string depthPercentPath = "c:depthPercent/@val";
+       public int DepthPercent
+       {
+           get
+           {
+               return GetXmlNodeInt(depthPercentPath);
+           }
+           set
+           {
+               if (value < 0 || value > 2000)
+               {
+                   throw(new ArgumentOutOfRangeException("Value must be between 0 and 2000"));
+               }
+               SetXmlNodeString(depthPercentPath, value.ToString());
+           }
+       }
+       const string heightPercentPath = "c:hPercent/@val";
+       public int HeightPercent
+       {
+           get
+           {
+               return GetXmlNodeInt(heightPercentPath);
+           }
+           set
+           {
+               if (value < 5 || value > 500)
+               {
+                   throw (new ArgumentOutOfRangeException("Value must be between 5 and 500"));
+               }
+               SetXmlNodeString(heightPercentPath, value.ToString());
            }
        }
     }

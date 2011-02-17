@@ -31,6 +31,7 @@
  * *******************************************************************************/
 using System;
 using System.Xml;
+using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
@@ -41,6 +42,41 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelHeaderFooterText
 	{
+        public ExcelHeaderFooterText(XmlNode TextNode)
+        {
+            if (TextNode == null || string.IsNullOrEmpty(TextNode.InnerText)) return;
+            string text = TextNode.InnerText;
+            string code = text.Substring(0, 2);  
+            int startPos=2;
+            for (int pos=startPos;pos<text.Length-2;pos++)
+            {
+                string newCode = text.Substring(pos, 2);
+                if (newCode == "&C" || newCode == "&R")
+                {
+                    SetText(code, text.Substring(startPos, pos-startPos));
+                    startPos = pos+2;
+                    pos = startPos;
+                    code = newCode;
+                }
+            }
+            SetText(code, text.Substring(startPos, text.Length - startPos));
+        }
+
+        private void SetText(string code, string text)
+        {
+            switch (code)
+            {
+                case "&L":
+                    LeftAlignedText=text;
+                    break;
+                case "&C":
+                    CenteredText=text;
+                    break;
+                default:
+                    RightAlignedText=text;
+                    break;
+            }
+        }
 		/// <summary>
 		/// Sets the text to appear on the left hand side of the header (or footer) on the worksheet.
 		/// </summary>
@@ -183,30 +219,93 @@ namespace OfficeOpenXml
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on odd numbered pages of the document.
 		/// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
 		/// </summary>
-		public ExcelHeaderFooterText oddHeader { get { if (_oddHeader == null) _oddHeader = new ExcelHeaderFooterText(); return _oddHeader; } }
+		public ExcelHeaderFooterText oddHeader 
+        { 
+            get 
+            {
+                if (_oddHeader == null)
+                {
+                    _oddHeader = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:oddHeader",NameSpaceManager));
+                }
+                return _oddHeader; } 
+        }
 		/// <summary>
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on odd numbered pages of the document.
 		/// If you want the same footer on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
 		/// </summary>
-		public ExcelHeaderFooterText oddFooter { get { if (_oddFooter == null) _oddFooter = new ExcelHeaderFooterText(); return _oddFooter; } }
+		public ExcelHeaderFooterText oddFooter 
+        { 
+            get 
+            {
+                if (_oddFooter == null)
+                {
+                    _oddFooter = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:oddFooter", NameSpaceManager)); ;
+                }
+                return _oddFooter; 
+            } 
+        }
 		// evenHeader and evenFooter set differentOddEven = true
 		/// <summary>
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on even numbered pages of the document.
 		/// </summary>
-		public ExcelHeaderFooterText evenHeader { get { if (_evenHeader == null) _evenHeader = new ExcelHeaderFooterText(); differentOddEven = true; return _evenHeader; } }
+		public ExcelHeaderFooterText evenHeader 
+        { 
+            get 
+            {
+                if (_evenHeader == null)
+                {
+                    _evenHeader = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:evenHeader", NameSpaceManager));
+                    differentOddEven = true;
+                }
+                return _evenHeader; 
+            } 
+        }
 		/// <summary>
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on even numbered pages of the document.
 		/// </summary>
-		public ExcelHeaderFooterText evenFooter { get { if (_evenFooter == null) _evenFooter = new ExcelHeaderFooterText(); differentOddEven = true; return _evenFooter; } }
+		public ExcelHeaderFooterText evenFooter
+        { 
+            get 
+            {
+                if (_evenFooter == null)
+                {
+                    _evenFooter = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:evenFooter", NameSpaceManager));
+                    differentOddEven = true;
+                }
+                return _evenFooter ; 
+            } 
+        }
 		// firstHeader and firstFooter set differentFirst = true
 		/// <summary>
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on the first page of the document.
 		/// </summary>
-		public ExcelHeaderFooterText firstHeader { get { if (_firstHeader == null) _firstHeader = new ExcelHeaderFooterText(); differentFirst = true; return _firstHeader; } }
+		public ExcelHeaderFooterText firstHeader
+        { 
+            get 
+            {
+                if (_firstHeader == null)
+                {
+                    _firstHeader = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:firstHeader", NameSpaceManager)); 
+                     differentFirst = true;
+                }
+                return _firstHeader; 
+            } 
+        }
 		/// <summary>
 		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on the first page of the document.
 		/// </summary>
-		public ExcelHeaderFooterText firstFooter { get { if (_firstFooter == null) _firstFooter = new ExcelHeaderFooterText(); differentFirst = true; return _firstFooter; } }
+		public ExcelHeaderFooterText firstFooter
+        { 
+            get 
+            {
+                if (_firstFooter == null)
+                {
+                    _firstFooter = new ExcelHeaderFooterText(TopNode.SelectSingleNode("d:firstFooter", NameSpaceManager)); 
+                    differentFirst = true;
+                }
+                return _firstFooter; 
+            } 
+        }
 		#endregion
 
 		#region Save  //  ExcelHeaderFooter

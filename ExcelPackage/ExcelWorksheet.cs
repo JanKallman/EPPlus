@@ -179,7 +179,7 @@ namespace OfficeOpenXml
             _sheetID = sheetID;
             _positionID = positionID;
             Hidden = hide;
-            _names = new ExcelNamedRangeCollection(this);
+            _names = new ExcelNamedRangeCollection(Workbook,this);
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
         }
@@ -2289,7 +2289,7 @@ namespace OfficeOpenXml
             {
                 if (_protection == null)
                 {
-                    _protection = new ExcelSheetProtection(NameSpaceManager, TopNode);
+                    _protection = new ExcelSheetProtection(NameSpaceManager, TopNode, this);
                 }
                 return _protection;
             }

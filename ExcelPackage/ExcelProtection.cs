@@ -39,9 +39,10 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelProtection : XmlHelper
     {
-        public ExcelProtection(XmlNamespaceManager ns, XmlNode topNode) :
+        public ExcelProtection(XmlNamespaceManager ns, XmlNode topNode, ExcelWorkbook wb) :
             base(ns, topNode)
         {
+            SchemaNodeOrder = wb.SchemaNodeOrder;
         }
         const string workbookPasswordPath = "d:workbookProtection/@workbookPassword";
         /// <summary>

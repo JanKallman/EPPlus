@@ -212,6 +212,10 @@ namespace OfficeOpenXml
             {
                 CopyComment(Copy, added);
             }
+            else if (Copy.VmlDrawings.Count > 0)    //Vml drawings are copied as part of the comments. 
+            {
+                CopyVmlDrawing(Copy, added);
+            }
 
             //Copy all relationships 
             //CopyRelationShips(Copy, added);
@@ -219,10 +223,6 @@ namespace OfficeOpenXml
             {
                 CopyDrawing(Copy, added);
             }
-			if (Copy.VmlDrawings.Count > 0)
-			{
-				CopyVmlDrawing(Copy, added);
-			}
 			if (Copy.Tables.Count > 0)
             {
                 CopyTable(Copy, added);
@@ -720,7 +720,8 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				ExcelWorksheet xlWorksheet = null;
+                if (string.IsNullOrEmpty(Name)) return null;
+                ExcelWorksheet xlWorksheet = null;
 				foreach (ExcelWorksheet worksheet in _worksheets.Values)
 				{
                     if (worksheet.Name.ToLower() == Name.ToLower())

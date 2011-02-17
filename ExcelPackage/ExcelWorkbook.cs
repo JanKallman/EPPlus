@@ -35,6 +35,8 @@ using System.IO.Packaging;
 using System.Collections.Generic;
 using System.Text;
 using System.Security;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
@@ -98,7 +100,8 @@ namespace OfficeOpenXml
 		protected internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
             base(namespaceManager)
 		{
-			_package = xlPackage;
+            _package = xlPackage;
+            _names = new ExcelNamedRangeCollection(this);
             CreateWorkbookXml();
             TopNode = WorkbookXml.DocumentElement;
             SchemaNodeOrder = new string[] { "fileVersion", "workbookPr", "workbookProtection", "bookViews", "sheets", "definedNames", "calcPr", "pivotCaches" };
@@ -108,7 +111,7 @@ namespace OfficeOpenXml
 
         internal Dictionary<string, SharedStringItem> _sharedStrings = new Dictionary<string, SharedStringItem>(); //Used when reading cells.
         internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
-        internal ExcelNamedRangeCollection _names=new ExcelNamedRangeCollection();
+        internal ExcelNamedRangeCollection _names;
         internal int _nextDrawingID = 0;
         internal int _nextTableID = 1;
         internal int _nextPivotTableID = 1;
@@ -143,43 +146,88 @@ namespace OfficeOpenXml
                 foreach (XmlElement elem in nl)
                 { 
                     string fullAddress = elem.InnerText;
-                    //int splitPos = fullAddress.LastIndexOf('!');
-                    //string sheet = fullAddress.Substring(0, splitPos);
-                    //string address = fullAddress.Substring(splitPos + 1, fullAddress.Length - splitPos - 1);
-                    
-                    //if(sheet[0]=='\'') sheet = sheet.Substring(1, sheet.Length-2); //remove single quotes from sheet
 
                     int localSheetID;
+                    ExcelWorksheet nameWorksheet;
                     if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
                     {
                         localSheetID = -1;
+                        nameWorksheet=null;
                     }
-                    ExcelAddress addr = new ExcelAddress(fullAddress);
-                    ExcelNamedRange namedRange;
-                    if (localSheetID > -1)
+                    else
                     {
-                        if (string.IsNullOrEmpty(addr._ws))
+                        nameWorksheet=Worksheets[localSheetID + 1];
+                    }
+                    var addressType = ExcelAddressBase.IsValid(fullAddress);
+                    ExcelRangeBase range;
+                    ExcelNamedRange namedRange;
+
+                    if (addressType == ExcelAddressBase.AddressType.Invalid)    //A value or a formula
+                    {
+                        double value;
+                        range = new ExcelRangeBase(this, nameWorksheet, elem.GetAttribute("name"), true);
+                        if (nameWorksheet == null)
                         {
-                            namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[localSheetID + 1], fullAddress));
+                            namedRange = _names.Add(elem.GetAttribute("name"), range);
                         }
                         else
                         {
-                            namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(Worksheets[addr._ws], fullAddress));
+                            namedRange = nameWorksheet.Names.Add(elem.GetAttribute("name"), range);
+                        }
+                        
+                        if (fullAddress.StartsWith("\"")) //String value
+                        {
+                            namedRange.NameValue = fullAddress.Substring(1,fullAddress.Length-2);
+                        }
+                        else if (double.TryParse(fullAddress, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
+                        {
+                            namedRange.NameValue = value;
+                        }
+                        else
+                        {
+                            namedRange.NameFormula = fullAddress;
                         }
                     }
                     else
                     {
-                        var ws = Worksheets[addr._ws];
-                        if (ws == null)
+                        if (fullAddress.IndexOf("[")>-1)
                         {
-                            namedRange = null;// _names.Add(elem.GetAttribute("name"), null);
+                            int start = fullAddress.IndexOf("[");
+                            int end = fullAddress.IndexOf("]", start);
+                            if(start>=0 && end>=0) 
+                            {
+
+                                string externalIndex = fullAddress.Substring(start + 1, end-start - 1);
+                                int index;
+                                if (int.TryParse(externalIndex, out index))
+                                {
+                                    if (index > 0 && index <= _externalReferences.Count)
+                                    {
+                                        fullAddress = fullAddress.Substring(0,start) + "["+ _externalReferences[index - 1] + "]" + fullAddress.Substring(end + 1);
+                                    }
+                                }
+                            }
+                        }
+                        ExcelAddress addr = new ExcelAddress(fullAddress);                        
+                        if (localSheetID > -1)
+                        {
+                            if (string.IsNullOrEmpty(addr._ws))
+                            {
+                                namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[localSheetID + 1], fullAddress, false));
+                            }
+                            else
+                            {
+                                namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[addr._ws], fullAddress, false));
+                            }
                         }
                         else
                         {
-                            namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRangeBase(ws, fullAddress));
+                            var ws = Worksheets[addr._ws];
+                            namedRange = _names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, ws, fullAddress, false));
                         }
                     }
-                    if (elem.GetAttribute("hidden") == "1" && namedRange!=null) namedRange.IsNameHidden = true;
+                    if (elem.GetAttribute("hidden") == "1" && namedRange != null) namedRange.IsNameHidden = true;
+                    if(!string.IsNullOrEmpty(elem.GetAttribute("comment"))) namedRange.Comment=elem.GetAttribute("comment");
                 }
             }
         }
@@ -229,13 +277,16 @@ namespace OfficeOpenXml
             }
         }
         ExcelProtection _protection = null;
+        /// <summary>
+        /// Access properties to protect or unprotect a workbook
+        /// </summary>
         public ExcelProtection Protection
         {
             get
             {
                 if (_protection == null)
                 {
-                    _protection = new ExcelProtection(NameSpaceManager, TopNode);
+                    _protection = new ExcelProtection(NameSpaceManager, TopNode, this);
                     _protection.SchemaNodeOrder = SchemaNodeOrder;
                 }
                 return _protection;
@@ -248,7 +299,7 @@ namespace OfficeOpenXml
             {
                 if (_view == null)
                 {
-                    _view = new ExcelWorkbookView(NameSpaceManager, TopNode);
+                    _view = new ExcelWorkbookView(NameSpaceManager, TopNode, this);
                 }
                 return _view;
             }
@@ -622,13 +673,13 @@ namespace OfficeOpenXml
                 worksheet.Save();
             }
             
-            // save the shared strings
-			if (_xmlSharedStrings != null)
-			{
+            //// save the shared strings
+            if (_xmlSharedStrings != null)
+            {
                 UpdateSharedStringsXml();
-                _package.SavePart(SharedStringsUri, _xmlSharedStrings);
-				_package.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
-			}
+            //    //_package.SavePart(SharedStringsUri, _xmlSharedStrings);
+            //    _package.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
+            }
             
             // Data validation
             ValidateDataValidations();
@@ -644,32 +695,52 @@ namespace OfficeOpenXml
 
         private void UpdateSharedStringsXml()
         {
-            XmlNode top = SharedStringsXml.SelectSingleNode("//d:sst", NameSpaceManager);
-            top.RemoveAll();
-            StringBuilder sbXml = new StringBuilder();
+            StreamWriter sw=new StreamWriter(_package.Package.GetPart(SharedStringsUri).GetStream(FileMode.Create, FileAccess.Write));
+            sw.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
             foreach (string t in _sharedStrings.Keys)
             {
 
                 SharedStringItem ssi = _sharedStrings[t];
                 if (ssi.isRichText)
                 {
-                    XmlNode node = SharedStringsXml.CreateElement("si", ExcelPackage.schemaMain);
-                    node.InnerXml = t;
-                    top.AppendChild(node);
+                    sw.Write("<si>");
+                    ExcelEncodeString(sw, t);
+                    sw.Write("</si>");
                 }
                 else
                 {
-                    XmlNode node = SharedStringsXml.CreateElement("si", ExcelPackage.schemaMain).AppendChild(SharedStringsXml.CreateElement("t", ExcelPackage.schemaMain));
-                    node.InnerText = t;
-                    top.AppendChild(node.ParentNode);
+                    sw.Write("<si><t>");
+                    ExcelEncodeString(sw,SecurityElement.Escape(t));
+                    sw.Write("</t></si>");
                 }
-                //sbXml.AppendFormat("<si><t>{0}</t>/</   si>", t.Replace("<", "&lt;").Replace(">", "&gt;"));
             }
-            top.Attributes.Append(SharedStringsXml.CreateAttribute("count")).Value=_sharedStrings.Count.ToString();
-            top.Attributes.Append(SharedStringsXml.CreateAttribute("uniqueCount")).Value = _sharedStrings.Count.ToString();
-            //top.Attributes["uniqueCount"].Value = _sharedStrings.Count.ToString();
+            sw.Write("</sst>");
+            sw.Flush();
+        }
 
-            //top.InnerXml = sbXml.ToString();
+        private void ExcelEncodeString(StreamWriter sw, string t)
+        {
+            if(Regex.IsMatch(t, "(_X[0-9A-F]{4,4}_)"))
+            {
+                string nt="";
+                foreach(string s in Regex.Split(t, "(_X[0-9A-F]{4,4}_)"))
+                {
+                    nt+="_X005F_";
+                }
+                t = nt.Substring(0, nt.Length - 7);
+            }
+            for (int i=0;i<t.Length;i++)
+            {
+                if (t[i] < 0x1f && t[i] != 9 && t[i] != 10)
+                {
+                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                }
+                else
+                {
+                    sw.Write(t[i]);
+                }
+
+            }
         }
         private void UpdateDefinedNamesXml()
         {
@@ -699,7 +770,8 @@ namespace OfficeOpenXml
                         top.AppendChild(elem);
                         elem.SetAttribute("name", name.Name);
                         if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                        elem.InnerText = name.FullAddressAbsolute;
+                        if (!string.IsNullOrEmpty(name.Comment)) elem.SetAttribute("comment", name.Comment);
+                        SetNameElement(name, elem);
                     }
                 }
                 foreach (ExcelWorksheet ws in _worksheets)
@@ -712,13 +784,44 @@ namespace OfficeOpenXml
                         elem.SetAttribute("name", name.Name);
                         elem.SetAttribute("localSheetId", name.LocalSheetId.ToString());
                         if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                        elem.InnerText = name.FullAddressAbsolute;
+                        if (!string.IsNullOrEmpty(name.Comment)) elem.SetAttribute("comment", name.Comment);
+                        SetNameElement(name, elem);
                     }
                 }
             }
             catch (Exception ex)
             {
                 throw new Exception("Internal error updating named ranges ",ex);
+            }
+        }
+
+        private void SetNameElement(ExcelNamedRange name, XmlElement elem)
+        {
+            if (name.IsName)
+            {
+                if (string.IsNullOrEmpty(name.NameFormula))
+                {
+                    if ((name.NameValue.GetType().IsPrimitive || name.NameValue is double || name.NameValue is decimal))
+                    {
+                        elem.InnerText = Convert.ToDouble(name.NameValue, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture); 
+                    }
+                    else if (name.NameValue is DateTime)
+                    {
+                        elem.InnerText = ((DateTime)name.NameValue).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    }
+                    else
+                    {
+                        elem.InnerText = "\"" + name.NameValue.ToString() + "\"";
+                    }                                
+                }
+                else
+                {
+                    elem.InnerText = name.NameFormula;
+                }
+            }
+            else
+            {
+                elem.InnerText = name.FullAddressAbsolute;
             }
         }
         /// <summary>
@@ -781,6 +884,35 @@ namespace OfficeOpenXml
 
             var pivotCaches = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
             pivotCaches.AppendChild(item);
+        }
+
+        internal List<string> _externalReferences = new List<string>();
+        internal void GetExternalReferences()
+        {
+            XmlNodeList nl = WorkbookXml.SelectNodes("//d:externalReferences/d:externalReference", NameSpaceManager);
+            if (nl != null)
+            {
+                foreach (XmlElement elem in nl)
+                {
+                    string rID = elem.GetAttribute("r:id");
+                    PackageRelationship rel = Part.GetRelationship(rID);
+                    var part = _package.Package.GetPart(PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
+                    XmlDocument xmlExtRef = new XmlDocument();
+                    xmlExtRef.Load(part.GetStream());
+
+                    XmlElement book=xmlExtRef.SelectSingleNode("//d:externalBook", NameSpaceManager) as XmlElement;
+                    if(book!=null)
+                    {
+                        string rId_ExtRef = book.GetAttribute("r:id");
+                        var rel_extRef = part.GetRelationship(rId_ExtRef);
+                        if (rel_extRef != null)
+                        {
+                            _externalReferences.Add(rel_extRef.TargetUri.OriginalString);
+                        }
+
+                    }
+                }
+            }
         }
     } // end Workbook
 }

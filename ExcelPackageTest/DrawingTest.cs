@@ -274,9 +274,13 @@ namespace ExcelPackageTest
         public void Column()
         {
             var ws = _pck.Workbook.Worksheets.Add("Column");
-            var chrt = ws.Drawings.AddChart("Column1", eChartType.ColumnClustered) as ExcelBarChart;
+            var chrt = ws.Drawings.AddChart("Column1", eChartType.ColumnClustered3D) as ExcelBarChart;
             AddTestSerie(ws, chrt);
             chrt.VaryColors = true;
+            chrt.View3D.RightAngleAxes = true;
+            chrt.View3D.DepthPercent = 99;
+            //chrt.View3D.HeightPercent = 99;
+            chrt.View3D.RightAngleAxes = true;
             chrt.SetSize(200);
             chrt.Title.Text = "Column";
             chrt.Series[0].Header = "Serie 1";
