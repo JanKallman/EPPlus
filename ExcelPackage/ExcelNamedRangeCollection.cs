@@ -40,18 +40,45 @@ namespace OfficeOpenXml
     public class ExcelNamedRangeCollection : IEnumerable<ExcelNamedRange>
     {
         internal ExcelWorksheet _ws;
-        internal ExcelNamedRangeCollection()
+        internal ExcelWorkbook _wb;
+        internal ExcelNamedRangeCollection(ExcelWorkbook wb)
         {
+            _wb = wb;
             _ws = null;
         }
-        internal ExcelNamedRangeCollection(ExcelWorksheet ws)
+        internal ExcelNamedRangeCollection(ExcelWorkbook wb, ExcelWorksheet ws)
         {
+            _wb = wb;
             _ws = ws;
         }
         Dictionary<string, ExcelNamedRange> _dic = new Dictionary<string, ExcelNamedRange>();
         public ExcelNamedRange Add(string Name, ExcelRangeBase Range)
         {
-            var item = new ExcelNamedRange(Name, _ws , Range.Worksheet, Range.Address);
+            ExcelNamedRange item;
+            if (Range.IsName)
+            {
+
+                item = new ExcelNamedRange(Name, _wb,_ws);
+            }
+            else
+            {
+                item = new ExcelNamedRange(Name, _ws, Range.Worksheet, Range.Address);
+            }
+            
+            _dic.Add(Name, item);
+            return item;
+        }
+        public ExcelNamedRange AddValue(string Name, object value)
+        {
+            var item = new ExcelNamedRange(Name,_wb, _ws);
+            item.NameValue = value;
+            _dic.Add(Name, item);
+            return item;
+        }
+        public ExcelNamedRange AddFormla(string Name, string Formula)
+        {
+            var item = new ExcelNamedRange(Name, _wb, _ws);
+            item.NameFormula = Formula;
             _dic.Add(Name, item);
             return item;
         }

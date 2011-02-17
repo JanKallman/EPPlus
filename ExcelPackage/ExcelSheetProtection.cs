@@ -42,10 +42,10 @@ namespace OfficeOpenXml
     /// </summary>
     public sealed class ExcelSheetProtection : XmlHelper
     {
-        public ExcelSheetProtection (XmlNamespaceManager nsm, XmlNode topNode) :
+        public ExcelSheetProtection (XmlNamespaceManager nsm, XmlNode topNode,ExcelWorksheet ws) :
             base(nsm, topNode)
         {
-
+            SchemaNodeOrder = ws.SchemaNodeOrder;
         }        
         private const string _isProtectedPath="d:sheetProtection/@sheet";
         /// <summary>

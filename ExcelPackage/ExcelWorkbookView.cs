@@ -46,9 +46,10 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="ns"></param>
         /// <param name="node"></param>
-        internal ExcelWorkbookView(XmlNamespaceManager ns, XmlNode node) :
+        internal ExcelWorkbookView(XmlNamespaceManager ns, XmlNode node, ExcelWorkbook wb) :
             base(ns, node)
 		{
+            SchemaNodeOrder = wb.SchemaNodeOrder;
 		}
 		#endregion
         const string LEFT_PATH="d:bookViews/d:workbookView/@xWindow";

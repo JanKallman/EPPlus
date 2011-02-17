@@ -423,6 +423,7 @@ namespace OfficeOpenXml
 
                     _workbook = new ExcelWorkbook(this, ns);
 
+                    _workbook.GetExternalReferences();
                     _workbook.GetDefinedNames();
 
                 }
@@ -495,7 +496,8 @@ namespace OfficeOpenXml
 			PackagePart partPack = _package.GetPart(uriPart);
 			xmlPart.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
 		}
-		#endregion
+        /// <summary>
+        #endregion
 
 		#region Dispose
 		/// <summary>

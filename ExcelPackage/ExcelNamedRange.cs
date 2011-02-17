@@ -51,15 +51,15 @@ namespace OfficeOpenXml
         {
             Name = name;
             _sheet = nameSheet;
-            if (nameSheet != null)
-            {
-                LocalSheetId = nameSheet.PositionID-1;
-            }
-            else
-            {
-                LocalSheetId = -1;
-            }
+
         }
+        internal ExcelNamedRange(string name,ExcelWorkbook wb, ExcelWorksheet nameSheet) :
+            base(wb, nameSheet, name, true)
+        {
+            Name = name;
+            _sheet = nameSheet;
+        }
+
         /// <summary>
         /// Name of the range
         /// </summary>
@@ -73,9 +73,18 @@ namespace OfficeOpenXml
         /// </summary>
         public int LocalSheetId
         {
-            get;
-            set;
-        }
+            get
+            {
+                if (_sheet == null)
+                {
+                    return -1;
+                }
+                else
+                {
+                    return _sheet.PositionID;
+                }
+            }
+        }        
         /// <summary>
         /// Is the name hidden
         /// </summary>
@@ -84,5 +93,15 @@ namespace OfficeOpenXml
             get;
             set;
         }
+        /// <summary>
+        /// A comment for the Name
+        /// </summary>
+        public string Comment
+        {
+            get;
+            set;
+        }
+        internal object NameValue { get; set; }
+        internal string NameFormula { get; set; }
     }
 }

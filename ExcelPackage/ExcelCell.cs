@@ -117,8 +117,8 @@ namespace OfficeOpenXml
         public object Value
 		{
 			get
-			{                
-				return _value;
+			{
+                return _value;
 			}
 			set
 			{

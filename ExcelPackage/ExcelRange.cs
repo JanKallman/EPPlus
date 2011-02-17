@@ -61,7 +61,21 @@ namespace OfficeOpenXml
         {
             get
             {
-                base.Address = Address;
+                if (_worksheet.Names.ContainsKey(Address))
+                {
+                    if (_worksheet.Names[Address].IsName)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        base.Address = _worksheet.Names[Address].Address;
+                    }
+                }
+                else
+                {
+                    base.Address = Address;
+                }
                 return this;
             }
         }

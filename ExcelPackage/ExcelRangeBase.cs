@@ -39,7 +39,6 @@ using System.Collections;
 using OfficeOpenXml.Table;
 using System.Text.RegularExpressions;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
@@ -51,6 +50,7 @@ namespace OfficeOpenXml
     public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
     {
         protected ExcelWorksheet _worksheet;
+        private ExcelWorkbook _wb=null;
         private delegate void _changeProp(_setValue method, object value);
         private delegate void _setValue(object value, int row, int col);
         private _changeProp _changePropMethod;
@@ -62,14 +62,21 @@ namespace OfficeOpenXml
             _ws = _worksheet.Name;
             SetDelegate();  
         }
-
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
-            base(address)
+            base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
         {
             _worksheet = xlWorksheet;
-            _ws = _worksheet.Name;
+            if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
             SetDelegate();
-        }   
+        }
+        protected internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
+            base(xlWorksheet==null?"":xlWorksheet.Name, address, isName)
+        {
+            _worksheet = xlWorksheet;
+            _wb = wb;
+            if(string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
+            SetDelegate();
+        }
         #endregion
         #region Set Value Delegates
         private void SetDelegate()
@@ -146,8 +153,9 @@ namespace OfficeOpenXml
         /// <param name="address"></param>
         /// <param name="valueMethod"></param>
         /// <param name="value"></param>
-        private static void SetValueAddress(ExcelAddress address, _setValue valueMethod, object value)
+        private void SetValueAddress(ExcelAddress address, _setValue valueMethod, object value)
         {
+            IsRangeValid("");
             for (int col = address.Start.Column; col <= address.End.Column; col++)
             {
                 for (int row = address.Start.Row; row <= address.End.Row; row++)
@@ -283,6 +291,27 @@ namespace OfficeOpenXml
                 Address = _worksheet.View.SelectedRange;
             }
         }
+        private void IsRangeValid(string type)
+        {
+            if (_fromRow <= 0)
+            {
+                if (_address == "")
+                {
+                    SetToSelectedRange();
+                }
+                else
+                {
+                    if (type == "")
+                    {
+                        throw (new Exception(string.Format("Range is not valid for this operation: {0}", _address)));
+                    }
+                    else
+                    {
+                        throw (new Exception(string.Format("Range is not valid for {0} : {1}", type, _address)));
+                    }
+                }
+            }
+        }
         #region "Public Properties"
         /// <summary>
         /// The styleobject for the range.
@@ -291,10 +320,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                if (_fromRow == -1)
-                {
-                    SetToSelectedRange();
-                }
+                IsRangeValid("styling");
                 return _worksheet.Workbook.Styles.GetStyleObject(_worksheet.Cell(_fromRow, _fromCol).StyleID, _worksheet.PositionID, _address);
             }
         }
@@ -305,6 +331,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("styling");
                 return _worksheet.Cell(_fromRow, _fromCol).StyleName;
             }
             set
@@ -336,11 +363,46 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet.Cell(_fromRow, _fromCol).Value;
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        return _wb._names[_address].NameValue;
+                    }
+                    else
+                    {
+                        return _worksheet.Names[_address].NameValue; ;
+                    }
+                }
+                else
+                {
+                    if(IsRichText)
+                    {
+                        return RichText.Text;
+                    }
+                    else
+                    {
+                        return _worksheet.Cell(_fromRow, _fromCol).Value;
+                    }                    
+                }
             }
             set
             {
-                _changePropMethod(Set_Value, value);
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        _wb._names[_address].NameValue=value;
+                    }
+                    else
+                    {
+                        _worksheet.Names[_address].NameValue=value;
+                    }
+                }
+                else
+                {
+                    _changePropMethod(Set_Value, value);
+                }
             }
         }
         /// <summary>
@@ -350,22 +412,50 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet.Cell(_fromRow, _fromCol).Formula;
-            }
-            set
-            {
-                if (_fromRow == _toRow && _fromCol == _toCol)
+                if (IsName)
                 {
-                    Set_Formula(value, _fromRow, _fromCol);
+                    if (_worksheet == null)
+                    {
+                        return _wb._names[_address].NameFormula;
+                    }
+                    else
+                    {
+                        return _worksheet.Names[_address].NameFormula;
+                    }
                 }
                 else
                 {
-                    Set_SharedFormula(value, this, false);
-                    if (Addresses != null)
+                    return _worksheet.Cell(_fromRow, _fromCol).Formula;
+                }
+            }
+            set
+            {
+                if (IsName)
+                {
+                    if (_worksheet == null)
                     {
-                        foreach (var address in Addresses)
+                        _wb._names[_address].NameFormula = value;
+                    }
+                    else
+                    {
+                        _worksheet.Names[_address].NameFormula = value;
+                    }
+                }
+                else
+                {
+                    if (_fromRow == _toRow && _fromCol == _toCol)
+                    {
+                        Set_Formula(value, _fromRow, _fromCol);
+                    }
+                    else
+                    {
+                        Set_SharedFormula(value, this, false);
+                        if (Addresses != null)
                         {
-                            Set_SharedFormula(value, address, false);
+                            foreach (var address in Addresses)
+                            {
+                                Set_SharedFormula(value, address, false);
+                            }
                         }
                     }
                 }
@@ -378,10 +468,12 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("FormulaR1C1");
                 return _worksheet.Cell(_fromRow, _fromCol).FormulaR1C1;
             }
             set
             {
+                IsRangeValid("FormulaR1C1");
                 if (value.Length > 0 && value[0] == '=') value = value.Substring(1, value.Length - 1); // remove any starting equalsign.
 
                 if (Addresses == null)
@@ -405,6 +497,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("formulaR1C1");
                 return _worksheet.Cell(_fromRow, _fromCol).Hyperlink;
             }
             set
@@ -419,6 +512,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("merging");
                 for (int col = _fromCol; col <= _toCol; col++)
                 {
                     for (int row = _fromRow; row <= _toRow; row++)
@@ -433,6 +527,7 @@ namespace OfficeOpenXml
             }
             set
             {
+                IsRangeValid("merging");
                 SetMerge(value, FirstAddress);
                 if (Addresses != null)
                 {
@@ -481,6 +576,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("autofilter");
                 ExcelAddressBase address = _worksheet.AutoFilterAddress;
                 if (_fromRow >= address.Start.Row
                     &&
@@ -496,6 +592,7 @@ namespace OfficeOpenXml
             }
             set
             {
+                IsRangeValid("autofilter");
                 _worksheet.AutoFilterAddress = this;
                 if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
                 {
@@ -512,6 +609,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("richtext");
                 return _worksheet.Cell(_fromRow, _fromCol).IsRichText;
             }
             set
@@ -526,6 +624,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("arrayformulas");
                 return _worksheet.Cell(_fromRow, _fromCol).IsArrayFormula;
             }
         }
@@ -537,6 +636,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                IsRangeValid("richtext");
                 if (_rtc == null)
                 {
                     XmlDocument xml = new XmlDocument();
@@ -578,7 +678,8 @@ namespace OfficeOpenXml
         {
             get
             {
-                ulong cellID= GetCellID(_worksheet.SheetID, _fromRow, _fromCol);
+                IsRangeValid("comments");
+                ulong cellID = GetCellID(_worksheet.SheetID, _fromRow, _fromCol);
                 if(_worksheet.Comments._comments.ContainsKey(cellID))
                 {
                     return _worksheet._comments._comments[cellID] as ExcelComment;
@@ -621,12 +722,13 @@ namespace OfficeOpenXml
         {
             get
             {
-                string fullAddress = GetFullAddress(_worksheet.Name, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+                string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'","''") + "]" + _ws;
+                string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
                 if (Addresses != null)
                 {
                     foreach (var a in Addresses)
                     {
-                        fullAddress += "," + GetFullAddress(_worksheet.Name, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); ;
+                        fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); ;
                     }
                 }
                 return fullAddress;
