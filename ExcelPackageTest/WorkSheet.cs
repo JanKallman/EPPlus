@@ -1002,7 +1002,9 @@ namespace ExcelPackageTest
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;            
-            pt.Fields[4].Grouping.AddDateGroup(eDateGroupBy.Months, new DateTime(2010,01,31), new DateTime(2010,11,30));
+            //pt.Fields[4].Grouping.AddDateGroup(eDateGroupBy.Months, new DateTime(2010,01,31), new DateTime(2010,11,30));
+            pt.Fields[4].SetDateGroup(eDateGroupBy.Months, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
+            //pt.Fields.AddDateGrouping(pt.Fields[4], eDateGroupBy.Months);
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
         }
     }
