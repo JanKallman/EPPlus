@@ -272,7 +272,7 @@ namespace OfficeOpenXml.Drawing
                     if (_drawingNames.ContainsKey(Name.ToLower()))
                     {
                         throw new Exception("Name already exist in the drawings collection");
-                    }                    
+                    }
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
                     ExcelPicture pic = new ExcelPicture(this, drawNode, image);
@@ -343,7 +343,7 @@ namespace OfficeOpenXml.Drawing
                     streamChart.Close();
                     package.Flush();
 
-                    PackageRelationship drawRelation = Worksheet.Part.CreateRelationship(_uriDrawing, TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                    PackageRelationship drawRelation = Worksheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                     XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
                     e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 

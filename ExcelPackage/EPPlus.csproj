@@ -141,10 +141,9 @@
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
-    <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroupCollection.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTablePageFieldSettings.cs" />
-    <Compile Include="Table\PivotTable\ExcelPivotTableDataFieldSettings.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableDataField.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldCollection.cs" />
     <Compile Include="Style\IStyle.cs" />
     <Compile Include="OfficeProperties.cs" />

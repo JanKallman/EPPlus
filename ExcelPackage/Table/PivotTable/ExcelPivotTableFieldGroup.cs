@@ -31,20 +31,93 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
     public class ExcelPivotTableFieldGroup : XmlHelper
     {
-        internal ExcelPivotTableFieldGroup(XmlNamespaceManager ns, XmlNode topNode, eDateGroupBy groupBy) :
+        public ExcelPivotTableFieldGroup(XmlNamespaceManager ns, XmlNode topNode) :
             base(ns, topNode)
         {
-            GroupBy = groupBy;
+            
         }
+    }
+    public class ExcelPivotTableFieldDateGroup : ExcelPivotTableFieldGroup
+    {
+        internal ExcelPivotTableFieldDateGroup(XmlNamespaceManager ns, XmlNode topNode) :
+            base(ns, topNode)
+        {
+        }
+        const string groupByPath = "d:fieldGroup/d:rangePr/@groupBy";
         public eDateGroupBy GroupBy
         {
-            get;
-            private set;
+            get
+            {
+                string v = GetXmlNodeString(groupByPath);
+                if (v == "")
+                {
+                    return (eDateGroupBy)Enum.Parse(typeof(eDateGroupBy), v, true);
+                }
+                else
+                {
+                    throw (new Exception("Invalid date Groupby"));
+                }
+            }
+            private set
+            {
+                SetXmlNodeString(groupByPath, value.ToString().ToLower());
+            }
+        }
+    }
+    public class ExcelPivotTableFieldNumericGroup : ExcelPivotTableFieldGroup
+    {
+        internal ExcelPivotTableFieldNumericGroup(XmlNamespaceManager ns, XmlNode topNode) :
+            base(ns, topNode)
+        {
+        }
+        //internal ExcelPivotTableFieldNumericGroup(XmlNamespaceManager ns, XmlNode topNode, double start, double end, double interval) :
+        //    base(ns, topNode)
+        //{
+        //    Start = start;
+        //    End = end;
+        //    Interval = interval;
+        //}
+        const string startPath = "d:fieldGroup/d:rangePr/@startNum";
+        public double Start
+        {
+            get
+            {
+                return (double)GetXmlNodeDoubleNull(startPath);
+            }
+            private set
+            {
+                SetXmlNodeString(startPath,value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        const string endPath = "d:fieldGroup/d:rangePr/@endNum";
+        public double End
+        {
+            get
+            {
+                return (double)GetXmlNodeDoubleNull(endPath);
+            }
+            private set
+            {
+                SetXmlNodeString(endPath, value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        const string groupIntervalPath = "d:fieldGroup/d:rangePr/@groupInterval";
+        public double Interval
+        {
+            get
+            {
+                return (double)GetXmlNodeDoubleNull(groupIntervalPath);
+            }
+            private set
+            {
+                SetXmlNodeString(groupIntervalPath, value.ToString(CultureInfo.InvariantCulture));
+            }
         }
     }
 }

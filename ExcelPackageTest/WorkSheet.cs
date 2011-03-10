@@ -376,7 +376,7 @@ namespace ExcelPackageTest
 
             ExcelPackage pack = new ExcelPackage(new FileInfo (file ));
             ExcelWorksheet w = pack.Workbook.Worksheets["delete"];
-            w.DeleteRow(2, 1);
+            w.DeleteRow(1, 2);
             var d=w.GetCellValue<DateTime>(1, 1);
            
             pack.Save();
@@ -386,7 +386,13 @@ namespace ExcelPackageTest
             ExcelPackage pack = new ExcelPackage(new FileInfo(file));
             ExcelWorksheet w = pack.Workbook.Worksheets.Add("delete");
             w.Cells[1, 1].Value = "test";
+            w.Cells[1, 2].Value = "test";
             w.Cells[2, 1].Value = "to delete";
+            w.Cells[2, 2].Value = "to delete";
+            w.Cells[3, 1].Value = "3Left";
+            w.Cells[3, 2].Value = "3Left";
+            w.Cells[4, 1].Formula = "B3+C3";
+            w.Cells[4, 2].Value = "C3+D3";
             pack.Save();
         }
         [TestMethod]
@@ -490,6 +496,8 @@ namespace ExcelPackageTest
             var ws = _pck.Workbook.Worksheets.Add("FormulaError");
 
             ws.Cells["A1:K3"].Formula = "A3+A4";
+            ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP(RC[1]/10,0)*10";
+
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
         [TestMethod]
@@ -865,7 +873,7 @@ namespace ExcelPackageTest
             pck.SaveAs(new FileInfo(@"c:\\temp\\nametest_new.xlsx"));
         }
         [TestMethod]
-        public void PivotTable()
+        public void CreatePivotTable()
         {
             var wsPivot1 = _pck.Workbook.Worksheets.Add("Rows-Data on columns");
             var wsPivot2 = _pck.Workbook.Worksheets.Add("Rows-Data on rows");
@@ -874,7 +882,8 @@ namespace ExcelPackageTest
             var wsPivot5 = _pck.Workbook.Worksheets.Add("Columns/Rows-Data on columns");
             var wsPivot6 = _pck.Workbook.Worksheets.Add("Columns/Rows-Data on rows");
             var wsPivot7 = _pck.Workbook.Worksheets.Add("Rows/Page-Data on Columns");
-            var wsPivot8 = _pck.Workbook.Worksheets.Add("Pivot-Group");
+            var wsPivot8 = _pck.Workbook.Worksheets.Add("Pivot-Group Date");
+            var wsPivot9 = _pck.Workbook.Worksheets.Add("Pivot-Group Number");
 
             var ws = _pck.Workbook.Worksheets.Add("Data");
             ws.Cells["K1"].Value = "Item";
@@ -950,7 +959,7 @@ namespace ExcelPackageTest
             pt.RowFields.Add(pt.Fields[0]);
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
-            pt.Fields[3].DataFieldSettings.Function = DataFieldFunctions.Product;
+            pt.DataFields[0].Function = DataFieldFunctions.Product;
             pt.DataOnRows = false;
 
             pt = wsPivot2.PivotTables.Add(wsPivot2.Cells["A1"], ws.Cells["K1:N11"], "Pivottable2");
@@ -958,7 +967,7 @@ namespace ExcelPackageTest
             pt.RowFields.Add(pt.Fields[0]);
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
-            pt.Fields[3].DataFieldSettings.Function = DataFieldFunctions.Average;
+            pt.DataFields[0].Function = DataFieldFunctions.Average;
             pt.DataOnRows = true;
 
             pt = wsPivot3.PivotTables.Add(wsPivot3.Cells["A1"], ws.Cells["K1:N11"], "Pivottable3");
@@ -995,17 +1004,49 @@ namespace ExcelPackageTest
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
+            pt.Fields[0].Sort = eSortType.Descending;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
 
             pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A3"], ws.Cells["K1:O11"], "Pivottable8");
+            pt.RowFields.Add(pt.Fields[1]);
             pt.RowFields.Add(pt.Fields[4]);
+            pt.Fields[4].AddDateGrouping(eDateGroupBy.Years | eDateGroupBy.Months | eDateGroupBy.Days | eDateGroupBy.Quarters, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
+            pt.RowHeaderCaption = "År";
+            pt.Fields[4].Name = "Dag";
+            pt.Fields[5].Name = "Månad";
+            pt.Fields[6].Name = "Kvartal";
+            pt.GrandTotalCaption = "Totalt";
+           
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
-            pt.DataOnRows = false;            
-            //pt.Fields[4].Grouping.AddDateGroup(eDateGroupBy.Months, new DateTime(2010,01,31), new DateTime(2010,11,30));
-            pt.Fields[4].SetDateGroup(eDateGroupBy.Months, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
-            //pt.Fields.AddDateGrouping(pt.Fields[4], eDateGroupBy.Months);
+            pt.DataOnRows = true;
+
+            pt = wsPivot9.PivotTables.Add(wsPivot9.Cells["A3"], ws.Cells["K1:N11"], "Pivottable9");
+            pt.PageFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[3]);            
+            pt.RowFields[0].AddNumericGrouping(-3.3, 5.5, 4.0);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = false;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
         }
+        [TestMethod]
+        public void ReadPivotTable()
+        {
+            ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\pivot\pivotforread.xlsx"));
+
+            var pivot1 = pck.Workbook.Worksheets[2].PivotTables[0];
+
+            Assert.AreEqual(pivot1.Fields.Count, 24);
+            Assert.AreEqual(pivot1.RowFields.Count, 3);
+            Assert.AreEqual(pivot1.DataFields.Count, 7);
+            Assert.AreEqual(pivot1.ColumnFields.Count, 0);
+
+            Assert.AreEqual(pivot1.DataFields[1].Name, "Sum of n3");
+            Assert.AreEqual(pivot1.Fields[2].Sort, eSortType.Ascending);
+
+            Assert.AreEqual(pivot1.DataOnRows, false);
+
+            var pivot2 = pck.Workbook.Worksheets[3].PivotTables[0];
+        }           
     }
 }

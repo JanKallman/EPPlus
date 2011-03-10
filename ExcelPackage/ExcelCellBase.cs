@@ -208,7 +208,7 @@ namespace OfficeOpenXml
             bool absoluteRow, absoluteCol;
             if (cStart == -1)
             {
-                int RNum = GetRC(part.Substring(1, cStart), row, out absoluteRow);
+                int RNum = GetRC(part, row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
                     return GetAddress(RNum, absoluteRow, col, false); 

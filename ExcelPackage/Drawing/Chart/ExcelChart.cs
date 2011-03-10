@@ -400,7 +400,7 @@ namespace OfficeOpenXml.Drawing.Chart
                streamChart.Close();
                package.Flush();
 
-               PackageRelationship chartRelation = drawings.Part.CreateRelationship(UriChart, TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+               PackageRelationship chartRelation = drawings.Part.CreateRelationship(PackUriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                graphFrame.SelectSingleNode("a:graphic/a:graphicData/c:chart", NameSpaceManager).Attributes["r:id"].Value = chartRelation.Id;
                package.Flush();
                _chartNode = ChartXml.SelectSingleNode(string.Format("c:chartSpace/c:chart/c:plotArea/{0}", GetChartNodeText()), NameSpaceManager);

@@ -108,7 +108,7 @@ namespace OfficeOpenXml.Drawing
                 var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
                 strm.Write(file, 0, file.Length);
 
-                PackageRelationship picRelation = drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                PackageRelationship picRelation = drawings.Part.CreateRelationship(PackUriHelper.GetRelativeUri(drawings.UriDrawing, UriPic), TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                 relID = picRelation.Id;
                 AddNewPicture(img, relID);
 
@@ -116,7 +116,7 @@ namespace OfficeOpenXml.Drawing
             else
             {
                 var rel = _drawings.Part.GetRelationship(relID);
-                UriPic = rel.TargetUri;
+                UriPic = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             }
             SetPosDefaults(Image);
             //Create relationship
@@ -198,7 +198,7 @@ namespace OfficeOpenXml.Drawing
             if (relID != "")
             {
                 var rel=_drawings.Part.GetRelationship(relID);
-                UriPic = rel.TargetUri;
+                UriPic = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 return relID;
             }
 
@@ -210,7 +210,7 @@ namespace OfficeOpenXml.Drawing
 
             //Set the Image and save it to the package.
             Image = image;
-            PackageRelationship picRelation = _drawings.Part.CreateRelationship(UriPic, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            PackageRelationship picRelation = _drawings.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_drawings.UriDrawing, UriPic), TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
             
             AddNewPicture(img, picRelation.Id);
 

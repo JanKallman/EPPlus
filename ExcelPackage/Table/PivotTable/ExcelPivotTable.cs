@@ -121,8 +121,8 @@ namespace OfficeOpenXml.Table.PivotTable
                 if (int.TryParse(dataElem.GetAttribute("fld"), out fld) && fld >= 0)
                 {
                     var field = Fields[fld];
-                    field._dataFieldSettings = new ExcelPivotTableDataFieldSettings(NameSpaceManager, dataElem, field, fld);
-                    DataFields.AddInternal(field);
+                    var dataField = new ExcelPivotTableDataField(NameSpaceManager, dataElem, field);
+                    DataFields.AddInternal(dataField);
                 }
             }
         }
@@ -182,7 +182,7 @@ namespace OfficeOpenXml.Table.PivotTable
             //Add fields.
             foreach (XmlElement fieldElem in TopNode.SelectNodes("d:pivotFields/d:pivotField", NameSpaceManager))
             {
-                var fld = new ExcelPivotTableField(NameSpaceManager, fieldElem, this, index++);
+                var fld = new ExcelPivotTableField(NameSpaceManager, fieldElem, this, index, index++);
                 Fields.AddInternal(fld);
             }
 
@@ -456,6 +456,34 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@grandTotalCaption", value);
             }
         }
+        /// <summary>
+        /// Specifies the string to be displayed in row header in compact mode.
+        /// </summary>
+        public string RowHeaderCaption 
+        {
+            get
+            {
+                return GetXmlNodeString("@rowHeaderCaption");
+            }
+            set
+            {
+                SetXmlNodeString("@rowHeaderCaption", value);                
+            }
+        }
+        /// <summary>
+        /// Specifies the string to be displayed in cells with no value
+        /// </summary>
+        public string MissingCaption
+        {
+            get
+            {
+                return GetXmlNodeString("@missingCaption");
+            }
+            set
+            {
+                SetXmlNodeString("@missingCaption", value);                
+            }
+        }
         const string FIRSTHEADERROW_PATH="d:location/@firstHeaderRow";
         public int FirstHeaderRow
         {
@@ -492,14 +520,14 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString(FIRSTDATACOL_PATH, value.ToString());
             }
         }
-        ExcelPivotTableFieldCollectionBase _fields = null;
-        public ExcelPivotTableFieldCollectionBase Fields
+        ExcelPivotTableFieldCollectionBase<ExcelPivotTableField> _fields = null;
+        public ExcelPivotTableFieldCollectionBase<ExcelPivotTableField> Fields
         {
             get
             {
                 if (_fields == null)
                 {
-                    _fields = new ExcelPivotTableFieldCollectionBase(this);
+                    _fields = new ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>(this);
                 }
                 return _fields;
             }
@@ -528,14 +556,14 @@ namespace OfficeOpenXml.Table.PivotTable
                 return _columnFields;
             }
         }
-        ExcelPivotTableFieldCollection _dataFields = null;
-        public ExcelPivotTableFieldCollection DataFields
+        ExcelPivotTableDataFieldCollection _dataFields = null;
+        public ExcelPivotTableDataFieldCollection DataFields
         {
             get
             {
                 if (_dataFields == null)
                 {
-                    _dataFields = new ExcelPivotTableFieldCollection(this, "dataFields");
+                    _dataFields = new ExcelPivotTableDataFieldCollection(this);
                 }
                 return _dataFields;
             }
@@ -619,5 +647,6 @@ namespace OfficeOpenXml.Table.PivotTable
         }
 
         #endregion
+
     }
 }

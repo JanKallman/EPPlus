@@ -101,7 +101,8 @@ namespace OfficeOpenXml.Drawing.Chart
                }
                else if (name=="line3DChart")
                {
-                   return eChartType.Line3D;                              }
+                   return eChartType.Line3D;               
+               }
                return base.GetChartType(name);
         }
     }
