@@ -801,6 +801,52 @@ namespace OfficeOpenXml
 			Move(sourcePositionId, targetPositionId, true);
 		}
 
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sourceName"></param>
+		public void MoveToStart(string sourceName)
+		{
+			var sourceSheet = this[sourceName];
+			if (sourceSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", sourceName));
+			}
+			Move(sourceSheet.PositionID, 1, false);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sourcePositionId"></param>
+		public void MoveToStart(int sourcePositionId)
+		{
+			Move(sourcePositionId, 1, false);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sourceName"></param>
+		public void MoveToEnd(string sourceName)
+		{
+			var sourceSheet = this[sourceName];
+			if (sourceSheet == null)
+			{
+				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", sourceName));
+			}
+			Move(sourceSheet.PositionID, _worksheets.Count, true);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="sourcePositionId"></param>
+		public void MoveToEnd(int sourcePositionId)
+		{
+			Move(sourcePositionId, _worksheets.Count, true);
+		}
+
 		private void Move(string sourceName, string targetName, bool placeAfter)
 		{
 			var sourceSheet = this[sourceName];
@@ -888,6 +934,6 @@ namespace OfficeOpenXml
 		}
 
 		#endregion
-    } // end class Worksheets
+	} // end class Worksheets
 }
 
