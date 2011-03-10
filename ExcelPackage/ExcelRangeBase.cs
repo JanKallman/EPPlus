@@ -375,7 +375,7 @@ namespace OfficeOpenXml
                     }
                 }
                 else
-                {
+                {   
                     if(IsRichText)
                     {
                         return RichText.Text;

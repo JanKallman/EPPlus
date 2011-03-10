@@ -76,10 +76,10 @@ namespace OfficeOpenXml
         #region Private Properties
 		internal ExcelPackage _package;
 		// we have to hard code these uris as we need them to create a workbook from scratch
-		private Uri _uriWorkbook = new Uri("/xl/workbook.xml", UriKind.Relative);
-		private Uri _uriSharedStrings = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
-		private Uri _uriStyles = new Uri("/xl/styles.xml", UriKind.Relative);
-		private Uri _uriCalcChain = new Uri("/xl/calcChain.xml", UriKind.Relative);
+        private Uri _uriWorkbook = new Uri("/xl/workbook.xml", UriKind.Relative);
+        private Uri _uriSharedStrings = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
+        private Uri _uriStyles = new Uri("/xl/styles.xml", UriKind.Relative);
+        private Uri _uriCalcChain = new Uri("/xl/calcChain.xml", UriKind.Relative);
 
 		private XmlDocument _xmlWorkbook;
 		private XmlDocument _xmlSharedStrings;
@@ -406,7 +406,7 @@ namespace OfficeOpenXml
 						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						Part.CreateRelationship(SharedStringsUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+						Part.CreateRelationship(PackUriHelper.GetRelativeUri(_uriWorkbook,SharedStringsUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 						_package.Package.Flush();
 					}
 				}
@@ -521,7 +521,7 @@ namespace OfficeOpenXml
 						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						_package.Workbook.Part.CreateRelationship(StylesUri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
+						_package.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_uriWorkbook,StylesUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
 						_package.Package.Flush();
 					}
 				}

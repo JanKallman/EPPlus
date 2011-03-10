@@ -151,7 +151,8 @@ namespace OfficeOpenXml.Table.PivotTable
                 {
                     xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet.Cell(SourceAddress._fromRow, col).Value);
                 }
-                xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
+                //xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
+                xml += "<sharedItems containsBlank=\"1\" /> ";
                 xml += "</cacheField>";
             }
             xml += "</cacheFields>";

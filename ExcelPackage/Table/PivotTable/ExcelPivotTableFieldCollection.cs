@@ -29,18 +29,19 @@ using System;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
-    public class ExcelPivotTableFieldCollectionBase : IEnumerable<ExcelPivotTableField>
+    public class ExcelPivotTableFieldCollectionBase<T> : IEnumerable<T>
     {
         protected ExcelPivotTable _table;
-        protected List<ExcelPivotTableField> _list = new List<ExcelPivotTableField>();
-        public ExcelPivotTableFieldCollectionBase(ExcelPivotTable table)
+        protected List<T> _list = new List<T>();
+        internal ExcelPivotTableFieldCollectionBase(ExcelPivotTable table)
         {
             _table = table;
         }
-        public IEnumerator<ExcelPivotTableField> GetEnumerator()
+        public IEnumerator<T> GetEnumerator()
         {
             return _list.GetEnumerator();
         }
@@ -56,16 +57,15 @@ namespace OfficeOpenXml.Table.PivotTable
                 return _list.Count;
             }
         }
-        internal void AddInternal(ExcelPivotTableField field)
+        internal void AddInternal(T field)
         {
             _list.Add(field);
         }
-
         internal void Clear()
         {
             _list.Clear();
         }
-        public ExcelPivotTableField this[int Index]
+        public T this[int Index]
         {
             get
             {
@@ -77,7 +77,7 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
     }
-    public class ExcelPivotTableFieldCollection : ExcelPivotTableFieldCollectionBase
+    public class ExcelPivotTableFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>
     {
         internal string _topNode;
         public ExcelPivotTableFieldCollection(ExcelPivotTable table, string topNode) :
@@ -85,28 +85,33 @@ namespace OfficeOpenXml.Table.PivotTable
 	    {
             _topNode=topNode;
 	    }
+
         public void Add(ExcelPivotTableField Field)
         {
             SetFlag(Field, true);
             _list.Add(Field);
         }
-
+        internal void Insert(ExcelPivotTableField Field, int Index)
+        {
+            SetFlag(Field, true);
+            _list.Insert(Index, Field);
+        }
         private void SetFlag(ExcelPivotTableField field, bool value)
         {
             switch (_topNode)
             {
                 case "rowFields":
-                    if (field.IsColumnField)
+                    if (field.IsColumnField || field.IsPageField)
                     {
-                        throw(new Exception("This field is a column field. Can's add it to the RowFields collection"));
+                        throw(new Exception("This field is a column or page field. Can's add it to the RowFields collection"));
                     }
                     field.IsRowField = value;
                     field.Axis = ePivotFieldAxis.Row;
                     break;
                 case "colFields":
-                    if (field.IsRowField)
+                    if (field.IsRowField || field.IsPageField)
                     {
-                        throw(new Exception("This field is a row field. Can's add it to the ColumnFields collection"));
+                        throw (new Exception("This field is a row or page field. Can's add it to the ColumnFields collection"));
                     }
                     field.IsColumnField = value;
                     field.Axis = ePivotFieldAxis.Column;
@@ -124,7 +129,7 @@ namespace OfficeOpenXml.Table.PivotTable
                     field.Axis = ePivotFieldAxis.Page;
                     break;
                 case "dataFields":
-                    field.IsDataField = value;
+                    
                     break;
             }
         }
@@ -134,7 +139,6 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 throw new ArgumentException("Field not in collection");
             }
-            Field._dataFieldSettings = null;
             SetFlag(Field, false);            
             _list.Remove(Field);            
         }
@@ -146,6 +150,39 @@ namespace OfficeOpenXml.Table.PivotTable
             }
             SetFlag(_list[Index], false);
             _list.RemoveAt(Index);      
+        }
+    }
+    public class ExcelPivotTableDataFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableDataField>
+    {
+        public ExcelPivotTableDataFieldCollection(ExcelPivotTable table) :
+            base(table)
+        {
+
+        }
+        public ExcelPivotTableDataField Add(ExcelPivotTableField field)
+        {
+            var dataFieldsNode = field.TopNode.SelectSingleNode("../../d:dataFields", field.NameSpaceManager);
+            if (dataFieldsNode == null)
+            {
+                _table.CreateNode("d:dataFields");
+                dataFieldsNode = field.TopNode.SelectSingleNode("../../d:dataFields", field.NameSpaceManager);
+            }
+
+            XmlElement node = field.AppendField(dataFieldsNode, field.Index, "dataField", "fld");
+            field.SetXmlNodeBool("@dataField", true,false);
+
+            var dataField = new ExcelPivotTableDataField(field.NameSpaceManager, dataFieldsNode, field);
+            _list.Add(dataField);
+            return dataField;
+        }
+        public void Remove(ExcelPivotTableDataField dataField)
+        {
+            XmlElement node = dataField.Field.TopNode.SelectSingleNode(string.Format("../../d:dataFields/d:dataField[@fld={0}]", dataField.Index), dataField.NameSpaceManager) as XmlElement;
+            if (node != null)
+            {
+                node.ParentNode.RemoveChild(node);
+            }
+            _list.Remove(dataField);
         }
     }
 }

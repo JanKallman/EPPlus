@@ -37,35 +37,35 @@ using System.Globalization;
 
 namespace OfficeOpenXml
 {
-	/// <summary>
-	/// Provides access to the properties bag of the package
-	/// </summary>
-	public sealed class OfficeProperties : XmlHelper
-	{
-		#region Private Properties
-		private Uri _uriPropertiesCore = new Uri("/docProps/core.xml", UriKind.Relative);
-		private Uri _uriPropertiesExtended = new Uri("/docProps/app.xml", UriKind.Relative);
-		private Uri _uriPropertiesCustom = new Uri("/docProps/custom.xml", UriKind.Relative);
+    /// <summary>
+    /// Provides access to the properties bag of the package
+    /// </summary>
+    public sealed class OfficeProperties : XmlHelper
+    {
+        #region Private Properties
+        private Uri _uriPropertiesCore = new Uri("/docProps/core.xml", UriKind.Relative);
+        private Uri _uriPropertiesExtended = new Uri("/docProps/app.xml", UriKind.Relative);
+        private Uri _uriPropertiesCustom = new Uri("/docProps/custom.xml", UriKind.Relative);
 
-		private XmlDocument _xmlPropertiesCore;
-		private XmlDocument _xmlPropertiesExtended;
-		private XmlDocument _xmlPropertiesCustom;
+        private XmlDocument _xmlPropertiesCore;
+        private XmlDocument _xmlPropertiesExtended;
+        private XmlDocument _xmlPropertiesCustom;
 
         XmlHelper _coreHelper;
         XmlHelper _extendedHelper;
         XmlHelper _customHelper;
         private ExcelPackage _package;
-		#endregion 
+        #endregion
 
-		#region ExcelProperties Constructor
-		/// <summary>
-		/// Provides access to all the office document properties.
-		/// </summary>
-		/// <param name="xlPackage"></param>
-		public OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) : 
+        #region ExcelProperties Constructor
+        /// <summary>
+        /// Provides access to all the office document properties.
+        /// </summary>
+        /// <param name="xlPackage"></param>
+        public OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) :
             base(ns)
-		{
-			_package = xlPackage;
+        {
+            _package = xlPackage;
             //_coreHelper = new XmlHelper(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));  
             //_extendedHelper
             //_customHelper = new XmlHelper(ns, CustomPropertiesXml);
@@ -74,83 +74,83 @@ namespace OfficeOpenXml
             _extendedHelper = XmlHelperFactory.Create(ns, ExtendedPropertiesXml);
             _customHelper = XmlHelperFactory.Create(ns, CustomPropertiesXml);
 
-		}
-		#endregion
+        }
+        #endregion
 
-		#region Protected Internal Properties
-		/// <summary>
-		/// The URI to the core properties component (core.xml)
-		/// </summary>
-		protected internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
-		/// <summary>
-		/// The URI to the extended properties component (app.xml)
-		/// </summary>
-		protected internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
-		/// <summary>
-		/// The URI to the custom properties component (custom.xml)
-		/// </summary>
-		protected internal Uri CustomPropertiesUri { get { return (_uriPropertiesCustom); } }
-		#endregion
+        #region Protected Internal Properties
+        /// <summary>
+        /// The URI to the core properties component (core.xml)
+        /// </summary>
+        protected internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
+        /// <summary>
+        /// The URI to the extended properties component (app.xml)
+        /// </summary>
+        protected internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
+        /// <summary>
+        /// The URI to the custom properties component (custom.xml)
+        /// </summary>
+        protected internal Uri CustomPropertiesUri { get { return (_uriPropertiesCustom); } }
+        #endregion
 
-		#region CorePropertiesXml
-		/// <summary>
-		/// Provides access to the XML document that holds all the code 
-		/// document properties.
-		/// </summary>
-		public XmlDocument CorePropertiesXml
-		{
-			get
-			{
-				if (_xmlPropertiesCore == null)
-				{
-					if (_package.Package.PartExists(CorePropertiesUri))
-						_xmlPropertiesCore = _package.GetXmlFromUri(CorePropertiesUri);
-					else
-					{
+        #region CorePropertiesXml
+        /// <summary>
+        /// Provides access to the XML document that holds all the code 
+        /// document properties.
+        /// </summary>
+        public XmlDocument CorePropertiesXml
+        {
+            get
+            {
+                if (_xmlPropertiesCore == null)
+                {
+                    if (_package.Package.PartExists(CorePropertiesUri))
+                        _xmlPropertiesCore = _package.GetXmlFromUri(CorePropertiesUri);
+                    else
+                    {
                         _xmlPropertiesCore = new XmlDocument();
                         _xmlPropertiesCore.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><cp:coreProperties xmlns:cp=\"{0}\" xmlns:dc=\"{1}\" xmlns:dcterms=\"{2}\" xmlns:dcmitype=\"{3}\" xmlns:xsi=\"{4}\"></cp:coreProperties>",
                             ExcelPackage.schemaCore,
                             ExcelPackage.schemaDc,
-                            ExcelPackage.schemaDcTerms, 
+                            ExcelPackage.schemaDcTerms,
                             ExcelPackage.schemaDcmiType,
                             ExcelPackage.schemaXsi));
 
                         // create a new document properties part and add to the package
-						PackagePart partCore = _package.Package.CreatePart(CorePropertiesUri, @"application/vnd.openxmlformats-package.core-properties+xml");
+                        PackagePart partCore = _package.Package.CreatePart(CorePropertiesUri, @"application/vnd.openxmlformats-package.core-properties+xml");
 
-						// create the document properties XML (with no entries in it)
+                        // create the document properties XML (with no entries in it)
 
 
-						// save it to the package
-						StreamWriter streamCore = new StreamWriter(partCore.GetStream(FileMode.Create, FileAccess.Write));
-						_xmlPropertiesCore.Save(streamCore);
-						streamCore.Close();
-						_package.Package.Flush();
+                        // save it to the package
+                        StreamWriter streamCore = new StreamWriter(partCore.GetStream(FileMode.Create, FileAccess.Write));
+                        _xmlPropertiesCore.Save(streamCore);
+                        streamCore.Close();
+                        _package.Package.Flush();
 
-						// create the relationship between the workbook and the new shared strings part
-						_package.Package.CreateRelationship(CorePropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
-						_package.Package.Flush();
-					}
-				}
-				return (_xmlPropertiesCore);
-			}
-		}
-		#endregion
+                        // create the relationship between the workbook and the new shared strings part
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), CorePropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
+                        _package.Package.Flush();
+                    }
+                }
+                return (_xmlPropertiesCore);
+            }
+        }
+        #endregion
         #region "Core Properties"
         const string TitlePath = "dc:title";
         /// <summary>
-		/// Gets/sets the title property of the document (core property)
-		/// </summary>
-		public string Title
-		{
-            get { return _coreHelper.GetXmlNodeString(TitlePath) ; }
+        /// Gets/sets the title property of the document (core property)
+        /// </summary>
+        public string Title
+        {
+            get { return _coreHelper.GetXmlNodeString(TitlePath); }
             set { _coreHelper.SetXmlNodeString(TitlePath, value); }
-		}
+        }
 
         const string SubjectPath = "dc:subject";
         /// <summary>
-		/// Gets/sets the subject property of the document (core property)
-		/// </summary>
+        /// Gets/sets the subject property of the document (core property)
+        /// </summary>
         public string Subject
         {
             get { return _coreHelper.GetXmlNodeString(SubjectPath); }
@@ -159,84 +159,84 @@ namespace OfficeOpenXml
 
         const string AuthorPath = "dc:creator";
         /// <summary>
-		/// Gets/sets the author property of the document (core property)
-		/// </summary>
-		public string Author
-		{
+        /// Gets/sets the author property of the document (core property)
+        /// </summary>
+        public string Author
+        {
             get { return _coreHelper.GetXmlNodeString(AuthorPath); }
             set { _coreHelper.SetXmlNodeString(AuthorPath, value); }
-		}
+        }
 
         const string CommentsPath = "dc:description";
         /// <summary>
-		/// Gets/sets the comments property of the document (core property)
-		/// </summary>
-		public string Comments
-		{
+        /// Gets/sets the comments property of the document (core property)
+        /// </summary>
+        public string Comments
+        {
             get { return _coreHelper.GetXmlNodeString(CommentsPath); }
             set { _coreHelper.SetXmlNodeString(CommentsPath, value); }
         }
 
         const string KeywordsPath = "cp:keywords";
         /// <summary>
-		/// Gets/sets the keywords property of the document (core property)
-		/// </summary>
-		public string Keywords
-		{
+        /// Gets/sets the keywords property of the document (core property)
+        /// </summary>
+        public string Keywords
+        {
             get { return _coreHelper.GetXmlNodeString(KeywordsPath); }
             set { _coreHelper.SetXmlNodeString(KeywordsPath, value); }
         }
 
         const string LastModifiedByPath = "cp:lastModifiedBy";
         /// <summary>
-		/// Gets/sets the lastModifiedBy property of the document (core property)
-		/// </summary>
-		public string LastModifiedBy
-		{
+        /// Gets/sets the lastModifiedBy property of the document (core property)
+        /// </summary>
+        public string LastModifiedBy
+        {
             get { return _coreHelper.GetXmlNodeString(LastModifiedByPath); }
             set { _coreHelper.SetXmlNodeString(LastModifiedByPath, value); }
         }
 
         const string LastPrintedPath = "cp:lastPrinted";
         /// <summary>
-		/// Gets/sets the lastPrinted property of the document (core property)
-		/// </summary>
-		public string LastPrinted
-		{
+        /// Gets/sets the lastPrinted property of the document (core property)
+        /// </summary>
+        public string LastPrinted
+        {
             get { return _coreHelper.GetXmlNodeString(LastPrintedPath); }
             set { _coreHelper.SetXmlNodeString(LastPrintedPath, value); }
         }
 
         const string CategoryPath = "cp:category";
         /// <summary>
-		/// Gets/sets the category property of the document (core property)
-		/// </summary>
-		public string Category
-		{
+        /// Gets/sets the category property of the document (core property)
+        /// </summary>
+        public string Category
+        {
             get { return _coreHelper.GetXmlNodeString(CategoryPath); }
             set { _coreHelper.SetXmlNodeString(CategoryPath, value); }
         }
 
         const string ContentStatusPath = "cp:contentStatus";
         /// <summary>
-		/// Gets/sets the status property of the document (core property)
-		/// </summary>
-		public string Status
-		{
+        /// Gets/sets the status property of the document (core property)
+        /// </summary>
+        public string Status
+        {
             get { return _coreHelper.GetXmlNodeString(ContentStatusPath); }
             set { _coreHelper.SetXmlNodeString(ContentStatusPath, value); }
-        }		
-		#endregion
+        }
+        #endregion
 
-		#region Extended Properties
-		#region ExtendedPropertiesXml
-		/// <summary>
-		/// Provides access to the XML document that holds the extended properties of the document (app.xml)
-		/// </summary>
-		public XmlDocument ExtendedPropertiesXml
-		{
-			get
-			{
+        #region Extended Properties
+        #region ExtendedPropertiesXml
+        /// <summary>
+        /// Provides access to the XML document that holds the extended properties of the document (app.xml)
+        /// </summary>
+        public XmlDocument ExtendedPropertiesXml
+        {
+            get
+            {
                 if (_xmlPropertiesExtended == null)
                 {
                     if (_package.Package.PartExists(ExtendedPropertiesUri))
@@ -258,88 +258,88 @@ namespace OfficeOpenXml
                         _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(ExtendedPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), ExtendedPropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
                         _package.Package.Flush();
                     }
                 }
                 return (_xmlPropertiesExtended);
-			}
-		}
-		#endregion
+            }
+        }
+        #endregion
 
         const string ApplicationPath = "xp:Properties/xp:Application";
         /// <summary>
-		/// Gets the Application property of the document (extended property)
-		/// </summary>
-		public string Application
-		{
-			get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
-		}
+        /// Gets the Application property of the document (extended property)
+        /// </summary>
+        public string Application
+        {
+            get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
+        }
 
         const string HyperlinkBasePath = "xp:Properties/xp:HyperlinkBase";
         /// <summary>
-		/// Gets/sets the HyperlinkBase property of the document (extended property)
-		/// </summary>
-		public Uri HyperlinkBase
-		{
+        /// Gets/sets the HyperlinkBase property of the document (extended property)
+        /// </summary>
+        public Uri HyperlinkBase
+        {
             get { return new Uri(_extendedHelper.GetXmlNodeString(HyperlinkBasePath), UriKind.Absolute); }
             set { _extendedHelper.SetXmlNodeString(HyperlinkBasePath, value.AbsoluteUri); }
-		}
+        }
 
         const string AppVersionPath = "xp:Properties/xp:AppVersion";
         /// <summary>
-		/// Gets the AppVersion property of the document (extended property)
-		/// </summary>
-		public string AppVersion
-		{
+        /// Gets the AppVersion property of the document (extended property)
+        /// </summary>
+        public string AppVersion
+        {
             get { return _extendedHelper.GetXmlNodeString(AppVersionPath); }
         }
         const string CompanyPath = "xp:Properties/xp:Company";
 
-		/// <summary>
-		/// Gets/sets the Company property of the document (extended property)
-		/// </summary>
-		public string Company
-		{
+        /// <summary>
+        /// Gets/sets the Company property of the document (extended property)
+        /// </summary>
+        public string Company
+        {
             get { return _extendedHelper.GetXmlNodeString(CompanyPath); }
             set { _extendedHelper.SetXmlNodeString(CompanyPath, value); }
         }
 
         const string ManagerPath = "xp:Properties/xp:Manager";
-		/// <summary>
-		/// Gets/sets the Manager property of the document (extended property)
-		/// </summary>
-		public string Manager
-		{
+        /// <summary>
+        /// Gets/sets the Manager property of the document (extended property)
+        /// </summary>
+        public string Manager
+        {
             get { return _extendedHelper.GetXmlNodeString(ManagerPath); }
             set { _extendedHelper.SetXmlNodeString(ManagerPath, value); }
-		}
+        }
 
-		#region Get and Set Extended Properties
-		private string GetExtendedPropertyValue(string propertyName)
-		{
-			string retValue = null;
-			string searchString = string.Format("//xp:Properties/xp:{0}", propertyName);
-			XmlNode node = ExtendedPropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
-			if (node != null)
-			{
-				retValue = node.InnerText;
-			}
-			return retValue;
-		}
-		#endregion
-		#endregion
+        #region Get and Set Extended Properties
+        private string GetExtendedPropertyValue(string propertyName)
+        {
+            string retValue = null;
+            string searchString = string.Format("//xp:Properties/xp:{0}", propertyName);
+            XmlNode node = ExtendedPropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
+            if (node != null)
+            {
+                retValue = node.InnerText;
+            }
+            return retValue;
+        }
+        #endregion
+        #endregion
 
-		#region Custom Properties
+        #region Custom Properties
 
-		#region CustomPropertiesXml
-		/// <summary>
-		/// Provides access to the XML document which holds the document's custom properties
-		/// </summary>
-		public XmlDocument CustomPropertiesXml
-		{
-			get
-			{
+        #region CustomPropertiesXml
+        /// <summary>
+        /// Provides access to the XML document which holds the document's custom properties
+        /// </summary>
+        public XmlDocument CustomPropertiesXml
+        {
+            get
+            {
                 if (_xmlPropertiesCustom == null)
                 {
                     if (_package.Package.PartExists(CustomPropertiesUri))
@@ -361,33 +361,33 @@ namespace OfficeOpenXml
                         _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(CustomPropertiesUri, TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), CustomPropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
                         _package.Package.Flush();
                     }
                 }
                 return (_xmlPropertiesCustom);
-			}
-		}
-		#endregion
+            }
+        }
+        #endregion
 
-		#region Get and Set Custom Properties
-		/// <summary>
-		/// Gets the value of a custom property
-		/// </summary>
-		/// <param name="propertyName">The name of the property</param>
-		/// <returns>The current value of the property</returns>
-		public object GetCustomPropertyValue(string propertyName)
-		{
+        #region Get and Set Custom Properties
+        /// <summary>
+        /// Gets the value of a custom property
+        /// </summary>
+        /// <param name="propertyName">The name of the property</param>
+        /// <returns>The current value of the property</returns>
+        public object GetCustomPropertyValue(string propertyName)
+        {
             string searchString = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
             XmlElement node = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager) as XmlElement;
             if (node != null)
             {
-                string value=node.LastChild.InnerText;
+                string value = node.LastChild.InnerText;
                 switch (node.LastChild.LocalName)
                 {
                     case "filetime":
                         DateTime dt;
-                        if(DateTime.TryParse(value, out dt))
+                        if (DateTime.TryParse(value, out dt))
                         {
                             return dt;
                         }
@@ -407,7 +407,7 @@ namespace OfficeOpenXml
                         }
                     case "r8":
                         double d;
-                        if (double.TryParse(value, NumberStyles.Any,ExcelWorksheet._ci, out d))
+                        if (double.TryParse(value, NumberStyles.Any, ExcelWorksheet._ci, out d))
                         {
                             return d;
                         }
@@ -436,23 +436,23 @@ namespace OfficeOpenXml
             {
                 return null;
             }
-		}
+        }
 
-		/// <summary>
-		/// Allows you to set the value of a current custom property or create 
-		/// your own custom property.  
-		/// Currently only supports string values.
-		/// </summary>
-		/// <param name="propertyName">The name of the property</param>
-		/// <param name="value">The value of the property</param>
-		public void SetCustomPropertyValue(string propertyName, object value)
-		{
-			// TODO:  provide support for other custom property data types
-			string searchString = @"ctp:Properties";
+        /// <summary>
+        /// Allows you to set the value of a current custom property or create 
+        /// your own custom property.  
+        /// Currently only supports string values.
+        /// </summary>
+        /// <param name="propertyName">The name of the property</param>
+        /// <param name="value">The value of the property</param>
+        public void SetCustomPropertyValue(string propertyName, object value)
+        {
+            // TODO:  provide support for other custom property data types
+            string searchString = @"ctp:Properties";
             XmlNode allProps = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
 
             searchString = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
-			XmlElement node = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager) as XmlElement;
+            XmlElement node = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager) as XmlElement;
             if (node == null)
             {
                 int pid;
@@ -463,7 +463,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (!int.TryParse(MaxNode.Attributes["pid"].Value, out pid)) 
+                    if (!int.TryParse(MaxNode.Attributes["pid"].Value, out pid))
                     {
                         pid = 2;
                     }
@@ -478,7 +478,7 @@ namespace OfficeOpenXml
             }
             else
             {
-                while(node.ChildNodes.Count > 0) node.RemoveChild(node.ChildNodes[0]);
+                while (node.ChildNodes.Count > 0) node.RemoveChild(node.ChildNodes[0]);
             }
             XmlElement valueElem;
             if (value is bool)
@@ -499,7 +499,7 @@ namespace OfficeOpenXml
             else if (value is double || value is decimal || value is float || value is long)
             {
                 valueElem = CustomPropertiesXml.CreateElement("vt", "r8", ExcelPackage.schemaVt);
-                if(value is double)
+                if (value is double)
                 {
                     valueElem.InnerText = ((double)value).ToString(ExcelWorksheet._ci);
                 }
@@ -523,33 +523,33 @@ namespace OfficeOpenXml
             }
             node.AppendChild(valueElem);
         }
-		#endregion
-		#endregion
+        #endregion
+        #endregion
 
-		#region Save  // OfficeProperties save
-		/// <summary>
-		/// Saves the office document properties back to the package.
-		/// </summary>
-		protected internal void Save()
-		{
-			if (_xmlPropertiesCore != null)
-			{
-				_package.WriteDebugFile(_xmlPropertiesCore, "docProps", "core.xml");
-				_package.SavePart(CorePropertiesUri, _xmlPropertiesCore);
-			}
-			if (_xmlPropertiesExtended != null)
-			{
-				_package.WriteDebugFile(_xmlPropertiesExtended, "docProps", "app.xml");
-				_package.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
-			}
-			if (_xmlPropertiesCustom != null)
-			{
-				_package.WriteDebugFile(_xmlPropertiesCustom, "docProps", "custom.xml");
-				_package.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
-			}
+        #region Save  // OfficeProperties save
+        /// <summary>
+        /// Saves the office document properties back to the package.
+        /// </summary>
+        protected internal void Save()
+        {
+            if (_xmlPropertiesCore != null)
+            {
+                _package.WriteDebugFile(_xmlPropertiesCore, "docProps", "core.xml");
+                _package.SavePart(CorePropertiesUri, _xmlPropertiesCore);
+            }
+            if (_xmlPropertiesExtended != null)
+            {
+                _package.WriteDebugFile(_xmlPropertiesExtended, "docProps", "app.xml");
+                _package.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
+            }
+            if (_xmlPropertiesCustom != null)
+            {
+                _package.WriteDebugFile(_xmlPropertiesCustom, "docProps", "custom.xml");
+                _package.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
+            }
 
-		}
-		#endregion
+        }
+        #endregion
 
-	}
+    }
 }

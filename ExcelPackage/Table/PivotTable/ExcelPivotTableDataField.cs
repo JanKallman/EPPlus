@@ -33,16 +33,20 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
-    public class ExcelPivotTableDataFieldSettings  : XmlHelper
+    public class ExcelPivotTableDataField : XmlHelper
     {
-        ExcelPivotTableField _field;
-        public ExcelPivotTableDataFieldSettings(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field, int index) :
+        public ExcelPivotTableDataField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field) :
             base(ns, topNode)
         {
-            Index = index;
+            Index = field.Index;
             BaseField = 0;
             BaseItem = 0;
-            _field = field;
+            Field = field;
+        }
+        public ExcelPivotTableField Field
+        {
+            get;
+            private set;
         }
         public int Index 
         { 
@@ -50,7 +54,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 return GetXmlNodeInt("@fld");
             }
-            set
+            internal set
             {
                 SetXmlNodeString("@fld",value.ToString());
             }
