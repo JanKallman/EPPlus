@@ -30,7 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OpenOfficeXml.DataValidation;
+using OfficeOpenXml.DataValidation;
 
 namespace OfficeOpenXml.DataValidation.Formulas.Contracts
 {

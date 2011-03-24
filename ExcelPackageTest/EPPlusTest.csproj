@@ -95,6 +95,7 @@
     </Compile>
     <Compile Include="ReadTemplate.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
+    <Compile Include="Utils\SqRefUtilityTests.cs" />
     <Compile Include="WorkSheet.cs" />
     <Compile Include="WorksheetsTests.cs" />
   </ItemGroup>

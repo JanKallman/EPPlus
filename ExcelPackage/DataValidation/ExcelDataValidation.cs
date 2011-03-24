@@ -88,6 +88,7 @@ namespace OfficeOpenXml.DataValidation
             : base(namespaceManager != null ? namespaceManager : worksheet.NameSpaceManager)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
+            address = CheckAndFixRangeAddress(address);
             if (itemElementNode == null)
             {
                 var xmlDoc = worksheet.WorksheetXml;
@@ -121,6 +122,33 @@ namespace OfficeOpenXml.DataValidation
                 "formula1",
                 "formula2"
             };
+        }
+
+        private string CheckAndFixRangeAddress(string address)
+        {
+            if (address.Contains(','))
+            {
+                throw new FormatException("Multiple formulas may not be commaseparated, use space instead");
+            }
+            address = address.ToUpper();
+            if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
+            {
+                var matches = Regex.Matches(address, @"[A-Z]+:[A-Z]+");
+                foreach (var match in matches)
+                {
+                    var arr = match.ToString().Split(':');
+                    if (arr[1] == arr[0])
+                    {
+                        var replaceWith = string.Concat(arr[0], ":", ExcelPackage.MaxRows.ToString());
+                        address = address.Replace(match.ToString(), replaceWith);
+                    }
+                    else
+                    {
+                        address = string.Format("{0}{1}:{2}{1}", arr[0], ExcelPackage.MaxRows, arr[1]);
+                    }
+                }
+            }
+            return address;
         }
 
         private void SetNullableBoolValue(string path, bool? val)
