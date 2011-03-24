@@ -38,7 +38,7 @@ using OfficeOpenXml.DataValidation.Contracts;
 namespace OfficeOpenXml.DataValidation
 {
     /// <summary>
-    /// Validation for times (<see cref="OpenOfficeXml.DataValidation.ExcelTime"/>).
+    /// Validation for times (<see cref="OfficeOpenXml.DataValidation.ExcelTime"/>).
     /// </summary>
     public class ExcelDataValidationTime : ExcelDataValidationWithFormula2<IExcelDataValidationFormulaTime>, IExcelDataValidationTime
     {

@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenOfficeXml.DataValidation;
+using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation;
 
 namespace ExcelPackageTest.DataValidation.Formulas

@@ -117,6 +117,8 @@
     <Compile Include="DataValidation\ExcelDataValidationDecimal.cs" />
     <Compile Include="DataValidation\ExcelDataValidationList.cs" />
     <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\IRangeDataValidation.cs" />
+    <Compile Include="DataValidation\RangeDataValidation.cs" />
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
@@ -172,6 +174,7 @@
     <Compile Include="Utils\ArgumentExtensions.cs" />
     <Compile Include="Utils\IArgument.cs" />
     <Compile Include="Utils\Require.cs" />
+    <Compile Include="Utils\SqRefUtility.cs" />
     <Compile Include="XmlHelper.cs" />
     <Compile Include="XmlHelperFactory.cs" />
   </ItemGroup>

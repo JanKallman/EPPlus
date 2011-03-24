@@ -227,11 +227,7 @@ namespace OfficeOpenXml.DataValidation
             return item;
         }
 
-        /// <summary>
-        /// Adds a <see cref="IExcelDataValidationTime"/> to the worksheet.
-        /// </summary>
-        /// <param name="address">The range/address to validate</param>
-        /// <returns></returns>
+        
         public IExcelDataValidationTime AddTimeValidation(string address)
         {
             ValidateAddress(address);
@@ -264,7 +260,7 @@ namespace OfficeOpenXml.DataValidation
         {
             if (!(item is ExcelDataValidation))
             {
-                throw new InvalidCastException("The supplied item must inherit OpenOfficeXml.DataValidation.ExcelDataValidation");
+                throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
             }
             Require.Argument(item).IsNotNull("item");
             TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
@@ -344,7 +340,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 if (!(m is ExcelDataValidation))
                 {
-                    throw new InvalidCastException("The supplied item must inherit OpenOfficeXml.DataValidation.ExcelDataValidation");
+                    throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
                 }
                 TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(((ExcelDataValidation)m).TopNode);
             }

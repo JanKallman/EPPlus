@@ -115,5 +115,25 @@ namespace ExcelPackageTest.DataValidation
             validation.Validate();
         }
 
+        [TestMethod]
+        public void ExcelDataValidation_ShouldReplaceLastPartInWholeColumnRangeWithMaxNumberOfRowsOneColumn()
+        {
+            // Act
+            var validation = _sheet.DataValidations.AddIntegerValidation("A:A");
+
+            // Assert
+            Assert.AreEqual("A:" + ExcelPackage.MaxRows.ToString(), validation.Address.Address);
+        }
+
+        [TestMethod]
+        public void ExcelDataValidation_ShouldReplaceLastPartInWholeColumnRangeWithMaxNumberOfRowsDifferentColumns()
+        {
+            // Act
+            var validation = _sheet.DataValidations.AddIntegerValidation("A:B");
+
+            // Assert
+            Assert.AreEqual(string.Format("A{0}:B{0}", ExcelPackage.MaxRows), validation.Address.Address);
+        }
+
     }
 }
