@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
 using System.IO;
+using OfficeOpenXml;
 
 namespace ExcelPackageTest.DataValidation.IntegrationTests
 {
@@ -86,6 +87,15 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
             validation.Validate();
 
             _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeTime.xlsx")));
+        }
+
+        [TestMethod]
+        public void DataValidations_ReadExistingWorkbookWithDataValidations()
+        {
+            using (var package = new ExcelPackage(new FileInfo(GetTestOutputPath("DVTest.xlsx"))))
+            {
+                Assert.AreEqual(3, package.Workbook.Worksheets[1].DataValidations.Count);
+            }
         }
     }
 }

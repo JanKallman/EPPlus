@@ -86,7 +86,7 @@ namespace OfficeOpenXml.DataValidation
                 foreach (XmlNode node in dataValidationNodes)
                 {
                     var addr = node.Attributes["sqref"].Value;
-                    var dataValidationType = (eDataValidationType)Enum.Parse(typeof(eDataValidationType), node.Attributes["type"].Value);
+                    var dataValidationType = (eDataValidationType)Enum.Parse(typeof(eDataValidationType), node.Attributes["type"].Value, true);
                     var type = ExcelDataValidationType.GetByValidationType(dataValidationType);
                     _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
