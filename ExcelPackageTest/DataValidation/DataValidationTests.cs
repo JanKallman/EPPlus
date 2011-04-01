@@ -122,7 +122,7 @@ namespace ExcelPackageTest.DataValidation
             var validation = _sheet.DataValidations.AddIntegerValidation("A:A");
 
             // Assert
-            Assert.AreEqual("A:" + ExcelPackage.MaxRows.ToString(), validation.Address.Address);
+            Assert.AreEqual("A1:A" + ExcelPackage.MaxRows.ToString(), validation.Address.Address);
         }
 
         [TestMethod]
@@ -132,7 +132,7 @@ namespace ExcelPackageTest.DataValidation
             var validation = _sheet.DataValidations.AddIntegerValidation("A:B");
 
             // Assert
-            Assert.AreEqual(string.Format("A{0}:B{0}", ExcelPackage.MaxRows), validation.Address.Address);
+            Assert.AreEqual(string.Format("A1:B{0}", ExcelPackage.MaxRows), validation.Address.Address);
         }
 
     }

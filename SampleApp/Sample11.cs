@@ -82,7 +82,7 @@ namespace EPPlusSamples
             // add a validation and set values
             var validation = sheet.DataValidations.AddIntegerValidation("A1:A2");
             // Alternatively:
-            //var validation = sheet.Cells["A1:A2"].AddIntegerDataValidation();
+            //var validation = sheet.Cells["A1:A2"].DataValidation.AddIntegerDataValidation();
             validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
             validation.PromptTitle = "Enter a integer value here";
             validation.Prompt = "Value should be between 1 and 5";
@@ -113,7 +113,7 @@ namespace EPPlusSamples
             // add a validation and set values
             var validation = sheet.DataValidations.AddListValidation("A1");
             // Alternatively:
-            // var validation = sheet.Cells["A1"].AddListDataValidation();
+            // var validation = sheet.Cells["A1"].DataValidation.AddListDataValidation();
             validation.ShowErrorMessage = true;
             validation.ErrorStyle = ExcelDataValidationWarningStyle.warning;
             validation.ErrorTitle = "An invalid value was entered";
@@ -156,7 +156,7 @@ namespace EPPlusSamples
             // add a validation and set values
             var validation = sheet.DataValidations.AddTimeValidation("A1");
             // Alternatively:
-            // var validation = sheet.Cells["A1"].AddTimeDataValidation();
+            // var validation = sheet.Cells["A1"].DataValidation.AddTimeDataValidation();
             validation.ShowErrorMessage = true;
             validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
             validation.ShowInputMessage = true;
@@ -176,7 +176,7 @@ namespace EPPlusSamples
             // add a validation and set values
             var validation = sheet.DataValidations.AddDateTimeValidation("A1");
             // Alternatively:
-            // var validation = sheet.Cells["A1"].AddDateTimeDataValidation();
+            // var validation = sheet.Cells["A1"].DataValidation.AddDateTimeDataValidation();
             validation.ShowErrorMessage = true;
             validation.ErrorStyle = ExcelDataValidationWarningStyle.stop;
             validation.Error = "Invalid date!";
