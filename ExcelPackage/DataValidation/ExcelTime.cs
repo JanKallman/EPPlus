@@ -253,5 +253,14 @@ namespace OfficeOpenXml.DataValidation
             return ToExcelTime().ToString(CultureInfo.InvariantCulture);
         }
 
+        public override string ToString()
+        {
+            var second = Second ?? 0;
+            return string.Format("{0}:{1}:{2}",
+                Hour < 10 ? "0" + Hour.ToString() : Hour.ToString(),
+                Minute < 10 ? "0" + Minute.ToString() : Minute.ToString(),
+                second < 10 ? "0" + second.ToString() : second.ToString());
+        }
+
     }
 }

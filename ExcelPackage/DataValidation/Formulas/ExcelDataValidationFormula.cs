@@ -93,11 +93,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
         {
             get
             {
-                if(string.IsNullOrEmpty(_formula))
-                {
-                    return _formula;
-                }
-                return SqRefUtility.FromSqRefAddress(_formula);
+                return _formula;
             }
             set
             {
@@ -106,9 +102,9 @@ namespace OfficeOpenXml.DataValidation.Formulas
                     ResetValue();
                     State = FormulaState.Formula;
                 }
-                var val = SqRefUtility.ToSqRefAddress(value);
-                _formula = val;
-                SetXmlNodeString(FormulaPath, val);
+                //var val = SqRefUtility.ToSqRefAddress(value);
+                _formula = value;
+                SetXmlNodeString(FormulaPath, value);
             }
         }
 

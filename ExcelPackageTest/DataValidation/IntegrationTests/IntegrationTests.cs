@@ -62,7 +62,7 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         [TestMethod]
         public void DataValidations_AddOneValidationOfTypeListOfTypeList()
         {
-            var validation = _sheet.DataValidations.AddListValidation("A1");
+            var validation = _sheet.DataValidations.AddListValidation("A:A");
             validation.ShowErrorMessage = true;
             validation.ShowInputMessage = true;
             validation.Formula.Values.Add("1");
