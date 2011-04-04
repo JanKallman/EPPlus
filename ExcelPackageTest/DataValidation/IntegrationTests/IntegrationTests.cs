@@ -133,7 +133,5 @@ namespace ExcelPackageTest.DataValidation.IntegrationTests
         //        package.Save();
         //    }
 
-
-        }
     }
 }
