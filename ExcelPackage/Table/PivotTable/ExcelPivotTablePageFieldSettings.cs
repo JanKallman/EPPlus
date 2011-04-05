@@ -36,7 +36,7 @@ namespace OfficeOpenXml.Table.PivotTable
     public class ExcelPivotTablePageFieldSettings  : XmlHelper
     {
         ExcelPivotTableField _field;
-        public ExcelPivotTablePageFieldSettings(XmlNamespaceManager ns, XmlNode topNode, ExcelPivotTableField field, int index) :
+        internal ExcelPivotTablePageFieldSettings(XmlNamespaceManager ns, XmlNode topNode, ExcelPivotTableField field, int index) :
             base(ns, topNode)
         {
             Index = index;

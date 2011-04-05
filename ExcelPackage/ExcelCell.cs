@@ -47,8 +47,9 @@ namespace OfficeOpenXml
         private int _row;
         private int _col;
 		internal string _formula="";
-		private Uri _hyperlink=null;
-        private byte _flags;
+        internal string _formulaR1C1 = "";
+        private Uri _hyperlink = null;
+        string _dataType = "";
         #endregion
 		#region ExcelCell Constructor
 		/// <summary>
@@ -143,7 +144,6 @@ namespace OfficeOpenXml
 		#endregion  
 
         #region ExcelCell DataType
-        string _dataType = "";
         /// <summary>
         /// Gets/sets the cell's data type.  
         /// Not currently implemented correctly!
@@ -328,7 +328,6 @@ namespace OfficeOpenXml
                 }
 			}
         }
-        internal string _formulaR1C1="";
         /// <summary>
         /// Provides read/write access to the cell's formula using R1C1 style.
         /// </summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -12,8 +13,8 @@ namespace OfficeOpenXml.Drawing.Chart
     public class ExcelLineChart  : ExcelChart
     {
         #region "Constructors"
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
+        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
+            base(drawings, node, type, isPivot)
         {
             //_chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
         }
@@ -29,8 +30,8 @@ namespace OfficeOpenXml.Drawing.Chart
         {
            // _chartTopPath = string.Format(_chartTopPath, chartNode.Name);
         }
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
-            base(drawings, node, type, topChart)
+        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+            base(drawings, node, type, topChart, PivotTableSource)
         {
             //_chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
         }
@@ -48,6 +49,21 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 SetXmlNodeBool(MARKER_PATH, value, false);
+            }
+        }
+        string SMOOTH_PATH = "c:smooth/@val";
+        /// <summary>
+        /// If the series has smooth lines
+        /// </summary>
+        public bool Smooth
+        {
+            get
+            {
+                return GetXmlNodeBool(SMOOTH_PATH, false);
+            }
+            set
+            {
+                SetXmlNodeBool(SMOOTH_PATH, value, false);
             }
         }
         //string _chartTopPath = "c:chartSpace/c:chart/c:plotArea/{0}";

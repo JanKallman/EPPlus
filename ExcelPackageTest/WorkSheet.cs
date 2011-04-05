@@ -11,6 +11,7 @@ using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table.PivotTable;
+using System.Reflection;
 
 namespace ExcelPackageTest
 {
@@ -189,6 +190,13 @@ namespace ExcelPackageTest
             ws.Column(2).Width = 8;
             ws.Column(3).Width = 20;
             ws.Column(4).Width = 14;
+            
+            ws.Cells["A1:C1"].Merge = true;
+            ws.Cells["A2:A5"].Merge = true;
+            ws.DeleteRow(1, 1);
+            ws.InsertRow(1, 1);
+            ws.InsertRow(3, 1);
+            
             ws.DeleteRow(1000, 3, true);
             ws.DeleteRow(2000, 1, true);
 
@@ -351,6 +359,9 @@ namespace ExcelPackageTest
             ws.Cells["G1,G3"].Style.Font.UnderLine = true;
 
             ws.Cells["A1:G5"].Copy(ws.Cells["A50"]);
+
+            ws.Cells["2:3"].Copy(ws.Cells["50:51"]);
+
         }
         [TestMethod]
         public void WorksheetCopy()
@@ -377,10 +388,33 @@ namespace ExcelPackageTest
             ExcelPackage pack = new ExcelPackage(new FileInfo (file ));
             ExcelWorksheet w = pack.Workbook.Worksheets["delete"];
             w.DeleteRow(1, 2);
-            var d=w.GetCellValue<DateTime>(1, 1);
            
             pack.Save();
         }
+        [TestMethod]
+        public void LoadFromCollectionTest()
+        {                        
+            var ws = _pck.Workbook.Worksheets.Add("LoadFromCollection");
+            List<TestDTO> list = new List<TestDTO>();
+            list.Add(new TestDTO() { Id = 1, Name = "Item1", Boolean = false, Date = new DateTime(2011, 1, 1), dto = null, NameVar = "Field 1" });
+            list.Add(new TestDTO() { Id = 2, Name = "Item2", Boolean = true, Date = new DateTime(2011, 1, 15), dto = new TestDTO(), NameVar = "Field 2" });
+            list.Add(new TestDTO() { Id = 3, Name = "Item3", Boolean = false, Date = new DateTime(2011, 2, 1), dto = null, NameVar = "Field 3" });
+            list.Add(new TestDTO() { Id = 4, Name = "Item4", Boolean = true, Date = new DateTime(2011, 4, 19), dto = list[1], NameVar = "Field 4" });
+            list.Add(new TestDTO() { Id = 5, Name = "Item5", Boolean = false, Date = new DateTime(2011, 5, 8), dto = null, NameVar = "Field 5" });
+            list.Add(new TestDTO() { Id = 6, Name = "Item6", Boolean = true, Date = new DateTime(2010, 3, 27), dto = null, NameVar = "Field 6" });
+            list.Add(new TestDTO() { Id = 7, Name = "Item7", Boolean = false, Date = new DateTime(2009, 1, 5), dto = list[3], NameVar = "Field 7" });
+            list.Add(new TestDTO() { Id = 8, Name = "Item8", Boolean = true, Date = new DateTime(2018, 12, 31), dto = null, NameVar = "Field 8" });
+            list.Add(new TestDTO() { Id = 9, Name = "Item9", Boolean = false, Date = new DateTime(2010, 2, 1), dto = null, NameVar = "Field 9" });
+
+            ws.Cells["A1"].LoadFromCollection(list, true);
+            ws.Cells["A30"].LoadFromCollection(list, true, OfficeOpenXml.Table.TableStyles.Medium9, BindingFlags.Instance | BindingFlags.Instance, typeof(TestDTO).GetFields());
+
+            ws.Cells["A45"].LoadFromCollection(list, true, OfficeOpenXml.Table.TableStyles.Light1, BindingFlags.Instance | BindingFlags.Instance, new MemberInfo[] { typeof(TestDTO).GetMethod("GetNameID"), typeof(TestDTO).GetField("NameVar") });
+            ws.Cells["J1"].LoadFromCollection(from l in list where l.Boolean orderby l.Date select new { Name = l.Name, Id = l.Id, Date = l.Date, NameVariable = l.NameVar }, true, OfficeOpenXml.Table.TableStyles.Dark4);
+
+            var ints = new int[] {1,3,4,76,2,5};
+            ws.Cells["A15"].Value = ints;
+        }        
         static void Create(string file)
         {
             ExcelPackage pack = new ExcelPackage(new FileInfo(file));
@@ -495,6 +529,7 @@ namespace ExcelPackageTest
         {
             var ws = _pck.Workbook.Worksheets.Add("FormulaError");
 
+            ws.Cells["D5"].Formula = "COUNTIF(A1:A100,\"Miss\")";
             ws.Cells["A1:K3"].Formula = "A3+A4";
             ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP(RC[1]/10,0)*10";
 
@@ -997,6 +1032,7 @@ namespace ExcelPackageTest
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = true;
+            wsPivot6.Drawings.AddChart("Pivotchart6",OfficeOpenXml.Drawing.Chart.eChartType.BarStacked3D, pt);
 
             pt = wsPivot7.PivotTables.Add(wsPivot7.Cells["A3"], ws.Cells["K1:N11"], "Pivottable7");
             pt.PageFields.Add(pt.Fields[1]);
@@ -1046,7 +1082,16 @@ namespace ExcelPackageTest
 
             Assert.AreEqual(pivot1.DataOnRows, false);
 
-            var pivot2 = pck.Workbook.Worksheets[3].PivotTables[0];
-        }           
+            var pivot2 = pck.Workbook.Worksheets[2].PivotTables[0];
+            var pivot3 = pck.Workbook.Worksheets[3].PivotTables[0];
+
+            var pivot4 = pck.Workbook.Worksheets[4].PivotTables[0];
+            var pivot5 = pck.Workbook.Worksheets[5].PivotTables[0];
+            pivot5.CacheDefinition.SourceRange = pck.Workbook.Worksheets[1].Cells["Q1:X300"];
+            
+            var pivot6 = pck.Workbook.Worksheets[6].PivotTables[0];
+            pck.Workbook.Worksheets[6].Drawings.AddChart("chart1", OfficeOpenXml.Drawing.Chart.eChartType.ColumnStacked3D, pivot6);
+            pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
+        }
     }
 }

@@ -285,6 +285,7 @@ namespace OfficeOpenXml
             }
             SetAddress(ref first, ref second, ref hasSheet);
         }
+        #region Address manipulation methods
         internal eAddressCollition Collide(ExcelAddressBase address)
         {
             if (address.WorkSheet != WorkSheet)
@@ -310,7 +311,90 @@ namespace OfficeOpenXml
             }
             else
                 return eAddressCollition.Partly;
+        }        
+        internal ExcelAddressBase AddRow(int row, int rows)
+        {
+            if (row > _toRow)
+            {
+                return this;
+            }
+            else if (row <= _fromRow)
+            {
+                return new ExcelAddressBase(_fromRow + rows, _fromCol, _toRow + rows, _toCol);
+            }
+            else
+            {
+                return new ExcelAddressBase(_fromRow, _fromCol, _toRow + rows, _toCol);
+            }
         }
+        internal ExcelAddressBase DeleteRow(int row, int rows)
+        {
+            if (row > _toRow) //After
+            {
+                return this;
+            }            
+            else if (row+rows <= _fromRow) //Before
+            {
+                return new ExcelAddressBase(_fromRow - rows, _fromCol, _toRow - rows, _toCol);
+            }
+            else if (row <= _fromRow && row + rows > _toRow) //Inside
+            {
+                return null;
+            }
+            else  //Partly
+            {
+                if (row <= _fromRow)
+                {
+                    return new ExcelAddressBase(row, _fromCol, _toRow - rows, _toCol);
+                }
+                else
+                {
+                    return new ExcelAddressBase(_fromRow, _fromCol, _toRow - rows < row ? row - 1 : _toRow - rows, _toCol);
+                }
+            }
+        }
+        internal ExcelAddressBase AddColumn(int col, int cols)
+        {
+            if (col > _toCol)
+            {
+                return this;
+            }
+            else if (col <= _fromCol)
+            {
+                return new ExcelAddressBase(_fromRow, _fromCol + cols, _toRow, _toCol + cols);
+            }
+            else
+            {
+                return new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol + cols);
+            }
+        }
+        internal ExcelAddressBase DeleteColumn(int col, int cols)
+        {
+            if (col > _toCol) //After
+            {
+                return this;
+            }
+            else if (col + cols <= _fromRow) //Before
+            {
+                return new ExcelAddressBase(_fromRow, _fromCol - cols, _toRow, _toCol - cols);
+            }
+            else if (col <= _fromCol && col + cols > _toCol) //Inside
+            {
+                return null;
+            }
+            else  //Partly
+            {
+                if (col <= _fromCol)
+                {
+                    return new ExcelAddressBase(_fromRow, col, _toRow, _toCol - cols);
+                }
+                else
+                {
+                    return new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol - cols < col ? col - 1 : _toCol - cols);
+                }
+            }
+        }
+        #endregion
         private void SetAddress(ref string first, ref string second, ref bool hasSheet)
         {
             string ws, address;

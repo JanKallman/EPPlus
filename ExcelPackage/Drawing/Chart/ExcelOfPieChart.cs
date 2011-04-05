@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -16,13 +17,13 @@ namespace OfficeOpenXml.Drawing.Chart
         //{
 
         //}
-        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
+        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
+            base(drawings, node, type, isPivot)
         {
                 SetTypeProperties();
         }
-        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
-            base(drawings, node, type, topChart)
+        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+            base(drawings, node, type, topChart, PivotTableSource)
         {
             SetTypeProperties();
         }

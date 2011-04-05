@@ -61,6 +61,9 @@ namespace OfficeOpenXml
             get;
             set;
         }
+        /// <summary>
+        /// A reference to the worksheet object
+        /// </summary>
         public ExcelWorksheet Worksheet
         {
             get;
@@ -73,6 +76,11 @@ namespace OfficeOpenXml
                 return _comments.Count;
             }
         }
+        /// <summary>
+        /// Indexer for the comments collection
+        /// </summary>
+        /// <param name="Index">The index</param>
+        /// <returns>The comment</returns>
         public ExcelComment this[int Index]
         {
             get
@@ -84,6 +92,11 @@ namespace OfficeOpenXml
                 return _comments[Index] as ExcelComment;
             }
         }
+        /// <summary>
+        /// Indexer for the comments collection
+        /// </summary>
+        /// <param name="cell">The cell</param>
+        /// <returns>The comment</returns>
         public ExcelComment this[ExcelCellAddress cell]
         {
             get
@@ -126,8 +139,8 @@ namespace OfficeOpenXml
         {
             return _comments;
         }
-
         #endregion
-    
-}
+
+
+    }
 }

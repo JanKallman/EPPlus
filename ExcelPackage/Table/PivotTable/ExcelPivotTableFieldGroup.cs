@@ -37,7 +37,7 @@ namespace OfficeOpenXml.Table.PivotTable
 {
     public class ExcelPivotTableFieldGroup : XmlHelper
     {
-        public ExcelPivotTableFieldGroup(XmlNamespaceManager ns, XmlNode topNode) :
+        internal ExcelPivotTableFieldGroup(XmlNamespaceManager ns, XmlNode topNode) :
             base(ns, topNode)
         {
             

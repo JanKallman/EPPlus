@@ -34,6 +34,7 @@ using System.Text;
 using System.Xml;
 using System.IO.Packaging;
 using System.IO;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -260,7 +261,40 @@ namespace OfficeOpenXml.Drawing.Chart
         Style47,
         Style48
     }
+    public enum eTrendLine
+    {
+        /// <summary>
+        /// No trendline
+        /// </summary>
+        None,
+        /// <summary>
+        /// Specifies the trendline shall be an exponential curve in the form
+        /// </summary>
+        Exponential,
+        /// <summary>
+        /// Specifies the trendline shall be a logarithmic curve in the form , where log is the natural
+        /// </summary>
+        Linear,
+        /// <summary>
+        /// Specifies the trendline shall be a logarithmic curve in the form , where log is the natural
+        /// </summary>
+        Logarithmic,
+        /// <summary>
+        /// Specifies the trendline shall be a moving average of period Period
+        /// </summary>
+        MovingAvgerage,
+        /// <summary>
+        /// Specifies the trendline shall be a polynomial curve of order Order in the form 
+        /// </summary>
+        Polynomial,
+        /// <summary>
+        /// Specifies the trendline shall be a power curve in the form
+        /// </summary>
+        Power
+    }
     #endregion
+    
+    
     /// <summary>
    /// Base class for Chart object.
    /// </summary>
@@ -272,7 +306,7 @@ namespace OfficeOpenXml.Drawing.Chart
        internal ExcelChartAxis[] _axis;
        protected XmlHelper _chartXmlHelper;
        #region "Constructors"
-       internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
+       internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
            ChartType = type;
@@ -280,12 +314,12 @@ namespace OfficeOpenXml.Drawing.Chart
 
            Init(drawings, _chartNode);
 
-           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode /*ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager)*/);
+           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode, isPivot);
 
            SetTypeProperties(drawings);
            LoadAxis();
        }
-       internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
+       internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
            ChartType = type;
@@ -293,7 +327,8 @@ namespace OfficeOpenXml.Drawing.Chart
 
            Init(drawings, _chartNode);
 
-           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode);
+           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode, PivotTableSource!=null);
+           if (PivotTableSource != null) SetPivotSource(PivotTableSource);
 
            SetTypeProperties(drawings);
            if (topChart == null)
@@ -332,8 +367,9 @@ namespace OfficeOpenXml.Drawing.Chart
        private void InitChartLoad(ExcelDrawings drawings, XmlNode chartNode)
        {
            //SetChartType();
+           bool isPivot = false;
            Init(drawings, chartNode);
-           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode /*ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager)*/);
+           _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode, isPivot /*ChartXml.SelectSingleNode(_chartPath, drawings.NameSpaceManager)*/);
            LoadAxis();
        }
 
@@ -341,7 +377,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "shape", "legend", "overlap", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "overlap", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
@@ -450,35 +486,35 @@ namespace OfficeOpenXml.Drawing.Chart
            if(_axis.Length > 0) XAxis = _axis[0];
            if (_axis.Length > 1) YAxis = _axis[1];
        }
-       private void SetChartType()
-       {
-           ChartType = 0;
-           //_plotArea = new ExcelChartPlotArea(NameSpaceManager, ChartXml.SelectSingleNode("c:chartSpace/c:chart/c:plotArea", NameSpaceManager));
-           int pos=0;
-           foreach (XmlElement n in ChartXml.SelectSingleNode(rootPath, _drawings.NameSpaceManager).ChildNodes)
-           {
-               if (pos == 0)
-               {
-                   ChartType = GetChartType(n.Name);
-                   if (ChartType != 0)
-                   {
-                       //_chartPath = rootPath + "/" + n.Name;
-                       PlotArea.ChartTypes.Add(this);
-                   }
-               }
-               else
-               {
-                   var chartSerieType = GetChart(_drawings, TopNode/*, n*/);
-                   chartSerieType = GetChart(n, _drawings, TopNode, UriChart, Part, ChartXml, null);
-                   PlotArea.ChartTypes.Add(chartSerieType);
-                   //var chartType = GetChartType(n.Name);
-               }
-               if (ChartType != 0)
-               {
-                   pos++;
-               }
-           }
-       }
+       //private void SetChartType()
+       //{
+       //    ChartType = 0;
+       //    //_plotArea = new ExcelChartPlotArea(NameSpaceManager, ChartXml.SelectSingleNode("c:chartSpace/c:chart/c:plotArea", NameSpaceManager));
+       //    int pos=0;
+       //    foreach (XmlElement n in ChartXml.SelectSingleNode(rootPath, _drawings.NameSpaceManager).ChildNodes)
+       //    {
+       //        if (pos == 0)
+       //        {
+       //            ChartType = GetChartType(n.Name);
+       //            if (ChartType != 0)
+       //            {
+       //                //_chartPath = rootPath + "/" + n.Name;
+       //                PlotArea.ChartTypes.Add(this);
+       //            }
+       //        }
+       //        else
+       //        {
+       //            var chartSerieType = GetChart(_drawings, TopNode/*, n*/);
+       //            chartSerieType = GetChart(n, _drawings, TopNode, UriChart, Part, ChartXml, null, isPivot);
+       //            PlotArea.ChartTypes.Add(chartSerieType);
+       //            //var chartType = GetChartType(n.Name);
+       //        }
+       //        if (ChartType != 0)
+       //        {
+       //            pos++;
+       //        }
+       //    }
+       //}
 
        internal virtual eChartType GetChartType(string name)
        {
@@ -1591,7 +1627,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    return null;
            }       
        }
-       internal static ExcelChart GetNewChart(ExcelDrawings drawings, XmlNode drawNode, eChartType chartType, ExcelChart topChart)
+       internal static ExcelChart GetNewChart(ExcelDrawings drawings, XmlNode drawNode, eChartType chartType, ExcelChart topChart, ExcelPivotTable PivotTableSource)
        {
             switch(chartType)
             {
@@ -1599,13 +1635,13 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.PieExploded:
                 case eChartType.Pie3D:
                 case eChartType.PieExploded3D:
-                    return new ExcelPieChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelPieChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 case eChartType.BarOfPie:
                 case eChartType.PieOfPie:
-                    return new ExcelOfPieChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelOfPieChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 case eChartType.Doughnut:
                 case eChartType.DoughnutExploded:
-                    return new ExcelDoughnutChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelDoughnutChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 case eChartType.BarClustered:
                 case eChartType.BarStacked:
                 case eChartType.BarStacked100:
@@ -1640,13 +1676,13 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.PyramidColClustered:
                 case eChartType.PyramidColStacked:
                 case eChartType.PyramidColStacked100:
-                    return new ExcelBarChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelBarChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 case eChartType.XYScatter:
                 case eChartType.XYScatterLines:
                 case eChartType.XYScatterLinesNoMarkers:
                 case eChartType.XYScatterSmooth:
                 case eChartType.XYScatterSmoothNoMarkers:
-                    return new ExcelScatterChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelScatterChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 case eChartType.Line:
                 case eChartType.Line3D:
                 case eChartType.LineMarkers:
@@ -1654,10 +1690,30 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.LineMarkersStacked100:
                 case eChartType.LineStacked:
                 case eChartType.LineStacked100:
-                    return new ExcelLineChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelLineChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 default:
-                    return new ExcelChart(drawings, drawNode, chartType, topChart);
+                    return new ExcelChart(drawings, drawNode, chartType, topChart, PivotTableSource);
             }
         }
+        public ExcelPivotTable PivotTableSource
+        {
+            get;
+            private set;
+        }
+       internal void SetPivotSource(ExcelPivotTable pivotTableSource)
+       {
+           PivotTableSource = pivotTableSource;
+           XmlElement chart = ChartXml.SelectSingleNode("c:chartSpace/c:chart", NameSpaceManager) as XmlElement;
+
+           var pivotSource = ChartXml.CreateElement("pivotSource", ExcelPackage.schemaChart);
+           chart.ParentNode.InsertBefore(pivotSource, chart);
+           pivotSource.InnerXml = string.Format("<c:name>[]{0}!{1}</c:name><c:fmtId val=\"0\"/>", PivotTableSource.WorkSheet.Name, pivotTableSource.Name);
+
+           var fmts = ChartXml.CreateElement("pivotFmts", ExcelPackage.schemaChart);
+           chart.PrependChild(fmts);
+           fmts.InnerXml = "<c:pivotFmt><c:idx val=\"0\"/><c:marker><c:symbol val=\"none\"/></c:marker></c:pivotFmt>";
+
+           Series.AddPivotSerie(pivotTableSource);
+       }
     }
 }

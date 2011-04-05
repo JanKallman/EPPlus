@@ -35,7 +35,6 @@ using System;
 using System.Xml;
 using System.IO;
 using System.IO.Packaging;
-
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -297,7 +296,7 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                 {
-                    if (password == null && EncryptedPackageHandler.StgIsStorageFile(template.FullName)==0)
+                    if (password == null && EncryptedPackageHandler.IsStorageFile(template.FullName)==0)
                     {
                         throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                     }
@@ -317,7 +316,7 @@ namespace OfficeOpenXml
             if (File != null) File.Refresh();
             if (File != null && File.Exists)
             {
-                if (password != null)
+                  if (password != null)
                 {
                     var encrHandler = new EncryptedPackageHandler();
                     Encryption.IsEncrypted = true;
@@ -327,23 +326,22 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    byte[] b = System.IO.File.ReadAllBytes(File.FullName);
-                    _stream.Write(b, 0, b.Length);
+                    ReadFile();
                 }
                 try
                 {
                     _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
                 }
                 catch (Exception ex)
-                {
-                    if (password == null && EncryptedPackageHandler.StgIsStorageFile(File.FullName) == 0)
-                    {
-                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
-                    }
-                    else
-                    {
-                        throw (ex);
-                    }
+               {
+                   if (password == null && EncryptedPackageHandler.IsStorageFile(File.FullName) == 0)
+                   {
+                       throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                   }
+                   else
+                   {
+                       throw (ex);
+                   }
                 }
             }
             else
@@ -351,6 +349,12 @@ namespace OfficeOpenXml
                 _package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
                 CreateBlankWb();
             }
+        }
+
+        private void ReadFile()
+        {
+            byte[] b = System.IO.File.ReadAllBytes(File.FullName);
+            _stream.Write(b, 0, b.Length);
         }
         private void CreateBlankWb()
         {
@@ -822,7 +826,7 @@ namespace OfficeOpenXml
             catch (Exception ex)
             {
                 EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                if (Password == null && EncryptedPackageHandler.StgIsStorageILockBytes(eph.GetLockbyte((MemoryStream)_stream)) == 0)
+                if (Password == null && EncryptedPackageHandler.IsStorageILockBytes(eph.GetLockbyte((MemoryStream)_stream)) == 0)
                 {
                     throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                 }

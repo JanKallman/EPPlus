@@ -42,6 +42,7 @@ using System.IO;
 using System.Linq;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
+using System.Reflection;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -49,13 +50,16 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
     {
-        protected ExcelWorksheet _worksheet;
+        /// <summary>
+        /// Reference to the worksheet
+        /// </summary>
+        protected ExcelWorksheet _worksheet;        
         private ExcelWorkbook _wb=null;
         private delegate void _changeProp(_setValue method, object value);
         private delegate void _setValue(object value, int row, int col);
         private _changeProp _changePropMethod;
         private int _styleID;
-        #region "Constructors"
+        #region Constructors
         protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
         {
             _worksheet = xlWorksheet;
@@ -312,7 +316,7 @@ namespace OfficeOpenXml
                 }
             }
         }
-        #region "Public Properties"
+        #region Public Properties
         /// <summary>
         /// The styleobject for the range.
         /// </summary>
@@ -403,6 +407,27 @@ namespace OfficeOpenXml
                 {
                     _changePropMethod(Set_Value, value);
                 }
+            }
+        }
+        public string FormatedText
+        {
+            get
+            {
+                object v = Value;
+                if (v is decimal || v.GetType().IsPrimitive)
+                {
+                    var nf = Style.Numberformat.Format;
+
+                }
+                else if(v is DateTime || v is TimeSpan)
+                {
+
+                }
+                else
+                {
+                    return v.ToString();
+                }
+                return v.ToString();
             }
         }
         /// <summary>
@@ -736,7 +761,7 @@ namespace OfficeOpenXml
         }
 
         #endregion
-        #region "Private Methods"
+        #region Private Methods
         /// <summary>
         /// Check if the range is partly merged
         /// </summary>
@@ -984,8 +1009,76 @@ namespace OfficeOpenXml
                 }
             }
         }
+        private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
+        {
+            if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return v;
+
+            double d;
+            DateTime dt;
+            if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == eDataTypes.Unknown)
+            {
+                string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+                {
+                    if (v2 == v)
+                    {
+                        return d;
+                    }
+                    else
+                    {
+                        return d / 100;
+                    }
+                }
+                if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                {
+                    return dt;
+                }
+                else
+                {
+                    return v;
+                }
+            }
+            else
+            {
+                switch (Format.DataTypes[col])
+                {
+                    case eDataTypes.Number:
+                        if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    case eDataTypes.DateTime:
+                        if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                        {
+                            return dt;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    case eDataTypes.Percent:
+                        string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                        if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d / 100;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+
+                    default:
+                        return v;
+
+                }
+            }
+        }
         #endregion
-        #region "Public Methods"
+        #region Public Methods
         #region DataValidation
         
         /// <summary>
@@ -999,7 +1092,7 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-        #region "LoadFromDataTable"
+        #region LoadFromDataTable
         /// <summary>
         /// Load the data from the datatable starting from the top left cell of the range
         /// </summary>
@@ -1051,7 +1144,7 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-
+        #region LoadFromArrays
         /// <summary>
 		/// Loads data from the collection of arrays of objects into the range, starting from
 		/// the top-left cell.
@@ -1076,6 +1169,123 @@ namespace OfficeOpenXml
 			}
             return _worksheet.Cells[_fromRow,_fromCol, row-1, column-1];
 		}
+        #endregion
+        #region LoadFromCollection
+        /// <summary>
+        /// Load a collection into a the worksheet startng from the top left row of the range.
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection)
+        {
+            return LoadFromCollection<T>(Collection, false, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection of T into the worksheet starting from the top left row of the range.
+        /// Default option will load all public instance properties of T
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders)
+        {
+            return LoadFromCollection<T>(Collection, PrintHeaders, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection of T into the worksheet starting from the top left row of the range.
+        /// Default option will load all public instance properties of T
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <param name="TableStyle">Will creata a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle)
+        {
+            return LoadFromCollection<T>(Collection, PrintHeaders, TableStyle, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection into the worksheet starting from the top left row of the range.
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <param name="TableStyle">Will creata a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <param name="memberFlags">Property flags to use</param>
+        /// <param name="Members">The properties to output. Must be of type T</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members)
+        {
+            var type = typeof(T);
+            if (Members == null)
+            {
+                Members = type.GetProperties(memberFlags);
+            }
+            else
+            {
+                foreach (var t in Members)
+                {
+                    if (t.DeclaringType != type)
+                    {
+                        throw (new Exception("Supplied properties in parameter Properties must be of the same type as T"));
+                    }
+                }
+            }
+
+            int col=_fromCol, row=_fromRow;
+            if (Members.Length > 0 && PrintHeaders)
+            {
+                foreach (var t in Members)
+                {
+                    _worksheet.Cell(row, col++).Value = t.Name;
+                }
+                row++;
+            }
+
+            if (Members.Length == 0)
+            {
+                foreach (var item in Collection)
+                {
+                    _worksheet.Cells[row++, col].Value = item;
+                }
+            }
+            else
+            {
+                foreach (var item in Collection)
+                {
+                    col = _fromCol;
+                    foreach (var t in Members)
+                    {
+                        if (t is PropertyInfo)
+                        {
+                            _worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
+                        }
+                        else if (t is FieldInfo)
+                        {
+                            _worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
+                        }
+                        else if (t is MethodInfo)
+                        {
+                            _worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                        }
+                    }
+                    row++;
+                }
+            }
+            
+            var r=_worksheet.Cells[_fromRow, _fromCol, row-1, col];
+
+            if (TableStyle != TableStyles.None)
+            {
+                var tbl=_worksheet.Tables.Add(r, "");
+                tbl.ShowHeader = PrintHeaders;
+                tbl.TableStyle = TableStyle;
+            }
+            return r;
+        }
+        #endregion
         #region LoadFromText
         /// <summary>
         /// Loads a CSV text into a range starting from the top left cell.
@@ -1222,74 +1432,6 @@ namespace OfficeOpenXml
             return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
         }
         #endregion
-        private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
-        {
-            if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return v;
-
-            double d;
-            DateTime dt;
-            if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == eDataTypes.Unknown)
-            {
-                string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-                if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
-                {
-                    if (v2 == v)
-                    {
-                        return d;
-                    }
-                    else
-                    {
-                        return d / 100;
-                    }
-                }
-                if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
-                {
-                    return dt;
-                }
-                else
-                {
-                    return v;
-                }
-            }
-            else
-            {
-                switch (Format.DataTypes[col])
-                {
-                    case eDataTypes.Number:
-                        if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
-                        {
-                            return d;
-                        }
-                        else
-                        {
-                            return v;
-                        }
-                    case eDataTypes.DateTime:
-                        if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
-                        {
-                            return dt;
-                        }
-                        else
-                        {
-                            return v;
-                        }
-                    case eDataTypes.Percent:
-                        string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-                        if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
-                        {
-                            return d / 100;
-                        }
-                        else
-                        {
-                            return v;
-                        }
-
-                    default:
-                        return v;
-
-                }
-            }
-        }
         /// <summary>
         /// Get a range with an offset from the top left cell.
         /// The new range has the same dimensions as the current range

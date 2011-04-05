@@ -37,6 +37,7 @@ using System.Collections;
 using System.IO;
 using System.Drawing;
 using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
@@ -227,7 +228,7 @@ namespace OfficeOpenXml.Drawing
             /// <param name="Name"></param>
             /// <param name="ChartType">Type of chart</param>
             /// <returns></returns>
-            public ExcelChart AddChart(string Name, eChartType ChartType)
+            public ExcelChart AddChart(string Name, eChartType ChartType, ExcelPivotTable PivotTableSource)
             {
                 if(_drawingNames.ContainsKey(Name.ToLower()))
                 {
@@ -252,12 +253,15 @@ namespace OfficeOpenXml.Drawing
 
                 XmlElement drawNode = CreateDrawingXml();
 
-                
-                ExcelChart chart = ExcelChart.GetNewChart(this, drawNode, ChartType, null);
+                ExcelChart chart = ExcelChart.GetNewChart(this, drawNode, ChartType, null, PivotTableSource);
                 chart.Name = Name;
                 _drawings.Add(chart);
                 _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                 return chart;
+            }
+            public ExcelChart AddChart(string Name, eChartType ChartType)
+            {
+                return AddChart(Name, ChartType, null);
             }
             /// <summary>
             /// Add a picure to the worksheet

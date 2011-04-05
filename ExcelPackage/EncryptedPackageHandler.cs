@@ -201,12 +201,12 @@ namespace OfficeOpenXml
     /// Handels encrypted Excel documents 
     /// </summary>
     internal class EncryptedPackageHandler
-    {
+    {        
         [DllImport("ole32.dll")]
-        internal static extern int StgIsStorageFile(
+        private static extern int StgIsStorageFile(
             [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
         [DllImport("ole32.dll")]
-        internal static extern int StgIsStorageILockBytes(
+        private static extern int StgIsStorageILockBytes(
             ILockBytes plkbyt);
 
 
@@ -232,8 +232,17 @@ namespace OfficeOpenXml
             IntPtr hGlobal,
             bool fDeleteOnRelease,
             out ILockBytes ppLkbyt);
+
         [DllImport("ole32.dll")]
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
+        internal static int IsStorageFile(string Name)
+        {
+            return StgIsStorageFile(Name);
+        }
+        internal static int IsStorageILockBytes(ILockBytes lb)
+        {
+            return StgIsStorageILockBytes(lb);
+        }
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -300,7 +309,6 @@ namespace OfficeOpenXml
 
             return ret;
         }
-
         internal ILockBytes GetLockbyte(MemoryStream stream)
         {
             ILockBytes lb;

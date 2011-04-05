@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Globalization;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -46,13 +47,13 @@ namespace OfficeOpenXml.Drawing.Chart
         //{
         //    SetPaths();
         //}
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
+            base(drawings, node, type, isPivot)
         {
             //SetPaths();
         }
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
-            base(drawings, node, type, topChart)
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+            base(drawings, node, type, topChart, PivotTableSource)
         {
             //SetPaths();
         }        

@@ -74,7 +74,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <param name="Source">The Source data range address</param>
         /// <param name="Name">The name of the table. Must be unique </param>
         /// <returns>The table object</returns>
-        public ExcelPivotTable Add(ExcelAddressBase Range, ExcelAddressBase Source, string Name)
+        public ExcelPivotTable Add(ExcelAddressBase Range, ExcelRangeBase Source, string Name)
         {
             if (string.IsNullOrEmpty(Name))
             {

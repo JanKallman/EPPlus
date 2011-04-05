@@ -305,6 +305,7 @@ namespace ExcelPackageTest
             chrt.VaryColors = true;
             chrt.Title.Text = "Line 3D";
             chrt.Series[0].Header = "Line serie 1";
+            chrt.Series[0].TrendLine = eTrendLine.Linear;
             chrt.Fill.Color = Color.LightSteelBlue;
             chrt.Border.LineStyle = eLineStyle.Dot;
             chrt.Border.Fill.Color=Color.Black;

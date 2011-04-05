@@ -51,13 +51,13 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <param name="chartSeries">Parent collection</param>
         /// <param name="ns">Namespacemanager</param>
         /// <param name="node">Topnode</param>
-        internal ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node)
+        internal ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot)
            : base(ns,node)
        {
            _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
-           SchemaNodeOrder = new string[] { "idx", "order", "tx", "explosion", "dLbls", "cat", "val", "yVal","xVal" };
+           SchemaNodeOrder = new string[] { "idx", "order", "tx","marker","trendline", "explosion", "dLbls", "cat", "val", "yVal","xVal" };
 
            if (chartSeries.Chart.ChartType == eChartType.XYScatter ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
@@ -67,16 +67,14 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                _seriesTopPath = "c:yVal";
                _xSeriesTopPath = "c:xVal";
-               _seriesPath = string.Format(_seriesPath, _seriesTopPath);
-               _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath);               
            }
            else
            {
                _seriesTopPath = "c:val";
                _xSeriesTopPath = "c:cat";
-               _seriesPath = string.Format(_seriesPath, _seriesTopPath);
-               _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath);
            }
+           _seriesPath = string.Format(_seriesPath, _seriesTopPath);
+           _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:numRef");
        }
        internal void SetID(string id)
        {
@@ -165,6 +163,11 @@ namespace OfficeOpenXml.Drawing.Chart
                    cache.ParentNode.RemoveChild(cache);
                }
 
+               if (_chartSeries.Chart.PivotTableSource != null)
+               {
+                   SetXmlNodeString(string.Format("{0}/c:numRef/c:numCache", _seriesTopPath), "General");
+               }
+               
                XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_seriesTopPath), _ns);
                if (lit != null)
                {
@@ -174,7 +177,7 @@ namespace OfficeOpenXml.Drawing.Chart
 
        }
        string _xSeriesTopPath;
-       string _xSeriesPath = "{0}/c:numRef/c:f";
+       string _xSeriesPath = "{0}/{1}/c:f";
        /// <summary>
        /// Set an address for the horisontal labels
        /// </summary>
@@ -186,12 +189,6 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               //XmlNode node = TopNode.SelectSingleNode(_xSeriesTopPath, NameSpaceManager);
-               //if(node==null)
-               //{
-               //    node = TopNode.OwnerDocument.CreateElement(_xSeriesTopPath, ExcelPackage.schemaChart);
-               //    InserAfter(TopNode, "c:dLbls,c:tx,c:order", node);
-               //}
                CreateNode(_xSeriesPath, true);
                SetXmlNodeString(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
@@ -205,6 +202,64 @@ namespace OfficeOpenXml.Drawing.Chart
                if (lit != null)
                {
                    lit.ParentNode.RemoveChild(lit);
+               }
+           }
+       }
+       const string trendlinePath = "c:trendline/c:trendlineType/@val";       
+       /// <summary>
+       /// TODO: Add to trendline class.
+       /// </summary>
+        public eTrendLine TrendLine
+       {
+           get
+           {
+               switch (GetXmlNodeString(trendlinePath).ToLower())
+               {
+                   case "exp":
+                       return eTrendLine.Exponential;
+                   case "log":
+                        return eTrendLine.Logarithmic;
+                   case "poly":
+                       return eTrendLine.Polynomial;
+                   case "movingavg":
+                       return eTrendLine.MovingAvgerage;
+                   case "linear":
+                       return eTrendLine.Linear;
+                   case "power":
+                       return eTrendLine.Power;
+                   default:
+                       return eTrendLine.None;
+               }
+           }
+           set
+           {
+               if (value == eTrendLine.None)
+               {
+                   DeleteAllNode(trendlinePath);
+               }
+               else
+               {
+                   switch (value)
+                   {
+                       case eTrendLine.Exponential:
+                           SetXmlNodeString(trendlinePath, "exp");
+                           break;
+                       case eTrendLine.Logarithmic:
+                           SetXmlNodeString(trendlinePath, "log");
+                           break;
+                       case eTrendLine.Polynomial:
+                           SetXmlNodeString(trendlinePath, "poly");
+                           break;
+                       case eTrendLine.MovingAvgerage:
+                           SetXmlNodeString(trendlinePath, "movingAvg");
+                           break;
+                       case eTrendLine.Linear:
+                           SetXmlNodeString(trendlinePath, "linear");
+                           break;
+                       case eTrendLine.Power:
+                           SetXmlNodeString(trendlinePath, "power");
+                           break;
+                   }
                }
            }
        }
