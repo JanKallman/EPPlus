@@ -48,8 +48,8 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <param name="chartSeries">Parent collection</param>
         /// <param name="ns">Namespacemanager</param>
         /// <param name="node">Topnode</param>
-        internal ExcelScatterChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node) :
-            base(chartSeries, ns, node)
+        internal ExcelScatterChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
+            base(chartSeries, ns, node, isPivot)
         {
             if (chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
                 chartSeries.Chart.ChartType == eChartType.XYScatterSmooth)

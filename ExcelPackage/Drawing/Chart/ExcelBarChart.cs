@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -53,8 +54,8 @@ namespace OfficeOpenXml.Drawing.Chart
 
         //    SetTypeProperties(drawings, type);
         //}
-        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
-            base(drawings, node, type, topChart)
+        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+            base(drawings, node, type, topChart, PivotTableSource)
         {
             SetChartNodeText("");
 

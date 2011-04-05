@@ -85,7 +85,6 @@
     <Compile Include="DataValidation\ValidationCollectionTests.cs" />
     <Compile Include="DataValidation\ValidationTestBase.cs" />
     <Compile Include="Encrypt.cs" />
-    <Compile Include="ExcelExtensionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DrawingTest.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -94,6 +93,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReadTemplate.cs" />
+    <Compile Include="TestDTO.cs" />
     <Compile Include="Utils\AddressUtilityTests.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="Utils\SqRefUtilityTests.cs" />

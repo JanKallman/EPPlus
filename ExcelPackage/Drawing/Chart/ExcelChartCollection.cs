@@ -28,13 +28,18 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <returns></returns>
         public ExcelChart Add(eChartType chartType)
         {
-            if (ExcelChart.IsType3D(chartType) || _list[0].IsType3D())
+            if (_topChart.PivotTableSource != null)
             {
-                throw(new Exception("3D charts can not be combined with other charttypes"));
+                throw (new InvalidOperationException("Can not add other charttypes to a pivot chart"));
             }
-            var prependingChartNode = _list[_list.Count - 1].TopNode;
+            else if (ExcelChart.IsType3D(chartType) || _list[0].IsType3D())
+            {
+                throw(new InvalidOperationException("3D charts can not be combined with other charttypes"));
+            }
 
-            ExcelChart chart = ExcelChart.GetNewChart(_topChart.WorkSheet.Drawings, _topChart.TopNode, chartType, _topChart);
+            var prependingChartNode = _list[_list.Count - 1].TopNode;
+            ExcelChart chart = ExcelChart.GetNewChart(_topChart.WorkSheet.Drawings, _topChart.TopNode, chartType, _topChart, null);
+
             _list.Add(chart);
             return chart;
         }

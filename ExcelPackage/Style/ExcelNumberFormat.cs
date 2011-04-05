@@ -86,5 +86,94 @@ namespace OfficeOpenXml.Style
             }
         }
         public bool BuildIn { get; private set; }
+
+        internal static void ToNetFormat(string ExcelFormat, out string format, out string Text)
+        {
+            int secCount = 0;
+
+            bool isText = false;
+            bool isBracket = false;
+            string bracketText = "";
+            bool prevBslsh = false;
+            bool useMinute = true;
+            bool containsAmPm=false;
+            format = "";
+            Text = "";
+            foreach (char c in ExcelFormat.ToLower())
+            {
+                if (c == '"')
+                {
+                    isText = !isText;
+                }
+                else
+                {
+                    if (isText)
+                    {
+                        Text += c;
+                    }
+                    else
+                    {
+                        if (c == ';') //We use first part (for positive only at this stage)
+                        {
+                            format += secCount;
+                            secCount++;
+                            if (secCount == 3) break;
+                        }
+                        else
+                        {
+                            if (prevBslsh)
+                            {
+                                format += c;
+                                prevBslsh = false;
+                            }
+                            else if (c == '[')
+                            {
+                                bracketText = "";
+                                isBracket = true;
+                            }
+                            else if (c == '\\')
+                            {
+                                prevBslsh = true;
+                            }
+                            else if (c == '0' ||
+                                c == '#' ||
+                                c == '.' ||
+                                c == ',' ||
+                                c == '%' ||
+                                c == 'm' ||
+                                c == 'd' ||
+                                c == 's')
+                            {
+                                format += c;
+                            }
+                            else if (c == 'h')
+                            {
+                                format += c;
+                                useMinute = true;
+                            }
+                            else if (c == 'm')
+                            {
+                                if (useMinute)
+                                {
+                                    format += "m";
+                                }
+                                else
+                                {
+                                    format += "M";
+                                }
+                            }
+                            else if (c == '?')
+                            {
+                                format += ' ';
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

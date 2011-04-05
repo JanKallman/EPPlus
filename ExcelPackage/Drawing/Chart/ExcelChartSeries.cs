@@ -34,7 +34,7 @@ using System.Text;
 using System.Xml;
 using System.IO.Packaging;
 using System.Collections;
-
+using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
    public sealed class ExcelChartSeries : XmlHelper, IEnumerable
@@ -43,30 +43,31 @@ namespace OfficeOpenXml.Drawing.Chart
        ExcelChart _chart;
        XmlNode _node;
        XmlNamespaceManager _ns;
-       internal ExcelChartSeries (ExcelChart chart, XmlNamespaceManager ns, XmlNode node)
+       internal ExcelChartSeries(ExcelChart chart, XmlNamespaceManager ns, XmlNode node, bool isPivot)
            : base(ns,node)
        {
            _ns = ns;
            _chart=chart;
            _node=node;
+           _isPivot = isPivot;
            SchemaNodeOrder = new string[] { "view3D", "plotArea", "barDir", "grouping", "scatterStyle", "varyColors", "ser", "explosion", "dLbls", "firstSliceAng", "holeSize", "shape", "legend", "axId" };
            foreach(XmlNode n in node.SelectNodes("c:ser",ns))
            {
                ExcelChartSerie s;
                if (chart.ChartNode.LocalName == "scatterChart")
                {
-                   s= new ExcelScatterChartSerie(this, ns, n);
+                   s = new ExcelScatterChartSerie(this, ns, n, isPivot);
                }
                else if (chart.ChartNode.LocalName == "pieChart" ||
                         chart.ChartNode.LocalName == "ofPieChart" ||
                         chart.ChartNode.LocalName == "pie3DChart" ||
                         chart.ChartNode.LocalName == "doughnutChart")                                                                       
                {
-                   s = new ExcelPieChartSerie(this, ns, n);
+                   s = new ExcelPieChartSerie(this, ns, n, isPivot);
                }
                else
                {
-                   s = new ExcelChartSerie(this, ns, n);
+                   s = new ExcelChartSerie(this, ns, n, isPivot);
                }
                _list.Add(s);
            }
@@ -115,11 +116,19 @@ namespace OfficeOpenXml.Drawing.Chart
 
        public ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie)
        {
+           if (_chart.PivotTableSource != null)
+           {
+               throw (new InvalidOperationException("Can't add a serie to a pivotchart"));
+           }
            return AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute);
        }
        public ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
        {
-            return AddSeries(SerieAddress, XSerieAddress);
+           if (_chart.PivotTableSource != null)
+           {
+               throw (new InvalidOperationException("Can't add a serie to a pivotchart"));
+           }
+           return AddSeries(SerieAddress, XSerieAddress);
        }
        private ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress)
         {
@@ -143,7 +152,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    case eChartType.XYScatterLinesNoMarkers:
                    case eChartType.XYScatterSmooth:
                    case eChartType.XYScatterSmoothNoMarkers:
-                       serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser);
+                       serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
                    case eChartType.Pie:
                    case eChartType.Pie3D:
@@ -153,24 +162,29 @@ namespace OfficeOpenXml.Drawing.Chart
                    case eChartType.Doughnut:
                    case eChartType.DoughnutExploded:
                    case eChartType.BarOfPie:
-                       serie = new ExcelPieChartSerie(this, NameSpaceManager, ser);
+                       serie = new ExcelPieChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
                    default:
-                       serie = new ExcelChartSerie(this, NameSpaceManager, ser);
+                       serie = new ExcelChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
-               }
+               }               
                serie.Series = SeriesAddress;
-               serie.XSeries = XSeriesAddress;
-               _list.Add(serie);
+               serie.XSeries = XSeriesAddress;               
+           _list.Add(serie);
                return serie;
         }
-
-       private int FindIndex()
+       bool _isPivot;
+       internal void AddPivotSerie(ExcelPivotTable pivotTableSource)
        {
+           var r=pivotTableSource.WorkSheet.Cells[pivotTableSource.Address.Address];
+           _isPivot = true;
+           AddSeries(r.Offset(0, 1, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute, r.Offset(0, 0, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute);
+       }
+       private int FindIndex()
+       {    
            int ret = 0, newID=0;
            if (_chart.PlotArea.ChartTypes.Count > 1)
            {
-               bool chartAdded = false;
                foreach (var chart in _chart.PlotArea.ChartTypes)
                {
                    if (newID>0)

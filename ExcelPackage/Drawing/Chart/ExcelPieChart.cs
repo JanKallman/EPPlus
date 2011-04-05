@@ -33,20 +33,20 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
 
     public class ExcelPieChart : ExcelChart
     {
-        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type) :
-            base(drawings, node, type)
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
+            base(drawings, node, type, isPivot)
         {
         }
-        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart) :
-            base(drawings, node, type, topChart)
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+            base(drawings, node, type, topChart, PivotTableSource)
         {
-            //_varyColorsPath = string.Format(_varyColorsPath, GetChartNodeText());
         }
 
         public ExcelPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :

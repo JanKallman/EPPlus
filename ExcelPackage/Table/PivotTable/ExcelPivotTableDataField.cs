@@ -35,7 +35,7 @@ namespace OfficeOpenXml.Table.PivotTable
 {
     public class ExcelPivotTableDataField : XmlHelper
     {
-        public ExcelPivotTableDataField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field) :
+        internal ExcelPivotTableDataField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field) :
             base(ns, topNode)
         {
             Index = field.Index;

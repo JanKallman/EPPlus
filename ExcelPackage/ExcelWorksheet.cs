@@ -1301,7 +1301,7 @@ namespace OfficeOpenXml
 
             FixSharedFormulasRows(rowFrom, rows);
             
-            AddMergedCells(rowFrom, rows);
+            FixMergedCells(rowFrom, rows,false);
 
             //Copy the styles
             foreach (ExcelCell cell in copyStylesCells)
@@ -1314,32 +1314,44 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="position"></param>
         /// <param name="rows"></param>
-        private void AddMergedCells(int position, int rows)
+        private void FixMergedCells(int position, int rows, bool delete)
         {
-            for(int i=0;i<_mergedCells.Count;i++)
+            List<int> removeIndex = new List<int>();
+            for (int i = 0; i < _mergedCells.Count; i++)
             {
-                int fromRow, toRow, fromCol, toCol;
-                ExcelCellBase.GetRowColFromAddress(_mergedCells[i], out fromRow, out  fromCol, out  toRow, out toCol);
-
-                if (fromRow >= position) 
+                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr ;
+                if (delete)
                 {
-                    fromRow += rows;
-                }
-                if (toRow >= position)
-                {
-                    toRow += rows;
-                }
-
-                //Set merged prop for cells
-                for (int row = fromRow; row <= toRow; row++)
-                {
-                    for (int col = fromCol; col <= toCol; col++)
+                    newAddr=addr.DeleteRow(position, rows);
+                    if (newAddr == null)
                     {
-                        Cell(row, col).Merge = true;
+                        removeIndex.Add(i);
+                        continue;
+                    }
+                }
+                else
+                {
+                    newAddr = addr.AddRow(position, rows);
+                }
+                
+                //The address has changed.
+                if (newAddr._address != addr._address)
+                {
+                    //Set merged prop for cells
+                    for (int row = newAddr._fromRow; row <= newAddr._toRow; row++)
+                    {
+                        for (int col = newAddr._fromCol; col <= newAddr._toCol; col++)
+                        {
+                            Cell(row, col).Merge = true;
+                        }
                     }
                 }
 
-                _mergedCells.List[i] = ExcelCellBase.GetAddress(fromRow, fromCol, toRow, toCol);
+                _mergedCells.List[i] = newAddr._address;
+            }
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                _mergedCells.List.RemoveAt(i);
             }
         }
         private void FixSharedFormulasRows(int position, int rows)
@@ -1577,7 +1589,7 @@ namespace OfficeOpenXml
                 cell._formulaR1C1 = "";
             }
             FixSharedFormulasRows(rowFrom, -rows);
-            AddMergedCells(rowFrom, -rows);
+            FixMergedCells(rowFrom, rows,true);
         }
         /// <summary>
         /// Deletes the specified row from the worksheet.
@@ -2287,7 +2299,6 @@ namespace OfficeOpenXml
                 {
                     return null;
                 }
-
             }
         }
         ExcelSheetProtection _protection=null;

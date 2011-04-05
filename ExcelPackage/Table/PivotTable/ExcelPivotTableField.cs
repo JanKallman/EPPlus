@@ -95,7 +95,7 @@ namespace OfficeOpenXml.Table.PivotTable
     public class ExcelPivotTableField : XmlHelper
     {
         internal ExcelPivotTable _table;
-        public ExcelPivotTableField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTable table, int index, int baseIndex) :
+        internal ExcelPivotTableField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTable table, int index, int baseIndex) :
             base(ns, topNode)
         {
             Index = index;
