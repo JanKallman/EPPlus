@@ -100,13 +100,10 @@ namespace EPPlusSamples
                 worksheet.Cells["C2:C5"].Style.Numberformat.Format = "#,##0";
                 worksheet.Cells["D2:E5"].Style.Numberformat.Format = "#,##0.00";
 
-                //Increase the width of column one as these strings will be too wide to display
-                worksheet.Column(1).Width = 15;
-                worksheet.Column(2).Width = 12;
-                worksheet.Column(3).Width = 12;
-
                 //Create an autofilter for the range
                 worksheet.Cells["A1:E4"].AutoFilter = true;
+
+                worksheet.Cells["A1:E5"].AutoFitColumns(0);
 
                 // lets set the header text 
                 worksheet.HeaderFooter.oddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";
@@ -117,6 +114,9 @@ namespace EPPlusSamples
                 worksheet.HeaderFooter.oddFooter.CenteredText = ExcelHeaderFooter.SheetName;
                 // add the file path to the footer
                 worksheet.HeaderFooter.oddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
+
+                worksheet.PrinterSettings.RepeatRows = worksheet.Cells["1:2"];
+                worksheet.PrinterSettings.RepeatColumns = worksheet.Cells["A:G"];
 
                 // Change the sheet view to show it in page layout mode
                 worksheet.View.PageLayoutView = true;

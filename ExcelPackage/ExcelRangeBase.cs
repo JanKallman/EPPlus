@@ -43,6 +43,7 @@ using System.Linq;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
 using System.Reflection;
+using OfficeOpenXml.Style.XmlAccess;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -409,26 +410,204 @@ namespace OfficeOpenXml
                 }
             }
         }
-        public string FormatedText
+        /// <summary>
+        /// Returns the formated value.
+        /// </summary>
+        public string Text
         {
             get
             {
-                object v = Value;
-                if (v is decimal || v.GetType().IsPrimitive)
+                return GetFormatedText(false);
+            }
+        }
+        /// <summary>
+        /// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
+        /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+        ///       Wraped and merged cells are also ignored.
+        /// </summary>
+        public void AutoFitColumns()
+        {
+            AutoFitColumns(_worksheet.defaultColWidth);
+        }
+        /// <summary>
+        /// Set the column width from the content of the range.
+        /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+        ///       Wraped and merged cells are also ignored.
+        /// </summary>
+        /// <param name="MinimumWidth">Minimum column width</param>
+        public void AutoFitColumns(double MinimumWidth)
+        {
+            Dictionary<int,Font> fontCache=new Dictionary<int,Font>();           
+            Font f;
+            if (Addresses == null)
+            {
+                for (int col = _fromCol; col <= _toCol; col++)
                 {
-                    var nf = Style.Numberformat.Format;
-
+                    _worksheet.Column(col).Width = MinimumWidth;
                 }
-                else if(v is DateTime || v is TimeSpan)
+            }
+            else
+            { 
+                foreach(var addr in Addresses)
                 {
-
+                    for (int col = addr._fromCol; col <= addr._toCol; col++)
+                {
+                    _worksheet.Column(col).Width = MinimumWidth;
                 }
-                else
+                }
+            }
+
+            //Get any autofilter to widen these columns
+            List<ExcelAddressBase> afAddr = new List<ExcelAddressBase>();
+            if (_worksheet.AutoFilterAddress != null)
+            {
+                afAddr.Add(new ExcelAddressBase(_worksheet.AutoFilterAddress._fromRow, 
+                                                _worksheet.AutoFilterAddress._fromCol, 
+                                                _worksheet.AutoFilterAddress._fromRow,
+                                                _worksheet.AutoFilterAddress._toCol));
+                afAddr[afAddr.Count - 1]._ws = WorkSheet;
+            }
+            foreach (var tbl in _worksheet.Tables)
+            {
+                if (tbl.AutoFilterAddress != null)
+                {
+                    afAddr.Add(new ExcelAddressBase(tbl.AutoFilterAddress._fromRow, 
+                                                tbl.AutoFilterAddress._fromCol, 
+                                                tbl.AutoFilterAddress._fromRow,
+                                                tbl.AutoFilterAddress._toCol));
+                    afAddr[afAddr.Count - 1]._ws = WorkSheet;
+                }
+            }
+
+            using (Bitmap b = new Bitmap(1, 1))            
+            {
+                using (Graphics g = Graphics.FromImage(b))
+                {
+                    var styles = _worksheet.Workbook.Styles;
+                    foreach (var cell in this)
+                    {
+                        if (cell.Merge == true || cell.Style.WrapText) continue;
+                        var fntID=styles.CellXfs[cell.StyleID].FontId;
+                        if(fontCache.ContainsKey(fntID))
+                        {
+                            f=fontCache[fntID];
+                        }
+                        else
+                        {                            
+                            var fnt=styles.Fonts[fntID];                            
+                            FontStyle fs=FontStyle.Regular;
+                            if(fnt.Bold) fs|=FontStyle.Bold;
+                            if(fnt.UnderLine) fs|=FontStyle.Underline;
+                            if(fnt.Italic) fs|=FontStyle.Italic;
+                            if(fnt.Strike) fs|=FontStyle.Strikeout;
+                            
+                            f=new Font(fnt.Name, fnt.Size, fs);
+                            fontCache.Add(fntID, f);
+                        }
+                        
+                        double width = .146 * g.MeasureString(cell.TextForWidth, f).Width;
+
+                        foreach (var a in afAddr)
+                        {
+                            if(a.Collide(cell)!=eAddressCollition.No)
+                            {
+                                width += 2.25;
+                                break;
+                            }
+                        }
+
+                        if (width > _worksheet.Column(cell._fromCol).Width)
+                        {
+                            _worksheet.Column(cell._fromCol).Width=width;
+                        }
+                   }
+               }
+           }
+        }
+        internal string TextForWidth
+        {
+            get
+            {
+                return GetFormatedText(true);
+            }
+        }
+        private string GetFormatedText(bool forWidthCalc)
+        {
+            object v = Value;
+            if (v == null) return "";
+            var styles = Worksheet.Workbook.Styles;
+            var nfID = styles.CellXfs[StyleID].NumberFormatId;
+            ExcelNumberFormatXml.ExcelFormatTranslator nf = null;
+            for (int i = 0; i < styles.NumberFormats.Count; i++)
+            {
+                if (nfID == styles.NumberFormats[i].NumFmtId)
+                {
+                    nf = styles.NumberFormats[i].FormatTranslator;
+                    break;
+                }
+            }
+
+            string format, textFormat;
+            if (forWidthCalc)
+            {
+                format = nf.NetFormatForWidth;
+                textFormat = nf.NetTextFormatForWidth;
+            }
+            else
+            {
+                format = nf.NetFormat;
+                textFormat = nf.NetTextFormat;
+            }
+
+            if (v is decimal || v.GetType().IsPrimitive)
+            {
+                double d;
+                try
+                {
+                    d = Convert.ToDouble(v);
+                }
+                catch
+                {
+                    return "";
+                }
+
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.Number)
+                {
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
+                else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
+                    var date = DateTime.FromOADate(d);
+                    return date.ToString(format, nf.Culture);
+                }
+            }
+            else if (v is DateTime)
+            {
+                return ((DateTime)v).ToString(format, nf.Culture);
+            }
+            else if (v is TimeSpan)
+            {
+                return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
+            }
+            else
+            {
+                if (textFormat == "")
                 {
                     return v.ToString();
                 }
-                return v.ToString();
+                else
+                {
+                    return string.Format(textFormat, v);
+                }
             }
+            return v.ToString();
         }
         /// <summary>
         /// Gets or sets a formula for a range.
@@ -603,6 +782,7 @@ namespace OfficeOpenXml
             {
                 IsRangeValid("autofilter");
                 ExcelAddressBase address = _worksheet.AutoFilterAddress;
+                if (address == null) return false;
                 if (_fromRow >= address.Start.Row
                     &&
                     _toRow <= address.End.Row

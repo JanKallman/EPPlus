@@ -79,7 +79,7 @@ namespace EPPlusSamples
                 var workbook = package.Workbook;
                 workbook.Protection.LockWindows = true;
                 workbook.Protection.LockStructure = true;
-                workbook.View.SetWindowSize(150, 525, 14000, 6000);
+                workbook.View.SetWindowSize(150, 525, 14500, 6000);
                 workbook.View.ShowHorizontalScrollBar = false;
                 workbook.View.ShowVerticalScrollBar = false;
                 workbook.View.ShowSheetTabs = false;
@@ -133,6 +133,29 @@ namespace EPPlusSamples
                 sheet.Protection.SetPassword("EPPlus");
                 sheet.Protection.AllowSelectLockedCells = false;
 
+                //Options question 1
+                var list1 = sheet.Cells["C7"].DataValidation.AddListDataValidation();
+                list1.Formula.Values.Add("Bern");
+                list1.Formula.Values.Add("Stockholm");
+                list1.Formula.Values.Add("Oslo");
+                list1.ShowErrorMessage = true;
+                list1.Error = "Please select a value from the list";
+
+                var list2 = sheet.Cells["C9"].DataValidation.AddListDataValidation();
+                list2.Formula.Values.Add("First");
+                list2.Formula.Values.Add("Second");
+                list2.Formula.Values.Add("Third");
+                list2.ShowErrorMessage = true;
+                list2.Error = "Please select a value from the list";
+
+                var list3 = sheet.Cells["C11"].DataValidation.AddListDataValidation();
+                list3.Formula.Values.Add("Carl Gustaf");
+                list3.Formula.Values.Add("Ingmar");
+                list3.Formula.Values.Add("Alfred");
+                list3.ShowErrorMessage = true;
+                list3.Error = "Please select a value from the list";
+
+
                 //Save, and the template is ready for use
                 package.Save();
 
@@ -148,7 +171,7 @@ namespace EPPlusSamples
                     packageAnswers.SaveAs(answerFile, "EPPlus");                        //Save and set the password to EPPlus. The password can also be set using packageAnswers.Encryption.Password property
                 }
 
-                //Ok, Since this is an example we create one user answer...
+                //Ok, Since this is     qan example we create one user answer...
                 using (var packageAnswers = new ExcelPackage(package.Stream))
                 {
                     var sheetUser = packageAnswers.Workbook.Worksheets[1];

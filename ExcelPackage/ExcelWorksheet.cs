@@ -221,7 +221,15 @@ namespace OfficeOpenXml
         {
             get
             {
-                return new ExcelAddressBase(GetXmlNodeString("d:autoFilter/@ref"));
+                string address = GetXmlNodeString("d:autoFilter/@ref");
+                if (address == "")
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExcelAddressBase(address);
+                }
             }
             internal set
             {

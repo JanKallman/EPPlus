@@ -89,6 +89,8 @@ namespace OfficeOpenXml
         {
             get
             {
+                ValidateRowCol(Row, Col);
+
                 _fromCol = Col;
                 _fromRow = Row;
                 _toCol = Col;
@@ -109,6 +111,9 @@ namespace OfficeOpenXml
         {
             get
             {
+                ValidateRowCol(FromRow, FromCol);
+                ValidateRowCol(ToRow, ToCol);
+
                 _fromCol = FromCol;
                 _fromRow = FromRow;
                 _toCol = ToCol;
@@ -118,5 +123,17 @@ namespace OfficeOpenXml
             }
         }
         #endregion
+        private static void ValidateRowCol(int Row, int Col)
+        {
+            if (Row < 1 || Row > ExcelPackage.MaxRows)
+            {
+                throw (new ArgumentException("Row out of range"));
+            }
+            if (Col < 1 || Col > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentException("Column out of range"));
+            }
+        }
+
     }
 }
