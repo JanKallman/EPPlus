@@ -204,7 +204,6 @@ namespace OfficeOpenXml.Table
             TopNode = TableXml.DocumentElement;
             SchemaNodeOrder = new string[] { "autoFilter", "tableColumns", "tableStyleInfo" };
         }
-
         private string GetStartXml(string name, int tblId)
         {
             string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>";
@@ -380,7 +379,21 @@ namespace OfficeOpenXml.Table
                 }
             }
         }
-
+        internal ExcelAddressBase AutoFilterAddress
+        {
+            get
+            {
+                string a=GetXmlNodeString(AUTOFILTER_PATH);
+                if (a == "")
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExcelAddressBase(a);
+                }
+            }
+        }
         private void WriteAutoFilter(bool showTotal)
         {
             string autofilterAddress;
@@ -435,18 +448,6 @@ namespace OfficeOpenXml.Table
                 }
             }
         }
-
-        //public bool TotalsRowShown
-        //{
-        //    get
-        //    {
-        //        return GetXmlNodeBool(TOTALSROWCOUNT_PATH,false);
-        //    }
-        //    set
-        //    {
-        //        SetXmlNodeBool(TOTALSROWCOUNT_PATH, value,false);
-        //    }
-        //}
         const string STYLENAME_PATH = "d:tableStyleInfo/@name";
         public string StyleName
         {

@@ -112,13 +112,13 @@ namespace EPPlusSamples
             tbl.Columns[6].DataCellStyleName = "TableNumber";
 
             //Set the width...
-            sheet.Column(1).Width = 10;
-            sheet.Column(2).Width = 12;
-            sheet.Column(3).Width = 12;
-            sheet.Column(4).Width = 12;
-            sheet.Column(5).Width = 16;
-            sheet.Column(6).Width = 16;
-            sheet.Column(7).Width = 12;
+            //sheet.Column(1).Width = 10;
+            //sheet.Column(2).Width = 12;
+            //sheet.Column(3).Width = 12;
+            //sheet.Column(4).Width = 12;
+            //sheet.Column(5).Width = 16;
+            //sheet.Column(6).Width = 16;
+            //sheet.Column(7).Width = 12;
 
             Console.WriteLine("Create the chart...");
             //Now add a stacked areachart...
@@ -137,6 +137,7 @@ namespace EPPlusSamples
             chart.Style = eChartStyle.Style27;
 
             sheet.View.ShowGridLines = false;
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
         }
 
         private static void LoadFile2(ExcelPackage package)
@@ -171,11 +172,7 @@ namespace EPPlusSamples
             tbl.Columns[5].Name = "Profit";
             tbl.TableStyle = TableStyles.Medium10;
 
-            sheet.Column(1).Width = 10;
-            sheet.Column(2).Width = 12;
-            sheet.Column(3).Width = 16;
-            sheet.Column(4).Width = 16;
-            sheet.Column(5).Width = 12;
+            sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
 
             //Add a chart with two charttypes (Column and Line) and a secondary axis...
             var chart = sheet.Drawings.AddChart("chart2", eChartType.ColumnStacked);

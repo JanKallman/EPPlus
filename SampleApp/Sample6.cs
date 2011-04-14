@@ -173,6 +173,7 @@ namespace EPPlusSamples
             shape.TextAnchoring = eTextAnchoringType.Top;
             shape.TextVertical = eTextVerticalType.Horizontal;
             shape.TextAnchoringControl=false;
+            ws.Cells[1,2,row,5].AutoFitColumns();
 
             //Add the graph sheet
             AddGraphs(pck, row, dir.FullName);
@@ -245,8 +246,8 @@ namespace EPPlusSamples
             var ws = pck.Workbook.Worksheets.Add("Statistics");
             ws.View.ShowGridLines = false;
 
-            ws.Column(1).Width = 40;
-            ws.Column(2).Width = 20;
+            //ws.Column(1).Width = 40;
+            //ws.Column(2).Width = 20;
 
             //Set first the header and format it
             ws.Cells["A1"].Value = "Statistics for ";
@@ -325,6 +326,7 @@ namespace EPPlusSamples
             ws.Cells["A1:O1"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
             ws.Cells["O1:O43"].Style.Border.Right.Style = ExcelBorderStyle.Thin;
             ws.Cells["A43:O43"].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+            ws.Cells[1, 1, row, 2].AutoFitColumns(1);
 
             //And last the printersettings
             ws.PrinterSettings.Orientation = eOrientation.Landscape;

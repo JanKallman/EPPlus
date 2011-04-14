@@ -84,11 +84,8 @@ namespace EPPlusSamples
                 rng.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
             }
 
-            ws.Column(1).Width = 10;
-            ws.Column(2).Width = 15;
-            ws.Column(3).Width = 12;
-            ws.Column(4).Width = 10;
-            ws.Column(5).Width = 20;
+            ws.Cells[Rows-100, 1, Rows, 5].AutoFitColumns(5);   //Auto fit using the last 100 rows with minimum width 5
+            ws.Column(5).Width = 15;                            //We need to set the width for column F manually since the end sum formula is the widest cell in the column (EPPlus don't calculate any forumlas, so no output text is avalible). 
 
             //Now we set the sheetprotection and a password.
             ws.Cells[2, 3, Rows + 1, 4].Style.Locked = false;

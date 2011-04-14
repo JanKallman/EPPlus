@@ -236,6 +236,25 @@ namespace OfficeOpenXml
 			return string.Format("Column Range: {0} to {1}", _colElement.GetAttribute("min"), _colElement.GetAttribute("min"));
 		}
         /// <summary>
+        /// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
+        /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+        ///       Wraped and merged cells are also ignored.
+        /// </summary>
+        public void AutoFit()
+        {
+            _worksheet.Cells[1, _columnMin, ExcelPackage.MaxRows, _columnMax].AutoFitColumns();
+        }
+        /// <summary>
+        /// Set the column width from the content.
+        /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+        ///       Wraped and merged cells are also ignored.
+        /// </summary>
+        /// <param name="MinimumWidth">Minimum column width</param>
+        public void AutoFit(double MinimumWidth)
+        {
+            _worksheet.Cells[1, _columnMin, ExcelPackage.MaxRows, _columnMax].AutoFitColumns(MinimumWidth);
+        }
+        /// <summary>
         /// Get the internal RangeID
         /// </summary>
         /// <param name="sheetID">Sheet no</param>

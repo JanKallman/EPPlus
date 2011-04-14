@@ -108,8 +108,6 @@ namespace EPPlusSamples
                     Console.WriteLine("Cell {0} has value {1:N0} Date is {2:d}", cell.Address, cell.Value, DateTime.FromOADate((double)cell.Offset(0, -1).Value));
                     count++;
                 }
-                    
-
             }
         }
     }
