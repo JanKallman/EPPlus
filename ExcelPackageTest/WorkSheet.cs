@@ -323,7 +323,6 @@ namespace ExcelPackageTest
         {
             var ws = _pck.Workbook.Worksheets.Add("Comment");            
             var comment = ws.Comments.Add(ws.Cells["B2"], "Jan Källman\r\nAuthor\r\n", "JK");            
-
             comment.RichText[0].Bold = true;
             comment.RichText[0].PreserveSpace = true;
             var rt = comment.RichText.Add("Test comment");
@@ -595,6 +594,12 @@ namespace ExcelPackageTest
         public void CopyTable()
         {
             _pck.Workbook.Worksheets.Copy("File4", "Copied table");
+        }
+        [TestMethod]
+        public void CopyPivotTable()
+        {
+            _pck.Workbook.Worksheets.Copy("Pivot-Group Date", "Copied Pivottable 1");
+            _pck.Workbook.Worksheets.Copy("Pivot-Group Number", "Copied Pivottable 2");
         }
         [TestMethod]
         public void Stylebug()

@@ -102,7 +102,7 @@ namespace EPPlusSamples
         /// <param name="dir">Directory to scan</param>
         /// <param name="depth">How many levels?</param>
         /// <param name="skipIcons">Skip the icons in column A. A lot faster</param>
-        public static void RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth, bool skipIcons)
+        public static string RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth, bool skipIcons)
         {
             _maxLevels = depth;
 
@@ -194,6 +194,8 @@ namespace EPPlusSamples
 
             //Done! save the sheet
             pck.Save();
+
+            return newFile.FullName;
         }
         /// <summary>
         /// This method adds the comment to the header row

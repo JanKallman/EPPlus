@@ -648,7 +648,6 @@ namespace OfficeOpenXml
 			if (_xmlWorkbook != null)
 			{
 				_package.SavePart(WorkbookUri, _xmlWorkbook);
-				_package.WriteDebugFile(_xmlWorkbook, "xl", "workbook.xml");
 			}
 
 			// save the properties of the workbook
@@ -660,7 +659,6 @@ namespace OfficeOpenXml
 			// save the style sheet
             Styles.UpdateXml();
 			_package.SavePart(StylesUri, _xmlStyles);
-			_package.WriteDebugFile(_xmlStyles, "xl", "styles.xml");
 
             // save all the open worksheets
             var isProtected = Protection.LockWindows || Protection.LockStructure;

@@ -226,7 +226,7 @@ namespace OfficeOpenXml.Table
                 }
                 else
                 {
-                    colName = cell.Value.ToString();
+                    colName = System.Security.SecurityElement.Escape(cell.Value.ToString());
                 }
                 
                 xml += string.Format("<tableColumn id=\"{0}\" name=\"{1}\" />", i,colName);
@@ -420,11 +420,6 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                //if (Address._toRow - Address._fromRow < 1 && value ||
-                //    Address._toRow - Address._fromRow == 1 && value && ShowHeader)
-                //{
-                //    throw (new Exception("Can't set ShowTotal-property. Table has too few rows"));
-                //}
                 if (value != ShowTotal)
                 {
                     if (value)

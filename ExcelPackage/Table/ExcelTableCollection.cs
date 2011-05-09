@@ -108,6 +108,22 @@ namespace OfficeOpenXml.Table
             }
         }
         /// <summary>
+        /// Get the table object from a range.
+        /// </summary>
+        /// <param name="Range">The range</param>
+        /// <returns>The table. Null if no range matches</returns>
+        public ExcelTable GetFromRange(ExcelRangeBase Range)
+        {
+            foreach (var tbl in Range.Worksheet.Tables)
+            {
+                if (tbl.Address._address == Range._address)
+                {
+                    return tbl;
+                }
+            }
+            return null;
+        }
+        /// <summary>
         /// The table Index. Base 0.
         /// </summary>
         /// <param name="Index"></param>

@@ -34,7 +34,7 @@ using System.Text;
 
 namespace OfficeOpenXml.Style
 {
-    interface IExcelCell
+    internal interface IExcelCell
     {
         #region "public properties"
         object Value {get;set;}

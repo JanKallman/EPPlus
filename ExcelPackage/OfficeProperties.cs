@@ -534,17 +534,14 @@ namespace OfficeOpenXml
         {
             if (_xmlPropertiesCore != null)
             {
-                _package.WriteDebugFile(_xmlPropertiesCore, "docProps", "core.xml");
                 _package.SavePart(CorePropertiesUri, _xmlPropertiesCore);
             }
             if (_xmlPropertiesExtended != null)
             {
-                _package.WriteDebugFile(_xmlPropertiesExtended, "docProps", "app.xml");
                 _package.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
             }
             if (_xmlPropertiesCustom != null)
             {
-                _package.WriteDebugFile(_xmlPropertiesCustom, "docProps", "custom.xml");
                 _package.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
             }
 

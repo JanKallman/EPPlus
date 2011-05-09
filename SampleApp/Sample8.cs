@@ -94,8 +94,7 @@ namespace EPPlusSamples
                 var query3 = (from cell in sheet.Cells["d:d"]
                               where cell.Value is double && 
                                     (double)cell.Value >= 9500 && (double)cell.Value <= 10000 && 
-                                    cell.Offset(0, -1).Value is double &&                                                //Column C is a double since its not a default date format.
-                                    DateTime.FromOADate((double)cell.Offset(0, -1).Value).Year == DateTime.Today.Year+1 
+                                    cell.Offset(0, -1).GetValue<DateTime>().Year == DateTime.Today.Year+1 
                               select cell);
 
                 Console.WriteLine();
@@ -105,7 +104,7 @@ namespace EPPlusSamples
                 count = 0;
                 foreach (var cell in query3)    //The cells returned here will all be in column D, since that is the address in the indexer. Use the Offset method to print any other cells from the same row.
                 {
-                    Console.WriteLine("Cell {0} has value {1:N0} Date is {2:d}", cell.Address, cell.Value, DateTime.FromOADate((double)cell.Offset(0, -1).Value));
+                    Console.WriteLine("Cell {0} has value {1:N0} Date is {2:d}", cell.Address, cell.Value, cell.Offset(0, -1).GetValue<DateTime>());
                     count++;
                 }
             }

@@ -227,6 +227,11 @@ namespace OfficeOpenXml
             {
                 CopyTable(Copy, added);
             }
+            if (Copy.PivotTables.Count > 0)
+            {
+                CopyPivotTable(Copy, added);
+            }
+
             //Copy all cells
             CloneCells(Copy, added);
 
@@ -250,7 +255,7 @@ namespace OfficeOpenXml
 
         private void CopyTable(ExcelWorksheet Copy, ExcelWorksheet added)
         {
-            //First copy the drawing XML
+            //First copy the table XML
             foreach (var tbl in Copy.Tables)
             {
                 string xml=tbl.TableXml.OuterXml;
@@ -290,6 +295,31 @@ namespace OfficeOpenXml
                     relAtt = added.WorksheetXml.SelectSingleNode(string.Format("//d:tableParts/d:tablePart/@r:id[.='{0}']", tbl.RelationshipID), tbl.NameSpaceManager) as XmlAttribute;
                     relAtt.Value = rel.Id;
                 }
+            }
+        }
+        private void CopyPivotTable(ExcelWorksheet Copy, ExcelWorksheet added)
+        {
+            foreach (var tbl in Copy.PivotTables)
+            {
+                string xml = tbl.PivotTableXml.OuterXml;
+                int Id = _xlPackage.Workbook._nextPivotTableID++;
+                string name = Copy.PivotTables.GetNewTableName();
+                XmlDocument xmlDoc = new XmlDocument();
+                Copy.Save();    //Save the worksheet first
+                xmlDoc.LoadXml(xml);
+                //xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
+                xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
+                xml = xmlDoc.OuterXml;
+
+                var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
+                var part = _xlPackage.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _xlPackage.Compression);
+                StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
+                streamTbl.Write(xml);
+                streamTbl.Close();
+
+                //create the relationship and add the ID to the worksheet xml.
+                added.Part.CreateRelationship(PackUriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+                part.CreateRelationship(PackUriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
             }
         }
         private void CloneCells(ExcelWorksheet Copy, ExcelWorksheet added)
@@ -556,7 +586,7 @@ namespace OfficeOpenXml
 
             if (Name.Trim() == "")
             {
-                throw new Exception("Add worksheet Error: attempting to create worksheet with an empty name");
+                throw new ArgumentException("Add worksheet Error: attempting to create worksheet with an empty name");
             }
             if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's
 
@@ -576,7 +606,7 @@ namespace OfficeOpenXml
                 if (attr != null)
                 {
                     if (attr.Value == Name)
-                        throw new Exception("Add worksheet Error: attempting to create worksheet with duplicate name");
+                        throw new ArgumentException("Add worksheet Error: attempting to create worksheet with duplicate name");
                 }
             }
             // we now have the max existing values, so add one
@@ -741,7 +771,7 @@ namespace OfficeOpenXml
 		{
             ExcelWorksheet Copy = this[Name];
             if (Copy == null)
-                throw new Exception(string.Format("Copy worksheet error: Could not find worksheet to copy '{0}'", Name));
+                throw new ArgumentException(string.Format("Copy worksheet error: Could not find worksheet to copy '{0}'", Name));
 
             ExcelWorksheet added = Add(NewName, Copy);
             return added;

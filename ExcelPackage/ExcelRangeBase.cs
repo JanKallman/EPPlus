@@ -590,11 +590,41 @@ namespace OfficeOpenXml
             }
             else if (v is DateTime)
             {
-                return ((DateTime)v).ToString(format, nf.Culture);
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
+                    return ((DateTime)v).ToString(format, nf.Culture);
+                }
+                else
+                {
+                    double d = ((DateTime)v).ToOADate();
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
             }
             else if (v is TimeSpan)
             {
-                return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
+                    return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
+                }
+                else
+                {
+                    double d = (new DateTime(((TimeSpan)v).Ticks)).ToOADate();
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
             }
             else
             {
@@ -1391,7 +1421,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <typeparam name="T">The datatype in the collection</typeparam>
         /// <param name="Collection">The collection to load</param>
-        /// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space.</param>
         /// <param name="TableStyle">Will creata a table with this style. If set to TableStyles.None no table will be created</param>
         /// <param name="memberFlags">Property flags to use</param>
         /// <param name="Members">The properties to output. Must be of type T</param>
@@ -1419,7 +1449,7 @@ namespace OfficeOpenXml
             {
                 foreach (var t in Members)
                 {
-                    _worksheet.Cell(row, col++).Value = t.Name;
+                    _worksheet.Cell(row, col++).Value = t.Name.Replace('_',' ');
                 }
                 row++;
             }
@@ -1455,7 +1485,7 @@ namespace OfficeOpenXml
                 }
             }
             
-            var r=_worksheet.Cells[_fromRow, _fromCol, row-1, col];
+            var r=_worksheet.Cells[_fromRow, _fromCol, row-1, col-1];
 
             if (TableStyle != TableStyles.None)
             {
@@ -1610,6 +1640,17 @@ namespace OfficeOpenXml
         public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
         {
             return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
+        }
+        #endregion
+        #region GetValue        
+        /// <summary>
+        /// Get the strongly typed value of the cell.
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <returns>The value. If the value can't be converted to the specified type, the default value will be returned</returns>
+        public T GetValue<T>()
+        {
+            return _worksheet.GetTypedValue<T>(Value);
         }
         #endregion
         /// <summary>

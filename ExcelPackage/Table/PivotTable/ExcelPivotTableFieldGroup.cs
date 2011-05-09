@@ -55,7 +55,7 @@ namespace OfficeOpenXml.Table.PivotTable
             get
             {
                 string v = GetXmlNodeString(groupByPath);
-                if (v == "")
+                if (v != "")
                 {
                     return (eDateGroupBy)Enum.Parse(typeof(eDateGroupBy), v, true);
                 }
@@ -67,6 +67,20 @@ namespace OfficeOpenXml.Table.PivotTable
             private set
             {
                 SetXmlNodeString(groupByPath, value.ToString().ToLower());
+            }
+        }
+        public bool AutoStart
+        {
+            get
+            {
+                return GetXmlNodeBool("@autoStart", false);
+            }
+        }
+        public bool AutoEnd
+        {
+            get
+            {
+                return GetXmlNodeBool("@autoStart", false);
             }
         }
     }
