@@ -47,10 +47,10 @@ namespace OfficeOpenXml.Table.PivotTable
             var pck = sheet.xlPackage.Package;
             Part=pck.GetPart(PivotTableUri);
 
-            PivotXml = new XmlDocument();
-            PivotXml.Load(Part.GetStream());
+            PivotTableXml = new XmlDocument();
+            PivotTableXml.Load(Part.GetStream());
             init();
-            TopNode = PivotXml.DocumentElement;
+            TopNode = PivotTableXml.DocumentElement;
             Address = new ExcelAddressBase(GetXmlNodeString("d:location/@ref"));
 
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this);
@@ -141,14 +141,14 @@ namespace OfficeOpenXml.Table.PivotTable
             Address = address;
             var pck = sheet.xlPackage.Package;
 
-            PivotXml = new XmlDocument();
-            PivotXml.LoadXml(GetStartXml(name, tblId, address, sourceAddress)); 
-            TopNode = PivotXml.DocumentElement;
+            PivotTableXml = new XmlDocument();
+            PivotTableXml.LoadXml(GetStartXml(name, tblId, address, sourceAddress)); 
+            TopNode = PivotTableXml.DocumentElement;
             PivotTableUri =  new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", tblId), UriKind.Relative);
             init();
 
             Part = pck.CreatePart(PivotTableUri, ExcelPackage.schemaPivotTable);
-            PivotXml.Save(Part.GetStream());
+            PivotTableXml.Save(Part.GetStream());
             
             //Worksheet-Pivottable relationship
             Relationship = sheet.Part.CreateRelationship(PackUriHelper.ResolvePartUri(sheet.WorksheetUri, PivotTableUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
@@ -217,7 +217,7 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        public XmlDocument PivotXml { get; private set; }
+        public XmlDocument PivotTableXml { get; private set; }
         public Uri PivotTableUri
         {
             get;
@@ -740,38 +740,38 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString(FIRSTDATACOL_PATH, value.ToString());
             }
         }
-        ExcelPivotTableFieldCollectionBase<ExcelPivotTableField> _fields = null;
-        public ExcelPivotTableFieldCollectionBase<ExcelPivotTableField> Fields
+        ExcelPivotTableFieldCollection _fields = null;
+        public ExcelPivotTableFieldCollection Fields
         {
             get
             {
                 if (_fields == null)
                 {
-                    _fields = new ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>(this);
+                    _fields = new ExcelPivotTableFieldCollection(this, "");
                 }
                 return _fields;
             }
         }
-        ExcelPivotTableFieldCollection _rowFields = null;
-        public ExcelPivotTableFieldCollection RowFields
+        ExcelPivotTableRowColumnFieldCollection _rowFields = null;
+        public ExcelPivotTableRowColumnFieldCollection RowFields
         {
             get
             {
                 if (_rowFields == null)
                 {
-                    _rowFields = new ExcelPivotTableFieldCollection(this, "rowFields");
+                    _rowFields = new ExcelPivotTableRowColumnFieldCollection(this, "rowFields");
                 }
                 return _rowFields;
             }
         }
-        ExcelPivotTableFieldCollection _columnFields = null;
-        public ExcelPivotTableFieldCollection ColumnFields
+        ExcelPivotTableRowColumnFieldCollection _columnFields = null;
+        public ExcelPivotTableRowColumnFieldCollection ColumnFields
         {
             get
             {
                 if (_columnFields == null)
                 {
-                    _columnFields = new ExcelPivotTableFieldCollection(this, "colFields");
+                    _columnFields = new ExcelPivotTableRowColumnFieldCollection(this, "colFields");
                 }
                 return _columnFields;
             }
@@ -788,14 +788,14 @@ namespace OfficeOpenXml.Table.PivotTable
                 return _dataFields;
             }
         }
-        ExcelPivotTableFieldCollection _pageFields = null;
-        public ExcelPivotTableFieldCollection PageFields
+        ExcelPivotTableRowColumnFieldCollection _pageFields = null;
+        public ExcelPivotTableRowColumnFieldCollection PageFields
         {
             get
             {
                 if (_pageFields == null)
                 {
-                    _pageFields = new ExcelPivotTableFieldCollection(this, "pageFields");
+                    _pageFields = new ExcelPivotTableRowColumnFieldCollection(this, "pageFields");
                 }
                 return _pageFields;
             }

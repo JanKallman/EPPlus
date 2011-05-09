@@ -30,6 +30,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
@@ -98,11 +99,37 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 return GetXmlNodeInt("@numFmtId");
             }
-            set
+            internal set
             {
                 SetXmlNodeString("@numFmtId", value.ToString());
             }
-        }        
+        }
+        public string Format
+        {
+            get
+            {
+                foreach (var nf in Field._table.WorkSheet.Workbook.Styles.NumberFormats)
+                {
+                    if (nf.NumFmtId == NumFmtId)
+                    {
+                        return nf.Format;
+                    }
+                }
+                return Field._table.WorkSheet.Workbook.Styles.NumberFormats[0].Format;
+            }
+            set
+            {
+                var styles = Field._table.WorkSheet.Workbook.Styles;
+
+                ExcelNumberFormatXml nf = null;
+                if (!styles.NumberFormats.FindByID(value, ref nf))
+                {
+                    nf = new ExcelNumberFormatXml(NameSpaceManager) { Format = value, NumFmtId = styles.NumberFormats.NextId++ };
+                    styles.NumberFormats.Add(value, nf);
+                }
+                NumFmtId = nf.NumFmtId;
+            }
+        }
         public DataFieldFunctions Function
         {
             get

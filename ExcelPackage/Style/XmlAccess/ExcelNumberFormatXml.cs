@@ -331,11 +331,13 @@ namespace OfficeOpenXml.Style.XmlAccess
                 {
                     NetFormat = NetFormatForWidth = "d";
                     NetTextFormat = NetTextFormatForWidth = "";
+                    DataType = eFormatType.DateTime;
                 }
                 else if (format.ToLower() == "general")
                 {
-                    NetFormat = NetFormatForWidth = "";
+                    NetFormat = NetFormatForWidth = "#.#####";
                     NetTextFormat = NetTextFormatForWidth = "";
+                    DataType = eFormatType.Number;
                 }
                 else
                 {
@@ -345,7 +347,22 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             internal string NetTextFormat { get; private set; }
             internal string NetFormat { get; private set; }
-            internal CultureInfo Culture { get; private set; }
+            CultureInfo _ci = null;
+            internal CultureInfo Culture
+            {
+                get
+                {
+                    if (_ci == null)
+                    {
+                        return CultureInfo.CurrentCulture;
+                    }
+                    return _ci;
+                }
+                private set
+                {
+                    _ci = value;
+                }
+            }
             internal eFormatType DataType { get; private set; }
             internal string NetTextFormatForWidth { get; private set; }
             internal string NetFormatForWidth { get; private set; }

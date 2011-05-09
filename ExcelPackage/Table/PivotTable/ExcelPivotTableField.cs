@@ -444,8 +444,27 @@ namespace OfficeOpenXml.Table.PivotTable
             _cacheFieldHelper.SetXmlNodeBool("d:sharedItems/@containsSemiMixedTypes", false);
 
             group.TopNode.InnerXml += string.Format("<fieldGroup base=\"{0}\"><rangePr groupBy=\"{1}\" /><groupItems /></fieldGroup>", BaseIndex, GroupBy.ToString().ToLower());
-            _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@startDate", StartDate.ToString("s", CultureInfo.InvariantCulture));
-            _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@endDate", EndDate.ToString("s", CultureInfo.InvariantCulture));
+
+            if (StartDate.Year < 1900)
+            {
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@startDate", "1900-01-01T00:00:00");
+            }
+            else
+            {
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@startDate", StartDate.ToString("s", CultureInfo.InvariantCulture));
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@autoStart", "0");
+            }
+
+            if (EndDate==DateTime.MaxValue)
+            {
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@endDate", "9999-12-31T00:00:00");
+            }
+            else
+            {
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@endDate", EndDate.ToString("s", CultureInfo.InvariantCulture));
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@autoEnd", "0");
+            }
+
             int items = AddDateGroupItems(group, GroupBy, StartDate, EndDate);
             AddFieldItems(items);
 
@@ -535,7 +554,7 @@ namespace OfficeOpenXml.Table.PivotTable
                     break;
                 case eDateGroupBy.Hours:
                     AddTimeSerie(24, groupItems);
-                    items += 60;
+                    items += 24;
                     break;
                 case eDateGroupBy.Days:
                     DateTime dt = new DateTime(2008, 1, 1); //pick a year with 366 days
@@ -569,9 +588,13 @@ namespace OfficeOpenXml.Table.PivotTable
                     items += 4;
                     break;
                 case eDateGroupBy.Years:
-                    for (int year = StartDate.Year; year <= EndDate.Year; year++)
+                    if(StartDate.Year>=1900 && EndDate!=DateTime.MaxValue)
                     {
-                        AddGroupItem(groupItems, year.ToString());
+                        for (int year = StartDate.Year; year <= EndDate.Year; year++)
+                        {
+                            AddGroupItem(groupItems, year.ToString());
+                        }
+                        items += EndDate.Year - StartDate.Year+1;
                     }
                     break;
                 default:
@@ -587,7 +610,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             for (int i = 0; i < count; i++)
             {
-                AddGroupItem(groupItems, string.Format(":{0:00}", count));
+                AddGroupItem(groupItems, string.Format("{0:00}", i));
             }
         }
 
@@ -598,12 +621,71 @@ namespace OfficeOpenXml.Table.PivotTable
             groupItems.AppendChild(s);
         }
         #endregion
+        internal ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem> _items=null;
+        public ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem> Items
+        {
+            get
+            {
+                if (_items == null)
+                {
+                    _items = new ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem>(_table);
+                    foreach (XmlNode node in TopNode.SelectNodes("d:items//d:item", NameSpaceManager))
+                    {
+                        var item = new ExcelPivotTableFieldItem(NameSpaceManager, node,this);
+                        if (item.T == "")
+                        {
+                            _items.AddInternal(item);
+                        }
+                    }
+                    //if (_grouping is ExcelPivotTableFieldDateGroup)
+                    //{
+                    //    ExcelPivotTableFieldDateGroup dtgrp = ((ExcelPivotTableFieldDateGroup)_grouping);
 
+                    //    ExcelPivotTableFieldItem minItem=null, maxItem=null;
+                    //    foreach (var item in _items)
+                    //    {
+                    //        if (item.X == 0)
+                    //        {
+                    //            minItem = item;
+                    //        }
+                    //        else if (maxItem == null || maxItem.X < item.X)
+                    //        {
+                    //            maxItem = item;
+                    //        }
+                    //    }
+                    //    if (dtgrp.AutoStart)
+                    //    {
+                    //        _items._list.Remove(minItem);
+                    //    }
+                    //    if (dtgrp.AutoEnd)
+                    //    {
+                    //        _items._list.Remove(maxItem);
+                    //    }
+
+                    //}
+                }
+                return _items;
+            }
+        }
         public void AddNumericGrouping(double Start, double End, double Interval)
         {
             ValidateGrouping();
             SetNumericGroup(Start, End, Interval);
         }
+        /// <summary>
+        /// Add a date grouping on this field.
+        /// </summary>
+        /// <param name="groupBy">Group by</param>
+        public void AddDateGrouping(eDateGroupBy groupBy)
+        {
+            AddDateGrouping(groupBy, DateTime.MinValue, DateTime.MaxValue);
+        }
+        /// <summary>
+        /// Add a date grouping on this field.
+        /// </summary>
+        /// <param name="groupBy">Group by</param>
+        /// <param name="startDate">Fixed start date. Use DateTime.Mindate for auto</param>
+        /// <param name="endDate">Fixed end date. Use DateTime.Mindate for auto</param>
         public void AddDateGrouping(eDateGroupBy groupBy, DateTime startDate, DateTime endDate)
         {
             ValidateGrouping();
@@ -647,6 +729,7 @@ namespace OfficeOpenXml.Table.PivotTable
             }
 
             _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/@par", (_table.Fields.Count - 1).ToString());
+            _items = null;
         }
 
         private void ValidateGrouping()
@@ -668,8 +751,8 @@ namespace OfficeOpenXml.Table.PivotTable
             if (firstField == false)
             {
                 //Pivot field
-                var topNode = _table.PivotXml.SelectSingleNode("//d:pivotFields", _table.NameSpaceManager);
-                var fieldNode = _table.PivotXml.CreateElement("pivotField", ExcelPackage.schemaMain);
+                var topNode = _table.PivotTableXml.SelectSingleNode("//d:pivotFields", _table.NameSpaceManager);
+                var fieldNode = _table.PivotTableXml.CreateElement("pivotField", ExcelPackage.schemaMain);
                 fieldNode.SetAttribute("compact", "0");
                 fieldNode.SetAttribute("outline", "0");
                 fieldNode.SetAttribute("showAll", "0");

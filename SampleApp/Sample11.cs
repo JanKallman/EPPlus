@@ -42,7 +42,7 @@ namespace EPPlusSamples
     /// </summary>
     class Sample11
     {
-        public static void RunSample11(DirectoryInfo outputDir)
+        public static string RunSample11(DirectoryInfo outputDir)
         {
             //Create a Sample10 directory...
             if (!Directory.Exists(outputDir.FullName + @"\Sample11"))
@@ -69,7 +69,7 @@ namespace EPPlusSamples
                 ReadExistingValidationsFromPackage(package);
                 package.SaveAs(output);
             }
-            
+            return output.FullName;
         }
 
         /// <summary>

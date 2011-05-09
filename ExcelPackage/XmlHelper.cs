@@ -292,7 +292,8 @@ namespace OfficeOpenXml
                 {
                     if (node is XmlAttribute)
                     {
-                        TopNode.RemoveChild((node as XmlAttribute).OwnerElement);
+                        var elem = (node as XmlAttribute).OwnerElement;
+                        elem.ParentNode.RemoveChild(elem);
                     }
                     else
                     {

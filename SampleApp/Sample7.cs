@@ -15,7 +15,7 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="outputDir"></param>
         /// <param name="Rows"></param>
-        public static void RunSample7(DirectoryInfo outputDir, int Rows)
+        public static string RunSample7(DirectoryInfo outputDir, int Rows)
         {
             FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample7.xlsx");
             if (newFile.Exists)
@@ -38,10 +38,11 @@ namespace EPPlusSamples
             var rnd = new Random();
             for (int row = 1; row <= Rows; row++)
             {
-                ws.Cells[row, 1].Value = row;
-                ws.Cells[row, 2].Value = string.Format("Row {0}", row);
-                ws.Cells[row, 3].Value = DateTime.Today.AddDays(row);
-                ws.Cells[row, 4].Value = rnd.NextDouble() * 10000;
+                ws.SetValue(row, 1, row);                               //The SetValue method is a little bit faster than using the Value property
+                ws.SetValue(row, 2, string.Format("Row {0}", row));
+                ws.SetValue(row, 3, DateTime.Today.AddDays(row));
+                ws.SetValue(row, 4, rnd.NextDouble() * 10000);
+
                 ws.Cells[row, 5].FormulaR1C1 = "RC[-4]+RC[-1]";
 
                 if (row % 10000 == 0)
@@ -99,6 +100,7 @@ namespace EPPlusSamples
             Console.WriteLine("{0:HH.mm.ss}\tSaving...", DateTime.Now);
             package.SaveAs(newFile);
             Console.WriteLine("{0:HH.mm.ss}\tDone!!", DateTime.Now);
+            return newFile.FullName;
         }
     }
 }

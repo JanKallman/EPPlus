@@ -36,7 +36,7 @@ namespace OfficeOpenXml.Table.PivotTable
     public class ExcelPivotTableFieldCollectionBase<T> : IEnumerable<T>
     {
         protected ExcelPivotTable _table;
-        protected List<T> _list = new List<T>();
+        internal List<T> _list = new List<T>();
         internal ExcelPivotTableFieldCollectionBase(ExcelPivotTable table)
         {
             _table = table;
@@ -71,7 +71,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 if (Index < 0 || Index >= _list.Count)
                 {
-                    throw (new ArgumentOutOfRangeException("PivotTable field index out of range"));
+                    throw (new ArgumentOutOfRangeException("Index out of range"));
                 }
                 return _list[Index];
             }
@@ -79,22 +79,77 @@ namespace OfficeOpenXml.Table.PivotTable
     }
     public class ExcelPivotTableFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>
     {
-        internal string _topNode;
         public ExcelPivotTableFieldCollection(ExcelPivotTable table, string topNode) :
+            base(table)
+        {
+
+        }
+        public ExcelPivotTableField this[string name]
+        {
+            get
+            {
+                foreach (var field in _list)
+                {
+                    if (field.Name == name)
+                    {
+                        return field;
+                    }
+                }
+                return null;
+            }
+        }
+        /// <summary>
+        /// Returns the date group field.
+        /// </summary>
+        /// <param name="GroupBy">The type of grouping</param>
+        /// <returns>The matching field. If none is found null is returned</returns>
+        public ExcelPivotTableField GetDateGroupField(eDateGroupBy GroupBy)
+        {
+            foreach (var fld in _list)
+            {
+                if (fld.Grouping is ExcelPivotTableFieldDateGroup && (((ExcelPivotTableFieldDateGroup)fld.Grouping).GroupBy) == GroupBy)
+                {
+                    return fld;
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// Returns the numeric group field.
+        /// </summary>
+        /// <returns>The matching field. If none is found null is returned</returns>
+        public ExcelPivotTableField GetNumericGroupField()
+        {
+            foreach (var fld in _list)
+            {
+                if (fld.Grouping is ExcelPivotTableFieldNumericGroup)
+                {
+                    return fld;
+                }
+            }
+            return null;
+        }
+    }
+    public class ExcelPivotTableRowColumnFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>
+    {
+        internal string _topNode;
+        public ExcelPivotTableRowColumnFieldCollection(ExcelPivotTable table, string topNode) :
             base(table)
 	    {
             _topNode=topNode;
 	    }
 
-        public void Add(ExcelPivotTableField Field)
+        public ExcelPivotTableField Add(ExcelPivotTableField Field)
         {
             SetFlag(Field, true);
             _list.Add(Field);
+            return Field;
         }
-        internal void Insert(ExcelPivotTableField Field, int Index)
+        internal ExcelPivotTableField Insert(ExcelPivotTableField Field, int Index)
         {
             SetFlag(Field, true);
             _list.Insert(Index, Field);
+            return Field;
         }
         private void SetFlag(ExcelPivotTableField field, bool value)
         {
@@ -171,7 +226,7 @@ namespace OfficeOpenXml.Table.PivotTable
             XmlElement node = field.AppendField(dataFieldsNode, field.Index, "dataField", "fld");
             field.SetXmlNodeBool("@dataField", true,false);
 
-            var dataField = new ExcelPivotTableDataField(field.NameSpaceManager, dataFieldsNode, field);
+            var dataField = new ExcelPivotTableDataField(field.NameSpaceManager, node, field);
             _list.Add(dataField);
             return dataField;
         }

@@ -48,6 +48,7 @@ using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Table;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Table.PivotTable;
+using System.ComponentModel;
 
 namespace OfficeOpenXml
 {
@@ -1623,6 +1624,163 @@ namespace OfficeOpenXml
         }
 		#endregion
 
+        /// <summary>
+        /// Get the cell value from thw worksheet
+        /// </summary>
+        /// <param name="Row">The row number</param>
+        /// <param name="Column">The row number</param>
+        /// <returns>The value</returns>
+        public object GetValue(int Row, int Column)
+        {
+            ulong cellID = ExcelCell.GetCellID(SheetID, Row, Column);
+
+            if (_cells.ContainsKey(cellID))
+            {
+                return ((ExcelCell)_cells[cellID]).Value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Get a strongly typed cell value from the worksheet
+        /// </summary>
+        /// <typeparam name="T">The type</typeparam>
+        /// <param name="Row">The row number</param>
+        /// <param name="Column">The row number</param>
+        /// <returns>The value. If the value can't be converted to the specified type, the default value will be returned</returns>
+        public T GetValue<T>(int Row, int Column)
+        {
+             ulong cellID=ExcelCell.GetCellID(SheetID, Row, Column);
+                        
+            if (!_cells.ContainsKey(cellID))
+            {
+                return default(T);
+            }
+
+            object v = ((ExcelCell)_cells[cellID]).Value;
+            return GetTypedValue<T>(v);
+        }
+        //Thanks to Michael Tran for parts of this method
+        internal T GetTypedValue<T>(object v)
+        {
+            if (v == null)
+            {
+                return default(T);
+            }
+            Type fromType = v.GetType();
+            Type toType = typeof(T);
+            if (fromType == toType)
+            {
+                return (T)v;
+            }
+            var cnv = TypeDescriptor.GetConverter(fromType);
+            if (toType == typeof(DateTime))    //Handle dates
+            {
+                if (fromType == typeof(TimeSpan))
+                {
+                    return ((T)(object)(new DateTime(((TimeSpan)v).Ticks)));
+                }
+                else if (fromType == typeof(string))
+                {
+                    DateTime dt;
+                    if (DateTime.TryParse(v.ToString(), out dt))
+                    {
+                        return (T)(object)(dt);
+                    }
+                    else
+                    {
+                        return default(T);
+                    }
+
+                }
+                else
+                {
+                    if (cnv.CanConvertTo(typeof(double)))
+                    {
+                        return (T)(object)(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))));
+                    }
+                    else
+                    {
+                        return default(T);
+                    }
+                }
+            }
+            else if (toType == typeof(TimeSpan))    //Handle timespan
+            {
+                if (fromType == typeof(DateTime))
+                {
+                    return ((T)(object)(new TimeSpan(((DateTime)v).Ticks)));
+                }
+                else if (fromType == typeof(string))
+                {
+                    TimeSpan ts;
+                    if (TimeSpan.TryParse(v.ToString(), out ts))
+                    {
+                        return (T)(object)(ts);
+                    }
+                    else
+                    {
+                        return default(T);
+                    }
+                }
+                else
+                {
+                    if (cnv.CanConvertTo(typeof(double)))
+                    {
+
+                        return (T)(object)(new TimeSpan(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))).Ticks));
+                    }
+                    else
+                    {
+                        return default(T);
+                    }
+                }
+            }
+            else
+            {
+                if (cnv.CanConvertTo(toType))
+                {
+                    return (T)cnv.ConvertTo(v, typeof(T));
+                }
+                else
+                {
+                    if (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                    {
+                        toType = Nullable.GetUnderlyingType(toType);
+                        if (cnv.CanConvertTo(toType))
+                        {
+                            return (T)cnv.ConvertTo(v, typeof(T));
+                        }
+                    }
+
+                    if(fromType==typeof(double) && toType==typeof(decimal))
+                    {
+                        return (T)(object)Convert.ToDecimal(v);
+                    }
+                    else if (fromType == typeof(decimal) && toType == typeof(double))
+                    {
+                        return (T)(object)Convert.ToDouble(v);
+                    }
+                    else
+                    {
+                        return default(T);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Set the value of a cell
+        /// </summary>
+        /// <param name="Row">The row number</param>
+        /// <param name="Column">The column number</param>
+        /// <param name="Value">The value</param>
+        public void SetValue(int Row, int Column, object Value)
+        {
+            Cell(Row, Column).Value = Value;
+        }
 		#endregion // END Worksheet Public Methods
 
 		#region Worksheet Private Methods
@@ -1631,7 +1789,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Saves the worksheet to the package.  For internal use only.
 		/// </summary>
-		protected internal void Save()  // Worksheet Save
+		internal void Save()  // Worksheet Save
 		{
 			#region Delete the printer settings component (if it exists)
             DeletePrinterSettings();
@@ -1643,8 +1801,6 @@ namespace OfficeOpenXml
 				// save the header & footer (if defined)
 				if (_headerFooter != null)
 					HeaderFooter.Save();
-                // replace the numeric Cell IDs we inserted with AddNumericCellIDs()
-				//ReplaceNumericCellIDs();
 
                 if (_cells.Count > 0)
                 {
@@ -1655,11 +1811,6 @@ namespace OfficeOpenXml
                 SaveTables();
                 SavePivotTables();
                 SaveXml();
-				// save worksheet to package
-                //PackagePart partPack = xlPackage.Package.GetPart(WorksheetUri);
-                //WorksheetXml.Save(Part.GetStream(FileMode.Create, FileAccess.Write));
-
-                xlPackage.WriteDebugFile(WorksheetXml, @"xl\worksheets", "sheet" + SheetID + ".xml");
 			}
             
             if (Drawings.UriDrawing!=null)
@@ -1674,7 +1825,6 @@ namespace OfficeOpenXml
                         c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
                     }
                 }   
-                //xlPackage.WriteDebugFile(WorksheetXml, @"xl\drawings", "drawing" + SheetID + ".xml");                
             }
 		}
 
@@ -1860,28 +2010,32 @@ namespace OfficeOpenXml
                     XmlElement parentNode;
                     if(pt.DataOnRows==true)
                     {
-                        parentNode =  pt.PivotXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
+                        parentNode =  pt.PivotTableXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
                         if (parentNode == null)
                         {
                             pt.CreateNode("d:rowFields");
-                            parentNode = pt.PivotXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
+                            parentNode = pt.PivotTableXml.SelectSingleNode("//d:rowFields", pt.NameSpaceManager) as XmlElement;
                         }
                     }
                     else
                     {
-                        parentNode =  pt.PivotXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
+                        parentNode =  pt.PivotTableXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
                         if (parentNode == null)
                         {
                             pt.CreateNode("d:colFields");
-                            parentNode = pt.PivotXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
+                            parentNode = pt.PivotTableXml.SelectSingleNode("//d:colFields", pt.NameSpaceManager) as XmlElement;
                         }
                     }
-                    XmlElement fieldNode = pt.PivotXml.CreateElement("field",ExcelPackage.schemaMain);
-                    fieldNode.SetAttribute("x", "-2");
-                    parentNode.AppendChild(fieldNode);
+
+                    if (parentNode.SelectSingleNode("d:field[@ x= \"-2\"]", pt.NameSpaceManager) == null)
+                    {
+                        XmlElement fieldNode = pt.PivotTableXml.CreateElement("field", ExcelPackage.schemaMain);
+                        fieldNode.SetAttribute("x", "-2");
+                        parentNode.AppendChild(fieldNode);
+                    }
                 }
-                pt.PivotXml.Save(pt.Part.GetStream());
-                pt.CacheDefinition.CacheDefinitionXml.Save(pt.CacheDefinition.Part.GetStream());
+                pt.PivotTableXml.Save(pt.Part.GetStream(FileMode.Create));
+                pt.CacheDefinition.CacheDefinitionXml.Save(pt.CacheDefinition.Part.GetStream(FileMode.Create));
             }
         }
         private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
@@ -2164,30 +2318,34 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (cell.Value == null)
+                    if (cell._value == null)
                     {
                         sw.Write("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
                     }
                     else
                     {
-                        if ((cell.Value.GetType().IsPrimitive || cell.Value is double || cell.Value is decimal || cell.Value is DateTime) && cell.DataType != "s")
+                        if ((cell._value.GetType().IsPrimitive || cell._value is double || cell._value is decimal || cell._value is DateTime || cell._value is TimeSpan) && cell.DataType != "s")
                         {
                             string s;
                             try
                             {
-                                if (cell.Value is DateTime)
+                                if (cell._value is DateTime)
                                 {
                                     s = ((DateTime)cell.Value).ToOADate().ToString(_ci);
                                 }
+                                else if (cell._value is TimeSpan)
+                                {
+                                    s = new DateTime(((TimeSpan)cell.Value).Ticks).ToOADate().ToString(_ci); ;
+                                }
                                 else
                                 {
-                                    if (cell.Value is double && double.IsNaN((double)cell.Value))
+                                    if (cell._value is double && double.IsNaN((double)cell._value))
                                     {
                                         s = "0";
                                     }
                                     else
                                     {
-                                        s = Convert.ToDouble(cell.Value, _ci).ToString("g15",_ci);
+                                        s = Convert.ToDouble(cell._value, _ci).ToString("g15", _ci);
                                     }
                                 }
                             }
@@ -2196,7 +2354,7 @@ namespace OfficeOpenXml
                             {
                                 s = "0";
                             }
-                            if (cell.Value is bool)
+                            if (cell._value is bool)
                             {
                                 sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"b\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
                             }
@@ -2209,10 +2367,10 @@ namespace OfficeOpenXml
                         else
                         {
                             int ix;
-                            if (!ss.ContainsKey(cell.Value.ToString()))
+                            if (!ss.ContainsKey(cell._value.ToString()))
                             {
                                 ix = ss.Count;
-                                ss.Add(cell.Value.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = cell.IsRichText, pos = ix });
+                                ss.Add(cell._value.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = cell.IsRichText, pos = ix });
                             }
                             else
                             {

@@ -38,8 +38,8 @@ using System.IO.Packaging;
 namespace OfficeOpenXml
 {
     /// <summary>
-	/// Represents an Excel 2007 XLSX file package.  Opens the file and provides access
-	/// to all the components (workbook, worksheets, properties etc.).
+	/// Represents an Excel 2007/2010 XLSX file package.  
+    /// This is the top-level object to access all parts of the document.
 	/// </summary>
 	public sealed class ExcelPackage : IDisposable
 	{
@@ -47,42 +47,42 @@ namespace OfficeOpenXml
         Stream _stream = null;
 		#region Properties
 		/// <summary>
-		/// Provides access to the main schema used by all Excel components
+		/// Main Xml schema name
 		/// </summary>
-		protected internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+		internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
 		/// <summary>
-		/// Provides access to the relationship schema
+		/// Relationship schema name
 		/// </summary>
-		protected internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+		internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
                                                                 
-        protected internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
-        protected internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
+        internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
+        internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
         
-        protected internal const string schemaMicrosoftVml = @"urn:schemas-microsoft-com:vml";
-        protected internal const string schemaMicrosoftOffice = "urn:schemas-microsoft-com:office:office";
-        protected internal const string schemaMicrosoftExcel = "urn:schemas-microsoft-com:office:excel";
+        internal const string schemaMicrosoftVml = @"urn:schemas-microsoft-com:vml";
+        internal const string schemaMicrosoftOffice = "urn:schemas-microsoft-com:office:office";
+        internal const string schemaMicrosoftExcel = "urn:schemas-microsoft-com:office:excel";
 
-        protected internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
-        protected internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
-        protected internal const string schemaComment = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments";
-        protected internal const string schemaImage = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
+        internal const string schemaChart = @"http://schemas.openxmlformats.org/drawingml/2006/chart";                                                        
+        internal const string schemaHyperlink = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink";
+        internal const string schemaComment = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/comments";
+        internal const string schemaImage = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/image";
         //Office properties
-        protected internal const string schemaCore = @"http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
-        protected internal const string schemaExtended = @"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
-        protected internal const string schemaCustom = @"http://schemas.openxmlformats.org/officeDocument/2006/custom-properties";
-        protected internal const string schemaDc = @"http://purl.org/dc/elements/1.1/";
-        protected internal const string schemaDcTerms = @"http://purl.org/dc/terms/";
-        protected internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
-        protected internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
-        protected internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
+        internal const string schemaCore = @"http://schemas.openxmlformats.org/package/2006/metadata/core-properties";
+        internal const string schemaExtended = @"http://schemas.openxmlformats.org/officeDocument/2006/extended-properties";
+        internal const string schemaCustom = @"http://schemas.openxmlformats.org/officeDocument/2006/custom-properties";
+        internal const string schemaDc = @"http://purl.org/dc/elements/1.1/";
+        internal const string schemaDcTerms = @"http://purl.org/dc/terms/";
+        internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
+        internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
+        internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
 
         //Pivottables
-        protected internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
-        protected internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
-        protected internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
+        internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
+        internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
+        internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
 
         private Package _package;
-		private string _outputFolderPath;
+		//private string _outputFolderPath;
 
 		private ExcelWorkbook _workbook;
         /// <summary>
@@ -102,7 +102,7 @@ namespace OfficeOpenXml
         public ExcelPackage()
         {
             Init();
-            ConstructNewFile(null);
+            ConstructNewFile(new MemoryStream(), null);
         }
         /// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
@@ -112,7 +112,7 @@ namespace OfficeOpenXml
 		{
             Init();
             File = newFile;
-            ConstructNewFile(null);
+            ConstructNewFile(new MemoryStream(), null);
         }
         /// <summary>
         /// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
@@ -123,7 +123,7 @@ namespace OfficeOpenXml
         {
             Init();
             File = newFile;
-            ConstructNewFile(password);
+            ConstructNewFile(new MemoryStream(), password);
         }
 		/// <summary>
 		/// Creates a new instance of the ExcelPackage class based on a existing template.
@@ -183,11 +183,17 @@ namespace OfficeOpenXml
         /// Creates a new instance of the Excelpackage class based on a stream
         /// </summary>
         /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
-        /// <param name="Password">The password to decrypt the document</param>
         public ExcelPackage(Stream newStream) 
         {
             Init();
-            Load(newStream);
+            if (newStream.Length == 0)
+            {
+                ConstructNewFile(newStream, null);
+            }
+            else
+            {
+                Load(newStream);
+            }
         }
         /// <summary>
         /// Creates a new instance of the Excelpackage class based on a stream
@@ -204,12 +210,6 @@ namespace OfficeOpenXml
             Init();
             if (newStream.Length > 0)
             {
-            //    _stream = newStream;
-            //    if (newStream.CanSeek)
-            //    {
-            //        _stream.Seek(0, SeekOrigin.Begin);
-            //    }
-            //    _package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
                 Load(newStream,Password);
             }
             else
@@ -310,9 +310,9 @@ namespace OfficeOpenXml
                 throw new Exception("Passed invalid TemplatePath to Excel Template");
             //return newFile;
         }
-        private void ConstructNewFile(string password)
+        private void ConstructNewFile(Stream stream, string password)
         {
-            _stream = new MemoryStream();
+            _stream = stream;
             if (File != null) File.Refresh();
             if (File != null && File.Exists)
             {
@@ -370,12 +370,6 @@ namespace OfficeOpenXml
             // remove the temporary part that created the default xml content type
             _package.DeletePart(uriDefaultContentType);
         }
-		#region Public Properties
-		/// <summary>
-		/// Setting DebugMode to true will cause the Save method to write the 
-		/// raw XML components to the same folder as the output Excel file
-		/// </summary>
-		public bool DebugMode = false;
 
 		/// <summary>
 		/// Returns a reference to the package
@@ -434,34 +428,7 @@ namespace OfficeOpenXml
                 return (_workbook);
 			}
 		}
-		#endregion
 		
-		#region WriteDebugFile
-		/// <summary>
-		/// Writes a debug file to the output folder, but only if DebugMode = true
-		/// </summary>
-		/// <param name="XmlDoc">The XmlDocument to save to the file system</param>
-		/// <param name="subFolder">The subfolder in which the file is to be saved</param>
-		/// <param name="FileName">The name of the file to save.</param>
-		protected internal void WriteDebugFile(XmlDocument XmlDoc, string subFolder, string FileName)
-		{
-			if (DebugMode)
-			{
-				DirectoryInfo dir = new DirectoryInfo(_outputFolderPath + "/" + subFolder);
-				if (!dir.Exists)
-					dir.Create();
-
-				FileInfo file = new FileInfo(_outputFolderPath + "/" + subFolder + "/" + FileName);
-				if (file.Exists)
-				{
-					file.IsReadOnly = false;
-					file.Delete();
-				}
-				XmlDoc.Save(file.FullName);
-			}
-		}
-		#endregion
-
 		#region AddSchemaAttribute
 		/// <summary>
 		/// Adds additional schema attributes to the root element
@@ -574,7 +541,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    throw (new Exception(string.Format("Error saving file {0}", File.FullName), ex));
+                    throw (new InvalidOperationException(string.Format("Error saving file {0}", File.FullName), ex));
                 }
             }
         }
@@ -665,7 +632,6 @@ namespace OfficeOpenXml
             set
             {
                 _file = value;
-                if(_file!=null) _outputFolderPath = _file.DirectoryName;
             }
         }
         /// <summary>

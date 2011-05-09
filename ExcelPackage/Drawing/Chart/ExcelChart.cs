@@ -292,6 +292,24 @@ namespace OfficeOpenXml.Drawing.Chart
         /// </summary>
         Power
     }
+    /// <summary>
+    /// Specifies the possible ways to display blanks
+    /// </summary>
+    public enum eDisplayBlanksAs
+    {
+        /// <summary>
+        /// Blank values shall be left as a gap
+        /// </summary>
+        Gap,
+        /// <summary>
+        /// Blank values shall be spanned with a line (Line charts)
+        /// </summary>
+        Span,
+        /// <summary>
+        /// Blank values shall be treated as zero
+        /// </summary>
+        Zero
+    }
     #endregion
     
     
@@ -377,7 +395,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "overlap", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly","dispBlanksAs", "overlap", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
@@ -1232,6 +1250,53 @@ namespace OfficeOpenXml.Drawing.Chart
                     element.SetAttribute("val", ((int)value).ToString());
                     XmlElement parent = ChartXml.SelectSingleNode("c:chartSpace", NameSpaceManager) as XmlElement;
                     parent.InsertBefore(element, parent.SelectSingleNode("c:chart", NameSpaceManager));
+                }
+            }
+        }
+        const string _plotVisibleOnlyPath="../../c:plotVisOnly/@val";
+        /// <summary>
+        /// Show data in hidden rows and columns
+        /// </summary>
+        public bool ShowHiddenData
+        {
+            get
+            {
+                //!!Inverted value!!
+                return !_chartXmlHelper.GetXmlNodeBool(_plotVisibleOnlyPath);
+            }
+            set
+            {
+                //!!Inverted value!!
+                _chartXmlHelper.SetXmlNodeBool(_plotVisibleOnlyPath, !value);
+            }
+        }
+        const string _displayBlanksAsPath = "../../c:dispBlanksAs/@val";
+        /// <summary>
+        /// Specifies the possible ways to display blanks
+        /// </summary>
+        public eDisplayBlanksAs DisplayBlanksAs
+        {
+            get
+            {
+                string v=_chartXmlHelper.GetXmlNodeString(_displayBlanksAsPath);
+                if (string.IsNullOrEmpty(v))
+                {
+                    return eDisplayBlanksAs.Gap;
+                }
+                else
+                {
+                    return (eDisplayBlanksAs)Enum.Parse(typeof(eDisplayBlanksAs), v, true);
+                }
+            }
+            set
+            {
+                if (value == eDisplayBlanksAs.Gap)
+                {
+                    _chartSeries.DeleteNode(_displayBlanksAsPath);
+                }
+                else
+                {
+                    _chartSeries.SetXmlNodeString(_displayBlanksAsPath, value.ToString().ToLower());
                 }
             }
         }

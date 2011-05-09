@@ -43,7 +43,7 @@ namespace OfficeOpenXml
 
         }
 		#region Cell Private Properties
-		private ExcelWorksheet _xlWorksheet;
+		private ExcelWorksheet _worksheet;
         private int _row;
         private int _col;
 		internal string _formula="";
@@ -53,59 +53,59 @@ namespace OfficeOpenXml
         #endregion
 		#region ExcelCell Constructor
 		/// <summary>
-		/// Creates a new instance of ExcelCell class. For internal use only!
+		/// A cell in the worksheet. 
 		/// </summary>
-		/// <param name="xlWorksheet">A reference to the parent worksheet</param>
-		/// <param name="row">The row number in the parent worksheet</param>
-		/// <param name="col">The column number in the parent worksheet</param>
-		protected internal ExcelCell(ExcelWorksheet xlWorksheet, int row, int col)
+		/// <param name="worksheet">A reference to the worksheet</param>
+		/// <param name="row">Row number</param>
+		/// <param name="col">Column number</param>
+		internal ExcelCell(ExcelWorksheet worksheet, int row, int col)
 		{
 			if (row < 1 || col < 1)
-				throw new Exception("ExcelCell Constructor: Negative row and column numbers are not allowed");
+                throw new ArgumentException("Negative row and column numbers are not allowed");
             if (row > ExcelPackage.MaxRows || col > ExcelPackage.MaxColumns)
-                throw new Exception("ExcelCell Constructor: row or column numbers are out of range");
-            if (xlWorksheet == null)
-				throw new Exception("ExcelCell Constructor: xlWorksheet must be set to a valid reference");
+                throw new ArgumentException("Row or column numbers are out of range");
+            if (worksheet == null)
+				throw new ArgumentException("Worksheet must be set to a valid reference");
 
 			_row = row;
 			_col = col;
-            _xlWorksheet = xlWorksheet;
-            if (col < xlWorksheet._minCol) xlWorksheet._minCol = col;
-            if (col > xlWorksheet._maxCol) xlWorksheet._maxCol = col;
+            _worksheet = worksheet;
+            if (col < worksheet._minCol) worksheet._minCol = col;
+            if (col > worksheet._maxCol) worksheet._maxCol = col;
             _sharedFormulaID = int.MinValue;
             IsRichText = false;
 		}
-        protected internal ExcelCell(ExcelWorksheet xlWorksheet, string cellAddress)
+        internal ExcelCell(ExcelWorksheet worksheet, string cellAddress)
         {
-            _xlWorksheet = xlWorksheet;
+            _worksheet = worksheet;
             GetRowColFromAddress(cellAddress, out _row, out _col);
-            if (_col < xlWorksheet._minCol) xlWorksheet._minCol = _col;
-            if (_col > xlWorksheet._maxCol) xlWorksheet._maxCol = _col;
+            if (_col < worksheet._minCol) worksheet._minCol = _col;
+            if (_col > worksheet._maxCol) worksheet._maxCol = _col;
             _sharedFormulaID = int.MinValue;
             IsRichText = false;
         }
-		#endregion  // END Cell Constructors
+		#endregion 
         internal ulong CellID
         {
             get
             {
-                return GetCellID(_xlWorksheet.SheetID, Row, Column);
+                return GetCellID(_worksheet.SheetID, Row, Column);
             }
         }
         #region ExcelCell Public Properties
 
 		/// <summary>
-		/// Read-only reference to the cell's row number
+		/// Row number
 		/// </summary>
-        public int Row { get { return _row; } internal set { _row = value; } }
+        internal int Row { get { return _row; } set { _row = value; } }
 		/// <summary>
-		/// Read-only reference to the cell's column number
+		/// Column number
 		/// </summary>
-        public int Column { get { return _col; } internal set { _col = value; } }
+        internal int Column { get { return _col; } set { _col = value; } }
 		/// <summary>
-		/// Returns the current cell address in the standard Excel format (e.g. 'E5')
+		/// The address
 		/// </summary>
-		public string CellAddress { get { return GetAddress(_row, _col); } }
+        internal string CellAddress { get { return GetAddress(_row, _col); } }
 		/// <summary>
 		/// Returns true if the cell's contents are numeric.
 		/// </summary>
@@ -175,7 +175,7 @@ namespace OfficeOpenXml
             }
 			set 
             {
-                _styleID = _xlWorksheet.Workbook.Styles.GetStyleIdFromName(value);
+                _styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
 		}
@@ -191,9 +191,9 @@ namespace OfficeOpenXml
 			{
 				if(_styleID>0)
                     return _styleID;
-                else if (_xlWorksheet._rows != null && _xlWorksheet._rows.ContainsKey(ExcelRow.GetRowID(_xlWorksheet.SheetID, Row)))
+                else if (_worksheet._rows != null && _worksheet._rows.ContainsKey(ExcelRow.GetRowID(_worksheet.SheetID, Row)))
                 {
-                    return _xlWorksheet.Row(Row).StyleID;
+                    return _worksheet.Row(Row).StyleID;
                 }
                 else
                 {
@@ -216,7 +216,7 @@ namespace OfficeOpenXml
 
         private ExcelColumn GetColumn(int col)
         {
-            foreach (ExcelColumn column in _xlWorksheet._columns)
+            foreach (ExcelColumn column in _worksheet._columns)
             {
                 if (col >= column.ColumnMin && col <= column.ColumnMax)
                 {
@@ -233,7 +233,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _xlWorksheet.Workbook.Styles.GetStyleObject(StyleID, _xlWorksheet.PositionID, CellAddress);
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID, _worksheet.PositionID, CellAddress);
             }
         }
         internal void SetNewStyleName(string Name, int Id)
@@ -298,9 +298,9 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (_xlWorksheet._sharedFormulas.ContainsKey(SharedFormulaID))
+                    if (_worksheet._sharedFormulas.ContainsKey(SharedFormulaID))
                     {
-                        var f = _xlWorksheet._sharedFormulas[SharedFormulaID];
+                        var f = _worksheet._sharedFormulas[SharedFormulaID];
                         if (f.StartRow == Row && f.StartCol == Column)
                         {
                             return f.Formula;
@@ -322,9 +322,9 @@ namespace OfficeOpenXml
 				_formula = value;
                 _formulaR1C1 = "";
                 _sharedFormulaID = int.MinValue;
-                if (_formula!="" && !_xlWorksheet._formulaCells.ContainsKey(CellID))
+                if (_formula!="" && !_worksheet._formulaCells.ContainsKey(CellID))
                 {
-                    _xlWorksheet._formulaCells.Add(this);
+                    _worksheet._formulaCells.Add(this);
                 }
 			}
         }
@@ -348,9 +348,9 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (_xlWorksheet._sharedFormulas.ContainsKey(SharedFormulaID))
+                    if (_worksheet._sharedFormulas.ContainsKey(SharedFormulaID))
                     {
-                        return TranslateToR1C1(_xlWorksheet._sharedFormulas[SharedFormulaID].Formula, Row, Column);
+                        return TranslateToR1C1(_worksheet._sharedFormulas[SharedFormulaID].Formula, Row, Column);
                     }
                     else
                     {
@@ -367,9 +367,9 @@ namespace OfficeOpenXml
                 _formulaR1C1 = value;
                 _formula = "";
                 SharedFormulaID = int.MinValue;
-                if (!_xlWorksheet._formulaCells.ContainsKey(CellID))
+                if (!_worksheet._formulaCells.ContainsKey(CellID))
                 {
-                    _xlWorksheet._formulaCells.Add(this);
+                    _worksheet._formulaCells.Add(this);
                 }
             }
         }
@@ -385,7 +385,7 @@ namespace OfficeOpenXml
             set
             {
                 _sharedFormulaID = value;
-                if(_xlWorksheet._formulaCells.ContainsKey(CellID)) _xlWorksheet._formulaCells.Delete(CellID);
+                if(_worksheet._formulaCells.ContainsKey(CellID)) _worksheet._formulaCells.Delete(CellID);
             }
         }
         public bool IsArrayFormula { get; internal set; }
@@ -442,11 +442,10 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetCellID(_xlWorksheet.SheetID, Row, Column);
+                return GetCellID(_worksheet.SheetID, Row, Column);
             }
             set
             {
-                //_sheet = (int)(cellID % 0x8000);
                 _col = ((int)(value >> 15) & 0x3FF);
                 _row = ((int)(value >> 29));
             }

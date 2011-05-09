@@ -18,6 +18,7 @@ namespace ExcelPackageTest
             {
                 var ws = pck.Workbook.Worksheets["Pyramid"];
                 Assert.AreEqual(ws.Cells["V24"].Value, 104D);
+                
             }
 
         }
@@ -53,6 +54,15 @@ namespace ExcelPackageTest
             {
                 var ws = pck.Workbook.Worksheets["Perf"];                
                 Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["newsheet"];
+                Assert.AreEqual(ws.GetValue<DateTime>(20 ,21),new DateTime(2010,1,1));
+
+                ws = pck.Workbook.Worksheets["Loaded DataTable"];                
+                Assert.AreEqual(ws.GetValue<string>(2 ,1),"Row1");
+                Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
+                Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
+                Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
             instream.Close();
@@ -68,6 +78,27 @@ namespace ExcelPackageTest
                 pck.SaveAs(stream);
             }
             instream.Close();
+        }
+        [TestMethod]
+        public void ReadBlankStream()
+        {
+            MemoryStream stream = new MemoryStream();
+            using (ExcelPackage pck = new ExcelPackage(stream))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                pck.SaveAs(stream);
+            }
+            stream.Close();
+        }
+        [TestMethod]
+        public void ReadBug()
+        {
+            var file = new FileInfo(@"c:\temp\Adenoviridae Protocol.xlsx");
+            using (ExcelPackage pck = new ExcelPackage(file))
+            {
+                pck.Workbook.Worksheets[1].Cells["G4"].Value=12;
+                pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
+            }
         }
     }
 }

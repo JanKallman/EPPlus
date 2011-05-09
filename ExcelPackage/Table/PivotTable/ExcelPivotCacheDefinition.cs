@@ -198,8 +198,15 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                var s=GetXmlNodeString("d:cacheSource/@type");                
-                return (eSourceType)Enum.Parse(typeof(eSourceType), s, true);
+                var s=GetXmlNodeString("d:cacheSource/@type");
+                if (s == "")
+                {
+                    return eSourceType.Worksheet;
+                }
+                else
+                {
+                    return (eSourceType)Enum.Parse(typeof(eSourceType), s, true);
+                }
             }
         }
         private string GetStartXml(ExcelRangeBase sourceAddress)

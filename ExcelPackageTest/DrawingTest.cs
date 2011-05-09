@@ -112,7 +112,8 @@ namespace ExcelPackageTest
             chrt.VaryColors = true;
             chrt.XAxis.Orientation = eAxisOrientation.MaxMin;
             chrt.YAxis.Orientation = eAxisOrientation.MaxMin;
-
+            chrt.ShowHiddenData = true;
+            chrt.DisplayBlanksAs = eDisplayBlanksAs.Zero;
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
             Assert.IsTrue(chrt.Grouping == eGrouping.Clustered, "Invalid Grouping");
@@ -169,6 +170,9 @@ namespace ExcelPackageTest
 
             chrt.DataLabel.ShowValue = true;
             chrt.Legend.Position = eLegendPosition.Left;
+            chrt.ShowHiddenData = false;
+            chrt.DisplayBlanksAs = eDisplayBlanksAs.Gap;
+
             Assert.IsTrue(chrt.ChartType == eChartType.Pie3D, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -321,6 +325,8 @@ namespace ExcelPackageTest
             chrt.Title.Border.Fill.Color = Color.Tomato;
             chrt.DataLabel.ShowSeriesName = true;
             chrt.DataLabel.ShowLeaderLines=true;
+
+            chrt.DisplayBlanksAs = eDisplayBlanksAs.Span;
         }
         [TestMethod]
         public void Drawings()
