@@ -342,10 +342,11 @@ namespace OfficeOpenXml
             base(ns, topNode)
         {
             _ws = ws;
+            SchemaNodeOrder = ws.SchemaNodeOrder;
         }
         const string _leftMarginPath = "d:pageMargins/@left";
         /// <summary>
-        /// Left margin
+        /// Left margin in inches
         /// </summary>
         public decimal LeftMargin 
         {
@@ -361,7 +362,7 @@ namespace OfficeOpenXml
         }
         const string _rightMarginPath = "d:pageMargins/@right";
         /// <summary>
-        /// Right margin
+        /// Right margin in inches
         /// </summary>
         public decimal RightMargin 
         {
@@ -377,7 +378,7 @@ namespace OfficeOpenXml
         }
         const string _topMarginPath = "d:pageMargins/@top";
         /// <summary>
-        /// Top margin
+        /// Top margin in inches
         /// </summary>
         public decimal TopMargin 
         {
@@ -393,7 +394,7 @@ namespace OfficeOpenXml
         }
         const string _bottomMarginPath = "d:pageMargins/@bottom";
         /// <summary>
-        /// Bottom margin
+        /// Bottom margin in inches
         /// </summary>
         public decimal BottomMargin 
         {
@@ -409,7 +410,7 @@ namespace OfficeOpenXml
         }
         const string _headerMarginPath = "d:pageMargins/@header";
         /// <summary>
-        /// Header margin
+        /// Header margin in inches
         /// </summary>
         public decimal HeaderMargin 
         {
@@ -425,7 +426,7 @@ namespace OfficeOpenXml
         }
         const string _footerMarginPath = "d:pageMargins/@footer";
         /// <summary>
-        /// Footer margin
+        /// Footer margin in inches
         /// </summary>
         public decimal FooterMargin 
         {

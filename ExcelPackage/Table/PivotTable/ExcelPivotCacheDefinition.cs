@@ -52,6 +52,9 @@ namespace OfficeOpenXml.Table.PivotTable
         /// </summary>
         Worksheet
     }
+    /// <summary>
+    /// Cache definition. This class defines the source data. Note that one cache definition can be shared between many pivot tables.
+    /// </summary>
     public class ExcelPivotCacheDefinition : XmlHelper
     {
         internal ExcelPivotCacheDefinition(XmlNamespaceManager ns, ExcelPivotTable pivotTable) :
@@ -101,12 +104,21 @@ namespace OfficeOpenXml.Table.PivotTable
 
             CacheDefinitionXml.Save(Part.GetStream());
         }        
+        /// <summary>
+        /// Reference to the internal package part
+        /// </summary>
         internal PackagePart Part
         {
             get;
             set;
         }
+        /// <summary>
+        /// Provides access to the XML data representing the cache definition in the package.
+        /// </summary>
         public XmlDocument CacheDefinitionXml { get; private set; }
+        /// <summary>
+        /// The package internal URI to the pivottable cache definition Xml Document.
+        /// </summary>
         public Uri CacheDefinitionUri
         {
             get;
@@ -194,6 +206,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 _sourceRange = value;
             }
         }
+        /// <summary>
+        /// Type of source data
+        /// </summary>
         public eSourceType CacheSource
         {
             get

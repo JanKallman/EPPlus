@@ -49,6 +49,7 @@ using OfficeOpenXml.Table;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
+using System.Drawing;
 
 namespace OfficeOpenXml
 {
@@ -172,7 +173,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawing", "legacyDrawingHF", "tableParts" };
+            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawing", "legacyDrawingHF", "tableParts" };
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -472,6 +473,26 @@ namespace OfficeOpenXml
             set
             {
                 SetXmlNodeString(outLineApplyStylePath, value ? "1" : "0");
+            }
+        }
+        const string tabColorPath = "d:sheetPr/d:tabColor/@rgb";
+        public Color TabColor
+        {
+            get
+            {
+                string col = GetXmlNodeString(tabColorPath);
+                if (col == "")
+                {
+                    return Color.Empty;
+                }
+                else
+                {
+                    return Color.FromArgb(int.Parse(col, System.Globalization.NumberStyles.AllowHexSpecifier));
+                }
+            }
+            set
+            {
+                SetXmlNodeString(tabColorPath, value.ToArgb().ToString("X"));
             }
         }
         #region WorksheetXml
@@ -1719,7 +1740,7 @@ namespace OfficeOpenXml
                     TimeSpan ts;
                     if (TimeSpan.TryParse(v.ToString(), out ts))
                     {
-                        return (T)(object)(ts);
+                        return (T)(object)(ts); 
                     }
                     else
                     {
@@ -1764,6 +1785,18 @@ namespace OfficeOpenXml
                     {
                         return (T)(object)Convert.ToDouble(v);
                     }
+                    //else if (fromType == typeof(string))
+                    //{
+                    //    StringConverter sc = new StringConverter();
+                    //    if (sc.CanConvertFrom(toType))
+                    //    {
+                    //        return (T)sc.ConvertFrom(v);
+                    //    }
+                    //    else
+                    //    {
+                    //        return default(T);
+                    //    }
+                    //}
                     else
                     {
                         return default(T);

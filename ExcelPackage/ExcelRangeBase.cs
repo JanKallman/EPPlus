@@ -44,6 +44,7 @@ using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
 using System.Reflection;
 using OfficeOpenXml.Style.XmlAccess;
+using System.Security;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -875,9 +876,17 @@ namespace OfficeOpenXml
                 if (_rtc == null)
                 {
                     XmlDocument xml = new XmlDocument();
-                    if (_worksheet.Cell(_fromRow, _fromCol).Value != null)
+                    var cell = _worksheet.Cell(_fromRow, _fromCol);
+                    if (cell.Value != null)
                     {
-                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:t></d:r></d:si>");
+                        if (cell.IsRichText)
+                        {
+                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:t></d:r></d:si>");
+                        }
+                        else
+                        {
+                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + SecurityElement.Escape(_worksheet.Cell(_fromRow, _fromCol).Value.ToString()) + "</d:t></d:r></d:si>");
+                        }
                     }
                     else
                     {
@@ -1716,21 +1725,22 @@ namespace OfficeOpenXml
         /// <param name="Destination">The start cell where the range will be copied.</param>
         public void Copy(ExcelRangeBase Destination)
         {
-            bool sameWorkbook=Destination._worksheet == _worksheet;
+            bool sameWorkbook = Destination._worksheet.Workbook == _worksheet.Workbook;
             ExcelStyles sourceStyles=_worksheet.Workbook.Styles,
                         styles = Destination._worksheet.Workbook.Styles;
             Dictionary<int,int> styleCashe=new Dictionary<int,int>();
 
             //Delete all existing cells;            
             List<ExcelCell> newCells=new List<ExcelCell>();
+            Dictionary<ulong, ExcelCell> mergedCells = new Dictionary<ulong, ExcelCell>();
             foreach (var cell in this)
             {
                 //Clone the cell
-                var newCell=(_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell).Clone(Destination._worksheet);
+                var copiedCell = (_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell);
 
-                //Set the correct row/column
-                newCell.Row = Destination._fromRow + (newCell.Row - _fromRow);
-                newCell.Column = Destination._fromCol + (newCell.Column - _fromCol);
+                var newCell = copiedCell.Clone(Destination._worksheet,
+                    Destination._fromRow + (copiedCell.Row - _fromRow),
+                    Destination._fromCol + (copiedCell.Column - _fromCol));
 
                 //If the formula is shared, remove the shared ID and set the formula for the cell.
                 if (newCell._sharedFormulaID >= 0)
@@ -1738,8 +1748,13 @@ namespace OfficeOpenXml
                     newCell._sharedFormulaID = int.MinValue;
                     newCell.Formula = cell.Formula;
                 }
+
+                if (!string.IsNullOrEmpty(newCell.Formula))
+                {
+                    newCell.Formula = ExcelCell.UpdateFormulaReferences(newCell.Formula, newCell.Row - copiedCell.Row, (newCell.Column - copiedCell.Column), 1, 1);
+                }
                 
-                //If its not the same workbook whe must copy the styles to the new workbook.
+                //If its not the same workbook we must copy the styles to the new workbook.
                 if (!sameWorkbook)
                 {
                     if (styleCashe.ContainsKey(cell.StyleID))
@@ -1753,17 +1768,67 @@ namespace OfficeOpenXml
                     }
                 }
                 newCells.Add(newCell);
+                if (newCell.Merge) mergedCells.Add(newCell.CellID, newCell);
             }
 
-            //Now clear the workbook.
-            Delete(Destination.Offset(0,0,(_toRow-_fromRow)+1, (_toCol-_fromCol)+1));
+            //Now clear the destination.
+            Destination.Offset(0, 0, (_toRow - _fromRow) + 1, (_toCol - _fromCol) + 1).Clear();
 
             //And last add the new cells to the worksheet
             foreach (var cell in newCells)
             {
                 Destination.Worksheet._cells.Add(cell);
             }
+            //Add merged cells
+            if(mergedCells.Count>0)
+            {
+                List<ExcelAddressBase> mergedAddresses = new List<ExcelAddressBase>();
+                foreach (var cell in mergedCells.Values)
+                {
+                    if(!IsAdded(cell, mergedAddresses))
+                    {
+                        int startRow = cell.Row, startCol = cell.Column, endRow = cell.Row, endCol = cell.Column+1;
+                        while(mergedCells.ContainsKey(ExcelCell.GetCellID(Destination.Worksheet.SheetID, endRow, endCol)))
+                        {
+                            endCol++;
+                        }
+
+                        while(IsMerged(mergedCells, Destination.Worksheet, endRow, startCol,endCol-1))
+                        {
+                            endRow++;
+                        }
+                
+                        mergedAddresses.Add(new ExcelAddressBase(startRow, startCol, endRow-1, endCol-1));
+                    }
+                }
+                Destination.Worksheet.MergedCells.List.AddRange((from r in mergedAddresses select r.Address));
+            }
         }
+
+        private bool IsAdded(ExcelCell cell, List<ExcelAddressBase> mergedAddresses)
+        {
+            foreach(var address in mergedAddresses)
+            {
+                if(address.Collide(new ExcelAddressBase(cell.CellAddress))==eAddressCollition.Inside)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool IsMerged(Dictionary<ulong, ExcelCell> mergedCells,ExcelWorksheet worksheet, int row, int startCol, int endCol)
+        {
+            for(int col=startCol;col<=endCol;col++)
+            {
+                if(!mergedCells.ContainsKey(ExcelCell.GetCellID(worksheet.SheetID, row, col)))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         /// <summary>
         /// Clear all cells
         /// </summary>

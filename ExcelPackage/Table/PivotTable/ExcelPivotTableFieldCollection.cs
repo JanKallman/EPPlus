@@ -33,6 +33,10 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// Base collection class for pivottable fields
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ExcelPivotTableFieldCollectionBase<T> : IEnumerable<T>
     {
         protected ExcelPivotTable _table;
@@ -130,21 +134,35 @@ namespace OfficeOpenXml.Table.PivotTable
             return null;
         }
     }
+    /// <summary>
+    /// Collection class for Row and column fields in a Pivottable 
+    /// </summary>
     public class ExcelPivotTableRowColumnFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>
     {
         internal string _topNode;
-        public ExcelPivotTableRowColumnFieldCollection(ExcelPivotTable table, string topNode) :
+        internal ExcelPivotTableRowColumnFieldCollection(ExcelPivotTable table, string topNode) :
             base(table)
 	    {
             _topNode=topNode;
 	    }
 
+        /// <summary>
+        /// Add a new row/column field
+        /// </summary>
+        /// <param name="Field">The field</param>
+        /// <returns>The new field</returns>
         public ExcelPivotTableField Add(ExcelPivotTableField Field)
         {
             SetFlag(Field, true);
             _list.Add(Field);
             return Field;
         }
+        /// <summary>
+        /// Insert a new row/column field
+        /// </summary>
+        /// <param name="Field">The field</param>
+        /// <param name="Index">The position to insert the field</param>
+        /// <returns>The new field</returns>
         internal ExcelPivotTableField Insert(ExcelPivotTableField Field, int Index)
         {
             SetFlag(Field, true);
@@ -188,6 +206,10 @@ namespace OfficeOpenXml.Table.PivotTable
                     break;
             }
         }
+        /// <summary>
+        /// Remove a field
+        /// </summary>
+        /// <param name="Field"></param>
         public void Remove(ExcelPivotTableField Field)
         {
             if(!_list.Contains(Field))
@@ -197,6 +219,10 @@ namespace OfficeOpenXml.Table.PivotTable
             SetFlag(Field, false);            
             _list.Remove(Field);            
         }
+        /// <summary>
+        /// Remove a field at a specific position
+        /// </summary>
+        /// <param name="Index"></param>
         public void RemoveAt(int Index)
         {
             if (Index > -1 && Index < _list.Count)
@@ -207,13 +233,20 @@ namespace OfficeOpenXml.Table.PivotTable
             _list.RemoveAt(Index);      
         }
     }
+    /// <summary>
+    /// Collection class for data fields in a Pivottable 
     public class ExcelPivotTableDataFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableDataField>
     {
-        public ExcelPivotTableDataFieldCollection(ExcelPivotTable table) :
+        internal ExcelPivotTableDataFieldCollection(ExcelPivotTable table) :
             base(table)
         {
 
         }
+        /// <summary>
+        /// Add a new datafield
+        /// </summary>
+        /// <param name="field">The field</param>
+        /// <returns>The new datafield</returns>
         public ExcelPivotTableDataField Add(ExcelPivotTableField field)
         {
             var dataFieldsNode = field.TopNode.SelectSingleNode("../../d:dataFields", field.NameSpaceManager);
@@ -230,6 +263,10 @@ namespace OfficeOpenXml.Table.PivotTable
             _list.Add(dataField);
             return dataField;
         }
+        /// <summary>
+        /// Remove a datafield
+        /// </summary>
+        /// <param name="dataField"></param>
         public void Remove(ExcelPivotTableDataField dataField)
         {
             XmlElement node = dataField.Field.TopNode.SelectSingleNode(string.Format("../../d:dataFields/d:dataField[@fld={0}]", dataField.Index), dataField.NameSpaceManager) as XmlElement;

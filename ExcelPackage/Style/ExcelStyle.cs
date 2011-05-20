@@ -40,8 +40,8 @@ namespace OfficeOpenXml.Style
     /// </summary>
     public sealed class ExcelStyle : StyleBase
     {
-        internal ExcelStyle(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string Address, int xfsId) :
-            base(styles, ChangedEvent, PositionID, Address)
+        internal ExcelStyle(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int positionID, string Address, int xfsId) :
+            base(styles, ChangedEvent, positionID, Address)
         {
             Index = xfsId;
             ExcelXfs xfs;
@@ -53,6 +53,8 @@ namespace OfficeOpenXml.Style
             {
                 xfs = _styles.CellStyleXfs[xfsId];
             }
+            Styles = styles;
+            PositionID = positionID;
             Numberformat = new ExcelNumberFormat(styles, ChangedEvent, PositionID, Address, xfs.NumberFormatId);
             Font = new ExcelFont(styles, ChangedEvent, PositionID, Address, xfs.FontId);
             Fill = new ExcelFill(styles, ChangedEvent, PositionID, Address, xfs.FillId);
@@ -223,6 +225,16 @@ namespace OfficeOpenXml.Style
             {
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.XfId, value, _positionID, _address));
             }
+        }
+        internal int PositionID
+        {
+            get;
+            set;
+        }
+        internal ExcelStyles Styles
+        {
+            get;
+            set;
         }
         internal override string Id
         {

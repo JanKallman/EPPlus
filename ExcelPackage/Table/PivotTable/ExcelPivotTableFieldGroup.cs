@@ -43,6 +43,9 @@ namespace OfficeOpenXml.Table.PivotTable
             
         }
     }
+    /// <summary>
+    /// A date group
+    /// </summary>
     public class ExcelPivotTableFieldDateGroup : ExcelPivotTableFieldGroup
     {
         internal ExcelPivotTableFieldDateGroup(XmlNamespaceManager ns, XmlNode topNode) :
@@ -50,6 +53,9 @@ namespace OfficeOpenXml.Table.PivotTable
         {
         }
         const string groupByPath = "d:fieldGroup/d:rangePr/@groupBy";
+        /// <summary>
+        /// How to group the date field
+        /// </summary>
         public eDateGroupBy GroupBy
         {
             get
@@ -69,6 +75,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString(groupByPath, value.ToString().ToLower());
             }
         }
+        /// <summary>
+        /// Auto detect start date
+        /// </summary>
         public bool AutoStart
         {
             get
@@ -76,6 +85,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 return GetXmlNodeBool("@autoStart", false);
             }
         }
+        /// <summary>
+        /// Auto detect end date
+        /// </summary>
         public bool AutoEnd
         {
             get
@@ -90,14 +102,10 @@ namespace OfficeOpenXml.Table.PivotTable
             base(ns, topNode)
         {
         }
-        //internal ExcelPivotTableFieldNumericGroup(XmlNamespaceManager ns, XmlNode topNode, double start, double end, double interval) :
-        //    base(ns, topNode)
-        //{
-        //    Start = start;
-        //    End = end;
-        //    Interval = interval;
-        //}
         const string startPath = "d:fieldGroup/d:rangePr/@startNum";
+        /// <summary>
+        /// Start value
+        /// </summary>
         public double Start
         {
             get
@@ -110,6 +118,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string endPath = "d:fieldGroup/d:rangePr/@endNum";
+        /// <summary>
+        /// End value
+        /// </summary>
         public double End
         {
             get
@@ -122,6 +133,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string groupIntervalPath = "d:fieldGroup/d:rangePr/@groupInterval";
+        /// <summary>
+        /// Interval
+        /// </summary>
         public double Interval
         {
             get

@@ -44,11 +44,17 @@ namespace OfficeOpenXml.Table.PivotTable
             BaseItem = 0;
             Field = field;
         }
+        /// <summary>
+        /// The field
+        /// </summary>
         public ExcelPivotTableField Field
         {
             get;
             private set;
         }
+        /// <summary>
+        /// The index of the datafield
+        /// </summary>
         public int Index 
         { 
             get
@@ -60,6 +66,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@fld",value.ToString());
             }
         }
+        /// <summary>
+        /// The name of the datafield
+        /// </summary>
         public string Name
         {
             get
@@ -71,6 +80,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@name", value);
             }
         }
+        /// <summary>
+        /// Field index. Reference to the field collection
+        /// </summary>
         public int BaseField
         {
             get
@@ -82,6 +94,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@baseField", value.ToString());
             }
         }
+        /// <summary>
+        /// Specifies the index to the base item when the ShowDataAs calculation is in use
+        /// </summary>
         public int BaseItem
         {
             get
@@ -93,17 +108,23 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@baseItem", value.ToString());
             }
         }
-        public int NumFmtId
+        /// <summary>
+        /// Number format id. 
+        /// </summary>
+        internal int NumFmtId
         {
             get
             {
                 return GetXmlNodeInt("@numFmtId");
             }
-            internal set
+            set
             {
                 SetXmlNodeString("@numFmtId", value.ToString());
             }
         }
+        /// <summary>
+        /// Number format for the data column
+        /// </summary>
         public string Format
         {
             get
@@ -130,6 +151,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 NumFmtId = nf.NumFmtId;
             }
         }
+        /// <summary>
+        /// Type of aggregate function
+        /// </summary>
         public DataFieldFunctions Function
         {
             get

@@ -6,14 +6,20 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// A field Item. Used for grouping
+    /// </summary>
     public class ExcelPivotTableFieldItem : XmlHelper
     {
         ExcelPivotTableField _field;
-        public ExcelPivotTableFieldItem(XmlNamespaceManager ns, XmlNode topNode, ExcelPivotTableField field) :
+        internal ExcelPivotTableFieldItem(XmlNamespaceManager ns, XmlNode topNode, ExcelPivotTableField field) :
             base(ns, topNode)
         {
            _field = field;
         }
+        /// <summary>
+        /// The text. Unique values only
+        /// </summary>
         public string Text
         {
             get

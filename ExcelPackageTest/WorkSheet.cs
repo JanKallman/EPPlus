@@ -312,6 +312,13 @@ namespace ExcelPackageTest
 
             r2 = rs.Add("Red");
             r2.Color = Color.Red;
+
+            ws.Cells["G1"].RichText.Add("Room 02 & 03");
+            ws.Cells["G2"].RichText.Text = "Room 02 & 03";
+
+            ws = ws = _pck.Workbook.Worksheets.Add("RichText2");
+            ws.Cells["A1"].RichText.Text = "Room 02 & 03";
+            ws.TabColor = Color.PowderBlue;
         }
         [TestMethod]
         public void SaveWorksheet()
@@ -359,8 +366,15 @@ namespace ExcelPackageTest
 
             ws.Cells["A1:G5"].Copy(ws.Cells["A50"]);
 
+            var ws2 = _pck.Workbook.Worksheets.Add("Copy Cells");
+            ws.Cells["1:4"].Copy(ws2.Cells["1:1"]);
+
+            ws.Cells["H1:J5"].Merge = true;
             ws.Cells["2:3"].Copy(ws.Cells["50:51"]);
 
+            ExcelRange styleRng = ws.Cells["A1"];
+            ExcelStyle tempStyle = styleRng.Style;
+            var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);  
         }
         [TestMethod]
         public void WorksheetCopy()
@@ -493,6 +507,16 @@ namespace ExcelPackageTest
             ws.PrinterSettings.VerticalCentered = true;
 
             ws.Select(new ExcelAddress("3:4,E5:F6"));
+
+            ws = _pck.Workbook.Worksheets["RichText"];
+            ws.PrinterSettings.RepeatColumns = ws.Cells["A:B"];
+            ws.PrinterSettings.RepeatRows = ws.Cells["1:11"];
+            ws.PrinterSettings.TopMargin = 1M;
+            ws.PrinterSettings.LeftMargin = 1M;
+            ws.PrinterSettings.BottomMargin = 1M;
+            ws.PrinterSettings.RightMargin = 1M;
+            ws.PrinterSettings.Orientation = eOrientation.Landscape;
+            ws.PrinterSettings.PaperSize = ePaperSize.A4;
         }
         [TestMethod]
         public void StyleNameTest()

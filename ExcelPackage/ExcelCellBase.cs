@@ -254,7 +254,7 @@ namespace OfficeOpenXml
                 {
                     if (rowIncr > 0) //Insert
                     {
-                        Address = GetAddress(fromRow + rowIncr, fromCol);
+                        Address = GetAddress(fromRow + rowIncr, false, fromCol, Address.StartsWith("$"));
                     }
                     else                    //Delete
                     {
@@ -264,13 +264,13 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            Address = GetAddress(fromRow + rowIncr, fromCol);
+                            Address = GetAddress(fromRow + rowIncr, false, fromCol, Address.StartsWith("$"));
                         }
                     }
                 }
                 else if (col != 0 && fromCol >= col && Address.StartsWith("$") == false)
                 {
-                    Address = GetAddress(fromRow, fromCol + colIncr);
+                    Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol + colIncr, false);
                 }
             }
             return Address;

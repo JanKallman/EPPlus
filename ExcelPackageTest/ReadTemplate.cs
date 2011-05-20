@@ -42,6 +42,9 @@ namespace ExcelPackageTest
 
                 ws = pck.Workbook.Worksheets["VeryHidden"];
                 Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.VeryHidden);
+
+                ws = pck.Workbook.Worksheets["RichText"];
+                Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
             }
             instream.Close();
         }

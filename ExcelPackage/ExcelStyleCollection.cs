@@ -49,7 +49,7 @@ namespace OfficeOpenXml
             _setNextIdManual = SetNextIdManual;
         }
         public XmlNode TopNode { get; set; }
-        List<T> _list = new List<T>();
+        internal List<T> _list = new List<T>();
         Dictionary<string, int> _dic = new Dictionary<string, int>();
         internal int NextId=0;
         #region IEnumerable<T> Members

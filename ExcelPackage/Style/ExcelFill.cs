@@ -52,7 +52,14 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return _styles.Fills[Index].PatternType;
+                if (Index == int.MinValue)
+                {
+                    return ExcelFillStyle.None;
+                }
+                else
+                {
+                    return _styles.Fills[Index].PatternType;
+                }
             }
             set
             {

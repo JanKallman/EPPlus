@@ -36,6 +36,9 @@ using OfficeOpenXml.Table;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// An Excel Pivottable
+    /// </summary>
     public class ExcelPivotTable : XmlHelper
     {
         internal ExcelPivotTable(PackageRelationship rel, ExcelWorksheet sheet) : 
@@ -217,7 +220,13 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
+        /// <summary>
+        /// Provides access to the XML data representing the table in the package.
+        /// </summary>
         public XmlDocument PivotTableXml { get; private set; }
+        /// <summary>
+        /// The package internal URI to the pivottable Xml Document.
+        /// </summary>
         public Uri PivotTableUri
         {
             get;
@@ -243,7 +252,7 @@ namespace OfficeOpenXml.Table.PivotTable
         const string NAME_PATH = "@name";
         const string DISPLAY_NAME_PATH = "@displayName";
         /// <summary>
-        /// Name of the table object in Excel
+        /// Name of the pivottable object in Excel
         /// </summary>
         public string Name
         {
@@ -269,6 +278,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }        
         ExcelPivotCacheDefinition _cacheDefinition = null;
+        /// <summary>
+        /// Reference to the pivot table cache definition object
+        /// </summary>
         public ExcelPivotCacheDefinition CacheDefinition
         {
             get
@@ -287,7 +299,7 @@ namespace OfficeOpenXml.Table.PivotTable
         #region "Public Properties"
 
         /// <summary>
-        /// The worksheet of the table
+        /// The worksheet where the pivottable is located
         /// </summary>
         public ExcelWorksheet WorkSheet
         {
@@ -295,13 +307,16 @@ namespace OfficeOpenXml.Table.PivotTable
             set;
         }
         /// <summary>
-        /// The address of the table
+        /// The location of the pivott table
         /// </summary>
         public ExcelAddressBase Address
         {
             get;
             internal set;
         }
+        /// <summary>
+        /// If multiple datafields are displayed in the row area or the column area
+        /// </summary>
         public bool DataOnRows 
         { 
             get
@@ -313,6 +328,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@dataOnRows",value);
             }
         }
+        /// <summary>
+        /// if true apply legacy table autoformat number format properties.
+        /// </summary>
         public bool ApplyNumberFormats 
         { 
             get
@@ -324,6 +342,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@applyNumberFormats",value);
             }
         }
+        /// <summary>
+        /// If true apply legacy table autoformat border properties
+        /// </summary>
         public bool ApplyBorderFormats 
         { 
             get
@@ -335,6 +356,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@applyBorderFormats",value);
             }
         }
+        /// <summary>
+        /// If true apply legacy table autoformat font properties
+        /// </summary>
         public bool ApplyFontFormats
         { 
             get
@@ -346,6 +370,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@applyFontFormats",value);
             }
         }
+        /// <summary>
+        /// If true apply legacy table autoformat pattern properties
+        /// </summary>
         public bool ApplyPatternFormats
         { 
             get
@@ -357,6 +384,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@applyPatternFormats",value);
             }
         }
+        /// <summary>
+        /// If true apply legacy table autoformat width/height properties.
+        /// </summary>
         public bool ApplyWidthHeightFormats
         { 
             get
@@ -368,6 +398,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@applyWidthHeightFormats",value);
             }
         }
+        /// <summary>
+        /// Show member property information
+        /// </summary>
         public bool ShowMemberPropertyTips
         { 
             get
@@ -548,6 +581,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@dataCaption", value);
             }
         }        
+        /// <summary>
+        /// Show field headers
+        /// </summary>
         public bool ShowHeaders
         {
             get
@@ -577,6 +613,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@pageWrap", value.ToString());
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether legacy auto formatting has been applied to the PivotTable view
+        /// </summary>
         public bool UseAutoFormatting
         { 
             get
@@ -588,6 +627,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@useAutoFormatting",value);
             }
         } 
+        /// <summary>
+        /// A boolean that indicates whether the in-grid drop zones should be displayed at runtime, and whether classic layout is applied
+        /// </summary>
         public bool GridDropZones
         { 
             get
@@ -599,6 +641,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@gridDropZones",value);
             }
         }
+        /// <summary>
+        /// Specifies the indentation increment for compact axis and can be used to set the Report Layout to Compact Form
+        /// </summary>
         public int Indent
         { 
             get
@@ -610,6 +655,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@indent",value.ToString());
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether data fields in the PivotTable should be displayed in outline form
+        /// </summary>
         public bool OutlineData
         {
             get
@@ -621,6 +669,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@outlineData", value);
             }
         }
+        /// <summary>
+        /// a boolean that indicates whether new fields should have their outline flag set to true
+        /// </summary>
         public bool Outline
         {
             get
@@ -632,6 +683,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@outline", value);
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether the fields of a PivotTable can have multiple filters set on them
+        /// </summary>
         public bool MultipleFieldFilters
         {
             get
@@ -643,6 +697,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@multipleFieldFilters", value);
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether new fields should have their compact flag set to true
+        /// </summary>
         public bool Compact
         { 
             get
@@ -654,6 +711,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@compact",value);
             }
         }        
+        /// <summary>
+        /// A boolean that indicates whether the field next to the data field in the PivotTable should be displayed in the same column of the spreadsheet
+        /// </summary>
         public bool CompactData
         { 
             get
@@ -665,6 +725,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@compactData",value);
             }
         }
+        /// <summary>
+        /// Specifies the string to be displayed for grand totals.
+        /// </summary>
         public string GrandTotalCaption
         {
             get
@@ -705,6 +768,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string FIRSTHEADERROW_PATH="d:location/@firstHeaderRow";
+        /// <summary>
+        /// Specifies the first row of the PivotTable header, relative to the top left cell in the ref value
+        /// </summary>
         public int FirstHeaderRow
         {
             get
@@ -717,6 +783,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string FIRSTDATAROW_PATH = "d:location/@firstDataRow";
+        /// <summary>
+        /// Specifies the first column of the PivotTable data, relative to the top left cell in the ref value
+        /// </summary>
         public int FirstDataRow
         {
             get
@@ -729,6 +798,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string FIRSTDATACOL_PATH = "d:location/@firstDataCol";
+        /// <summary>
+        /// Specifies the first column of the PivotTable data, relative to the top left cell in the ref value
+        /// </summary>
         public int FirstDataCol
         {
             get
@@ -741,6 +813,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         ExcelPivotTableFieldCollection _fields = null;
+        /// <summary>
+        /// The fields in the table 
+        /// </summary>
         public ExcelPivotTableFieldCollection Fields
         {
             get
@@ -753,6 +828,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         ExcelPivotTableRowColumnFieldCollection _rowFields = null;
+        /// <summary>
+        /// Row label fields 
+        /// </summary>
         public ExcelPivotTableRowColumnFieldCollection RowFields
         {
             get
@@ -765,6 +843,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         ExcelPivotTableRowColumnFieldCollection _columnFields = null;
+        /// <summary>
+        /// Column label fields 
+        /// </summary>
         public ExcelPivotTableRowColumnFieldCollection ColumnFields
         {
             get
@@ -777,6 +858,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         ExcelPivotTableDataFieldCollection _dataFields = null;
+        /// <summary>
+        /// Value fields 
+        /// </summary>
         public ExcelPivotTableDataFieldCollection DataFields
         {
             get
@@ -789,6 +873,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         ExcelPivotTableRowColumnFieldCollection _pageFields = null;
+        /// <summary>
+        /// Report filter fields
+        /// </summary>
         public ExcelPivotTableRowColumnFieldCollection PageFields
         {
             get
@@ -801,6 +888,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         const string STYLENAME_PATH = "d:pivotTableStyleInfo/@name";
+        /// <summary>
+        /// Pivot style name. Used for custom styles
+        /// </summary>
         public string StyleName
         {
             get

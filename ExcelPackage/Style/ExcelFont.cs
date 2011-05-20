@@ -175,7 +175,14 @@ namespace OfficeOpenXml.Style
         {
             get
             {
-                return (ExcelVerticalAlignmentFont)Enum.Parse(typeof(ExcelVerticalAlignmentFont), _styles.Fonts[Index].VerticalAlign, true);
+                if (_styles.Fonts[Index].VerticalAlign == "")
+                {
+                    return ExcelVerticalAlignmentFont.None;
+                }
+                else
+                {
+                    return (ExcelVerticalAlignmentFont)Enum.Parse(typeof(ExcelVerticalAlignmentFont), _styles.Fonts[Index].VerticalAlign, true);
+                }
             }
             set
             {
