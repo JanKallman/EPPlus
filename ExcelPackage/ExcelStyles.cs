@@ -379,8 +379,18 @@ namespace OfficeOpenXml
             }
             else
             {
-                style.Style = new ExcelStyle(this, NamedStylePropertyChange, -1, name, Template.Index);
-                style.StyleXfId = Template.Index;
+                if (Template.PositionID < 0 && Template.Styles==this)
+                {
+                    style.Style = new ExcelStyle(this, NamedStylePropertyChange, Template.PositionID, name, Template.Index);
+                    style.StyleXfId = Template.Index;
+                }
+                else
+                {
+                    int xfid=CloneStyle(Template.Styles, Template.XfId, true);
+                    style.Style = new ExcelStyle(this, NamedStylePropertyChange, -1, name, xfid);
+                    style.StyleXfId = xfid;
+                    
+                }
             }
             style.Name = name;
             int ix =_wb.Styles.NamedStyles.Add(style.Name, style);
@@ -607,10 +617,21 @@ namespace OfficeOpenXml
         }
 
 #endregion
-
         internal int CloneStyle(ExcelStyles style, int styleID)
         {
-            ExcelXfs xfs=style.CellXfs[styleID];
+            return CloneStyle(style, styleID, false);
+        }
+        internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle)
+        {
+            ExcelXfs xfs;
+            if (isNamedStyle)
+            {
+                xfs = style.CellStyleXfs[styleID];
+            }
+            else
+            {
+                xfs = style.CellXfs[styleID];
+            }
             ExcelXfs newXfs=xfs.Copy(this);
             //Numberformat
             if (xfs.NumberFormatId > -1)
@@ -662,12 +683,23 @@ namespace OfficeOpenXml
                 newXfs.FillId = ix;
             }
 
-            int id = CellXfs.FindIndexByID(newXfs.Id);
-            if (id < 0)
+            int id;
+            if (isNamedStyle)
             {
-                id = CellXfs.Add(newXfs.Id, newXfs);
+                id = CellStyleXfs.FindIndexByID(newXfs.Id);
+                if (id < 0)
+                {
+                    id = CellStyleXfs.Add(newXfs.Id, newXfs);
+                }
             }
-
+            else
+            {
+                id = CellXfs.FindIndexByID(newXfs.Id);
+                if (id < 0)
+                {
+                    id = CellXfs.Add(newXfs.Id, newXfs);
+                }
+            }
             return id;
         }
     }

@@ -116,7 +116,7 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         /// <summary>
-        /// The table Index. Base 0.
+        /// The pivottable Index. Base 0.
         /// </summary>
         /// <param name="Index"></param>
         /// <returns></returns>
@@ -131,6 +131,11 @@ namespace OfficeOpenXml.Table.PivotTable
                 return _pivotTables[Index];
             }
         }
+        /// <summary>
+        /// Pivottabes accesed by name
+        /// </summary>
+        /// <param name="Name">The name of the pivottable</param>
+        /// <returns>The Pivotable. Null if the no match is found</returns>
         public ExcelPivotTable this[string Name]
         {
             get

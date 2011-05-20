@@ -126,7 +126,7 @@ namespace EPPlusSamples
             wsList.Cells[2, 7, dt.Rows.Count + 1, 8].Style.Numberformat.Format = "mm-dd-yy";
 
             //Load the list using a specified array of MemberInfo objects. Properties, fields and methods are supported.
-            var rng = wsList.Cells["K1"].LoadFromCollection(list,
+            var rng = wsList.Cells["J1"].LoadFromCollection(list,
                                                   true,
                                                   TableStyles.Medium10,
                                                   BindingFlags.Instance | BindingFlags.Public,

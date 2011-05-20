@@ -33,6 +33,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// A page / report filter field
+    /// </summary>
     public class ExcelPivotTablePageFieldSettings  : XmlHelper
     {
         ExcelPivotTableField _field;
@@ -43,7 +46,7 @@ namespace OfficeOpenXml.Table.PivotTable
             Hier = -1;
             _field = field;
         }
-        public int Index 
+        internal int Index 
         { 
             get
             {
@@ -54,6 +57,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@fld",value.ToString());
             }
         }
+        /// <summary>
+        /// The Name of the field
+        /// </summary>
         public string Name
         {
             get
@@ -64,7 +70,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 SetXmlNodeString("@name", value);
             }
-        }
+        }        
         internal int NumFmtId
         {
             get

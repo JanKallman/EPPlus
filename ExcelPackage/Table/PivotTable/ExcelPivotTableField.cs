@@ -112,6 +112,9 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
+        /// <summary>
+        /// Name of the field
+        /// </summary>
         public string Name 
         { 
             get
@@ -131,7 +134,6 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@name", value);
             }
         }
-
         public bool Compact
         { 
             get
@@ -143,6 +145,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@compact",value);
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether the items in this field should be shown in Outline form
+        /// </summary>
         public bool Outline 
         { 
             get
@@ -154,6 +159,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@outline",value);
             }
         }
+        /// <summary>
+        /// The custom text that is displayed for the subtotals label
+        /// </summary>
         public bool SubtotalTop 
         { 
             get
@@ -165,6 +173,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@subtotalTop",value);
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether to show all items for this field
+        /// </summary>
         public bool ShowAll 
         { 
             get
@@ -176,6 +187,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@showAll",value);
             }
         }
+        /// <summary>
+        /// The type of sort that is applied to this field
+        /// </summary>
         public eSortType Sort
         {
             get
@@ -195,6 +209,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
             }
         }
+        /// <summary>
+        /// A boolean that indicates whether manual filter is in inclusive mode
+        /// </summary>
         public bool IncludeNewItemsInFilter
         { 
             get
@@ -206,6 +223,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@includeNewItemsInFilter",value);
             }
         }
+        /// <summary>
+        /// Type of axis
+        /// </summary>
         public ePivotFieldAxis Axis
         {
             get
@@ -246,6 +266,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
             }
         }        
+        /// <summary>
+        /// If the field is a row field
+        /// </summary>
         public bool IsRowField
         {
             get
@@ -283,6 +306,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
             }
         }
+        /// <summary>
+        /// If the field is a column field
+        /// </summary>
         public bool IsColumnField
         {
             get
@@ -320,6 +346,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
             }
         }
+        /// <summary>
+        /// If the field is a datafield
+        /// </summary>
         public bool IsDataField
         {
             get
@@ -327,6 +356,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 return GetXmlNodeBool("@dataField", false);
             }
         }
+        /// <summary>
+        /// If the field is a page field.
+        /// </summary>
         public bool IsPageField
         {
             get
@@ -378,6 +410,10 @@ namespace OfficeOpenXml.Table.PivotTable
             set;
         }
         ExcelPivotTableFieldGroup _grouping=null;
+        /// <summary>
+        /// Grouping settings. 
+        /// Null if the field has no grouping otherwise ExcelPivotTableFieldNumericGroup or ExcelPivotTableFieldNumericGroup.
+        /// </summary>        
         public ExcelPivotTableFieldGroup Grouping
         {
             get
@@ -622,6 +658,9 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         #endregion
         internal ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem> _items=null;
+        /// <summary>
+        /// Pivottable field Items. Used for grouping.
+        /// </summary>
         public ExcelPivotTableFieldCollectionBase<ExcelPivotTableFieldItem> Items
         {
             get
@@ -667,6 +706,12 @@ namespace OfficeOpenXml.Table.PivotTable
                 return _items;
             }
         }
+        /// <summary>
+        /// Add numberic grouping to the field
+        /// </summary>
+        /// <param name="Start">Start value</param>
+        /// <param name="End">End value</param>
+        /// <param name="Interval">Interval</param>
         public void AddNumericGrouping(double Start, double End, double Interval)
         {
             ValidateGrouping();
@@ -684,8 +729,8 @@ namespace OfficeOpenXml.Table.PivotTable
         /// Add a date grouping on this field.
         /// </summary>
         /// <param name="groupBy">Group by</param>
-        /// <param name="startDate">Fixed start date. Use DateTime.Mindate for auto</param>
-        /// <param name="endDate">Fixed end date. Use DateTime.Mindate for auto</param>
+        /// <param name="startDate">Fixed start date. Use DateTime.MinValue for auto</param>
+        /// <param name="endDate">Fixed end date. Use DateTime.MaxValue for auto</param>
         public void AddDateGrouping(eDateGroupBy groupBy, DateTime startDate, DateTime endDate)
         {
             ValidateGrouping();

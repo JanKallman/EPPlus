@@ -247,13 +247,16 @@ namespace OfficeOpenXml.Table
             set;
         }
         /// <summary>
-        /// The Xml document
+        /// Provides access to the XML data representing the table in the package.
         /// </summary>
         public XmlDocument TableXml
         {
             get;
             set;
         }
+        /// <summary>
+        /// The package internal URI to the Table Xml Document.
+        /// </summary>
         public Uri TableUri
         {
             get;

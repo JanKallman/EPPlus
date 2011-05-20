@@ -454,7 +454,11 @@ namespace OfficeOpenXml
         #endregion
         internal ExcelCell Clone(ExcelWorksheet added)
         {
-            ExcelCell newCell = new ExcelCell(added, _row, _col);
+            return Clone(added, _row, _col);
+        }
+        internal ExcelCell Clone(ExcelWorksheet added, int row, int col)
+        {
+            ExcelCell newCell = new ExcelCell(added, row, col);
             if(_hyperlink!=null) newCell.Hyperlink = Hyperlink;
             newCell._formula = _formula;
             newCell._formulaR1C1 = _formulaR1C1;
