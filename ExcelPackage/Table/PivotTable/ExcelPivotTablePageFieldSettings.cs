@@ -26,7 +26,6 @@
  * Jan Källman		Added		21-MAR-2011
  *******************************************************************************/
 using System;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;

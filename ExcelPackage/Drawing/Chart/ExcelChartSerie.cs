@@ -42,7 +42,7 @@ namespace OfficeOpenXml.Drawing.Chart
    /// </summary>
     public class ExcelChartSerie : XmlHelper
    {
-       private ExcelChartSeries _chartSeries;
+       internal ExcelChartSeries _chartSeries;
        protected XmlNode _node;
        protected XmlNamespaceManager _ns;
         /// <summary>
@@ -51,7 +51,8 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <param name="chartSeries">Parent collection</param>
         /// <param name="ns">Namespacemanager</param>
         /// <param name="node">Topnode</param>
-        internal ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot)
+       /// <param name="isPivot">Is pivotchart</param>
+       internal ExcelChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot)
            : base(ns,node)
        {
            _chartSeries = chartSeries;
@@ -205,63 +206,20 @@ namespace OfficeOpenXml.Drawing.Chart
                }
            }
        }
-       const string trendlinePath = "c:trendline/c:trendlineType/@val";       
+       ExcelChartTrendlineCollection _trendLines = null;
        /// <summary>
-       /// TODO: Add to trendline class.
+       /// Access to the trendline collection
        /// </summary>
-        public eTrendLine TrendLine
-       {
-           get
-           {
-               switch (GetXmlNodeString(trendlinePath).ToLower())
-               {
-                   case "exp":
-                       return eTrendLine.Exponential;
-                   case "log":
-                        return eTrendLine.Logarithmic;
-                   case "poly":
-                       return eTrendLine.Polynomial;
-                   case "movingavg":
-                       return eTrendLine.MovingAvgerage;
-                   case "linear":
-                       return eTrendLine.Linear;
-                   case "power":
-                       return eTrendLine.Power;
-                   default:
-                       return eTrendLine.None;
-               }
-           }
-           set
-           {
-               if (value == eTrendLine.None)
-               {
-                   DeleteAllNode(trendlinePath);
-               }
-               else
-               {
-                   switch (value)
-                   {
-                       case eTrendLine.Exponential:
-                           SetXmlNodeString(trendlinePath, "exp");
-                           break;
-                       case eTrendLine.Logarithmic:
-                           SetXmlNodeString(trendlinePath, "log");
-                           break;
-                       case eTrendLine.Polynomial:
-                           SetXmlNodeString(trendlinePath, "poly");
-                           break;
-                       case eTrendLine.MovingAvgerage:
-                           SetXmlNodeString(trendlinePath, "movingAvg");
-                           break;
-                       case eTrendLine.Linear:
-                           SetXmlNodeString(trendlinePath, "linear");
-                           break;
-                       case eTrendLine.Power:
-                           SetXmlNodeString(trendlinePath, "power");
-                           break;
-                   }
-               }
-           }
-       }
+        public ExcelChartTrendlineCollection TrendLines
+        {
+            get
+            {
+                if (_trendLines == null)
+                {
+                    _trendLines = new ExcelChartTrendlineCollection(this);
+                }
+                return _trendLines;
+            }
+        }
    }
 }

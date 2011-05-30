@@ -58,7 +58,10 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        #region "Public properties"
        const string showValPath = "c:showVal/@val";
-       public bool ShowValue
+       /// <summary>
+       /// Show the values 
+       /// </summary>
+        public bool ShowValue
        {
            get
            {
@@ -70,7 +73,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string showCatPath = "c:showCatName/@val";
-       public bool ShowCategory
+       /// <summary>
+       /// Show category names
+       /// </summary>
+        public bool ShowCategory
        {
            get
            {
@@ -82,7 +88,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string showSerPath = "c:showSerName/@val";
-       public bool ShowSeriesName
+       /// <summary>
+       /// Show series names
+       /// </summary>
+        public bool ShowSeriesName
        {
            get
            {
@@ -94,7 +103,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string showPerentPath = "c:showPercent/@val";
-       public bool ShowPercent
+       /// <summary>
+       /// Show percent values
+       /// </summary>
+        public bool ShowPercent
        {
            get
            {
@@ -106,7 +118,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string showLeaderLinesPath = "c:showLeaderLines/@val";
-       public bool ShowLeaderLines
+       /// <summary>
+       /// Show the leader lines
+       /// </summary>
+        public bool ShowLeaderLines
        {
            get
            {
@@ -118,7 +133,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string showBubbleSizePath = "c:showBubbleSize/@val";
-       public bool ShowBubbleSize
+       /// <summary>
+       /// Bubble Size.
+       /// </summary>
+        public bool ShowBubbleSize
        {
            get
            {
@@ -142,7 +160,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        const string separatorPath = "c:separator";
-       public string Separator
+       /// <summary>
+       /// Separator string 
+       /// </summary>
+        public string Separator
        {
            get
            {
@@ -162,6 +183,9 @@ namespace OfficeOpenXml.Drawing.Chart
        }
 
        ExcelDrawingFill _fill = null;
+       /// <summary>
+       /// Access fill properties
+       /// </summary>
        public ExcelDrawingFill Fill
        {
            get
@@ -174,6 +198,9 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        ExcelDrawingBorder _border = null;
+       /// <summary>
+       /// Access border properties
+       /// </summary>
        public ExcelDrawingBorder Border
        {
            get
@@ -187,6 +214,9 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        string[] _paragraphSchemaOrder = new string[] { "spPr", "txPr", "dLblPos", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
        ExcelTextFont _font = null;
+       /// <summary>
+       /// Access font properties
+       /// </summary>
        public ExcelTextFont Font
        {
            get

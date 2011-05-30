@@ -5,7 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
 
-namespace ExcelPackageTest.DataValidation
+namespace EPPlusTest.DataValidation
 {
     [TestClass]
     public class ExcelTimeTests

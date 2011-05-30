@@ -72,7 +72,7 @@ namespace OfficeOpenXml.Drawing
         }
         internal List<ImageCompare> _pics = new List<ImageCompare>();
         internal ExcelPackage _package;
-        public ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
+        internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();                
                 _drawingsXml.PreserveWhitespace = false;
@@ -94,6 +94,9 @@ namespace OfficeOpenXml.Drawing
                 }
          }
         internal ExcelWorksheet Worksheet { get; set; }
+        /// <summary>
+        /// A reference to the drawing xml document
+        /// </summary>
         public XmlDocument DrawingXml
         {
             get
@@ -227,7 +230,8 @@ namespace OfficeOpenXml.Drawing
             /// </summary>
             /// <param name="Name"></param>
             /// <param name="ChartType">Type of chart</param>
-            /// <returns></returns>
+            /// <param name="PivotTableSource">The pivottable source for a pivotchart</param>    
+            /// <returns>The chart</returns>
             public ExcelChart AddChart(string Name, eChartType ChartType, ExcelPivotTable PivotTableSource)
             {
                 if(_drawingNames.ContainsKey(Name.ToLower()))
@@ -259,6 +263,13 @@ namespace OfficeOpenXml.Drawing
                 _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
                 return chart;
             }
+            /// <summary>
+            /// Add a new chart to the worksheet.
+            /// Do not support Bubble-, Radar-, Stock- or Surface charts. 
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="ChartType">Type of chart</param>
+            /// <returns>The chart</returns>
             public ExcelChart AddChart(string Name, eChartType ChartType)
             {
                 return AddChart(Name, ChartType, null);

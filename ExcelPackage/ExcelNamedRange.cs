@@ -96,7 +96,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// A comment for the Name
         /// </summary>
-        public string Comment
+        public string NameComment
         {
             get;
             set;

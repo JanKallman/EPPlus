@@ -185,6 +185,9 @@ namespace OfficeOpenXml.Drawing.Chart
         #endregion
         #region "Properties"
         string _directionPath = "c:barDir/@val";
+        /// <summary>
+        /// Direction, Bar or columns
+        /// </summary>
         public eDirection Direction
         {
             get
@@ -197,6 +200,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         string _shapePath = "c:shape/@val";
+        /// <summary>
+        /// The shape of the bar/columns
+        /// </summary>
         public eShape Shape
         {
             get
@@ -209,9 +215,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelChartDataLabel _DataLabel = null;
-        private ExcelDrawings drawings;
-        private XmlNode node;
-        private ExcelChart topChart;
+        /// <summary>
+        /// Access to datalabel properties
+        /// </summary>
         public ExcelChartDataLabel DataLabel
         {
             get

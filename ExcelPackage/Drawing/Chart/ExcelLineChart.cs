@@ -68,7 +68,9 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         //string _chartTopPath = "c:chartSpace/c:chart/c:plotArea/{0}";
         ExcelChartDataLabel _DataLabel = null;
-        private ExcelChart topChart;
+        /// <summary>
+        /// Access to datalabel properties
+        /// </summary>
         public ExcelChartDataLabel DataLabel
         {
             get

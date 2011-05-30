@@ -191,28 +191,27 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Read-only: the Uri to the worksheet within the package
 		/// </summary>
-		protected internal Uri WorksheetUri { get { return (_worksheetUri); } }
+		internal Uri WorksheetUri { get { return (_worksheetUri); } }
 		/// <summary>
 		/// Read-only: a reference to the PackagePart for the worksheet within the package
 		/// </summary>
-		protected internal PackagePart Part { get { return (xlPackage.Package.GetPart(WorksheetUri)); } }
+		internal PackagePart Part { get { return (xlPackage.Package.GetPart(WorksheetUri)); } }
 		/// <summary>
 		/// Read-only: the ID for the worksheet's relationship with the workbook in the package
 		/// </summary>
-		protected internal string RelationshipID { get { return (_relationshipID); } }
+		internal string RelationshipID { get { return (_relationshipID); } }
 		/// <summary>
 		/// The unique identifier for the worksheet.  Note that these can be random, so not
 		/// too useful in code!
 		/// </summary>
-		protected internal int SheetID { get { return (_sheetID); } }
+		internal int SheetID { get { return (_sheetID); } }
         /// <summary>
         /// The position of the worksheet.
         /// </summary>
-        protected internal int PositionID { get { return (_positionID); } set { _positionID = value; } }
+        internal int PositionID { get { return (_positionID); } set { _positionID = value; } }
 
     	/// <summary>
         /// The index in the worksheets collection
-
         /// </summary>
         public int Index { get { return (_positionID); } }
         /// <summary>
@@ -1344,6 +1343,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="position"></param>
         /// <param name="rows"></param>
+        /// <param name="delete"></param>
         private void FixMergedCells(int position, int rows, bool delete)
         {
             List<int> removeIndex = new List<int>();
@@ -1813,6 +1813,21 @@ namespace OfficeOpenXml
         public void SetValue(int Row, int Column, object Value)
         {
             Cell(Row, Column).Value = Value;
+        }
+        /// <summary>
+        /// Set the value of a cell
+        /// </summary>
+        /// <param name="Address">The Excel address</param>
+        /// <param name="Value">The value</param>
+        public void SetValue(string Address, object Value)
+        {
+            int row, col;
+            ExcelAddressBase.GetRowCol(Address, out row, out col, true);
+            if (row < 1 || col < 1 || row > ExcelPackage.MaxRows && col > ExcelPackage.MaxColumns)
+            {
+                throw new ArgumentOutOfRangeException("Address is invalid or out of range");
+            }
+            Cell(row, col).Value = Value;
         }
 		#endregion // END Worksheet Public Methods
 
@@ -2586,7 +2601,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="StyleName"></param>
 		/// <returns></returns>
-		protected internal int GetStyleID(string StyleName)
+		internal int GetStyleID(string StyleName)
 		{
 			ExcelNamedStyleXml namedStyle=null;
             Workbook.Styles.NamedStyles.FindByID(StyleName, ref namedStyle);

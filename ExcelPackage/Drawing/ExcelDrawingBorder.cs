@@ -62,7 +62,7 @@ namespace OfficeOpenXml.Drawing
     public sealed class ExcelDrawingBorder : XmlHelper
     {
         string _linePath;
-        public ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 
+        internal ExcelDrawingBorder(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string linePath) : 
             base(nameSpaceManager, topNode)
         {
             SchemaNodeOrder = new string[] { "chart","tickLblPos", "spPr", "txPr","crossAx", "printSettings", "showVal", "showCatName", "showSerName", "showPercent", "separator", "showLeaderLines", "noFill", "solidFill", "blipFill", "gradFill", "noFill", "pattFill", "prstDash" };

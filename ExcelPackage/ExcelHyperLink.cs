@@ -38,16 +38,30 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelHyperLink : Uri
     {
+        /// <summary>
+        /// A new hyperlink with the specified URI
+        /// </summary>
+        /// <param name="uriString">The URI</param>
         public ExcelHyperLink(string uriString) :
             base(uriString)
         {
 
         }
+        /// <summary>
+        /// A new hyperlink with the specified URI. This syntax is obsolete
+        /// </summary>
+        /// <param name="uriString">The URI</param>
+        /// <param name="dontEscape"></param>
         public ExcelHyperLink(string uriString, bool dontEscape) :
             base(uriString, dontEscape)
         {
 
         }
+        /// <summary>
+        /// A new hyperlink with the specified URI and kind
+        /// </summary>
+        /// <param name="uriString">The URI</param>
+        /// <param name="uriKind">Kind (absolute/relative or indeterminate)</param>
         public ExcelHyperLink(string uriString, UriKind uriKind) :
             base(uriString, uriKind)
         {

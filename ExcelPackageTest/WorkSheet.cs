@@ -13,7 +13,7 @@ using System.Data;
 using OfficeOpenXml.Table.PivotTable;
 using System.Reflection;
 
-namespace ExcelPackageTest
+namespace EPPlusTest
 {
     [TestClass]
     public class WorkSheetTest
@@ -179,7 +179,7 @@ namespace ExcelPackageTest
                 ws.Cells[i,1].Value=string.Format("Row {0}\n.Test new row\"'",i);
                 ws.Cells[i,2].Value=i;
                 ws.Cells[i, 2].Style.WrapText = true;
-                ws.Cells[i,3].Value=DateTime.Now;
+                ws.Cells[i, 3].Value=DateTime.Now;
                 ws.Cells[i, 4].Value = r.NextDouble()*100000;                
             }            
             ws.Cells[1, 2, PERF_ROWS, 2].Style.Numberformat.Format="#,##0";
@@ -372,9 +372,19 @@ namespace ExcelPackageTest
             ws.Cells["H1:J5"].Merge = true;
             ws.Cells["2:3"].Copy(ws.Cells["50:51"]);
 
+            ws.Cells["A40"].Value = new string(new char[] {(char)8, (char)9});
+
             ExcelRange styleRng = ws.Cells["A1"];
             ExcelStyle tempStyle = styleRng.Style;
             var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);  
+        }
+        [TestMethod]
+        public void Encoding()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Encoding");
+            ws.Cells["A1"].Value = "_x0099_";
+            ws.Cells["A2"].Value = " Test \b" + (char)1 + " end\"";
+            ws.Cells["A3"].Value = "_x0097_ test_x001D_1234";
         }
         [TestMethod]
         public void WorksheetCopy()
@@ -775,8 +785,9 @@ namespace ExcelPackageTest
             ws.Cells["A1:A4"].Merge=true;
             ws.Cells["C1:C4,C8:C12"].Merge=true;
             ws.Cells["D13:E18,G5,U32:U45"].Merge = true;
+            ws.Cells["D13:E18,G5,U32:U45"].Style.WrapText = true;
+            ws.SetValue(13, 4, "Merged\r\nnew row");
         }
-
         [TestMethod]
         public void DefaultColWidth()
         {

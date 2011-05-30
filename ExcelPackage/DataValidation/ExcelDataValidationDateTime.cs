@@ -76,7 +76,8 @@ namespace OfficeOpenXml.DataValidation
         /// <param name="address"></param>
         /// <param name="validationType"></param>
         /// <param name="itemElementNode"></param>
-        public ExcelDataValidationDateTime(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
+        /// <param name="namespaceManager"></param>
+        internal ExcelDataValidationDateTime(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
             : base(worksheet, address, validationType, itemElementNode, namespaceManager)
         {
             Formula = new ExcelDataValidationFormulaDateTime(NameSpaceManager, TopNode, _formula1Path);

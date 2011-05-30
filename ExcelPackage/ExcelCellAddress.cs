@@ -48,7 +48,7 @@ namespace OfficeOpenXml
         private int _column;
         private string _address;
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExcelCellPosition"/> class.
+        /// Initializes a new instance of the ExcelCellAddress class.
         /// </summary>
         /// <param name="row">The row.</param>
         /// <param name="column">The column.</param>
@@ -58,10 +58,9 @@ namespace OfficeOpenXml
             this.Column = column;
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="ExcelCellPosition"/> class.
+        /// Initializes a new instance of the ExcelCellAddress class.
         /// </summary>
-        /// <param name="row">The row.</param>
-        /// <param name="column">The column.</param>
+        ///<param name="address">The address</param>
         public ExcelCellAddress(string address)
         {
             this.Address = address; 

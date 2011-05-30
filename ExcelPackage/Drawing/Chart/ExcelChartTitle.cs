@@ -25,6 +25,9 @@ namespace OfficeOpenXml.Drawing.Chart
             SchemaNodeOrder = new string[] { "tx", "layout", "overlay" };
         }
         const string titlePath = "c:tx/c:rich/a:p/a:r/a:t";
+        /// <summary>
+        /// The text
+        /// </summary>
         public string Text
         {
             get
@@ -39,6 +42,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// A reference to the border properties
+        /// </summary>
         public ExcelDrawingBorder Border
         {
             get
@@ -51,6 +57,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// A reference to the fill properties
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get
@@ -63,6 +72,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         //ExcelTextFont _font = null;
+        /// <summary>
+        /// A reference to the font properties
+        /// </summary>
         public ExcelTextFont Font
         {
             get
@@ -81,6 +93,9 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         string[] paragraphNodeOrder = new string[] { "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
         ExcelParagraphCollection _richText = null;
+        /// <summary>
+        /// Richtext
+        /// </summary>
         public ExcelParagraphCollection RichText
         {
             get
@@ -91,7 +106,10 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
                 return _richText;
             }
-        }       
+        }
+        /// <summary>
+        /// Show without overlaping the chart.
+        /// </summary>
         public bool Overlay
         {
             get

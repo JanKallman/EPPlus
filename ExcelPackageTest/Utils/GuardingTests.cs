@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.Utils;
 
-namespace ExcelPackageTest.Utils
+namespace EPPlusTest.Utils
 {
     [TestClass]
     public class GuardingTests

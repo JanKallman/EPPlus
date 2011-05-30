@@ -38,7 +38,7 @@ namespace OfficeOpenXml.Drawing.Chart
 {
     public sealed class ExcelChartSerieDataLabel : ExcelChartDataLabel
     {
-       public ExcelChartSerieDataLabel(XmlNamespaceManager ns, XmlNode node)
+       internal ExcelChartSerieDataLabel(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
            CreateNode(positionPath);
@@ -46,6 +46,9 @@ namespace OfficeOpenXml.Drawing.Chart
        }
 
        const string positionPath="c:dLblPos/@val";
+       /// <summary>
+       /// Position of the labels
+       /// </summary>
        public eLabelPosition Position
        {
            get
@@ -58,7 +61,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        ExcelDrawingFill _fill = null;
-       public ExcelDrawingFill Fill
+       /// <summary>
+       /// Access fill properties
+       /// </summary>
+        public new ExcelDrawingFill Fill
        {
            get
            {
@@ -70,7 +76,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        ExcelDrawingBorder _border = null;
-       public ExcelDrawingBorder Border
+       /// <summary>
+       /// Access border properties
+       /// </summary>
+        public new ExcelDrawingBorder Border
        {
            get
            {
@@ -82,7 +91,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        ExcelTextFont _font = null;
-       public ExcelTextFont Font
+       /// <summary>
+       /// Access font properties
+       /// </summary>
+        public new ExcelTextFont Font
        {
            get
            {

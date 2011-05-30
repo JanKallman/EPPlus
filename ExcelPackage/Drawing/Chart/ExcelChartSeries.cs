@@ -40,7 +40,7 @@ namespace OfficeOpenXml.Drawing.Chart
    public sealed class ExcelChartSeries : XmlHelper, IEnumerable
     {
        List<ExcelChartSerie> _list=new List<ExcelChartSerie>();
-       ExcelChart _chart;
+       internal ExcelChart _chart;
        XmlNode _node;
        XmlNamespaceManager _ns;
        internal ExcelChartSeries(ExcelChart chart, XmlNamespaceManager ns, XmlNode node, bool isPivot)
@@ -98,6 +98,10 @@ namespace OfficeOpenXml.Drawing.Chart
                return _list.Count;
            }
        }
+       /// <summary>
+       /// Delete the chart at the specific position
+       /// </summary>
+       /// <param name="PositionID">Zero based</param>
        public void Delete(int PositionID)
        {
            ExcelChartSerie ser = _list[PositionID];
@@ -105,6 +109,9 @@ namespace OfficeOpenXml.Drawing.Chart
            _list.RemoveAt(PositionID);
        }
        #endregion
+       /// <summary>
+       /// A reference to the chart object
+       /// </summary>
        public ExcelChart Chart
        {
            get
@@ -114,6 +121,12 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        #region "Add Series"
 
+       /// <summary>
+       /// Add a new serie to the chart. Do not apply to pivotcharts.
+       /// </summary>
+       /// <param name="Serie">The Y-Axis range</param>
+       /// <param name="XSerie">The X-Axis range</param>
+       /// <returns></returns>
        public ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie)
        {
            if (_chart.PivotTableSource != null)
@@ -122,6 +135,12 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            return AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute);
        }
+       /// <summary>
+       /// Add a new serie to the chart.Do not apply to pivotcharts.
+       /// </summary>
+       /// <param name="SerieAddress">The Y-Axis range</param>
+       /// <param name="XSerieAddress">The X-Axis range</param>
+       /// <returns></returns>
        public ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
        {
            if (_chart.PivotTableSource != null)

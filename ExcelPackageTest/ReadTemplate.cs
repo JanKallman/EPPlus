@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
 
-namespace ExcelPackageTest
+namespace EPPlusTest
 {
     [TestClass]
     public class ReadTemplate
@@ -66,6 +66,10 @@ namespace ExcelPackageTest
                 Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
                 Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
                 Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
+
+
+                Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
+
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
             instream.Close();

@@ -180,10 +180,6 @@ namespace OfficeOpenXml
             set;
         }
         /// <summary>
-        /// Reference to style
-        /// </summary>
-        ExcelStyle _style = null;
-        /// <summary>
         /// The Style applied to the whole row. Only effekt cells with no individual style set. 
         /// Use ExcelRange object if you want to set specific styles.
         /// </summary>

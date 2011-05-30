@@ -49,19 +49,19 @@ namespace OfficeOpenXml.Drawing.Chart
         {
         }
 
-        public ExcelPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
         }
 
-        public ExcelPieChart(ExcelChart topChart, XmlNode chartNode) :
+        internal ExcelPieChart(ExcelChart topChart, XmlNode chartNode) :
             base(topChart, chartNode)
         {
         }
         ExcelChartDataLabel _DataLabel = null;
-        private ExcelDrawings drawings;
-        private XmlNode node;
-        private ExcelChart topChart;
+        /// <summary>
+        /// Access to datalabel properties
+        /// </summary>
         public ExcelChartDataLabel DataLabel
         {
             get

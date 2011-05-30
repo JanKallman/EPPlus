@@ -8,24 +8,24 @@ namespace OfficeOpenXml
 {
     internal class XmlHelperInstance : XmlHelper
     {
-        public XmlHelperInstance(XmlNamespaceManager namespaceManager)
+        internal XmlHelperInstance(XmlNamespaceManager namespaceManager)
             : base(namespaceManager)
         {}
 
-        public XmlHelperInstance(XmlNamespaceManager namespaceManager, XmlNode topNode)
+        internal XmlHelperInstance(XmlNamespaceManager namespaceManager, XmlNode topNode)
             : base(namespaceManager, topNode)
         {}
 
     }
 
-    public static class XmlHelperFactory
+    internal static class XmlHelperFactory
     {
-        public static XmlHelper Create(XmlNamespaceManager namespaceManager)
+        internal static XmlHelper Create(XmlNamespaceManager namespaceManager)
         {
             return new XmlHelperInstance(namespaceManager);
         }
 
-        public static XmlHelper Create(XmlNamespaceManager namespaceManager, XmlNode topNode)
+        internal static XmlHelper Create(XmlNamespaceManager namespaceManager, XmlNode topNode)
         {
             return new XmlHelperInstance(namespaceManager, topNode);
         }

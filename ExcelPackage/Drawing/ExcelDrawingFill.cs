@@ -44,7 +44,7 @@ namespace OfficeOpenXml.Drawing
         //ExcelShape _shp;                
         string _fillPath;
         XmlNode _fillNode;
-        public ExcelDrawingFill(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string fillPath) : 
+        internal ExcelDrawingFill(XmlNamespaceManager nameSpaceManager, XmlNode topNode, string fillPath) : 
             base(nameSpaceManager, topNode)
         {
           //  _shp=shp;

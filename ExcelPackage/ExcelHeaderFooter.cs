@@ -42,7 +42,7 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelHeaderFooterText
 	{
-        public ExcelHeaderFooterText(XmlNode TextNode)
+        internal ExcelHeaderFooterText(XmlNode TextNode)
         {
             if (TextNode == null || string.IsNullOrEmpty(TextNode.InnerText)) return;
             string text = TextNode.InnerText;
@@ -153,7 +153,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="nameSpaceManager"></param>
         /// <param name="topNode"></param>
-		protected internal ExcelHeaderFooter(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
+		internal ExcelHeaderFooter(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
 		{
 		}
@@ -312,17 +312,8 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Saves the header and footer information to the worksheet XML
 		/// </summary>
-		protected internal void Save()
+		internal void Save()
 		{
-			//  The header/footer elements must appear in this order, if they appear:
-			//  <oddHeader />
-			//  <oddFooter />
-			//  <evenHeader />
-			//  <evenFooter />
-			//  <firstHeader />
-			//  <firstFooter />
-
-            //XmlNode node;
 			if (_oddHeader != null)
 			{
                 SetXmlNodeString("d:oddHeader", GetHeaderFooterText(oddHeader));
@@ -364,7 +355,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="inStruct"></param>
 		/// <returns></returns>
-		protected internal string GetHeaderFooterText(ExcelHeaderFooterText inStruct)
+		internal string GetHeaderFooterText(ExcelHeaderFooterText inStruct)
 		{
 			string retValue = "";
 			if (inStruct.LeftAlignedText != null)

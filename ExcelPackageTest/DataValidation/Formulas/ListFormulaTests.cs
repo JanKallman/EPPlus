@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
 using System.Collections;
 
-namespace ExcelPackageTest.DataValidation.Formulas
+namespace EPPlusTest.DataValidation.Formulas
 {
     [TestClass]
     public class ListFormulaTests : ValidationTestBase

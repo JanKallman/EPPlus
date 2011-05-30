@@ -10,7 +10,7 @@ using System.IO;
 using System.Drawing;
 using OfficeOpenXml.Style;
 using System.Xml;
-namespace ExcelPackageTest
+namespace EPPlusTest
 {
     /// <summary>
     /// Summary description for UnitTest1
@@ -309,7 +309,17 @@ namespace ExcelPackageTest
             chrt.VaryColors = true;
             chrt.Title.Text = "Line 3D";
             chrt.Series[0].Header = "Line serie 1";
-            chrt.Series[0].TrendLine = eTrendLine.Linear;
+            var tl = chrt.Series[0].TrendLines.Add(eTrendLine.Polynomial);
+            tl.Name = "Test";
+            tl.DisplayRSquaredValue = true;
+            tl.DisplayEquation = true;
+            tl.Forward = 15;
+            tl.Backward = 1;
+            tl.Intercept = 6;
+            //tl.Period = 12;
+            tl.Order = 5;
+
+            tl = chrt.Series[0].TrendLines.Add(eTrendLine.MovingAvgerage);
             chrt.Fill.Color = Color.LightSteelBlue;
             chrt.Border.LineStyle = eLineStyle.Dot;
             chrt.Border.Fill.Color=Color.Black;

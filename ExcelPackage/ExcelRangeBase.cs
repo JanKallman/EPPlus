@@ -56,30 +56,30 @@ namespace OfficeOpenXml
         /// Reference to the worksheet
         /// </summary>
         protected ExcelWorksheet _worksheet;        
-        private ExcelWorkbook _wb=null;
+        private ExcelWorkbook _workbook=null;
         private delegate void _changeProp(_setValue method, object value);
         private delegate void _setValue(object value, int row, int col);
         private _changeProp _changePropMethod;
         private int _styleID;
         #region Constructors
-        protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
+        internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
         {
             _worksheet = xlWorksheet;
             _ws = _worksheet.Name;
             SetDelegate();  
         }
-        protected internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
+        internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
             base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
         {
             _worksheet = xlWorksheet;
             if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
             SetDelegate();
         }
-        protected internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
+        internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
             base(xlWorksheet==null?"":xlWorksheet.Name, address, isName)
         {
             _worksheet = xlWorksheet;
-            _wb = wb;
+            _workbook = wb;
             if(string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
             SetDelegate();
         }
@@ -207,6 +207,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="value"></param>
         /// <param name="address"></param>
+        /// <param name="IsArray"></param>
         private void Set_SharedFormula(string value, ExcelAddress address, bool IsArray)
         {
             if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column)             //is it really a shared formula?
@@ -373,7 +374,7 @@ namespace OfficeOpenXml
                 {
                     if (_worksheet == null)
                     {
-                        return _wb._names[_address].NameValue;
+                        return _workbook._names[_address].NameValue;
                     }
                     else
                     {
@@ -398,7 +399,7 @@ namespace OfficeOpenXml
                 {
                     if (_worksheet == null)
                     {
-                        _wb._names[_address].NameValue=value;
+                        _workbook._names[_address].NameValue=value;
                     }
                     else
                     {
@@ -651,7 +652,7 @@ namespace OfficeOpenXml
                 {
                     if (_worksheet == null)
                     {
-                        return _wb._names[_address].NameFormula;
+                        return _workbook._names[_address].NameFormula;
                     }
                     else
                     {
@@ -669,7 +670,7 @@ namespace OfficeOpenXml
                 {
                     if (_worksheet == null)
                     {
-                        _wb._names[_address].NameFormula = value;
+                        _workbook._names[_address].NameFormula = value;
                     }
                     else
                     {
@@ -1006,6 +1007,7 @@ namespace OfficeOpenXml
         /// Set the merge flag for the range
         /// </summary>
         /// <param name="value"></param>
+        /// <param name="address"></param>
         internal void SetCellMerge(bool value, string address)
         {
             ExcelAddress a = new ExcelAddress(address);
@@ -1622,7 +1624,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Loads a CSV file into a range starting from the top left cell.
         /// </summary>
-        /// <param name="Text">The Text</param>
+        /// <param name="TextFile">The Textfile</param>
         /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile)
         {
@@ -1631,7 +1633,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Loads a CSV file into a range starting from the top left cell.
         /// </summary>
-        /// <param name="TextFile">The Text</param>
+        /// <param name="TextFile">The Textfile</param>
         /// <param name="Format">Information how to load the text</param>
         /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format)
@@ -1641,7 +1643,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Loads a CSV file into a range starting from the top left cell.
         /// </summary>
-        /// <param name="Text">The Text</param>
+        /// <param name="TextFile">The Textfile</param>
         /// <param name="Format">Information how to load the text</param>
         /// <param name="TableStyle">Create a table with this style</param>
         /// <param name="FirstRowIsHeader">Use the first row as header</param>

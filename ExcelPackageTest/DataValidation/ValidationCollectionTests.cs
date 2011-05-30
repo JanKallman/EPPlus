@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
 
-namespace ExcelPackageTest.DataValidation
+namespace EPPlusTest.DataValidation
 {
     [TestClass]
     public class ValidationCollectionTests : ValidationTestBase

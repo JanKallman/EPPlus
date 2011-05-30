@@ -59,7 +59,6 @@ namespace OfficeOpenXml.Utils
         /// <summary>
         /// Throws an <see cref="ArgumentNullException"/> if the string argument is null or empty
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <param name="argument">Argument to check</param>
         /// <param name="argumentName">parameter/argument name</param>
         /// <exception cref="ArgumentNullException"></exception>

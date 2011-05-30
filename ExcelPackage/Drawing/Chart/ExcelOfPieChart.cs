@@ -28,7 +28,7 @@ namespace OfficeOpenXml.Drawing.Chart
             SetTypeProperties();
         }
 
-        public ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             SetTypeProperties();
@@ -47,8 +47,9 @@ namespace OfficeOpenXml.Drawing.Chart
         }
 
         const string pieTypePath = "c:chartSpace/c:chart/c:plotArea/c:ofPieChart/c:ofPieType/@val";
-        private ExcelDrawings drawings;
-        private XmlNode node;
+        /// <summary>
+        /// Type, pie or bar
+        /// </summary>
         public ePieType OfPieType
         {
             get

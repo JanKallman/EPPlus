@@ -43,7 +43,7 @@ namespace OfficeOpenXml.Drawing.Vml
     /// </summary>
     public class ExcelVmlDrawing : XmlHelper, IRangeID
     {
-        public ExcelVmlDrawing(XmlNode topNode, ExcelRangeBase range, XmlNamespaceManager ns) :
+        internal ExcelVmlDrawing(XmlNode topNode, ExcelRangeBase range, XmlNamespaceManager ns) :
             base(ns, topNode)
         {
             Range = range;
