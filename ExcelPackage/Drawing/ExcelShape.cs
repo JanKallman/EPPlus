@@ -589,7 +589,7 @@ namespace OfficeOpenXml.Drawing
             }
         }
         #endregion
-        internal string Id
+        internal new string Id
         {
             get { return Name + Text; }
         }

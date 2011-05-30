@@ -57,13 +57,13 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             //SetPaths();
         }        
-        public ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             //SetPaths();
         }
 
-        public ExcelDoughnutChart(ExcelChart topChart, XmlNode chartNode) :
+        internal ExcelDoughnutChart(ExcelChart topChart, XmlNode chartNode) :
             base(topChart, chartNode)
         {
             //SetPaths();
@@ -77,6 +77,9 @@ namespace OfficeOpenXml.Drawing.Chart
         //}
         //string _firstSliceAngPath = "c:chartSpace/c:chart/c:plotArea/{0}/c:firstSliceAng/@val";
         string _firstSliceAngPath = "c:firstSliceAng/@val";
+        /// <summary>
+        /// Angle of the first slize
+        /// </summary>
         public decimal FirstSliceAngle
         {
             get
@@ -90,9 +93,9 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         //string _holeSizePath = "c:chartSpace/c:chart/c:plotArea/{0}/c:holeSize/@val";
         string _holeSizePath = "c:holeSize/@val";
-        private ExcelDrawings drawings;
-        private XmlNode node;
-        private ExcelChart topChart;
+        /// <summary>
+        /// Size of the doubnut hole
+        /// </summary>
         public decimal HoleSize
         {
             get

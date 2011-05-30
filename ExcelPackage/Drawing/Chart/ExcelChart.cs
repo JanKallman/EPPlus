@@ -264,10 +264,6 @@ namespace OfficeOpenXml.Drawing.Chart
     public enum eTrendLine
     {
         /// <summary>
-        /// No trendline
-        /// </summary>
-        None,
-        /// <summary>
         /// Specifies the trendline shall be an exponential curve in the form
         /// </summary>
         Exponential,
@@ -427,6 +423,10 @@ namespace OfficeOpenXml.Drawing.Chart
                {
                    View3D.RotX = 30;
                }
+               else
+               {
+                   View3D.RotX = 15;
+               }
            }
        }
        private void CreateNewChart(ExcelDrawings drawings, eChartType type, ExcelChart topChart)
@@ -435,7 +435,7 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                XmlElement graphFrame = TopNode.OwnerDocument.CreateElement("graphicFrame", ExcelPackage.schemaSheetDrawings);
                graphFrame.SetAttribute("macro", "");
-               TopNode.AppendChild(graphFrame);
+               TopNode.AppendChild(graphFrame); 
                graphFrame.InnerXml = string.Format("<xdr:nvGraphicFramePr><xdr:cNvPr id=\"{0}\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>",_id);
                TopNode.AppendChild(TopNode.OwnerDocument.CreateElement("clientData", ExcelPackage.schemaSheetDrawings));
 
@@ -885,7 +885,7 @@ namespace OfficeOpenXml.Drawing.Chart
                     //ChartType == eChartType.Doughnut ||
                     //ChartType == eChartType.DoughnutExploded;
         }
-        protected bool IsTypePercentStacked()
+        protected internal bool IsTypePercentStacked()
         {
             return ChartType == eChartType.AreaStacked100 ||
                            ChartType == eChartType.BarStacked100 ||
@@ -901,7 +901,7 @@ namespace OfficeOpenXml.Drawing.Chart
                            ChartType == eChartType.PyramidBarStacked100 ||
                            ChartType == eChartType.PyramidColStacked100;
         }
-        protected bool IsTypeStacked()
+        protected internal bool IsTypeStacked()
         {
             return ChartType == eChartType.AreaStacked ||
                            ChartType == eChartType.AreaStacked3D ||
@@ -931,7 +931,7 @@ namespace OfficeOpenXml.Drawing.Chart
                            ChartType == eChartType.PyramidBarClustered ||
                            ChartType == eChartType.PyramidColClustered;
         }
-        protected bool IsTypePieDoughnut()
+        protected internal bool IsTypePieDoughnut()
         {
             return ChartType == eChartType.Pie ||
                            ChartType == eChartType.PieExploded ||
@@ -1538,7 +1538,7 @@ namespace OfficeOpenXml.Drawing.Chart
         /// Package internal URI
         /// </summary>
         internal Uri UriChart { get; set; }
-        internal string Id
+        internal new string Id
         {
             get { return ""; }
         }

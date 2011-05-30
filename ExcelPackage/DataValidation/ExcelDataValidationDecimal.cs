@@ -78,7 +78,7 @@ namespace OfficeOpenXml.DataValidation
         /// <param name="validationType"></param>
         /// <param name="itemElementNode"></param>
         /// <param name="namespaceManager">For test purposes</param>
-        public ExcelDataValidationDecimal(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
+        internal ExcelDataValidationDecimal(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
             : base(worksheet, address, validationType, itemElementNode, namespaceManager)
         {
             Formula = new ExcelDataValidationFormulaDecimal(NameSpaceManager, TopNode, _formula1Path);

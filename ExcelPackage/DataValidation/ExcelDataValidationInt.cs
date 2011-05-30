@@ -77,7 +77,7 @@ namespace OfficeOpenXml.DataValidation
         /// <param name="validationType"></param>
         /// <param name="itemElementNode"></param>
         /// <param name="namespaceManager">For test purposes</param>
-        public ExcelDataValidationInt(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
+        internal ExcelDataValidationInt(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
             : base(worksheet, address, validationType, itemElementNode, namespaceManager)
         {
             Formula = new ExcelDataValidationFormulaInt(NameSpaceManager, TopNode, _formula1Path);

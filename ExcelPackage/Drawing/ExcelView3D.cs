@@ -41,7 +41,7 @@ namespace OfficeOpenXml.Drawing
     /// </summary>
     public sealed class ExcelView3D : XmlHelper
     {
-       public ExcelView3D(XmlNamespaceManager ns, XmlNode node)
+       internal ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
            //SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };

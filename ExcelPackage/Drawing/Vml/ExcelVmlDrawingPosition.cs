@@ -11,7 +11,7 @@ namespace OfficeOpenXml.Drawing.Vml
     public class ExcelVmlDrawingPosition : XmlHelper
     {
         int _startPos;
-        public ExcelVmlDrawingPosition(XmlNamespaceManager ns, XmlNode topNode, int startPos) : 
+        internal ExcelVmlDrawingPosition(XmlNamespaceManager ns, XmlNode topNode, int startPos) : 
             base(ns, topNode)
         {
             _startPos = startPos;

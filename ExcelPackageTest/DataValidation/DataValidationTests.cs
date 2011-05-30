@@ -7,7 +7,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.DataValidation;
 using System.IO;
 
-namespace ExcelPackageTest.DataValidation
+namespace EPPlusTest.DataValidation
 {
     [TestClass]
     public class DataValidationTests : ValidationTestBase

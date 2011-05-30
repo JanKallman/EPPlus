@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.DataValidation.Contracts;
 
-namespace ExcelPackageTest.DataValidation
+namespace EPPlusTest.DataValidation
 {
     [TestClass]
     public class DecimaDataValidationTests : ValidationTestBase

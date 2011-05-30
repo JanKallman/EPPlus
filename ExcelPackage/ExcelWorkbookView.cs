@@ -46,6 +46,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="ns"></param>
         /// <param name="node"></param>
+        /// <param name="wb"></param>
         internal ExcelWorkbookView(XmlNamespaceManager ns, XmlNode node, ExcelWorkbook wb) :
             base(ns, node)
 		{

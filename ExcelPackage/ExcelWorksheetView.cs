@@ -126,16 +126,17 @@ namespace OfficeOpenXml
                 }
             }
         }
-        // TODO: implement the different view states of the worksheet
 		private ExcelWorksheet _xlWorksheet;
-		private XmlElement _sheetView;
+		//private XmlElement _sheetView;
 
 		#region ExcelWorksheetView Constructor
 		/// <summary>
 		/// Creates a new ExcelWorksheetView which provides access to all the 
 		/// view states of the worksheet.
 		/// </summary>
-		/// <param name="xlWorksheet"></param>
+        /// <param name="ns"></param>
+        /// <param name="node"></param>
+        /// <param name="xlWorksheet"></param>
 		protected internal ExcelWorksheetView(XmlNamespaceManager ns, XmlNode node,  ExcelWorksheet xlWorksheet) :
             base(ns, node)
 		{

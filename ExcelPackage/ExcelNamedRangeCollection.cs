@@ -52,6 +52,12 @@ namespace OfficeOpenXml
             _ws = ws;
         }
         Dictionary<string, ExcelNamedRange> _dic = new Dictionary<string, ExcelNamedRange>();
+        /// <summary>
+        /// Add a new named range
+        /// </summary>
+        /// <param name="Name">The name</param>
+        /// <param name="Range">The range</param>
+        /// <returns></returns>
         public ExcelNamedRange Add(string Name, ExcelRangeBase Range)
         {
             ExcelNamedRange item;
@@ -68,6 +74,12 @@ namespace OfficeOpenXml
             _dic.Add(Name, item);
             return item;
         }
+        /// <summary>
+        /// Add a defined name referencing value
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
         public ExcelNamedRange AddValue(string Name, object value)
         {
             var item = new ExcelNamedRange(Name,_wb, _ws);
@@ -75,6 +87,12 @@ namespace OfficeOpenXml
             _dic.Add(Name, item);
             return item;
         }
+        /// <summary>
+        /// Add a defined name referencing a formula
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="Formula"></param>
+        /// <returns></returns>
         public ExcelNamedRange AddFormla(string Name, string Formula)
         {
             var item = new ExcelNamedRange(Name, _wb, _ws);
@@ -82,6 +100,10 @@ namespace OfficeOpenXml
             _dic.Add(Name, item);
             return item;
         }
+        /// <summary>
+        /// Remove a defined name from the collection
+        /// </summary>
+        /// <param name="Name">The name</param>
         public void Remove(string Name)
         {
             _dic.Remove(Name);

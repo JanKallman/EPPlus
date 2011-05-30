@@ -26,7 +26,6 @@
  * Jan Källman		Added		21-MAR-2011
  *******************************************************************************/
 using System;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
@@ -83,11 +82,16 @@ namespace OfficeOpenXml.Table.PivotTable
     }
     public class ExcelPivotTableFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableField>
     {
-        public ExcelPivotTableFieldCollection(ExcelPivotTable table, string topNode) :
+        internal ExcelPivotTableFieldCollection(ExcelPivotTable table, string topNode) :
             base(table)
         {
 
         }
+        /// <summary>
+        /// Indexer by name
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public ExcelPivotTableField this[string name]
         {
             get
@@ -235,6 +239,7 @@ namespace OfficeOpenXml.Table.PivotTable
     }
     /// <summary>
     /// Collection class for data fields in a Pivottable 
+    /// </summary>
     public class ExcelPivotTableDataFieldCollection : ExcelPivotTableFieldCollectionBase<ExcelPivotTableDataField>
     {
         internal ExcelPivotTableDataFieldCollection(ExcelPivotTable table) :

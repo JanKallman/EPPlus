@@ -436,7 +436,7 @@ namespace OfficeOpenXml
 		/// <param name="root">The root element</param>
 		/// <param name="nameSpace">The namespace of the schema</param>
 		/// <param name="schema">The schema to apply</param>
-		protected internal static void AddSchemaAttribute(XmlElement root, string schema, string nameSpace)
+		internal static void AddSchemaAttribute(XmlElement root, string schema, string nameSpace)
 		{
 			XmlAttribute nsAttribute = root.OwnerDocument.CreateAttribute("xmlns", nameSpace, @"http://www.w3.org/2000/xmlns/");
 			nsAttribute.Value = schema;
@@ -448,7 +448,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="root">The root element</param>
 		/// <param name="schema">The schema to apply</param>
-		protected internal static void AddSchemaAttribute(XmlElement root, string schema)
+		internal static void AddSchemaAttribute(XmlElement root, string schema)
 		{
 			XmlAttribute nsAttribute = root.OwnerDocument.CreateAttribute("xmlns");
 			nsAttribute.Value = schema;
@@ -462,12 +462,11 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="uriPart">The Uri of the component</param>
 		/// <param name="xmlPart">The XmlDocument to save</param>
-		protected internal void SavePart(Uri uriPart, XmlDocument xmlPart)
+		internal void SavePart(Uri uriPart, XmlDocument xmlPart)
 		{
 			PackagePart partPack = _package.GetPart(uriPart);
 			xmlPart.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
 		}
-        /// <summary>
         #endregion
 
 		#region Dispose
@@ -656,7 +655,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="uriPart">The Uri to the component</param>
 		/// <returns>The XmlDocument of the component</returns>
-		protected internal XmlDocument GetXmlFromUri(Uri uriPart)
+		internal XmlDocument GetXmlFromUri(Uri uriPart)
 		{
 			XmlDocument xlPart = new XmlDocument();
 			PackagePart packPart = _package.GetPart(uriPart);

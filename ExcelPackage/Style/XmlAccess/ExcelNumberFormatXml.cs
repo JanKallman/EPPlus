@@ -41,15 +41,15 @@ namespace OfficeOpenXml.Style.XmlAccess
     /// </summary>
     public sealed class ExcelNumberFormatXml : StyleXmlHelper
     {
-        public ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
+        internal ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
         {
             
         }        
-        public ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager, bool buildIn): base(nameSpaceManager)
+        internal ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager, bool buildIn): base(nameSpaceManager)
         {
             BuildIn = buildIn;
         }
-        public ExcelNumberFormatXml(XmlNamespaceManager nsm, XmlNode topNode) :
+        internal ExcelNumberFormatXml(XmlNamespaceManager nsm, XmlNode topNode) :
             base(nsm, topNode)
         {
             _numFmtId = GetXmlNodeInt("@numFmtId");

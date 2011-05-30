@@ -302,7 +302,7 @@ namespace OfficeOpenXml.Drawing
         internal Uri UriPic { get; set; }
         internal PackagePart Part;
 
-        internal string Id
+        internal new string Id
         {
             get { return Name; }
         }

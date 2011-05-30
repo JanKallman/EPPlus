@@ -121,6 +121,7 @@
     <Compile Include="DataValidation\RangeDataValidation.cs" />
     <Compile Include="Drawing\Chart\ExcelChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTrendline.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="ExcelCell.cs" />

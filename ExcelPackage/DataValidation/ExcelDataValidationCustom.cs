@@ -74,6 +74,7 @@ namespace OfficeOpenXml.DataValidation
         /// <param name="address"></param>
         /// <param name="validationType"></param>
         /// <param name="itemElementNode"></param>
+        /// <param name="namespaceManager"></param>
         public ExcelDataValidationCustom(ExcelWorksheet worksheet, string address, ExcelDataValidationType validationType, XmlNode itemElementNode, XmlNamespaceManager namespaceManager)
             : base(worksheet, address, validationType, itemElementNode, namespaceManager)
         {

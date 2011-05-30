@@ -7,7 +7,7 @@ using OfficeOpenXml.DataValidation;
 using System.IO;
 using OfficeOpenXml;
 
-namespace ExcelPackageTest.DataValidation.IntegrationTests
+namespace EPPlusTest.DataValidation.IntegrationTests
 {
     /// <summary>
     /// Remove the Ignore attributes from the testmethods if you want to run any of these tests

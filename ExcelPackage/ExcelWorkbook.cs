@@ -97,7 +97,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="xlPackage">The parent package</param>
         /// <param name="namespaceManager">NamespaceManager</param>
-		protected internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
+		internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
             base(namespaceManager)
 		{
             _package = xlPackage;
@@ -129,11 +129,11 @@ namespace OfficeOpenXml
                     XmlNode n = node.SelectSingleNode("d:t", NameSpaceManager);
                     if (n != null)
                     {
-                        _sharedStringsList.Add(new SharedStringItem(){Text= n.InnerText});
+                        _sharedStringsList.Add(new SharedStringItem(){Text=ExcelDecodeString(n.InnerText)});
                     }
                     else
                     {
-                        _sharedStringsList.Add(new SharedStringItem(){Text= node.InnerXml, isRichText=true});
+                        _sharedStringsList.Add(new SharedStringItem(){Text=node.InnerXml, isRichText=true});
                     }
                 }
             }
@@ -227,7 +227,7 @@ namespace OfficeOpenXml
                         }
                     }
                     if (elem.GetAttribute("hidden") == "1" && namedRange != null) namedRange.IsNameHidden = true;
-                    if(!string.IsNullOrEmpty(elem.GetAttribute("comment"))) namedRange.Comment=elem.GetAttribute("comment");
+                    if(!string.IsNullOrEmpty(elem.GetAttribute("comment"))) namedRange.NameComment=elem.GetAttribute("comment");
                 }
             }
         }
@@ -307,19 +307,19 @@ namespace OfficeOpenXml
         /// <summary>
 		/// The Uri to the workbook in the package
 		/// </summary>
-		protected internal Uri WorkbookUri { get { return (_uriWorkbook); }	}
+		internal Uri WorkbookUri { get { return (_uriWorkbook); }	}
 		/// <summary>
 		/// The Uri to the styles.xml in the package
 		/// </summary>
-		protected internal Uri StylesUri { get { return (_uriStyles); } }
+		internal Uri StylesUri { get { return (_uriStyles); } }
 		/// <summary>
 		/// The Uri to the shared strings file
 		/// </summary>
-		protected internal Uri SharedStringsUri { get { return (_uriSharedStrings); } }
+		internal Uri SharedStringsUri { get { return (_uriSharedStrings); } }
 		/// <summary>
 		/// Returns a reference to the workbook's part within the package
 		/// </summary>
-		protected internal PackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
+		internal PackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
 		
 		#region WorkbookXml
 		/// <summary>
@@ -381,7 +381,7 @@ namespace OfficeOpenXml
 		/// Provides access to the XML data representing the shared strings in the package.
 		/// For internal use only!
 		/// </summary>
-		protected internal XmlDocument SharedStringsXml
+		internal XmlDocument SharedStringsXml
 		{
 			get
 			{
@@ -615,32 +615,13 @@ namespace OfficeOpenXml
 		/// Saves the workbook and all its components to the package.
 		/// For internal use only!
 		/// </summary>
-		protected internal void Save()  // Workbook Save
+		internal void Save()  // Workbook Save
 		{
 			// ensure we have at least one worksheet
 			if (Worksheets.Count == 0)
-				throw new Exception("Workbook Save Error: the workbook must contain at least one worksheet!");
+				throw new InvalidOperationException("The workbook must contain at least one worksheet");
 
-			#region Delete calcChain component
-			// if the calcChain component exists, we should delete it to force Excel to recreate it
-			// when the spreadsheet is next opened
-			if (_package.Package.PartExists(_uriCalcChain))
-			{
-				//  there will be a relationship with the workbook, so first delete the relationship
-				Uri calcChain = new Uri("calcChain.xml", UriKind.Relative);
-				foreach (PackageRelationship relationship in _package.Workbook.Part.GetRelationships())
-				{
-					if (relationship.TargetUri == calcChain)
-					{
-						_package.Workbook.Part.DeleteRelationship(relationship.Id);
-						break;
-					}
-				}
-				// delete the calcChain component
-				_package.Package.DeletePart(_uriCalcChain);
-			}
-			#endregion
-
+            DeleteCalcChain();
             
             UpdateDefinedNamesXml();
 
@@ -675,13 +656,30 @@ namespace OfficeOpenXml
             if (_xmlSharedStrings != null)
             {
                 UpdateSharedStringsXml();
-            //    //_package.SavePart(SharedStringsUri, _xmlSharedStrings);
-            //    _package.WriteDebugFile(_xmlSharedStrings, "xl", "sharedstrings.xml");
             }
             
             // Data validation
             ValidateDataValidations();
 		}
+
+        private void DeleteCalcChain()
+        {
+            //If the a calc chain exists remove all relations to it
+            if (_package.Package.PartExists(_uriCalcChain))
+			{
+				Uri calcChain = new Uri("calcChain.xml", UriKind.Relative);
+				foreach (PackageRelationship relationship in _package.Workbook.Part.GetRelationships())
+				{
+					if (relationship.TargetUri == calcChain)
+					{
+						_package.Workbook.Part.DeleteRelationship(relationship.Id);
+						break;
+					}
+				}
+				// delete the calcChain part
+				_package.Package.DeletePart(_uriCalcChain);
+			}
+        }
 
         private void ValidateDataValidations()
         {
@@ -707,8 +705,15 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    sw.Write("<si><t>");
-                    ExcelEncodeString(sw,SecurityElement.Escape(t));
+                    if (t.Length>0 && (t[0] == ' ' || t[t.Length-1] == ' ' || t.Contains("  ") || t.Contains("\t")))
+                    {
+                        sw.Write("<si><t xml:space=\"preserve\">");
+                    }
+                    else
+                    {
+                        sw.Write("<si><t>");
+                    }
+                    ExcelEncodeString(sw, SecurityElement.Escape(t));
                     sw.Write("</t></si>");
                 }
             }
@@ -716,29 +721,70 @@ namespace OfficeOpenXml
             sw.Flush();
         }
 
+        /// <summary>
+        /// Return true if preserve space attribute is set.
+        /// </summary>
+        /// <param name="sw"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
         private void ExcelEncodeString(StreamWriter sw, string t)
         {
-            if(Regex.IsMatch(t, "(_X[0-9A-F]{4,4}_)"))
+            if(Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
             {
-                string nt="";
-                foreach(string s in Regex.Split(t, "(_X[0-9A-F]{4,4}_)"))
+                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+                int indexAdd = 0;
+                while (match.Success)
                 {
-                    nt+="_X005F_";
+                    t=t.Insert(match.Index + indexAdd, "_x005F");
+                    indexAdd += 6;
+                    match = match.NextMatch();
                 }
-                t = nt.Substring(0, nt.Length - 7);
             }
             for (int i=0;i<t.Length;i++)
             {
-                if (t[i] < 0x1f && t[i] != 9 && t[i] != 10)
+                if (t[i] < 0x1f && t[i] != '\t' && t[i] != '\n') //Not Tab or LF
                 {
-                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));                    
                 }
                 else
                 {
                     sw.Write(t[i]);
                 }
-
             }
+
+        }
+        private string ExcelDecodeString(string t)
+        {
+            var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
+            if(!match.Success) return t;
+
+            bool useNextValue = false;
+            StringBuilder ret=new StringBuilder();
+            int prevIndex=0;
+            while(match.Success)
+            {
+                if (prevIndex < match.Index) ret.Append(t.Substring(prevIndex, match.Index - prevIndex));
+                if (!useNextValue && match.Value == "_x005F")
+                {
+                    useNextValue = true;
+                }
+                else
+                {
+                    if (useNextValue)
+                    {
+                        ret.Append(match.Value);
+                        useNextValue=false;
+                    }
+                    else
+                    {
+                        ret.Append((char)int.Parse(match.Value.Substring(2,4),NumberStyles.AllowHexSpecifier));
+                    }
+                }
+                prevIndex=match.Index+match.Length;
+                match = match.NextMatch();
+            }
+            ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
+            return ret.ToString();
         }
         private void UpdateDefinedNamesXml()
         {
@@ -768,7 +814,7 @@ namespace OfficeOpenXml
                         top.AppendChild(elem);
                         elem.SetAttribute("name", name.Name);
                         if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                        if (!string.IsNullOrEmpty(name.Comment)) elem.SetAttribute("comment", name.Comment);
+                        if (!string.IsNullOrEmpty(name.NameComment)) elem.SetAttribute("comment", name.NameComment);
                         SetNameElement(name, elem);
                     }
                 }
@@ -782,7 +828,7 @@ namespace OfficeOpenXml
                         elem.SetAttribute("name", name.Name);
                         elem.SetAttribute("localSheetId", name.LocalSheetId.ToString());
                         if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-                        if (!string.IsNullOrEmpty(name.Comment)) elem.SetAttribute("comment", name.Comment);
+                        if (!string.IsNullOrEmpty(name.NameComment)) elem.SetAttribute("comment", name.NameComment);
                         SetNameElement(name, elem);
                     }
                 }

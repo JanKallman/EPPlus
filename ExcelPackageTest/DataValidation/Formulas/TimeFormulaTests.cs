@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.DataValidation;
-using OfficeOpenXml.DataValidation;
 
-namespace ExcelPackageTest.DataValidation.Formulas
+namespace EPPlusTest.DataValidation.Formulas
 {
     [TestClass]
     public class TimeFormulaTests : ValidationTestBase

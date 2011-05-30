@@ -152,6 +152,8 @@ namespace OfficeOpenXml
         /// <param name="part">the value to be translated</param>
         /// <param name="row"></param>
         /// <param name="col"></param>
+        /// <param name="rowIncr"></param>
+        /// <param name="colIncr"></param>
         /// <returns></returns>
         private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
         {
@@ -190,6 +192,8 @@ namespace OfficeOpenXml
         /// Translates to absolute address
         /// </summary>
         /// <param name="part"></param>
+        /// <param name="row"></param>
+        /// <param name="col"></param>
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
@@ -290,6 +294,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="value"></param>
         /// <param name="OffsetValue"></param>
+        /// <param name="fixedAddr"></param>
         /// <returns></returns>
         private static int GetRC(string value, int OffsetValue, out bool fixedAddr)
         {
@@ -495,6 +500,8 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="Row">The number of the row</param>
         /// <param name="Column">The number of the column in the worksheet</param>
+        /// <param name="AbsoluteRow">Absolute row</param>
+        /// <param name="AbsoluteCol">Absolute column</param>
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int Row, bool AbsoluteRow, int Column, bool AbsoluteCol)
         {
@@ -505,6 +512,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="Row">The number of the row</param>
         /// <param name="Column">The number of the column in the worksheet</param>
+        /// <param name="Absolute">Get an absolute address ($A$1)</param>
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int Row, int Column, bool Absolute)
         {

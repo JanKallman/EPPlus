@@ -39,7 +39,7 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelProtection : XmlHelper
     {
-        public ExcelProtection(XmlNamespaceManager ns, XmlNode topNode, ExcelWorkbook wb) :
+        internal ExcelProtection(XmlNamespaceManager ns, XmlNode topNode, ExcelWorkbook wb) :
             base(ns, topNode)
         {
             SchemaNodeOrder = wb.SchemaNodeOrder;

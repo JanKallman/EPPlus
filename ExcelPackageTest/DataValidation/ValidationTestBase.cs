@@ -9,7 +9,7 @@ using OfficeOpenXml.DataValidation;
 using System.Xml;
 using System.Globalization;
 
-namespace ExcelPackageTest.DataValidation
+namespace EPPlusTest.DataValidation
 {
     public abstract class ValidationTestBase
     {

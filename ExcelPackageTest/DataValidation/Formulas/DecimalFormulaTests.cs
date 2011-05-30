@@ -7,7 +7,7 @@ using OfficeOpenXml.DataValidation.Formulas;
 using System.Xml;
 using OfficeOpenXml.DataValidation;
 
-namespace ExcelPackageTest.DataValidation.Formulas
+namespace EPPlusTest.DataValidation.Formulas
 {
     [TestClass]
     public class DecimalFormulaTests : ValidationTestBase

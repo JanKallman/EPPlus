@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml;
 
-namespace ExcelPackageTest.Utils
+namespace EPPlusTest.Utils
 {
     [TestClass]
     public class AddressUtilityTests

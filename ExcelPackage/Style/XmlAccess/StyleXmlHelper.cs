@@ -39,11 +39,11 @@ namespace OfficeOpenXml.Style.XmlAccess
     /// </summary>
     public abstract class  StyleXmlHelper : XmlHelper
     {
-        protected internal StyleXmlHelper(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
+        internal StyleXmlHelper(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
         { 
 
         }
-        protected internal StyleXmlHelper(XmlNamespaceManager nameSpaceManager, XmlNode topNode) : base(nameSpaceManager, topNode)
+        internal StyleXmlHelper(XmlNamespaceManager nameSpaceManager, XmlNode topNode) : base(nameSpaceManager, topNode)
         {
         }
         internal abstract XmlNode CreateXmlNode(XmlNode top);

@@ -24,7 +24,7 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <summary>
         /// Add a new charttype to the chart
         /// </summary>
-        /// <param name="chart"></param>
+        /// <param name="chartType">The type of the new chart</param>
         /// <returns></returns>
         public ExcelChart Add(eChartType chartType)
         {

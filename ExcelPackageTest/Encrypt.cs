@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
 
-namespace ExcelPackageTest
+namespace EPPlusTest
 {
     [TestClass]
     public class Encrypt

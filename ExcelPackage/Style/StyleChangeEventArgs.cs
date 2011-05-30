@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using System.Text;
 namespace OfficeOpenXml.Style
 {
-    public enum eStyleClass
+    internal enum eStyleClass
     {
         Numberformat,
         Font,    
@@ -49,7 +49,7 @@ namespace OfficeOpenXml.Style
         NamedStyle,
         Style
     };
-    public enum eStyleProperty
+    internal enum eStyleProperty
     {
         Format,
         Name,
@@ -78,7 +78,7 @@ namespace OfficeOpenXml.Style
         XfId,
         Indent
     }
-    public class StyleChangeEventArgs : EventArgs
+    internal class StyleChangeEventArgs : EventArgs
     {
         internal StyleChangeEventArgs(eStyleClass styleclass, eStyleProperty styleProperty, object value, int positionID, string address)
         {
@@ -90,7 +90,7 @@ namespace OfficeOpenXml.Style
         }
         internal eStyleClass StyleClass;
         internal eStyleProperty StyleProperty;
-        internal string PropertyName;
+        //internal string PropertyName;
         internal object Value;
         internal int PositionID { get; set; }
         //internal string Address;

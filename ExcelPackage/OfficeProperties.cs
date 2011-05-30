@@ -62,7 +62,8 @@ namespace OfficeOpenXml
         /// Provides access to all the office document properties.
         /// </summary>
         /// <param name="xlPackage"></param>
-        public OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) :
+        /// <param name="ns"></param>
+        internal OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) :
             base(ns)
         {
             _package = xlPackage;
@@ -81,15 +82,15 @@ namespace OfficeOpenXml
         /// <summary>
         /// The URI to the core properties component (core.xml)
         /// </summary>
-        protected internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
+        internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
         /// <summary>
         /// The URI to the extended properties component (app.xml)
         /// </summary>
-        protected internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
+        internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
         /// <summary>
         /// The URI to the custom properties component (custom.xml)
         /// </summary>
-        protected internal Uri CustomPropertiesUri { get { return (_uriPropertiesCustom); } }
+        internal Uri CustomPropertiesUri { get { return (_uriPropertiesCustom); } }
         #endregion
 
         #region CorePropertiesXml
@@ -530,7 +531,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Saves the office document properties back to the package.
         /// </summary>
-        protected internal void Save()
+        internal void Save()
         {
             if (_xmlPropertiesCore != null)
             {

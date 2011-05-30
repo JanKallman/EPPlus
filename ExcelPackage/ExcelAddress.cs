@@ -53,6 +53,13 @@ namespace OfficeOpenXml
         internal ExcelAddressBase()
         {
         }
+        /// <summary>
+        /// Creates an Address object
+        /// </summary>
+        /// <param name="fromRow">start row</param>
+        /// <param name="fromCol">start column</param>
+        /// <param name="toRow">End row</param>
+        /// <param name="toColumn">End column</param>
         public ExcelAddressBase(int fromRow, int fromCol, int toRow, int toColumn)
         {
             _fromRow = fromRow;
@@ -540,7 +547,7 @@ namespace OfficeOpenXml
         /// The address for the range
         /// </summary>
         /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
-        public string Address
+        public new string Address
         {
             get
             {
