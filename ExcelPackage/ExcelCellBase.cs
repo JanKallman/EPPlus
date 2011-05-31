@@ -572,6 +572,12 @@ namespace OfficeOpenXml
                 }
             }
         }
+        /// <summary>
+        /// Get the full address including the worksheet name
+        /// </summary>
+        /// <param name="worksheetName">The name of the worksheet</param>
+        /// <param name="address">The address</param>
+        /// <returns>The full address</returns>
         public static string GetFullAddress(string worksheetName, string address)
         {
                if (address.IndexOf("!") == -1 || address=="#REF!")

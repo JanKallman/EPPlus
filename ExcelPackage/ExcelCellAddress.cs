@@ -124,6 +124,9 @@ namespace OfficeOpenXml
                 ExcelCellBase.GetRowColFromAddress(_address, out _row, out _column);
             }
         }
+        /// <summary>
+        /// If the address is an invalid reference (#REF!)
+        /// </summary>
         public bool IsRef
         {
             get

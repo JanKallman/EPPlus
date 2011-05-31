@@ -200,6 +200,9 @@ namespace OfficeOpenXml
                 return _address;
             }
         }
+        /// <summary>
+        /// If the address is a defined name
+        /// </summary>
         public bool IsName
         {
             get

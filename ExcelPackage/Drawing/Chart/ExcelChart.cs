@@ -391,7 +391,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "varyColors", "ser", "dLbls", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly","dispBlanksAs", "overlap", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "scatterStyle", "varyColors", "ser", "dLbls", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly","dispBlanksAs", "overlap", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
@@ -617,7 +617,7 @@ namespace OfficeOpenXml.Drawing.Chart
                xml.AppendFormat("<c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:delete val=\"0\"/><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx>", axID, xAxID);
            }
 
-           xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:overlay val=\"0\" /><c:layout/></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
+           xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/><c:overlay val=\"0\" /></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
 
            xml.Append("<c:printSettings><c:headerFooter/><c:pageMargins b=\"0.75\" l=\"0.7\" r=\"0.7\" t=\"0.75\" header=\"0.3\" footer=\"0.3\"/><c:pageSetup/></c:printSettings></c:chartSpace>");          
            return xml.ToString();

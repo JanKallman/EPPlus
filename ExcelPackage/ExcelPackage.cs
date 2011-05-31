@@ -38,9 +38,102 @@ using System.IO.Packaging;
 namespace OfficeOpenXml
 {
     /// <summary>
-	/// Represents an Excel 2007/2010 XLSX file package.  
+    /// Represents an Excel 2007/2010 XLSX file package.  
     /// This is the top-level object to access all parts of the document.
-	/// </summary>
+    /// <code>
+	///     FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+	/// 	if (newFile.Exists)
+	/// 	{
+	/// 		newFile.Delete();  // ensures we create a new workbook
+	/// 		newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+	/// 	}
+	/// 	using (ExcelPackage package = new ExcelPackage(newFile))
+    ///     {
+    ///         // add a new worksheet to the empty workbook
+    ///         ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
+    ///         //Add the headers
+    ///         worksheet.Cells[1, 1].Value = "ID";
+    ///         worksheet.Cells[1, 2].Value = "Product";
+    ///         worksheet.Cells[1, 3].Value = "Quantity";
+    ///         worksheet.Cells[1, 4].Value = "Price";
+    ///         worksheet.Cells[1, 5].Value = "Value";
+    ///
+    ///         //Add some items...
+    ///         worksheet.Cells["A2"].Value = "12001";
+    ///         worksheet.Cells["B2"].Value = "Nails";
+    ///         worksheet.Cells["C2"].Value = 37;
+    ///         worksheet.Cells["D2"].Value = 3.99;
+    ///
+    ///         worksheet.Cells["A3"].Value = "12002";
+    ///         worksheet.Cells["B3"].Value = "Hammer";
+    ///         worksheet.Cells["C3"].Value = 5;
+    ///         worksheet.Cells["D3"].Value = 12.10;
+    ///
+    ///         worksheet.Cells["A4"].Value = "12003";
+    ///         worksheet.Cells["B4"].Value = "Saw";
+    ///         worksheet.Cells["C4"].Value = 12;
+    ///         worksheet.Cells["D4"].Value = 15.37;
+    ///
+    ///         //Add a formula for the value-column
+    ///         worksheet.Cells["E2:E4"].Formula = "C2*D2";
+    ///
+    ///            //Ok now format the values;
+    ///         using (var range = worksheet.Cells[1, 1, 1, 5]) 
+    ///          {
+    ///             range.Style.Font.Bold = true;
+    ///             range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+    ///             range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
+    ///             range.Style.Font.Color.SetColor(Color.White);
+    ///         }
+    ///
+    ///         worksheet.Cells["A5:E5"].Style.Border.Top.Style = ExcelBorderStyle.Thin;
+    ///         worksheet.Cells["A5:E5"].Style.Font.Bold = true;
+    ///
+    ///         worksheet.Cells[5, 3, 5, 5].Formula = string.Format("SUBTOTAL(9,{0})", new ExcelAddress(2,3,4,3).Address);
+    ///         worksheet.Cells["C2:C5"].Style.Numberformat.Format = "#,##0";
+    ///         worksheet.Cells["D2:E5"].Style.Numberformat.Format = "#,##0.00";
+    ///
+    ///         //Create an autofilter for the range
+    ///         worksheet.Cells["A1:E4"].AutoFilter = true;
+    ///
+    ///         worksheet.Cells["A1:E5"].AutoFitColumns(0);
+    ///
+    ///         // lets set the header text 
+    ///         worksheet.HeaderFooter.oddHeader.CenteredText = "&amp;24&amp;U&amp;\"Arial,Regular Bold\" Inventory";
+    ///         // add the page number to the footer plus the total number of pages
+    ///         worksheet.HeaderFooter.oddFooter.RightAlignedText =
+    ///         string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
+    ///         // add the sheet name to the footer
+    ///         worksheet.HeaderFooter.oddFooter.CenteredText = ExcelHeaderFooter.SheetName;
+    ///         // add the file path to the footer
+    ///         worksheet.HeaderFooter.oddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
+    ///
+    ///         worksheet.PrinterSettings.RepeatRows = worksheet.Cells["1:2"];
+    ///         worksheet.PrinterSettings.RepeatColumns = worksheet.Cells["A:G"];
+    ///
+    ///          // Change the sheet view to show it in page layout mode
+    ///           worksheet.View.PageLayoutView = true;
+    ///
+    ///         // set some document properties
+    ///         package.Workbook.Properties.Title = "Invertory";
+    ///         package.Workbook.Properties.Author = "Jan Källman";
+    ///         package.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 workbook using EPPlus";
+    ///
+    ///         // set some extended property values
+    ///         package.Workbook.Properties.Company = "AdventureWorks Inc.";
+    ///
+    ///         // set some custom property values
+    ///         package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
+    ///         package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
+    ///
+    ///         // save our new workbook and we are done!
+    ///         package.Save();
+    ///
+    ///       }
+    ///
+    ///       return newFile.FullName;
+    /// </code>
+    /// </summary>
 	public sealed class ExcelPackage : IDisposable
 	{
         internal const bool preserveWhitespace=false;
@@ -97,7 +190,7 @@ namespace OfficeOpenXml
 
 		#region ExcelPackage Constructors
         /// <summary>
-        /// Creates a new instance of the ExcelPackage. Output is accessed through the Stream property.
+        /// Create a new instance of the ExcelPackage. Output is accessed through the Stream property.
         /// </summary>
         public ExcelPackage()
         {
@@ -105,7 +198,7 @@ namespace OfficeOpenXml
             ConstructNewFile(new MemoryStream(), null);
         }
         /// <summary>
-		/// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+		/// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
 		/// </summary>
 		/// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
         public ExcelPackage(FileInfo newFile)
@@ -115,7 +208,7 @@ namespace OfficeOpenXml
             ConstructNewFile(new MemoryStream(), null);
         }
         /// <summary>
-        /// Creates a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+        /// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
         /// </summary>
         /// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
         /// <param name="password">Password for an encrypted package</param>
@@ -126,7 +219,7 @@ namespace OfficeOpenXml
             ConstructNewFile(new MemoryStream(), password);
         }
 		/// <summary>
-		/// Creates a new instance of the ExcelPackage class based on a existing template.
+		/// Create a new instance of the ExcelPackage class based on a existing template.
 		/// WARNING: If newFile exists, it is deleted!
 		/// </summary>
 		/// <param name="newFile">The name of the Excel file to be created</param>
@@ -138,7 +231,7 @@ namespace OfficeOpenXml
             CreateFromTemplate(template, null);
 		}
         /// <summary>
-        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// Create a new instance of the ExcelPackage class based on a existing template.
         /// WARNING: If newFile exists, it is deleted!
         /// </summary>
         /// <param name="newFile">The name of the Excel file to be created</param>
@@ -151,7 +244,7 @@ namespace OfficeOpenXml
             CreateFromTemplate(template, password);
         }
         /// <summary>
-        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// Create a new instance of the ExcelPackage class based on a existing template.
         /// </summary>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="useStream">if true use a stream. If false create a file in the temp dir with a random name</param>
@@ -165,7 +258,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Creates a new instance of the ExcelPackage class based on a existing template.
+        /// Create a new instance of the ExcelPackage class based on a existing template.
         /// </summary>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="useStream">if true use a stream. If false create a file in the temp dir with a random name</param>
@@ -180,7 +273,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Creates a new instance of the Excelpackage class based on a stream
+        /// Create a new instance of the ExcelPackage class based on a stream
         /// </summary>
         /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
         public ExcelPackage(Stream newStream) 
@@ -196,7 +289,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Creates a new instance of the Excelpackage class based on a stream
+        /// Create a new instance of the ExcelPackage class based on a stream
         /// </summary>
         /// <param name="newStream">The stream object can be empty or contain a package. The stream must be Read/Write</param>
         /// <param name="Password">The password to decrypt the document</param>
@@ -220,7 +313,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Creates a new instance of the Excelpackage class based on a stream
+        /// Create a new instance of the ExcelPackage class based on a stream
         /// </summary>
         /// <param name="newStream">The output stream. Must be an empty read/write stream.</param>
         /// <param name="templateStream">This stream is copied to the output stream at load</param>
@@ -238,7 +331,7 @@ namespace OfficeOpenXml
             Load(templateStream, newStream, null);
         }
         /// <summary>
-        /// Creates a new instance of the Excelpackage class based on a stream
+        /// Create a new instance of the ExcelPackage class based on a stream
         /// </summary>
         /// <param name="newStream">The output stream. Must be an empty read/write stream.</param>
         /// <param name="templateStream">This stream is copied to the output stream at load</param>

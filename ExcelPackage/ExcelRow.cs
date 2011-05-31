@@ -39,7 +39,9 @@ namespace OfficeOpenXml
 	{
 		private ExcelWorksheet _xlWorksheet;
 		private XmlElement _rowElement = null;
-
+        /// <summary>
+        /// Internal RowID.
+        /// </summary>
         public ulong RowID 
         {
             get
