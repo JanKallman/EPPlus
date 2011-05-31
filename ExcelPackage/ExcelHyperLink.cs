@@ -92,6 +92,9 @@ namespace OfficeOpenXml
             }
         }
         string _display = "";
+        /// <summary>
+        /// Displayed text
+        /// </summary>
         public string Display
         {
             get

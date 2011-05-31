@@ -18,23 +18,25 @@
     <HtmlHelpName>EPPlus 2.9</HtmlHelpName>
     <FrameworkVersion>3.5</FrameworkVersion>
     <DocumentationSources>
-      <DocumentationSource sourceFile="..\ExcelPackage\bin\Release\EPPlus.dll" />
-<DocumentationSource sourceFile="..\ExcelPackage\bin\Release\EPPlus.XML" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.dll" />
+<DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.XML" /></DocumentationSources>
     <ProjectSummary>EPPlus is a .net library that reads and writes Excel files using the Open Office Xml format. 
 EPPlus supports ranges, cell styling, charts, picture, shapes, named ranges, comments,tables and a lot of other stuff.
 EPPlus started with the source from the ExcelPackage project hosted on CodePlex.</ProjectSummary>
     <NamespaceSummaries>
       <NamespaceSummaryItem name="OfficeOpenXml" isDocumented="True">This is the main namespace for EPPlus</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Drawing" isDocumented="True">Contains all classes related to drawings. Drawing objects are Charts, Shapes and Pictures</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Chart" isDocumented="True">Contains chart classes</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Style" isDocumented="True">Contains classes for cell styling and named styles</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Style.XmlAccess" isDocumented="True">Contains the classes that write the style xml</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Vml" isDocumented="True">Contains classes used for Vml drawings. Vml drawings are used for comments</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Table" isDocumented="True">Contains the classes used for Excel tables</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.DataValidation" isDocumented="True">Contains classes for Datavalidation</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Table.PivotTable" isDocumented="True">Contains classes for Excel Pivottables</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Utils" isDocumented="True">Internal utility classes</NamespaceSummaryItem></NamespaceSummaries>
+      <NamespaceSummaryItem name="OfficeOpenXml.Drawing" isDocumented="True">Contains all classes related to drawings. Drawing objects are Charts, Shapes and Pictures</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Drawing.Chart" isDocumented="True">Contains chart classes</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Style" isDocumented="True">Contains classes for cell styling and named styles</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Style.XmlAccess" isDocumented="True">Contains the classes that write the style xml</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Drawing.Vml" isDocumented="True">Contains classes used for Vml drawings. Vml drawings are used for comments</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Table" isDocumented="True">Contains the classes used for Excel tables</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.DataValidation" isDocumented="True">Contains classes for Datavalidation</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Table.PivotTable" isDocumented="True">Contains classes for Excel Pivottables</NamespaceSummaryItem>
+      <NamespaceSummaryItem name="OfficeOpenXml.Utils" isDocumented="True">Internal utility classes</NamespaceSummaryItem>
+    </NamespaceSummaries>
     <HelpTitle>EPPlus 2.9</HelpTitle>
+    <VisibleItems>InheritedMembers, InheritedFrameworkMembers</VisibleItems>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

@@ -45,9 +45,12 @@ namespace OfficeOpenXml.Drawing
            : base(ns,node)
        {
            //SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };
-           SchemaNodeOrder = new string[] { "rotX", "hPercent", "rotY", "depthPercent", "perspective", "rAngAx"};
+           SchemaNodeOrder = new string[] { "rotX", "hPercent", "rotY", "depthPercent","rAngAx", "perspective"};
        }
        const string perspectivePath = "c:perspective/@val";
+       /// <summary>
+       /// Degree of perspective 
+       /// </summary>
        public decimal Perspective
        {
            get
@@ -60,6 +63,9 @@ namespace OfficeOpenXml.Drawing
            }
        }
        const string rotXPath = "c:rotX/@val";
+       /// <summary>
+       /// Rotation X-axis
+       /// </summary>
        public decimal RotX
        {
            get
@@ -73,6 +79,9 @@ namespace OfficeOpenXml.Drawing
            }
        }
        const string rotYPath = "c:rotY/@val";
+       /// <summary>
+       /// Rotation Y-axis
+       /// </summary>
        public decimal RotY
        {
            get
@@ -86,6 +95,9 @@ namespace OfficeOpenXml.Drawing
            }
        }
        const string rAngAxPath = "c:rAngAx/@val";
+       /// <summary>
+       /// Right Angle Axes
+       /// </summary>
        public bool RightAngleAxes
        {
            get
@@ -98,6 +110,9 @@ namespace OfficeOpenXml.Drawing
            }
        }
        const string depthPercentPath = "c:depthPercent/@val";
+       /// <summary>
+       /// Depth % of base
+       /// </summary>
        public int DepthPercent
        {
            get
@@ -114,6 +129,9 @@ namespace OfficeOpenXml.Drawing
            }
        }
        const string heightPercentPath = "c:hPercent/@val";
+       /// <summary>
+       /// Height % of base
+       /// </summary>
        public int HeightPercent
        {
            get

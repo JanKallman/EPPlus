@@ -43,13 +43,13 @@ namespace OfficeOpenXml
     public sealed class OfficeProperties : XmlHelper
     {
         #region Private Properties
-        private Uri _uriPropertiesCore = new Uri("/docProps/core.xml", UriKind.Relative);
-        private Uri _uriPropertiesExtended = new Uri("/docProps/app.xml", UriKind.Relative);
-        private Uri _uriPropertiesCustom = new Uri("/docProps/custom.xml", UriKind.Relative);
-
         private XmlDocument _xmlPropertiesCore;
         private XmlDocument _xmlPropertiesExtended;
         private XmlDocument _xmlPropertiesCustom;
+
+        private Uri _uriPropertiesCore = new Uri("/docProps/core.xml", UriKind.Relative);
+        private Uri _uriPropertiesExtended = new Uri("/docProps/app.xml", UriKind.Relative);
+        private Uri _uriPropertiesCustom = new Uri("/docProps/custom.xml", UriKind.Relative);
 
         XmlHelper _coreHelper;
         XmlHelper _extendedHelper;
@@ -61,15 +61,12 @@ namespace OfficeOpenXml
         /// <summary>
         /// Provides access to all the office document properties.
         /// </summary>
-        /// <param name="xlPackage"></param>
+        /// <param name="package"></param>
         /// <param name="ns"></param>
-        internal OfficeProperties(ExcelPackage xlPackage, XmlNamespaceManager ns) :
+        internal OfficeProperties(ExcelPackage package, XmlNamespaceManager ns) :
             base(ns)
         {
-            _package = xlPackage;
-            //_coreHelper = new XmlHelper(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));  
-            //_extendedHelper
-            //_customHelper = new XmlHelper(ns, CustomPropertiesXml);
+            _package = package;
 
             _coreHelper = XmlHelperFactory.Create(ns, CorePropertiesXml.SelectSingleNode("cp:coreProperties", NameSpaceManager));
             _extendedHelper = XmlHelperFactory.Create(ns, ExtendedPropertiesXml);
@@ -77,22 +74,6 @@ namespace OfficeOpenXml
 
         }
         #endregion
-
-        #region Protected Internal Properties
-        /// <summary>
-        /// The URI to the core properties component (core.xml)
-        /// </summary>
-        internal Uri CorePropertiesUri { get { return (_uriPropertiesCore); } }
-        /// <summary>
-        /// The URI to the extended properties component (app.xml)
-        /// </summary>
-        internal Uri ExtendedPropertiesUri { get { return (_uriPropertiesExtended); } }
-        /// <summary>
-        /// The URI to the custom properties component (custom.xml)
-        /// </summary>
-        internal Uri CustomPropertiesUri { get { return (_uriPropertiesCustom); } }
-        #endregion
-
         #region CorePropertiesXml
         /// <summary>
         /// Provides access to the XML document that holds all the code 
@@ -104,8 +85,8 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesCore == null)
                 {
-                    if (_package.Package.PartExists(CorePropertiesUri))
-                        _xmlPropertiesCore = _package.GetXmlFromUri(CorePropertiesUri);
+                    if (_package.Package.PartExists(_uriPropertiesCore))
+                        _xmlPropertiesCore = _package.GetXmlFromUri(_uriPropertiesCore);
                     else
                     {
                         _xmlPropertiesCore = new XmlDocument();
@@ -117,7 +98,7 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaXsi));
 
                         // create a new document properties part and add to the package
-                        PackagePart partCore = _package.Package.CreatePart(CorePropertiesUri, @"application/vnd.openxmlformats-package.core-properties+xml");
+                        PackagePart partCore = _package.Package.CreatePart(_uriPropertiesCore, @"application/vnd.openxmlformats-package.core-properties+xml");
 
                         // create the document properties XML (with no entries in it)
 
@@ -129,7 +110,7 @@ namespace OfficeOpenXml
                         _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), CorePropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesCore), TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
                         _package.Package.Flush();
                     }
                 }
@@ -240,8 +221,8 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesExtended == null)
                 {
-                    if (_package.Package.PartExists(ExtendedPropertiesUri))
-                        _xmlPropertiesExtended = _package.GetXmlFromUri(ExtendedPropertiesUri);
+                    if (_package.Package.PartExists(_uriPropertiesExtended))
+                        _xmlPropertiesExtended = _package.GetXmlFromUri(_uriPropertiesExtended);
                     else
                     {
                         _xmlPropertiesExtended = new XmlDocument();
@@ -250,7 +231,7 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaExtended));
 
                         // create a new document properties part and add to the package
-                        PackagePart partExtended = _package.Package.CreatePart(ExtendedPropertiesUri, @"application/vnd.openxmlformats-officedocument.extended-properties+xml");
+                        PackagePart partExtended = _package.Package.CreatePart(_uriPropertiesExtended, @"application/vnd.openxmlformats-officedocument.extended-properties+xml");
 
                         // save it to the package
                         StreamWriter streamExtended = new StreamWriter(partExtended.GetStream(FileMode.Create, FileAccess.Write));
@@ -259,7 +240,7 @@ namespace OfficeOpenXml
                         _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), ExtendedPropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesExtended), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
                         _package.Package.Flush();
                     }
                 }
@@ -343,8 +324,8 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesCustom == null)
                 {
-                    if (_package.Package.PartExists(CustomPropertiesUri))
-                        _xmlPropertiesCustom = _package.GetXmlFromUri(CustomPropertiesUri);
+                    if (_package.Package.PartExists(_uriPropertiesCustom))
+                        _xmlPropertiesCustom = _package.GetXmlFromUri(_uriPropertiesCustom);
                     else
                     {
                         _xmlPropertiesCustom = new XmlDocument();
@@ -353,7 +334,7 @@ namespace OfficeOpenXml
                             ExcelPackage.schemaCustom));
 
                         // create a new document properties part and add to the package
-                        PackagePart partCustom = _package.Package.CreatePart(CustomPropertiesUri, @"application/vnd.openxmlformats-officedocument.custom-properties+xml");
+                        PackagePart partCustom = _package.Package.CreatePart(_uriPropertiesCustom, @"application/vnd.openxmlformats-officedocument.custom-properties+xml");
 
                         // save it to the package
                         StreamWriter streamCustom = new StreamWriter(partCustom.GetStream(FileMode.Create, FileAccess.Write));
@@ -362,7 +343,7 @@ namespace OfficeOpenXml
                         _package.Package.Flush();
 
                         // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), CustomPropertiesUri), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
+                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesCustom), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
                         _package.Package.Flush();
                     }
                 }
@@ -440,20 +421,16 @@ namespace OfficeOpenXml
         }
 
         /// <summary>
-        /// Allows you to set the value of a current custom property or create 
-        /// your own custom property.  
-        /// Currently only supports string values.
+        /// Allows you to set the value of a current custom property or create your own custom property.  
         /// </summary>
         /// <param name="propertyName">The name of the property</param>
         /// <param name="value">The value of the property</param>
         public void SetCustomPropertyValue(string propertyName, object value)
         {
-            // TODO:  provide support for other custom property data types
-            string searchString = @"ctp:Properties";
-            XmlNode allProps = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
+            XmlNode allProps = CustomPropertiesXml.SelectSingleNode(@"ctp:Properties", NameSpaceManager);
 
-            searchString = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
-            XmlElement node = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager) as XmlElement;
+            var prop = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
+            XmlElement node = CustomPropertiesXml.SelectSingleNode(prop, NameSpaceManager) as XmlElement;
             if (node == null)
             {
                 int pid;
@@ -527,23 +504,23 @@ namespace OfficeOpenXml
         #endregion
         #endregion
 
-        #region Save  // OfficeProperties save
+        #region Save
         /// <summary>
-        /// Saves the office document properties back to the package.
+        /// Saves the document properties back to the package.
         /// </summary>
         internal void Save()
         {
             if (_xmlPropertiesCore != null)
             {
-                _package.SavePart(CorePropertiesUri, _xmlPropertiesCore);
+                _package.SavePart(_uriPropertiesCore, _xmlPropertiesCore);
             }
             if (_xmlPropertiesExtended != null)
             {
-                _package.SavePart(ExtendedPropertiesUri, _xmlPropertiesExtended);
+                _package.SavePart(_uriPropertiesExtended, _xmlPropertiesExtended);
             }
             if (_xmlPropertiesCustom != null)
             {
-                _package.SavePart(CustomPropertiesUri, _xmlPropertiesCustom);
+                _package.SavePart(_uriPropertiesCustom, _xmlPropertiesCustom);
             }
 
         }

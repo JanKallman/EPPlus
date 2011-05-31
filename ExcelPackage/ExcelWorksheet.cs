@@ -475,6 +475,9 @@ namespace OfficeOpenXml
             }
         }
         const string tabColorPath = "d:sheetPr/d:tabColor/@rgb";
+        /// <summary>
+        /// Color of the sheet tab
+        /// </summary>
         public Color TabColor
         {
             get

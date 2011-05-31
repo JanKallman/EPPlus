@@ -167,8 +167,17 @@ namespace OfficeOpenXml
             get;
             set;
         }
+        /// <summary>
+        /// If the column is collapsed in outline mode
+        /// </summary>
         public bool Collapsed { get; set; }
+        /// <summary>
+        /// Outline level. Zero if no outline
+        /// </summary>
         public int OutlineLevel { get; set; }
+        /// <summary>
+        /// Phonetic
+        /// </summary>
         public bool Phonetic { get; set; }
         #endregion
 

@@ -1916,6 +1916,9 @@ namespace OfficeOpenXml
             return this;
         }
 
+        /// <summary>
+        /// The current range when enumerating
+        /// </summary>
         public ExcelRangeBase Current
         {
             get 
@@ -1924,6 +1927,9 @@ namespace OfficeOpenXml
             }
         }
 
+        /// <summary>
+        /// The current range when enumerating
+        /// </summary>
         object IEnumerator.Current
         {
             get

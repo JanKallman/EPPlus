@@ -52,6 +52,9 @@ namespace OfficeOpenXml
             }
             _comments = new RangeCollection(lst);
         }
+        /// <summary>
+        /// Access to the comment xml document
+        /// </summary>
         public XmlDocument CommentXml { get; set; }
         internal Uri Uri { get; set; }
         internal string RelId { get; set; }
@@ -69,6 +72,9 @@ namespace OfficeOpenXml
             get;
             set;
         }
+        /// <summary>
+        /// Number of comments in the collection
+        /// </summary>
         public int Count
         {
             get

@@ -293,6 +293,9 @@ namespace OfficeOpenXml
             }
         }
         ExcelWorkbookView _view = null;
+        /// <summary>
+        /// Access to workbook view properties
+        /// </summary>
         public ExcelWorkbookView View
         {
             get

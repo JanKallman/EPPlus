@@ -63,15 +63,33 @@ namespace OfficeOpenXml
             SkipLinesEnd = 0;
             Encoding=Encoding.ASCII;
         }
+        /// <summary>
+        /// Delimiter character
+        /// </summary>
         public char Delimiter { get; set; }
+        /// <summary>
+        /// Text quualifier character 
+        /// </summary>
         public char TextQualifier {get; set; }
         /// <summary>
         /// End of line characters. Default CRLF
         /// </summary>
         public string EOL { get; set; }
+        /// <summary>
+        /// Datatypes list for each column (if column is not present Unknown is assumed)
+        /// </summary>
         public eDataTypes[] DataTypes { get; set; }
+        /// <summary>
+        /// Culture used when parsing.Default CultureInfo.InvariantCulture
+        /// </summary>
         public CultureInfo Culture {get; set; }
+        /// <summary>
+        /// Number of lines skiped in the begining of the file. Default 0.
+        /// </summary>
         public int SkipLinesBeginning { get; set; }
+        /// <summary>
+        /// Number of lines skiped at the end of the file. Default 0.
+        /// </summary>
         public int SkipLinesEnd { get; set; }
         /// <summary>
         /// Only used when reading files from disk using a FileInfo object
