@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO.Packaging;
-
+using System.Linq;
 namespace OfficeOpenXml.Table.PivotTable
 {
     public enum eSourceType
@@ -75,7 +75,11 @@ namespace OfficeOpenXml.Table.PivotTable
             PivotTable = pivotTable;
             if (CacheSource == eSourceType.Worksheet)
             {
-                _sourceRange = pivotTable.WorkSheet.Workbook.Worksheets[GetXmlNodeString(_sourceWorksheetPath)].Cells[GetXmlNodeString(_sourceAddressPath)];
+                var worksheetName = GetXmlNodeString(_sourceWorksheetPath);
+                if (pivotTable.WorkSheet.Workbook.Worksheets.Any(t => t.Name == worksheetName))
+                {
+                    _sourceRange = pivotTable.WorkSheet.Workbook.Worksheets[worksheetName].Cells[GetXmlNodeString(_sourceAddressPath)];
+                }
             }
         }
         internal ExcelPivotCacheDefinition(XmlNamespaceManager ns, ExcelPivotTable pivotTable, ExcelRangeBase sourceAddress, int tblId) :
