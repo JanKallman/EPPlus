@@ -103,7 +103,8 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string Translate(string value, dlgTransl addressTranslator, int row, int col, int rowIncr, int colIncr)
         {
-            if (value == "") return "";
+            if (value == "")
+                return "";
             bool isText = false;
             string ret = "";
             string part = "";
@@ -127,9 +128,9 @@ namespace OfficeOpenXml
                 else
                 {
                     if ((c == '-' || c == '+' || c == '*' || c == '/' ||
-                       c == '=' || c == '^' || c == ',' || c == ':' ||
-                       c == '<' || c == '>' || c == '(' || c == ')' || c=='!') &&
-                       (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
+                        c == '=' || c == '^' || c == ',' || c == ':' ||
+                        c == '<' || c == '>' || c == '(' || c == ')' || c == '!') &&
+                        (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
                     {
                         ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;
                         part = "";
@@ -193,7 +194,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="part"></param>
         /// <param name="row"></param>
-        /// <param name="col"></param>
+        /// <param name="col"></param> 
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
@@ -202,7 +203,8 @@ namespace OfficeOpenXml
             string check = part.ToUpper();
 
             int rStart = check.IndexOf("R");
-            if (rStart != 0) return part;
+            if (rStart != 0)
+                return part;
             if (part.Length == 1) //R
             {
                 return GetAddress(row, col);
@@ -215,7 +217,7 @@ namespace OfficeOpenXml
                 int RNum = GetRC(part, row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
-                    return GetAddress(RNum, absoluteRow, col, false); 
+                    return GetAddress(RNum, absoluteRow, col, false);
                 }
                 else
                 {
@@ -228,7 +230,7 @@ namespace OfficeOpenXml
                 int CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
                 if (RNum > int.MinValue && CNum > int.MinValue)
                 {
-                    return GetAddress(RNum,absoluteRow, CNum, absoluteCol);
+                    return GetAddress(RNum, absoluteRow, CNum, absoluteCol);
                 }
                 else
                 {
@@ -304,7 +306,7 @@ namespace OfficeOpenXml
                 return OffsetValue;
             }
             int num;
-            if (value[0] == '[' && value[value.Length - 1] == ']') //Offset?
+            if (value[0] == '[' && value[value.Length - 1] == ']') //Offset?                
             {
                 fixedAddr = false;
                 if (int.TryParse(value.Substring(1, value.Length - 2), out num))
@@ -368,9 +370,9 @@ namespace OfficeOpenXml
         {
             CellAddress = CellAddress.ToUpper();
             //This one can be removed when the worksheet Select format is fixed
-            if(CellAddress.IndexOf(' ')>0)
+            if (CellAddress.IndexOf(' ') > 0)
             {
-                CellAddress=CellAddress.Substring(0, CellAddress.IndexOf(' '));
+                CellAddress = CellAddress.Substring(0, CellAddress.IndexOf(' '));
             }
 
             if (CellAddress.IndexOf(':') < 0)
@@ -385,10 +387,14 @@ namespace OfficeOpenXml
                 GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
                 GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
 
-                if (FromColumn <= 0) FromColumn = 1;
-                if (FromRow <= 0) FromRow = 1;
-                if (ToColumn <= 0) ToColumn = ExcelPackage.MaxColumns;
-                if (ToRow <= 0) ToRow = ExcelPackage.MaxRows;
+                if (FromColumn <= 0)
+                    FromColumn = 1;
+                if (FromRow <= 0)
+                    FromRow = 1;
+                if (ToColumn <= 0)
+                    ToColumn = ExcelPackage.MaxColumns;
+                if (ToRow <= 0)
+                    ToRow = ExcelPackage.MaxRows;
             }
         }
         /// <summary>
@@ -415,15 +421,21 @@ namespace OfficeOpenXml
             bool colPart = true;
             string sRow = "", sCol = "";
             col = 0;
-            if(address.IndexOf(':')>0)  //If it is a mult-cell address use 
+            if (address.IndexOf(':') > 0)  //If it is a mult-cell address use 
             {
                 address = address.Substring(0, address.IndexOf(':'));
             }
-            if (address == "#REF!")
+            if (address.EndsWith("#REF!"))
             {
                 row = 0;
                 col = 0;
                 return true;
+            }
+
+            int sheetMarkerIndex = address.IndexOf('!');
+            if (sheetMarkerIndex >= 0)
+            {
+                address = address.Substring(sheetMarkerIndex + 1);
             }
 
             for (int i = 0; i < address.Length; i++)
@@ -451,6 +463,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
+
             // Get the column number
             if (sCol != "")
             {
@@ -475,8 +488,8 @@ namespace OfficeOpenXml
                 //}
                 //else
                 //{                    
-                    row = 0;
-                    return false;
+                row = 0;
+                return false;
                 //}
             }
             else
@@ -603,15 +616,20 @@ namespace OfficeOpenXml
         /// <returns>True if the cell address is valid</returns>
         public static bool IsValidCellAddress(string cellAddress)
         {
-            int row, col;
-            if (GetRowColFromAddress(cellAddress, out row, out col)) 
+            bool result = false;
+            try
             {
-                if (row>0 && col>0 && row<=ExcelPackage.MaxRows && col<=ExcelPackage.MaxColumns)
-                    return true;
-                else
-                    return false;
+                int row, col;
+                if (GetRowColFromAddress(cellAddress, out row, out col))
+                {
+                    if (row > 0 && col > 0 && row <= ExcelPackage.MaxRows && col <= ExcelPackage.MaxColumns)
+                        result = true;
+                    else
+                        result = false;
+                }
             }
-            return false;
+            catch { }
+            return result;
         }
         #endregion
         #region UpdateFormulaReferences

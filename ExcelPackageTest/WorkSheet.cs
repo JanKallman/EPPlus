@@ -942,7 +942,7 @@ namespace EPPlusTest
         [TestMethod]
         public void Nametest()
         {
-            var pck = new ExcelPackage(new FileInfo("c:\\temp\\nametest.xlsx"));
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\names.xlsx"));
             var ws = pck.Workbook.Worksheets.First();
             ws.Cells["H37"].Formula = "\"Test\"";
             pck.SaveAs(new FileInfo(@"c:\\temp\\nametest_new.xlsx"));

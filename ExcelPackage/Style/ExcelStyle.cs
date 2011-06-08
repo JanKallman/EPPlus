@@ -45,7 +45,7 @@ namespace OfficeOpenXml.Style
         {
             Index = xfsId;
             ExcelXfs xfs;
-            if (PositionID > -1)
+            if (positionID > -1)
             {
                 xfs = _styles.CellXfs[xfsId];
             }
