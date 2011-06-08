@@ -162,7 +162,26 @@ namespace OfficeOpenXml
                     ExcelRangeBase range;
                     ExcelNamedRange namedRange;
 
-                    if (addressType == ExcelAddressBase.AddressType.Invalid)    //A value or a formula
+                    if (fullAddress.IndexOf("[") > -1)
+                    {
+                        int start = fullAddress.IndexOf("[");
+                        int end = fullAddress.IndexOf("]", start);
+                        if (start >= 0 && end >= 0)
+                        {
+
+                            string externalIndex = fullAddress.Substring(start + 1, end - start - 1);
+                            int index;
+                            if (int.TryParse(externalIndex, out index))
+                            {
+                                if (index > 0 && index <= _externalReferences.Count)
+                                {
+                                    fullAddress = fullAddress.Substring(0, start) + "[" + _externalReferences[index - 1] + "]" + fullAddress.Substring(end + 1);
+                                }
+                            }
+                        }
+                    }
+
+                    if (addressType == ExcelAddressBase.AddressType.Invalid || addressType == ExcelAddressBase.AddressType.InternalName || addressType == ExcelAddressBase.AddressType.ExternalName)    //A value or a formula
                     {
                         double value;
                         range = new ExcelRangeBase(this, nameWorksheet, elem.GetAttribute("name"), true);
@@ -190,25 +209,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        if (fullAddress.IndexOf("[")>-1)
-                        {
-                            int start = fullAddress.IndexOf("[");
-                            int end = fullAddress.IndexOf("]", start);
-                            if(start>=0 && end>=0) 
-                            {
-
-                                string externalIndex = fullAddress.Substring(start + 1, end-start - 1);
-                                int index;
-                                if (int.TryParse(externalIndex, out index))
-                                {
-                                    if (index > 0 && index <= _externalReferences.Count)
-                                    {
-                                        fullAddress = fullAddress.Substring(0,start) + "["+ _externalReferences[index - 1] + "]" + fullAddress.Substring(end + 1);
-                                    }
-                                }
-                            }
-                        }
-                        ExcelAddress addr = new ExcelAddress(fullAddress);                        
+                        ExcelAddress addr = new ExcelAddress(fullAddress);
                         if (localSheetID > -1)
                         {
                             if (string.IsNullOrEmpty(addr._ws))

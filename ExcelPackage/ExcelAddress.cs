@@ -458,6 +458,19 @@ namespace OfficeOpenXml
                     ws = split[0];
                     Address = split[1];
                 }
+                else if (split.Length == 3 && split[1] == "#REF" && split[2] == "")
+                {
+                    ws = split[0];
+                    Address = "#REF!";
+                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+                    {
+                        return AddressType.ExternalAddress;
+                    }
+                    else
+                    {
+                        return AddressType.InternalAddress;
+                    }
+                }
                 else
                 {
                     return AddressType.Invalid;
