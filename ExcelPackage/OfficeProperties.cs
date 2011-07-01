@@ -118,7 +118,7 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-        #region "Core Properties"
+        #region Core Properties
         const string TitlePath = "dc:title";
         /// <summary>
         /// Gets/sets the title property of the document (core property)

@@ -882,7 +882,7 @@ namespace OfficeOpenXml
                     {
                         if (cell.IsRichText)
                         {
-                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:t></d:r></d:si>");
+                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:si>");
                         }
                         else
                         {

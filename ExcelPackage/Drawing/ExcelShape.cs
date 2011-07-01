@@ -363,6 +363,21 @@ namespace OfficeOpenXml.Drawing
             }
 
         }
+        string lockTextPath = "xdr:sp/@fLocksText";
+        /// <summary>
+        /// Lock drawing
+        /// </summary>
+        public bool LockText
+        {
+            get
+            {
+                return GetXmlNodeBool(lockTextPath, true);
+            }
+            set
+            {
+                SetXmlNodeBool(lockTextPath, value);
+            }
+        }
         ExcelParagraphCollection _richText = null;
         /// <summary>
         /// Richtext collection. Used to format specific parts of the text

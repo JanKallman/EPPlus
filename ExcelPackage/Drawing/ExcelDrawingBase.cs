@@ -55,6 +55,28 @@ namespace OfficeOpenXml.Drawing
         WordArtVerticalRightToLeft
 
     }
+    public enum eEditAs
+    {
+        /// <summary>
+        /// Specifies that the current start and end positions shall
+        /// be maintained with respect to the distances from the
+        /// absolute start point of the worksheet.
+        /// </summary>
+        Absolute,
+        /// <summary>
+        /// Specifies that the current drawing shall move with its
+        ///row and column (i.e. the object is anchored to the
+        /// actual from row and column), but that the size shall
+        ///remain absolute.
+        /// </summary>
+        OneCell,
+        /// <summary>
+        /// Specifies that the current drawing shall move and
+        /// resize to maintain its row and column anchors (i.e. the
+        /// object is anchored to the actual from and to row and column).
+        /// </summary>
+        TwoCell
+    }
     /// <summary>
     /// Base class for drawings. 
     /// Drawings are Charts, shapes and Pictures.
@@ -145,13 +167,6 @@ namespace OfficeOpenXml.Drawing
         const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
 
-        //int _top, _left, _height, _width;
-
-        internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node, string nameXPath) :
-            base(nameSpaceManager, node)
-        {
-            _nameXPath = nameXPath;
-        }
         internal ExcelDrawing(ExcelDrawings drawings, XmlNode node, string nameXPath) :
             base(drawings.NameSpaceManager, node)
         {
@@ -169,6 +184,7 @@ namespace OfficeOpenXml.Drawing
                 To = new ExcelPosition(drawings.NameSpaceManager, posNode);
             }
             _nameXPath = nameXPath;
+            SchemaNodeOrder = new string[] { "from", "to", "graphicFrame", "sp", "clientData"  };
         }
         internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node) :
             base(nameSpaceManager, node)
@@ -205,6 +221,66 @@ namespace OfficeOpenXml.Drawing
             }
         }
         /// <summary>
+        /// How Excel resize drawings when the column width is changed within Excel.
+        /// The width of drawings are currently NOT resized in EPPLus when the column width changes
+        /// </summary>
+        public eEditAs EditAs
+        {
+            get
+            {
+                try
+                {
+                    string s = GetXmlNodeString("@editAs");
+                    if (s == "")
+                    {
+                        return eEditAs.TwoCell;
+                    }
+                    else
+                    {
+                        return (eEditAs)Enum.Parse(typeof(eEditAs), s,true);
+                    }
+                }
+                catch
+                {
+                    return eEditAs.TwoCell;
+                }
+            }
+            set
+            {
+                string s=value.ToString();
+                SetXmlNodeString("@editAs", s.Substring(0,1).ToLower()+s.Substring(1,s.Length-1));
+            }
+        }
+        const string lockedPath="xdr:clientData/@fLocksWithSheet";
+        /// <summary>
+        /// Lock drawing
+        /// </summary>
+        public bool Locked
+        {
+            get
+            {
+                return GetXmlNodeBool(lockedPath, true);
+            }
+            set
+            {
+                SetXmlNodeBool(lockedPath, value);
+            }
+        }
+        const string printPath = "xdr:clientData/@fPrintsWithSheet";
+        /// <summary>
+        /// Print drawing with sheet
+        /// </summary>
+        public bool Print
+        {
+            get
+            {
+                return GetXmlNodeBool(printPath, true);
+            }
+            set
+            {
+                SetXmlNodeBool(printPath, value);
+            }
+        }        /// <summary>
         /// Top Left position
         /// </summary>
         public ExcelPosition From { get; set; }

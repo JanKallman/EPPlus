@@ -13,7 +13,7 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelComment : ExcelVmlDrawing
     {
-        XmlHelper _commentHelper;
+        internal XmlHelper _commentHelper;
         internal ExcelComment(XmlNamespaceManager ns, XmlNode commentTopNode, ExcelRangeBase cell)
             : base(null, cell, cell.Worksheet.VmlDrawings.NameSpaceManager)
         {

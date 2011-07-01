@@ -57,5 +57,29 @@ namespace EPPlusTest
             package.Encryption.Algorithm = EncryptionAlgorithm.AES256;
             package.SaveAs(new FileInfo(@"c:\temp\encrTest.xlsx"), "test");
         }
+        [TestMethod]
+        public void WriteProtect()
+        {
+            ExcelPackage package = new ExcelPackage(new FileInfo(@"c:\temp\workbookprot2.xlsx"), "");
+            //Load the sheet with one string column, one date column and a few random numbers.
+            //package.Workbook.Protection.LockWindows = true;
+            //package.Encryption.IsEncrypted = true;
+            package.Workbook.Protection.SetPassword("t");
+            package.Workbook.Protection.LockStructure = true;
+            package.Workbook.View.Left=585;
+            package.Workbook.View.Top=150;
+
+            package.Workbook.View.Width=17310;
+            package.Workbook.View.Height=38055;
+            var ws = package.Workbook.Worksheets.Add("First line test");
+
+            ws.Cells[1, 1].Value = "1; 1";
+            ws.Cells[2, 1].Value = "2; 1";
+            ws.Cells[1, 2].Value = "1; 2";
+            ws.Cells[2, 2].Value = "2; 2";
+
+            package.SaveAs(new FileInfo(@"c:\temp\workbookprot2.xlsx"));
+
+        }
     }
 }

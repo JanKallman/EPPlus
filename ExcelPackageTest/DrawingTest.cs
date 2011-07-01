@@ -288,6 +288,9 @@ namespace EPPlusTest
             chrt.SetSize(200);
             chrt.Title.Text = "Column";
             chrt.Series[0].Header = "Serie 1";
+            chrt.Locked = false;
+            chrt.Print = false;
+            chrt.EditAs = eEditAs.TwoCell;
         }
         [TestMethod]
         public void Dougnut()
@@ -298,6 +301,7 @@ namespace EPPlusTest
             chrt.SetSize(200);
             chrt.Title.Text = "Doughnut Exploded";
             chrt.Series[0].Header = "Serie 1";
+            chrt.EditAs = eEditAs.Absolute;
         }
         [TestMethod]
         public void Line()
@@ -335,7 +339,7 @@ namespace EPPlusTest
             chrt.Title.Border.Fill.Color = Color.Tomato;
             chrt.DataLabel.ShowSeriesName = true;
             chrt.DataLabel.ShowLeaderLines=true;
-
+            chrt.EditAs = eEditAs.OneCell;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Span;
         }
         [TestMethod]
@@ -353,8 +357,9 @@ namespace EPPlusTest
                 i++;
             }
 
-            (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;
+            (ws.Drawings["shape1"] as ExcelShape).TextAnchoring = eTextAnchoringType.Top;            
             var rt = (ws.Drawings["shape1"] as ExcelShape).RichText.Add("Added formated richtext");
+            (ws.Drawings["shape1"] as ExcelShape).LockText = false;
             rt.Bold = true;
             rt.Color = Color.Aquamarine;
             rt.Italic = true;

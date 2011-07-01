@@ -163,7 +163,7 @@ namespace OfficeOpenXml
         #endregion
 
 		#region ExcelCell Style
-        string _styleName="Normal";
+        string _styleName=null;
         /// <summary>
 		/// Allows you to set the cell's style using a named style
 		/// </summary>
@@ -171,6 +171,21 @@ namespace OfficeOpenXml
 		{
 			get 
             {
+                if (_styleName == null)
+                {
+                    foreach (var ns in _worksheet.Workbook.Styles.NamedStyles)
+                    {
+                        if (ns.StyleXfId == StyleID)
+                        {
+                            _styleName = ns.Name;
+                            break;
+                        }
+                    }
+                    if (_styleName == null)
+                    {
+                        _styleName = "Normal";
+                    }
+                }
                 return _styleName;
             }
 			set 

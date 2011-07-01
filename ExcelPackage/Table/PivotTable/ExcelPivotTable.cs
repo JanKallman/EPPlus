@@ -220,7 +220,7 @@ namespace OfficeOpenXml.Table.PivotTable
             set;
         }
         /// <summary>
-        /// Provides access to the XML data representing the table in the package.
+        /// Provides access to the XML data representing the pivottable in the package.
         /// </summary>
         public XmlDocument PivotTableXml { get; private set; }
         /// <summary>
@@ -263,7 +263,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 if (WorkSheet.Workbook.ExistsTableName(value))
                 {
-                    throw (new ArgumentException("Tablename is not unique"));
+                    throw (new ArgumentException("PivotTable name is not unique"));
                 }
                 string prevName = Name;
                 if (WorkSheet.Tables._tableNames.ContainsKey(prevName))

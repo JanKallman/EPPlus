@@ -700,7 +700,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-        /// Delete a worksheet from the workbook package
+        /// Delete a worksheet from the workbook
         /// </summary>
         /// <param name="Worksheet">The worksheet to delete</param>
         public void Delete(ExcelWorksheet Worksheet)
