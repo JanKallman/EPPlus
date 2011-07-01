@@ -128,7 +128,18 @@ namespace OfficeOpenXml
         public ExcelComment Add(ExcelRangeBase cell, string Text, string author)
         {            
             var elem = CommentXml.CreateElement("comment", ExcelPackage.schemaMain);
-            CommentXml.SelectSingleNode("d:comments/d:commentList", NameSpaceManager).AppendChild(elem);
+            int ix=_comments.IndexOf(ExcelAddress.GetCellID(Worksheet.SheetID, cell._fromRow, cell._fromCol));
+            //Make sure the nodes come on order.
+            if (ix < 0 && (~ix < _comments.Count))
+            {
+                ix = ~ix;
+                var preComment = _comments[ix] as ExcelComment;
+                preComment._commentHelper.TopNode.ParentNode.InsertBefore(elem, preComment._commentHelper.TopNode);
+            }
+            else
+            {
+                CommentXml.SelectSingleNode("d:comments/d:commentList", NameSpaceManager).AppendChild(elem);
+            }
             elem.SetAttribute("ref", cell.Start.Address);
             ExcelComment comment = new ExcelComment(NameSpaceManager, elem , cell);
             comment.RichText.Add(Text);

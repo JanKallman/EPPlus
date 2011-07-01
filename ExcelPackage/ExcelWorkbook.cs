@@ -102,7 +102,7 @@ namespace OfficeOpenXml
 		{
             _package = xlPackage;
             _names = new ExcelNamedRangeCollection(this);
-            CreateWorkbookXml();
+            _namespaceManager = namespaceManager;
             TopNode = WorkbookXml.DocumentElement;
             SchemaNodeOrder = new string[] { "fileVersion", "workbookPr", "workbookProtection", "bookViews", "sheets", "definedNames", "calcPr", "pivotCaches" };
             GetSharedStrings();
@@ -115,6 +115,7 @@ namespace OfficeOpenXml
         internal int _nextDrawingID = 0;
         internal int _nextTableID = 1;
         internal int _nextPivotTableID = 1;
+        internal XmlNamespaceManager _namespaceManager;
         /// <summary>
         /// Read shared strings to list
         /// </summary>
@@ -335,7 +336,7 @@ namespace OfficeOpenXml
 			{
 				if (_xmlWorkbook == null)
 				{
-                    CreateWorkbookXml();
+                    CreateWorkbookXml(_namespaceManager);
 				}
 				return (_xmlWorkbook);
 			}
@@ -343,7 +344,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Create or read the XML for the workbook.
         /// </summary>
-        private void CreateWorkbookXml()
+        private void CreateWorkbookXml(XmlNamespaceManager namespaceManager)
         {
             if (_package.Package.PartExists(WorkbookUri))
                 _xmlWorkbook = _package.GetXmlFromUri(WorkbookUri);
@@ -353,28 +354,27 @@ namespace OfficeOpenXml
                 PackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
 
                 // create the workbook
-                _xmlWorkbook = new XmlDocument();
+                _xmlWorkbook = new XmlDocument(namespaceManager.NameTable);                
+                
                 _xmlWorkbook.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-                // create the workbook tag
-                XmlElement tagWorkbook = _xmlWorkbook.CreateElement("workbook", ExcelPackage.schemaMain);
-                // Add the relationships namespace
-                ExcelPackage.AddSchemaAttribute(tagWorkbook, ExcelPackage.schemaRelationships, "r");
-                _xmlWorkbook.AppendChild(tagWorkbook);
+                // create the workbook element
+                XmlElement wbElem = _xmlWorkbook.CreateElement("workbook", ExcelPackage.schemaMain);
 
-                //// create the bookViews tag
+                // Add the relationships namespace
+                wbElem.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
+
+                _xmlWorkbook.AppendChild(wbElem);
+
+                // create the bookViews and workbooks element
                 XmlElement bookViews = _xmlWorkbook.CreateElement("bookViews", ExcelPackage.schemaMain);
-                tagWorkbook.AppendChild(bookViews);
+                wbElem.AppendChild(bookViews);
                 XmlElement workbookView = _xmlWorkbook.CreateElement("workbookView", ExcelPackage.schemaMain);
                 bookViews.AppendChild(workbookView);
 
-                // create the sheets tag
-                XmlElement tagSheets = _xmlWorkbook.CreateElement("sheets", ExcelPackage.schemaMain);
-                tagWorkbook.AppendChild(tagSheets);
-
                 // save it to the package
-                StreamWriter streamWorkbook = new StreamWriter(partWorkbook.GetStream(FileMode.Create, FileAccess.Write));
-                _xmlWorkbook.Save(streamWorkbook);
-                streamWorkbook.Close();
+                StreamWriter stream = new StreamWriter(partWorkbook.GetStream(FileMode.Create, FileAccess.Write));
+                _xmlWorkbook.Save(stream);
+                stream.Close();
                 _package.Package.Flush();
             }
         }
@@ -537,7 +537,7 @@ namespace OfficeOpenXml
 			}
 		}
         /// <summary>
-        /// Enables access to the Workbook style collection. 
+        /// Package styles collection. Used internally to access style data.
         /// </summary>
         public ExcelStyles Styles
         {
@@ -554,7 +554,7 @@ namespace OfficeOpenXml
 
 		#region Office Document Properties
 		/// <summary>
-		/// Provides access to the office document properties
+		/// The office document properties
 		/// </summary>
 		public OfficeProperties Properties
 		{
@@ -574,7 +574,7 @@ namespace OfficeOpenXml
 		#region CalcMode
         private string CALC_MODE_PATH = "d:calcPr/@calcMode";
         /// <summary>
-		/// Allows you to set the calculation mode for the workbook.
+		/// Calculation mode for the workbook.
 		/// </summary>
 		public ExcelCalcMode CalcMode
 		{
@@ -621,7 +621,6 @@ namespace OfficeOpenXml
 		/// </summary>
 		internal void Save()  // Workbook Save
 		{
-			// ensure we have at least one worksheet
 			if (Worksheets.Count == 0)
 				throw new InvalidOperationException("The workbook must contain at least one worksheet");
 
@@ -649,7 +648,7 @@ namespace OfficeOpenXml
             var isProtected = Protection.LockWindows || Protection.LockStructure;
             foreach (ExcelWorksheet worksheet in Worksheets)
             {
-                if (isProtected)
+                if (isProtected && Protection.LockWindows)
                 {
                     worksheet.View.WindowProtection = true;
                 }

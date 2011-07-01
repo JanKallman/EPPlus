@@ -35,7 +35,7 @@ namespace EPPlusTest
                 var comment = ws.Cells["B2"].Comment;
 
                 Assert.AreNotEqual(comment, null);
-                Assert.AreEqual(comment.Author, "JK");
+                Assert.AreEqual(comment.Author, "Jan Källman");
 
                 ws = pck.Workbook.Worksheets["Hidden"];
                 Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.Hidden);
@@ -66,6 +66,26 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
                 Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
                 Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
+
+                ws=pck.Workbook.Worksheets["RichText"];
+
+                var r1 = ws.Cells["A1"].RichText[0];
+                Assert.AreEqual(r1.Text,"Test");
+                Assert.AreEqual(r1.Bold, true);
+                //r1.Bold = true;
+                //r1.Color = Color.Pink;
+
+                //var r2 = rs.Add(" of");
+                //r2.Size = 14;
+                //r2.Italic = true;
+
+                //var r3 = rs.Add(" rich");
+                //r3.FontName = "Arial";
+                //r3.Size = 18;
+                //r3.Italic = true;
+
+                //var r4 = rs.Add("text.");
+
 
 
                 Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
@@ -104,6 +124,25 @@ namespace EPPlusTest
             using (ExcelPackage pck = new ExcelPackage(file))
             {
                 pck.Workbook.Worksheets[1].Cells["G4"].Value=12;
+                pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void ReadBug3()
+        {
+            ExcelPackage xlsPack = new ExcelPackage(new FileInfo(@"c:\temp\billing_template.xlsx"));
+            ExcelWorkbook xlsWb = xlsPack.Workbook;
+            ExcelWorksheet xlsSheet = xlsWb.Worksheets["Billing"];
+        }
+        [TestMethod]
+        public void ReadBug2()
+        {
+            var file = new FileInfo(@"c:\temp\book2.xlsx");
+            using (ExcelPackage pck = new ExcelPackage(file))
+            {
+                Assert.AreEqual("Good", pck.Workbook.Worksheets[1].Cells["A1"].StyleName);
+                Assert.AreEqual("Good 2", pck.Workbook.Worksheets[1].Cells["C1"].StyleName);
+                Assert.AreEqual("Note", pck.Workbook.Worksheets[1].Cells["G11"].StyleName);
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
             }
         }

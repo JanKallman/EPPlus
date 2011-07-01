@@ -329,11 +329,18 @@ namespace EPPlusTest
         public void TestComments()
         {
             var ws = _pck.Workbook.Worksheets.Add("Comment");            
-            var comment = ws.Comments.Add(ws.Cells["B2"], "Jan Källman\r\nAuthor\r\n", "JK");            
+            var comment = ws.Comments.Add(ws.Cells["C3"], "Jan Källman\r\nAuthor\r\n", "JK");            
             comment.RichText[0].Bold = true;
             comment.RichText[0].PreserveSpace = true;
             var rt = comment.RichText.Add("Test comment");
             comment.VerticalAlignment = eTextAlignVerticalVml.Center;
+            
+            comment = ws.Comments.Add(ws.Cells["A2"], "Jan Källman\r\nAuthor\r\n1", "JK");            
+            comment = ws.Comments.Add(ws.Cells["A1"], "Jan Källman\r\nAuthor\r\n2", "JK");            
+            comment = ws.Comments.Add(ws.Cells["C2"], "Jan Källman\r\nAuthor\r\n3", "JK");            
+            comment = ws.Comments.Add(ws.Cells["C1"], "Jan Källman\r\nAuthor\r\n5", "JK");
+            comment = ws.Comments.Add(ws.Cells["B1"], "Jan Källman\r\nAuthor\r\n7", "JK");
+            
             //comment.HorizontalAlignment = eTextAlignHorizontalVml.Center;
             //comment.Visible = true;
             //comment.BackgroundColor = Color.Green;
@@ -344,7 +351,7 @@ namespace EPPlusTest
             //comment.LineWidth = (Single)2.5;
             //rt.Color = Color.Red;
 
-            var rt2=ws.Cells["C3"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
+            var rt2=ws.Cells["B2"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
             ws.Cells["c3"].Comment.AutoFit = true;
         }
         [TestMethod]
@@ -396,7 +403,7 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Copy From other pck", _pck.Workbook.Worksheets["Address"]);
             pck2.SaveAs(new FileInfo("test\\copy.xlsx"));
             pck2=null;
-            Assert.AreEqual(2, wsCopy.Comments.Count);
+            Assert.AreEqual(7, wsCopy.Comments.Count);
         }
         [TestMethod]
         public void TestDelete()
@@ -482,6 +489,12 @@ namespace EPPlusTest
             var ws = _pck.Workbook.Worksheets.Add("Hidden");
             ws.Cells["A1"].Value = "This workbook is hidden"    ;
             ws.Hidden = eWorkSheetHidden.Hidden;
+        }
+        [TestMethod]
+        public void Hyperlink()
+        {
+            ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\EpplusTesting\excel.xlsx"));
+            var ws = pck.Workbook.Worksheets[1];
         }
         [TestMethod]
         public void VeryHideTest()
@@ -1130,7 +1143,9 @@ namespace EPPlusTest
             pivot5.CacheDefinition.SourceRange = pck.Workbook.Worksheets[1].Cells["Q1:X300"];
             
             var pivot6 = pck.Workbook.Worksheets[6].PivotTables[0];
+            
             pck.Workbook.Worksheets[6].Drawings.AddChart("chart1", OfficeOpenXml.Drawing.Chart.eChartType.ColumnStacked3D, pivot6);
+
             pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
         }
     }

@@ -37,9 +37,8 @@ namespace OfficeOpenXml
 {
 	#region class ExcelHeaderFooterText
 	/// <summary>
-	/// Helper class for ExcelHeaderFooter - simply stores the three header or footer
-	/// text strings. 
-	/// </summary>
+    /// Print header and footer 
+    /// </summary>
 	public class ExcelHeaderFooterText
 	{
         internal ExcelHeaderFooterText(XmlNode TextNode)
@@ -78,15 +77,15 @@ namespace OfficeOpenXml
             }
         }
 		/// <summary>
-		/// Sets the text to appear on the left hand side of the header (or footer) on the worksheet.
+		/// Get/set the text to appear on the left hand side of the header (or footer) on the worksheet.
 		/// </summary>
 		public string LeftAlignedText = null;
 		/// <summary>
-		/// Sets the text to appear in the center of the header (or footer) on the worksheet.
+        /// Get/set the text to appear in the center of the header (or footer) on the worksheet.
 		/// </summary>
 		public string CenteredText = null;
 		/// <summary>
-		/// Sets the text to appear on the right hand side of the header (or footer) on the worksheet.
+        /// Get/set the text to appear on the right hand side of the header (or footer) on the worksheet.
 		/// </summary>
 		public string RightAlignedText = null;
 	}
@@ -128,28 +127,23 @@ namespace OfficeOpenXml
 		/// </summary>
 		public const string CurrentTime = @"&T";
         /// <summary>
-        /// Use this if you have an Image in a template and want to rewrite the header containing the image.
+        /// Use this if you have an image in a template and want to rewrite the header containing the image.
         /// </summary>
         public const string Image = @"&G";
 		#endregion
 
 		#region ExcelHeaderFooter Private Properties
-		//private XmlElement _headerFooterNode;
 		private ExcelHeaderFooterText _oddHeader;
 		private ExcelHeaderFooterText _oddFooter;
 		private ExcelHeaderFooterText _evenHeader;
 		private ExcelHeaderFooterText _evenFooter;
 		private ExcelHeaderFooterText _firstHeader;
 		private ExcelHeaderFooterText _firstFooter;
-        //private bool? _alignWithMargins = null;
-        //private System.Nullable<bool> _differentOddEven = null;
-        //private System.Nullable<bool> _differentFirst = null;
 		#endregion
 
 		#region ExcelHeaderFooter Constructor
 		/// <summary>
 		/// ExcelHeaderFooter Constructor
-		/// For internal use only!
 		/// </summary>
 		/// <param name="nameSpaceManager"></param>
         /// <param name="topNode"></param>
@@ -216,7 +210,7 @@ namespace OfficeOpenXml
 
 		#region ExcelHeaderFooter Public Properties
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on odd numbered pages of the document.
+		/// Provides access to the header on odd numbered pages of the document.
 		/// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
 		/// </summary>
 		public ExcelHeaderFooterText oddHeader 
@@ -230,7 +224,7 @@ namespace OfficeOpenXml
                 return _oddHeader; } 
         }
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on odd numbered pages of the document.
+		/// Provides access to the footer on odd numbered pages of the document.
 		/// If you want the same footer on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
 		/// </summary>
 		public ExcelHeaderFooterText oddFooter 
@@ -246,7 +240,7 @@ namespace OfficeOpenXml
         }
 		// evenHeader and evenFooter set differentOddEven = true
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on even numbered pages of the document.
+		/// Provides access to the header on even numbered pages of the document.
 		/// </summary>
 		public ExcelHeaderFooterText evenHeader 
         { 
@@ -261,7 +255,7 @@ namespace OfficeOpenXml
             } 
         }
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on even numbered pages of the document.
+		/// Provides access to the footer on even numbered pages of the document.
 		/// </summary>
 		public ExcelHeaderFooterText evenFooter
         { 
@@ -275,9 +269,8 @@ namespace OfficeOpenXml
                 return _evenFooter ; 
             } 
         }
-		// firstHeader and firstFooter set differentFirst = true
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the header on the first page of the document.
+		/// Provides access to the header on the first page of the document.
 		/// </summary>
 		public ExcelHeaderFooterText firstHeader
         { 
@@ -292,7 +285,7 @@ namespace OfficeOpenXml
             } 
         }
 		/// <summary>
-		/// Provides access to a ExcelHeaderFooterText class that allows you to set the values of the footer on the first page of the document.
+		/// Provides access to the footer on the first page of the document.
 		/// </summary>
 		public ExcelHeaderFooterText firstFooter
         { 
@@ -353,18 +346,18 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Helper function for Save
 		/// </summary>
-		/// <param name="inStruct"></param>
+		/// <param name="headerFooter"></param>
 		/// <returns></returns>
-		internal string GetHeaderFooterText(ExcelHeaderFooterText inStruct)
+		internal string GetHeaderFooterText(ExcelHeaderFooterText headerFooter)
 		{
-			string retValue = "";
-			if (inStruct.LeftAlignedText != null)
-				retValue += "&L" + inStruct.LeftAlignedText;
-			if (inStruct.CenteredText != null)
-				retValue += "&C" + inStruct.CenteredText;
-			if (inStruct.RightAlignedText != null)
-				retValue += "&R" + inStruct.RightAlignedText;
-			return retValue;
+			string ret = "";
+			if (headerFooter.LeftAlignedText != null)
+				ret += "&L" + headerFooter.LeftAlignedText;
+			if (headerFooter.CenteredText != null)
+				ret += "&C" + headerFooter.CenteredText;
+			if (headerFooter.RightAlignedText != null)
+				ret += "&R" + headerFooter.RightAlignedText;
+			return ret;
 		}
 		#endregion
 	}

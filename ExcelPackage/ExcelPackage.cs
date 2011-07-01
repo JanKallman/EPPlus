@@ -174,9 +174,8 @@ namespace OfficeOpenXml
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
         internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
 
+        //Package reference
         private Package _package;
-		//private string _outputFolderPath;
-
 		private ExcelWorkbook _workbook;
         /// <summary>
         /// Maximum number of columns in a worksheet (16384). 
@@ -451,17 +450,10 @@ namespace OfficeOpenXml
         }
         private void CreateBlankWb()
         {
-            // save a temporary part to create the default application/xml content type
-            Uri uriDefaultContentType = new Uri("/default.xml", UriKind.Relative);
-            PackagePart partTemp = _package.CreatePart(uriDefaultContentType, "application/xml", Compression);
-
             XmlDocument workbook = Workbook.WorkbookXml; // this will create the workbook xml in the package
 
-            //// create the relationship to the main part
-            _package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri) /*ExcelPackage.FixUriForCreate(Workbook.WorkbookUri)*/, TargetMode.Internal, schemaRelationships + "/officeDocument");
-            
-            // remove the temporary part that created the default xml content type
-            _package.DeletePart(uriDefaultContentType);
+            // create the relationship to the main part
+            _package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri), TargetMode.Internal, schemaRelationships + "/officeDocument");
         }
 
 		/// <summary>
@@ -493,26 +485,9 @@ namespace OfficeOpenXml
 			{
                 if (_workbook == null)
                 {
-                    //  Create a NamespaceManager to handle the default namespace, 
-                    //  and create a prefix for the default namespace:
-                    NameTable nt = new NameTable();
-                    var ns = new XmlNamespaceManager(nt);
-                    ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
-                    ns.AddNamespace("d", ExcelPackage.schemaMain);
-                    ns.AddNamespace("vt", schemaVt);
-                    // extended properties (app.xml)
-                    ns.AddNamespace("xp", schemaExtended);
-                    // custom properties
-                    ns.AddNamespace("ctp", schemaCustom);
-                    // core properties
-                    ns.AddNamespace("cp", schemaCore);
-                    // core property namespaces
-                    ns.AddNamespace("dc", schemaDc);
-                    ns.AddNamespace("dcterms", schemaDcTerms);
-                    ns.AddNamespace("dcmitype", schemaDcmiType);
-                    ns.AddNamespace("xsi", schemaXsi);
+                    var nsm = CreateDefaultNSM();
 
-                    _workbook = new ExcelWorkbook(this, ns);
+                    _workbook = new ExcelWorkbook(this, nsm);
 
                     _workbook.GetExternalReferences();
                     _workbook.GetDefinedNames();
@@ -521,34 +496,30 @@ namespace OfficeOpenXml
                 return (_workbook);
 			}
 		}
+
+        private XmlNamespaceManager CreateDefaultNSM()
+        {
+            //  Create a NamespaceManager to handle the default namespace, 
+            //  and create a prefix for the default namespace:
+            NameTable nt = new NameTable();
+            var ns = new XmlNamespaceManager(nt);
+            ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
+            ns.AddNamespace("d", ExcelPackage.schemaMain);
+            ns.AddNamespace("vt", schemaVt);
+            // extended properties (app.xml)
+            ns.AddNamespace("xp", schemaExtended);
+            // custom properties
+            ns.AddNamespace("ctp", schemaCustom);
+            // core properties
+            ns.AddNamespace("cp", schemaCore);
+            // core property namespaces
+            ns.AddNamespace("dc", schemaDc);
+            ns.AddNamespace("dcterms", schemaDcTerms);
+            ns.AddNamespace("dcmitype", schemaDcmiType);
+            ns.AddNamespace("xsi", schemaXsi);
+            return ns;
+        }
 		
-		#region AddSchemaAttribute
-		/// <summary>
-		/// Adds additional schema attributes to the root element
-		/// </summary>
-		/// <param name="root">The root element</param>
-		/// <param name="nameSpace">The namespace of the schema</param>
-		/// <param name="schema">The schema to apply</param>
-		internal static void AddSchemaAttribute(XmlElement root, string schema, string nameSpace)
-		{
-			XmlAttribute nsAttribute = root.OwnerDocument.CreateAttribute("xmlns", nameSpace, @"http://www.w3.org/2000/xmlns/");
-			nsAttribute.Value = schema;
-			root.Attributes.Append(nsAttribute);
-		}
-
-		/// <summary>
-		/// Adds additional schema attributes to the root element
-		/// </summary>
-		/// <param name="root">The root element</param>
-		/// <param name="schema">The schema to apply</param>
-		internal static void AddSchemaAttribute(XmlElement root, string schema)
-		{
-			XmlAttribute nsAttribute = root.OwnerDocument.CreateAttribute("xmlns");
-			nsAttribute.Value = schema;
-			root.Attributes.Append(nsAttribute);
-		}
-		#endregion
-
 		#region SavePart
 		/// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
