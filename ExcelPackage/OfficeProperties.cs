@@ -389,7 +389,7 @@ namespace OfficeOpenXml
                         }
                     case "r8":
                         double d;
-                        if (double.TryParse(value, NumberStyles.Any, ExcelWorksheet._ci, out d))
+                        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                         {
                             return d;
                         }
@@ -479,15 +479,15 @@ namespace OfficeOpenXml
                 valueElem = CustomPropertiesXml.CreateElement("vt", "r8", ExcelPackage.schemaVt);
                 if (value is double)
                 {
-                    valueElem.InnerText = ((double)value).ToString(ExcelWorksheet._ci);
+                    valueElem.InnerText = ((double)value).ToString(CultureInfo.InvariantCulture);
                 }
                 else if (value is float)
                 {
-                    valueElem.InnerText = ((float)value).ToString(ExcelWorksheet._ci);
+                    valueElem.InnerText = ((float)value).ToString(CultureInfo.InvariantCulture);
                 }
                 else if (value is decimal)
                 {
-                    valueElem.InnerText = ((decimal)value).ToString(ExcelWorksheet._ci);
+                    valueElem.InnerText = ((decimal)value).ToString(CultureInfo.InvariantCulture);
                 }
                 else
                 {

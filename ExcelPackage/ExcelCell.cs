@@ -405,23 +405,23 @@ namespace OfficeOpenXml
         }
         public bool IsArrayFormula { get; internal set; }
 
-		#region ExcelCell Comment
-        ExcelComment _comment = null;
-		/// <summary>
-		/// Returns the comment as a string
-		/// </summary>
-		internal ExcelComment Comment
-		{
-			get
-			{
-                return _comment;
-			}
-            set
-            {
-                _comment = value;
-            }
-		}
-		#endregion 
+        //#region ExcelCell Comment
+        //ExcelComment _comment = null;
+        ///// <summary>
+        ///// Returns the comment as a string
+        ///// </summary>
+        //internal ExcelComment Comment
+        //{
+        //    get
+        //    {
+        //        return _comment;
+        //    }
+        //    set
+        //    {
+        //        _comment = value;
+        //    }
+        //}
+        //#endregion 
 
 		// TODO: conditional formatting
 		#endregion  // END Cell Public Properties

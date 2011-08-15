@@ -86,8 +86,6 @@ namespace EPPlusTest
 
                 //var r4 = rs.Add("text.");
 
-
-
                 Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
 
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
@@ -144,6 +142,51 @@ namespace EPPlusTest
                 Assert.AreEqual("Good 2", pck.Workbook.Worksheets[1].Cells["C1"].StyleName);
                 Assert.AreEqual("Note", pck.Workbook.Worksheets[1].Cells["G11"].StyleName);
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void CondFormatDataValBug()
+        {            
+            var file = new FileInfo(@"c:\temp\condi.xlsx");
+            using (ExcelPackage pck = new ExcelPackage(file))
+            {
+                var dv = pck.Workbook.Worksheets[1].Cells["A1"].DataValidation.AddIntegerDataValidation();
+                dv.Formula.Value = 1;
+                dv.Formula2.Value = 4;
+                dv.Operator = OfficeOpenXml.DataValidation.ExcelDataValidationOperator.equal;
+                pck.SaveAs(new FileInfo(@"c:\temp\condi2.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void ReadBug4()
+        {
+            var lines = new List<string>();
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\test.xlsx"));
+
+            ExcelWorkbook workBook = package.Workbook;
+            if (workBook != null)
+            {
+            if (workBook.Worksheets.Count > 0) //fails on this line
+            {
+            // Get the first worksheet
+            ExcelWorksheet currentWorksheet = workBook.Worksheets.First();
+
+            var rowCount = 1;
+            var lastRow = currentWorksheet.Dimension.End.Row;
+            var lastColumn = currentWorksheet.Dimension.End.Column;
+            while (rowCount <= lastRow)
+            {
+            var columnCount = 1;
+            var line = "";
+            while (columnCount <= lastColumn)
+            {
+            line += currentWorksheet.Cells[rowCount, columnCount].Value + "|";
+            columnCount++;
+            }
+            lines.Add(line);
+            rowCount++;
+            }
+            }
             }
         }
     }

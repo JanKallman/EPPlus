@@ -46,6 +46,7 @@ namespace OfficeOpenXml.Table.PivotTable
         Column,
         /// <summary>
         /// Page axis (Include Count Filter) 
+        /// 
         /// </summary>
         Page,
         /// <summary>
@@ -75,6 +76,26 @@ namespace OfficeOpenXml.Table.PivotTable
         Var,
         VarP
     }
+      /// <summary>
+     /// Built-in subtotal functions
+     /// </summary>
+    [Flags] 
+    public enum eSubTotalFunctions 
+     {
+         None=1,
+         Count=2, 
+         CountA=4, 
+         Avg=8, 
+         Default=16, 
+         Min=32, 
+         Max=64, 
+         Product=128, 
+         StdDev=256, 
+         StdDevP=512, 
+         Sum=1024, 
+         Var=2048, 
+         VarP=4096
+     }
     [Flags]
     public enum eDateGroupBy
     {
@@ -223,6 +244,79 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@includeNewItemsInFilter",value);
             }
         }
+         /// <summary>
+         /// Enumeration of the different subtotal operations that can be applied to page, row or column fields
+         /// </summary>
+         public eSubTotalFunctions SubTotalFunctions
+         {
+            get
+            {
+                eSubTotalFunctions ret = 0;
+                XmlNodeList nl = TopNode.SelectNodes("d:items/d:item/@t", NameSpaceManager);
+                if (nl.Count == 0) return eSubTotalFunctions.None;
+                foreach (XmlAttribute item in nl)
+                {
+                    try
+                    {
+                        ret |= (eSubTotalFunctions)Enum.Parse(typeof(eSubTotalFunctions), item.Value, true);
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        throw new ArgumentException("Unable to parse value of " + item.Value + " to a valid pivot table subtotal function", ex);
+                    }
+                }
+                return ret;
+             }
+             set
+             {
+                 if ((value & eSubTotalFunctions.None) == eSubTotalFunctions.None && (value != eSubTotalFunctions.None))
+                 {
+                     throw (new ArgumentException("Value None can not be combined with other values."));
+                 }
+                 if ((value & eSubTotalFunctions.Default) == eSubTotalFunctions.Default && (value != eSubTotalFunctions.Default))
+                 {
+                     throw (new ArgumentException("Value Default can not be combined with other values."));
+                 }
+
+
+                 // remove old attribute                 
+                 XmlNodeList nl = TopNode.SelectNodes("d:items/d:item/@t", NameSpaceManager);
+                 if (nl.Count > 0)
+                 {
+                     foreach (XmlAttribute item in nl)
+                     {
+                         DeleteNode("@" + item.Value + "Subtotal");
+                         item.OwnerElement.ParentNode.RemoveChild(item.OwnerElement);
+                     }
+                 }
+                 
+ 
+                 if (value==eSubTotalFunctions.None)
+                 {
+                     // for no subtotals, set defaultSubtotal to off
+                     SetXmlNodeBool("@defaultSubtotal", false);
+                     TopNode.InnerXml = "";
+                 }
+                 else
+                 {
+                     string innerXml = "";
+                     int count = 0;
+                     foreach (eSubTotalFunctions e in Enum.GetValues(typeof(eSubTotalFunctions)))
+                    {
+                        if ((value & e) == e)
+                        {
+                            var newTotalType = e.ToString();
+                            var totalType = char.ToLower(newTotalType[0]) + newTotalType.Substring(1);
+                            // add new attribute
+                            SetXmlNodeBool("@" + totalType + "Subtotal", true);
+                            innerXml += "<item t=\"" + totalType + "\" />";
+                            count++;
+                        }
+                    }
+                    TopNode.InnerXml = string.Format("<items count=\"{0}\">{1}</items>", count, innerXml);
+                 }
+             }
+         }
         /// <summary>
         /// Type of axis
         /// </summary>

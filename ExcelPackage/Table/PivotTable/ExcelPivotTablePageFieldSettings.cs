@@ -69,7 +69,23 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 SetXmlNodeString("@name", value);
             }
-        }        
+        }
+        /***** Dont work. Need items to be populated. ****/
+        ///// <summary>
+        ///// The selected item 
+        ///// </summary>
+        //public int SelectedItem
+        //{
+        //    get
+        //    {
+        //        return GetXmlNodeInt("@item");
+        //    }
+        //    set
+        //    {
+        //        if (value < 0) throw new InvalidOperationException("Can't be negative");
+        //        SetXmlNodeString("@item", value.ToString());
+        //    }
+        //}
         internal int NumFmtId
         {
             get

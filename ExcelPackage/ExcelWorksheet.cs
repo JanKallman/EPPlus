@@ -137,7 +137,6 @@ namespace OfficeOpenXml
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
         internal Dictionary<int, Formulas> _arrayFormulas = new Dictionary<int, Formulas>();
         internal RangeCollection _formulaCells;
-        internal static CultureInfo _ci=new CultureInfo("en-US");
         internal int _minCol = ExcelPackage.MaxColumns;
         internal int _maxCol = 0;
         internal List<ulong> _hyperLinkCells;   //Used when saving the sheet
@@ -173,7 +172,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges", "autoFilter", "customSheetViews", "mergeCells", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "rowBreaks", "colBreaks", "drawing", "legacyDrawing", "legacyDrawingHF", "tableParts" };
+            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges","scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "linePrint", "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors", "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture", "oleObjects", "activeXControls", "webPublishItems", "tableParts" };
             xlPackage = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -355,7 +354,7 @@ namespace OfficeOpenXml
                     else
                     {
                         string ret = sheetFormat.GetAttribute("defaultRowHeight");
-                        _defaultRowHeight = double.Parse(ret, _ci);
+                        _defaultRowHeight = double.Parse(ret, CultureInfo.InvariantCulture);
                     }
                 }
 				return _defaultRowHeight;
@@ -404,7 +403,7 @@ namespace OfficeOpenXml
                 {
                     string ret = sheetFormat.GetAttribute("defaultColWidth");
                     if (ret != "")
-                        retValue = double.Parse(ret, _ci);
+                        retValue = double.Parse(ret, CultureInfo.InvariantCulture);
                 }
                 return retValue;
             }
@@ -655,7 +654,8 @@ namespace OfficeOpenXml
                 _worksheetXml.SelectSingleNode("//d:colBreaks", NameSpaceManager).RemoveAll();
             }
         }
-        const int BLOCKSIZE=8192;
+        //const int BLOCKSIZE=8192;
+        const int BLOCKSIZE = 16;
         private string GetWorkSheetXml(Stream stream, long start, long end)
         {
             StreamReader sr = new StreamReader(stream);
@@ -770,11 +770,11 @@ namespace OfficeOpenXml
                    
                     col._columnMax = int.Parse(xr.GetAttribute("max")); 
                     col.StyleID = style;
-                    col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), _ci); 
+                    col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture); 
                     col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
                     col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
                     col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
-                    col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), _ci);
+                    col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
                     col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
                     colList.Add(col);
                 }
@@ -978,11 +978,11 @@ namespace OfficeOpenXml
             ExcelRow r = new ExcelRow(this, row);
 
             r.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false;
-            if(xr.GetAttribute("ht") != null) r.Height=double.Parse(xr.GetAttribute("ht"), _ci);
+            if (xr.GetAttribute("ht") != null) r.Height = double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture);
             r.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false; ;
-            r.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), _ci); ;
+            r.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture); ;
             r.Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false; ;
-            r.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"), _ci);
+            r.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"), CultureInfo.InvariantCulture);
             return r;
         }
 
@@ -1014,7 +1014,7 @@ namespace OfficeOpenXml
                 if ((n >= 14 && n <= 22) || (n >= 45 && n <= 47))
                 {
                     double res;
-                    if (double.TryParse(v, NumberStyles.Any, _ci, out res))
+                    if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
                     {
                         value = DateTime.FromOADate(res);
                     }
@@ -1026,7 +1026,7 @@ namespace OfficeOpenXml
                 else
                 {
                     double d;
-                    if (double.TryParse(v, NumberStyles.Any, _ci, out d))
+                    if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                     {
                         value = d;
                     }
@@ -2228,7 +2228,7 @@ namespace OfficeOpenXml
                 {
                     sw.Write(" bestFit=\"1\"");
                 }
-                sw.Write(string.Format(_ci, " width=\"{0}\" customWidth=\"1\"", col.Width));
+                sw.Write(string.Format(CultureInfo.InvariantCulture, " width=\"{0}\" customWidth=\"1\"", col.Width));
                 if (col.OutlineLevel > 0)
                 {                    
                     sw.Write(" outlineLevel=\"{0}\" ", col.OutlineLevel);
@@ -2296,7 +2296,7 @@ namespace OfficeOpenXml
                         }
                         else if (currRow.Height != defaultRowHeight )
                         {
-                            sw.Write(string.Format(_ci, "ht=\"{0}\" customHeight=\"1\" ", currRow.Height));
+                            sw.Write(string.Format(CultureInfo.InvariantCulture, "ht=\"{0}\" customHeight=\"1\" ", currRow.Height));
                         }   
 
                         if(currRow.StyleID > 0)
@@ -2382,11 +2382,11 @@ namespace OfficeOpenXml
                             {
                                 if (cell._value is DateTime)
                                 {
-                                    s = ((DateTime)cell.Value).ToOADate().ToString(_ci);
+                                    s = ((DateTime)cell.Value).ToOADate().ToString(CultureInfo.InvariantCulture);
                                 }
                                 else if (cell._value is TimeSpan)
                                 {
-                                    s = new DateTime(((TimeSpan)cell.Value).Ticks).ToOADate().ToString(_ci); ;
+                                    s = new DateTime(((TimeSpan)cell.Value).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
                                 }
                                 else
                                 {
@@ -2396,7 +2396,7 @@ namespace OfficeOpenXml
                                     }
                                     else
                                     {
-                                        s = Convert.ToDouble(cell._value, _ci).ToString("g15", _ci);
+                                        s = Convert.ToDouble(cell._value, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
                                     }
                                 }
                             }

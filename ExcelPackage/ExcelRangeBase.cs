@@ -275,16 +275,18 @@ namespace OfficeOpenXml
         }
         private void Exists_Comment(object value, int row, int col)
         {
-            if (_worksheet.Cell(row, col).Comment != null)
+            ulong cellID = GetCellID(_worksheet.SheetID, row, col);
+            if (_worksheet.Comments._comments.ContainsKey(cellID))
             {
                 throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
             }
+            
         }
         private void Set_Comment(object value, int row, int col)
         {
             string[] v = (string[])value;
-            var comment = Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), v[0], v[1]);
-            _worksheet.Cell(row, col).Comment = comment;
+            Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), v[0], v[1]);
+         //   _worksheet.Cell(row, col).Comment = comment;
         }
         #endregion
         private void SetToSelectedRange()
@@ -1718,7 +1720,8 @@ namespace OfficeOpenXml
             //Create the comments
             _changePropMethod(Set_Comment, new string[] {Text, Author});
 
-            return  _worksheet.Cell(_fromRow, _fromCol).Comment;
+
+            return _worksheet.Comments[new ExcelCellAddress(_fromRow, _fromCol)];
         }
 
         /// <summary>
