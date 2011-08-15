@@ -78,6 +78,7 @@ namespace OfficeOpenXml.DataValidation
         {
             Require.Argument(worksheet).IsNotNull("worksheet");
             _worksheet = worksheet;
+            SchemaNodeOrder = worksheet.SchemaNodeOrder;
 
             // check existing nodes and load them
             var dataValidationNodes = worksheet.WorksheetXml.SelectNodes(DataValidationItemsPath, worksheet.NameSpaceManager);

@@ -1093,6 +1093,19 @@ namespace EPPlusTest
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
+            
+            pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.Sum | eSubTotalFunctions.Max;
+            Assert.AreEqual(pt.Fields[0].SubTotalFunctions, eSubTotalFunctions.Sum | eSubTotalFunctions.Max);
+
+            pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.Sum | eSubTotalFunctions.Product | eSubTotalFunctions.StdDevP;
+            Assert.AreEqual(pt.Fields[0].SubTotalFunctions, eSubTotalFunctions.Sum | eSubTotalFunctions.Product | eSubTotalFunctions.StdDevP);
+
+            pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.None;
+            Assert.AreEqual(pt.Fields[0].SubTotalFunctions, eSubTotalFunctions.None);
+
+            pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.Default;
+            Assert.AreEqual(pt.Fields[0].SubTotalFunctions, eSubTotalFunctions.Default);
+
             pt.Fields[0].Sort = eSortType.Descending;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Globalization;
 using System.Drawing;
 
 namespace OfficeOpenXml.Drawing.Vml
@@ -171,7 +172,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 {
                     if(col.StartsWith("#")) col=col.Substring(1,col.Length-1);
                     int res;
-                    if (int.TryParse(col,System.Globalization.NumberStyles.AllowHexSpecifier,ExcelWorksheet._ci, out res))
+                    if (int.TryParse(col,System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out res))
                     {
                         return Color.FromArgb(res);
                     }
@@ -252,7 +253,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 {
                     if (col.StartsWith("#")) col = col.Substring(1, col.Length - 1);
                     int res;
-                    if (int.TryParse(col, System.Globalization.NumberStyles.AllowHexSpecifier, ExcelWorksheet._ci, out res))
+                    if (int.TryParse(col, System.Globalization.NumberStyles.AllowHexSpecifier, CultureInfo.InvariantCulture, out res))
                     {
                         return Color.FromArgb(res);
                     }
@@ -281,7 +282,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 if(wt.EndsWith("pt")) wt=wt.Substring(0,wt.Length-2);
 
                 Single ret;
-                if(Single.TryParse(wt,System.Globalization.NumberStyles.Any, ExcelWorksheet._ci, out ret))
+                if(Single.TryParse(wt,System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
                 {
                     return ret;
                 }
@@ -292,7 +293,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             set
             {
-                SetXmlNodeString(LINEWIDTH_PATH, value.ToString(ExcelWorksheet._ci) + "pt");
+                SetXmlNodeString(LINEWIDTH_PATH, value.ToString(CultureInfo.InvariantCulture) + "pt");
             }
         }
         ///// <summary>
@@ -309,7 +310,7 @@ namespace OfficeOpenXml.Drawing.Vml
         //            v = v.Substring(0, v.Length - 2);
         //        }
         //        short ret;
-        //        if (short.TryParse(v,System.Globalization.NumberStyles.Any, ExcelWorksheet._ci, out ret))
+        //        if (short.TryParse(v,System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
         //        {
         //            return ret;
         //        }
@@ -320,7 +321,7 @@ namespace OfficeOpenXml.Drawing.Vml
         //    }
         //    set
         //    {
-        //        SetStyle("width", value.ToString("N2",ExcelWorksheet._ci) + "pt");
+        //        SetStyle("width", value.ToString("N2",CultureInfo.InvariantCulture) + "pt");
         //    }
         //}
         ///// <summary>
@@ -337,7 +338,7 @@ namespace OfficeOpenXml.Drawing.Vml
         //            v = v.Substring(0, v.Length - 2);
         //        }
         //        short ret;
-        //        if (short.TryParse(v, System.Globalization.NumberStyles.Any, ExcelWorksheet._ci, out ret))
+        //        if (short.TryParse(v, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out ret))
         //        {
         //            return ret;
         //        }
@@ -348,7 +349,7 @@ namespace OfficeOpenXml.Drawing.Vml
         //    }
         //    set
         //    {
-        //        SetStyle("height", value.ToString("N2", ExcelWorksheet._ci) + "pt");
+        //        SetStyle("height", value.ToString("N2", CultureInfo.InvariantCulture) + "pt");
         //    }
         //}
         const string TEXTBOX_STYLE_PATH = "v:textbox/@style";

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Drawing;
+using System.Globalization;
 
 namespace OfficeOpenXml.Style
 {
@@ -213,7 +214,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                SetXmlNodeString(SIZE_PATH, value.ToString(ExcelWorksheet._ci));
+                SetXmlNodeString(SIZE_PATH, value.ToString(CultureInfo.InvariantCulture));
                 if (_callback != null) _callback();
             }
         }
