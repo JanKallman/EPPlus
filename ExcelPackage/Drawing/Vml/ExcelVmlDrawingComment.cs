@@ -8,44 +8,12 @@ using System.Drawing;
 namespace OfficeOpenXml.Drawing.Vml
 {
     /// <summary>
-    /// Horizontal Alingment
-    /// </summary>
-    public enum eTextAlignHorizontalVml
-    {
-        Left,
-        Center,
-        Right
-    }
-    /// <summary>
-    /// Vertical Alingment
-    /// </summary>
-    public enum eTextAlignVerticalVml
-    {
-        Top,
-        Center,
-        Bottom
-    }
-    /// <summary>
-    /// Linestyle
-    /// </summary>
-    public enum eLineStyleVml
-    {
-        Solid,
-        Round,
-        Square,
-        Dash,
-        DashDot,
-        LongDash,
-        LongDashDot,
-        LongDashDotDot
-    }
-    /// <summary>
     /// Drawing object used for comments
     /// </summary>
-    public class ExcelVmlDrawing : XmlHelper, IRangeID
+    public class ExcelVmlDrawingComment : ExcelVmlDrawingBase, IRangeID
     {
-        internal ExcelVmlDrawing(XmlNode topNode, ExcelRangeBase range, XmlNamespaceManager ns) :
-            base(ns, topNode)
+        internal ExcelVmlDrawingComment(XmlNode topNode, ExcelRangeBase range, XmlNamespaceManager ns) :
+            base(topNode, ns)
         {
             Range = range;
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };
@@ -441,63 +409,6 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetXmlNodeString(STYLE_PATH, value);
             }
         }
-        #region "Style Handling methods"
-        private bool GetStyle(string style, string key, out string value)
-        {
-            string[]styles = style.Split(';');
-            foreach(string s in styles)
-            {
-                if (s.IndexOf(':') > 0)
-                {
-                    string[] split = s.Split(':');
-                    if (split[0] == key)
-                    {
-                        value=split[1];
-                        return true;
-                    }
-                }
-                else if (s == key)
-                {
-                    value="";
-                    return true;
-                }
-            }
-            value="";
-            return false;
-        }
-        private string SetStyle(string style, string key, string value)
-        {
-            string[] styles = style.Split(';');
-            string newStyle="";
-            bool changed = false;
-            foreach (string s in styles)
-            {
-                string[] split = s.Split(':');
-                if (split[0].Trim() == key)
-                {
-                    if (value.Trim() != "") //If blank remove the item
-                    {
-                        newStyle += key + ':' + value;
-                    }
-                    changed = true;
-                }
-                else
-                {
-                    newStyle += s;
-                }
-                newStyle += ';';
-            }
-            if (!changed)
-            {
-                newStyle += key + ':' + value;
-            }
-            else
-            {
-                newStyle = style.Substring(0, style.Length - 1);
-            }
-            return newStyle;
-        }
-        #endregion
         #region IRangeID Members
 
         ulong IRangeID.RangeID

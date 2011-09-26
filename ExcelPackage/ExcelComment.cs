@@ -11,11 +11,11 @@ namespace OfficeOpenXml
     /// <summary>
     /// An Excel Cell Comment
     /// </summary>
-    public class ExcelComment : ExcelVmlDrawing
+    public class ExcelComment : ExcelVmlDrawingComment
     {
         internal XmlHelper _commentHelper;
         internal ExcelComment(XmlNamespaceManager ns, XmlNode commentTopNode, ExcelRangeBase cell)
-            : base(null, cell, cell.Worksheet.VmlDrawings.NameSpaceManager)
+            : base(null, cell, cell.Worksheet.VmlDrawingsComments.NameSpaceManager)
         {
             //_commentHelper = new XmlHelper(ns, commentTopNode);
             _commentHelper = XmlHelperFactory.Create(ns, commentTopNode);
@@ -25,12 +25,12 @@ namespace OfficeOpenXml
                 textElem = commentTopNode.OwnerDocument.CreateElement("text", ExcelPackage.schemaMain);
                 commentTopNode.AppendChild(textElem);
             }
-            if (!cell.Worksheet.VmlDrawings.ContainsKey(ExcelAddress.GetCellID(cell.Worksheet.SheetID, cell.Start.Row, cell.Start.Column)))
+            if (!cell.Worksheet.VmlDrawingsComments.ContainsKey(ExcelAddress.GetCellID(cell.Worksheet.SheetID, cell.Start.Row, cell.Start.Column)))
             {
-                cell.Worksheet.VmlDrawings.Add(cell);
+                cell.Worksheet.VmlDrawingsComments.Add(cell);
             }
 
-            TopNode = cell.Worksheet.VmlDrawings[ExcelCellBase.GetCellID(cell.Worksheet.SheetID, cell.Start.Row, cell.Start.Column)].TopNode;
+            TopNode = cell.Worksheet.VmlDrawingsComments[ExcelCellBase.GetCellID(cell.Worksheet.SheetID, cell.Start.Row, cell.Start.Column)].TopNode;
             RichText = new ExcelRichTextCollection(ns,textElem);
         }
         const string AUTHORS_PATH = "d:comments/d:authors";

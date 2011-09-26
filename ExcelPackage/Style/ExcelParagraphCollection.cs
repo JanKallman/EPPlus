@@ -84,7 +84,12 @@ namespace OfficeOpenXml.Style
         }
         public void RemoveAt(int Index)
         {
-            TopNode.RemoveChild(_list[Index].TopNode);
+            var node = _list[Index].TopNode;
+            while (node != null && node.Name != "a:r")
+            {
+                node = node.ParentNode;
+            }
+            node.ParentNode.RemoveChild(node);
             _list.RemoveAt(Index);
         }
         public void Remove(ExcelRichText Item)
@@ -111,7 +116,8 @@ namespace OfficeOpenXml.Style
                 else
                 {
                     this[0].Text = value;
-                    for (int ix = 1; ix < Count; ix++)
+                    int count = Count;
+                    for (int ix = Count-1; ix > 0; ix--)
                     {
                         RemoveAt(ix);
                     }

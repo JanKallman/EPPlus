@@ -413,7 +413,7 @@ namespace OfficeOpenXml
                 return "";
             }
         }
-        internal Uri GetNewUri(Package package, string sUri)
+        internal static Uri GetNewUri(Package package, string sUri)
         {
             int id = 1;
             Uri uri;

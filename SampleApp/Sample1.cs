@@ -106,14 +106,14 @@ namespace EPPlusSamples
                 worksheet.Cells["A1:E5"].AutoFitColumns(0);
 
                 // lets set the header text 
-                worksheet.HeaderFooter.oddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";
+                worksheet.HeaderFooter.OddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";
                 // add the page number to the footer plus the total number of pages
-                worksheet.HeaderFooter.oddFooter.RightAlignedText =
+                worksheet.HeaderFooter.OddFooter.RightAlignedText =
                     string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
                 // add the sheet name to the footer
-                worksheet.HeaderFooter.oddFooter.CenteredText = ExcelHeaderFooter.SheetName;
+                worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
                 // add the file path to the footer
-                worksheet.HeaderFooter.oddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
+                worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
 
                 worksheet.PrinterSettings.RepeatRows = worksheet.Cells["1:2"];
                 worksheet.PrinterSettings.RepeatColumns = worksheet.Cells["A:G"];

@@ -39,6 +39,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Drawing.Vml;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -77,8 +78,10 @@ namespace OfficeOpenXml
 			if (_worksheetsNode == null)
 			{
 				// create new node as it did not exist
-				_worksheetsNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheets", ExcelPackage.schemaMain);
-				xlPackage.Workbook.WorkbookXml.DocumentElement.AppendChild(_worksheetsNode);
+                xlPackage.Workbook.CreateNode("d:sheets");
+                _worksheetsNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:sheets", _nsManager);
+                //_worksheetsNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheets", ExcelPackage.schemaMain);
+				//xlPackage.Workbook.WorkbookXml.DocumentElement.AppendChild(_worksheetsNode);
 			}
 
 			_worksheets = new Dictionary<int, ExcelWorksheet>();
@@ -212,10 +215,13 @@ namespace OfficeOpenXml
             {
                 CopyComment(Copy, added);
             }
-            else if (Copy.VmlDrawings.Count > 0)    //Vml drawings are copied as part of the comments. 
+            else if (Copy.VmlDrawingsComments.Count > 0)    //Vml drawings are copied as part of the comments. 
             {
                 CopyVmlDrawing(Copy, added);
             }
+
+            //Copy HeaderFooter
+            CopyHeaderFooterPictures(Copy, added);
 
             //Copy all relationships 
             //CopyRelationShips(Copy, added);
@@ -321,6 +327,43 @@ namespace OfficeOpenXml
                 added.Part.CreateRelationship(PackUriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
                 part.CreateRelationship(PackUriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
             }
+        }
+        private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
+        {
+            if (Copy._headerFooter == null) return;
+            //Copy the texts
+            CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
+            CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
+            CopyText(Copy.HeaderFooter._evenHeader, added.HeaderFooter.EvenHeader);
+            CopyText(Copy.HeaderFooter._evenFooter, added.HeaderFooter.EvenFooter);
+            CopyText(Copy.HeaderFooter._firstHeader, added.HeaderFooter.FirstHeader);
+            CopyText(Copy.HeaderFooter._firstFooter, added.HeaderFooter.FirstFooter);
+            
+            //Copy any images;
+            if (Copy.HeaderFooter.Pictures.Count > 0)
+            {
+                Uri source = Copy.HeaderFooter.Pictures.Uri;
+                Uri dest = XmlHelper.GetNewUri(_xlPackage.Package, @"/xl/drawings/vmlDrawing{0}.vml");
+                
+                var part = _xlPackage.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
+                foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
+                {
+                    var item = added.HeaderFooter.Pictures.Add(pic.Id, pic.ImageUri, pic.Title, pic.Width, pic.Height);
+                    foreach (XmlAttribute att in pic.TopNode.Attributes)
+                    {
+                        (item.TopNode as XmlElement).SetAttribute(att.Name, att.Value);
+                    }
+                    item.TopNode.InnerXml = pic.TopNode.InnerXml;
+                }
+            }
+        }
+
+        private void CopyText(ExcelHeaderFooterText from, ExcelHeaderFooterText to)
+        {
+            if (from == null) return;
+            to.LeftAlignedText=from.LeftAlignedText;
+            to.CenteredText = from.CenteredText;
+            to.RightAlignedText = from.RightAlignedText;
         }
         private void CloneCells(ExcelWorksheet Copy, ExcelWorksheet added)
         {
@@ -432,7 +475,7 @@ namespace OfficeOpenXml
             var uriComment = new Uri(string.Format("/xl/comments{0}.xml", workSheet.SheetID), UriKind.Relative);
             if (_xlPackage.Package.PartExists(uriComment))
             {
-                uriComment = Copy.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
+                uriComment = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
             }
 
             var part = _xlPackage.Package.CreatePart(uriComment, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _xlPackage.Compression);
@@ -444,12 +487,12 @@ namespace OfficeOpenXml
             //Add the relationship ID to the worksheet xml.
             PackageRelationship commentRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
 
-            xml = Copy.VmlDrawings.VmlDrawingXml.InnerXml;
+            xml = Copy.VmlDrawingsComments.VmlDrawingXml.InnerXml;
 
             var uriVml = new Uri(string.Format("/xl/drawings/vmldrawing{0}.vml", workSheet.SheetID), UriKind.Relative);
             if (_xlPackage.Package.PartExists(uriVml))
             {
-                uriVml = Copy.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
+                uriVml = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
             }
 
             var vmlPart = _xlPackage.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
@@ -497,7 +540,7 @@ namespace OfficeOpenXml
                         ExcelChart chart = draw as ExcelChart;
                         xml = chart.ChartXml.InnerXml;
 
-                        var UriChart = chart.GetNewUri(_xlPackage.Package, "/xl/charts/chart{0}.xml");
+                        var UriChart = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/charts/chart{0}.xml");
                         var chartPart = _xlPackage.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _xlPackage.Compression);
                         StreamWriter streamChart = new StreamWriter(chartPart.GetStream(FileMode.Create, FileAccess.Write));
                         streamChart.Write(xml);
@@ -533,7 +576,7 @@ namespace OfficeOpenXml
 
 		private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)
 		{
-			var xml = origSheet.VmlDrawings.VmlDrawingXml.OuterXml;
+			var xml = origSheet.VmlDrawingsComments.VmlDrawingXml.OuterXml;
 			var vmlUri = new Uri(string.Format("/xl/drawings/vmlDrawing{0}.vml", newSheet.SheetID), UriKind.Relative);
 			var part = _xlPackage.Package.CreatePart(vmlUri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
 			using (var streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))

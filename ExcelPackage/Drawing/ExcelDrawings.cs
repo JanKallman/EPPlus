@@ -36,6 +36,7 @@ using System.Xml;
 using System.Collections;
 using System.IO;
 using System.Drawing;
+using System.Linq;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing
@@ -70,7 +71,8 @@ namespace OfficeOpenXml.Drawing
                 return true; //Equal
             }
         }
-        internal List<ImageCompare> _pics = new List<ImageCompare>();
+        //internal List<ImageCompare> _pics = new List<ImageCompare>();
+        internal Dictionary<string, string> _hashes = new Dictionary<string, string>();
         internal ExcelPackage _package;
         internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
@@ -302,7 +304,7 @@ namespace OfficeOpenXml.Drawing
             /// Add a picure to the worksheet
             /// </summary>
             /// <param name="Name"></param>
-            /// <param name="ImageFile">An image. </param>
+            /// <param name="ImageFile">The image file</param>
             /// <returns></returns>
             public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
             {
