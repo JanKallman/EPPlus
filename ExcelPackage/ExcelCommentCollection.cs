@@ -108,7 +108,7 @@ namespace OfficeOpenXml
             get
             {
                 ulong cellID=ExcelCellBase.GetCellID(Worksheet.SheetID, cell.Row, cell.Column);
-                if (_comments.IndexOf(cellID) > 0)
+                if (_comments.IndexOf(cellID) >= 0)
                 {
                     return _comments[cellID] as ExcelComment;
                 }

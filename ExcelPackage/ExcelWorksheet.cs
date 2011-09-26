@@ -153,7 +153,7 @@ namespace OfficeOpenXml
 		private string _relationshipID;
 		private XmlDocument _worksheetXml;
         internal ExcelWorksheetView _sheetView;
-		private ExcelHeaderFooter _headerFooter;
+		internal ExcelHeaderFooter _headerFooter;
         #endregion
         #region ExcelWorksheet Constructor
         /// <summary>
@@ -508,11 +508,11 @@ namespace OfficeOpenXml
 				return (_worksheetXml);
 			}
 		}
-        private ExcelVmlDrawings _vmlDrawings = null;
+        private ExcelVmlDrawingCommentCollection _vmlDrawings = null;
         /// <summary>
-        /// Vml drawings. underlaying object for comments and some images
+        /// Vml drawings. underlaying object for comments
         /// </summary>
-        internal ExcelVmlDrawings VmlDrawings
+        internal ExcelVmlDrawingCommentCollection VmlDrawingsComments
         {
             get
             {
@@ -521,26 +521,6 @@ namespace OfficeOpenXml
                     CreateVmlCollection();
                 }
                 return _vmlDrawings;
-            }
-        }
-
-        private void CreateVmlCollection()
-        {
-            var vmlNode = _worksheetXml.DocumentElement.SelectSingleNode("d:legacyDrawing/@r:id", NameSpaceManager);
-            if (vmlNode == null)
-            {
-                _vmlDrawings = new ExcelVmlDrawings(xlPackage, this, null);
-            }
-            else
-            {
-				if (Part.RelationshipExists(vmlNode.Value))
-				{
-					var rel = Part.GetRelationship(vmlNode.Value);
-					var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
-
-					_vmlDrawings = new ExcelVmlDrawings(xlPackage, this, vmlUri);
-					_vmlDrawings.RelId = rel.Id;
-				}
             }
         }
         internal ExcelCommentCollection _comments = null;
@@ -559,6 +539,26 @@ namespace OfficeOpenXml
                 return _comments;
             }
         }
+        private void CreateVmlCollection()
+        {
+            var vmlNode = _worksheetXml.DocumentElement.SelectSingleNode("d:legacyDrawing/@r:id", NameSpaceManager);
+            if (vmlNode == null)
+            {
+                _vmlDrawings = new ExcelVmlDrawingCommentCollection(xlPackage, this, null);
+            }
+            else
+            {
+                if (Part.RelationshipExists(vmlNode.Value))
+                {
+                    var rel = Part.GetRelationship(vmlNode.Value);
+                    var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+
+                    _vmlDrawings = new ExcelVmlDrawingCommentCollection(xlPackage, this, vmlUri);
+                    _vmlDrawings.RelId = rel.Id;
+                }
+            }
+        }
+
         private void CreateXml()
         {
             _worksheetXml = new XmlDocument();
@@ -654,8 +654,7 @@ namespace OfficeOpenXml
                 _worksheetXml.SelectSingleNode("//d:colBreaks", NameSpaceManager).RemoveAll();
             }
         }
-        //const int BLOCKSIZE=8192;
-        const int BLOCKSIZE = 16;
+        const int BLOCKSIZE=8192;
         private string GetWorkSheetXml(Stream stream, long start, long end)
         {
             StreamReader sr = new StreamReader(stream);
@@ -692,8 +691,9 @@ namespace OfficeOpenXml
                     {
                         if (end - BLOCKSIZE > 0)
                         {
-                            stream.Seek(end - BLOCKSIZE, SeekOrigin.Begin);
-                            int size = stream.Length - stream.Position < BLOCKSIZE ? (int)(stream.Length - stream.Position) : BLOCKSIZE;
+                            long endSeekStart = end - BLOCKSIZE - 4096 < 0 ? 0 : (end - BLOCKSIZE - 4096);
+                            stream.Seek(endSeekStart, SeekOrigin.Begin);
+                            int size = (int)(stream.Length-endSeekStart);
                             block = new char[size];
                             sr = new StreamReader(stream);
                             pos = sr.ReadBlock(block, 0, size);
@@ -1074,8 +1074,8 @@ namespace OfficeOpenXml
                     XmlNode headerFooterNode = TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager);
                     if (headerFooterNode == null)
                         headerFooterNode= CreateNode("d:headerFooter");
-                    _headerFooter = new ExcelHeaderFooter(NameSpaceManager, headerFooterNode);
-				}
+                    _headerFooter = new ExcelHeaderFooter(NameSpaceManager, headerFooterNode, this);
+				}                
 				return (_headerFooter);
 			}
 		}
@@ -1859,6 +1859,7 @@ namespace OfficeOpenXml
                 }
 
                 SaveComments();
+                HeaderFooter.SaveHeaderFooterImages();
                 SaveTables();
                 SavePivotTables();
                 SaveXml();
@@ -1954,7 +1955,7 @@ namespace OfficeOpenXml
                 {
                     if (_vmlDrawings.Uri == null)
                     {
-                        _vmlDrawings.Uri = new Uri(string.Format(@"/xl/drawings/vmlDrawing{0}.vml", SheetID), UriKind.Relative);
+                        _vmlDrawings.Uri = XmlHelper.GetNewUri(xlPackage.Package, @"/xl/drawings/vmlDrawing{0}.vml");
                     }
                     if (_vmlDrawings.Part == null)
                     {
@@ -2580,7 +2581,6 @@ namespace OfficeOpenXml
                 return _pivotTables;
             }
         }
-
         private ExcelDataValidationCollection _dataValidation = null;
         /// <summary>
         /// DataValidation defined in the worksheet. Use the Add methods to create DataValidations and add them to the worksheet. Then
@@ -2596,6 +2596,21 @@ namespace OfficeOpenXml
                     _dataValidation = new ExcelDataValidationCollection(this);
                 }
                 return _dataValidation;
+            }
+        }
+        ExcelBackgroundImage _backgroundImage = null;
+        /// <summary>
+        /// An image displayed as the background of the worksheet.
+        /// </summary>
+        public ExcelBackgroundImage BackgroundImage
+        {
+            get
+            {
+                if (_backgroundImage == null)
+                {
+                    _backgroundImage = new ExcelBackgroundImage(NameSpaceManager, TopNode, this);
+                }
+                return _backgroundImage;
             }
         }
         /// <summary>
@@ -2645,10 +2660,9 @@ namespace OfficeOpenXml
             }
             return i;
         }
-
-        internal ExcelCell Clone(ExcelWorksheet added)
+        internal void SetHFLegacyDrawingRel(string relID)
         {
-            throw new NotImplementedException();
+            SetXmlNodeString("d:legacyDrawingHF/@r:id", relID);
         }
     }  // END class Worksheet
 }

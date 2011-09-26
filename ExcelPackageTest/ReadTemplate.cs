@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
+using OfficeOpenXml.Drawing.Chart;
 
 namespace EPPlusTest
 {
@@ -18,7 +19,11 @@ namespace EPPlusTest
             {
                 var ws = pck.Workbook.Worksheets["Pyramid"];
                 Assert.AreEqual(ws.Cells["V24"].Value, 104D);
-                
+                ws = pck.Workbook.Worksheets["Scatter"];
+                var cht = ws.Drawings["ScatterChart1"] as ExcelScatterChart;
+                Assert.AreEqual(cht.Title.Text, "Header  Text");
+                cht.Title.Text = "Test";
+                Assert.AreEqual(cht.Title.Text, "Test");
             }
 
         }
@@ -45,6 +50,11 @@ namespace EPPlusTest
 
                 ws = pck.Workbook.Worksheets["RichText"];
                 Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
+
+                ws = pck.Workbook.Worksheets["HeaderImage"];
+
+                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+                //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
             }
             instream.Close();
         }

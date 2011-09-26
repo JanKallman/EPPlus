@@ -685,6 +685,17 @@ namespace EPPlusTest
             p.SaveAs(new FileInfo(@"c:\temp\FullProjecte_new.xlsx"));
         }
         [TestMethod]
+        public void ReadBug()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\error.xlsx")))
+            {
+                var fulla = package.Workbook.Worksheets.FirstOrDefault();
+                var r= fulla == null ? null : fulla.Cells["a:a"]
+                .Where(t => !string.IsNullOrWhiteSpace(t.Text)).Select(cell => cell.Value.ToString())
+                .ToList();
+            }
+        }
+        [TestMethod]
         public void FormulaOverwrite()
         {
             var ws = _pck.Workbook.Worksheets.Add("FormulaOverwrite");
@@ -1161,5 +1172,45 @@ namespace EPPlusTest
 
             pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
         }
+        [TestMethod]
+        public void SetBackground()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("backimg");
+
+            ws.BackgroundImage.Image = Properties.Resources.Test1;
+            ws = _pck.Workbook.Worksheets.Add("backimg2");
+            ws.BackgroundImage.SetFromFile(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"));
+        }
+        [TestMethod]
+        public void SetHeaderFooterImage()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("HeaderImage");
+            ws.HeaderFooter.OddHeader.CenteredText = "Before ";
+            var img=ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
+            img.Title = "Renamed Image";
+            img.GrayScale = true;
+            img.BiLevel = true;
+            img.Gain = .5;
+            img.Gamma = .35;
+
+            Assert.AreEqual(img.Width, 426);
+            img.Width /= 4;
+            Assert.AreEqual(img.Height, 49.5);
+            img.Height /= 4;
+            Assert.AreEqual(img.Left, 0);
+            Assert.AreEqual(img.Top, 0);
+            ws.HeaderFooter.OddHeader.CenteredText += " After";
+
+
+            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"), PictureAlignment.Left);
+            img.Title = "DiskFile";
+
+            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WING1.WMF"), PictureAlignment.Right);
+            img.Title = "DiskFile2";
+            ws.Cells["A1:A400"].Value = 1;
+
+            _pck.Workbook.Worksheets.Copy(ws.Name, "Copied HeaderImage");
+        }
+
     }
 }

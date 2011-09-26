@@ -124,6 +124,11 @@
     <Compile Include="Drawing\Chart\ExcelChartTrendline.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPictureCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingCommentCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPicture.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBase.cs" />
+    <Compile Include="ExcelBackgroundImage.cs" />
     <Compile Include="ExcelCell.cs" />
     <Compile Include="DataValidation\ExcelDataValidation.cs" />
     <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
@@ -182,9 +187,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\Chart\ExcelLineChart.cs" />
-    <Compile Include="Drawing\Vml\ExcelVmlDrawing.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingComment.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawingPosition.cs" />
-    <Compile Include="Drawing\Vml\ExcelVmlDrawings.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBaseCollection.cs" />
     <Compile Include="ExcelAddress.cs" />
     <Compile Include="ExcelCellAddress.cs" />
     <Compile Include="ExcelComment.cs" />

@@ -35,6 +35,9 @@ using System;
 using System.Xml;
 using System.IO;
 using System.IO.Packaging;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using OfficeOpenXml.Drawing;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -138,6 +141,14 @@ namespace OfficeOpenXml
 	{
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
+        internal class ImageInfo
+        {
+            internal string Hash { get; set; }
+            internal Uri Uri{get;set;}
+            internal int RefCount { get; set; }
+            internal PackagePart Part { get; set; }
+        }
+        internal Dictionary<string, ImageInfo> _images = new Dictionary<string, ImageInfo>();
 		#region Properties
 		/// <summary>
 		/// Main Xml schema name
@@ -349,6 +360,63 @@ namespace OfficeOpenXml
             Load(templateStream, newStream, Password);
         }
         #endregion
+        internal ImageInfo AddImage(byte[] image)
+        {
+            return AddImage(image, null, "");
+        }
+        internal ImageInfo AddImage(byte[] image, Uri uri, string contentType)
+        {
+            var hashProvider = new SHA1CryptoServiceProvider();
+            var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
+
+            if(_images.ContainsKey(hash))
+            {
+                _images[hash].RefCount++;
+            }
+            else
+            {
+                PackagePart imagePart;
+                if (uri == null)
+                {
+                    uri = GetNewUri(Package, "/xl/media/image{0}.jpg");
+                    imagePart = Package.CreatePart(uri, "image/jpeg", CompressionOption.NotCompressed);
+                }
+                else
+                {
+                    imagePart = Package.CreatePart(uri, contentType, CompressionOption.NotCompressed);
+                }
+                var stream = imagePart.GetStream(FileMode.Create, FileAccess.Write);
+                stream.Write(image, 0, image.GetLength(0));
+                
+                _images.Add(hash, new ImageInfo() { Uri = uri, RefCount = 1, Hash=hash, Part=imagePart });
+            }
+            return _images[hash];
+        }
+        internal ImageInfo GetImageInfo(byte[] image)
+        {
+            var hashProvider = new SHA1CryptoServiceProvider();
+            var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
+
+            if (_images.ContainsKey(hash))
+            {
+                return _images[hash];
+            }
+            else
+            {
+                return null;
+            }
+        }
+        private Uri GetNewUri(Package package, string sUri)
+        {
+            int id = 1;
+            Uri uri;
+            do
+            {
+                uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
+            }
+            while (package.PartExists(uri));
+            return uri;
+        }
         /// <summary>
         /// Init values here
         /// </summary>

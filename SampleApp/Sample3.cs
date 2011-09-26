@@ -177,14 +177,14 @@ namespace EPPlusSamples
 					}
 
                     // lets set the header text 
-					worksheet.HeaderFooter.oddHeader.CenteredText = "AdventureWorks Inc. Sales Report";
+					worksheet.HeaderFooter.OddHeader.CenteredText = "AdventureWorks Inc. Sales Report";
 					// add the page number to the footer plus the total number of pages
-					worksheet.HeaderFooter.oddFooter.RightAlignedText =
+					worksheet.HeaderFooter.OddFooter.RightAlignedText =
 						string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
 					// add the sheet name to the footer
-					worksheet.HeaderFooter.oddFooter.CenteredText = ExcelHeaderFooter.SheetName;
+					worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
 					// add the file path to the footer
-					worksheet.HeaderFooter.oddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
+					worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
 				}
 				// we had better add some document properties to the spreadsheet 
 

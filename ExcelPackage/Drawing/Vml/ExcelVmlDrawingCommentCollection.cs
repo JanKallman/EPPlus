@@ -7,56 +7,43 @@ using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Vml
 {
-    internal class ExcelVmlDrawings : IEnumerable
+    internal class ExcelVmlDrawingCommentCollection : ExcelVmlDrawingBaseCollection, IEnumerable
     {
         internal RangeCollection _drawings;
-        internal ExcelVmlDrawings(ExcelPackage pck, ExcelWorksheet ws, Uri uri)
+        internal ExcelVmlDrawingCommentCollection(ExcelPackage pck, ExcelWorksheet ws, Uri uri) :
+            base(pck, ws,uri)
         {
-            VmlDrawingXml = new XmlDocument();
-            VmlDrawingXml.PreserveWhitespace = false;
-            
-            NameTable nt=new NameTable();
-            NameSpaceManager = new XmlNamespaceManager(nt);
-            NameSpaceManager.AddNamespace("v", ExcelPackage.schemaMicrosoftVml);
-            NameSpaceManager.AddNamespace("o", ExcelPackage.schemaMicrosoftOffice);
-            NameSpaceManager.AddNamespace("x", ExcelPackage.schemaMicrosoftExcel);
-            Uri = uri;
             if (uri == null)
             {
                 VmlDrawingXml.LoadXml(CreateVmlDrawings());
                 _drawings = new RangeCollection(new List<IRangeID>());
-                Part = null;
             }
             else
             {
-                Part=pck.Package.GetPart(uri);
-                VmlDrawingXml.Load(Part.GetStream());
                 AddDrawingsFromXml(ws);
             }
         }
-
-        private void AddDrawingsFromXml(ExcelWorksheet ws)
+        protected void AddDrawingsFromXml(ExcelWorksheet ws)
         {
             var nodes = VmlDrawingXml.SelectNodes("//v:shape", NameSpaceManager);
             var list = new List<IRangeID>();
             foreach (XmlNode node in nodes)
             {
-            	var rowNode = node.SelectSingleNode("x:ClientData/x:Row", NameSpaceManager);
-				var colNode = node.SelectSingleNode("x:ClientData/x:Column", NameSpaceManager);
-				if (rowNode != null && colNode != null)
-				{
-					var row = int.Parse(rowNode.InnerText) + 1;
-					var col = int.Parse(colNode.InnerText) + 1;
-					list.Add(new ExcelVmlDrawing(node, ws.Cells[row, col], NameSpaceManager));
-				}
-				else
-				{
-					list.Add(new ExcelVmlDrawing(node, ws.Cells[1, 1], NameSpaceManager));
-				}
+                var rowNode = node.SelectSingleNode("x:ClientData/x:Row", NameSpaceManager);
+                var colNode = node.SelectSingleNode("x:ClientData/x:Column", NameSpaceManager);
+                if (rowNode != null && colNode != null)
+                {
+                    var row = int.Parse(rowNode.InnerText) + 1;
+                    var col = int.Parse(colNode.InnerText) + 1;
+                    list.Add(new ExcelVmlDrawingComment(node, ws.Cells[row, col], NameSpaceManager));
+                }
+                else
+                {
+                    list.Add(new ExcelVmlDrawingComment(node, ws.Cells[1, 1], NameSpaceManager));
+                }
             }
             _drawings = new RangeCollection(list);
         }
-
         private string CreateVmlDrawings()
         {
             string vml=string.Format("<xml xmlns:v=\"{0}\" xmlns:o=\"{1}\" xmlns:x=\"{2}\">", 
@@ -76,10 +63,10 @@ namespace OfficeOpenXml.Drawing.Vml
 
             return vml;
         }
-        internal ExcelVmlDrawing Add(ExcelRangeBase cell)
+        internal ExcelVmlDrawingComment Add(ExcelRangeBase cell)
         {
             XmlNode node = AddDrawing(cell.Start.Row, cell.Start.Column);
-            var draw = new ExcelVmlDrawing(node, cell, NameSpaceManager);
+            var draw = new ExcelVmlDrawingComment(node, cell, NameSpaceManager);
             _drawings.Add(draw);
             return draw;
         }
@@ -87,7 +74,7 @@ namespace OfficeOpenXml.Drawing.Vml
         {
             var node = VmlDrawingXml.CreateElement("v", "shape", ExcelPackage.schemaMicrosoftVml);
             VmlDrawingXml.DocumentElement.AppendChild(node);
-            node.SetAttribute("id", _drawings.GetNewId());
+            node.SetAttribute("id", GetNewId());
             node.SetAttribute("type", "#_x0000_t202");
             node.SetAttribute("style", "position:absolute;z-index:1; visibility:hidden");
             //node.SetAttribute("style", "position:absolute; margin-left:59.25pt;margin-top:1.5pt;width:108pt;height:59.25pt;z-index:1; visibility:hidden"); 
@@ -112,11 +99,38 @@ namespace OfficeOpenXml.Drawing.Vml
             node.InnerXml = vml;
             return node;
         }
-        internal ExcelVmlDrawing this[ulong rangeID]
+        int _nextID = 0;
+        /// <summary>
+        /// returns the next drawing id.
+        /// </summary>
+        /// <returns></returns>
+        internal string GetNewId()
+        {
+            if (_nextID == 0)
+            {
+                foreach (ExcelVmlDrawingComment draw in this)
+                {
+                    if (draw.Id.Length > 3 && draw.Id.StartsWith("vml"))
+                    {
+                        int id;
+                        if (int.TryParse(draw.Id.Substring(3, draw.Id.Length - 3), out id))
+                        {
+                            if (id > _nextID)
+                            {
+                                _nextID = id;
+                            }
+                        }
+                    }
+                }
+            }
+            _nextID++;
+            return "vml" + _nextID.ToString();
+        }
+        internal ExcelVmlDrawingBase this[ulong rangeID]
         {
             get
             {
-                return _drawings[rangeID] as ExcelVmlDrawing;
+                return _drawings[rangeID] as ExcelVmlDrawingComment;
             }
         }
         internal bool ContainsKey(ulong rangeID)
@@ -130,19 +144,18 @@ namespace OfficeOpenXml.Drawing.Vml
                 return _drawings.Count;
             }
         }
-        internal XmlDocument VmlDrawingXml { get; set; }
-        internal Uri Uri { get; set; }
-        internal string RelId { get; set; }
-        internal PackagePart Part { get; set; }
-        internal XmlNamespaceManager NameSpaceManager { get; set; }
-
         #region IEnumerable Members
+
+        #endregion
+
+        public IEnumerator GetEnumerator()
+        {
+            return _drawings;
+        }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _drawings;
         }
-
-        #endregion
     }
 }

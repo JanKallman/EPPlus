@@ -104,7 +104,7 @@ namespace OfficeOpenXml
             _names = new ExcelNamedRangeCollection(this);
             _namespaceManager = namespaceManager;
             TopNode = WorkbookXml.DocumentElement;
-            SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize","workbookProtection", "customWorkbookViews", "pivotCaches", "smartTagPr","smartTagTypes","webPublishing","fileRecoveryPr", };
+            SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
             GetSharedStrings();
 		}
 		#endregion
