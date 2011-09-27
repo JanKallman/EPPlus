@@ -177,7 +177,7 @@ namespace OfficeOpenXml
             }
         }
 
-        private const string _allowInsertColumnsPath = "d:sheetProtection/@insertColumns ";
+        private const string _allowInsertColumnsPath = "d:sheetProtection/@insertColumns";
         /// <summary>
         /// Allow users to insert columns
         /// </summary>
