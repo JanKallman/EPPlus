@@ -493,8 +493,10 @@ namespace EPPlusTest
         [TestMethod]
         public void Hyperlink()
         {
-            ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\EpplusTesting\excel.xlsx"));
-            var ws = pck.Workbook.Worksheets[1];
+            var ws = _pck.Workbook.Worksheets.Add("HyperLinks");
+            var hl = new ExcelHyperLink("G1", "Till G1");
+            hl.ToolTip = "Link to cell G1";
+            ws.Cells["A1"].Hyperlink = hl;
         }
         [TestMethod]
         public void VeryHideTest()
@@ -1211,6 +1213,58 @@ namespace EPPlusTest
 
             _pck.Workbook.Worksheets.Copy(ws.Name, "Copied HeaderImage");
         }
+        [TestMethod]
+        public void NamedStyles()
+        {
+            var wsSheet = _pck.Workbook.Worksheets.Add("NamedStyles");
 
+            var firstNamedStyle =
+				_pck.Workbook.Styles.CreateNamedStyle("templateFirst");
+				
+            var s=firstNamedStyle.Style;
+
+            s.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
+            s.VerticalAlignment = ExcelVerticalAlignment.Center;
+
+            var secondNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("first", firstNamedStyle.Style).Style;
+            secondNamedStyle.Font.Bold = true;
+            secondNamedStyle.Font.SetFromFont(new Font("Arial Black", 8));
+            secondNamedStyle.Border.Bottom.Style = ExcelBorderStyle.Medium;
+            secondNamedStyle.Border.Left.Style = ExcelBorderStyle.Medium;
+
+            wsSheet.Cells["B2"].Value = "Text Center";
+            wsSheet.Cells["B2"].StyleName = "first";
+        }
+        [TestMethod]
+        public void StyleFill()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Fills");
+            ws.Cells["A1:C3"].Style.Fill.Gradient.Type = ExcelFillGradientType.Linear;
+            ws.Cells["A1:C3"].Style.Fill.Gradient.Color1.SetColor(Color.Red);
+            ws.Cells["A1:C3"].Style.Fill.Gradient.Color2.SetColor(Color.Blue);
+
+            ws.Cells["A1"].Style.Fill.PatternType = ExcelFillStyle.MediumGray;
+            ws.Cells["A1"].Style.Fill.BackgroundColor.SetColor(Color.ForestGreen);
+            var r=ws.Cells["A2:A3"];
+            r.Style.Fill.Gradient.Type = ExcelFillGradientType.Path;
+            r.Style.Fill.Gradient.Left = 0.7;
+            r.Style.Fill.Gradient.Right = 0.7;
+            r.Style.Fill.Gradient.Top = 0.7;
+            r.Style.Fill.Gradient.Bottom = 0.7;
+            
+            ws.Cells[4,1,4,360].Style.Fill.Gradient.Type = ExcelFillGradientType.Path;
+
+            for (double col = 1; col < 360; col++)
+            {                
+                r = ws.Cells[4, Convert.ToInt32(col)];
+                r.Style.Fill.Gradient.Degree = col;
+                r.Style.Fill.Gradient.Left = col / 360;
+                r.Style.Fill.Gradient.Right = col / 360;
+                r.Style.Fill.Gradient.Top = col / 360;
+                r.Style.Fill.Gradient.Bottom = col / 360;
+            }
+            r = ws.Cells["A5"];
+            r.Style.Fill.Gradient.Left = .50;            
+        }
     }
 }

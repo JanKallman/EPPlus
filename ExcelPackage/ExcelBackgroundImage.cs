@@ -62,9 +62,9 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Set the picture from an image file. 
-        /// The image file will be saved as a blob, so make sure excel supports the image format.
+        /// The image file will be saved as a blob, so make sure Excel supports the image format.
         /// </summary>
-        /// <param name="file">The image file.</param>
+        /// <param name="PictureFile">The image file.</param>
         public void SetFromFile(FileInfo PictureFile)
         {
             DeletePrevImage();

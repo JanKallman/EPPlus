@@ -312,11 +312,11 @@ namespace OfficeOpenXml
                 {
                     if (type == "")
                     {
-                        throw (new Exception(string.Format("Range is not valid for this operation: {0}", _address)));
+                        throw (new InvalidOperationException(string.Format("Range is not valid for this operation: {0}", _address)));
                     }
                     else
                     {
-                        throw (new Exception(string.Format("Range is not valid for {0} : {1}", type, _address)));
+                        throw (new InvalidOperationException(string.Format("Range is not valid for {0} : {1}", type, _address)));
                     }
                 }
             }

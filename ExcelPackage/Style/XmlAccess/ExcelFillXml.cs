@@ -37,7 +37,7 @@ namespace OfficeOpenXml.Style.XmlAccess
     /// <summary>
     /// Xml access class for fills
     /// </summary>
-    public sealed class ExcelFillXml : StyleXmlHelper 
+    public class ExcelFillXml : StyleXmlHelper 
     {
         internal ExcelFillXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)
@@ -76,7 +76,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         #region Public Properties
         const string fillPatternTypePath = "d:patternFill/@patternType";
-        ExcelFillStyle _fillPatternType;
+        protected ExcelFillStyle _fillPatternType;
         public ExcelFillStyle PatternType
         {
             get
@@ -88,7 +88,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _fillPatternType=value;
             }
         }
-        ExcelColorXml _patternColor = null;
+        protected ExcelColorXml _patternColor = null;
         const string _patternColorPath = "d:patternFill/d:bgColor";
         public ExcelColorXml PatternColor
         {
@@ -101,7 +101,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _patternColor = value;
             }
         }
-        ExcelColorXml _backgroundColor = null;
+        protected ExcelColorXml _backgroundColor = null;
         const string _backgroundColorPath = "d:patternFill/d:fgColor";
         public ExcelColorXml BackgroundColor
         {
@@ -123,7 +123,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         //    return newFill;
         //}
 
-        internal ExcelFillXml Copy()
+        internal virtual ExcelFillXml Copy()
         {
             ExcelFillXml newFill = new ExcelFillXml(NameSpaceManager);
             newFill.PatternType = _fillPatternType;

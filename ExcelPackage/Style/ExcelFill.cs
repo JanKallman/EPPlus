@@ -31,13 +31,15 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using OfficeOpenXml.Style.XmlAccess;
+using System.Globalization;
 
 namespace OfficeOpenXml.Style
 {
     /// <summary>
     /// The background fill of a cell
     /// </summary>
-    public sealed class ExcelFill : StyleBase
+    public class ExcelFill : StyleBase
     {
         internal ExcelFill(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int PositionID, string address, int index) :
             base(styles, ChangedEvent, PositionID, address)
@@ -46,7 +48,7 @@ namespace OfficeOpenXml.Style
             Index = index;
         }
         /// <summary>
-        /// The pattern of the fill
+        /// The pattern for solid fills.
         /// </summary>
         public ExcelFillStyle PatternType
         {
@@ -63,6 +65,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                if (_gradient != null) _gradient = null;
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Fill, eStyleProperty.PatternType, value, _positionID, _address));
             }
         }
@@ -77,6 +80,7 @@ namespace OfficeOpenXml.Style
                 if (_patternColor == null)
                 {
                     _patternColor = new ExcelColor(_styles, _ChangedEvent, _positionID, _address, eStyleClass.FillPatternColor, this);
+                    if (_gradient != null) _gradient = null;
                 }
                 return _patternColor;
             }
@@ -92,15 +96,42 @@ namespace OfficeOpenXml.Style
                 if (_backgroundColor == null)
                 {
                     _backgroundColor = new ExcelColor(_styles, _ChangedEvent, _positionID, _address, eStyleClass.FillBackgroundColor, this);
+                    if (_gradient != null) _gradient = null;
                 }
                 return _backgroundColor;
                 
             }
         }
-
+        ExcelGradientFill _gradient=null;
+        /// <summary>
+        /// Access to properties for gradient fill.
+        /// </summary>
+        public ExcelGradientFill Gradient 
+        {
+            get
+            {
+                if (_gradient == null)
+                {                    
+                    _gradient = new ExcelGradientFill(_styles, _ChangedEvent, _positionID, _address, Index);
+                    _backgroundColor = null;
+                    _patternColor = null;
+                }
+                return _gradient;
+            }
+        }
         internal override string Id
         {
-            get { return PatternType +PatternColor.Id+BackgroundColor.Id; }
+            get
+            {
+                if (_gradient == null)
+                {
+                    return PatternType + PatternColor.Id + BackgroundColor.Id;
+                }
+                else
+                {
+                    return _gradient.Id;
+                }
+            }
         }
     }
 }

@@ -44,8 +44,11 @@ namespace OfficeOpenXml.Style
         BorderRight,
         BorderDiagonal,
         Fill,
+        GradientFill,
         FillBackgroundColor,
         FillPatternColor,
+        FillGradientColor1,
+        FillGradientColor2,
         NamedStyle,
         Style
     };
@@ -58,6 +61,10 @@ namespace OfficeOpenXml.Style
         Italic,
         Strike,
         Color,
+        Tint,
+        IndexedColor,
+        AutoColor,
+        GradientColor,
         Family,
         Scheme,
         Underline,
@@ -75,6 +82,12 @@ namespace OfficeOpenXml.Style
         ShrinkToFit,
         BorderDiagonalUp,
         BorderDiagonalDown,
+        GradientDegree,
+        GradientType,
+        GradientTop,
+        GradientBottom,
+        GradientLeft,
+        GradientRight,
         XfId,
         Indent
     }

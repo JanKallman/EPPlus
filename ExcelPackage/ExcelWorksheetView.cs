@@ -193,6 +193,9 @@ namespace OfficeOpenXml
         }
         #endregion
         #region Public Methods & Properties
+        /// <summary>
+        /// The active cell.
+        /// </summary>
         public string ActiveCell
         {
             get
@@ -204,6 +207,9 @@ namespace OfficeOpenXml
                 Panes[Panes.GetUpperBound(0)].ActiveCell = value;
             }
         }
+        /// <summary>
+        /// Selected Cells in the worksheet.Used in combination with ActiveCell
+        /// </summary>
         public string SelectedRange
         {
             get
@@ -308,7 +314,7 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Scale 
+        /// Window zoom magnification for current view representing percent values.
         /// </summary>
         public int ZoomScale
         {
@@ -318,9 +324,16 @@ namespace OfficeOpenXml
             }
             set
             {
+                if (value < 10 || value > 400)
+                {
+                    throw new ArgumentOutOfRangeException("Zoome scale out of range (10-400)");
+                }
                 SetXmlNodeString("@zoomScale", value.ToString());
             }
         }
+        /// <summary>
+        /// Flag indicating whether the sheet is in 'right to left' display mode. When in this mode,Column A is on the far right, Column B ;is one column left of Column A, and so on. Also,information in cells is displayed in the Right to Left format.
+        /// </summary>
         public bool RightToLeft
         {
             get
@@ -343,6 +356,9 @@ namespace OfficeOpenXml
                 SetXmlNodeBool("@windowProtection",value,false);
             }
         }
+        /// <summary>
+        /// Reference to the panes
+        /// </summary>
         public ExcelWorksheetPanes[] Panes
         {
             get;
@@ -429,6 +445,9 @@ namespace OfficeOpenXml
                 sel.ParentNode.RemoveChild(sel);
             }
         }
+        /// <summary>
+        /// Unlock all rows and columns to scroll freely
+        /// /// </summary>
         public void UnFreezePanes()
         {
             string sqRef = SelectedRange, activeCell = ActiveCell;

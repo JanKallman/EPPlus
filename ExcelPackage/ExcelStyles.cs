@@ -90,7 +90,15 @@ namespace OfficeOpenXml
             XmlNode fillNode = _styleXml.SelectSingleNode(FillsPath, _nameSpaceManager);
             foreach (XmlNode n in fillNode)
             {
-                ExcelFillXml f = new ExcelFillXml(_nameSpaceManager, n);
+                ExcelFillXml f;
+                if (n.FirstChild != null && n.FirstChild.LocalName == "gradientFill")
+                {
+                    f = new ExcelGradientFillXml(_nameSpaceManager, n);
+                }
+                else
+                {
+                    f = new ExcelFillXml(_nameSpaceManager, n);
+                }
                 Fills.Add(f.Id, f);
             }
 
@@ -677,7 +685,7 @@ namespace OfficeOpenXml
                 int ix = Fills.FindIndexByID(xfs.Fill.Id);
                 if (ix < 0)
                 {
-                    ExcelFillXml item = style.Fills[xfs.FillId].Copy();
+                    var item = style.Fills[xfs.FillId].Copy();
                     ix = Fills.Add(xfs.Fill.Id, item);
                 }
                 newXfs.FillId = ix;

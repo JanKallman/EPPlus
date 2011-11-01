@@ -43,7 +43,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal ExcelColorXml(XmlNamespaceManager nameSpaceManager)
             : base(nameSpaceManager)
         {
-            _auto = "";
+            _auto = false;
             _theme = "";
             _tint = 0;
             _rgb = "";
@@ -59,7 +59,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 _exists = true;
-                _auto = GetXmlNodeString("@auto");
+                _auto = GetXmlNodeBool("@auto");
                 _theme = GetXmlNodeString("@theme");
                 _tint = GetXmlNodeDecimal("@tint");
                 _rgb = GetXmlNodeString("@rgb");
@@ -71,15 +71,25 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _auto + "|" + _theme + "|" + _tint + "|" + _rgb + "|" + _indexed;
+                return _auto.ToString() + "|" + _theme + "|" + _tint + "|" + _rgb + "|" + _indexed;
             }
         }
-        string _auto;
-        public string Auto
+        bool _auto;
+        public bool Auto
         {
             get
             {
                 return _auto;
+            }
+            set
+            {
+                if (value)
+                {
+
+                }
+                _auto = value;
+                _exists = true;
+                Clear();
             }
         }
         string _theme;
@@ -97,6 +107,11 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 return _tint;
             }
+            set
+            {
+                _tint = value;
+                _exists = true;
+            }
         }
         string _rgb;
         public string Rgb
@@ -109,6 +124,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 _rgb = value;
                 _exists=true;
+                _indexed = int.MinValue;
+                _auto = false;
             }
         }
         int _indexed;
@@ -118,13 +135,28 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
               return _indexed;
             }
+            set
+            {
+                if (value < 0 || value > 65)
+                {
+                    throw (new ArgumentOutOfRangeException("Index out of range"));
+                }
+                Clear();
+                _indexed = value;
+                _exists = true;
+            }
+        }
+        internal void Clear()
+        {
+            _theme = "";
+            _tint = decimal.MaxValue;
+            _indexed = int.MinValue;
+            _rgb = "";
+            _auto = false;
         }
         public void SetColor(System.Drawing.Color color)
         {
-            //XmlNode node = TopNode.SelectSingleNode(_parentPath, NameSpaceManager);
-            _theme = "";
-            _tint = decimal.MaxValue;
-            _indexed=int.MinValue;
+            Clear();
             _rgb = color.ToArgb().ToString("X");
         }
 
@@ -144,13 +176,16 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 SetXmlNodeString("@indexed", _indexed.ToString());
             }
-            else if (_auto != "")
+            else if (_auto)
             {
-                SetXmlNodeString("@auto", _auto);
+                SetXmlNodeBool("@auto", _auto);
             }
             else
             {
                 SetXmlNodeString("@theme", _theme.ToString());
+            }
+            if (_tint != decimal.MaxValue)
+            {
                 SetXmlNodeString("@tint", _tint.ToString(CultureInfo.InvariantCulture));
             }
             return TopNode;

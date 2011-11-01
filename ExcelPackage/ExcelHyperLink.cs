@@ -106,6 +106,14 @@ namespace OfficeOpenXml
                 _display = value;
             }
         }
+        /// <summary>
+        /// Tooltip
+        /// </summary>
+        public string ToolTip
+        {
+            get;
+            set;
+        }
         int _colSpann = 0;
         /// <summary>
         /// If the hyperlink spans multiple columns
