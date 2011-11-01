@@ -45,13 +45,12 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// Provides enumeration through all the worksheets in the workbook
 	/// </summary>
-	public class ExcelWorksheets : IEnumerable<ExcelWorksheet>
+	public class ExcelWorksheets : XmlHelper, IEnumerable<ExcelWorksheet>
 	{
 		#region ExcelWorksheets Private Properties
 		private Dictionary<int, ExcelWorksheet> _worksheets;
-		private ExcelPackage _xlPackage;
-		private XmlNamespaceManager _nsManager;
-		private XmlNode _worksheetsNode;
+		private ExcelPackage _pck;
+		private XmlNamespaceManager _namespaceManager;
 		#endregion
 
 		#region ExcelWorksheets Constructor
@@ -59,34 +58,18 @@ namespace OfficeOpenXml
 		/// Creates a new instance of the ExcelWorksheets class.
 		/// For internal use only!
 		/// </summary>
-		/// <param name="xlPackage"></param>
-		protected internal ExcelWorksheets(ExcelPackage xlPackage)
+		/// <param name="pck"></param>
+		internal ExcelWorksheets(ExcelPackage pck, XmlNamespaceManager nsm, XmlNode topNode) :
+            base(nsm, topNode)
 		{
-			_xlPackage = xlPackage;
-            
-			//  Create a NamespaceManager to handle the default namespace, 
-			//  and create a prefix for the default namespace:
-			NameTable nt = new NameTable();
-			_nsManager = new XmlNamespaceManager(nt);
-            _nsManager.AddNamespace(string.Empty, ExcelPackage.schemaMain);
-            _nsManager.AddNamespace("d", ExcelPackage.schemaMain);
-			_nsManager.AddNamespace("r", ExcelPackage.schemaRelationships);
-            _nsManager.AddNamespace("c", ExcelPackage.schemaChart);
+			_pck = pck;
+            _namespaceManager = nsm;
 
 			// obtain container node for all worksheets
-			_worksheetsNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:sheets", _nsManager);
-			if (_worksheetsNode == null)
-			{
-				// create new node as it did not exist
-                xlPackage.Workbook.CreateNode("d:sheets");
-                _worksheetsNode = xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:sheets", _nsManager);
-                //_worksheetsNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheets", ExcelPackage.schemaMain);
-				//xlPackage.Workbook.WorkbookXml.DocumentElement.AppendChild(_worksheetsNode);
-			}
 
 			_worksheets = new Dictionary<int, ExcelWorksheet>();
 			int positionID = 1;
-			foreach (XmlNode sheetNode in _worksheetsNode.ChildNodes)
+			foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
 				string name = sheetNode.Attributes["name"].Value;
 				//  Get the relationship id attribute:
@@ -103,11 +86,11 @@ namespace OfficeOpenXml
 				//if (attr != null)
 				//  type = attr.Value;
 
-				PackageRelationship sheetRelation = xlPackage.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = PackUriHelper.ResolvePartUri(xlPackage.Workbook.WorkbookUri, sheetRelation.TargetUri);
+				PackageRelationship sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+				Uri uriWorksheet = PackUriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				// add worksheet to our collection
-                _worksheets.Add(positionID, new ExcelWorksheet(_nsManager, _xlPackage, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
 				positionID++;
 			}
 		}
@@ -166,20 +149,20 @@ namespace OfficeOpenXml
             int sheetID;
             Uri uriWorksheet;
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            PackagePart worksheetPart = _xlPackage.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _xlPackage.Compression);
+            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _pck.Compression);
 
 			// create the new, empty worksheet and save it to the package
 			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
 			XmlDocument worksheetXml = CreateNewWorksheet();
 			worksheetXml.Save(streamWorksheet);
 			streamWorksheet.Close();
-			_xlPackage.Package.Flush();
+			_pck.Package.Flush();
 
             string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet);
 
 			// create a reference to the new worksheet in our collection
 			int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet = new ExcelWorksheet(_nsManager, _xlPackage, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+            ExcelWorksheet worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
 
 			_worksheets.Add(positionID, worksheet);
 			return worksheet;
@@ -197,18 +180,18 @@ namespace OfficeOpenXml
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
 
             //Create a copy of the worksheet XML
-            PackagePart worksheetPart = _xlPackage.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _xlPackage.Compression);
+            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _pck.Compression);
             StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
             XmlDocument worksheetXml = new XmlDocument();
             worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
             worksheetXml.Save(streamWorksheet);
             streamWorksheet.Close();
-            _xlPackage.Package.Flush();
+            _pck.Package.Flush();
 
 
             //Create a relation to the workbook
             string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet);
-            ExcelWorksheet added = new ExcelWorksheet(_nsManager, _xlPackage, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
+            ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
 
             //Copy comments
             if (Copy.Comments.Count > 0)
@@ -244,7 +227,7 @@ namespace OfficeOpenXml
             _worksheets.Add(_worksheets.Count + 1, added);
             
             //Remove any relation to printersettings.
-            XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _nsManager);
+            XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
             if (pageSetup != null)
             {
                 XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
@@ -265,7 +248,7 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.Tables)
             {
                 string xml=tbl.TableXml.OuterXml;
-                int Id = _xlPackage.Workbook._nextTableID++;
+                int Id = _pck.Workbook._nextTableID++;
                 string name = Copy.Tables.GetNewTableName();
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(xml);
@@ -275,7 +258,7 @@ namespace OfficeOpenXml
                 xml = xmlDoc.OuterXml;
 
                 var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
-                var part = _xlPackage.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _xlPackage.Compression);
+                var part = _pck.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
                 streamTbl.Close();
@@ -308,7 +291,7 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.PivotTables)
             {
                 string xml = tbl.PivotTableXml.OuterXml;
-                int Id = _xlPackage.Workbook._nextPivotTableID++;
+                int Id = _pck.Workbook._nextPivotTableID++;
                 string name = Copy.PivotTables.GetNewTableName();
                 XmlDocument xmlDoc = new XmlDocument();
                 Copy.Save();    //Save the worksheet first
@@ -318,7 +301,7 @@ namespace OfficeOpenXml
                 xml = xmlDoc.OuterXml;
 
                 var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
-                var part = _xlPackage.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _xlPackage.Compression);
+                var part = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
                 streamTbl.Close();
@@ -343,9 +326,9 @@ namespace OfficeOpenXml
             if (Copy.HeaderFooter.Pictures.Count > 0)
             {
                 Uri source = Copy.HeaderFooter.Pictures.Uri;
-                Uri dest = XmlHelper.GetNewUri(_xlPackage.Package, @"/xl/drawings/vmlDrawing{0}.vml");
+                Uri dest = XmlHelper.GetNewUri(_pck.Package, @"/xl/drawings/vmlDrawing{0}.vml");
                 
-                var part = _xlPackage.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
+                var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
                 foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
                 {
                     var item = added.HeaderFooter.Pictures.Add(pic.Id, pic.ImageUri, pic.Title, pic.Width, pic.Height);
@@ -367,7 +350,7 @@ namespace OfficeOpenXml
         }
         private void CloneCells(ExcelWorksheet Copy, ExcelWorksheet added)
         {
-            bool sameWorkbook=(Copy.Workbook == _xlPackage.Workbook);
+            bool sameWorkbook=(Copy.Workbook == _pck.Workbook);
             
             added.MergedCells.List.AddRange(Copy.MergedCells.List);
             //Formulas
@@ -473,12 +456,12 @@ namespace OfficeOpenXml
             //First copy the drawing XML
             string xml = Copy.Comments.CommentXml.InnerXml;
             var uriComment = new Uri(string.Format("/xl/comments{0}.xml", workSheet.SheetID), UriKind.Relative);
-            if (_xlPackage.Package.PartExists(uriComment))
+            if (_pck.Package.PartExists(uriComment))
             {
-                uriComment = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
+                uriComment = XmlHelper.GetNewUri(_pck.Package, "/xl/drawings/vmldrawing{0}.vml");
             }
 
-            var part = _xlPackage.Package.CreatePart(uriComment, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _xlPackage.Compression);
+            var part = _pck.Package.CreatePart(uriComment, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _pck.Compression);
 
             StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
             streamDrawing.Write(xml);
@@ -490,12 +473,12 @@ namespace OfficeOpenXml
             xml = Copy.VmlDrawingsComments.VmlDrawingXml.InnerXml;
 
             var uriVml = new Uri(string.Format("/xl/drawings/vmldrawing{0}.vml", workSheet.SheetID), UriKind.Relative);
-            if (_xlPackage.Package.PartExists(uriVml))
+            if (_pck.Package.PartExists(uriVml))
             {
-                uriVml = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/drawings/vmldrawing{0}.vml");
+                uriVml = XmlHelper.GetNewUri(_pck.Package, "/xl/drawings/vmldrawing{0}.vml");
             }
 
-            var vmlPart = _xlPackage.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
+            var vmlPart = _pck.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
             StreamWriter streamVml = new StreamWriter(vmlPart.GetStream(FileMode.Create, FileAccess.Write));
             streamVml.Write(xml);
             streamVml.Close();
@@ -503,11 +486,11 @@ namespace OfficeOpenXml
             PackageRelationship newVmlRel = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 
             //Add the relationship ID to the worksheet xml.
-            XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _nsManager) as XmlElement;
+            XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
             if (e == null)
             {
                 workSheet.CreateNode("d:legacyDrawing");
-                e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _nsManager) as XmlElement;
+                e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
             }
 
             e.SetAttribute("id", ExcelPackage.schemaRelationships, newVmlRel.Id);
@@ -521,7 +504,7 @@ namespace OfficeOpenXml
                 //First copy the drawing XML
                 string xml = Copy.Drawings.DrawingXml.OuterXml;            
                 var uriDraw=new Uri(string.Format("/xl/drawings/drawing{0}.xml", workSheet.SheetID),  UriKind.Relative);
-                var part= _xlPackage.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _xlPackage.Compression);
+                var part= _pck.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _pck.Compression);
                 StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(xml);
                 streamDrawing.Close();
@@ -530,7 +513,7 @@ namespace OfficeOpenXml
                 drawXml.LoadXml(xml);
                 //Add the relationship ID to the worksheet xml.
                 PackageRelationship drawRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
-                XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _nsManager) as XmlElement;
+                XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
                 foreach (ExcelDrawing draw in Copy.Drawings)
@@ -540,8 +523,8 @@ namespace OfficeOpenXml
                         ExcelChart chart = draw as ExcelChart;
                         xml = chart.ChartXml.InnerXml;
 
-                        var UriChart = XmlHelper.GetNewUri(_xlPackage.Package, "/xl/charts/chart{0}.xml");
-                        var chartPart = _xlPackage.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _xlPackage.Compression);
+                        var UriChart = XmlHelper.GetNewUri(_pck.Package, "/xl/charts/chart{0}.xml");
+                        var chartPart = _pck.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _pck.Compression);
                         StreamWriter streamChart = new StreamWriter(chartPart.GetStream(FileMode.Create, FileAccess.Write));
                         streamChart.Write(xml);
                         streamChart.Close();
@@ -578,7 +561,7 @@ namespace OfficeOpenXml
 		{
 			var xml = origSheet.VmlDrawingsComments.VmlDrawingXml.OuterXml;
 			var vmlUri = new Uri(string.Format("/xl/drawings/vmlDrawing{0}.vml", newSheet.SheetID), UriKind.Relative);
-			var part = _xlPackage.Package.CreatePart(vmlUri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _xlPackage.Compression);
+			var part = _pck.Package.CreatePart(vmlUri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
 			using (var streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
 			{
 				streamDrawing.Write(xml);
@@ -586,10 +569,10 @@ namespace OfficeOpenXml
 
 			//Add the relationship ID to the worksheet xml.
 			PackageRelationship vmlRelation = newSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
-			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _nsManager) as XmlElement;
+			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
 			if (e == null)
 			{
-				e = newSheet.WorksheetXml.CreateNode(XmlNodeType.Entity, "//d:legacyDrawing", _nsManager.LookupNamespace("d")) as XmlElement;
+				e = newSheet.WorksheetXml.CreateNode(XmlNodeType.Entity, "//d:legacyDrawing", _namespaceManager.LookupNamespace("d")) as XmlElement;
 			}
 			if (e != null)
 			{
@@ -600,18 +583,18 @@ namespace OfficeOpenXml
 		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
         {
             // create the relationship between the workbook and the new worksheet
-            PackageRelationship rel = _xlPackage.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_xlPackage.Workbook.WorkbookUri, uriWorksheet), TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
-            _xlPackage.Package.Flush();
+            PackageRelationship rel = _pck.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
+            _pck.Package.Flush();
 
             // now create the new worksheet tag and set name/SheetId attributes in the workbook.xml
-            XmlElement worksheetNode = _xlPackage.Workbook.WorkbookXml.CreateElement("sheet", ExcelPackage.schemaMain);
+            XmlElement worksheetNode = _pck.Workbook.WorkbookXml.CreateElement("sheet", ExcelPackage.schemaMain);
             // create the new sheet node
             worksheetNode.SetAttribute("name", Name);
             worksheetNode.SetAttribute("sheetId", sheetID.ToString());
             // set the r:id attribute
             worksheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
             // insert the sheet tag with all attributes set as above
-            _worksheetsNode.AppendChild(worksheetNode);
+            TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
         private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet)
@@ -636,7 +619,7 @@ namespace OfficeOpenXml
             // first find maximum existing sheetID
             // also check the name is unique - if not throw an error
             sheetID = 0;
-            foreach (XmlNode sheet in _worksheetsNode.ChildNodes)
+            foreach (XmlNode sheet in TopNode.ChildNodes)
             {
                 XmlAttribute attr = (XmlAttribute)sheet.Attributes.GetNamedItem("sheetId");
                 if (attr != null)
@@ -707,16 +690,16 @@ namespace OfficeOpenXml
 			ExcelWorksheet worksheet = _worksheets[Index];
 
 			// delete the worksheet from the package 
-			_xlPackage.Package.DeletePart(worksheet.WorksheetUri);
+			_pck.Package.DeletePart(worksheet.WorksheetUri);
 
 			// delete the relationship from the package 
-			_xlPackage.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
+			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
 			// delete worksheet from the workbook XML
-			XmlNode sheetsNode = _xlPackage.Workbook.WorkbookXml.SelectSingleNode("//d:workbook/d:sheets", _nsManager);
+			XmlNode sheetsNode = _pck.Workbook.WorkbookXml.SelectSingleNode("//d:workbook/d:sheets", _namespaceManager);
 			if (sheetsNode != null)
 			{
-				XmlNode sheetNode = sheetsNode.SelectSingleNode(string.Format("./d:sheet[@sheetId={0}]", worksheet.SheetID), _nsManager);
+				XmlNode sheetNode = sheetsNode.SelectSingleNode(string.Format("./d:sheet[@sheetId={0}]", worksheet.SheetID), _namespaceManager);
 				if (sheetNode != null)
 				{
 					sheetsNode.RemoveChild(sheetNode);
@@ -739,7 +722,7 @@ namespace OfficeOpenXml
 			{
 				throw new Exception(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			Delete(sheet.PositionID);
+			    Delete(sheet.PositionID);
 		}
 
 		/// <summary>
@@ -990,19 +973,19 @@ namespace OfficeOpenXml
 
 		private void MoveSheetXmlNode(ExcelWorksheet sourceSheet, ExcelWorksheet targetSheet, bool placeAfter)
 		{
-			var sourceNode = _worksheetsNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", sourceSheet.SheetID), _nsManager);
-			var targetNode = _worksheetsNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", targetSheet.SheetID), _nsManager);
+			var sourceNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", sourceSheet.SheetID), _namespaceManager);
+            var targetNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", targetSheet.SheetID), _namespaceManager);
 			if (sourceNode == null || targetNode == null)
 			{
 				throw new Exception("Source SheetId and Target SheetId must be valid");
 			}
 			if (placeAfter)
 			{
-				_worksheetsNode.InsertAfter(sourceNode, targetNode);
+                TopNode.InsertAfter(sourceNode, targetNode);
 			}
 			else
 			{
-				_worksheetsNode.InsertBefore(sourceNode, targetNode);
+                TopNode.InsertBefore(sourceNode, targetNode);
 			}
 		}
 

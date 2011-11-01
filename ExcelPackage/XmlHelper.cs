@@ -390,6 +390,26 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal double GetXmlNodeDouble(string path)
+        {
+            string s = GetXmlNodeString(path);
+            if (s == "")
+            {
+                return double.NaN;
+            }
+            else
+            {
+                double v;
+                if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                {
+                    return v;
+                }
+                else
+                {
+                    return double.NaN;
+                }
+            }
+        }
         internal string GetXmlNodeString(string path)
         {
             if (TopNode == null)

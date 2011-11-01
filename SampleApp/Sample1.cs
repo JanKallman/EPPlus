@@ -66,17 +66,17 @@ namespace EPPlusSamples
                 worksheet.Cells[1, 5].Value = "Value";
 
                 //Add some items...
-                worksheet.Cells["A2"].Value = "12001";
+                worksheet.Cells["A2"].Value = 12001;
                 worksheet.Cells["B2"].Value = "Nails";
                 worksheet.Cells["C2"].Value = 37;
                 worksheet.Cells["D2"].Value = 3.99;
 
-                worksheet.Cells["A3"].Value = "12002";
+                worksheet.Cells["A3"].Value = 12002;
                 worksheet.Cells["B3"].Value = "Hammer";
                 worksheet.Cells["C3"].Value = 5;
                 worksheet.Cells["D3"].Value = 12.10;
 
-                worksheet.Cells["A4"].Value = "12003";
+                worksheet.Cells["A4"].Value = 12003;
                 worksheet.Cells["B4"].Value = "Saw";
                 worksheet.Cells["C4"].Value = 12;
                 worksheet.Cells["D4"].Value = 15.37;
@@ -104,6 +104,7 @@ namespace EPPlusSamples
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 worksheet.Cells["A1:E5"].AutoFitColumns(0);
+                worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
 
                 // lets set the header text 
                 worksheet.HeaderFooter.OddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";

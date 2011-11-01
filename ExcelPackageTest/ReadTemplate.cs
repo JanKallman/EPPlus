@@ -199,5 +199,23 @@ namespace EPPlusTest
             }
             }
         }
+        [TestMethod]
+        public void ReadBug5()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\2.9 bugs\protect.xlsx"));
+
+            package.Workbook.Worksheets[1].Protection.AllowInsertColumns = true;
+            package.Workbook.Worksheets[1].Protection.SetPassword("test");
+            package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\protectnew.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug6()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\2.9 bugs\outofrange\error.xlsx"));
+
+            package.Workbook.Worksheets[1].Protection.AllowInsertColumns = true;
+            package.Workbook.Worksheets[1].Protection.SetPassword("test");
+            package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
+        }
     }
 }

@@ -432,7 +432,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Summary rows below details 
         /// </summary>
-        public bool OutLineSummaryBelow 
+        public bool OutLineSummaryBelow
         { 
             get
             {
@@ -816,7 +816,7 @@ namespace OfficeOpenXml
                     if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
                     {
                         cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
-                        cell.Hyperlink = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                        cell.Hyperlink = new ExcelHyperLink(Part.GetRelationship(cell.HyperLinkRId).TargetUri.AbsolutePath);
                         Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                     }
                     else if (xr.GetAttribute("location") != null)
@@ -824,6 +824,11 @@ namespace OfficeOpenXml
                         ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
                         hl.RowSpann = toRow - fromRow;
                         hl.ColSpann = toCol - fromCol;
+                        string tt=xr.GetAttribute("tooltip");
+                        if(!string.IsNullOrEmpty(tt))
+                        {
+                            hl.ToolTip=tt;
+                        }                        
                         cell.Hyperlink = hl;
                     }
                 }
@@ -1038,15 +1043,15 @@ namespace OfficeOpenXml
             }
             return value;
         }
-        private string GetSharedString(int stringID)
-        {
-            string retValue = null;
-            XmlNodeList stringNodes = xlPackage.Workbook.SharedStringsXml.SelectNodes(string.Format("//d:si", stringID), NameSpaceManager);
-            XmlNode stringNode = stringNodes[stringID];
-            if (stringNode != null)
-                retValue = stringNode.InnerText;
-            return (retValue);
-        }
+        //private string GetSharedString(int stringID)
+        //{
+        //    string retValue = null;
+        //    XmlNodeList stringNodes = xlPackage.Workbook.SharedStringsXml.SelectNodes(string.Format("//d:si", stringID), NameSpaceManager);
+        //    XmlNode stringNode = stringNodes[stringID];
+        //    if (stringNode != null)
+        //        retValue = stringNode.InnerText;
+        //    return (retValue);
+        //}
         #endregion
 		#region HeaderFooter
 		/// <summary>
@@ -1384,7 +1389,7 @@ namespace OfficeOpenXml
             }
             for (int i = removeIndex.Count - 1; i >= 0; i--)
             {
-                _mergedCells.List.RemoveAt(i);
+                _mergedCells.List.RemoveAt(removeIndex[i]);
             }
         }
         private void FixSharedFormulasRows(int position, int rows)
@@ -2457,11 +2462,11 @@ namespace OfficeOpenXml
                     if (cell.Hyperlink is ExcelHyperLink && (cell.Hyperlink as ExcelHyperLink).ReferenceAddress != "")
                     {
                         ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
-                        sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" display=\"{2}\" />", 
+                        sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" display=\"{2}\" {3}/>", 
                                 Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address, 
                                 ExcelCell.GetFullAddress(Name, hl.ReferenceAddress),
-                                SecurityElement.Escape(hl.Display));
-
+                                SecurityElement.Escape(hl.Display),
+                                string.IsNullOrEmpty(hl.ToolTip) ? "" : "tooltip=\"" + SecurityElement.Escape(hl.Display) + "\"");
                     }
                     else
                     {
@@ -2473,8 +2478,16 @@ namespace OfficeOpenXml
                         else
                         {
                             PackageRelationship relationship = Part.CreateRelationship(cell.Hyperlink, TargetMode.External, ExcelPackage.schemaHyperlink);
-                            sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" />",cell.CellAddress, relationship.Id);
-
+                            if (cell.Hyperlink is ExcelHyperLink)
+                            {
+                                ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
+                                sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" {2}/>",cell.CellAddress, relationship.Id,                                
+                                    string.IsNullOrEmpty(hl.ToolTip) ? "" : "@tooltip=\"" + SecurityElement.Escape(hl.Display) + "\"");
+                            }
+                            else
+                            {
+                                sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" />",cell.CellAddress, relationship.Id);
+                            }
                             id = relationship.Id;
                         }
                         cell.HyperLinkRId = id;

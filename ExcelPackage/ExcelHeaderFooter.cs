@@ -38,9 +38,8 @@ using OfficeOpenXml.Drawing.Vml;
 using System.IO;
 using OfficeOpenXml.Drawing;
 using System.IO.Packaging;
-
 namespace OfficeOpenXml
-{
+{    
     public enum PictureAlignment
     {
         /// <summary>
@@ -167,7 +166,6 @@ namespace OfficeOpenXml
             //Add VML-drawing            
             return _ws.HeaderFooter.Pictures.Add(id, ii.Uri, "", width, height);
         }
-
         private string ValidateImage(PictureAlignment Alignment)
         {
             string id = string.Concat(Alignment.ToString()[0], _hf);
@@ -204,37 +202,51 @@ namespace OfficeOpenXml
 	{
 		#region Static Properties
 		/// <summary>
-		/// Use this to insert the page number into the header or footer of the worksheet
+        /// The code for "current page #"
 		/// </summary>
 		public const string PageNumber = @"&P";
 		/// <summary>
-		/// Use this to insert the number of pages into the header or footer of the worksheet
+        /// The code for "total pages"
 		/// </summary>
 		public const string NumberOfPages = @"&N";
+        /// <summary>
+        /// The code for "text font color"
+        /// RGB Color is specified as RRGGBB
+        /// Theme Color is specified as TTSNN where TT is the theme color Id, S is either "+" or "-" of the tint/shade value, NN is the tint/shade value.
+        /// </summary>
+        public const string FontColor = @"&K";
 		/// <summary>
-		/// Use this to insert the name of the worksheet into the header or footer of the worksheet
+        /// The code for "sheet tab name"
 		/// </summary>
 		public const string SheetName = @"&A";
 		/// <summary>
-		/// Use this to insert the full path to the folder containing the workbook into the header or footer of the worksheet
+        /// The code for "this workbook's file path"
 		/// </summary>
 		public const string FilePath = @"&Z";
 		/// <summary>
-		/// Use this to insert the name of the workbook file into the header or footer of the worksheet
+        /// The code for "this workbook's file name"
 		/// </summary>
 		public const string FileName = @"&F";
 		/// <summary>
-		/// Use this to insert the current date into the header or footer of the worksheet
+        /// The code for "date"
 		/// </summary>
 		public const string CurrentDate = @"&D";
 		/// <summary>
-		/// Use this to insert the current time into the header or footer of the worksheet
+        /// The code for "time"
 		/// </summary>
 		public const string CurrentTime = @"&T";
         /// <summary>
-        /// Use this if you have an image in a template and want to rewrite the header containing the image.
+        /// The code for "picture as background"
         /// </summary>
         public const string Image = @"&G";
+        /// <summary>
+        /// The code for "outline style"
+        /// </summary>
+        public const string OutlineStyle = @"&O";
+        /// <summary>
+        /// The code for "shadow style"
+        /// </summary>
+        public const string ShadowStyle = @"&H";
 		#endregion
 
 		#region ExcelHeaderFooter Private Properties
@@ -253,6 +265,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="nameSpaceManager"></param>
         /// <param name="topNode"></param>
+        /// <param name="ws">The worksheet</param>
 		internal ExcelHeaderFooter(XmlNamespaceManager nameSpaceManager, XmlNode topNode, ExcelWorksheet ws) :
             base(nameSpaceManager, topNode)
 		{
@@ -445,11 +458,11 @@ namespace OfficeOpenXml
 		{
 			if (_oddHeader != null)
 			{
-                SetXmlNodeString("d:oddHeader", GetHeaderFooterText(OddHeader));
+                SetXmlNodeString("d:oddHeader", GetText(OddHeader));
 			}
 			if (_oddFooter != null)
 			{
-                SetXmlNodeString("d:oddFooter", GetHeaderFooterText(OddFooter));
+                SetXmlNodeString("d:oddFooter", GetText(OddFooter));
 			}
 
 			// only set evenHeader and evenFooter 
@@ -457,11 +470,11 @@ namespace OfficeOpenXml
 			{
 				if (_evenHeader != null)
 				{
-                    SetXmlNodeString("d:evenHeader", GetHeaderFooterText(EvenHeader));
+                    SetXmlNodeString("d:evenHeader", GetText(EvenHeader));
 				}
 				if (_evenFooter != null)
 				{
-                    SetXmlNodeString("d:evenFooter", GetHeaderFooterText(EvenFooter));
+                    SetXmlNodeString("d:evenFooter", GetText(EvenFooter));
 				}
 			}
 
@@ -470,11 +483,11 @@ namespace OfficeOpenXml
 			{
 				if (_firstHeader != null)
 				{
-                    SetXmlNodeString("d:firstHeader", GetHeaderFooterText(FirstHeader));
+                    SetXmlNodeString("d:firstHeader", GetText(FirstHeader));
 				}
 				if (_firstFooter != null)
 				{
-                    SetXmlNodeString("d:firstFooter", GetHeaderFooterText(FirstFooter));
+                    SetXmlNodeString("d:firstFooter", GetText(FirstFooter));
 				}
 			}
 		}
@@ -515,9 +528,9 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Helper function to Save
 		/// </summary>
-		/// <param name="headerFooter"></param>
-		/// <returns></returns>
-		internal string GetHeaderFooterText(ExcelHeaderFooterText headerFooter)
+		/// <param name="headerFooter">The section to set the text for</param>
+		/// <returns>The Text</returns>
+		private string GetText(ExcelHeaderFooterText headerFooter)
 		{
 			string ret = "";
 			if (headerFooter.LeftAlignedText != null)
@@ -531,5 +544,4 @@ namespace OfficeOpenXml
 		#endregion
 	}
 	#endregion
-
 }

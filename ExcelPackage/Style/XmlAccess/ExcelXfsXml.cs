@@ -32,6 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using System.Drawing;
 namespace OfficeOpenXml.Style.XmlAccess
 {
     /// <summary>
@@ -508,6 +509,12 @@ namespace OfficeOpenXml.Style.XmlAccess
                     newXfs.FillId = GetIdFill(styleClass, styleProperty, value);
                     styleObject.SetIndex(newXfs.FillId);
                     break;
+                case eStyleClass.GradientFill:
+                case eStyleClass.FillGradientColor1:
+                case eStyleClass.FillGradientColor2:
+                    newXfs.FillId = GetIdGradientFill(styleClass, styleProperty, value);
+                    styleObject.SetIndex(newXfs.FillId);
+                    break;
                 case eStyleClass.Border:
                 case eStyleClass.BorderBottom:
                 case eStyleClass.BorderDiagonal:
@@ -620,7 +627,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 excelBorderItem.Style = (ExcelBorderStyle)value;
             }
-            else if (styleProperty == eStyleProperty.Color)
+            else if (styleProperty == eStyleProperty.Color || styleProperty== eStyleProperty.Tint || styleProperty==eStyleProperty.IndexedColor)
             {
                 if (excelBorderItem.Style == ExcelBorderStyle.None)
                 {
@@ -637,24 +644,54 @@ namespace OfficeOpenXml.Style.XmlAccess
             switch (styleProperty)
             {
                 case eStyleProperty.PatternType:
+                    if (fill is ExcelGradientFillXml)
+                    {
+                        fill = new ExcelFillXml(NameSpaceManager);
+                    }
                     fill.PatternType = (ExcelFillStyle)value;
                     break;
                 case eStyleProperty.Color:
+                case eStyleProperty.Tint:
+                case eStyleProperty.IndexedColor:
+                case eStyleProperty.AutoColor:
+                    if (fill is ExcelGradientFillXml)
+                    {
+                        fill = new ExcelFillXml(NameSpaceManager);
+                    }
                     if (fill.PatternType == ExcelFillStyle.None)
                     {
-                        throw (new Exception("Can't set color when patterntype is not set."));
+                        throw (new ArgumentException("Can't set color when patterntype is not set."));
                     }
+                    ExcelColorXml destColor;
                     if (styleClass==eStyleClass.FillPatternColor)
                     {
-                        fill.PatternColor.Rgb = value.ToString();
+                        destColor = fill.PatternColor;
                     }
                     else
                     {
-                        fill.BackgroundColor.Rgb = value.ToString();
+                        destColor = fill.BackgroundColor;
                     }
+
+                    if (styleProperty == eStyleProperty.Color)
+                    {
+                        destColor.Rgb = value.ToString();
+                    }
+                    else if (styleProperty == eStyleProperty.Tint)
+                    {
+                        destColor.Tint = (decimal)value;
+                    }
+                    else if (styleProperty == eStyleProperty.IndexedColor)
+                    {
+                        destColor.Indexed = (int)value;
+                    }
+                    else
+                    {
+                        destColor.Auto = (bool)value;
+                    }
+
                     break;
                 default:
-                    throw (new Exception("Invalid class/property for class Fill."));
+                    throw (new ArgumentException("Invalid class/property for class Fill."));
             }
             int subId;
             string id = fill.Id;
@@ -665,6 +702,91 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             return subId;
         }
+        private int GetIdGradientFill(eStyleClass styleClass, eStyleProperty styleProperty, object value)
+        {
+            ExcelGradientFillXml fill;
+            if(Fill is ExcelGradientFillXml)
+            {
+                fill = (ExcelGradientFillXml)Fill.Copy();
+            }
+            else
+            {
+                fill = new ExcelGradientFillXml(Fill.NameSpaceManager);
+                fill.GradientColor1.SetColor(Color.White);
+                fill.GradientColor2.SetColor(Color.FromArgb(79,129,189));
+                fill.Type=ExcelFillGradientType.Linear;
+                fill.Degree=90;
+                fill.Top = double.NaN;
+                fill.Bottom = double.NaN;
+                fill.Left = double.NaN;
+                fill.Right = double.NaN;
+            }
+
+            switch (styleProperty)
+            {
+                case eStyleProperty.GradientType:
+                    fill.Type = (ExcelFillGradientType)value;
+                    break;
+                case eStyleProperty.GradientDegree:
+                    fill.Degree = (double)value;
+                    break;
+                case eStyleProperty.GradientTop:
+                    fill.Top = (double)value;
+                    break;
+                case eStyleProperty.GradientBottom: 
+                    fill.Bottom = (double)value;
+                    break;
+                case eStyleProperty.GradientLeft:
+                    fill.Left = (double)value;
+                    break;
+                case eStyleProperty.GradientRight:
+                    fill.Right = (double)value;
+                    break;
+                case eStyleProperty.Color:
+                case eStyleProperty.Tint:
+                case eStyleProperty.IndexedColor:
+                case eStyleProperty.AutoColor:
+                    ExcelColorXml destColor;
+
+                    if (styleClass == eStyleClass.FillGradientColor1)
+                    {
+                        destColor = fill.GradientColor1;
+                    }
+                    else
+                    {
+                        destColor = fill.GradientColor2;
+                    }
+                    
+                    if (styleProperty == eStyleProperty.Color)
+                    {
+                        destColor.Rgb = value.ToString();
+                    }
+                    else if (styleProperty == eStyleProperty.Tint)
+                    {
+                        destColor.Tint = (decimal)value;
+                    }
+                    else if (styleProperty == eStyleProperty.IndexedColor)
+                    {
+                        destColor.Indexed = (int)value;
+                    }
+                    else
+                    {
+                        destColor.Auto = (bool)value;
+                    }
+                    break;
+                default:
+                    throw (new ArgumentException("Invalid class/property for class Fill."));
+            }
+            int subId;
+            string id = fill.Id;
+            subId = _styles.Fills.FindIndexByID(id);
+            if (subId == int.MinValue)
+            {
+                return _styles.Fills.Add(id, fill);
+            }
+            return subId;
+        }
+
         private int GetIdNumberFormat(eStyleProperty styleProperty, object value)
         {
             if (styleProperty == eStyleProperty.Format)

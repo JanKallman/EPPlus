@@ -230,7 +230,7 @@ namespace OfficeOpenXml
         }
 		/// <summary>
 		/// Create a new instance of the ExcelPackage class based on a existing template.
-		/// WARNING: If newFile exists, it is deleted!
+		/// If newFile exists, it will be overwritten when the Save method is called
 		/// </summary>
 		/// <param name="newFile">The name of the Excel file to be created</param>
 		/// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
@@ -242,8 +242,7 @@ namespace OfficeOpenXml
 		}
         /// <summary>
         /// Create a new instance of the ExcelPackage class based on a existing template.
-        /// WARNING: If newFile exists, it is deleted!
-        /// </summary>
+        /// If newFile exists, it will be overwritten when the Save method is called
         /// <param name="newFile">The name of the Excel file to be created</param>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="password">Password to decrypted the template</param>
@@ -573,6 +572,8 @@ namespace OfficeOpenXml
             var ns = new XmlNamespaceManager(nt);
             ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
             ns.AddNamespace("d", ExcelPackage.schemaMain);
+            ns.AddNamespace("r", ExcelPackage.schemaRelationships);
+            ns.AddNamespace("c", ExcelPackage.schemaChart);
             ns.AddNamespace("vt", schemaVt);
             // extended properties (app.xml)
             ns.AddNamespace("xp", schemaExtended);
@@ -783,16 +784,16 @@ namespace OfficeOpenXml
         public CompressionOption Compression { get; set; }
 		#region GetXmlFromUri
 		/// <summary>
-		/// Obtains the XmlDocument from the package referenced by the Uri
+		/// Get the XmlDocument from an URI
 		/// </summary>
-		/// <param name="uriPart">The Uri to the component</param>
-		/// <returns>The XmlDocument of the component</returns>
-		internal XmlDocument GetXmlFromUri(Uri uriPart)
+		/// <param name="uri">The Uri to the part</param>
+		/// <returns>The XmlDocument</returns>
+		internal XmlDocument GetXmlFromUri(Uri uri)
 		{
-			XmlDocument xlPart = new XmlDocument();
-			PackagePart packPart = _package.GetPart(uriPart);
-			xlPart.Load(packPart.GetStream());
-			return (xlPart);
+			XmlDocument xml = new XmlDocument();
+			PackagePart part = _package.GetPart(uri);
+			xml.Load(part.GetStream());
+			return (xml);
 		}
 		#endregion
 

@@ -148,6 +148,8 @@
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
+    <Compile Include="Style\ExcelGradientFill.cs" />
+    <Compile Include="Style\XmlAccess\ExcelGradientFillXml.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldItem.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTablePageFieldSettings.cs" />

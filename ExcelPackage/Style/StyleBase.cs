@@ -97,6 +97,21 @@ namespace OfficeOpenXml.Style
         LightGrid,
         LightTrellis
     }
+    public enum ExcelFillGradientType
+    {
+        /// <summary>
+        /// No gradient fill. 
+        /// </summary>
+        None,
+        /// <summary>
+        /// This gradient fill is of linear gradient type. Linear gradient type means that the transition from one color to the next is along a line (e.g., horizontal, vertical,diagonal, etc.)
+        /// </summary>
+        Linear,
+        /// <summary>
+        /// This gradient fill is of path gradient type. Path gradient type means the that the boundary of transition from one color to the next is a rectangle, defined by top,bottom, left, and right attributes on the gradientFill element.
+        /// </summary>
+        Path
+    }
     public abstract class StyleBase
     {
         protected ExcelStyles _styles;

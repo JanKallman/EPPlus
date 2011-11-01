@@ -64,6 +64,14 @@ namespace OfficeOpenXml.Style
             {
                 return GetSource().Tint;
             }
+            set
+            {
+                if (value > 1 || value < -1)
+                {
+                    throw (new ArgumentOutOfRangeException("Value must be between -1 and 1"));
+                }
+                _ChangedEvent(this, new StyleChangeEventArgs(_cls, eStyleProperty.Tint, value, _positionID, _address));
+            }
         }
         /// <summary>
         /// The RGB value
@@ -87,6 +95,10 @@ namespace OfficeOpenXml.Style
             get
             {
                 return GetSource().Indexed;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(_cls, eStyleProperty.IndexedColor, value, _positionID, _address));
             }
         }
         /// <summary>

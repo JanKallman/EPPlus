@@ -990,13 +990,14 @@ namespace OfficeOpenXml
             /* [in] */ uint grfMode, 
             /* [unique][in] */ IntPtr snbExclude, 
             /* [in] */ uint reserved, 
-            /* [out] */ out IStorage ppstg); 
- 
-        void CopyTo( 
-            /* [in] */ uint ciidExclude, 
-            /* [size_is][unique][in] */ Guid rgiidExclude, // should this be an array? 
-            /* [unique][in] */ IntPtr snbExclude, 
-            /* [unique][in] */ IStorage pstgDest); 
+            /* [out] */ out IStorage ppstg);
+
+        void CopyTo(
+            [InAttribute] uint ciidExclude,
+            [InAttribute] Guid[] rgiidExclude,
+            [InAttribute] IntPtr snbExclude,
+            [InAttribute] IStorage pstgDest
+        );
  
         void MoveElementTo( 
             /* [string][in] */ string pwcsName, 
