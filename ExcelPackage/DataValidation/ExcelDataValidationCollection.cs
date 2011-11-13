@@ -25,6 +25,8 @@
  * Author							Change						Date
  * ******************************************************************************
  * Mats Alm   		                Added       		        2011-01-01
+ * Mats Alm                         Applying patch submitted    2011-11-14
+ *                                  by Ted Heatherington
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -94,7 +96,10 @@ namespace OfficeOpenXml.DataValidation
                     _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
             }
-
+            if (_validations.Count > 0)
+            {
+                OnValidationCountChanged();
+            }
         }
 
         private void EnsureRootElementExists()
@@ -106,10 +111,19 @@ namespace OfficeOpenXml.DataValidation
             }
         }
 
+        private void OnValidationCountChanged()
+        {
+            if (TopNode != null)
+            {
+                SetXmlNodeString("@count", _validations.Count.ToString());
+            }
+        }
+
         private XmlNode GetRootNode()
         {
             EnsureRootElementExists();
-            return _worksheet.WorksheetXml.SelectSingleNode(DataValidationPath, _worksheet.NameSpaceManager);
+            TopNode = _worksheet.WorksheetXml.SelectSingleNode(DataValidationPath, _worksheet.NameSpaceManager);
+            return TopNode;
         }
 
         /// <summary>
@@ -169,6 +183,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists(); 
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.Whole);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -184,6 +199,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationDecimal(_worksheet, address, ExcelDataValidationType.Decimal);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -199,6 +215,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationList(_worksheet, address, ExcelDataValidationType.List);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -213,6 +230,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.TextLength);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -227,6 +245,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationDateTime(_worksheet, address, ExcelDataValidationType.DateTime);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -237,6 +256,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationTime(_worksheet, address, ExcelDataValidationType.Time);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
         /// <summary>
@@ -250,6 +270,7 @@ namespace OfficeOpenXml.DataValidation
             EnsureRootElementExists();
             var item = new ExcelDataValidationCustom(_worksheet, address, ExcelDataValidationType.Custom);
             _validations.Add(item);
+            OnValidationCountChanged();
             return item;
         }
 
@@ -267,7 +288,9 @@ namespace OfficeOpenXml.DataValidation
             }
             Require.Argument(item).IsNotNull("item");
             TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
-            return _validations.Remove(item);
+            var retVal = _validations.Remove(item);
+            if (retVal) OnValidationCountChanged();
+            return retVal;
         }
 
         /// <summary>
@@ -348,6 +371,7 @@ namespace OfficeOpenXml.DataValidation
                 TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(((ExcelDataValidation)m).TopNode);
             }
             _validations.RemoveAll(match);
+            OnValidationCountChanged();
         }
 
         IEnumerator<IExcelDataValidation> IEnumerable<IExcelDataValidation>.GetEnumerator()
