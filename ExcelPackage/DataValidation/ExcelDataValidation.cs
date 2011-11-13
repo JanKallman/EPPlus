@@ -81,7 +81,7 @@ namespace OfficeOpenXml.DataValidation
         /// Constructor
         /// </summary>
         /// <param name="worksheet">worksheet that owns the validation</param>
-        /// <param name="itemElementNode">Xml top node (dataValidations)</param>
+        /// <param name="itemElementNode">Xml top node (dataValidations) when importing xml</param>
         /// <param name="validationType">Data validation type</param>
         /// <param name="address">address for data validation</param>
         /// <param name="namespaceManager">Xml Namespace manager</param>
@@ -92,11 +92,12 @@ namespace OfficeOpenXml.DataValidation
             address = CheckAndFixRangeAddress(address);
             if (itemElementNode == null)
             {
-                var xmlDoc = worksheet.WorksheetXml;
+                //var xmlDoc = worksheet.WorksheetXml;
                 TopNode = worksheet.WorksheetXml.SelectSingleNode("//d:dataValidations", worksheet.NameSpaceManager);
                 // did not succeed using the XmlHelper methods here... so I'm creating the new node using XmlDocument...
                 var nsUri = NameSpaceManager.LookupNamespace("d");
-                itemElementNode = xmlDoc.CreateElement(_itemElementNodeName, nsUri);
+                //itemElementNode = TopNode.OwnerDocument.CreateElement(_itemElementNodeName, nsUri);
+                itemElementNode = TopNode.OwnerDocument.CreateElement(_itemElementNodeName.Split(':')[1], nsUri);
                 TopNode.AppendChild(itemElementNode);
             }
             TopNode = itemElementNode;
