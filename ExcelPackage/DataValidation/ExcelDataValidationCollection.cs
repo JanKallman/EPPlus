@@ -91,8 +91,8 @@ namespace OfficeOpenXml.DataValidation
                     if (node.Attributes["sqref"] == null || node.Attributes["type"] == null) continue;
 
                     var addr = node.Attributes["sqref"].Value;
-                    var dataValidationType = (eDataValidationType)Enum.Parse(typeof(eDataValidationType), node.Attributes["type"].Value, true);
-                    var type = ExcelDataValidationType.GetByValidationType(dataValidationType);
+
+                    var type = ExcelDataValidationType.GetBySchemaName(node.Attributes["type"].Value);
                     _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
             }
