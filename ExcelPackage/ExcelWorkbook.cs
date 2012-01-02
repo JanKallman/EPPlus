@@ -1,32 +1,33 @@
-/* 
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
- *
- *  Code change notes:
+ * Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
+ * Jan Källman		    Initial Release		       2011-01-01
+ * Jan Källman		    License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -42,7 +43,7 @@ namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
 	/// <summary>
-	/// When the application should calculate formulas in the workbook
+	/// How the application should calculate formulas in the workbook
 	/// </summary>
 	public enum ExcelCalcMode
 	{
@@ -64,7 +65,7 @@ namespace OfficeOpenXml
 	#endregion
 
 	/// <summary>
-	/// Represents the Excel workbook    and provides access to all the 
+	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
 	public sealed class ExcelWorkbook : XmlHelper
@@ -85,14 +86,14 @@ namespace OfficeOpenXml
 
 		#region ExcelWorkbook Constructor
 		/// <summary>
-		/// Creates a new instance of the ExcelWorkbook class.  For internal use only!
+		/// Creates a new instance of the ExcelWorkbook class.
 		/// </summary>
-		/// <param name="xlPackage">The parent package</param>
+		/// <param name="package">The parent package</param>
 		/// <param name="namespaceManager">NamespaceManager</param>
-		internal ExcelWorkbook(ExcelPackage xlPackage, XmlNamespaceManager namespaceManager) :
+		internal ExcelWorkbook(ExcelPackage package, XmlNamespaceManager namespaceManager) :
 			base(namespaceManager)
 		{
-			_package = xlPackage;
+			_package = package;
 			WorkbookUri = new Uri("/xl/workbook.xml", UriKind.Relative);
 			SharedStringsUri = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
 			StylesUri = new Uri("/xl/styles.xml", UriKind.Relative);
@@ -243,7 +244,7 @@ namespace OfficeOpenXml
 			{
 				if (_worksheets == null)
 				{
-					var sheetsNode = _xmlWorkbook.DocumentElement.SelectSingleNode("d:sheets", _namespaceManager);
+					var sheetsNode = _workbookXml.DocumentElement.SelectSingleNode("d:sheets", _namespaceManager);
 					if (sheetsNode == null)
 					{
 						sheetsNode = CreateNode("d:sheets");
@@ -315,16 +316,31 @@ namespace OfficeOpenXml
 				return _view;
 			}
 		}
+        //ExcelVBAProject _vba = null;
+        ///// <summary>
+        ///// A reference to the VBA project
+        ///// </summary>
+        //public ExcelVBAProject VbaProject
+        //{
+        //    get
+        //    {
+        //        if (_vba == null)
+        //        {
+        //             _vba = new ExcelVBAProject(this);
+        //        }
+        //        return _vba;
+        //    }
+        //}
 		/// <summary>
-		/// The Uri to the workbook in the package
+		/// URI to the workbook inside the package
 		/// </summary>
 		internal Uri WorkbookUri { get; private set; }
 		/// <summary>
-		/// The Uri to the styles.xml in the package
+        /// URI to the styles inside the package
 		/// </summary>
 		internal Uri StylesUri { get; private set; }
 		/// <summary>
-		/// The Uri to the shared strings file
+        /// URI to the shared strings inside the package
 		/// </summary>
 		internal Uri SharedStringsUri { get; private set; }
 		/// <summary>
@@ -333,7 +349,7 @@ namespace OfficeOpenXml
 		internal PackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
 		
 		#region WorkbookXml
-		private XmlDocument _xmlWorkbook;
+		private XmlDocument _workbookXml;
 		/// <summary>
 		/// Provides access to the XML data representing the workbook in the package.
 		/// </summary>
@@ -341,11 +357,11 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_xmlWorkbook == null)
+				if (_workbookXml == null)
 				{
 					CreateWorkbookXml(_namespaceManager);
 				}
-				return (_xmlWorkbook);
+				return (_workbookXml);
 			}
 		}
 		/// <summary>
@@ -354,40 +370,40 @@ namespace OfficeOpenXml
 		private void CreateWorkbookXml(XmlNamespaceManager namespaceManager)
 		{
 			if (_package.Package.PartExists(WorkbookUri))
-				_xmlWorkbook = _package.GetXmlFromUri(WorkbookUri);
+				_workbookXml = _package.GetXmlFromUri(WorkbookUri);
 			else
 			{
 				// create a new workbook part and add to the package
 				PackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
 
 				// create the workbook
-				_xmlWorkbook = new XmlDocument(namespaceManager.NameTable);                
+				_workbookXml = new XmlDocument(namespaceManager.NameTable);                
 				
-				_xmlWorkbook.PreserveWhitespace = ExcelPackage.preserveWhitespace;
+				_workbookXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
 				// create the workbook element
-				XmlElement wbElem = _xmlWorkbook.CreateElement("workbook", ExcelPackage.schemaMain);
+				XmlElement wbElem = _workbookXml.CreateElement("workbook", ExcelPackage.schemaMain);
 
 				// Add the relationships namespace
 				wbElem.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
 
-				_xmlWorkbook.AppendChild(wbElem);
+				_workbookXml.AppendChild(wbElem);
 
 				// create the bookViews and workbooks element
-				XmlElement bookViews = _xmlWorkbook.CreateElement("bookViews", ExcelPackage.schemaMain);
+				XmlElement bookViews = _workbookXml.CreateElement("bookViews", ExcelPackage.schemaMain);
 				wbElem.AppendChild(bookViews);
-				XmlElement workbookView = _xmlWorkbook.CreateElement("workbookView", ExcelPackage.schemaMain);
+				XmlElement workbookView = _workbookXml.CreateElement("workbookView", ExcelPackage.schemaMain);
 				bookViews.AppendChild(workbookView);
 
 				// save it to the package
 				StreamWriter stream = new StreamWriter(partWorkbook.GetStream(FileMode.Create, FileAccess.Write));
-				_xmlWorkbook.Save(stream);
+				_workbookXml.Save(stream);
 				stream.Close();
 				_package.Package.Flush();
 			}
 		}
 		#endregion
 		#region StylesXml
-		private XmlDocument _xmlStyles;
+		private XmlDocument _stylesXml;
 		/// <summary>
 		/// Provides access to the XML data representing the styles in the package. 
 		/// </summary>
@@ -395,33 +411,33 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_xmlStyles == null)
+				if (_stylesXml == null)
 				{
 					if (_package.Package.PartExists(StylesUri))
-						_xmlStyles = _package.GetXmlFromUri(StylesUri);
+						_stylesXml = _package.GetXmlFromUri(StylesUri);
 					else
 					{
 						// create a new styles part and add to the package
 						PackagePart part = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
 						// create the style sheet
 
-						StringBuilder xml = new StringBuilder("<styleSheet xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
-						xml.Append("<d:numFmts />");
-						xml.Append("<d:fonts count=\"1\"><d:font><d:sz val=\"11\" /><d:name val=\"Calibri\" /></d:font></d:fonts>");
-						xml.Append("<d:fills><d:fill><d:patternFill patternType=\"none\" /></d:fill><d:fill><d:patternFill d4p1:d=\"gray125\" xmlns:d4p1=\"patternType\" /></d:fill></d:fills>");
-						xml.Append("<d:borders><d:border><d:left /><d:right /><d:top /><d:bottom /><d:diagonal /></d:border></d:borders>");
-						xml.Append("<d:cellStyleXfs count=\"1\"><d:xf numFmtId=\"0\" fontId=\"0\" /></d:cellStyleXfs>");
-						xml.Append("<d:cellXfs count=\"1\"><d:xf numFmtId=\"0\" fontId=\"0\" xfId=\"0\" /></d:cellXfs>");
-						xml.Append("<d:cellStyles><d:cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" /></d:cellStyles>");
+						StringBuilder xml = new StringBuilder("<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
+						xml.Append("<numFmts />");
+						xml.Append("<fonts count=\"1\"><font><sz val=\"11\" /><name val=\"Calibri\" /></font></fonts>");
+						xml.Append("<fills><fill><patternFill patternType=\"none\" /></fill><fill><patternFill patternType=\"gray125\" /></fill></fills>");
+						xml.Append("<borders><border><left /><right /><top /><bottom /><diagonal /></border></borders>");
+						xml.Append("<cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" /></cellStyleXfs>");
+						xml.Append("<cellXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" xfId=\"0\" /></cellXfs>");
+						xml.Append("<cellStyles><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" /></cellStyles>");
 						xml.Append("</styleSheet>");
 						
-						_xmlStyles = new XmlDocument();
-						_xmlStyles.LoadXml(xml.ToString());
+						_stylesXml = new XmlDocument();
+						_stylesXml.LoadXml(xml.ToString());
 						
 						//Save it to the package
 						StreamWriter stream = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
 
-						_xmlStyles.Save(stream);
+						_stylesXml.Save(stream);
 						stream.Close();
 						_package.Package.Flush();
 
@@ -430,11 +446,11 @@ namespace OfficeOpenXml
 						_package.Package.Flush();
 					}
 				}
-				return (_xmlStyles);
+				return (_stylesXml);
 			}
 			set
 			{
-				_xmlStyles = value;
+				_stylesXml = value;
 			}
 		}
 		/// <summary>
@@ -512,7 +528,6 @@ namespace OfficeOpenXml
 			#endregion
 		}
 		#endregion
-
 		#region Workbook Private Methods
 			
 		#region Save // Workbook Save
@@ -530,9 +545,9 @@ namespace OfficeOpenXml
 			UpdateDefinedNamesXml();
 
 			// save the workbook
-			if (_xmlWorkbook != null)
+			if (_workbookXml != null)
 			{
-				_package.SavePart(WorkbookUri, _xmlWorkbook);
+				_package.SavePart(WorkbookUri, _workbookXml);
 			}
 
 			// save the properties of the workbook
@@ -543,7 +558,7 @@ namespace OfficeOpenXml
 
 			// save the style sheet
 			Styles.UpdateXml();
-			_package.SavePart(StylesUri, _xmlStyles);
+			_package.SavePart(StylesUri, _stylesXml);
 
 			// save all the open worksheets
 			var isProtected = Protection.LockWindows || Protection.LockStructure;
@@ -805,7 +820,6 @@ namespace OfficeOpenXml
 		#endregion
 
 		#endregion
-
 		internal bool ExistsTableName(string Name)
 		{
 			foreach (var ws in Worksheets)
@@ -828,7 +842,6 @@ namespace OfficeOpenXml
 			}
 			return false;
 		}
-
 		internal void AddPivotTable(string cacheID, Uri defUri)
 		{
 			CreateNode("d:pivotCaches");
@@ -841,7 +854,6 @@ namespace OfficeOpenXml
 			var pivotCaches = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
 			pivotCaches.AppendChild(item);
 		}
-
 		internal List<string> _externalReferences = new List<string>();
 		internal void GetExternalReferences()
 		{

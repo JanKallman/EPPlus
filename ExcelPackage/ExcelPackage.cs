@@ -1,28 +1,28 @@
-/* 
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
- *
- * * Code change notes:
+ * Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
@@ -30,7 +30,8 @@
  * Starnuto Di Topo & Jan Källman   Added stream constructors 
  *                                  and Load method Save as 
  *                                  stream                      2010-03-14
- * *******************************************************************************/
+ * Jan Källman		License changed GPL-->LGPL 2011-12-27
+ *******************************************************************************/
 using System;
 using System.Xml;
 using System.IO;
@@ -518,7 +519,6 @@ namespace OfficeOpenXml
         private void CreateBlankWb()
         {
             XmlDocument workbook = Workbook.WorkbookXml; // this will create the workbook xml in the package
-
             // create the relationship to the main part
             _package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri), TargetMode.Internal, schemaRelationships + "/officeDocument");
         }
@@ -593,12 +593,12 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
 		/// </summary>
-		/// <param name="uriPart">The Uri of the component</param>
-		/// <param name="xmlPart">The XmlDocument to save</param>
-		internal void SavePart(Uri uriPart, XmlDocument xmlPart)
+		/// <param name="uri">The Uri of the component</param>
+		/// <param name="xmlDoc">The XmlDocument to save</param>
+		internal void SavePart(Uri uri, XmlDocument xmlDoc)
 		{
-			PackagePart partPack = _package.GetPart(uriPart);
-			xmlPart.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+			PackagePart part = _package.GetPart(uri);
+			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
 		}
         #endregion
 
@@ -680,7 +680,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
-        /// We close the package after the save is done.
+        /// The package is closed after it has been saved
         /// </summary>
         /// <param name="password">The password to encrypt the workbook with. 
         /// This parameter overrides the Workbook.Encryption.Password.</param>
@@ -691,7 +691,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Saves the workbook to a new file
-        /// Package is closed after it has been saved
+        /// The package is closed after it has been saved
         /// </summary>
         public void SaveAs(FileInfo file)
         {
@@ -700,7 +700,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Saves the workbook to a new file
-        /// Package is closed after it has been saved
+        /// The package is closed after it has been saved
         /// </summary>
         /// <param name="file">The file</param>
         /// <param name="password">The password to encrypt the workbook with. 
@@ -713,7 +713,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Copies the Package to the Outstream
-        /// Package is closed after it has been saved
+        /// The package is closed after it has been saved
         /// </summary>
         /// <param name="OutputStream">The stream to copy the package to</param>
         public void SaveAs(Stream OutputStream)
@@ -740,7 +740,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Copies the Package to the Outstream
-        /// Package is closed after it has been saved
+        /// The package is closed after it has been saved
         /// </summary>
         /// <param name="OutputStream">The stream to copy the package to</param>
         /// <param name="password">The password to encrypt the workbook with. 
@@ -798,8 +798,8 @@ namespace OfficeOpenXml
 		#endregion
 
         /// <summary>
-        /// Saves and returns the Excel files as a bytearray
-        /// Can only be used when working with a stream. That is .. new ExcelPackage() or new ExcelPackage("file", true)
+        /// Saves and returns the Excel files as a bytearray.
+        /// Note that the package is closed upon save
         /// </summary>
         /// <example>      
         /// Example how to return a document from a Webserver...
@@ -819,7 +819,7 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Saves and returns the Excel files as a bytearray
-        /// Can only be used when working with a stream. That is .. new ExcelPackage() or new ExcelPackage("file", true)
+        /// Note that the package is closed upon save
         /// </summary>
         /// <example>      
         /// Example how to return a document from a Webserver...

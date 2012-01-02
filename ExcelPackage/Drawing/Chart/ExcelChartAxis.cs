@@ -1,33 +1,34 @@
-﻿/* 
+﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
  *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * 
  * Code change notes:
  * 
  * Author							Change						Date
- * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * ******************************************************************************/
+ *******************************************************************************
+ * Jan Källman		Added		2009-10-01
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -91,6 +92,29 @@ namespace OfficeOpenXml.Drawing.Chart
         Min
     }
     /// <summary>
+    /// Tickmarks
+    /// </summary>
+    public enum eAxisTickMark
+    {
+        /// <summary>
+        /// Specifies the tick marks shall cross the axis. 
+        /// </summary>
+        Cross,   
+        /// <summary>
+        /// Specifies the tick marks shall be inside the plot area. 
+        /// </summary>
+        In,     
+        /// <summary>
+        /// Specifies there shall be no tick marks.
+        /// </summary>
+        None,    
+        /// <summary>
+        /// Specifies the tick marks shall be outside the plot area.
+        /// </summary>
+        Out
+    }
+
+    /// <summary>
     /// An axis for a chart
     /// </summary>
     public sealed class ExcelChartAxis : XmlHelper
@@ -116,7 +140,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "numFmt", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "numFmt", "majorTickMark ", "minorTickMark", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
         }
         internal string Id
         {
@@ -125,7 +149,40 @@ namespace OfficeOpenXml.Drawing.Chart
                 return GetXmlNodeString("c:axId/@val");
             }
         }
+        const string _majorTickMark = "c:majorTickMark/@val";
         /// <summary>
+        /// majorTickMark 
+        /// This element specifies the major tick marks for the axis. 
+        /// </summary>
+        public eAxisTickMark MajorTickMark
+        {
+            get
+            {
+                return (eAxisTickMark)Enum.Parse( typeof( eAxisTickMark ), GetXmlNodeString( _majorTickMark ) );
+            }
+            set
+            {
+                SetXmlNodeString( _majorTickMark, value.ToString().ToLower() );
+            }
+        }
+
+        const string _minorTickMark = "c:minorTickMark/@val";
+        /// <summary>
+        /// minorTickMark 
+        /// This element specifies the minor tick marks for the axis. 
+        /// </summary>
+        public eAxisTickMark MinorTickMark
+        {
+            get
+            {
+                return (eAxisTickMark)Enum.Parse(typeof(eAxisTickMark), GetXmlNodeString( _minorTickMark ) );
+            }
+            set
+            {
+                SetXmlNodeString(_minorTickMark, value.ToString().ToLower());
+            }
+        }
+         /// <summary>
         /// Type of axis
         /// </summary>
         internal eAxisType AxisType

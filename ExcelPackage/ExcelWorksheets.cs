@@ -1,32 +1,33 @@
-/* 
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
- * 
  * Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
+ * Jan Källman		    Initial Release		       2009-10-01
+ * Jan Källman		    License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Collections;
@@ -43,7 +44,7 @@ using OfficeOpenXml.Drawing.Vml;
 namespace OfficeOpenXml
 {
 	/// <summary>
-	/// Provides enumeration through all the worksheets in the workbook
+	/// The collection of worksheets for the workbook
 	/// </summary>
 	public class ExcelWorksheets : XmlHelper, IEnumerable<ExcelWorksheet>
 	{
@@ -52,44 +53,32 @@ namespace OfficeOpenXml
 		private ExcelPackage _pck;
 		private XmlNamespaceManager _namespaceManager;
 		#endregion
-
 		#region ExcelWorksheets Constructor
-		/// <summary>
-		/// Creates a new instance of the ExcelWorksheets class.
-		/// For internal use only!
-		/// </summary>
-		/// <param name="pck"></param>
 		internal ExcelWorksheets(ExcelPackage pck, XmlNamespaceManager nsm, XmlNode topNode) :
             base(nsm, topNode)
 		{
 			_pck = pck;
             _namespaceManager = nsm;
-
-			// obtain container node for all worksheets
-
 			_worksheets = new Dictionary<int, ExcelWorksheet>();
 			int positionID = 1;
-			foreach (XmlNode sheetNode in topNode.ChildNodes)
+
+            foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
 				string name = sheetNode.Attributes["name"].Value;
-				//  Get the relationship id attribute:
+				//Get the relationship id
 				string relId = sheetNode.Attributes["r:id"].Value;
 				int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
-				// get hidden attribute (if present)
-				eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
+                
+                //Hidden property
+                eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
 				XmlNode attr = sheetNode.Attributes["state"];
 				if (attr != null)
 					hidden = TranslateHidden(attr.Value);
 
-				//string type = "";
-				//attr = sheetNode.Attributes["type"];
-				//if (attr != null)
-				//  type = attr.Value;
-
 				PackageRelationship sheetRelation = pck.Workbook.Part.GetRelationship(relId);
 				Uri uriWorksheet = PackUriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
-				// add worksheet to our collection
+				//add the worksheet
                 _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
 				positionID++;
 			}
@@ -118,7 +107,8 @@ namespace OfficeOpenXml
 			get { return (_worksheets.Count); }
 		}
 		#endregion
-
+        private const string ERR_DUP_WORKSHEET = "A worksheet with this name already exists in the workbook";
+        internal const string WORKSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
 		#region ExcelWorksheets Public Methods
 		/// <summary>
 		/// Returns an enumerator that allows the foreach syntax to be used to 
@@ -148,10 +138,14 @@ namespace OfficeOpenXml
 		{
             int sheetID;
             Uri uriWorksheet;
+            if (GetByName(Name) != null)
+            {
+                throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+            }
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _pck.Compression);
+            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
 
-			// create the new, empty worksheet and save it to the package
+			//Create the new, empty worksheet and save it to the package
 			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
 			XmlDocument worksheetXml = CreateNewWorksheet();
 			worksheetXml.Save(streamWorksheet);
@@ -160,8 +154,7 @@ namespace OfficeOpenXml
 
             string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet);
 
-			// create a reference to the new worksheet in our collection
-			int positionID = _worksheets.Count + 1;
+            int positionID = _worksheets.Count + 1;
             ExcelWorksheet worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
 
 			_worksheets.Add(positionID, worksheet);
@@ -177,10 +170,15 @@ namespace OfficeOpenXml
             int sheetID;
             Uri uriWorksheet;
 
+            if (GetByName(Name) != null)
+            {
+                throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+            }
+
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
 
             //Create a copy of the worksheet XML
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml", _pck.Compression);
+            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
             StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
             XmlDocument worksheetXml = new XmlDocument();
             worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
@@ -244,12 +242,27 @@ namespace OfficeOpenXml
 
         private void CopyTable(ExcelWorksheet Copy, ExcelWorksheet added)
         {
+            string prevName = "";
             //First copy the table XML
             foreach (var tbl in Copy.Tables)
             {
                 string xml=tbl.TableXml.OuterXml;
                 int Id = _pck.Workbook._nextTableID++;
-                string name = Copy.Tables.GetNewTableName();
+                string name;
+                if (prevName == "")
+                {
+                    name = Copy.Tables.GetNewTableName();
+                }
+                else
+                {
+                    int ix = int.Parse(prevName.Substring(5)) + 1;
+                    name = string.Format("Table{0}", ix);
+                    while (_pck.Workbook.ExistsPivotTableName(name))
+                    {
+                        name = string.Format("Table{0}", ++ix);
+                    }
+                }
+                prevName = name;
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(xml);
                 xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
@@ -288,11 +301,27 @@ namespace OfficeOpenXml
         }
         private void CopyPivotTable(ExcelWorksheet Copy, ExcelWorksheet added)
         {
+            string prevName = "";
             foreach (var tbl in Copy.PivotTables)
             {
                 string xml = tbl.PivotTableXml.OuterXml;
                 int Id = _pck.Workbook._nextPivotTableID++;
-                string name = Copy.PivotTables.GetNewTableName();
+
+                string name;
+                if (prevName == "")
+                {
+                    name = Copy.PivotTables.GetNewTableName();
+                }
+                else
+                {
+                    int ix=int.Parse(prevName.Substring(10))+1;
+                    name = string.Format("PivotTable{0}", ix);
+                    while (_pck.Workbook.ExistsPivotTableName(name))
+                    {
+                        name = string.Format("PivotTable{0}", ++ix);
+                    }
+                }
+                prevName=name;
                 XmlDocument xmlDoc = new XmlDocument();
                 Copy.Save();    //Save the worksheet first
                 xmlDoc.LoadXml(xml);
@@ -582,57 +611,30 @@ namespace OfficeOpenXml
 
 		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
         {
-            // create the relationship between the workbook and the new worksheet
+            //Create the relationship between the workbook and the new worksheet
             PackageRelationship rel = _pck.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
             _pck.Package.Flush();
 
-            // now create the new worksheet tag and set name/SheetId attributes in the workbook.xml
+            //Create the new sheet node
             XmlElement worksheetNode = _pck.Workbook.WorkbookXml.CreateElement("sheet", ExcelPackage.schemaMain);
-            // create the new sheet node
             worksheetNode.SetAttribute("name", Name);
             worksheetNode.SetAttribute("sheetId", sheetID.ToString());
-            // set the r:id attribute
             worksheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
-            // insert the sheet tag with all attributes set as above
+
             TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
         private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet)
         {
-            //remove invalid characters
-            if (ValidateName(Name))
-            {
-                if (Name.IndexOf(':') > -1) Name = Name.Replace(":"," ");
-                if (Name.IndexOf('/') > -1) Name = Name.Replace("/"," ");
-                if (Name.IndexOf('\\') > -1) Name = Name.Replace("\\"," ");
-                if (Name.IndexOf('?') > -1) Name = Name.Replace("?"," ");
-                if (Name.IndexOf('[') > -1) Name = Name.Replace("["," ");
-                if (Name.IndexOf(']') > -1) Name = Name.Replace("]"," ");
-            }
+            Name = ValidateFixSheetName(Name);
 
-            if (Name.Trim() == "")
-            {
-                throw new ArgumentException("Add worksheet Error: attempting to create worksheet with an empty name");
-            }
-            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's
-
-            // first find maximum existing sheetID
-            // also check the name is unique - if not throw an error
+            //First find maximum existing sheetID
             sheetID = 0;
-            foreach (XmlNode sheet in TopNode.ChildNodes)
-            {
-                XmlAttribute attr = (XmlAttribute)sheet.Attributes.GetNamedItem("sheetId");
-                if (attr != null)
+            foreach(var ws in this)
+            {                
+                if (ws.SheetID > sheetID)
                 {
-                    int curID = int.Parse(attr.Value);
-                    if (curID > sheetID)
-                        sheetID = curID;
-                }
-                attr = (XmlAttribute)sheet.Attributes.GetNamedItem("name");
-                if (attr != null)
-                {
-                    if (attr.Value == Name)
-                        throw new ArgumentException("Add worksheet Error: attempting to create worksheet with duplicate name");
+                    sheetID = ws.SheetID;
                 }
             }
             // we now have the max existing values, so add one
@@ -640,6 +642,27 @@ namespace OfficeOpenXml
 
             // add the new worksheet to the package
             uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+        }
+
+        internal string ValidateFixSheetName(string Name)
+        {
+            //remove invalid characters
+            if (ValidateName(Name))
+            {
+                if (Name.IndexOf(':') > -1) Name = Name.Replace(":", " ");
+                if (Name.IndexOf('/') > -1) Name = Name.Replace("/", " ");
+                if (Name.IndexOf('\\') > -1) Name = Name.Replace("\\", " ");
+                if (Name.IndexOf('?') > -1) Name = Name.Replace("?", " ");
+                if (Name.IndexOf('[') > -1) Name = Name.Replace("[", " ");
+                if (Name.IndexOf(']') > -1) Name = Name.Replace("]", " ");
+            }
+
+            if (Name.Trim() == "")
+            {
+                throw new ArgumentException("The worksheet can not have an empty name");
+            }
+            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's
+            return Name;
         }
         /// <summary>
         /// Validate the sheetname
@@ -655,26 +678,27 @@ namespace OfficeOpenXml
 		/// Creates the XML document representing a new empty worksheet
 		/// </summary>
 		/// <returns></returns>
-		protected internal XmlDocument CreateNewWorksheet()
+		internal XmlDocument CreateNewWorksheet()
 		{
-			// create the new worksheet
-			XmlDocument worksheetXml = new XmlDocument();
-			// XML document does not exist so create the new worksheet XML doc
-			XmlElement worksheetNode = worksheetXml.CreateElement("worksheet", ExcelPackage.schemaMain);
-			worksheetNode.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
-			worksheetXml.AppendChild(worksheetNode);
-			// create the sheetViews tag
-			XmlElement tagSheetViews = worksheetXml.CreateElement("sheetViews", ExcelPackage.schemaMain);
-			worksheetNode.AppendChild(tagSheetViews);
-			// create the sheet View tag
-			XmlElement tagSheetView = worksheetXml.CreateElement("sheetView", ExcelPackage.schemaMain);
-			tagSheetView.SetAttribute("workbookViewId", "0");
-			tagSheetViews.AppendChild(tagSheetView);
+			XmlDocument xmlDoc = new XmlDocument();
+            XmlElement elemWs = xmlDoc.CreateElement("worksheet", ExcelPackage.schemaMain);
+            elemWs.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
+            xmlDoc.AppendChild(elemWs);
 
-            // create the empty sheetData tag (must be present, but can be empty)
-			XmlElement tagSheetData = worksheetXml.CreateElement("sheetData", ExcelPackage.schemaMain);
-			worksheetNode.AppendChild(tagSheetData);
-			return worksheetXml;
+            XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
+            elemWs.AppendChild(elemSheetViews);
+
+            XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
+            elemSheetView.SetAttribute("workbookViewId", "0");
+            elemSheetViews.AppendChild(elemSheetView);
+
+            XmlElement elemSheetFormatPr = xmlDoc.CreateElement("sheetFormatPr", ExcelPackage.schemaMain);
+            elemSheetFormatPr.SetAttribute("defaultRowHeight", "15");
+            elemWs.AppendChild(elemSheetFormatPr);
+
+            XmlElement elemSheetData = xmlDoc.CreateElement("sheetData", ExcelPackage.schemaMain);
+            elemWs.AppendChild(elemSheetData);
+            return xmlDoc;
 		}
 		#endregion
 
@@ -685,17 +709,12 @@ namespace OfficeOpenXml
 		/// <param name="Index">The position of the worksheet in the workbook</param>
 		public void Delete(int Index)
 		{
-			if (_worksheets.Count == 1)
-				throw new Exception("Error: You are attempting to delete the last worksheet in the workbook.  One worksheet MUST be present in the workbook!");
 			ExcelWorksheet worksheet = _worksheets[Index];
-
-			// delete the worksheet from the package 
+			//Delete the worksheet part and relation from the package 
 			_pck.Package.DeletePart(worksheet.WorksheetUri);
-
-			// delete the relationship from the package 
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
-			// delete worksheet from the workbook XML
+			//Delete worksheet from the workbook XML
 			XmlNode sheetsNode = _pck.Workbook.WorkbookXml.SelectSingleNode("//d:workbook/d:sheets", _namespaceManager);
 			if (sheetsNode != null)
 			{
@@ -705,7 +724,6 @@ namespace OfficeOpenXml
 					sheetsNode.RemoveChild(sheetNode);
 				}
 			}
-			// delete worksheet from the Dictionary object
 			_worksheets.Remove(Index);
 
 			ReindexWorksheetDictionary();
@@ -720,9 +738,9 @@ namespace OfficeOpenXml
 			var sheet = this[name];
 			if (sheet == null)
 			{
-				throw new Exception(string.Format("Could not find worksheet to delete '{0}'", name));
+				throw new ArgumentException(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			    Delete(sheet.PositionID);
+			Delete(sheet.PositionID);
 		}
 
 		/// <summary>
@@ -776,17 +794,9 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                if (string.IsNullOrEmpty(Name)) return null;
-                ExcelWorksheet xlWorksheet = null;
-				foreach (ExcelWorksheet worksheet in _worksheets.Values)
-				{
-                    if (worksheet.Name.ToLower() == Name.ToLower())
-						xlWorksheet = worksheet;
-				}
-				return (xlWorksheet);
+                return GetByName(Name);
 			}
 		}
-
 		/// <summary>
 		/// Copies the named worksheet and creates a new worksheet in the same workbook
 		/// </summary>
@@ -815,7 +825,17 @@ namespace OfficeOpenXml
             }
             return null;
         }
-
+        private ExcelWorksheet GetByName(string Name)
+        {
+            if (string.IsNullOrEmpty(Name)) return null;
+            ExcelWorksheet xlWorksheet = null;
+            foreach (ExcelWorksheet worksheet in _worksheets.Values)
+            {
+                if (worksheet.Name.ToLower() == Name.ToLower())
+                    xlWorksheet = worksheet;
+            }
+            return (xlWorksheet);
+        }
 		#region MoveBefore and MoveAfter Methods
 		/// <summary>
 		/// Moves the source worksheet to the position before the target worksheet
