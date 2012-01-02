@@ -1,21 +1,24 @@
 ﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * See http://epplus.codeplex.com/ for details
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
@@ -24,6 +27,7 @@
  * Author							Change						Date
  *******************************************************************************
  * Jan Källman		Added		18-MAR-2010
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -209,6 +213,10 @@ namespace OfficeOpenXml
             {
                 return _fromRow < 0;
             }
+        }
+        public override string ToString()
+        {
+            return base.ToString();
         }
         string _firstAddress;
         /// <summary>
@@ -567,6 +575,10 @@ namespace OfficeOpenXml
         {
             get
             {
+                if (string.IsNullOrEmpty(_address) && _fromRow>0)
+                {
+                    _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                }
                 return _address;
             }
             set

@@ -1,29 +1,33 @@
 ﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * See http://epplus.codeplex.com/ for details
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
  * Code change notes:
  * 
  * Author							Change						Date
- *******************************************************************************
- * Jan Källman		Added		13-SEP-2010
+ * ******************************************************************************
+ * Jan Källman		Added		30-AUG-2010
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -43,12 +47,13 @@ namespace OfficeOpenXml.Table
         ExcelWorksheet _ws;        
         internal ExcelTableCollection(ExcelWorksheet ws)
         {
-            Package pck = ws.xlPackage.Package;
+            Package pck = ws._package.Package;
             _ws = ws;
             foreach(XmlElement node in ws.WorksheetXml.SelectNodes("//d:tableParts/d:tablePart", ws.NameSpaceManager))
             {
                 var rel = ws.Part.GetRelationship(node.GetAttribute("id",ExcelPackage.schemaRelationships));
                 var tbl = new ExcelTable(rel, ws);
+                if (tbl.Id + 1 > _ws.Workbook._nextTableID) _ws.Workbook._nextTableID = tbl.Id + 1;
                 _tableNames.Add(tbl.Name, _tables.Count);
                 _tables.Add(tbl);
             }

@@ -1,35 +1,37 @@
 ﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * See http://epplus.codeplex.com/ for details
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
- *
- ***************************************************************************************
+ **************************************************************************************
  * This class is created with the help of the MS-OFFCRYPTO PDF documentation... http://msdn.microsoft.com/en-us/library/cc313071(office.12).aspx
- * Decrypytion library for Office Open XML files(Lyquidity) and Sminks very nice example 
+ * Decryption library for Office Open XML files(Lyquidity) and Sminks very nice example 
  * on "Reading compound documents in c#" on Stackoverflow. Many thanks!
  ***************************************************************************************
- *  
  * Code change notes:
  * 
  * Author							Change						Date
  *******************************************************************************
  * Jan Källman		Added		10-AUG-2010
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -39,7 +41,6 @@ using comTypes=System.Runtime.InteropServices.ComTypes;
 using System.IO;
 using System.Security.Cryptography;
 using System.IO.Packaging; 
-
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -269,7 +270,7 @@ namespace OfficeOpenXml
             }
             else
             {
-                throw(new Exception(string.Format("File {0} is not an encrypted package",fi.FullName)));
+                throw(new InvalidDataException(string.Format("File {0} is not an encrypted package",fi.FullName)));
             }
             return ret;
         }
@@ -303,7 +304,7 @@ namespace OfficeOpenXml
             }
             else
             {
-                throw (new Exception("The stream is not an encrypted package"));
+                throw (new InvalidDataException("The stream is not an encrypted package"));
             }
             Marshal.ReleaseComObject(lb);
 
@@ -699,7 +700,7 @@ namespace OfficeOpenXml
         {
             if (encryptionInfo == null)
             {
-                throw(new Exception("Invalid document. EncryptionInfo is missing"));
+                throw(new InvalidDataException("Invalid document. EncryptionInfo is missing"));
             }
             long size = BitConverter.ToInt64(data,0);
 
@@ -839,11 +840,11 @@ namespace OfficeOpenXml
                 }
                 else if (encryptionInfo.Header.KeySize > 0 && encryptionInfo.Header.KeySize < 80)
                 {
-                    throw new Exception("RC4 Hash provider is not supported. Must be SHA1(AlgIDHash == 0x8004)");
+                    throw new NotSupportedException("RC4 Hash provider is not supported. Must be SHA1(AlgIDHash == 0x8004)");
                 }
                 else
                 {
-                    throw new Exception("Hash provider is invalid. Must be SHA1(AlgIDHash == 0x8004)");
+                    throw new NotSupportedException("Hash provider is invalid. Must be SHA1(AlgIDHash == 0x8004)");
                 }
 
                 hash = hashProvider.ComputeHash(CombinePassword(encryptionInfo.Verifier.Salt, password));

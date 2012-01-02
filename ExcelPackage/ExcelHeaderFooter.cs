@@ -1,33 +1,34 @@
-/* 
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
- * 
  * Code change notes:
  * 
  * Author							Change						Date
- * ******************************************************************************
+ *******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
  * Jan Källman                      Total rewrite               2010-03-01
+ * Jan Källman		License changed GPL-->LGPL 2011-12-27
  * *******************************************************************************/
 using System;
 using System.Xml;
@@ -152,7 +153,7 @@ namespace OfficeOpenXml
 
             ImageConverter ic = new ImageConverter();
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
-            var uriPic = XmlHelper.GetNewUri(_ws.xlPackage.Package, "/xl/media/"+PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
+            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/"+PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
             byte[] imgBytes = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
             var ii = _ws.Workbook._package.AddImage(imgBytes, uriPic, contentType);
 
@@ -432,7 +433,7 @@ namespace OfficeOpenXml
                     var vmlNode = _ws.WorksheetXml.SelectSingleNode("d:worksheet/d:legacyDrawingHF/@r:id", NameSpaceManager);
                     if (vmlNode == null)
                     {
-                        _vmlDrawingsHF = new ExcelVmlDrawingPictureCollection(_ws.xlPackage, _ws, null);
+                        _vmlDrawingsHF = new ExcelVmlDrawingPictureCollection(_ws._package, _ws, null);
                     }
                     else
                     {
@@ -441,7 +442,7 @@ namespace OfficeOpenXml
                             var rel = _ws.Part.GetRelationship(vmlNode.Value);
                             var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
 
-                            _vmlDrawingsHF = new ExcelVmlDrawingPictureCollection(_ws.xlPackage, _ws, vmlUri);
+                            _vmlDrawingsHF = new ExcelVmlDrawingPictureCollection(_ws._package, _ws, vmlUri);
                             _vmlDrawingsHF.RelId = rel.Id;
                         }
                     }
@@ -500,18 +501,18 @@ namespace OfficeOpenXml
                     if (_vmlDrawingsHF.Uri != null)
                     {
                         _ws.Part.DeleteRelationship(_vmlDrawingsHF.RelId);
-                        _ws.xlPackage.Package.DeletePart(_vmlDrawingsHF.Uri);
+                        _ws._package.Package.DeletePart(_vmlDrawingsHF.Uri);
                     }
                 }
                 else
                 {
                     if (_vmlDrawingsHF.Uri == null)
                     {
-                        _vmlDrawingsHF.Uri = XmlHelper.GetNewUri(_ws.xlPackage.Package, @"/xl/drawings/vmlDrawing{0}.vml");
+                        _vmlDrawingsHF.Uri = XmlHelper.GetNewUri(_ws._package.Package, @"/xl/drawings/vmlDrawing{0}.vml");
                     }
                     if (_vmlDrawingsHF.Part == null)
                     {
-                        _vmlDrawingsHF.Part = _ws.xlPackage.Package.CreatePart(_vmlDrawingsHF.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _ws.xlPackage.Compression);
+                        _vmlDrawingsHF.Part = _ws._package.Package.CreatePart(_vmlDrawingsHF.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _ws._package.Compression);
                         var rel = _ws.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_ws.WorksheetUri, _vmlDrawingsHF.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
                         _ws.SetHFLegacyDrawingRel(rel.Id);
                         _vmlDrawingsHF.RelId = rel.Id;
@@ -525,11 +526,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-		/// <summary>
-		/// Helper function to Save
-		/// </summary>
-		/// <param name="headerFooter">The section to set the text for</param>
-		/// <returns>The Text</returns>
 		private string GetText(ExcelHeaderFooterText headerFooter)
 		{
 			string ret = "";

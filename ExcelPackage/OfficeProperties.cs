@@ -1,34 +1,35 @@
-/* 
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * Parts of the interface of this file comes from the Excelpackage project. http://www.codeplex.com/ExcelPackage
- *
- *  Code change notes:
+ * Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
  * Jan Källman                      Total rewrite               2010-03-01
- * *******************************************************************************/
+ * Jan Källman		    License changed GPL-->LGPL  2011-12-27
+ *******************************************************************************/
 using System;
 using System.Xml;
 using System.IO;
@@ -85,37 +86,43 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesCore == null)
                 {
-                    if (_package.Package.PartExists(_uriPropertiesCore))
-                        _xmlPropertiesCore = _package.GetXmlFromUri(_uriPropertiesCore);
-                    else
-                    {
-                        _xmlPropertiesCore = new XmlDocument();
-                        _xmlPropertiesCore.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><cp:coreProperties xmlns:cp=\"{0}\" xmlns:dc=\"{1}\" xmlns:dcterms=\"{2}\" xmlns:dcmitype=\"{3}\" xmlns:xsi=\"{4}\"></cp:coreProperties>",
-                            ExcelPackage.schemaCore,
-                            ExcelPackage.schemaDc,
-                            ExcelPackage.schemaDcTerms,
-                            ExcelPackage.schemaDcmiType,
-                            ExcelPackage.schemaXsi));
+                    string xml = string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><cp:coreProperties xmlns:cp=\"{0}\" xmlns:dc=\"{1}\" xmlns:dcterms=\"{2}\" xmlns:dcmitype=\"{3}\" xmlns:xsi=\"{4}\"></cp:coreProperties>",
+                        ExcelPackage.schemaCore,
+                        ExcelPackage.schemaDc,
+                        ExcelPackage.schemaDcTerms,
+                        ExcelPackage.schemaDcmiType,
+                        ExcelPackage.schemaXsi);
 
-                        // create a new document properties part and add to the package
-                        PackagePart partCore = _package.Package.CreatePart(_uriPropertiesCore, @"application/vnd.openxmlformats-package.core-properties+xml");
-
-                        // create the document properties XML (with no entries in it)
-
-
-                        // save it to the package
-                        StreamWriter streamCore = new StreamWriter(partCore.GetStream(FileMode.Create, FileAccess.Write));
-                        _xmlPropertiesCore.Save(streamCore);
-                        streamCore.Close();
-                        _package.Package.Flush();
-
-                        // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesCore), TargetMode.Internal, @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
-                        _package.Package.Flush();
-                    }
+                    _xmlPropertiesCore = GetXmlDocument(xml, _uriPropertiesCore, @"application/vnd.openxmlformats-package.core-properties+xml", @"http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties");
                 }
                 return (_xmlPropertiesCore);
             }
+        }
+
+        private XmlDocument GetXmlDocument(string startXml, Uri uri, string contentType, string relationship)
+        {
+            XmlDocument xmlDoc;
+            if (_package.Package.PartExists(uri))
+                xmlDoc = _package.GetXmlFromUri(uri);
+            else
+            {
+                xmlDoc = new XmlDocument();
+                xmlDoc.LoadXml(startXml);
+
+                // Create a the part and add to the package
+                PackagePart part = _package.Package.CreatePart(uri, contentType);
+
+                // Save it to the package
+                StreamWriter stream = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
+                xmlDoc.Save(stream);
+                stream.Close();
+                _package.Package.Flush();
+
+                // create the relationship between the workbook and the new shared strings part
+                _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), uri), TargetMode.Internal, relationship);
+                _package.Package.Flush();
+            }
+            return xmlDoc;
         }
         #endregion
         #region Core Properties
@@ -221,28 +228,12 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesExtended == null)
                 {
-                    if (_package.Package.PartExists(_uriPropertiesExtended))
-                        _xmlPropertiesExtended = _package.GetXmlFromUri(_uriPropertiesExtended);
-                    else
-                    {
-                        _xmlPropertiesExtended = new XmlDocument();
-                        _xmlPropertiesExtended.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><Properties xmlns:vt=\"{0}\" xmlns=\"{1}\"></Properties>",
+                    _xmlPropertiesExtended = GetXmlDocument(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><Properties xmlns:vt=\"{0}\" xmlns=\"{1}\"></Properties>",
                             ExcelPackage.schemaVt,
-                            ExcelPackage.schemaExtended));
-
-                        // create a new document properties part and add to the package
-                        PackagePart partExtended = _package.Package.CreatePart(_uriPropertiesExtended, @"application/vnd.openxmlformats-officedocument.extended-properties+xml");
-
-                        // save it to the package
-                        StreamWriter streamExtended = new StreamWriter(partExtended.GetStream(FileMode.Create, FileAccess.Write));
-                        _xmlPropertiesExtended.Save(streamExtended);
-                        streamExtended.Close();
-                        _package.Package.Flush();
-
-                        // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesExtended), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
-                        _package.Package.Flush();
-                    }
+                            ExcelPackage.schemaExtended),
+                        _uriPropertiesExtended,
+                        @"application/vnd.openxmlformats-officedocument.extended-properties+xml",
+                        @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties");
                 }
                 return (_xmlPropertiesExtended);
             }
@@ -301,7 +292,7 @@ namespace OfficeOpenXml
         private string GetExtendedPropertyValue(string propertyName)
         {
             string retValue = null;
-            string searchString = string.Format("//xp:Properties/xp:{0}", propertyName);
+            string searchString = string.Format("xp:Properties/xp:{0}", propertyName);
             XmlNode node = ExtendedPropertiesXml.SelectSingleNode(searchString, NameSpaceManager);
             if (node != null)
             {
@@ -324,28 +315,12 @@ namespace OfficeOpenXml
             {
                 if (_xmlPropertiesCustom == null)
                 {
-                    if (_package.Package.PartExists(_uriPropertiesCustom))
-                        _xmlPropertiesCustom = _package.GetXmlFromUri(_uriPropertiesCustom);
-                    else
-                    {
-                        _xmlPropertiesCustom = new XmlDocument();
-                        _xmlPropertiesCustom.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><Properties xmlns:vt=\"{0}\" xmlns=\"{1}\"></Properties>",
+                    _xmlPropertiesCustom = GetXmlDocument(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><Properties xmlns:vt=\"{0}\" xmlns=\"{1}\"></Properties>",
                             ExcelPackage.schemaVt,
-                            ExcelPackage.schemaCustom));
-
-                        // create a new document properties part and add to the package
-                        PackagePart partCustom = _package.Package.CreatePart(_uriPropertiesCustom, @"application/vnd.openxmlformats-officedocument.custom-properties+xml");
-
-                        // save it to the package
-                        StreamWriter streamCustom = new StreamWriter(partCustom.GetStream(FileMode.Create, FileAccess.Write));
-                        _xmlPropertiesCustom.Save(streamCustom);
-                        streamCustom.Close();
-                        _package.Package.Flush();
-
-                        // create the relationship between the workbook and the new shared strings part
-                        _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), _uriPropertiesCustom), TargetMode.Internal, @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
-                        _package.Package.Flush();
-                    }
+                            ExcelPackage.schemaCustom),
+                         _uriPropertiesCustom, 
+                         @"application/vnd.openxmlformats-officedocument.custom-properties+xml",
+                         @"http://schemas.openxmlformats.org/officeDocument/2006/relationships/custom-properties");
                 }
                 return (_xmlPropertiesCustom);
             }
@@ -360,7 +335,7 @@ namespace OfficeOpenXml
         /// <returns>The current value of the property</returns>
         public object GetCustomPropertyValue(string propertyName)
         {
-            string searchString = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
+            string searchString = string.Format("ctp:Properties/ctp:property[@name='{0}']", propertyName);
             XmlElement node = CustomPropertiesXml.SelectSingleNode(searchString, NameSpaceManager) as XmlElement;
             if (node != null)
             {
@@ -429,12 +404,12 @@ namespace OfficeOpenXml
         {
             XmlNode allProps = CustomPropertiesXml.SelectSingleNode(@"ctp:Properties", NameSpaceManager);
 
-            var prop = string.Format("//ctp:Properties/ctp:property[@name='{0}']", propertyName);
+            var prop = string.Format("ctp:Properties/ctp:property[@name='{0}']", propertyName);
             XmlElement node = CustomPropertiesXml.SelectSingleNode(prop, NameSpaceManager) as XmlElement;
             if (node == null)
             {
                 int pid;
-                var MaxNode = CustomPropertiesXml.SelectSingleNode("//ctp:Properties/ctp:property[not(@pid <= preceding-sibling::ctp:property/@pid) and not(@pid <= following-sibling::ctp:property/@pid)]", NameSpaceManager);
+                var MaxNode = CustomPropertiesXml.SelectSingleNode("ctp:Properties/ctp:property[not(@pid <= preceding-sibling::ctp:property/@pid) and not(@pid <= following-sibling::ctp:property/@pid)]", NameSpaceManager);
                 if (MaxNode == null)
                 {
                     pid = 2;

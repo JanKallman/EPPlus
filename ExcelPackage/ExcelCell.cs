@@ -1,21 +1,24 @@
 ﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * See http://epplus.codeplex.com/ for details
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
@@ -24,6 +27,7 @@
  * Author							Change						Date
  *******************************************************************************
  * Jan Källman		Added		10-SEP-2009
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -56,8 +60,8 @@ namespace OfficeOpenXml
 		/// A cell in the worksheet. 
 		/// </summary>
 		/// <param name="worksheet">A reference to the worksheet</param>
-		/// <param name="row">Row number</param>
-		/// <param name="col">Column number</param>
+		/// <param name="row">The row number</param>
+		/// <param name="col">The column number</param>
 		internal ExcelCell(ExcelWorksheet worksheet, int row, int col)
 		{
 			if (row < 1 || col < 1)
@@ -145,12 +149,11 @@ namespace OfficeOpenXml
 
         #region ExcelCell DataType
         /// <summary>
-        /// Gets/sets the cell's data type.  
-        /// Not currently implemented correctly!
+        /// Datatype
+        /// TODO: remove
         /// </summary>       
         internal string DataType
         {
-            // TODO: complete DataType
             get
             {
                 return (_dataType);
@@ -165,7 +168,7 @@ namespace OfficeOpenXml
 		#region ExcelCell Style
         string _styleName=null;
         /// <summary>
-		/// Allows you to set the cell's style using a named style
+		/// Optional named style for the cell
 		/// </summary>
 		public string StyleName
 		{
@@ -197,8 +200,7 @@ namespace OfficeOpenXml
 
 		int _styleID=0;
         /// <summary>
-		/// Allows you to set the cell's style using the number of the style.
-		/// Useful when coping styles from one cell to another.
+		/// The style ID for the cell. Reference to the style collection
 		/// </summary>
 		public int StyleID
 		{
@@ -206,7 +208,7 @@ namespace OfficeOpenXml
 			{
 				if(_styleID>0)
                     return _styleID;
-                else if (_worksheet._rows != null && _worksheet._rows.ContainsKey(ExcelRow.GetRowID(_worksheet.SheetID, Row)))
+                else if (_worksheet._rows != null && _worksheet._rows.ContainsKey(ExcelRow.GetRowID(_worksheet.SheetID, Row)) && _worksheet.Row(Row).StyleID>0)
                 {
                     return _worksheet.Row(Row).StyleID;
                 }
@@ -261,7 +263,7 @@ namespace OfficeOpenXml
 
 		#region ExcelCell Hyperlink
 		/// <summary>
-		/// Allows you to set/get the cell's Hyperlink
+		/// The cells cell's Hyperlink
 		/// </summary>
 		public Uri Hyperlink
 		{
@@ -294,7 +296,7 @@ namespace OfficeOpenXml
 
 		#region ExcelCell Formula
 		/// <summary>
-		/// Provides read/write access to the cell's formula.
+		/// The cell's formula.
 		/// </summary>
 		public string Formula
 		{
@@ -344,7 +346,7 @@ namespace OfficeOpenXml
 			}
         }
         /// <summary>
-        /// Provides read/write access to the cell's formula using R1C1 style.
+        /// The cell's formula using R1C1 style.
         /// </summary>
         public string FormulaR1C1
         {
@@ -392,7 +394,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Id for the shared formula
         /// </summary>
-        public int SharedFormulaID {
+        internal int SharedFormulaID {
             get
             {
                 return _sharedFormulaID;
@@ -404,53 +406,15 @@ namespace OfficeOpenXml
             }
         }
         public bool IsArrayFormula { get; internal set; }
-
-        //#region ExcelCell Comment
-        //ExcelComment _comment = null;
-        ///// <summary>
-        ///// Returns the comment as a string
-        ///// </summary>
-        //internal ExcelComment Comment
-        //{
-        //    get
-        //    {
-        //        return _comment;
-        //    }
-        //    set
-        //    {
-        //        _comment = value;
-        //    }
-        //}
-        //#endregion 
-
-		// TODO: conditional formatting
-		#endregion  // END Cell Public Properties
-		
+		#endregion 		
 		/// <summary>
 		/// Returns the cell's value as a string.
 		/// </summary>
 		/// <returns>The cell's value</returns>
 		public override string ToString()	{	return Value.ToString();	}
-
-		#endregion  // END Cell Public Methods
+		#endregion 
 		#region ExcelCell Private Methods
-
-		#region IsNumericValue
-		/// <summary>
-		/// Returns true if the string contains a numeric value
-		/// </summary>
-		/// <param name="Value"></param>
-		/// <returns></returns>
-		public static bool IsNumericValue(string Value)
-		{
-			Regex objNotIntPattern = new Regex("[^0-9,.-]");
-			Regex objIntPattern = new Regex("^-[0-9,.]+$|^[0-9,.]+$");
-
-			return !objNotIntPattern.IsMatch(Value) &&
-							objIntPattern.IsMatch(Value);
-		}
-		#endregion
-		#endregion // END Cell Private Methods
+		#endregion 
         #region IRangeID Members
 
         ulong IRangeID.RangeID

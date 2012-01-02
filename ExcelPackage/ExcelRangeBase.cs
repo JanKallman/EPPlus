@@ -1,31 +1,33 @@
-﻿/* 
+﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
- * 
  * Code change notes:
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Added this class		        2010-01-28
+ * Jan Källman		    Initial Release		        2010-01-28
+ * Jan Källman		    License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -65,7 +67,7 @@ namespace OfficeOpenXml
         internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
         {
             _worksheet = xlWorksheet;
-            _ws = _worksheet.Name;
+            _ws = _worksheet.Name;            
             SetDelegate();  
         }
         internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
@@ -162,11 +164,18 @@ namespace OfficeOpenXml
         private void SetValueAddress(ExcelAddress address, _setValue valueMethod, object value)
         {
             IsRangeValid("");
-            for (int col = address.Start.Column; col <= address.End.Column; col++)
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
             {
-                for (int row = address.Start.Row; row <= address.End.Row; row++)
+                valueMethod(value, 1, 1);
+            }
+            else
+            {
+                for (int col = address.Start.Column; col <= address.End.Column; col++)
                 {
-                    valueMethod(value, row, col);
+                    for (int row = address.Start.Row; row <= address.End.Row; row++)
+                    {
+                        valueMethod(value, row, col);
+                    }
                 }
             }
         }
@@ -210,7 +219,11 @@ namespace OfficeOpenXml
         /// <param name="IsArray"></param>
         private void Set_SharedFormula(string value, ExcelAddress address, bool IsArray)
         {
-            if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column)             //is it really a shared formula?
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
+            {
+                throw (new InvalidOperationException("Can't set a formula for the entire worksheet"));
+            }
+            else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column)             //is it really a shared formula?
             {
                 //Nope, single cell. Set the formula
                 Set_Formula(value, address.Start.Row, address.Start.Column);
@@ -330,7 +343,7 @@ namespace OfficeOpenXml
             get
             {
                 IsRangeValid("styling");
-                return _worksheet.Workbook.Styles.GetStyleObject(_worksheet.Cell(_fromRow, _fromCol).StyleID, _worksheet.PositionID, _address);
+                return _worksheet.Workbook.Styles.GetStyleObject(_worksheet.Cell(_fromRow, _fromCol).StyleID, _worksheet.PositionID, Address);
             }
         }
         /// <summary>
@@ -385,14 +398,14 @@ namespace OfficeOpenXml
                 }
                 else
                 {   
-                    if(IsRichText)
+                    if (_fromRow == _toRow && _fromCol ==_toCol)
                     {
-                        return RichText.Text;
+                        return _worksheet.GetValue(_fromRow, _fromCol);
                     }
                     else
                     {
-                        return _worksheet.Cell(_fromRow, _fromCol).Value;
-                    }                    
+                        return GetValueArray();
+                    }               
                 }
             }
             set
@@ -414,6 +427,79 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        private object GetValueArray()
+        {
+            ExcelAddressBase addr;
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)
+            {
+                addr = _worksheet.Dimension;
+                if (addr == null) return null;
+            }
+            else
+            {
+                addr = this;
+            }
+            object[,] v = new object[addr._toRow - addr._fromRow + 1, addr._toCol - addr._fromCol + 1];
+
+            for (int col = addr._fromCol; col <= addr._toCol; col++)
+            {
+                for (int row = addr._fromRow; row <= addr._toRow; row++)
+                {
+                    if (_worksheet._cells.ContainsKey(GetCellID(_worksheet.SheetID, row, col)))
+                    {
+                        if (IsRichText)
+                        {
+                            v[row - addr._fromRow, col - addr._fromCol] = GetRichText(row, col).Text;
+                        }
+                        else
+                        {
+                            v[row - addr._fromRow, col - addr._fromCol] = _worksheet.Cell(row, col).Value;
+                        }
+                    }
+                }
+            }
+            return v;
+        }
+
+        private ExcelAddressBase GetAddressDim(ExcelRangeBase addr)
+        {
+            int fromRow,fromCol, toRow, toCol;
+            var d=_worksheet.Dimension;
+            fromRow = addr._fromRow < d._fromRow ? d._fromRow : addr._fromRow;
+            fromCol = addr._fromCol < d._fromCol ? d._fromCol : addr._fromCol;
+
+            toRow = addr._toRow > d._toRow ? d._toRow : addr._toRow;
+            toCol = addr._toCol > d._toCol ? d._toCol : addr._toCol;
+
+            if (addr._fromCol == fromRow && addr._fromCol == addr._fromCol && addr._toRow == toRow && addr._toCol == _toCol)
+            {
+                return addr;
+            }
+            else
+            {
+                if (_fromRow > _toRow || _fromCol > _toCol)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
+                }
+            }
+        }
+
+        private object GetSingleValue()
+        {
+            if (IsRichText)
+            {
+                return RichText.Text;
+            }
+            else
+            {
+                return _worksheet.Cell(_fromRow, _fromCol).Value;
+            }
+        }
         /// <summary>
         /// Returns the formated value.
         /// </summary>
@@ -427,11 +513,11 @@ namespace OfficeOpenXml
         /// <summary>
         /// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
         /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-        ///       Wraped and merged cells are also ignored.
+        /// Wraped and merged cells are also ignored.
         /// </summary>
         public void AutoFitColumns()
         {
-            AutoFitColumns(_worksheet.defaultColWidth);
+            AutoFitColumns(_worksheet.DefaultColWidth);
         }
         /// <summary>
         /// Set the column width from the content of the range.
@@ -441,11 +527,17 @@ namespace OfficeOpenXml
         /// <param name="MinimumWidth">Minimum column width</param>
         public void AutoFitColumns(double MinimumWidth)
         {
+            if (_fromCol < 1 || _fromRow < 1)
+            {
+                SetToSelectedRange();
+            }
             Dictionary<int,Font> fontCache=new Dictionary<int,Font>();           
             Font f;
+            int fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
+            int toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
             if (Addresses == null)
             {
-                for (int col = _fromCol; col <= _toCol; col++)
+                for (int col = fromCol; col <= toCol; col++)
                 {
                     _worksheet.Column(col).Width = MinimumWidth;
                 }
@@ -454,7 +546,9 @@ namespace OfficeOpenXml
             { 
                 foreach(var addr in Addresses)
                 {
-                    for (int col = addr._fromCol; col <= addr._toCol; col++)
+                    fromCol = addr._fromCol > _worksheet.Dimension._fromCol ? addr._fromCol : _worksheet.Dimension._fromCol;
+                    toCol = addr._toCol < _worksheet.Dimension._toCol ? addr._toCol : _worksheet.Dimension._toCol;
+                    for (int col = fromCol; col <= toCol; col++)
                 {
                     _worksheet.Column(col).Width = MinimumWidth;
                 }
@@ -878,45 +972,51 @@ namespace OfficeOpenXml
                 IsRangeValid("richtext");
                 if (_rtc == null)
                 {
-                    XmlDocument xml = new XmlDocument();
-                    var cell = _worksheet.Cell(_fromRow, _fromCol);
-                    if (cell.Value != null)
-                    {
-                        if (cell.IsRichText)
-                        {
-                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + _worksheet.Cell(_fromRow, _fromCol).Value.ToString() + "</d:si>");
-                        }
-                        else
-                        {
-                            xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + SecurityElement.Escape(_worksheet.Cell(_fromRow, _fromCol).Value.ToString()) + "</d:t></d:r></d:si>");
-                        }
-                    }
-                    else
-                    {
-                        xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
-                    }
-                    IsRichText = true;
-                    _rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
-                    if (_rtc.Count == 1)
-                    {
-                        var fnt = _worksheet.Cell(_fromRow, _fromCol).Style.Font;
-                        _rtc[0].PreserveSpace = true;
-                        _rtc[0].Bold = fnt.Bold;
-                        _rtc[0].FontName = fnt.Name;
-                        _rtc[0].Italic = fnt.Italic;
-                        _rtc[0].Size = fnt.Size;
-                        _rtc[0].UnderLine = fnt.UnderLine;
-                        
-                        int hex;
-                        if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber,null, out hex))
-                        {
-                            _rtc[0].Color = Color.FromArgb(hex);
-                        }
-
-                    }
+                    _rtc = GetRichText(_fromRow, _fromCol);
                 }
                 return _rtc;
             }
+        }
+
+        private ExcelRichTextCollection GetRichText(int row, int col)
+        {
+            XmlDocument xml = new XmlDocument();
+            var cell = _worksheet.Cell(row, col);
+            if (cell.Value != null)
+            {
+                if (cell.IsRichText)
+                {
+                    xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + cell.Value.ToString() + "</d:si>");
+                }
+                else
+                {
+                    xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + SecurityElement.Escape(cell.Value.ToString()) + "</d:t></d:r></d:si>");
+                }
+            }
+            else
+            {
+                xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
+            }
+            var rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
+            if (rtc.Count == 1 && cell.IsRichText == false)
+            {
+                IsRichText = true;
+                var fnt = cell.Style.Font;
+                rtc[0].PreserveSpace = true;
+                rtc[0].Bold = fnt.Bold;
+                rtc[0].FontName = fnt.Name;
+                rtc[0].Italic = fnt.Italic;
+                rtc[0].Size = fnt.Size;
+                rtc[0].UnderLine = fnt.UnderLine;
+
+                int hex;
+                if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber, null, out hex))
+                {
+                    rtc[0].Color = Color.FromArgb(hex);
+                }
+
+            }
+            return rtc;
         }
         /// <summary>
         /// returns the comment object of the first cell in the range
@@ -1027,11 +1127,18 @@ namespace OfficeOpenXml
         /// <param name="value">the value</param>
         internal void SetValueRichText(object value)
         {
-            for (int col = _fromCol; col <= _toCol; col++)
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
             {
-                for (int row = _fromRow; row <= _toRow; row++)
+                _worksheet.Cell(1, 1).SetValueRichText(value);
+            }
+            else
+            {
+                for (int col = _fromCol; col <= _toCol; col++)
                 {
-                    _worksheet.Cell(row, col).SetValueRichText(value);
+                    for (int row = _fromRow; row <= _toRow; row++)
+                    {
+                        _worksheet.Cell(row, col).SetValueRichText(value);
+                    }
                 }
             }
         }

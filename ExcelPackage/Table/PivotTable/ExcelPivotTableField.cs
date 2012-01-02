@@ -1,29 +1,33 @@
 ﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
- * 
- * All rights reserved.
- * 
- * EPPlus is an Open Source project provided under the 
- * GNU General Public License (GPL) as published by the 
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
- * 
- * See http://epplus.codeplex.com/ for details
- * 
- * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- * 
- * The code for this project may be used and redistributed by any means PROVIDING it is 
- * not sold for profit without the author's written consent, and providing that this notice 
- * and the author's name and all copyright notices remain intact.
- * 
+ *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
  * Code change notes:
  * 
  * Author							Change						Date
- *******************************************************************************
+ * ******************************************************************************
  * Jan Källman		Added		21-MAR-2011
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -565,7 +569,7 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         #endregion
         #region Grouping
-        internal ExcelPivotTableFieldDateGroup SetDateGroup(eDateGroupBy GroupBy, DateTime StartDate, DateTime EndDate)
+        internal ExcelPivotTableFieldDateGroup SetDateGroup(eDateGroupBy GroupBy, DateTime StartDate, DateTime EndDate, int interval)
         {
             ExcelPivotTableFieldDateGroup group;
             group = new ExcelPivotTableFieldDateGroup(NameSpaceManager, _cacheFieldHelper.TopNode);
@@ -595,7 +599,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@autoEnd", "0");
             }
 
-            int items = AddDateGroupItems(group, GroupBy, StartDate, EndDate);
+            int items = AddDateGroupItems(group, GroupBy, StartDate, EndDate, interval);
             AddFieldItems(items);
 
             _grouping = group;
@@ -668,7 +672,7 @@ namespace OfficeOpenXml.Table.PivotTable
             itemsNode.SetAttribute("count", (items + 1).ToString());
         }
 
-        private int AddDateGroupItems(ExcelPivotTableFieldGroup group, eDateGroupBy GroupBy, DateTime StartDate, DateTime EndDate)
+        private int AddDateGroupItems(ExcelPivotTableFieldGroup group, eDateGroupBy GroupBy, DateTime StartDate, DateTime EndDate, int interval)
         {
             XmlElement groupItems = group.TopNode.SelectSingleNode("d:fieldGroup/d:groupItems", group.NameSpaceManager) as XmlElement;
             int items = 2;
@@ -687,13 +691,27 @@ namespace OfficeOpenXml.Table.PivotTable
                     items += 24;
                     break;
                 case eDateGroupBy.Days:
-                    DateTime dt = new DateTime(2008, 1, 1); //pick a year with 366 days
-                    while (dt.Year == 2008)
+                    if (interval == 1)
                     {
-                        AddGroupItem(groupItems, dt.ToString("dd-MMM"));
-                        dt = dt.AddDays(1);
+                        DateTime dt = new DateTime(2008, 1, 1); //pick a year with 366 days
+                        while (dt.Year == 2008)
+                        {
+                            AddGroupItem(groupItems, dt.ToString("dd-MMM"));
+                            dt = dt.AddDays(1);
+                        }
+                        items += 366;
                     }
-                    items += 366;
+                    else
+                    {
+                        DateTime dt = StartDate;
+                        items = 0;
+                        while (dt < EndDate)
+                        {
+                            AddGroupItem(groupItems, dt.ToString("dd-MMM"));
+                            dt = dt.AddDays(interval);
+                            items++;
+                        }
+                    }
                     break;
                 case eDateGroupBy.Months:
                     AddGroupItem(groupItems, "jan");
@@ -817,7 +835,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <param name="groupBy">Group by</param>
         public void AddDateGrouping(eDateGroupBy groupBy)
         {
-            AddDateGrouping(groupBy, DateTime.MinValue, DateTime.MaxValue);
+            AddDateGrouping(groupBy, DateTime.MinValue, DateTime.MaxValue,1);
         }
         /// <summary>
         /// Add a date grouping on this field.
@@ -827,9 +845,31 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <param name="endDate">Fixed end date. Use DateTime.MaxValue for auto</param>
         public void AddDateGrouping(eDateGroupBy groupBy, DateTime startDate, DateTime endDate)
         {
+            AddDateGrouping(groupBy, startDate, endDate, 1);
+        }
+        /// <summary>
+        /// Add a date grouping on this field.
+        /// </summary>
+        /// <param name="days">Number of days when grouping on days</param>
+        /// <param name="startDate">Fixed start date. Use DateTime.MinValue for auto</param>
+        /// <param name="endDate">Fixed end date. Use DateTime.MaxValue for auto</param>
+        public void AddDateGrouping(int days, DateTime startDate, DateTime endDate)
+        {
+            AddDateGrouping(eDateGroupBy.Days, startDate, endDate, days);
+        }
+        private void AddDateGrouping(eDateGroupBy groupBy, DateTime startDate, DateTime endDate, int groupInterval)
+        {
+            if (groupInterval < 1 || groupInterval >= Int16.MaxValue)
+            {
+                throw (new ArgumentOutOfRangeException("Group interval is out of range"));
+            }
+            if (groupInterval > 1 && groupBy != eDateGroupBy.Days)
+            {
+                throw (new ArgumentException("Group interval is can only be used when groupBy is Days"));
+            }
             ValidateGrouping();
 
-            bool firstField = true;
+            bool firstField = true;            
             List<ExcelPivotTableField> fields=new List<ExcelPivotTableField>();
             //Seconds
             if ((groupBy & eDateGroupBy.Seconds) == eDateGroupBy.Seconds)
@@ -849,7 +889,7 @@ namespace OfficeOpenXml.Table.PivotTable
             //Days
             if ((groupBy & eDateGroupBy.Days) == eDateGroupBy.Days)
             {
-                fields.Add(AddField(eDateGroupBy.Days, startDate, endDate, ref firstField));
+                fields.Add(AddField(eDateGroupBy.Days, startDate, endDate, ref firstField, groupInterval));
             }
             //Month
             if ((groupBy & eDateGroupBy.Months) == eDateGroupBy.Months)
@@ -867,7 +907,15 @@ namespace OfficeOpenXml.Table.PivotTable
                 fields.Add(AddField(eDateGroupBy.Years, startDate, endDate, ref firstField));
             }
 
-            _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/@par", (_table.Fields.Count - 1).ToString());
+            if (fields.Count > 1) _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/@par", (_table.Fields.Count - 1).ToString());
+            if (groupInterval != 1)
+            {
+                _cacheFieldHelper.SetXmlNodeString("d:fieldGroup/d:rangePr/@groupInterval", groupInterval.ToString());
+            }
+            else
+            {
+                _cacheFieldHelper.DeleteNode("d:fieldGroup/d:rangePr/@groupInterval");
+            }
             _items = null;
         }
 
@@ -885,7 +933,11 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
             }
         }
-        private ExcelPivotTableField AddField(eDateGroupBy groupBy,DateTime startDate, DateTime endDate,ref  bool firstField)
+        private ExcelPivotTableField AddField(eDateGroupBy groupBy, DateTime startDate, DateTime endDate, ref  bool firstField)
+        {
+            return AddField(groupBy, startDate, endDate, ref firstField,1);
+        }
+        private ExcelPivotTableField AddField(eDateGroupBy groupBy, DateTime startDate, DateTime endDate, ref  bool firstField, int interval)
         {
             if (firstField == false)
             {
@@ -938,7 +990,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 
                 _table.Fields.AddInternal(field);
 
-                AddCacheField(field, startDate, endDate);
+                AddCacheField(field, startDate, endDate, interval);
                 return field;
             }
             else
@@ -946,11 +998,11 @@ namespace OfficeOpenXml.Table.PivotTable
                 firstField = false;
                 DateGrouping = groupBy;
                 Compact = false;
-                SetDateGroup(groupBy, startDate, endDate);
+                SetDateGroup(groupBy, startDate, endDate, interval);
                 return this;
             }
         }
-        private void AddCacheField(ExcelPivotTableField field, DateTime startDate, DateTime endDate)
+        private void AddCacheField(ExcelPivotTableField field, DateTime startDate, DateTime endDate, int interval)
         {
             //Add Cache definition field.
             var cacheTopNode = _table.CacheDefinition.CacheDefinitionXml.SelectSingleNode("//d:cacheFields", _table.NameSpaceManager);
@@ -961,7 +1013,7 @@ namespace OfficeOpenXml.Table.PivotTable
             cacheTopNode.AppendChild(cacheFieldNode);
             field.SetCacheFieldNode(cacheFieldNode);
 
-            field.SetDateGroup(field.DateGrouping, startDate, endDate);
+            field.SetDateGroup(field.DateGrouping, startDate, endDate, interval);
         }
     }
 }
