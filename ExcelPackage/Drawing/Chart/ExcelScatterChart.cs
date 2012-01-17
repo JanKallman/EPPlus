@@ -130,6 +130,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeBool(MARKER_PATH, value, false);
             }
         }
+
         internal override eChartType GetChartType(string name)
         {
             if (name == "scatterChart")

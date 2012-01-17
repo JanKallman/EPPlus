@@ -181,31 +181,29 @@ namespace OfficeOpenXml
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
         }
-        #endregion
 
-		#region Worksheet Public Properties
-		/// <summary>
-		/// Read-only: the Uri to the worksheet within the package
-		/// </summary>
-		internal Uri WorksheetUri { get { return (_worksheetUri); } }
-		/// <summary>
-		/// Read-only: a reference to the PackagePart for the worksheet within the package
-		/// </summary>
-		internal PackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
-		/// <summary>
-		/// Read-only: the ID for the worksheet's relationship with the workbook in the package
-		/// </summary>
-		internal string RelationshipID { get { return (_relationshipID); } }
-		/// <summary>
-		/// The unique identifier for the worksheet.  Note that these can be random, so not
-		/// too useful in code!
-		/// </summary>
-		internal int SheetID { get { return (_sheetID); } }
+        #endregion
+        /// <summary>
+        /// The Uri to the worksheet within the package
+        /// </summary>
+        internal Uri WorksheetUri { get { return (_worksheetUri); } }
+        /// <summary>
+        /// The PackagePart for the worksheet within the package
+        /// </summary>
+        internal PackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
+        /// <summary>
+        /// The ID for the worksheet's relationship with the workbook in the package
+        /// </summary>
+        internal string RelationshipID { get { return (_relationshipID); } }
+        /// <summary>
+        /// The unique identifier for the worksheet.
+        /// </summary>
+        internal int SheetID { get { return (_sheetID); } }
         /// <summary>
         /// The position of the worksheet.
         /// </summary>
         internal int PositionID { get { return (_positionID); } set { _positionID = value; } }
-
+		#region Worksheet Public Properties
     	/// <summary>
         /// The index in the worksheets collection
         /// </summary>
@@ -448,7 +446,7 @@ namespace OfficeOpenXml
 				return (_worksheetXml);
 			}
 		}
-        private ExcelVmlDrawingCommentCollection _vmlDrawings = null;
+        internal ExcelVmlDrawingCommentCollection _vmlDrawings = null;
         /// <summary>
         /// Vml drawings. underlaying object for comments
         /// </summary>
@@ -507,7 +505,8 @@ namespace OfficeOpenXml
             string xml = "";
 
             // First Columns, rows, cells, mergecells, hyperlinks and pagebreakes are loaded from a xmlstream to optimize speed...
-
+            bool doAdjust = _package.DoAdjustDrawings;
+            _package.DoAdjustDrawings = false;
             Stream stream = packPart.GetStream();
             XmlTextReader xr = new XmlTextReader(stream);            
             
@@ -529,6 +528,7 @@ namespace OfficeOpenXml
             else
                 _worksheetXml.LoadXml(xml);
 
+            _package.DoAdjustDrawings = doAdjust;
             ClearNodes();
         }
 
@@ -787,7 +787,7 @@ namespace OfficeOpenXml
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
             var formulaList = new List<IRangeID>();
-
+            string v="";
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelCell cell = null;
             xr.Read();
@@ -797,7 +797,7 @@ namespace OfficeOpenXml
                 while (xr.NodeType == XmlNodeType.EndElement)
                 {
                     xr.Read();
-                }
+                }                
                 if (xr.LocalName == "row")
                 {
                     int row = Convert.ToInt32(xr.GetAttribute("r"));
@@ -859,7 +859,20 @@ namespace OfficeOpenXml
                     {
                         xr.Read();  //Something is wrong in the sheet, read next
                     }
-                    
+
+                }
+                else if (xr.LocalName == "is")   //Inline string
+                {
+                    xr.Read();
+                    if (xr.LocalName == "t")
+                    {
+                        cell._value = xr.ReadInnerXml();
+                    }
+                    else
+                    {
+                        cell._value = xr.ReadOuterXml();
+                        cell.IsRichText = true;
+                    }
                 }
                 else
                 {
@@ -1068,14 +1081,17 @@ namespace OfficeOpenXml
         {
             get
             {
-                //if (_cells.Count > 0)
-                //{
-                //    return new ExcelRange(this, (_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
-                //}
-                //else
-                //{
                 return new ExcelRange(this, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
-                //}
+            }
+        }
+        /// <summary>
+        /// Provides access to the selected range of cells
+        /// </summary>  
+        public ExcelRange SelectedRange
+        {
+            get
+            {
+                return new ExcelRange(this, View.SelectedRange);
             }
         }
         MergeCellsCollection<string> _mergedCells = new MergeCellsCollection<string>();
@@ -1975,6 +1991,15 @@ namespace OfficeOpenXml
                                 Cell(tbl.Address._toRow, colNum).Value = col.TotalsRowLabel;
                             }
                         }
+                        if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
+                        {
+                            int fromRow = tbl.ShowHeader ? tbl.Address._fromRow + 1 : tbl.Address._fromRow;
+                            int toRow = tbl.ShowTotal ? tbl.Address._toRow - 1 : tbl.Address._toRow;
+                            for (int row = fromRow; row <= toRow; row++)
+                            {
+                                Cell(row, colNum).Formula = col.CalculatedColumnFormula;
+                            }                            
+                        }
                         colNum++;
                     }
                 }                
@@ -2150,18 +2175,18 @@ namespace OfficeOpenXml
         /// </summary>
         private void UpdateColumnData(StreamWriter sw)
         {
-            ExcelColumn prevCol = null;
-            foreach (ExcelColumn col in _columns)
-            {                
-                if (prevCol != null)
-                {
-                    if(prevCol.ColumnMax != col.ColumnMin-1)
-                    {
-                        prevCol._columnMax=col.ColumnMin-1;
-                    }
-                }
-                prevCol = col;
-            }
+            //ExcelColumn prevCol = null;   //commented out 11/1-12 JK 
+            //foreach (ExcelColumn col in _columns)
+            //{                
+            //    if (prevCol != null)
+            //    {
+            //        if(prevCol.ColumnMax != col.ColumnMin-1)
+            //        {
+            //            prevCol._columnMax=col.ColumnMin-1;
+            //        }
+            //    }
+            //    prevCol = col;
+            //}
             sw.Write("<cols>");
             foreach (ExcelColumn col in _columns)
             {

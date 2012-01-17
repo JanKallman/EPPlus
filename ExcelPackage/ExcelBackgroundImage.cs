@@ -48,14 +48,14 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="nsm"></param>
         /// <param name="topNode">The topnode of the worksheet</param>
-        /// <param name="part">Worksheet package part</param>
+        /// <param name="workSheet">Worksheet reference</param>
         internal  ExcelBackgroundImage(XmlNamespaceManager nsm, XmlNode topNode, ExcelWorksheet workSheet) :
             base(nsm, topNode)
         {
             _workSheet = workSheet;
         }
         
-        const string BACKGROUNDPIC_PATH = "picture/@r:id";
+        const string BACKGROUNDPIC_PATH = "d:picture/@r:id";
         /// <summary>
         /// The background image of the worksheet. 
         /// The image will be saved internally as a jpg.

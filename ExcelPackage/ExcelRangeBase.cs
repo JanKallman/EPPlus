@@ -166,7 +166,7 @@ namespace OfficeOpenXml
             IsRangeValid("");
             if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
             {
-                valueMethod(value, 1, 1);
+                throw (new ArgumentException("Can't reference all cells. Please use the indexer to set the range"));
             }
             else
             {
@@ -200,8 +200,8 @@ namespace OfficeOpenXml
             ExcelCell c = _worksheet.Cell(row, col);
             if (c._sharedFormulaID > 0) SplitFormulas();
 
-            string formula = value.ToString();
-            if (string.IsNullOrEmpty(formula))
+            string formula = (value == null ? string.Empty : value.ToString());
+            if (formula==string.Empty)
             {
                 c.Formula = string.Empty;
             }
@@ -533,6 +533,11 @@ namespace OfficeOpenXml
             }
             Dictionary<int,Font> fontCache=new Dictionary<int,Font>();           
             Font f;
+
+            bool doAdjust = _worksheet._package.DoAdjustDrawings;            
+            _worksheet._package.DoAdjustDrawings = false;
+            var drawWidths = _worksheet.Drawings.GetDrawingWidths();
+
             int fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
             int toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
             if (Addresses == null)
@@ -577,11 +582,21 @@ namespace OfficeOpenXml
                 }
             }
 
+            var styles = _worksheet.Workbook.Styles;
+            var nf=styles.Fonts[styles.CellXfs[0].FontId];
+            FontStyle fs=FontStyle.Regular;
+            if(nf.Bold) fs|=FontStyle.Bold;
+            if(nf.UnderLine) fs|=FontStyle.Underline;
+            if(nf.Italic) fs|=FontStyle.Italic;
+            if(nf.Strike) fs|=FontStyle.Strikeout;
+            var nfont=new Font(nf.Name, nf.Size,fs);
+
             using (Bitmap b = new Bitmap(1, 1))            
             {
                 using (Graphics g = Graphics.FromImage(b))
                 {
-                    var styles = _worksheet.Workbook.Styles;
+                    float normalSize = (float)Math.Truncate(g.MeasureString("00", nfont).Width - g.MeasureString("0", nfont).Width);
+                    g.PageUnit = GraphicsUnit.Pixel;
                     foreach (var cell in this)
                     {
                         if (cell.Merge == true || cell.Style.WrapText) continue;
@@ -593,17 +608,18 @@ namespace OfficeOpenXml
                         else
                         {                            
                             var fnt=styles.Fonts[fntID];                            
-                            FontStyle fs=FontStyle.Regular;
+                            fs=FontStyle.Regular;
                             if(fnt.Bold) fs|=FontStyle.Bold;
                             if(fnt.UnderLine) fs|=FontStyle.Underline;
                             if(fnt.Italic) fs|=FontStyle.Italic;
                             if(fnt.Strike) fs|=FontStyle.Strikeout;
-                            
                             f=new Font(fnt.Name, fnt.Size, fs);
                             fontCache.Add(fntID, f);
                         }
-                        
-                        double width = .146 * g.MeasureString(cell.TextForWidth, f).Width;
+
+                        //Truncate(({pixels}-5)/{Maximum Digit Width} * 100+0.5)/100
+
+                        double width = (g.MeasureString(cell.TextForWidth, f).Width + 5) / normalSize;
 
                         foreach (var a in afAddr)
                         {
@@ -621,6 +637,8 @@ namespace OfficeOpenXml
                    }
                }
            }
+            _worksheet.Drawings.AdjustWidth(drawWidths);
+            _worksheet._package.DoAdjustDrawings = doAdjust;
         }
         internal string TextForWidth
         {
@@ -1530,7 +1548,7 @@ namespace OfficeOpenXml
         /// <typeparam name="T">The datatype in the collection</typeparam>
         /// <param name="Collection">The collection to load</param>
         /// <param name="PrintHeaders">Print the property names on the first row</param>
-        /// <param name="TableStyle">Will creata a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
         /// <returns>The filled range</returns>
         public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle)
         {
@@ -1542,7 +1560,7 @@ namespace OfficeOpenXml
         /// <typeparam name="T">The datatype in the collection</typeparam>
         /// <param name="Collection">The collection to load</param>
         /// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space.</param>
-        /// <param name="TableStyle">Will creata a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
         /// <param name="memberFlags">Property flags to use</param>
         /// <param name="Members">The properties to output. Must be of type T</param>
         /// <returns>The filled range</returns>

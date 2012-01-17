@@ -110,19 +110,20 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                //bool retValue = false;
-                //string hidden = _colElement.GetAttribute("hidden", "1");
-                //if (hidden == "1") retValue = true;
-                //return (retValue);
                 return _hidden;
 			}
 			set
 			{
-                //if (value)
-                //    _colElement.SetAttribute("hidden", "1");
-                //else
-                //    _colElement.SetAttribute("hidden", "0");
-                _hidden = value;
+                if (_worksheet._package.DoAdjustDrawings)
+                {
+                    var pos = _worksheet.Drawings.GetDrawingWidths();
+                    _hidden = value;
+                    _worksheet.Drawings.AdjustWidth(pos);
+                }
+                else
+                {
+                    _hidden = value;
+                }
 			}
 		}
 		#endregion
@@ -142,7 +143,7 @@ namespace OfficeOpenXml
                 }
             }
         }
-        double _width;
+        internal double _width;
         /// <summary>
         /// Sets the width of the column in the worksheet
         /// </summary>
@@ -154,7 +155,17 @@ namespace OfficeOpenXml
 			}
 			set	
             {
-                _width = value;
+                if (_worksheet._package.DoAdjustDrawings)
+                {
+                    var pos = _worksheet.Drawings.GetDrawingWidths();
+                    _width = value;
+                    _worksheet.Drawings.AdjustWidth(pos);
+                }
+                else
+                {
+                    _width = value;
+                }
+
                 if (_hidden && value!=0)
                 {
                     _hidden = false;

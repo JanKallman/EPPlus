@@ -90,8 +90,8 @@ namespace EPPlusTest
             ws.Cells["A30"].Style.TextRotation = 45;
             ws.Cells["B30"].Value = "Text orientation 90";
             ws.Cells["B30"].Style.TextRotation = 90;
-            ws.Cells["c30"].Value = "Text orientation 180";
-            ws.Cells["c30"].Style.TextRotation = 180;
+            ws.Cells["C30"].Value = "Text orientation 180";
+            ws.Cells["C30"].Style.TextRotation = 180;
             ws.Cells["D30"].Value = "Text orientation 38";
             ws.Cells["D30"].Style.TextRotation = 38;
             ws.Cells["D30"].Style.Font.Bold = true;
@@ -119,6 +119,14 @@ namespace EPPlusTest
             ws.Cells["E23"].Value = "Shrink to fit";
             ws.Cells["E23"].Style.ShrinkToFit=true;
 
+            ws.Cells["e24"].Value = "ReadingOrder LeftToRight";
+            ws.Cells["e24"].Style.ReadingOrder = ExcelReadingOrder.LeftToRight;
+            ws.Cells["e25"].Value = "ReadingOrder RightToLeft";
+            ws.Cells["e25"].Style.ReadingOrder = ExcelReadingOrder.RightToLeft;
+            ws.Cells["e26"].Value = "ReadingOrder Context";
+            ws.Cells["e26"].Style.ReadingOrder = ExcelReadingOrder.ContextDependent;
+            ws.Cells["e27"].Value = "Default Readingorder";
+
 
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
@@ -128,14 +136,8 @@ namespace EPPlusTest
                 Assert.Fail("A1 is not set");
             }
 
-            //foreach (ExcelRangeBase cell in ws.Cells["B1:G25,A1"])
-            //{
-            //    TestContext.WriteLine(cell.Address);
-            //}
-
             foreach (ExcelRangeBase cell in ws.Cells[ws.Dimension.Address])
             {
-                //TestContext.WriteLine(cell.Address);
                 System.Diagnostics.Debug.WriteLine(cell.Address);
             }
             
@@ -228,7 +230,9 @@ namespace EPPlusTest
         public void InsertDeleteTest()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDelete");
+            //ws.Cells.Value = 0;
             ws.Cells["A1:C5"].Value = 1;
+            Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
             ws.Cells["A1:B3"].Merge = true;
             ws.Cells["D3"].Formula = "A2+C5";
             ws.InsertRow(2, 1);
@@ -253,6 +257,7 @@ namespace EPPlusTest
             ws.View.ShowHeaders = false;
             ws.View.PageBreakView = true;
 
+            ws.Row(200).Height = 50;
             ws.Workbook.CalcMode = ExcelCalcMode.Automatic;
 
             Assert.AreEqual(range.Start.Column, 2);
@@ -319,6 +324,11 @@ namespace EPPlusTest
             ws = ws = _pck.Workbook.Worksheets.Add("RichText2");
             ws.Cells["A1"].RichText.Text = "Room 02 & 03";
             ws.TabColor = Color.PowderBlue;
+
+            r1=ws.Cells["G3"].RichText.Add("Test");
+            r1.Bold = true;
+            ws.Cells["G3"].RichText.Add(" a new t");
+            ws.Cells["G3"].RichText[1].Bold = false; ;
         }
         [TestMethod]
         public void SaveWorksheet()
@@ -340,7 +350,8 @@ namespace EPPlusTest
             comment = ws.Comments.Add(ws.Cells["C2"], "Jan Källman\r\nAuthor\r\n3", "JK");            
             comment = ws.Comments.Add(ws.Cells["C1"], "Jan Källman\r\nAuthor\r\n5", "JK");
             comment = ws.Comments.Add(ws.Cells["B1"], "Jan Källman\r\nAuthor\r\n7", "JK");
-            
+
+            ws.Comments.Remove(ws.Cells["A2"].Comment);
             //comment.HorizontalAlignment = eTextAlignHorizontalVml.Center;
             //comment.Visible = true;
             //comment.BackgroundColor = Color.Green;
@@ -403,7 +414,7 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Copy From other pck", _pck.Workbook.Worksheets["Address"]);
             pck2.SaveAs(new FileInfo("test\\copy.xlsx"));
             pck2=null;
-            Assert.AreEqual(7, wsCopy.Comments.Count);
+            Assert.AreEqual(6, wsCopy.Comments.Count);
         }
         [TestMethod]
         public void TestDelete()
@@ -559,7 +570,7 @@ namespace EPPlusTest
             ns.Style.Font.Bold = true;
 
             ws.Cells["A1:C1"].StyleName = "TestStyle";
-            ws.defaultRowHeight = 35;
+            ws.DefaultRowHeight = 35;
         }
         [TestMethod]
         public void ValueError()
@@ -588,7 +599,7 @@ namespace EPPlusTest
         {            
             var ws = _pck.Workbook.Worksheets.Add("Table");
             ws.Cells["B1"].Value = 123;
-            var tbl = ws.Tables.Add(ws.Cells["B1:U12"], "TestTable");
+            var tbl = ws.Tables.Add(ws.Cells["B1:P12"], "TestTable");
             tbl.TableStyle = OfficeOpenXml.Table.TableStyles.Custom;
 
             tbl.ShowFirstColumn = true;
@@ -601,7 +612,7 @@ namespace EPPlusTest
 
             tbl.Columns[8].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
             tbl.Columns[9].TotalsRowFormula = string.Format("SUM([{0}])",tbl.Columns[9].Name);
-
+            tbl.Columns[14].CalculatedColumnFormula = "TestTable[[#This Row],[123]]+TestTable[[#This Row],[Column2]]";                                                       
             ws.Cells["B2"].Value = 1;
             ws.Cells["B3"].Value = 2;
             ws.Cells["B4"].Value = 3;
@@ -698,7 +709,7 @@ namespace EPPlusTest
             }
         }
         [TestMethod]
-        public void FormulaOverwrite()
+         public void FormulaOverwrite()
         {
             var ws = _pck.Workbook.Worksheets.Add("FormulaOverwrite");
             //Inside
@@ -818,7 +829,7 @@ namespace EPPlusTest
         public void DefaultColWidth()
         {
             var ws = _pck.Workbook.Worksheets.Add("DefColWidth");
-            ws.defaultColWidth = 45;
+            ws.DefaultColWidth = 45;
         }
         [TestMethod]
         public void LoadArray()
@@ -833,7 +844,7 @@ namespace EPPlusTest
             ExcelWorkbook book = _pck.Workbook;
             ExcelWorksheet sheet = book.Worksheets.Add("Gebruikers");
 
-            sheet.defaultColWidth = 25d;
+            sheet.DefaultColWidth = 25d;
             //sheet.defaultRowHeight = 15d; // needed to make sure the resulting file is valid!
 
             // Create the header row
@@ -1143,6 +1154,22 @@ namespace EPPlusTest
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
+
+            pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["H3"], ws.Cells["K1:O11"], "Pivottable10");
+            pt.RowFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[4]);
+            pt.Fields[4].AddDateGrouping(7, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
+            pt.RowHeaderCaption = "Veckor";
+            pt.GrandTotalCaption = "Totalt";
+
+            pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A60"], ws.Cells["K1:O11"], "Pivottable11");
+            pt.RowFields.Add(pt.Fields["Category"]);
+            pt.RowFields.Add(pt.Fields["Item"]);
+            pt.RowFields.Add(pt.Fields["Date for grouping"]);
+
+            pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
+            pt.DataOnRows = true;
         }
         [TestMethod]
         public void ReadPivotTable()
@@ -1264,7 +1291,14 @@ namespace EPPlusTest
                 r.Style.Fill.Gradient.Bottom = col / 360;
             }
             r = ws.Cells["A5"];
-            r.Style.Fill.Gradient.Left = .50;            
+            r.Style.Fill.Gradient.Left = .50;
+
+            ws = _pck.Workbook.Worksheets.Add("FullFills");
+            ws.Cells.Style.Fill.Gradient.Left = 0.25;
+            ws.Cells["A1"].Value = "test";
+            ws.Cells["A1"].RichText.Add("Test rt");
+            ws.Cells.AutoFilter=true;
+            Assert.AreNotEqual(ws.Cells["A1:D5"].Value, null);
         }
     }
 }

@@ -35,7 +35,6 @@ using OfficeOpenXml;
 using System.Data.SqlClient;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;
-
 namespace EPPlusSamples
 {
     /// <summary>
@@ -84,10 +83,9 @@ namespace EPPlusSamples
             if (File.Exists(file)) File.Delete(file);
             FileInfo newFile = new FileInfo(file);
 
-            // ok, we can run the real code of the sample now
             using (ExcelPackage pck = new ExcelPackage(newFile))
             {
-                // get handle to the existing worksheet
+                // get the handle to the existing worksheet
                 var wsData = pck.Workbook.Worksheets.Add("SalesData");
 
                 var dataRange = wsData.Cells["A1"].LoadFromCollection(
@@ -199,7 +197,6 @@ namespace EPPlusSamples
                                 Tax=(decimal)sqlReader["TaxAmt"],
                                 Freight=(decimal)sqlReader["Freight"]
                             });
-
                         }
                     }
                 }

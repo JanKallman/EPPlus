@@ -96,15 +96,29 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         internal ExcelVmlDrawingComment Add(ExcelRangeBase cell)
         {
-            XmlNode node = AddDrawing(cell.Start.Row, cell.Start.Column);
-            var draw = new ExcelVmlDrawingComment(node, cell, NameSpaceManager);
+            XmlNode node = AddDrawing(cell);
+            var draw = new ExcelVmlDrawingComment(node, cell, NameSpaceManager);            
             _drawings.Add(draw);
             return draw;
         }
-        private XmlNode AddDrawing(int row, int col)
+        private XmlNode AddDrawing(ExcelRangeBase cell)
         {
+            int row = cell.Start.Row, col = cell.Start.Column;
             var node = VmlDrawingXml.CreateElement("v", "shape", ExcelPackage.schemaMicrosoftVml);
-            VmlDrawingXml.DocumentElement.AppendChild(node);
+
+            var id = ExcelCellBase.GetCellID(cell.Worksheet.SheetID, cell._fromRow, cell._fromCol);
+            var ix = _drawings.IndexOf(id);
+            if (ix < 0 && (~ix < _drawings.Count))
+            {
+                ix = ~ix;
+                var prevDraw = _drawings[ix] as ExcelVmlDrawingBase;
+                prevDraw.TopNode.ParentNode.InsertBefore(node, prevDraw.TopNode);
+            }
+            else
+            {
+                VmlDrawingXml.DocumentElement.AppendChild(node);
+            }
+
             node.SetAttribute("id", GetNewId());
             node.SetAttribute("type", "#_x0000_t202");
             node.SetAttribute("style", "position:absolute;z-index:1; visibility:hidden");

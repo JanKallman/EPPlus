@@ -41,7 +41,7 @@ namespace EPPlusTest
 			workbook.Worksheets.Delete("NEW2");
 		}
 
-		[TestMethod, ExpectedException(typeof(Exception))]
+		[TestMethod, ExpectedException(typeof(ArgumentException))]
 		public void DeleteByNameWhereWorkSheetDoesNotExist()
 		{
 			workbook.Worksheets.Add("NEW2");

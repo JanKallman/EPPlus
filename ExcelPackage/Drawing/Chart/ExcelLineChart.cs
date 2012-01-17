@@ -82,6 +82,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeBool(MARKER_PATH, value, false);
             }
         }
+
         string SMOOTH_PATH = "c:smooth/@val";
         /// <summary>
         /// If the series has smooth lines

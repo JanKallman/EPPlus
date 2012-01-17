@@ -49,7 +49,7 @@ namespace OfficeOpenXml.Drawing.Vml
             Range = range;
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };
         }   
-        ExcelRangeBase Range { get; set; }
+        internal ExcelRangeBase Range { get; set; }
         public string Id 
         {
             get

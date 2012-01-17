@@ -59,6 +59,10 @@ namespace OfficeOpenXml.Drawing.Chart
                {
                    s = new ExcelScatterChartSerie(this, ns, n, isPivot);
                }
+               else if (chart.ChartNode.LocalName == "lineChart")
+               {
+                   s = new ExcelLineChartSerie(this, ns, n, isPivot);
+               }
                else if (chart.ChartNode.LocalName == "pieChart" ||
                         chart.ChartNode.LocalName == "ofPieChart" ||
                         chart.ChartNode.LocalName == "pie3DChart" ||
@@ -184,6 +188,15 @@ namespace OfficeOpenXml.Drawing.Chart
                    case eChartType.BarOfPie:
                        serie = new ExcelPieChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
+                   case eChartType.Line:
+                   case eChartType.LineMarkers:
+                   case eChartType.LineMarkersStacked:
+                   case eChartType.LineMarkersStacked100:
+                   case eChartType.LineStacked:
+                   case eChartType.LineStacked100:
+                       serie = new ExcelLineChartSerie(this, NameSpaceManager, ser, _isPivot);
+                       break;
+
                    default:
                        serie = new ExcelChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;

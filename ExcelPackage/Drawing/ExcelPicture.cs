@@ -213,6 +213,7 @@ namespace OfficeOpenXml.Drawing
         }
         private void SetPosDefaults(Image image)
         {
+            EditAs = eEditAs.OneCell;
             SetPixelWidth(image.Width, image.HorizontalResolution);
             SetPixelHeight(image.Height, image.VerticalResolution);
         }

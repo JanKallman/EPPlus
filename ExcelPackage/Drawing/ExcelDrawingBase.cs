@@ -319,10 +319,34 @@ namespace OfficeOpenXml.Drawing
             get { return _id.ToString(); }
         }
         #region "Internal sizing functions"
-        internal int GetPixelWidth()
+        internal int GetPixelLeft()
         {
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw=ws.Workbook.MaxFontWidth;
+
+            int pix = 0;
+            for (int col = 0; col < From.Column; col++)
+            {
+                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            }
+            pix += From.ColumnOff / EMU_PER_PIXEL;
+            return pix;
+        }
+        internal int GetPixelTop()
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            int pix = 0;
+            for (int row = 0; row < From.Row; row++)
+            {
+                pix += (int)(GetRowWidth(row) / 0.75);
+            }
+            pix += From.RowOff / EMU_PER_PIXEL;
+            return pix;
+        }
+        internal int GetPixelWidth()
+        {
+            ExcelWorksheet ws = _drawings.Worksheet;
+            decimal mdw = ws.Workbook.MaxFontWidth;
 
             int pix = -From.ColumnOff / EMU_PER_PIXEL;
             for (int col = From.Column + 1; col <= To.Column; col++)
@@ -335,7 +359,6 @@ namespace OfficeOpenXml.Drawing
         internal int GetPixelHeight()
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            decimal mdw = ws.Workbook.MaxFontWidth;
 
             int pix = -(From.RowOff / EMU_PER_PIXEL);
             for (int row = From.Row + 1; row <= To.Row; row++)

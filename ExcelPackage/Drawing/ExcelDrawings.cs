@@ -384,5 +384,66 @@ namespace OfficeOpenXml.Drawing
                 return drawNode;
             }
         #endregion
+
+            internal void AdjustWidth(int[,] pos)
+            {
+                var ix = 0;
+                //Now set the size for all drawings depending on the editAs property.
+                foreach (OfficeOpenXml.Drawing.ExcelDrawing d in this)
+                {
+                    if (d.EditAs != Drawing.eEditAs.TwoCell)
+                    {
+                        if (d.EditAs == Drawing.eEditAs.Absolute)
+                        {
+                            d.SetPixelLeft(pos[ix, 0]);
+                        }
+                        d.SetPixelWidth(pos[ix, 1]);
+                        
+                    }
+                    ix++;
+                }
+            }
+            internal void AdjustHeight(int[,] pos)
+            {
+                var ix = 0;
+                //Now set the size for all drawings depending on the editAs property.
+                foreach (OfficeOpenXml.Drawing.ExcelDrawing d in this)
+                {
+                    if (d.EditAs != Drawing.eEditAs.TwoCell)
+                    {
+                        if (d.EditAs == Drawing.eEditAs.Absolute)
+                        {
+                            d.SetPixelTop(pos[ix, 0]);
+                        }
+                        d.SetPixelHeight(pos[ix, 1]);
+
+                    }
+                    ix++;
+                }
+            }
+            internal int[,] GetDrawingWidths()
+            {
+                int[,] pos = new int[Count, 2];
+                int ix = 0;
+                //Save the size for all drawings
+                foreach (ExcelDrawing d in this)
+                {
+                    pos[ix, 0] = d.GetPixelLeft();
+                    pos[ix++, 1] = d.GetPixelWidth();
+                }
+                return pos;
+            }
+            internal int[,] GetDrawingHeight()
+            {
+                int[,] pos = new int[Count, 2];
+                int ix = 0;
+                //Save the size for all drawings
+                foreach (ExcelDrawing d in this)
+                {
+                    pos[ix, 0] = d.GetPixelTop();
+                    pos[ix++, 1] = d.GetPixelHeight();
+                }
+                return pos;
+            }
     }
 }
