@@ -103,8 +103,8 @@ namespace EPPlusSamples
                 //Create an autofilter for the range
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
-                worksheet.Cells["A1:E5"].AutoFitColumns(0);
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
+                worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
                 // lets set the header text 
                 worksheet.HeaderFooter.OddHeader.CenteredText = "&24&U&\"Arial,Regular Bold\" Inventory";

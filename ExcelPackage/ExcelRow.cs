@@ -40,7 +40,7 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelRow : IRangeID
 	{
-		private ExcelWorksheet _xlWorksheet;
+		private ExcelWorksheet _worksheet;
 		private XmlElement _rowElement = null;
         /// <summary>
         /// Internal RowID.
@@ -49,7 +49,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetRowID(_xlWorksheet.SheetID, Row);
+                return GetRowID(_worksheet.SheetID, Row);
             }
         }
 		#region ExcelRow Constructor
@@ -59,27 +59,42 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="Worksheet">The parent worksheet</param>
 		/// <param name="row">The row number</param>
-		protected internal ExcelRow(ExcelWorksheet Worksheet, int row)
+		internal ExcelRow(ExcelWorksheet Worksheet, int row)
 		{
-			_xlWorksheet = Worksheet;
+			_worksheet = Worksheet;
             Row = row;
 		}
 		#endregion
 
 		/// <summary>
 		/// Provides access to the node representing the row.
-		/// For internal use only!
 		/// </summary>
-		protected internal XmlNode Node { get { return (_rowElement); } }
+		internal XmlNode Node { get { return (_rowElement); } }
 
 		#region ExcelRow Hidden
-		/// <summary>
+        bool _hidden = false;
+        /// <summary>
 		/// Allows the row to be hidden in the worksheet
 		/// </summary>
 		public bool Hidden
         {
-            get;
-            set;
+            get
+            {
+                return _hidden;
+            }
+            set
+            {
+                if (_worksheet._package.DoAdjustDrawings)
+                {
+                    var pos = _worksheet.Drawings.GetDrawingWidths();
+                    _hidden = value;
+                    _worksheet.Drawings.AdjustHeight(pos);
+                }
+                else
+                {
+                    _hidden = value;
+                }
+            }
         }        
 		#endregion
 
@@ -94,7 +109,7 @@ namespace OfficeOpenXml
 			{
                 if (_height == -1)
                 {
-                    return _xlWorksheet.DefaultRowHeight;
+                    return _worksheet.DefaultRowHeight;
                 }
                 else
                 {
@@ -104,12 +119,22 @@ namespace OfficeOpenXml
 			}
 			set	
             {
-                _height = value;
+                if (_worksheet._package.DoAdjustDrawings)
+                {
+                    var pos = _worksheet.Drawings.GetDrawingWidths();
+                    _height = value;
+                    _worksheet.Drawings.AdjustHeight(pos);
+                }
+                else
+                {
+                    _height = value;
+                }
+
                 if (Hidden && value != 0)
                 {
                     Hidden = false;
                 }
-                CustomHeight = (value != _xlWorksheet.DefaultRowHeight);
+                CustomHeight = (value != _worksheet.DefaultRowHeight);
             }
         }
         /// <summary>
@@ -130,7 +155,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                _styleId = _xlWorksheet.Workbook.Styles.GetStyleIdFromName(value);
+                _styleId = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
         }        
@@ -190,7 +215,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _xlWorksheet.Workbook.Styles.GetStyleObject(StyleID,_xlWorksheet.PositionID ,Row.ToString()+":"+Row.ToString());                
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID,_worksheet.PositionID ,Row.ToString()+":"+Row.ToString());                
             }
         }
         /// <summary>

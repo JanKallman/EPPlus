@@ -37,9 +37,9 @@ using System.Xml;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// A serie for a scatter chart
+    /// A serie for a line chart
     /// </summary>
-    public sealed class ExcelScatterChartSerie : ExcelChartSerie
+    public sealed class ExcelLineChartSerie : ExcelChartSerie
     {
         /// <summary>
         /// Default constructor
@@ -48,18 +48,19 @@ namespace OfficeOpenXml.Drawing.Chart
         /// <param name="ns">Namespacemanager</param>
         /// <param name="node">Topnode</param>
         /// <param name="isPivot">Is pivotchart</param>
-        internal ExcelScatterChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
+        internal ExcelLineChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
             base(chartSeries, ns, node, isPivot)
         {
-            if (chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
-                chartSeries.Chart.ChartType == eChartType.XYScatterSmooth)
+            if (chartSeries.Chart.ChartType == eChartType.LineMarkers ||
+                chartSeries.Chart.ChartType == eChartType.LineMarkersStacked ||
+                chartSeries.Chart.ChartType == eChartType.LineMarkersStacked100)
             {
                 Marker = eMarkerStyle.Square;
             }
         }
         ExcelChartSerieDataLabel _DataLabel = null;
         /// <summary>
-        /// Datalabel
+        /// Datalabels
         /// </summary>
         public ExcelChartSerieDataLabel DataLabel
         {
@@ -70,21 +71,6 @@ namespace OfficeOpenXml.Drawing.Chart
                     _DataLabel = new ExcelChartSerieDataLabel(_ns, _node);
                 }
                 return _DataLabel;
-            }
-        }
-        const string smoothPath = "c:smooth/@val";
-        /// <summary>
-        /// Smooth for scattercharts
-        /// </summary>
-        public int Smooth
-        {
-            get
-            {
-                return GetXmlNodeInt(smoothPath);
-            }
-            internal set
-            {
-                SetXmlNodeString(smoothPath, value.ToString());
             }
         }
         const string markerPath = "c:marker/c:symbol/@val";

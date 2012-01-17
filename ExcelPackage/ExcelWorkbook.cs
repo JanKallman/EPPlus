@@ -326,7 +326,7 @@ namespace OfficeOpenXml
         //    {
         //        if (_vba == null)
         //        {
-        //             _vba = new ExcelVBAProject(this);
+        //            _vba = new ExcelVBAProject(this);
         //        }
         //        return _vba;
         //    }

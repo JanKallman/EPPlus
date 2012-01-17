@@ -423,6 +423,7 @@ namespace OfficeOpenXml
         private void Init()
         {
             Compression = CompressionOption.Normal;
+            DoAdjustDrawings = true;
         }
         /// <summary>
         /// Create a new file from a template
@@ -563,7 +564,15 @@ namespace OfficeOpenXml
                 return (_workbook);
 			}
 		}
-
+        /// <summary>
+        /// Automaticlly adjust drawing size when column width/row height are adjusted, depending on the drawings editBy property.
+        /// Default True
+        /// </summary>
+        public bool DoAdjustDrawings
+        {
+            get;
+            set;
+        }
         private XmlNamespaceManager CreateDefaultNSM()
         {
             //  Create a NamespaceManager to handle the default namespace, 

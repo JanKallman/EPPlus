@@ -180,6 +180,35 @@ namespace OfficeOpenXml
             _comments.Add(comment);
             return comment;
         }
+        /// <summary>
+        /// Removes the comment
+        /// </summary>
+        /// <param name="comment">The comment to remove</param>
+        public void Remove(ExcelComment comment)
+        {
+            ulong id = ExcelAddress.GetCellID(Worksheet.SheetID, comment.Range._fromRow, comment.Range._fromCol);
+            int ix=_comments.IndexOf(id);
+            if (ix >= 0 && comment == _comments[ix])
+            {
+                comment.TopNode.ParentNode.RemoveChild(comment.TopNode); //Remove VML
+                comment._commentHelper.TopNode.ParentNode.RemoveChild(comment._commentHelper.TopNode); //Remove Comment
+
+                Worksheet.VmlDrawingsComments._drawings.Delete(id);
+                _comments.Delete(id);
+            }
+            else
+            {
+                throw (new ArgumentException("Comment does not exist in the worksheet"));
+            }
+        }
+        /// <summary>
+        /// Removes the comment at the specified position
+        /// </summary>
+        /// <param name="Index">The index</param>
+        public void RemoveAt(int Index)
+        {
+            Remove(this[Index]);
+        }
         #region IEnumerable Members
 
         IEnumerator IEnumerable.GetEnumerator()

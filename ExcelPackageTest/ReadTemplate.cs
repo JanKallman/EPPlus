@@ -25,7 +25,6 @@ namespace EPPlusTest
                 cht.Title.Text = "Test";
                 Assert.AreEqual(cht.Title.Text, "Test");
             }
-
         }
         [TestMethod]
         public void ReadWorkSheet()
@@ -216,6 +215,54 @@ namespace EPPlusTest
             package.Workbook.Worksheets[1].Protection.AllowInsertColumns = true;
             package.Workbook.Worksheets[1].Protection.SetPassword("test");
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug7()
+        {
+            var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("test");
+            using (var rng = ws.Cells["A1"])
+            {
+                var rt1 = rng.RichText.Add("TEXT1\r\n");
+                rt1.Bold = true;
+                rng.Style.WrapText = true;
+                var rt2=rng.RichText.Add("TEXT2");
+                rt2.Bold = false;
+            }
+            
+            package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug8()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\2.9 bugs\bug\Genband SO CrossRef Phoenix.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            using (var rng = ws.Cells["A1"])
+            {
+                var rt1 = rng.RichText.Add("TEXT1\r\n");
+                rt1.Bold = true;
+                rng.Style.WrapText = true;
+                var rt2 = rng.RichText.Add("TEXT2");
+                rt2.Bold = false;
+            }
+
+            package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\billing_template.xlsx.error"));
+        }
+        [TestMethod]
+        public void ReadBug9()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\CovenantsCheckReportTemplate.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\new_t.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug10()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\Model_graphes_MBW.xlsm"));
+
+            var ws = package.Workbook.Worksheets["HTTP_data"];
+            Assert.IsNotNull(ws.Cells["B4"].Style.Fill.BackgroundColor.Indexed);
+            Assert.IsNotNull(ws.Cells["B5"].Style.Fill.BackgroundColor.Indexed);
         }
     }
 }

@@ -48,9 +48,9 @@ namespace OfficeOpenXml
 	/// </summary>
 	public class ExcelWorksheets : XmlHelper, IEnumerable<ExcelWorksheet>
 	{
-		#region ExcelWorksheets Private Properties
-		private Dictionary<int, ExcelWorksheet> _worksheets;
-		private ExcelPackage _pck;
+		#region Private Properties
+        private ExcelPackage _pck;
+        private Dictionary<int, ExcelWorksheet> _worksheets;
 		private XmlNamespaceManager _namespaceManager;
 		#endregion
 		#region ExcelWorksheets Constructor
@@ -111,8 +111,7 @@ namespace OfficeOpenXml
         internal const string WORKSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
 		#region ExcelWorksheets Public Methods
 		/// <summary>
-		/// Returns an enumerator that allows the foreach syntax to be used to 
-		/// itterate through all the worksheets
+        /// Foreach support
 		/// </summary>
 		/// <returns>An enumerator</returns>
 		public IEnumerator<ExcelWorksheet> GetEnumerator()
@@ -131,9 +130,9 @@ namespace OfficeOpenXml
 
 		#region Add Worksheet
 		/// <summary>
-		/// Adds a blank worksheet with the desired name
+		/// Adds a new blank worksheet
 		/// </summary>
-		/// <param name="Name"></param>
+		/// <param name="Name">The name of the workbook</param>
 		public ExcelWorksheet Add(string Name)
 		{
             int sheetID;
@@ -161,9 +160,9 @@ namespace OfficeOpenXml
 			return worksheet;
 		}
         /// <summary>
-        /// Adds a copy of a worksheet with the desired name
+        /// Adds a copy of a worksheet
         /// </summary>
-        /// <param name="Name"></param>
+        /// <param name="Name">The name of the workbook</param>
         /// <param name="Copy">The worksheet to be copied</param>
         public ExcelWorksheet Add(string Name, ExcelWorksheet Copy)
         {
@@ -380,14 +379,16 @@ namespace OfficeOpenXml
         private void CloneCells(ExcelWorksheet Copy, ExcelWorksheet added)
         {
             bool sameWorkbook=(Copy.Workbook == _pck.Workbook);
-            
+
+            bool doAdjust = _pck.DoAdjustDrawings;
+            _pck.DoAdjustDrawings = false;
             added.MergedCells.List.AddRange(Copy.MergedCells.List);
             //Formulas
             foreach (IRangeID f in Copy._formulaCells)
             {
                 added._formulaCells.Add(f);
             }
-            //Shared Forulas
+            //Shared Formulas
             foreach (int key in Copy._sharedFormulas.Keys)
             {
                 added._sharedFormulas.Add(key, Copy._sharedFormulas[key]);
@@ -479,6 +480,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
+            added._package.DoAdjustDrawings = doAdjust;
         }
         private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
         {
@@ -530,7 +532,7 @@ namespace OfficeOpenXml
             //Check if the worksheet has drawings
             //if(_xlPackage.Package.PartExists(r.TargetUri))
             //{
-                //First copy the drawing XML
+                //First copy the drawing XML                
                 string xml = Copy.Drawings.DrawingXml.OuterXml;            
                 var uriDraw=new Uri(string.Format("/xl/drawings/drawing{0}.xml", workSheet.SheetID),  UriKind.Relative);
                 var part= _pck.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _pck.Compression);
@@ -704,7 +706,7 @@ namespace OfficeOpenXml
 
 		#region Delete Worksheet
 		/// <summary>
-		/// Delete a worksheet from the workbook package
+		/// Deletes a worksheet from the collection
 		/// </summary>
 		/// <param name="Index">The position of the worksheet in the workbook</param>
 		public void Delete(int Index)
@@ -730,7 +732,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-		/// Delete a worksheet from the workbook package
+		/// Deletes a worksheet from the collection
 		/// </summary>
 		/// <param name="name">The name of the worksheet in the workbook</param>
 		public void Delete(string name)
@@ -744,7 +746,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-        /// Delete a worksheet from the workbook
+        /// Delete a worksheet from the collection
         /// </summary>
         /// <param name="Worksheet">The worksheet to delete</param>
         public void Delete(ExcelWorksheet Worksheet)

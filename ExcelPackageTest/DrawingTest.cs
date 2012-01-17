@@ -95,10 +95,32 @@ namespace EPPlusTest
              pic.SetPosition(400, 200);
              pic.SetSize(150);
 
+             ws.Column(1).Width = 53;
+             ws.Column(4).Width = 58;
 
              pic = ws.Drawings.AddPicture("Pic6", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
              pic.SetPosition(400, 400);
              pic.SetSize(100);
+         }
+         [TestMethod]
+         public void DrawingSizingAndPositioning()
+         {
+             var ws = _pck.Workbook.Worksheets.Add("DrawingPosSize");
+
+             var pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+             pic.SetPosition(1, 0, 1, 0);
+
+             pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
+             pic.EditAs = eEditAs.Absolute;
+             pic.SetPosition(10, 5, 1, 4);
+
+             pic = ws.Drawings.AddPicture("Pic3", Properties.Resources.Test1);
+             pic.EditAs = eEditAs.TwoCell;
+             pic.SetPosition(20, 5, 2, 4);
+
+             
+             ws.Column(1).Width = 100;
+             ws.Column(3).Width = 100;
          }
 
         [TestMethod]
@@ -111,7 +133,9 @@ namespace EPPlusTest
             AddTestSerie(ws, chrt);
             chrt.VaryColors = true;
             chrt.XAxis.Orientation = eAxisOrientation.MaxMin;
+            chrt.XAxis.MajorTickMark = eAxisTickMark.In;
             chrt.YAxis.Orientation = eAxisOrientation.MaxMin;
+            chrt.YAxis.MinorTickMark = eAxisTickMark.Out;
             chrt.ShowHiddenData = true;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Zero;
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
@@ -341,6 +365,26 @@ namespace EPPlusTest
             chrt.DataLabel.ShowLeaderLines=true;
             chrt.EditAs = eEditAs.OneCell;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Span;
+        }
+        [TestMethod]
+        public void LineMarker()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("LineMarker1");
+            var chrt = ws.Drawings.AddChart("Line1", eChartType.LineMarkers) as ExcelLineChart;
+            AddTestSerie(ws, chrt);
+            chrt.SetSize(150);
+            chrt.Title.Text = "Line Markers";
+            chrt.Series[0].Header = "Line serie 1";
+            ((ExcelLineChartSerie)chrt.Series[0]).Marker = eMarkerStyle.Plus;
+
+            var chrt2 = ws.Drawings.AddChart("Line2", eChartType.LineMarkers) as ExcelLineChart;
+            AddTestSerie(ws, chrt2);
+            chrt2.SetPosition(500,0);
+            chrt2.SetSize(150);
+            chrt2.Title.Text = "Line Markers";
+            var serie = (ExcelLineChartSerie)chrt2.Series[0];
+            serie.Marker = eMarkerStyle.X;
+
         }
         [TestMethod]
         public void Drawings()
