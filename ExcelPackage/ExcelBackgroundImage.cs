@@ -40,6 +40,9 @@ using System.IO;
 using OfficeOpenXml.Drawing;
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// An image that fills the background of the worksheet.
+    /// </summary>
     public class ExcelBackgroundImage : XmlHelper
     {
         ExcelWorksheet _workSheet;

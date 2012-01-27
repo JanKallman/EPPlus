@@ -49,6 +49,9 @@ namespace OfficeOpenXml.Style
             _cls=cls;
             _parent = parent;
 	    }
+        /// <summary>
+        /// The line style of the border
+        /// </summary>
         public ExcelBorderStyle Style
         {
             get
@@ -61,6 +64,9 @@ namespace OfficeOpenXml.Style
             }
         }
         ExcelColor _color=null;
+        /// <summary>
+        /// The color of the border
+        /// </summary>
         public ExcelColor Color
         {
             get

@@ -41,6 +41,9 @@ using OfficeOpenXml.Drawing;
 using System.IO.Packaging;
 namespace OfficeOpenXml
 {    
+    /// <summary>
+    /// How a picture will be aligned in the header/footer
+    /// </summary>
     public enum PictureAlignment
     {
         /// <summary>

@@ -71,7 +71,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Constructor
         /// </summary>
-        public ExcelEncryption()
+        internal ExcelEncryption()
         {
             Algorithm = EncryptionAlgorithm.AES128;
         }
@@ -79,7 +79,7 @@ namespace OfficeOpenXml
         /// Constructor
         /// </summary>
         /// <param name="encryptionAlgorithm">Algorithm used to encrypt the package. Default is AES128</param>
-        public ExcelEncryption(EncryptionAlgorithm encryptionAlgorithm)
+        internal ExcelEncryption(EncryptionAlgorithm encryptionAlgorithm)
         {
             Algorithm = encryptionAlgorithm;
         }        
