@@ -195,6 +195,13 @@ namespace OfficeOpenXml.Drawing.Chart
                    case eChartType.LineStacked:
                    case eChartType.LineStacked100:
                        serie = new ExcelLineChartSerie(this, NameSpaceManager, ser, _isPivot);
+                       if (Chart.ChartType == eChartType.LineMarkers ||
+                           Chart.ChartType == eChartType.LineMarkersStacked ||
+                           Chart.ChartType == eChartType.LineMarkersStacked100)
+                       {
+                           ((ExcelLineChartSerie)serie).Marker = eMarkerStyle.Square;
+                       }
+                       ((ExcelLineChartSerie)serie).Smooth = ((ExcelLineChart)Chart).Smooth;
                        break;
 
                    default:

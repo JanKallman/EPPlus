@@ -51,12 +51,6 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelLineChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
             base(chartSeries, ns, node, isPivot)
         {
-            if (chartSeries.Chart.ChartType == eChartType.LineMarkers ||
-                chartSeries.Chart.ChartType == eChartType.LineMarkersStacked ||
-                chartSeries.Chart.ChartType == eChartType.LineMarkersStacked100)
-            {
-                Marker = eMarkerStyle.Square;
-            }
         }
         ExcelChartSerieDataLabel _DataLabel = null;
         /// <summary>
@@ -91,9 +85,24 @@ namespace OfficeOpenXml.Drawing.Chart
                     return (eMarkerStyle)Enum.Parse(typeof(eMarkerStyle), marker, true);
                 }
             }
-            internal set
+            set
             {
                 SetXmlNodeString(markerPath, value.ToString().ToLower());
+            }
+        }
+        const string smoothPath = "c:smooth/@val";
+        /// <summary>
+        /// Smoth lines
+        /// </summary>
+        public bool Smooth
+        {
+            get
+            {
+                return GetXmlNodeBool(smoothPath, false);
+            }
+            set
+            {
+                SetXmlNodeBool(smoothPath, value);
             }
         }
     }

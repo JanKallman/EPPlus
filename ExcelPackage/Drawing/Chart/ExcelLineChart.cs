@@ -44,27 +44,19 @@ namespace OfficeOpenXml.Drawing.Chart
     public class ExcelLineChart  : ExcelChart
     {
         #region "Constructors"
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
-            base(drawings, node, type, isPivot)
-        {
-            //_chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
-        }
-
         internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
             base(drawings, node, uriChart, part, chartXml, chartNode)
         {
-            //_chartTopPath = string.Format(_chartTopPath, chartNode.Name);
         }
 
         internal ExcelLineChart(ExcelChart topChart, XmlNode chartNode) :
             base(topChart, chartNode)
         {
-           // _chartTopPath = string.Format(_chartTopPath, chartNode.Name);
         }
         internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
             base(drawings, node, type, topChart, PivotTableSource)
         {
-            //_chartTopPath = string.Format(_chartTopPath, GetChartNodeText());
+            Smooth = false;
         }
         #endregion
         string MARKER_PATH="c:marker/@val";
@@ -75,11 +67,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool(MARKER_PATH, false);
+                return _chartXmlHelper.GetXmlNodeBool(MARKER_PATH, false);
             }
             set
             {
-                SetXmlNodeBool(MARKER_PATH, value, false);
+                _chartXmlHelper.SetXmlNodeBool(MARKER_PATH, value, false);
             }
         }
 
@@ -91,11 +83,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool(SMOOTH_PATH, false);
+                return _chartXmlHelper.GetXmlNodeBool(SMOOTH_PATH, false);
             }
             set
             {
-                SetXmlNodeBool(SMOOTH_PATH, value, false);
+                _chartXmlHelper.SetXmlNodeBool(SMOOTH_PATH, value);
             }
         }
         //string _chartTopPath = "c:chartSpace/c:chart/c:plotArea/{0}";

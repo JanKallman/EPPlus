@@ -47,7 +47,9 @@ namespace OfficeOpenXml.Style
         {
             Index = index;
         }
-
+        /// <summary>
+        /// The numeric index fror the format
+        /// </summary>
         public int NumFmtID 
         {
             get
@@ -88,6 +90,9 @@ namespace OfficeOpenXml.Style
                 return Format;
             }
         }
+        /// <summary>
+        /// If the numeric format is a build-in from.
+        /// </summary>
         public bool BuildIn { get; private set; }
     }
 }

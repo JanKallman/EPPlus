@@ -37,6 +37,9 @@ using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ExcelPivotTableDataField : XmlHelper
     {
         internal ExcelPivotTableDataField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field) :

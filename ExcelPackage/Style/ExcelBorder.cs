@@ -46,6 +46,9 @@ namespace OfficeOpenXml.Style
 	    {
             Index = index;
         }
+        /// <summary>
+        /// Left border style
+        /// </summary>
         public ExcelBorderItem Left
         {
             get
@@ -53,6 +56,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelBorderItem(_styles, _ChangedEvent, _positionID, _address, eStyleClass.BorderLeft, this);
             }
         }
+        /// <summary>
+        /// Right border style
+        /// </summary>
         public ExcelBorderItem Right
         {
             get
@@ -60,6 +66,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelBorderItem(_styles, _ChangedEvent, _positionID, _address, eStyleClass.BorderRight, this);
             }
         }
+        /// <summary>
+        /// Top border style
+        /// </summary>
         public ExcelBorderItem Top
         {
             get
@@ -67,6 +76,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelBorderItem(_styles, _ChangedEvent, _positionID, _address, eStyleClass.BorderTop, this);
             }
         }
+        /// <summary>
+        /// Bottom border style
+        /// </summary>
         public ExcelBorderItem Bottom
         {
             get
@@ -74,6 +86,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelBorderItem(_styles, _ChangedEvent, _positionID, _address, eStyleClass.BorderBottom, this);
             }
         }
+        /// <summary>
+        /// Diagonal border style
+        /// </summary>
         public ExcelBorderItem Diagonal
         {
             get
@@ -81,6 +96,9 @@ namespace OfficeOpenXml.Style
                 return new ExcelBorderItem(_styles, _ChangedEvent, _positionID, _address, eStyleClass.BorderDiagonal, this);
             }
         }
+        /// <summary>
+        /// A diagonal from the bottom left to top right of the cell
+        /// </summary>
         public bool DiagonalUp 
         {
             get
@@ -99,6 +117,9 @@ namespace OfficeOpenXml.Style
                 _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Border, eStyleProperty.BorderDiagonalUp, value, _positionID, _address));
             }
         }
+        /// <summary>
+        /// A diagonal from the top left to bottom right of the cell
+        /// </summary>
         public bool DiagonalDown 
         {
             get

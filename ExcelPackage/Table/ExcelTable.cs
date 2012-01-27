@@ -417,6 +417,34 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString(AUTOFILTER_PATH, autofilterAddress);
             }
         }
+        /// <summary>
+        /// If the headerrow has an autofilter
+        /// </summary>
+        public bool ShowFilter 
+        { 
+            get
+            {
+                return ShowHeader && AutoFilterAddress != null;
+            }
+            set
+            {
+                if (ShowHeader)
+                {
+                    if (value)
+                    {
+                        WriteAutoFilter(ShowTotal);
+                    }
+                    else 
+                    {
+                        DeleteAllNode(AUTOFILTER_PATH);
+                    }
+                }
+                else if(value)
+                {
+                    throw(new InvalidOperationException("Filter can only be applied when ShowHeader is set to true"));
+                }
+            }
+        }
         const string TOTALSROWCOUNT_PATH = "@totalsRowCount";
         const string TOTALSROWSHOWN_PATH = "@totalsRowShown";
         public bool ShowTotal

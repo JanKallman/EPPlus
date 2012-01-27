@@ -82,6 +82,9 @@ namespace OfficeOpenXml
         }
 
         string _referenceAddress = null;
+        /// <summary>
+        /// The Excel address for internal links.
+        /// </summary>
         public string ReferenceAddress
         {
             get

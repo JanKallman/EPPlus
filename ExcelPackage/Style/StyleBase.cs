@@ -35,6 +35,9 @@ using System.Text;
 
 namespace OfficeOpenXml.Style
 {
+    /// <summary>
+    /// Border line style
+    /// </summary>
     public enum ExcelBorderStyle
     {
         None,
@@ -51,6 +54,9 @@ namespace OfficeOpenXml.Style
         Medium,
         Double
     };
+    /// <summary>
+    /// Horizontal text alignment
+    /// </summary>
     public enum ExcelHorizontalAlignment
     {
         General,
@@ -62,6 +68,9 @@ namespace OfficeOpenXml.Style
         Distributed,
         Justify
     }
+    /// <summary>
+    /// Vertical text alignment
+    /// </summary>
     public enum ExcelVerticalAlignment
     {
         Top,
@@ -70,12 +79,18 @@ namespace OfficeOpenXml.Style
         Distributed,
         Justify
     }
+    /// <summary>
+    /// Font-Vertical Align
+    /// </summary>
     public enum ExcelVerticalAlignmentFont
     {
         None,
         Subscript,
         Superscript
     }
+    /// <summary>
+    /// Fill pattern
+    /// </summary>
     public enum ExcelFillStyle
     {
         None,
@@ -98,6 +113,9 @@ namespace OfficeOpenXml.Style
         LightGrid,
         LightTrellis
     }
+    /// <summary>
+    /// Type of gradient fill
+    /// </summary>
     public enum ExcelFillGradientType
     {
         /// <summary>

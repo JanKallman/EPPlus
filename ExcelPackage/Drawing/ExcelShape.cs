@@ -258,12 +258,12 @@ namespace OfficeOpenXml.Drawing
         internal ExcelShape(ExcelDrawings drawings, XmlNode node) :
             base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")
         {
-
+            init();
         }
         internal ExcelShape(ExcelDrawings drawings, XmlNode node, eShapeStyle style) :
             base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")
         {
-            SchemaNodeOrder = new string[] { "prstGeom", "ln" };
+            init();
             XmlElement shapeNode = node.OwnerDocument.CreateElement("xdr", "sp", ExcelPackage.schemaSheetDrawings);
             shapeNode.SetAttribute("macro", "");
             shapeNode.SetAttribute("textlink", "");
@@ -271,6 +271,10 @@ namespace OfficeOpenXml.Drawing
 
             shapeNode.InnerXml = ShapeStartXml();
             node.AppendChild(shapeNode.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings));
+        }
+        private void init()
+        {
+            SchemaNodeOrder = new string[] { "prstGeom", "ln", "pPr", "defRPr", "solidFill", "uFill", "latin", "cs", "r", "rPr", "t" };
         }
         #region "public methods"
         const string ShapeStylePath = "xdr:sp/xdr:spPr/a:prstGeom/@prst";

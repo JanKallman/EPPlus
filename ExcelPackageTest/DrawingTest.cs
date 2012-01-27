@@ -138,6 +138,7 @@ namespace EPPlusTest
             chrt.YAxis.MinorTickMark = eAxisTickMark.Out;
             chrt.ShowHiddenData = true;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Zero;
+            chrt.Title.RichText.Text = "Barchart Test";
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
             Assert.IsTrue(chrt.Grouping == eGrouping.Clustered, "Invalid Grouping");
@@ -180,7 +181,7 @@ namespace EPPlusTest
             chrt.Legend.Position = eLegendPosition.TopRight;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
-
+            chrt.Title.Text = "Piechart";
         }
         [TestMethod]
         public void PieChart3D()
@@ -196,7 +197,7 @@ namespace EPPlusTest
             chrt.Legend.Position = eLegendPosition.Left;
             chrt.ShowHiddenData = false;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Gap;
-
+            chrt.Title.RichText.Add("Pie RT Title add");
             Assert.IsTrue(chrt.ChartType == eChartType.Pie3D, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
 
@@ -335,6 +336,7 @@ namespace EPPlusTest
             AddTestSerie(ws, chrt);
             chrt.SetSize(150);
             chrt.VaryColors = true;
+            chrt.Smooth = false;
             chrt.Title.Text = "Line 3D";
             chrt.Series[0].Header = "Line serie 1";
             var tl = chrt.Series[0].TrendLines.Add(eTrendLine.Polynomial);
@@ -449,6 +451,9 @@ namespace EPPlusTest
             (ws.Drawings["shape8"] as ExcelShape).Font.LatinFont = "Miriam";
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLineColor = Color.CadetBlue;
             (ws.Drawings["shape8"] as ExcelShape).Font.UnderLine = eUnderLineType.Single;
+
+            (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
+
         }
         [TestMethod]
         public void DrawingWorksheetCopy()

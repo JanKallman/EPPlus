@@ -606,7 +606,8 @@ namespace EPPlusTest
             tbl.ShowTotal = true;
             tbl.ShowHeader = true;
             tbl.ShowLastColumn = true;
-
+            tbl.ShowFilter = false;
+            Assert.AreEqual(tbl.ShowFilter, false);
             ws.Cells["K2"].Value = 5;
             ws.Cells["J3"].Value = 4;
 
@@ -637,6 +638,7 @@ namespace EPPlusTest
             tbl.ShowFirstColumn = true;
             tbl.ShowLastColumn = true;
             tbl.ShowColumnStripes = true;
+            Assert.AreEqual(tbl.ShowFilter, true);
             tbl.Columns[2].Name = "Test Column Name";
 
             ws.Cells["G50"].Value = "Timespan";
@@ -648,6 +650,7 @@ namespace EPPlusTest
             ws.Cells["G51:G55"].Style.Numberformat.Format = "HH:MM:SS";
             tbl = ws.Tables.Add(ws.Cells["G50:G54"], "");
             tbl.ShowTotal = true;
+            tbl.ShowFilter = false;
             tbl.Columns[0].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
         }
         [TestMethod]

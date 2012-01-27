@@ -51,7 +51,9 @@ namespace OfficeOpenXml.Style
             _parent = parent;
             _cls = cls;
         }
-
+        /// <summary>
+        /// The theme color
+        /// </summary>
         public string Theme
         {
             get
@@ -59,6 +61,9 @@ namespace OfficeOpenXml.Style
                 return GetSource().Theme;
             }
         }
+        /// <summary>
+        /// The tint value
+        /// </summary>
         public decimal Tint
         {
             get

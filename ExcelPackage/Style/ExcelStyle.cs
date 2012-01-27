@@ -216,6 +216,9 @@ namespace OfficeOpenXml.Style
 
 
         const string xfIdPath = "@xfId";
+        /// <summary>
+        /// The index in the style collection
+        /// </summary>
         public int XfId 
         {
             get

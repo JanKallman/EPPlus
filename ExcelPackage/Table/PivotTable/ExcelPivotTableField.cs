@@ -43,6 +43,9 @@ namespace OfficeOpenXml.Table.PivotTable
     /// </summary>
     public enum ePivotFieldAxis
     {
+        /// <summary>
+        /// None
+        /// </summary>
         None=-1,
         /// <summary>
         /// Column axis
@@ -100,6 +103,9 @@ namespace OfficeOpenXml.Table.PivotTable
          Var=2048, 
          VarP=4096
      }
+    /// <summary>
+    /// Data grouping
+    /// </summary>
     [Flags]
     public enum eDateGroupBy
     {
@@ -111,6 +117,9 @@ namespace OfficeOpenXml.Table.PivotTable
         Minutes = 32,
         Seconds = 64
     }
+    /// <summary>
+    /// Sorting
+    /// </summary>
     public enum eSortType
     {
         None,
@@ -159,6 +168,9 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@name", value);
             }
         }
+        /// <summary>
+        /// Compact mode
+        /// </summary>
         public bool Compact
         { 
             get
