@@ -7,11 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		LocalTestRun.testrunconfig = LocalTestRun.testrunconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlus", "ExcelPackage\EPPlus.csproj", "{7B288026-5502-4A39-BF41-77E086F3E4A3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlus", "EPPlus\EPPlus.csproj", "{7B288026-5502-4A39-BF41-77E086F3E4A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusSamples", "SampleApp\EPPlusSamples.csproj", "{06BF3C68-E7D4-4579-90BE-E36DACE564EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTest", "ExcelPackageTest\EPPlusTest.csproj", "{E7BCEDE0-EADD-437B-86D5-49D192216948}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTest", "EPPlusTest\EPPlusTest.csproj", "{E7BCEDE0-EADD-437B-86D5-49D192216948}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusWebSample", "EPPlusWebSample\EPPlusWebSample.csproj", "{1BF30A52-6149-432D-82F6-725250E5C662}"
 EndProject
