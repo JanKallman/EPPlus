@@ -51,7 +51,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _bold = false;
             _italic = false;
             _strike = false;
-            _underline = false; ;
+            _underlineType = ExcelUnderLineType.None ;
             _verticalAlign = "";
         }
         internal ExcelFontXml(XmlNamespaceManager nsm, XmlNode topNode) :
@@ -65,18 +65,36 @@ namespace OfficeOpenXml.Style.XmlAccess
             _bold = (topNode.SelectSingleNode(boldPath, NameSpaceManager) != null);
             _italic = (topNode.SelectSingleNode(italicPath, NameSpaceManager) != null);
             _strike = (topNode.SelectSingleNode(strikePath, NameSpaceManager) != null);
-            _underline = (topNode.SelectSingleNode(underLinedPath, NameSpaceManager) != null);
             _verticalAlign = GetXmlNodeString(verticalAlignPath);
+            if (topNode.SelectSingleNode(underLinedPath, NameSpaceManager) != null)
+            {
+                string ut = GetXmlNodeString(underLinedPath + "/@val");
+                if (ut == "")
+                {
+                    _underlineType = ExcelUnderLineType.Single;
+                }
+                else
+                {
+                    _underlineType = (ExcelUnderLineType)Enum.Parse(typeof(ExcelUnderLineType), ut, true);
+                }
+            }
+            else
+            {
+                _underlineType = ExcelUnderLineType.None;
+            }
         }
         internal override string Id
         {
             get
             {
-                return Name + "|" + Size + "|" + Family + "|" + Color.Id + "|" + Scheme + "|" + Bold.ToString() + "|" + Italic.ToString() + "|" + Strike.ToString() + "|" + VerticalAlign + "|" + UnderLine.ToString();
+                return Name + "|" + Size + "|" + Family + "|" + Color.Id + "|" + Scheme + "|" + Bold.ToString() + "|" + Italic.ToString() + "|" + Strike.ToString() + "|" + VerticalAlign + "|" + UnderLineType.ToString();
             }
         }
         const string namePath = "d:name/@val";
         string _name;
+        /// <summary>
+        /// The name of the font
+        /// </summary>
         public string Name
         {
             get
@@ -91,6 +109,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string sizePath = "d:sz/@val";
         float _size;
+        /// <summary>
+        /// Font size
+        /// </summary>
         public float Size
         {
             get
@@ -104,6 +125,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string familyPath = "d:family/@val";
         int _family;
+        /// <summary>
+        /// Font family
+        /// </summary>
         public int Family
         {
             get
@@ -117,6 +141,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         ExcelColorXml _color = null;
         const string _colorPath = "d:color";
+        /// <summary>
+        /// Text color
+        /// </summary>
         public ExcelColorXml Color
         {
             get
@@ -130,6 +157,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string schemePath = "d:scheme/@val";
         string _scheme="";
+        /// <summary>
+        /// Font Scheme
+        /// </summary>
         public string Scheme
         {
             get
@@ -143,6 +173,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string boldPath = "d:b";
         bool _bold;
+        /// <summary>
+        /// If the font is bold
+        /// </summary>
         public bool Bold
         {
             get
@@ -156,6 +189,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string italicPath = "d:i";
         bool _italic;
+        /// <summary>
+        /// If the font is italic
+        /// </summary>
         public bool Italic
         {
             get
@@ -169,6 +205,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string strikePath = "d:strike";
         bool _strike;
+        /// <summary>
+        /// If the font is striked out
+        /// </summary>
         public bool Strike
         {
             get
@@ -181,20 +220,41 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         const string underLinedPath = "d:u";
-        bool _underline;
+        /// <summary>
+        /// If the font is underlined.
+        /// When set to true a the text is underlined with a single line
+        /// </summary>
         public bool UnderLine
         {
             get
             {
-                return _underline;
+                return UnderLineType!=ExcelUnderLineType.None;
             }
             set
             {
-                _underline=value;
+                _underlineType=value ? ExcelUnderLineType.Single : ExcelUnderLineType.None;
+            }
+        }
+        ExcelUnderLineType _underlineType;
+        /// <summary>
+        /// If the font is underlined
+        /// </summary>
+        public ExcelUnderLineType UnderLineType
+        {
+            get
+            {
+                return _underlineType;
+            }
+            set
+            {
+                _underlineType = value;
             }
         }
         const string verticalAlignPath = "d:vertAlign/@val";
         string _verticalAlign;
+        /// <summary>
+        /// Vertical aligned
+        /// </summary>
         public string VerticalAlign
         {
             get
@@ -225,7 +285,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             newFont.Scheme = Scheme;
             newFont.Bold = Bold;
             newFont.Italic = Italic;
-            newFont.UnderLine = UnderLine;
+            newFont.UnderLineType = UnderLineType;
             newFont.Strike = Strike;
             newFont.VerticalAlign = VerticalAlign;
             newFont.Color = Color.Copy();
@@ -239,7 +299,21 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_bold) CreateNode(boldPath); else DeleteAllNode(boldPath);
             if (_italic) CreateNode(italicPath); else DeleteAllNode(italicPath);
             if (_strike) CreateNode(strikePath); else DeleteAllNode(strikePath);
-            if (_underline) CreateNode(underLinedPath); else DeleteAllNode(underLinedPath);
+            
+            if (_underlineType == ExcelUnderLineType.None)
+            {
+                DeleteAllNode(underLinedPath);
+            }
+            else if(_underlineType==ExcelUnderLineType.Single)
+            {
+                CreateNode(underLinedPath);
+            }
+            else
+            {
+                var v=_underlineType.ToString();
+                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower() + v.Substring(1));
+            }
+
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
             SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (_color.Exists)

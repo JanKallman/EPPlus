@@ -166,7 +166,26 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Underline, value, _positionID, _address));
+                if (value)
+                {
+                    UnderLineType = ExcelUnderLineType.Single;
+                }
+                else
+                {
+                    UnderLineType = ExcelUnderLineType.None;
+                }
+                //_ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.UnderlineType, value, _positionID, _address));
+            }
+        }
+        public ExcelUnderLineType UnderLineType
+        {
+            get
+            {
+                return _styles.Fonts[Index].UnderLineType;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.UnderlineType, value, _positionID, _address));
             }
         }
         /// <summary>

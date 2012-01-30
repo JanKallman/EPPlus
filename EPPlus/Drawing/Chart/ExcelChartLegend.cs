@@ -37,6 +37,9 @@ using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Position of the legend
+    /// </summary>
     public enum eLegendPosition
     {
         Top,
@@ -58,6 +61,9 @@ namespace OfficeOpenXml.Drawing.Chart
            SchemaNodeOrder = new string[] { "legendPos", "layout","overlay", "txPr", "bodyPr", "lstStyle", "spPr" };
        }
         const string POSITION_PATH = "c:legendPos/@val";
+        /// <summary>
+        /// Position of the Legend
+        /// </summary>
         public eLegendPosition Position 
         {
             get
@@ -100,6 +106,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         const string OVERLAY_PATH = "c:overlay/@val";
+        /// <summary>
+        /// If the legend overlays other objects
+        /// </summary>
         public bool Overlay
         {
             get
@@ -113,6 +122,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingFill _fill = null;
+        /// <summary>
+        /// Fill style
+        /// </summary>
         public ExcelDrawingFill Fill
         {
             get
@@ -125,6 +137,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelDrawingBorder _border = null;
+        /// <summary>
+        /// Border style
+        /// </summary>
         public ExcelDrawingBorder Border
         {
             get
@@ -137,6 +152,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelTextFont _font = null;
+        /// <summary>
+        /// Font properties
+        /// </summary>
         public ExcelTextFont Font
         {
             get
@@ -153,12 +171,18 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _font;
             }
         }
+        /// <summary>
+        /// Remove the legend
+        /// </summary>
         public void Remove()
         {
             if (TopNode == null) return;
             TopNode.ParentNode.RemoveChild(TopNode);
             TopNode = null;
         }
+        /// <summary>
+        /// Add a legend to the chart
+        /// </summary>
         public void Add()
         {
             if(TopNode!=null) return;

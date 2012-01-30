@@ -39,7 +39,7 @@ using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// Provides access to pie chart specific properties
+    /// Provides access to ofpie-chart specific properties
     /// </summary>
     public class ExcelOfPieChart : ExcelPieChart
     {

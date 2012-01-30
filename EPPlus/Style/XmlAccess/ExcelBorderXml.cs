@@ -63,6 +63,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string leftPath = "d:left";
         ExcelBorderItemXml _left = null;
+        /// <summary>
+        /// Left border style properties
+        /// </summary>
         public ExcelBorderItemXml Left
         {
             get
@@ -76,6 +79,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string rightPath = "d:right";
         ExcelBorderItemXml _right = null;
+        /// <summary>
+        /// Right border style properties
+        /// </summary>
         public ExcelBorderItemXml Right
         {
             get
@@ -89,6 +95,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string topPath = "d:top";
         ExcelBorderItemXml _top = null;
+        /// <summary>
+        /// Top border style properties
+        /// </summary>
         public ExcelBorderItemXml Top
         {
             get
@@ -102,6 +111,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string bottomPath = "d:bottom";
         ExcelBorderItemXml _bottom = null;
+        /// <summary>
+        /// Bottom border style properties
+        /// </summary>
         public ExcelBorderItemXml Bottom
         {
             get
@@ -115,6 +127,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string diagonalPath = "d:diagonal";
         ExcelBorderItemXml _diagonal = null;
+        /// <summary>
+        /// Diagonal border style properties
+        /// </summary>
         public ExcelBorderItemXml Diagonal
         {
             get
@@ -128,6 +143,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string diagonalUpPath = "@diagonalUp";
         bool _diagonalUp = false;
+        /// <summary>
+        /// Diagonal up border
+        /// </summary>
         public bool DiagonalUp
         {
             get
@@ -141,6 +159,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string diagonalDownPath = "@diagonalDown";
         bool _diagonalDown = false;
+        /// <summary>
+        /// Diagonal down border
+        /// </summary>
         public bool DiagonalDown
         {
             get

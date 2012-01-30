@@ -127,6 +127,18 @@ namespace EPPlusTest
             ws.Cells["e26"].Style.ReadingOrder = ExcelReadingOrder.ContextDependent;
             ws.Cells["e27"].Value = "Default Readingorder";
 
+            //Underline
+
+            ws.Cells["F1:F7"].Value = "Underlined";
+            ws.Cells["F1"].Style.Font.UnderLineType = ExcelUnderLineType.Single;
+            ws.Cells["F2"].Style.Font.UnderLineType = ExcelUnderLineType.Double;
+            ws.Cells["F3"].Style.Font.UnderLineType = ExcelUnderLineType.SingleAccounting;
+            ws.Cells["F4"].Style.Font.UnderLineType = ExcelUnderLineType.DoubleAccounting;
+            ws.Cells["F5"].Style.Font.UnderLineType = ExcelUnderLineType.None;
+            ws.Cells["F6:F7"].Style.Font.UnderLine = true;
+            ws.Cells["F7"].Style.Font.UnderLine = false;
+
+
 
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);

@@ -94,6 +94,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         string _theme;
+        /// <summary>
+        /// Theme color value
+        /// </summary>
         public string Theme
         {
             get
@@ -102,6 +105,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         decimal _tint;
+        /// <summary>
+        /// Tint
+        /// </summary>
         public decimal Tint
         {
             get
@@ -115,6 +121,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         string _rgb;
+        /// <summary>
+        /// RGB value
+        /// </summary>
         public string Rgb
         {
             get
@@ -130,6 +139,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         int _indexed;
+        /// <summary>
+        /// Indexed color value
+        /// </summary>
         public int Indexed
         {
             get

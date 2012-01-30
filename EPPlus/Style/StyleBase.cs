@@ -89,6 +89,17 @@ namespace OfficeOpenXml.Style
         Superscript
     }
     /// <summary>
+    /// Font-Underlinestyle for 
+    /// </summary>
+    public enum ExcelUnderLineType
+    {
+        None,
+        Single,
+        Double,
+        SingleAccounting,
+        DoubleAccounting
+    }
+    /// <summary>
     /// Fill pattern
     /// </summary>
     public enum ExcelFillStyle

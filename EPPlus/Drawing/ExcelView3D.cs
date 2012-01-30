@@ -45,7 +45,6 @@ namespace OfficeOpenXml.Drawing
        internal ExcelView3D(XmlNamespaceManager ns, XmlNode node)
            : base(ns,node)
        {
-           //SchemaNodeOrder = new string[] { "rotX", "rotY", "perspective" };
            SchemaNodeOrder = new string[] { "rotX", "hPercent", "rotY", "depthPercent","rAngAx", "perspective"};
        }
        const string perspectivePath = "c:perspective/@val";

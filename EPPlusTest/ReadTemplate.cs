@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Style;
 
 namespace EPPlusTest
 {
@@ -53,6 +54,14 @@ namespace EPPlusTest
                 ws = pck.Workbook.Worksheets["HeaderImage"];
 
                 Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+
+                ws = pck.Workbook.Worksheets["newsheet"];
+                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine,true);
+                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLineType, ExcelUnderLineType.Double);
+                Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
+                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
+                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
+                
                 //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
             }
             instream.Close();

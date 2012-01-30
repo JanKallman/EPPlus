@@ -43,7 +43,13 @@ namespace OfficeOpenXml
     /// </summary>
     public enum eOrientation
     {
+        /// <summary>
+        /// Portrait orientation
+        /// </summary>
         Portrait,
+        /// <summary>
+        /// Landscape orientation
+        /// </summary>
         Landscape
     }
     /// <summary>

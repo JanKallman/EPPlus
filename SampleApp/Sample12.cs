@@ -102,7 +102,7 @@ namespace EPPlusSamples
                 var wsPivot = pck.Workbook.Worksheets.Add("PivotSimple");
                 var pivotTable1 = wsPivot.PivotTables.Add(wsPivot.Cells["A1"], dataRange, "PerEmploee");
 
-                pivotTable1.RowFields.Add(pivotTable1.Fields[4]);                
+                pivotTable1.RowFields.Add(pivotTable1.Fields[4]);
                 var dataField = pivotTable1.DataFields.Add(pivotTable1.Fields[6]);
                 dataField.Format="#,##0";
                 pivotTable1.DataOnRows = true;
@@ -117,11 +117,11 @@ namespace EPPlusSamples
                 pivotTable2.RowFields.Add(pivotTable2.Fields["Name"]);
                 
                 //Add a rowfield
-                var rowField = pivotTable2.RowFields.Add(pivotTable2.Fields["OrderDate"]);                
+                var rowField = pivotTable2.RowFields.Add(pivotTable2.Fields["OrderDate"]);
                 //This is a date field so we want to group by Years and quaters. This will create one additional field for years.
-                rowField.AddDateGrouping(eDateGroupBy.Years | eDateGroupBy.Quarters);                
+                rowField.AddDateGrouping(eDateGroupBy.Years | eDateGroupBy.Quarters);
                 //Get the Quaters field and change the texts
-                var quaterField = pivotTable2.Fields.GetDateGroupField(eDateGroupBy.Quarters);                
+                var quaterField = pivotTable2.Fields.GetDateGroupField(eDateGroupBy.Quarters);
                 quaterField.Items[0].Text = "<"; //Values below min date, but we use auto so its not used
                 quaterField.Items[1].Text = "Q1";
                 quaterField.Items[2].Text = "Q2";

@@ -37,7 +37,7 @@ using System.Globalization;
 namespace OfficeOpenXml.Style.XmlAccess
 {
     /// <summary>
-    /// Xml access class for gradient fills
+    /// Xml access class for gradient fillsde
     /// </summary>
     public sealed class ExcelGradientFillXml : ExcelFillXml
     {
@@ -61,48 +61,72 @@ namespace OfficeOpenXml.Style.XmlAccess
             Right = GetXmlNodeDouble(_rightPath);
         }
         const string _typePath = "d:gradientFill/@type";
+        /// <summary>
+        /// Type of gradient fill. 
+        /// </summary>
         public ExcelFillGradientType Type
         {
             get;
             internal set;
         }
         const string _degreePath = "d:gradientFill/@degree";
+        /// <summary>
+        /// Angle of the linear gradient
+        /// </summary>
         public double Degree
         {
             get;
             internal set;
         }
         const string _gradientColor1Path = "d:gradientFill/d:stop[@position=\"0\"]/d:color";
+        /// <summary>
+        /// Gradient color 1
+        /// </summary>
         public ExcelColorXml GradientColor1 
         {
             get;
             private set;
         }
         const string _gradientColor2Path = "d:gradientFill/d:stop[@position=\"1\"]/d:color";
+        /// <summary>
+        /// Gradient color 2
+        /// </summary>
         public ExcelColorXml GradientColor2
         {
             get;
             private set;
         }
         const string _bottomPath = "d:gradientFill/@bottom";
+        /// <summary>
+        /// Percentage format bottom
+        /// </summary>
         public double Bottom
         { 
             get; 
             internal set; 
         }
         const string _topPath = "d:gradientFill/@top";
+        /// <summary>
+        /// Percentage format top
+        /// </summary>
         public double Top
         {
             get;
             internal set;
         }
         const string _leftPath = "d:gradientFill/@left";
+        /// <summary>
+        /// Percentage format left
+        /// </summary>
         public double Left
         {
             get;
             internal set;
         }
         const string _rightPath = "d:gradientFill/@right";
+        /// <summary>
+        /// Percentage format right
+        /// </summary>
         public double Right
         {
             get;

@@ -68,7 +68,7 @@ namespace OfficeOpenXml.Style
         GradientColor,
         Family,
         Scheme,
-        Underline,
+        UnderlineType,
         HorizontalAlign,
         VerticalAlign,
         Border,

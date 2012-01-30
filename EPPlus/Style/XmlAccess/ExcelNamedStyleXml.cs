@@ -65,6 +65,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         int _styleXfId=0;
         const string idPath = "@xfId";
+        /// <summary>
+        /// Named style index
+        /// </summary>
         public int StyleXfId
         {
             get
@@ -77,6 +80,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         int _xfId = int.MinValue;
+        /// <summary>
+        /// Style index
+        /// </summary>
         internal int XfId
         {
             get
@@ -92,6 +98,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         public int BuildInId { get; set; }
         const string namePath = "@name";
         string _name;
+        /// <summary>
+        /// Name of the style
+        /// </summary>
         public string Name
         {
             get
@@ -104,6 +113,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         ExcelStyle _style = null;
+        /// <summary>
+        /// The style object
+        /// </summary>
         public ExcelStyle Style
         {
             get
