@@ -39,9 +39,9 @@ using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// A line chart
+    /// Provides access to line chart specific properties
     /// </summary>
-    public class ExcelLineChart  : ExcelChart
+    public class ExcelLineChart : ExcelChart
     {
         #region "Constructors"
         internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :

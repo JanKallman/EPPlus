@@ -305,14 +305,14 @@ namespace OfficeOpenXml.Style.XmlAccess
             return TopNode;
         }
 
-        public enum eFormatType
+        internal enum eFormatType
         {
             Unknown = 0,
             Number = 1,
             DateTime = 2,
         }
         ExcelFormatTranslator _translator = null;
-        public ExcelFormatTranslator FormatTranslator
+        internal ExcelFormatTranslator FormatTranslator
         {
             get
             {
@@ -324,7 +324,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         #region Excel --> .Net Format
-        public class ExcelFormatTranslator
+        internal class ExcelFormatTranslator
         {
             internal ExcelFormatTranslator(string format, int numFmtID)
             {

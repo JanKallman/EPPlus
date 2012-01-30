@@ -76,6 +76,9 @@ namespace OfficeOpenXml.Style.XmlAccess
 
         }
         ExcelBorderStyle _borderStyle = ExcelBorderStyle.None;
+        /// <summary>
+        /// Cell Border style
+        /// </summary>
         public ExcelBorderStyle Style
         {
             get
@@ -90,6 +93,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         ExcelColorXml _color = null;
         const string _colorPath = "d:color";
+        /// <summary>
+        /// Border style
+        /// </summary>
         public ExcelColorXml Color
         {
             get

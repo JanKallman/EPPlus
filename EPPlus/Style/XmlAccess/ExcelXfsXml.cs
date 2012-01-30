@@ -121,6 +121,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             //}
         }
         int _xfID;
+        /// <summary>
+        /// Style index
+        /// </summary>
         public int XfId
         {
             get
@@ -255,6 +258,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         #endregion
         #region Public Properties
         public ExcelStyles Styles { get; private set; }
+        /// <summary>
+        /// Numberformat properties
+        /// </summary>
         public ExcelNumberFormatXml Numberformat 
         {
             get
@@ -262,6 +268,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                 return _styles.NumberFormats[_numFmtId < 0 ? 0 : _numFmtId];
             }
         }
+        /// <summary>
+        /// Font properties
+        /// </summary>
         public ExcelFontXml Font 
         { 
            get
@@ -269,13 +278,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                return _styles.Fonts[_fontId < 0 ? 0 : _fontId];
            }
         }
+        /// <summary>
+        /// Fill properties
+        /// </summary>
         public ExcelFillXml Fill
         {
             get
             {
                 return _styles.Fills[_fillId < 0 ? 0 : _fillId];
             }
-        }
+        }        
+        /// <summary>
+        /// Border style properties
+        /// </summary>
         public ExcelBorderXml Border
         {
             get
@@ -285,6 +300,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string horizontalAlignPath = "d:alignment/@horizontal";
         ExcelHorizontalAlignment _horizontalAlignment = ExcelHorizontalAlignment.General;
+        /// <summary>
+        /// Horizontal alignment
+        /// </summary>
         public ExcelHorizontalAlignment HorizontalAlignment
         {
             get
@@ -298,6 +316,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string verticalAlignPath = "d:alignment/@vertical";
         ExcelVerticalAlignment _verticalAlignment=ExcelVerticalAlignment.Bottom;
+        /// <summary>
+        /// Vertical alignment
+        /// </summary>
         public ExcelVerticalAlignment VerticalAlignment
         {
             get
@@ -311,6 +332,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string wrapTextPath = "d:alignment/@wrapText";
         bool _wrapText=false;
+        /// <summary>
+        /// Wraped text
+        /// </summary>
         public bool WrapText
         {
             get
@@ -324,6 +348,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         string textRotationPath = "d:alignment/@textRotation";
         int _textRotation = 0;
+        /// <summary>
+        /// Text rotation angle
+        /// </summary>
         public int TextRotation
         {
             get
@@ -337,6 +364,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string lockedPath = "d:protection/@locked";
         bool _locked = true;
+        /// <summary>
+        /// Locked when sheet is protected
+        /// </summary>
         public bool Locked
         {
             get
@@ -350,6 +380,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string hiddenPath = "d:protection/@hidden";
         bool _hidden = false;
+        /// <summary>
+        /// Hide formulas when sheet is protected
+        /// </summary>
         public bool Hidden
         {
             get
@@ -363,6 +396,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string readingOrderPath = "d:alignment/@readingOrder";
         ExcelReadingOrder _readingOrder = ExcelReadingOrder.ContextDependent;
+        /// <summary>
+        /// Readingorder
+        /// </summary>
         public ExcelReadingOrder ReadingOrder
         {
             get
@@ -376,6 +412,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string shrinkToFitPath = "d:alignment/@shrinkToFit";
         bool _shrinkToFit = false;
+        /// <summary>
+        /// Shrink to fit
+        /// </summary>
         public bool ShrinkToFit
         {
             get
@@ -389,6 +428,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         const string indentPath = "d:alignment/@indent";
         int _indent = 0;
+        /// <summary>
+        /// Indentation
+        /// </summary>
         public int Indent
         {
             get
@@ -401,74 +443,10 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
         }
         #endregion
-        internal void SyncIds(ExcelStyleCollection<ExcelNumberFormatXml> numberFormats, ExcelStyleCollection<ExcelFontXml> fonts, ExcelStyleCollection<ExcelFillXml> fills, ExcelStyleCollection<ExcelBorderXml> borders)
-        {
-            //ExcelNumberFormat nf = null;
-            //if (numberFormats.FindByID(NumberFormatId.ToString(), ref nf))
-            //{
-            //    Numberformat = nf;
-            //}
-            //else
-            //{
-            //    //Build in formats. Just set NumFmtId
-            //    //Numberformat = new ExcelNumberFormat(NameSpaceManager, null);
-            //    Numberformat.NumFmtId = NumberFormatId;
-            //}
-
-            //if (fonts.Count > 0)
-            //{
-            //    Font = fonts[FontId + 1];
-            //}
-            //else
-            //{
-            //    Font = new ExcelFont(NameSpaceManager, null);
-            //}
-
-            //if (fills.Count > FillId)
-            //{
-            //    Fill = fills[FillId + 1];
-            //}
-            //else
-            //{
-            //    Fill = new ExcelFill(NameSpaceManager, null);
-            //}
-            //if (borders.Count > BorderId)
-            //{
-            //    Border = borders[BorderId + 1];
-            //}
-            //else
-            //{
-            //    Border = new ExcelBorder(NameSpaceManager, null);
-            //}
-
-            //RegisterEvent(this);
-        }
         internal void RegisterEvent(ExcelXfs xf)
         {
             //                RegisterEvent(xf, xf.Xf_ChangedEvent);
         }
-        //internal void RegisterEvent(ChangedEventHandler evh)
-        //{
-        //    RegisterEvent(this, evh);
-        //}
-        //internal void RegisterEvent(ExcelXfs xf, ChangedEventHandler evh)
-        //{
-        //    //xf.Numberformat.RegisterForChange(evh);
-
-        //    xf.Font.RegisterForChange(evh);
-        //    xf.Font.Color.RegisterForChange(evh);
-
-        //    xf.Fill.RegisterForChange(evh);
-        //    xf.Fill.PatternColor.RegisterForChange(evh);
-        //    xf.Fill.BackgroundColor.RegisterForChange(evh);
-
-        //    xf.Border.Bottom.RegisterForChange(evh);
-        //    xf.Border.Left.RegisterForChange(evh);
-        //    xf.Border.Top.RegisterForChange(evh);
-        //    xf.Border.Right.RegisterForChange(evh);
-        //    xf.Border.Diagonal.RegisterForChange(evh);
-        //    xf.RegisterForChange(evh);
-        //}
         internal override string Id
         {
 
@@ -842,8 +820,8 @@ namespace OfficeOpenXml.Style.XmlAccess
                 case eStyleProperty.Strike:
                     fnt.Strike = (bool)value;
                     break;
-                case eStyleProperty.Underline:
-                    fnt.UnderLine = (bool)value;
+                case eStyleProperty.UnderlineType:
+                    fnt.UnderLineType = (ExcelUnderLineType)value;
                     break;
                 case eStyleProperty.Color:
                     fnt.Color.Rgb=value.ToString();

@@ -273,6 +273,9 @@ namespace OfficeOpenXml
         }
 
         private const string _allowAutoFilterPath = "d:sheetProtection/@autoFilter";
+        /// <summary>
+        /// Allow users to use autofilters
+        /// </summary>
         public bool AllowAutoFilter
         {
             get
@@ -285,6 +288,9 @@ namespace OfficeOpenXml
             }
         }
         private const string _allowPivotTablesPath = "d:sheetProtection/@pivotTables";
+        /// <summary>
+        /// Allow users to use pivottables
+        /// </summary>
         public bool AllowPivotTables
         {
             get

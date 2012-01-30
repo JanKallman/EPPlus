@@ -78,6 +78,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         #region Public Properties
         const string fillPatternTypePath = "d:patternFill/@patternType";
         protected ExcelFillStyle _fillPatternType;
+        /// <summary>
+        /// Cell fill pattern style
+        /// </summary>
         public ExcelFillStyle PatternType
         {
             get
@@ -91,6 +94,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         protected ExcelColorXml _patternColor = null;
         const string _patternColorPath = "d:patternFill/d:bgColor";
+        /// <summary>
+        /// Pattern color
+        /// </summary>
         public ExcelColorXml PatternColor
         {
             get
@@ -104,6 +110,9 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         protected ExcelColorXml _backgroundColor = null;
         const string _backgroundColorPath = "d:patternFill/d:fgColor";
+        /// <summary>
+        /// Cell background color 
+        /// </summary>
         public ExcelColorXml BackgroundColor
         {
             get

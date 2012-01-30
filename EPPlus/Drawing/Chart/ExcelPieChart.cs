@@ -38,7 +38,9 @@ using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
-
+    /// <summary>
+    /// Provides access to pie chart specific properties
+    /// </summary>
     public class ExcelPieChart : ExcelChart
     {
         internal ExcelPieChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :

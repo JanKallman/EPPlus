@@ -57,7 +57,7 @@ namespace OfficeOpenXml.Drawing.Chart
         /// Add a new trendline
         /// </summary>
         /// <param name="Type"></param>
-        /// <returns></returns>
+        /// <returns>The trendline</returns>
         public ExcelChartTrendline Add(eTrendLine Type)
         {
             if (_serie._chartSeries._chart.IsType3D() ||
@@ -102,6 +102,9 @@ namespace OfficeOpenXml.Drawing.Chart
             return _list.GetEnumerator();
         }
     }
+    /// <summary>
+    /// A trendline object
+    /// </summary>
     public class ExcelChartTrendline : XmlHelper
     {
         internal ExcelChartTrendline(XmlNamespaceManager namespaceManager, XmlNode topNode) :

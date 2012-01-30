@@ -37,7 +37,7 @@ using System.Globalization;
 namespace OfficeOpenXml
 {
     /// <summary>
-    /// Discribes a column
+    /// Discribes a column when reading a text using the ExcelRangeBase.LoadFromText method
     /// </summary>
     public enum eDataTypes
     {
@@ -58,7 +58,8 @@ namespace OfficeOpenXml
         /// </summary>
         DateTime,
         /// <summary>
-        /// Try to convert it to a number and divide with 100. Removes any tailing percent sign (%). If it fails then add it as a string.
+        /// Try to convert it to a number and divide with 100. 
+        /// Removes any tailing percent sign (%). If it fails then add it as a string.
         /// </summary>
         Percent
     }
@@ -111,7 +112,7 @@ namespace OfficeOpenXml
         /// </summary>
         public eDataTypes[] DataTypes { get; set; }
         /// <summary>
-        /// Culture used when parsing.Default CultureInfo.InvariantCulture
+        /// Culture used when parsing. Default CultureInfo.InvariantCulture
         /// </summary>
         public CultureInfo Culture {get; set; }
         /// <summary>
