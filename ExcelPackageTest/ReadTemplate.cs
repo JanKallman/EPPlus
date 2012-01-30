@@ -264,5 +264,14 @@ namespace EPPlusTest
             Assert.IsNotNull(ws.Cells["B4"].Style.Fill.BackgroundColor.Indexed);
             Assert.IsNotNull(ws.Cells["B5"].Style.Fill.BackgroundColor.Indexed);
         }
+        [TestMethod]
+        public void ReadBug11()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\sample.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            var pck2 = new ExcelPackage();
+            pck2.Workbook.Worksheets.Add("Test", ws);
+            pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
+        }
     }
 }

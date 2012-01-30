@@ -644,13 +644,21 @@ namespace OfficeOpenXml
             }
             ExcelXfs newXfs=xfs.Copy(this);
             //Numberformat
-            if (xfs.NumberFormatId > -1)
+            if (xfs.NumberFormatId > 0)
             {
-                string format = xfs.Numberformat.Format;
+                string format="";
+                foreach (var fmt in style.NumberFormats)
+                {
+                    if (fmt.NumFmtId == xfs.NumberFormatId)
+                    {
+                        format=fmt.Format;
+                        break;
+                    }
+                }
                 int ix=NumberFormats.FindIndexByID(format);
                 if (ix<0)
                 {
-                    ExcelNumberFormatXml item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = style.NumberFormats.NextId++ };
+                    ExcelNumberFormatXml item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = NumberFormats.NextId++ };
                     NumberFormats.Add(format, item);
                     ix=item.NumFmtId;
                 }
