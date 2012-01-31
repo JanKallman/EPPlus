@@ -137,6 +137,7 @@ namespace OfficeOpenXml
     ///
     ///       return newFile.FullName;
     /// </code>
+    /// More samples can be found at  <a href="http://epplus.codeplex.com/">http://epplus.codeplex.com/</a>
     /// </summary>
 	public sealed class ExcelPackage : IDisposable
 	{

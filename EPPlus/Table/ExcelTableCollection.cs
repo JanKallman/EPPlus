@@ -105,6 +105,9 @@ namespace OfficeOpenXml.Table
             }
             return name;
         }
+        /// <summary>
+        /// Number of items in the collection
+        /// </summary>
         public int Count
         {
             get
@@ -144,6 +147,11 @@ namespace OfficeOpenXml.Table
                 return _tables[Index];
             }
         }
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        /// <param name="Name">The name of the table</param>
+        /// <returns>The table. Null if the table name is not found in the collection</returns>
         public ExcelTable this[string Name]
         {
             get

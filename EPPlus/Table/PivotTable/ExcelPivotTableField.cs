@@ -126,6 +126,9 @@ namespace OfficeOpenXml.Table.PivotTable
         Ascending,
         Descending
     }
+    /// <summary>
+    /// A pivot table field.
+    /// </summary>
     public class ExcelPivotTableField : XmlHelper
     {
         internal ExcelPivotTable _table;

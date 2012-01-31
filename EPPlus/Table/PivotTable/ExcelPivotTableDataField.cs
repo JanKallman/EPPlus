@@ -38,7 +38,7 @@ using OfficeOpenXml.Style.XmlAccess;
 namespace OfficeOpenXml.Table.PivotTable
 {
     /// <summary>
-    /// 
+    /// A pivo table data field
     /// </summary>
     public class ExcelPivotTableDataField : XmlHelper
     {
