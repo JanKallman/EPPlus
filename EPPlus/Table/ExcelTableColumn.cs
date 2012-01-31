@@ -65,7 +65,9 @@ namespace OfficeOpenXml.Table
             _tbl = tbl;
             Position = pos;
         }
-
+        /// <summary>
+        /// The column id
+        /// </summary>
         public int Id 
         {
             get
@@ -77,11 +79,17 @@ namespace OfficeOpenXml.Table
                 SetXmlNodeString("@id", value.ToString());
             }
         }
+        /// <summary>
+        /// The position of the column
+        /// </summary>
         public int Position
         {
             get;
             private set;
         }
+        /// <summary>
+        /// The name of the column
+        /// </summary>
         public string Name
         {
             get
@@ -158,6 +166,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string DATACELLSTYLE_PATH = "@dataCellStyle";
+        /// <summary>
+        /// The named style for datacells in the column
+        /// </summary>
         public string DataCellStyleName
         {
             get

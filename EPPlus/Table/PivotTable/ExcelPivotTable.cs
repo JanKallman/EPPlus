@@ -310,7 +310,7 @@ namespace OfficeOpenXml.Table.PivotTable
             set;
         }
         /// <summary>
-        /// The location of the pivott table
+        /// The location of the pivot table
         /// </summary>
         public ExcelAddressBase Address
         {

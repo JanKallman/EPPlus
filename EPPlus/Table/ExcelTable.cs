@@ -105,66 +105,6 @@ namespace OfficeOpenXml.Table
         Dark9,
         Dark10,
         Dark11,
-        //PivotStyleLight1,
-        //PivotStyleLight2,
-        //PivotStyleLight3,
-        //PivotStyleLight4,
-        //PivotStyleLight5,
-        //PivotStyleLight6,
-        //PivotStyleLight7,
-        //PivotStyleLight8,
-        //PivotStyleLight9,
-        //PivotStyleLight10,
-        //PivotStyleLight11,
-        //PivotStyleLight12,
-        //PivotStyleLight13,
-        //PivotStyleLight14,
-        //PivotStyleLight15,
-        //PivotStyleLight16,
-        //PivotStyleLight17,
-        //PivotStyleLight18,
-        //PivotStyleLight19,
-        //PivotStyleLight20,
-        //PivotStyleLight21,
-        //PivotStyleMedium1,
-        //PivotStyleMedium2,
-        //PivotStyleMedium3,
-        //PivotStyleMedium4,
-        //PivotStyleMedium5,
-        //PivotStyleMedium6,
-        //PivotStyleMedium7,
-        //PivotStyleMedium8,
-        //PivotStyleMedium9,
-        //PivotStyleMedium10,
-        //PivotStyleMedium11,
-        //PivotStyleMedium12,
-        //PivotStyleMedium13,
-        //PivotStyleMedium14,
-        //PivotStyleMedium15,
-        //PivotStyleMedium16,
-        //PivotStyleMedium17,
-        //PivotStyleMedium18,
-        //PivotStyleMedium19,
-        //PivotStyleMedium20,
-        //PivotStyleMedium21,
-        //PivotStyleMedium22,
-        //PivotStyleMedium23,
-        //PivotStyleMedium24,
-        //PivotStyleMedium25,
-        //PivotStyleMedium26,
-        //PivotStyleMedium27,
-        //PivotStyleMedium28
-        //PivotStyleDark1,
-        //PivotStyleDark2,
-        //PivotStyleDark3,
-        //PivotStyleDark4,
-        //PivotStyleDark5,
-        //PivotStyleDark6,
-        //PivotStyleDark7,
-        //PivotStyleDark8,
-        //PivotStyleDark9,
-        //PivotStyleDark10,
-        //PivotStyleDark11    
     }
     /// <summary>
     /// An Excel Table
@@ -286,7 +226,7 @@ namespace OfficeOpenXml.Table
         const string NAME_PATH = "@name";
         const string DISPLAY_NAME_PATH = "@displayName";
         /// <summary>
-        /// Name of the table object in Excel
+        /// The name of the table object in Excel
         /// </summary>
         public string Name
         {
@@ -328,6 +268,9 @@ namespace OfficeOpenXml.Table
             internal set;
         }
         ExcelTableColumnCollection _cols = null;
+        /// <summary>
+        /// Collection of the columns in the table
+        /// </summary>
         public ExcelTableColumnCollection Columns
         {
             get
@@ -341,7 +284,7 @@ namespace OfficeOpenXml.Table
         }
         TableStyles _tableStyle = TableStyles.Medium6;
         /// <summary>
-        /// The table style. If this property is cusom the style from the StyleName propery is used.
+        /// The table style. If this property is cusom, the style from the StyleName propery is used.
         /// </summary>
         public TableStyles TableStyle
         {
@@ -360,6 +303,9 @@ namespace OfficeOpenXml.Table
         }
         const string HEADERROWCOUNT_PATH = "@headerRowCount";
         const string AUTOFILTER_PATH = "d:autoFilter/@ref";
+        /// <summary>
+        /// If the header row is visible or not
+        /// </summary>
         public bool ShowHeader
         {
             get
@@ -418,7 +364,7 @@ namespace OfficeOpenXml.Table
             }
         }
         /// <summary>
-        /// If the headerrow has an autofilter
+        /// If the header row has an autofilter
         /// </summary>
         public bool ShowFilter 
         { 
@@ -447,6 +393,9 @@ namespace OfficeOpenXml.Table
         }
         const string TOTALSROWCOUNT_PATH = "@totalsRowCount";
         const string TOTALSROWSHOWN_PATH = "@totalsRowShown";
+        /// <summary>
+        /// If the total row is visible or not
+        /// </summary>
         public bool ShowTotal
         {
             get
@@ -479,6 +428,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string STYLENAME_PATH = "d:tableStyleInfo/@name";
+        /// <summary>
+        /// The style name for custum styles
+        /// </summary>
         public string StyleName
         {
             get
@@ -511,6 +463,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string SHOWFIRSTCOLUMN_PATH = "d:tableStyleInfo/@showFirstColumn";
+        /// <summary>
+        /// Display special formatting for the first row
+        /// </summary>
         public bool ShowFirstColumn
         {
             get
@@ -523,6 +478,9 @@ namespace OfficeOpenXml.Table
             }   
         }
         const string SHOWLASTCOLUMN_PATH = "d:tableStyleInfo/@showLastColumn";
+        /// <summary>
+        /// Display special formatting for the last row
+        /// </summary>
         public bool ShowLastColumn
         {
             get
@@ -535,6 +493,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string SHOWROWSTRIPES_PATH = "d:tableStyleInfo/@showRowStripes";
+        /// <summary>
+        /// Display banded rows
+        /// </summary>
         public bool ShowRowStripes
         {
             get
@@ -547,6 +508,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string SHOWCOLUMNSTRIPES_PATH = "d:tableStyleInfo/@showColumnStripes";
+        /// <summary>
+        /// Display banded columns
+        /// </summary>
         public bool ShowColumnStripes
         {
             get
@@ -560,6 +524,9 @@ namespace OfficeOpenXml.Table
         }
 
         const string TOTALSROWCELLSTYLE_PATH = "@totalsRowCellStyle";
+        /// <summary>
+        /// Named style used for the total row
+        /// </summary>
         public string TotalsRowCellStyle
         {
             get
@@ -581,6 +548,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string DATACELLSTYLE_PATH = "@dataCellStyle";
+        /// <summary>
+        /// Named style used for the data cells
+        /// </summary>
         public string DataCellStyleName
         {
             get
@@ -605,6 +575,9 @@ namespace OfficeOpenXml.Table
             }
         }
         const string HEADERROWCELLSTYLE_PATH = "@headerRowCellStyle";
+        /// <summary>
+        /// Named style used for the header row
+        /// </summary>
         public string HeaderRowCellStyle
         {
             get

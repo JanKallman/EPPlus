@@ -38,6 +38,9 @@ using System.Globalization;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
+    /// <summary>
+    /// Base class for pivot table field groups
+    /// </summary>
     public class ExcelPivotTableFieldGroup : XmlHelper
     {
         internal ExcelPivotTableFieldGroup(XmlNamespaceManager ns, XmlNode topNode) :
@@ -99,6 +102,9 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
     }
+    /// <summary>
+    /// A pivot table field numeric grouping
+    /// </summary>
     public class ExcelPivotTableFieldNumericGroup : ExcelPivotTableFieldGroup
     {
         internal ExcelPivotTableFieldNumericGroup(XmlNamespaceManager ns, XmlNode topNode) :

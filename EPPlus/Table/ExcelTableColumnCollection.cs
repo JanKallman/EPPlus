@@ -52,11 +52,17 @@ namespace OfficeOpenXml.Table
                 _colNames.Add(_cols[_cols.Count - 1].Name, _cols.Count - 1);
             }
         }
+        /// <summary>
+        /// A reference to the table object
+        /// </summary>
         public ExcelTable Table
         {
             get;
             private set;
         }
+        /// <summary>
+        /// Number of items in the collection
+        /// </summary>
         public int Count
         {
             get
@@ -80,6 +86,11 @@ namespace OfficeOpenXml.Table
                 return _cols[Index] as ExcelTableColumn;
             }
         }
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        /// <param name="Name">The name of the table</param>
+        /// <returns>The table column. Null if the table name is not found in the collection</returns>
         public ExcelTableColumn this[string Name]
         {
             get
