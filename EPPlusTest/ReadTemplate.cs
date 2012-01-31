@@ -282,5 +282,14 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Test", ws);
             pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
         }
+        [TestMethod]
+        public void ReadVBA()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\Program Files (x86)\Microsoft Office\Office12\Library\SOLVER\solver.xlam"));
+            foreach (var module in package.Workbook.VbaProject.Moduls)
+            {
+                Assert.AreNotEqual(module, null);
+            }
+        }
     }
 }

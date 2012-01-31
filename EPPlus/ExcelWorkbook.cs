@@ -316,21 +316,21 @@ namespace OfficeOpenXml
 				return _view;
 			}
 		}
-        //ExcelVBAProject _vba = null;
-        ///// <summary>
-        ///// A reference to the VBA project
-        ///// </summary>
-        //public ExcelVBAProject VbaProject
-        //{
-        //    get
-        //    {
-        //        if (_vba == null)
-        //        {
-        //            _vba = new ExcelVBAProject(this);
-        //        }
-        //        return _vba;
-        //    }
-        //}
+        ExcelVBAProject _vba = null;
+        /// <summary>
+        /// A reference to the VBA project
+        /// </summary>
+        public ExcelVBAProject VbaProject
+        {
+            get
+            {
+                if (_vba == null)
+                {
+                    _vba = new ExcelVBAProject(this);
+                }
+                return _vba;
+            }
+        }
 		/// <summary>
 		/// URI to the workbook inside the package
 		/// </summary>
