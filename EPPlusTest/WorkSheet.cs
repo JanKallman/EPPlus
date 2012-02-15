@@ -406,7 +406,9 @@ namespace EPPlusTest
 
             ExcelRange styleRng = ws.Cells["A1"];
             ExcelStyle tempStyle = styleRng.Style;
-            var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);  
+            var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);
+            namedStyle.Style.Font.UnderLineType = ExcelUnderLineType.Single;
+            namedStyle.Style.Font.Color.SetColor(Color.Blue);
         }
         [TestMethod]
         public void Encoding()
@@ -1265,6 +1267,8 @@ namespace EPPlusTest
 				
             var s=firstNamedStyle.Style;
 
+            s.Fill.PatternType = ExcelFillStyle.Solid;
+            s.Fill.BackgroundColor.SetColor(Color.LightGreen);
             s.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
             s.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -1276,6 +1280,19 @@ namespace EPPlusTest
 
             wsSheet.Cells["B2"].Value = "Text Center";
             wsSheet.Cells["B2"].StyleName = "first";
+            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name="Arial";
+
+            var rowStyle = _pck.Workbook.Styles.CreateNamedStyle("RowStyle", firstNamedStyle.Style).Style;
+            rowStyle.Fill.BackgroundColor.SetColor(Color.Pink);
+            wsSheet.Cells.StyleName = "templateFirst";
+            wsSheet.Cells["C5:H15"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            wsSheet.Cells["C5:H15"].Style.Fill.BackgroundColor.SetColor(Color.OrangeRed);
+
+           wsSheet.Cells["30:35"].StyleName = "RowStyle";
+           var colStyle = _pck.Workbook.Styles.CreateNamedStyle("columnStyle", firstNamedStyle.Style).Style;
+           colStyle.Fill.BackgroundColor.SetColor(Color.CadetBlue);
+
+           wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
         }
         [TestMethod]
         public void StyleFill()
@@ -1314,6 +1331,30 @@ namespace EPPlusTest
             ws.Cells["A1"].RichText.Add("Test rt");
             ws.Cells.AutoFilter=true;
             Assert.AreNotEqual(ws.Cells["A1:D5"].Value, null);
+        }
+        [TestMethod]
+        public void BuildInStyles()
+        {
+            var pck = new ExcelPackage();
+            var ws=pck.Workbook.Worksheets.Add("Default");
+            ws.Cells.Style.Font.Name = "Arial";
+            ws.Cells.Style.Font.Size = 15;
+            ws.Cells.Style.Border.Bottom.Style = ExcelBorderStyle.MediumDashed;
+            var n=pck.Workbook.Styles.NamedStyles[0];
+            n.Style.Numberformat.Format = "yyyy";
+            n.Style.Font.Name = "Arial";
+            n.Style.Font.Size=15;
+            n.Style.Border.Bottom.Style = ExcelBorderStyle.Dotted;
+            n.Style.Border.Bottom.Color.SetColor(Color.Red);
+            n.Style.Fill.PatternType=ExcelFillStyle.Solid;
+            n.Style.Fill.BackgroundColor.SetColor(Color.Blue);
+            n.Style.Border.Bottom.Color.SetColor(Color.Red);
+            n.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            n.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            n.Style.TextRotation = 90;
+            ws.Cells["a1:c3"].StyleName="Normal";
+            //  n.CustomBuildin = true;
+            pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
     }
 }

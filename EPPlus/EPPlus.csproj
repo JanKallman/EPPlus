@@ -63,6 +63,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\EPPlus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
