@@ -359,7 +359,70 @@ namespace OfficeOpenXml
             set
             {
                 _styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
-                _changePropMethod(Set_StyleName, value);
+                if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)    //Full column
+                {
+                    ExcelColumn column;
+                    //Get the startcolumn
+                    ulong colID = ExcelColumn.GetColumnID(_worksheet.SheetID, _fromCol);
+                    if (!_worksheet._columns.ContainsKey(colID))
+                    {
+                        column = _worksheet.Column(_fromCol);
+                    }
+                    else
+                    {
+                        column = _worksheet._columns[colID] as ExcelColumn;
+                    }
+
+                    var index = _worksheet._columns.IndexOf(colID);
+                    while(column.ColumnMin <= _toCol)
+                    {
+                        if (column.ColumnMax > _toCol)
+                        {
+                            var newCol=_worksheet.CopyColumn(column, _toCol+1);
+                            newCol.ColumnMax = column.ColumnMax;
+                            column.ColumnMax = _toCol;
+                        }
+
+                        column._styleName = value;
+                        column._styleID = _styleID;
+
+                        index++;
+                        if (index >= _worksheet._columns.Count)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            column = (_worksheet._columns[index] as ExcelColumn);
+                        }
+                    }
+
+                    if (column._columnMax < _toCol)
+                    {
+                        var newCol = _worksheet.Column(column._columnMax + 1) as ExcelColumn;
+                        newCol._columnMax = _toCol;
+
+                        newCol._styleID = _styleID;
+                        newCol._styleName = value;
+                    }
+                }
+                else if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns) //FullRow
+                {
+                    for (int row = _fromRow; row <= _toRow; row++)
+                    {
+                        _worksheet.Row(row)._styleName = value;
+                        _worksheet.Row(row)._styleId = _styleID;
+                    }
+                }
+                int tempIndex = _index;
+                var e = this as IEnumerator;
+                e.Reset();
+                while(MoveNext())
+                {
+                    ((ExcelCell)_worksheet._cells[_index]).SetNewStyleName(value, _styleID);
+                }
+                _index = tempIndex;
+                //_changePropMethod(Set_StyleName, value);
             }
         }
         /// <summary>

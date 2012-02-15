@@ -143,7 +143,7 @@ namespace OfficeOpenXml
         public bool CustomHeight { get; set; }
 		#endregion
 
-        string _styleName = "";
+        internal string _styleName = "";
         /// <summary>
         /// Sets the style for the entire column using a style name.
         /// </summary>
@@ -159,7 +159,7 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
         }        
-        int _styleId = 0;
+        internal int _styleId = 0;
 		/// <summary>
 		/// Sets the style for the entire row using the style ID.  
 		/// </summary>

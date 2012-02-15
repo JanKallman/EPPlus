@@ -83,16 +83,16 @@ namespace OfficeOpenXml
                 return _list.Count;
             }
         }
-        internal int Add(T item)
-        {
-            _list.Add(item);
-            if (_setNextIdManual) NextId++;
-            return _list.Count-1;
-        }
+        //internal int Add(T item)
+        //{
+        //    _list.Add(item);
+        //    if (_setNextIdManual) NextId++;
+        //    return _list.Count-1;
+        //}
         internal int Add(string key, T item)
         {
             _list.Add(item);
-            if (!_dic.ContainsKey(key)) _dic.Add(key, _list.Count - 1);
+            if (!_dic.ContainsKey(key.ToLower())) _dic.Add(key.ToLower(), _list.Count - 1);
             if (_setNextIdManual) NextId++;
             return _list.Count-1;
         }
@@ -104,9 +104,9 @@ namespace OfficeOpenXml
         /// <returns>True if found</returns>
         internal bool FindByID(string key, ref T obj)
         {
-            if (_dic.ContainsKey(key))
+            if (_dic.ContainsKey(key.ToLower()))
             {
-                obj = _list[_dic[key]];
+                obj = _list[_dic[key.ToLower()]];
                 return true;
             }
             else
@@ -121,9 +121,9 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal int FindIndexByID(string key)
         {
-            if (_dic.ContainsKey(key))
+            if (_dic.ContainsKey(key.ToLower()))
             {
-                return _dic[key];
+                return _dic[key.ToLower()];
             }
             else
             {
@@ -132,7 +132,7 @@ namespace OfficeOpenXml
         }
         internal bool ExistsKey(string key)
         {
-            return _dic.ContainsKey(key);
+            return _dic.ContainsKey(key.ToLower());
         }
         internal void Sort(Comparison<T> c)
         {

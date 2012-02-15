@@ -843,13 +843,17 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal override XmlNode CreateXmlNode(XmlNode topNode)
         {
+            return CreateXmlNode(topNode, false);
+        }
+        internal XmlNode CreateXmlNode(XmlNode topNode, bool isCellStyleXsf)
+        {
             TopNode = topNode;
             if(_numFmtId>=0) SetXmlNodeString("@numFmtId", _numFmtId.ToString());
             if(_fontId >= 0) SetXmlNodeString("@fontId", _styles.Fonts[_fontId].newID.ToString());
             if (_fillId >= 0) SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
             if(_borderId >= 0) SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
             if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
-            if (XfId > int.MinValue) 
+            if (!isCellStyleXsf && _xfID > int.MinValue)
                 SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
 
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));

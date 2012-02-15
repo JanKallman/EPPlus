@@ -716,7 +716,7 @@ namespace OfficeOpenXml
 			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
-			//Delete worksheet from the workbook XML
+            //Delete worksheet from the workbook XML
 			XmlNode sheetsNode = _pck.Workbook.WorkbookXml.SelectSingleNode("//d:workbook/d:sheets", _namespaceManager);
 			if (sheetsNode != null)
 			{
