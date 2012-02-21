@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
+using System.Security.Cryptography.X509Certificates;
 
 namespace EPPlusTest
 {
@@ -285,11 +286,23 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadVBA()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\Program Files (x86)\Microsoft Office\Office12\Library\SOLVER\solver.xlam"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\vba.xlsm"));
             foreach (var module in package.Workbook.VbaProject.Moduls)
             {
                 Assert.AreNotEqual(module, null);
             }
+
+            List<X509Certificate2> ret = new List<X509Certificate2>();
+            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            foreach (var c in store.Certificates)
+            {
+                ret.Add(c);
+            }
+            
+            package.Workbook.VbaProject.Signature.Certificate=store.Certificates[8];
+            package.Workbook.VbaProject.Signature.WriteSignature();
+            Assert.AreNotEqual(package.Workbook.VbaProject.Signature.Uri.AbsolutePath, "");
         }
     }
 }

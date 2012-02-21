@@ -160,7 +160,7 @@ namespace OfficeOpenXml
 		/// Relationship schema name
 		/// </summary>
 		internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-                                                                
+                                                                              
         internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
         internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
         
@@ -186,6 +186,10 @@ namespace OfficeOpenXml
         internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
         internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
+
+        //VBA
+        internal const string schemaVBA = @"application/vnd.ms-office.vbaProject";
+        internal const string schemaVBASignature = @"application/vnd.ms-office.vbaProjectSignature";
 
         //Package reference
         private Package _package;
