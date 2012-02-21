@@ -16,6 +16,23 @@ namespace OfficeOpenXml.Utils
             internal Dictionary<string, byte[]> DataStreams = new Dictionary<string, byte[]>();
         }
         internal StoragePart Storage = null;
+        internal CompoundDocument()
+        {
+            
+            //ILockBytes lb;
+            //var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
+
+            //IStorage storage = null;
+
+            ////Create the document in-memory
+            //if (StgCreateDocfileOnILockBytes(lb,
+            //        STGM.CREATE | STGM.READWRITE | STGM.SHARE_EXCLUSIVE | STGM.TRANSACTED,
+            //        0,
+            //        out storage) == 0)
+            //{
+
+            //}
+        }
         internal CompoundDocument(byte[] doc)
         {
             ILockBytes lb;
@@ -52,7 +69,7 @@ namespace OfficeOpenXml.Utils
                 throw (new InvalidDataException(string.Format("Part is not a compound document")));
             }
         }
-        #region  Compession
+        #region  Compression
         internal static byte[] DecompressPart(byte[] part)
         {
             return DecompressPart(part, 0);
