@@ -1604,19 +1604,26 @@ namespace OfficeOpenXml
                 foreach (var item in Collection)
                 {
                     col = _fromCol;
-                    foreach (var t in Members)
+                    if (item is string || item is decimal || item is DateTime || item.GetType().IsPrimitive)
                     {
-                        if (t is PropertyInfo)
+                        _worksheet.Cells[row, col++].Value = item;
+                    }
+                    else
+                    {
+                        foreach (var t in Members)
                         {
-                            _worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
-                        }
-                        else if (t is FieldInfo)
-                        {
-                            _worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
-                        }
-                        else if (t is MethodInfo)
-                        {
-                            _worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                            if (t is PropertyInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
+                            }
+                            else if (t is FieldInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
+                            }
+                            else if (t is MethodInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                            }
                         }
                     }
                     row++;

@@ -133,7 +133,6 @@ namespace EPPlusSamples
                 // set some custom property values
                 package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
                 package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
-
                 // save our new workbook and we are done!
                 package.Save();
 

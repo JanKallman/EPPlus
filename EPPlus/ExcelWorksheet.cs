@@ -54,6 +54,16 @@ using System.Drawing;
 
 namespace OfficeOpenXml
 {
+    public interface ICalculateHandler
+    {
+        List<IFormulaCell> FormulaCells { get; }
+    }
+    public interface IFormulaCell
+    {
+        string Address { get; }
+        string Formula { get; }
+        object FormulaValue { get; set; }
+    }
     /// <summary>
     /// Worksheet hidden enumeration
     /// </summary>
@@ -75,7 +85,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-	public sealed class ExcelWorksheet : XmlHelper
+    public sealed class ExcelWorksheet : XmlHelper, ICalculateHandler
 	{
         internal class Formulas
         {
@@ -434,6 +444,36 @@ namespace OfficeOpenXml
                 SetXmlNodeString(tabColorPath, value.ToArgb().ToString("X"));
             }
         }
+        const string codeModuleNamePath = "d:sheetPr/@codeName";
+        internal string CodeModuleName
+        {
+            get
+            {
+                return GetXmlNodeString(codeModuleNamePath);
+            }
+            set
+            {
+                SetXmlNodeString(codeModuleNamePath, value);
+            }
+        }
+        public void CodeNameChange(string value)
+        {
+            CodeModuleName = value;
+        }
+        public VBA.ExcelVBAModule CodeModule
+        {
+            get
+            {
+                if (_package.Workbook.VbaProject != null)
+                {
+                    return _package.Workbook.VbaProject.Modules[CodeModuleName];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
         #region WorksheetXml
 		/// <summary>
 		/// The XML document holding the worksheet data.
@@ -787,7 +827,6 @@ namespace OfficeOpenXml
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
             var formulaList = new List<IRangeID>();
-            string v="";
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelCell cell = null;
             xr.Read();
@@ -2669,6 +2708,27 @@ namespace OfficeOpenXml
         internal void SetHFLegacyDrawingRel(string relID)
         {
             SetXmlNodeString("d:legacyDrawingHF/@r:id", relID);
+        }
+        //List<IFormulaCell> _fc = null;
+        //public List<ExcelRange> FormulaCells
+        //{
+        //    get 
+        //    {
+        //        if (_fc == null)
+        //        {
+        //            _fc = new List<ExcelRange>();
+        //            foreach (var r in _sharedFormulas)
+        //            {
+        //                _fc.Add(new IFormulaCell))
+        //            }
+        //        }
+        //        return _fc;
+        //    }
+        //}
+
+        List<IFormulaCell> ICalculateHandler.FormulaCells
+        {
+            get { throw new NotImplementedException(); }
         }
     }  // END class Worksheet
 }

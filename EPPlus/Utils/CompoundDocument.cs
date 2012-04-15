@@ -1,4 +1,35 @@
-﻿using System;
+﻿/*******************************************************************************
+ * You may amend and distribute as you like, but don't remove this header!
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ *
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ *******************************************************************************
+ * Jan Källman		Added		01-01-2012
+ * Jan Källman      Added compression support 27-03-2012
+ *******************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,26 +43,16 @@ namespace OfficeOpenXml.Utils
     {
         internal class StoragePart
         {
+            public StoragePart()
+            {
+
+            }
             internal Dictionary<string, StoragePart> SubStorage = new Dictionary<string, StoragePart>();
             internal Dictionary<string, byte[]> DataStreams = new Dictionary<string, byte[]>();
         }
         internal StoragePart Storage = null;
         internal CompoundDocument()
         {
-            
-            //ILockBytes lb;
-            //var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
-
-            //IStorage storage = null;
-
-            ////Create the document in-memory
-            //if (StgCreateDocfileOnILockBytes(lb,
-            //        STGM.CREATE | STGM.READWRITE | STGM.SHARE_EXCLUSIVE | STGM.TRANSACTED,
-            //        0,
-            //        out storage) == 0)
-            //{
-
-            //}
         }
         internal CompoundDocument(byte[] doc)
         {
@@ -70,6 +91,118 @@ namespace OfficeOpenXml.Utils
             }
         }
         #region  Compression
+        /// <summary>
+        /// Compression using a run length encoding algorithm.
+        /// See MS-OVBA Section 2.4
+        /// </summary>
+        /// <param name="part">Byte array to decompress</param>
+        /// <returns></returns>
+        internal static byte[] CompressPart(byte[] part)
+        {
+            MemoryStream ms = new MemoryStream(4096);
+            BinaryWriter br = new BinaryWriter(ms);
+            br.Write((byte)1);
+
+            int compStart = 1;
+            int compEnd = 4098;
+            int decompStart = 0;
+            int decompEnd = part.Length < 4096 ? part.Length : 4096;
+
+            while (decompStart < decompEnd && compStart < compEnd)
+            {
+                byte[] chunk = CompressChunk(part, ref decompStart);
+                ushort header;
+                if (chunk == null || chunk.Length == 0)
+                {
+                    header = 4096 | 0x600;  //B=011 A=0
+                }
+                else
+                {
+                    header = (ushort)(((chunk.Length - 1) & 0xFFF));
+                    header |= 0xB000;   //B=011 A=1
+                    br.Write(header);
+                    br.Write(chunk);                    
+                }
+            }
+
+            
+            br.Flush();
+            return ms.ToArray();        
+        }
+        private static byte[] CompressChunk(byte[] buffer, ref int startPos)
+        {
+            var comprBuffer=new byte[4096];
+            int flagPos = 0;
+            int cPos=1;
+            int dPos = startPos;
+            int dEnd=startPos+4096 < buffer.Length? startPos+4096 : buffer.Length;
+            while(dPos<dEnd)
+            {
+                byte tokenFlags = 0;
+                for (int i = 0; i < 8; i++)
+                {
+                    if (dPos - startPos > 0)
+                    {
+                        int bestCandidate = -1;
+                        int bestLength = 0;
+                        int candidate = dPos - 1;
+                        int bitCount = GetLengthBits(dPos);
+                        int bits = (16 - bitCount);
+                        ushort lengthMask = (ushort)((0xFFFF) >> bits);
+
+                        while (candidate >= startPos)
+                        {
+                            if (buffer[candidate] == buffer[dPos])
+                            {
+                                int length = 1;
+
+                                while (buffer.Length > dPos + length && buffer[candidate + length] == buffer[dPos + length] && length < lengthMask)
+                                {
+                                    length++;
+                                }
+                                if (length > bestLength)
+                                {
+                                    bestCandidate = candidate;
+                                    bestLength = length;
+                                    if (bestLength == lengthMask)
+                                    {
+                                        break;
+                                    }
+                                }
+                            }
+                            candidate--;
+                        }
+                        if (bestLength >= 3)    //Copy token
+                        {
+                            tokenFlags |= (byte)(1 << i);
+
+                            UInt16 offsetMask = (ushort)~lengthMask;
+                            ushort token = (ushort)(((ushort)(dPos - (bestCandidate+1))) << (bitCount) | (ushort)(bestLength - 3));
+                            Array.Copy(BitConverter.GetBytes(token), 0, comprBuffer, cPos, 2);
+                            dPos = dPos + bestLength;
+                            cPos += 2;
+                            //SetCopy Token                        
+                        }
+                        else
+                        {
+                            comprBuffer[cPos++] = buffer[dPos++];
+                        }
+                    }
+                    
+                    else
+                    {
+                        comprBuffer[cPos++] = buffer[dPos++];
+                    }
+                    if (dPos >= dEnd) break;
+                }
+                comprBuffer[flagPos] = tokenFlags;
+                flagPos = cPos++;
+            }
+            var ret = new byte[cPos - 1];
+            Array.Copy(comprBuffer, ret, ret.Length);
+            startPos = dPos;
+            return ret;
+        }
         internal static byte[] DecompressPart(byte[] part)
         {
             return DecompressPart(part, 0);
@@ -78,7 +211,7 @@ namespace OfficeOpenXml.Utils
         /// Decompression using a run length encoding algorithm.
         /// See MS-OVBA Section 2.4
         /// </summary>
-        /// <param name="part"></param>
+        /// <param name="part">Byte array to decompress</param>
         /// <param name="startPos"></param>
         /// <returns></returns>
         internal static byte[] DecompressPart(byte[] part, int startPos)
@@ -401,6 +534,7 @@ namespace OfficeOpenXml.Utils
 
         [DllImport("ole32.dll")]
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
+        
         #endregion
         internal static int IsStorageFile(string Name)
         {
@@ -519,5 +653,67 @@ namespace OfficeOpenXml.Utils
 
             return data;
         }
+        internal byte[] Save()
+        {
+            ILockBytes lb;
+            var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
+
+            IStorage storage = null;
+            byte[] ret = null;
+
+            //Create the document in-memory
+            if (StgCreateDocfileOnILockBytes(lb,
+                    STGM.CREATE | STGM.READWRITE | STGM.SHARE_EXCLUSIVE | STGM.TRANSACTED, 
+                    0,
+                    out storage)==0)
+            {
+                foreach(var store in this.Storage.SubStorage)
+                {
+                    CreateStore(store.Key, store.Value, storage);
+                }
+                CreateStreams(this.Storage, storage);                                
+                lb.Flush();
+                
+                //Now copy the unmanaged stream to a byte array --> memory stream
+                var statstg = new comTypes.STATSTG();
+                lb.Stat(out statstg, 0);
+                int size = (int)statstg.cbSize;
+                IntPtr buffer = Marshal.AllocHGlobal(size);
+                UIntPtr readSize;
+                ret=new byte[size];
+                lb.ReadAt(0, buffer, size, out readSize);
+                Marshal.Copy(buffer, ret, 0, size);
+                Marshal.FreeHGlobal(buffer);
+            }
+            Marshal.ReleaseComObject(storage);
+            Marshal.ReleaseComObject(lb);
+
+            return ret;
+        }
+
+        private void CreateStore(string name, StoragePart subStore, IStorage storage)
+        {
+            IStorage subStorage;
+            storage.CreateStorage(name, (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out subStorage);
+            storage.Commit(0);
+            foreach (var store in subStore.SubStorage)
+            {
+                CreateStore(store.Key, store.Value, subStorage);
+            }
+            
+            CreateStreams(subStore, subStorage);
+        }
+
+        private void CreateStreams(StoragePart subStore, IStorage subStorage)
+        {
+            foreach (var ds in subStore.DataStreams)
+            {
+                comTypes.IStream stream;
+                subStorage.CreateStream(ds.Key, (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out stream);
+                stream.Write(ds.Value, ds.Value.Length, IntPtr.Zero);
+            }
+            subStorage.Commit(0);
+        }
+
     }
 }

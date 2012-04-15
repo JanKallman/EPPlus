@@ -467,6 +467,8 @@ namespace EPPlusTest
 
             var ints = new int[] {1,3,4,76,2,5};
             ws.Cells["A15"].Value = ints;
+            ws.Column(1).Hidden = true;
+            ws.Cells.AutoFitColumns(0);
         }        
         static void Create(string file)
         {
@@ -1314,6 +1316,43 @@ namespace EPPlusTest
             ws.Cells["A1"].RichText.Add("Test rt");
             ws.Cells.AutoFilter=true;
             Assert.AreNotEqual(ws.Cells["A1:D5"].Value, null);
+        }
+        [TestMethod]
+        public void LoadFromCollection_Strings()
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet 1");
+                IEnumerable<String> list = new List<String>() { "a", "b", "c", "d", "e", "f", "g" };
+
+                ws.Cells["A1"].LoadFromCollection(list, false);
+
+                Assert.AreEqual("b", ws.Cells["A2"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void LoadFromCollection_Objects()
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet 1");
+                IEnumerable<Obj> list = new[] { new Obj("a"), new Obj("b"), new Obj("c"), new Obj("d"), new Obj("e"), new Obj("f"), new Obj("g") };
+
+                ws.Cells["A1"].LoadFromCollection(list, false);
+
+                Assert.AreEqual("b", ws.Cells["A2"].Value);
+            }
+        }
+
+        class Obj
+        {
+            public Obj(String name)
+            {
+                Name = name;
+            }
+
+            public String Name { get; set; }
         }
     }
 }
