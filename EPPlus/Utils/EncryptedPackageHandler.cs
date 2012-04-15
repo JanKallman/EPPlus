@@ -41,7 +41,7 @@ using comTypes=System.Runtime.InteropServices.ComTypes;
 using System.IO;
 using System.Security.Cryptography;
 using System.IO.Packaging; 
-namespace OfficeOpenXml
+namespace OfficeOpenXml.Utils
 {
     /// <summary>
     /// Handles the EncryptionInfo stream

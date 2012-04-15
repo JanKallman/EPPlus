@@ -145,10 +145,12 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
-    <Compile Include="ExcelVBAProject.cs" />
+    <Compile Include="VBA\ExcelVbaModule.cs" />
+    <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
+    <Compile Include="VBA\ExcelVbaProject.cs" />
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
-    <Compile Include="EncryptedPackageHandler.cs" />
+    <Compile Include="Utils\EncryptedPackageHandler.cs" />
     <Compile Include="Style\ExcelGradientFill.cs" />
     <Compile Include="Style\XmlAccess\ExcelGradientFillXml.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />
@@ -186,6 +188,9 @@
     <Compile Include="Utils\IArgument.cs" />
     <Compile Include="Utils\Require.cs" />
     <Compile Include="Utils\SqRefUtility.cs" />
+    <Compile Include="VBA\ExcelVbaProtection.cs" />
+    <Compile Include="VBA\ExcelVbaReference.cs" />
+    <Compile Include="VBA\ExcelVbaSignature.cs" />
     <Compile Include="XmlHelper.cs" />
     <Compile Include="XmlHelperFactory.cs" />
   </ItemGroup>
@@ -261,7 +266,6 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

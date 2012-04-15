@@ -239,7 +239,7 @@ namespace OfficeOpenXml.Drawing
             {
                 if(_drawingNames.ContainsKey(Name.ToLower()))
                 {
-                    throw new Exception("Name already exist in the drawings collection");
+                    throw new Exception("Name already exists in the drawings collection");
                 }
 
                 if (ChartType == eChartType.Bubble ||
@@ -289,7 +289,7 @@ namespace OfficeOpenXml.Drawing
                 {
                     if (_drawingNames.ContainsKey(Name.ToLower()))
                     {
-                        throw new Exception("Name already exist in the drawings collection");
+                        throw new Exception("Name already exists in the drawings collection");
                     }
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
@@ -313,7 +313,7 @@ namespace OfficeOpenXml.Drawing
                 {
                     if (_drawingNames.ContainsKey(Name.ToLower()))
                     {
-                        throw new Exception("Name already exist in the drawings collection");
+                        throw new Exception("Name already exists in the drawings collection");
                     }
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
@@ -336,7 +336,7 @@ namespace OfficeOpenXml.Drawing
             {
                 if (_drawingNames.ContainsKey(Name.ToLower()))
                 {
-                    throw new Exception("Name already exist in the drawings collection");
+                    throw new Exception("Name already exists in the drawings collection");
                 }
                 XmlElement drawNode = CreateDrawingXml();
                 ExcelShape shape = new ExcelShape(this, drawNode, Style);
