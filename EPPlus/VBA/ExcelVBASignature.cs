@@ -71,8 +71,8 @@ namespace OfficeOpenXml.VBA
                 uint timestampUrlOffset = br.ReadUInt32();  //1784
 
                 byte[] signature = br.ReadBytes((int)cbSignature);
-                uint version = br.ReadUInt32(); //StoreStart
-                uint fileType = br.ReadUInt32();
+                uint version = br.ReadUInt32();             //0
+                uint fileType = br.ReadUInt32();            //1414677827
 
                 uint id = br.ReadUInt32();
                 while (id != 0)
@@ -82,6 +82,7 @@ namespace OfficeOpenXml.VBA
                     if (length > 0)
                     {
                         byte[] value = br.ReadBytes((int)length);
+                        for (int i = 0; i < value.Length; i++) { System.Diagnostics.Debug.Write(",0x"+value[i].ToString("x")); }
                         switch (id)
                         {
                             //Add property values here...
@@ -94,8 +95,8 @@ namespace OfficeOpenXml.VBA
                     }
                     id = br.ReadUInt32();
                 }
-                uint endel1 = br.ReadUInt32();
-                uint endel2 = br.ReadUInt32();
+                uint endel1 = br.ReadUInt32();  //0
+                uint endel2 = br.ReadUInt32();  //0
                 ushort rgchProjectNameBuffer = br.ReadUInt16();
                 ushort rgchTimestampBuffer = br.ReadUInt16();
                 Verifier = new SignedCms();
@@ -162,17 +163,17 @@ namespace OfficeOpenXml.VBA
             bw.Write((uint)cert.Length);
             bw.Write((uint)44);                  //?? 36 ref inside cert ??
             bw.Write((uint)certStore.Length);    //cbSigningCertStore
-            bw.Write((uint)(cert.Length + 36));  //certStoreOffset
+            bw.Write((uint)(cert.Length + 44));  //certStoreOffset
             bw.Write((uint)0);                   //cbProjectName
-            bw.Write((uint)(cert.Length + certStore.Length + 36));    //projectNameOffset
+            bw.Write((uint)(cert.Length + certStore.Length + 44));    //projectNameOffset
             bw.Write((uint)0);    //fTimestamp
             bw.Write((uint)0);    //cbTimestampUrl
-            bw.Write((uint)(cert.Length + certStore.Length + 36 + 2));    //timestampUrlOffset
+            bw.Write((uint)(cert.Length + certStore.Length + 44 + 2));    //timestampUrlOffset
             bw.Write(cert);
             bw.Write(certStore);
             bw.Write((ushort)0);//rgchProjectNameBuffer
             bw.Write((ushort)0);//rgchTimestampBuffer
-
+            bw.Write((ushort)0);
             bw.Flush();
 
             var rel = proj.Part.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
@@ -219,6 +220,14 @@ namespace OfficeOpenXml.VBA
 
             bw.Flush();
             return ms.ToArray();
+        }
+
+        private void WriteProp(BinaryWriter bw, int id, byte[] data)
+        {
+            bw.Write((uint)id);
+            bw.Write((uint)1);
+            bw.Write((uint)data.Length);
+            bw.Write(data);
         }
         internal byte[] SignProject(ExcelVbaProject proj)
         {

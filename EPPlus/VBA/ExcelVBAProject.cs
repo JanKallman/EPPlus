@@ -275,7 +275,7 @@ namespace OfficeOpenXml.VBA
                                 //Handle 0x00 bitwise 2.4.4.3 
                                 for (int i = 0; i < 24; i++)
                                 {
-                                    int bit = 1 << (int)((i % 8));
+                                    int bit = 128 >> (int)((i % 8));
                                     if (i < 4)
                                     {
                                         if ((int)(flags[0] & bit) == 0)
@@ -961,7 +961,7 @@ namespace OfficeOpenXml.VBA
                 //Set Null bits
                 for (int i = 0; i < 24; i++)
                 {
-                    byte bit = (byte)(1 << (int)((i % 8)));
+                    byte bit = (byte)(128 >> (int)((i % 8)));
                     if (i < 4)
                     {
                         if (nullKey[i] == 0)
@@ -1092,7 +1092,7 @@ namespace OfficeOpenXml.VBA
         internal string GetBlankClassModule(string name, bool exposed)
         {
             string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-            ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  //Microsoft.Office.Interop.Excel.WorksheetClass
+            ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  
             ret += "Attribute VB_GlobalNameSpace = False\r\n";
             ret += "Attribute VB_Creatable = False\r\n";
             ret += "Attribute VB_PredeclaredId = False\r\n";

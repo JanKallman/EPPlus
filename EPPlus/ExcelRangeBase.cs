@@ -1436,7 +1436,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return new RangeDataValidation(_worksheet, Address);
+                return new RangeDataValidation(_worksheet, Address);                
             }
         }
         #endregion

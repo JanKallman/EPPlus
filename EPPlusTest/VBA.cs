@@ -33,7 +33,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadVBA()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\vbaWriteErrorPwd.xlsm"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
             File.WriteAllText(@"c:\temp\vba\modules\dir.txt", package.Workbook.VbaProject.CodePage + "," + package.Workbook.VbaProject.Constants + "," + package.Workbook.VbaProject.Description+ "," + package.Workbook.VbaProject.HelpContextID.ToString()+ "," + package.Workbook.VbaProject.HelpFile1+ "," + package.Workbook.VbaProject.HelpFile2+ "," + package.Workbook.VbaProject.Lcid.ToString()+ "," + package.Workbook.VbaProject.LcidInvoke.ToString()+ "," + package.Workbook.VbaProject.LibFlags.ToString()+ "," + package.Workbook.VbaProject.MajorVersion.ToString()+ "," + package.Workbook.VbaProject.MinorVersion.ToString()+ "," + package.Workbook.VbaProject.Name+ "," + package.Workbook.VbaProject.ProjectID + "," + package.Workbook.VbaProject.SystemKind.ToString() + "," + package.Workbook.VbaProject.Protection.HostProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.UserProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.VbeProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.VisibilityState.ToString());
             foreach (var module in package.Workbook.VbaProject.Modules)
             {
@@ -62,7 +62,7 @@ namespace EPPlusTest
             package.Workbook.VbaProject.Modules["Sheet1"].Name = "Blad1";
             package.Workbook.CodeModule.Name = "DenHärArbetsboken";
             package.Workbook.Worksheets[1].Name = "FirstSheet";
-
+            package.Workbook.CodeModule.Code += "\r\nPrivate Sub Workbook_Open()\r\nBlad1.Cells(1,1).Value = \"VBA test\"\r\nMsgBox \"VBA is running!\"\r\nEnd Sub";
             X509Store store = new X509Store(StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
@@ -77,6 +77,15 @@ namespace EPPlusTest
             package.Workbook.VbaProject.Protection.SetPassword("EPPlus");
             package.SaveAs(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
 
+        }
+        [TestMethod]
+        public void Resign()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
+            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
+            package.SaveAs(new FileInfo(@"c:\temp\vbaWrite2.xlsm"));
         }
     }
 }
