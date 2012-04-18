@@ -54,16 +54,6 @@ using System.Drawing;
 
 namespace OfficeOpenXml
 {
-    public interface ICalculateHandler
-    {
-        List<IFormulaCell> FormulaCells { get; }
-    }
-    public interface IFormulaCell
-    {
-        string Address { get; }
-        string Formula { get; }
-        object FormulaValue { get; set; }
-    }
     /// <summary>
     /// Worksheet hidden enumeration
     /// </summary>
@@ -85,7 +75,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public sealed class ExcelWorksheet : XmlHelper, ICalculateHandler
+    public sealed class ExcelWorksheet : XmlHelper, ICalcEngine
 	{
         internal class Formulas
         {
@@ -95,7 +85,6 @@ namespace OfficeOpenXml
             public string Formula { get; set; }
             public int StartRow { get; set; }
             public int StartCol { get; set; }
-
         }
         /// <summary>
         /// Collection containing merged cell addresses
@@ -456,7 +445,7 @@ namespace OfficeOpenXml
                 SetXmlNodeString(codeModuleNamePath, value);
             }
         }
-        public void CodeNameChange(string value)
+        internal void CodeNameChange(string value)
         {
             CodeModuleName = value;
         }
@@ -2726,9 +2715,79 @@ namespace OfficeOpenXml
         //    }
         //}
 
-        List<IFormulaCell> ICalculateHandler.FormulaCells
+
+        Dictionary<string, string> ICalcEngine.GetFormulas(string address)
         {
-            get { throw new NotImplementedException(); }
+            var d = new Dictionary<string, string>();
+            var range = new ExcelAddressBase(address);
+            foreach (ExcelCell f in _formulaCells)
+            {
+                if (range.Collide(new ExcelAddressBase(f.CellAddress))!=ExcelAddressBase.eAddressCollition.No)
+                {
+                    d.Add(f.CellAddress,f.Formula);
+                }
+            }
+            foreach(var sf in _sharedFormulas.Values)
+            {
+                if (range.Collide(new ExcelAddressBase(sf.Address)) != ExcelAddressBase.eAddressCollition.No)
+                {
+                    d.Add(sf.Address, sf.Formula);
+                }
+            }
+            return d;
+        }
+        Dictionary<string, object> ICalcEngine.GetNameValues(string address)
+        {
+            var d = new Dictionary<string, object>();
+            var range = new ExcelAddressBase(address);
+            foreach (var name in Names)
+            {
+                if (!string.IsNullOrEmpty(name.NameFormula))
+                {
+                    if (name.NameValue!=null)
+                    {
+                        d.Add(name.Name, name.Value);
+                    }
+                    else
+                        if (name.Collide(range) != ExcelAddressBase.eAddressCollition.No)
+                        {
+                            d.Add(name.Name, name.Value);
+                        }
+                }
+            }
+            return d;
+        }
+
+        Dictionary<string, object> ICalcEngine.GetWorkbookNameValues()
+        {
+            var d = new Dictionary<string, object>();
+            var range = new ExcelAddressBase();
+            foreach (var name in Workbook.Names)
+            {
+                if (!string.IsNullOrEmpty(name.NameFormula))
+                {
+                    if (name.NameValue != null)
+                    {
+                        d.Add(name.Name, name.Value);
+                    }
+                    else
+                        if (name.Collide(range) != ExcelAddressBase.eAddressCollition.No)
+                        {
+                            d.Add(name.Name, name.Value);
+                        }
+                }
+            }
+            return d;
+        }
+
+        object ICalcEngine.GetValue(int row, int col)
+        {
+            return Cell(row, col)._value;
+        }
+
+        void ICalcEngine.SetValue(int row, int col, object value)
+        {
+            Cell(row, col)._value = value;
         }
     }  // END class Worksheet
 }
