@@ -145,6 +145,13 @@ namespace EPPlusSamples
                 Sample13.RunSample13(outputDir);
                 Console.WriteLine("Sample 13 created {0}", outputDir.Name);
                 Console.WriteLine();
+
+                //Sample 15 - Shows a how to use VBA
+                Console.WriteLine("Running sample 15-VBA");
+                Sample15.VBASample(outputDir);
+                Console.WriteLine("Sample 15 created {0}", outputDir.Name);
+                Console.WriteLine();
+
             }
 			catch (Exception ex)
             

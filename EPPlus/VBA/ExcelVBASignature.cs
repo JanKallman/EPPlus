@@ -44,7 +44,7 @@ namespace OfficeOpenXml.VBA
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
         PackagePart _vbaPart = null;
-        public ExcelVbaSignature(PackagePart vbaPart)
+        internal ExcelVbaSignature(PackagePart vbaPart)
         {
             _vbaPart = vbaPart;
             GetSignature();
@@ -60,19 +60,18 @@ namespace OfficeOpenXml.VBA
 
                 var stream = Part.GetStream();
                 BinaryReader br = new BinaryReader(stream);
-                uint cbSignature = br.ReadUInt32();         //897
-                uint signatureOffset = br.ReadUInt32();     //44
-                uint cbSigningCertStore = br.ReadUInt32();  //841
-                uint certStoreOffset = br.ReadUInt32();     //941
-                uint cbProjectName = br.ReadUInt32();       //0
-                uint projectNameOffset = br.ReadUInt32();   //1782
+                uint cbSignature = br.ReadUInt32();        
+                uint signatureOffset = br.ReadUInt32();     //44 ??
+                uint cbSigningCertStore = br.ReadUInt32();  
+                uint certStoreOffset = br.ReadUInt32();     
+                uint cbProjectName = br.ReadUInt32();       
+                uint projectNameOffset = br.ReadUInt32();   
                 uint fTimestamp = br.ReadUInt32();
                 uint cbTimestampUrl = br.ReadUInt32();
-                uint timestampUrlOffset = br.ReadUInt32();  //1784
-
+                uint timestampUrlOffset = br.ReadUInt32();  
                 byte[] signature = br.ReadBytes((int)cbSignature);
-                uint version = br.ReadUInt32();             //0
-                uint fileType = br.ReadUInt32();            //1414677827
+                uint version = br.ReadUInt32();             
+                uint fileType = br.ReadUInt32();            
 
                 uint id = br.ReadUInt32();
                 while (id != 0)
@@ -108,6 +107,7 @@ namespace OfficeOpenXml.VBA
                 Verifier = null;
             }
         }
+        //Create Oid from a bytearray
         //private string ReadHash(byte[] content)
         //{
         //    StringBuilder builder = new StringBuilder();
@@ -142,7 +142,7 @@ namespace OfficeOpenXml.VBA
         //}
         internal void Save(ExcelVbaProject proj)
         {
-            if (Certificate == null)    //No signature. Remove any Signature part
+            if (Certificate == null || Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
             {
                 if (Part != null)
                 {
@@ -263,14 +263,7 @@ namespace OfficeOpenXml.VBA
             bw.Write((byte)hash.Length);   //Hash length
             bw.Write(hash);                //Content hash
 
-            //var cont = new byte[] { 0x30, 0x42, 0x30, 0x1E, 0x06, 0x0A, 0x2B, 0x06, 0x01, 0x04, 0x01, 0x82, 0x37, 0x02, 0x01, 0x1D,
-            //                    0x04, 0x10, 0x57, 0x54, 0xA2, 0xF1, 0x04, 0xB8, 0xB9, 0x83, 0x17, 0xE6, 0x31, 0x16, 0x23, 0x73,
-            //                    0xF1, 0xE5, 0x30, 0x20, 0x30, 0x0C, 0x06, 0x08, 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x02, 0x05, 
-            //                    0x05, 0x00, 0x04, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-            //                    0x00, 0x00, 0x00, 0x00};
-            //Array.Copy(hash,0,cont,52,16);
             ContentInfo contentInfo = new ContentInfo(((MemoryStream)bw.BaseStream).ToArray());
-            //ContentInfo contentInfo = new ContentInfo((cont));
             contentInfo.ContentType.Value = "1.3.6.1.4.1.311.2.1.4";
             Verifier = new SignedCms(contentInfo);
             var signer = new CmsSigner(Certificate);
@@ -285,21 +278,33 @@ namespace OfficeOpenXml.VBA
             BinaryWriter bw = new BinaryWriter(new MemoryStream());
             bw.Write(enc.GetBytes(proj.Name));
             bw.Write(enc.GetBytes(proj.Constants));
-            foreach (var refenence in proj.References)
+            foreach (var reference in proj.References)
             {
-                if (refenence.ReferenceRecordID == 0x0D)
+                if (reference.ReferenceRecordID == 0x0D)
                 {
                     bw.Write((byte)0x7B);
                 }
-                if (refenence.ReferenceRecordID == 0x0E)
+                if (reference.ReferenceRecordID == 0x0E)
                 {
-                    var r = (ExcelVbaReferenceProject)refenence;
-                    bw.Write((uint)r.Libid.Length);
-                    bw.Write(enc.GetBytes(r.Libid));
-                    bw.Write(r.LibIdRelative.Length);
-                    bw.Write(enc.GetBytes(r.LibIdRelative));
-                    bw.Write(r.MajorVersion);
-                    bw.Write(r.MinorVersion);
+                    //var r = (ExcelVbaReferenceProject)reference;
+                    //BinaryWriter bwTemp = new BinaryWriter(new MemoryStream());
+                    //bwTemp.Write((uint)r.Libid.Length);
+                    //bwTemp.Write(enc.GetBytes(r.Libid));              
+                    //bwTemp.Write((uint)r.LibIdRelative.Length);
+                    //bwTemp.Write(enc.GetBytes(r.LibIdRelative));
+                    //bwTemp.Write(r.MajorVersion);
+                    //bwTemp.Write(r.MinorVersion);
+                    foreach (byte b in BitConverter.GetBytes((uint)reference.Libid.Length))  //Length will never be an UInt with 4 bytes that aren't 0 (> 0x00FFFFFF), so no need for the rest of the properties.
+                    {
+                        if (b != 0)
+                        {
+                            bw.Write(b);
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
                 }
             }
             foreach (var module in proj.Modules)
@@ -317,8 +322,18 @@ namespace OfficeOpenXml.VBA
             var hp = System.Security.Cryptography.MD5CryptoServiceProvider.Create();
             return hp.ComputeHash(buffer);
         }
+        /// <summary>
+        /// The certificate to sign the VBA project.
+        /// <remarks>
+        /// This certificate must have a private key.
+        /// There is no validation that the certificate is valid for codesigning, so make sure it's valid to sign Excel files with (Excel 2010 is more strict that prior versions).
+        /// </remarks>
+        /// </summary>
         public X509Certificate2 Certificate { get; set; }
-        public SignedCms Verifier { get; set; }
+        /// <summary>
+        /// The verifier
+        /// </summary>
+        public SignedCms Verifier { get; internal set; }
         internal CompoundDocument Signature { get; set; }
         internal PackagePart Part { get; set; }
         internal Uri Uri { get; private set; }

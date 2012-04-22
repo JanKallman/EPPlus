@@ -95,7 +95,7 @@ namespace OfficeOpenXml
         /// <param name="Name"></param>
         /// <param name="Formula"></param>
         /// <returns></returns>
-        public ExcelNamedRange AddFormla(string Name, string Formula)
+        public ExcelNamedRange AddFormula(string Name, string Formula)
         {
             var item = new ExcelNamedRange(Name, _wb, _ws);
             item.NameFormula = Formula;

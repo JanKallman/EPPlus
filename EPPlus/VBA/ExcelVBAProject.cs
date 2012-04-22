@@ -6,19 +6,6 @@
  *
  * Copyright (C) 2011  Jan Källman
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
-
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU Lesser General Public License for more details.
- *
- * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
- * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- *
  * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
@@ -53,17 +40,9 @@ namespace OfficeOpenXml.VBA
         const string schemaRelVba = "http://schemas.microsoft.com/office/2006/relationships/vbaProject";
         internal const string PartUri = @"/xl/vbaProject.bin";
         #region Classes & Enums
-        public class ExcelVBAModuleName
-        {
-            public ExcelVBAModuleName(byte[] part)
-            {
-                uint sizeOfName = BitConverter.ToUInt32(part, 2);
-
-                byte[] byName = new byte[sizeOfName];
-                string name = Encoding.UTF8.GetString(byName);
-            }
-
-        }
+        /// <summary>
+        /// Type of system where the VBA project was created.
+        /// </summary>
         public enum eSyskind
         {
             Win16 = 0,
@@ -73,7 +52,7 @@ namespace OfficeOpenXml.VBA
         }
 
         #endregion
-        public ExcelVbaProject(ExcelWorkbook wb)
+        internal ExcelVbaProject(ExcelWorkbook wb)
         {
             _wb = wb;
             _pck = _wb._package.Package;
@@ -95,13 +74,37 @@ namespace OfficeOpenXml.VBA
         internal ExcelWorkbook _wb;
         internal Package _pck;
         #region Dir Stream Properties
+        /// <summary>
+        /// System kind. Default Win32.
+        /// </summary>
         public eSyskind SystemKind { get; set; }
+        /// <summary>
+        /// Name of the project
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// A description of the project
+        /// </summary>
         public string Description { get; set; }
+        /// <summary>
+        /// A helpfile
+        /// </summary>
         public string HelpFile1 { get; set; }
+        /// <summary>
+        /// Secondary helpfile
+        /// </summary>
         public string HelpFile2 { get; set; }
+        /// <summary>
+        /// Context if refering the helpfile
+        /// </summary>
         public int HelpContextID { get; set; }
+        /// <summary>
+        /// Conditional compilation constants
+        /// </summary>
         public string Constants { get; set; }
+        /// <summary>
+        /// Codepage for encoding. Default to current regional setting.
+        /// </summary>
         public int CodePage { get; internal set; }
         internal int LibFlags { get; set; }
         internal int MajorVersion { get; set; }
@@ -113,7 +116,7 @@ namespace OfficeOpenXml.VBA
         //internal string VBFrame { get; set; }
         /// <summary>
         /// Project references
-        /// </summary>
+        /// </summary>        
         public ExcelVbaReferenceCollection References { get; set; }
         /// <summary>
         /// Code Modules (Modules, classes, designer code)
@@ -163,6 +166,7 @@ namespace OfficeOpenXml.VBA
             ReadDirStream();
             ProjectStreamText = Encoding.GetEncoding(CodePage).GetString(Document.Storage.DataStreams["PROJECT"]);
             ReadModules();
+            ReadProjectProperties();
             //foreach (var key in Document.Storage.SubStorage.Keys)
             //{
             //    if (key != "VBA")
@@ -206,11 +210,43 @@ namespace OfficeOpenXml.VBA
             {
                 var stream = Document.Storage.SubStorage["VBA"].DataStreams[modul.streamName];
                 var byCode = CompoundDocument.DecompressPart(stream, (int)modul.ModuleOffset);
-                modul.Code = Encoding.GetEncoding(CodePage).GetString(byCode);
+                string code = Encoding.GetEncoding(CodePage).GetString(byCode);
+                int pos=0;
+                while(pos+9<code.Length && code.Substring(pos,9)=="Attribute")
+                {
+                    int linePos=code.IndexOf("\r\n",pos);
+                    string[] lineSplit;
+                    if(linePos>0)
+                    {
+                        lineSplit = code.Substring(pos + 9, linePos - pos - 9).Split('=');
+                    }
+                    else
+                    {
+                        lineSplit=code.Substring(pos+9).Split(new char[]{'='},1);
+                    }
+                    if (lineSplit.Length > 1)
+                    {
+                        lineSplit[1] = lineSplit[1].Trim();
+                        var attr = 
+                            new ExcelVbaModuleAttribute()
+                        {
+                            Name = lineSplit[0].Trim(),
+                            DataType = lineSplit[1].StartsWith("\"") ? eAttributeDataType.String : eAttributeDataType.NonString,
+                            Value = lineSplit[1].StartsWith("\"") ? lineSplit[1].Substring(1, lineSplit[1].Length - 2) : lineSplit[1]
+                        };
+                        modul.Attributes._list.Add(attr);
+                    }
+                    pos = linePos + 2;
+                }
+                modul.Code=code.Substring(pos);
             }
+        }
+
+        private void ReadProjectProperties()
+        {
             _protection = new ExcelVbaProtection(this);
             string prevPackage = "";
-            var lines = Regex.Split(ProjectStreamText, "\r\n");            
+            var lines = Regex.Split(ProjectStreamText, "\r\n");
             foreach (string line in lines)
             {
                 if (line.StartsWith("["))
@@ -224,27 +260,27 @@ namespace OfficeOpenXml.VBA
                     {
                         split[1] = split[1].Substring(1, split[1].Length - 2);
                     }
-                    switch(split[0])
+                    switch (split[0])
                     {
                         case "ID":
                             ProjectID = split[1];
                             break;
                         case "Document":
                             string mn = split[1].Substring(0, split[1].IndexOf("/&H"));
-                            Modules[mn].Type=eModuleType.Document;
+                            Modules[mn].Type = eModuleType.Document;
                             break;
                         case "Package":
                             prevPackage = split[1];
                             break;
                         case "BaseClass":
-                            Modules[split[1]].Type=eModuleType.Designer;
+                            Modules[split[1]].Type = eModuleType.Designer;
                             Modules[split[1]].ClassID = prevPackage;
                             break;
                         case "Module":
                             Modules[split[1]].Type = eModuleType.Module;
                             break;
                         case "Class":
-                            Modules[split[1]].Type=eModuleType.Class;
+                            Modules[split[1]].Type = eModuleType.Class;
                             break;
                         case "HelpFile":
                         case "Name":
@@ -261,7 +297,7 @@ namespace OfficeOpenXml.VBA
                             break;
                         case "DPB":
                             byte[] dpb = Decrypt(split[1]);
-                            if (dpb.Length > 4)
+                            if (dpb.Length >= 28)
                             {
                                 byte reserved = dpb[0];
                                 var flags = new byte[3];
@@ -303,8 +339,8 @@ namespace OfficeOpenXml.VBA
                             }
                             break;
                         case "GC":
-                            _protection.VisibilityState = Decrypt(split[1])[0]==0xFF;
-                             
+                            _protection.VisibilityState = Decrypt(split[1])[0] == 0xFF;
+
                             break;
                     }
                 }
@@ -564,7 +600,7 @@ namespace OfficeOpenXml.VBA
                 store.DataStreams.Add("dir", CreateDirStream());
                 foreach (var module in Modules)
                 {
-                    store.DataStreams.Add(module.Name, CompoundDocument.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Code)));
+                    store.DataStreams.Add(module.Name, CompoundDocument.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Attributes.GetAttributeText() + module.Code)));
                 }
 
                 //Copy streams from the template, if used.
@@ -585,9 +621,7 @@ namespace OfficeOpenXml.VBA
                         }
                     }
                 }
-                //ProjectStreamText="ID=\"{5DD90D76-4904-47A2-AF0D-D69B4673604E}\"\r\nDocument=ThisWorkbook/&H00000000\r\nDocument=Sheet1/&H00000000\r\nName=\"VBAProject\"\r\nHelpContextID=0\r\nVersionCompatible32=\"393222000\"\r\nCMG=\"A3A176D51DD91DD91DD91DD9\"\r\nDPB=\"6B69BE552856285628\"\r\nGC=\"7C7EA92F59AA5AAA5A55\"\r\n\r\n[Host Extender Info]\r\n&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000\r\n\r\n[Workspace]\r\nThisWorkbook=0, 0, 0, 0, C \r\nSheet1=0, 0, 0, 0, C ";
 
-                //doc.Storage.DataStreams.Add("PROJECT", Encoding.GetEncoding(CodePage).GetBytes(ProjectStreamText));
                 doc.Storage.DataStreams.Add("PROJECT", CreateProjectStream());
                 doc.Storage.DataStreams.Add("PROJECTwm", CreateProjectwmStream());
 
@@ -900,7 +934,7 @@ namespace OfficeOpenXml.VBA
                 {
                     //Designer
                     sb.AppendFormat("Package={0}\r\n", module.ClassID);
-                    sb.AppendFormat("BaseClass=UserForm1\r\n", module.Name);
+                    sb.AppendFormat("BaseClass={0}\r\n", module.Name);
                 }
             }
             if (HelpFile1 != "")
@@ -1040,25 +1074,25 @@ namespace OfficeOpenXml.VBA
             }
             ProjectID = "{5DD90D76-4904-47A2-AF0D-D69B4673604E}";
             Name = "VBAProject";
-            SystemKind = eSyskind.Win32; //Default
-            Lcid = 1033;
-            LcidInvoke = 1033;
-            CodePage = 1252;
+            SystemKind = eSyskind.Win32;            //Default
+            Lcid = 1033;                            //English - United States
+            LcidInvoke = 1033;                      //English - United States
+            CodePage = Encoding.Default.CodePage;
             MajorVersion = 1361024421;
             MinorVersion = 6;
             HelpContextID = 0;
-            Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = GetBlankDocumentModule("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+            Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes=GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
             //_wb.CodeModuleName = "ThisWorkbook";
             foreach (var sheet in _wb.Worksheets)
             {
                 if (!Modules.Exists(sheet.Name))
                 {
-                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = GetBlankDocumentModule(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext=0 });
+                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                     //sheet.CodeModuleName = sheet.Name;
                 }
             }
-            References.Add(new ExcelVbaReference() { Name = "stdole", Libid = "*\\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\\Windows\\SysWOW64\\stdole2.tlb#OLE Automation", ReferenceRecordID = 13 });         
-            References.Add(new ExcelVbaReference() { Name = "Office", Libid = "*\\G{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}#2.0#0#C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL#Microsoft Office 12.0 Object Library", ReferenceRecordID = 13 });
+            //References.Add(new ExcelVbaReference() { Name = "stdole", Libid = "*\\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\\Windows\\SysWOW64\\stdole2.tlb#OLE Automation", ReferenceRecordID = 13 });         
+            //References.Add(new ExcelVbaReference() { Name = "Office", Libid = "*\\G{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}#2.0#0#C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL#Microsoft Office 12.0 Object Library", ReferenceRecordID = 13 });
             _protection = new ExcelVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
             //References.Add(new ExcelVbaReferenceControl()
             //{
@@ -1072,35 +1106,48 @@ namespace OfficeOpenXml.VBA
             //});
 
         }
+        internal ExcelVbaModuleAttributesCollection GetDocumentAttributes(string name, string clsid)
+        {
+            var attr = new ExcelVbaModuleAttributesCollection();
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Name", Value = name, DataType = eAttributeDataType.String });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Base", Value = clsid, DataType = eAttributeDataType.String });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_GlobalNameSpace", Value = "False", DataType = eAttributeDataType.NonString });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Creatable", Value = "False", DataType = eAttributeDataType.NonString });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_PredeclaredId", Value = "True", DataType = eAttributeDataType.NonString });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Exposed", Value = "False", DataType = eAttributeDataType.NonString });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_TemplateDerived", Value = "False", DataType = eAttributeDataType.NonString });
+            attr._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Customizable", Value = "True", DataType = eAttributeDataType.NonString });
 
-        internal string GetBlankDocumentModule(string name, string clsid)
-        {
-            string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-            ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", clsid);  //Microsoft.Office.Interop.Excel.WorksheetClass
-            ret += "Attribute VB_GlobalNameSpace = False\r\n";
-            ret += "Attribute VB_Creatable = False\r\n";
-            ret += "Attribute VB_PredeclaredId = True\r\n";
-            ret += "Attribute VB_Exposed = True\r\n";
-            ret += "Attribute VB_TemplateDerived = False\r\n";
-            ret += "Attribute VB_Customizable = True";
-            return ret;
+            return attr;
         }
-        internal string GetBlankModule(string name)
-        {
-            return string.Format("Attribute VB_Name = \"{0}\"\r\n", name);
-        }
-        internal string GetBlankClassModule(string name, bool exposed)
-        {
-            string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-            ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  
-            ret += "Attribute VB_GlobalNameSpace = False\r\n";
-            ret += "Attribute VB_Creatable = False\r\n";
-            ret += "Attribute VB_PredeclaredId = False\r\n";
-            ret += string.Format("Attribute VB_Exposed = {0}\r\n", exposed ? "True" : "False");
-            ret += "Attribute VB_TemplateDerived = False\r\n";
-            ret += "Attribute VB_Customizable = False\r\n";
-            return ret;
-        }
+        //internal string GetBlankDocumentModule(string name, string clsid)
+        //{
+        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
+        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", clsid);  //Microsoft.Office.Interop.Excel.WorksheetClass
+        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
+        //    ret += "Attribute VB_Creatable = False\r\n";
+        //    ret += "Attribute VB_PredeclaredId = True\r\n";
+        //    ret += "Attribute VB_Exposed = True\r\n";
+        //    ret += "Attribute VB_TemplateDerived = False\r\n";
+        //    ret += "Attribute VB_Customizable = True";
+        //    return ret;
+        //}
+        //internal string GetBlankModule(string name)
+        //{
+        //    return string.Format("Attribute VB_Name = \"{0}\"\r\n", name);
+        //}
+        //internal string GetBlankClassModule(string name, bool exposed)
+        //{
+        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
+        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  
+        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
+        //    ret += "Attribute VB_Creatable = False\r\n";
+        //    ret += "Attribute VB_PredeclaredId = False\r\n";
+        //    ret += string.Format("Attribute VB_Exposed = {0}\r\n", exposed ? "True" : "False");
+        //    ret += "Attribute VB_TemplateDerived = False\r\n";
+        //    ret += "Attribute VB_Customizable = False\r\n";
+        //    return ret;
+        //}
         /// <summary>
         /// Remove the project from the package
         /// </summary>
@@ -1125,6 +1172,10 @@ namespace OfficeOpenXml.VBA
             MajorVersion = 0;
             MinorVersion = 0;
             HelpContextID = 0;
+        }
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

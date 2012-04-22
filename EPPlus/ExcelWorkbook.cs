@@ -342,7 +342,7 @@ namespace OfficeOpenXml
         /// </summary>
         public void CreateVBAProject()
         {
-            if (_package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
+            if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 throw (new InvalidOperationException("VBA project already exists."));
             }
@@ -664,8 +664,11 @@ namespace OfficeOpenXml
             {
                 p.DeleteRelationship(rel.Id);
                 var newRel=part.CreateRelationship(rel.TargetUri, rel.TargetMode, rel.RelationshipType);
-                var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:sheets/d:sheet[@r:id='{0}']",rel.Id), NameSpaceManager);
-                sheetNode.SetAttribute("id",ExcelPackage.schemaRelationships, newRel.Id);
+                if (rel.RelationshipType.EndsWith("worksheet"))
+                {
+                    var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:sheets/d:sheet[@r:id='{0}']", rel.Id), NameSpaceManager);
+                    sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
+                }
             }
         }
 

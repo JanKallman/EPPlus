@@ -56,18 +56,25 @@ namespace OfficeOpenXml.VBA
     }
     internal delegate void ModuleNameChange(string value);
 
+    /// <summary>
+    /// A VBA code module. 
+    /// </summary>
     public class ExcelVBAModule
     {
         string _name = "";
         ModuleNameChange _nameChangeCallback = null;
-        public ExcelVBAModule()
+        internal ExcelVBAModule()
         {
-
+            Attributes = new ExcelVbaModuleAttributesCollection();
         }
-        internal ExcelVBAModule(ModuleNameChange nameChangeCallback)
+        internal ExcelVBAModule(ModuleNameChange nameChangeCallback) :
+            this()
         {
             _nameChangeCallback = nameChangeCallback;
         }
+        /// <summary>
+        /// The name of the module
+        /// </summary>
         public string Name 
         {   
             get
@@ -84,17 +91,53 @@ namespace OfficeOpenXml.VBA
                 }
             }
         }
+        /// <summary>
+        /// A description of the module
+        /// </summary>
         public string Description { get; set; }
-        public string Code { get; set; }
+        private string _code="";
+        /// <summary>
+        /// The code without any module level attributes.
+        /// Can contain function level attributes.
+        /// </summary>
+        public string Code {
+            get
+            {
+                return _code;
+            }
+            set
+            {
+                if(value.StartsWith("Attribute",StringComparison.InvariantCultureIgnoreCase) || value.StartsWith("VERSION",StringComparison.InvariantCultureIgnoreCase))
+                {
+                    throw(new InvalidOperationException("Code can't start with an Attribute or VERSION keyword. Attributes can be accessed through the Attributes collection."));
+                }
+                _code = value;
+            }
+        }
+        /// <summary>
+        /// A reference to the helpfile
+        /// </summary>
         public int HelpContext { get; set; }
-
+        /// <summary>
+        /// Module level attributes.
+        /// </summary>
+        public ExcelVbaModuleAttributesCollection Attributes { get; internal set; }
+        /// <summary>
+        /// Type of module
+        /// </summary>
+        public eModuleType Type { get; internal set; }
+        /// <summary>
+        /// If the module is readonly
+        /// </summary>
+        public bool ReadOnly { get; set; }
+        /// <summary>
+        /// If the module is private
+        /// </summary>
+        public bool Private { get; set; }
         internal string streamName { get; set; }
         internal ushort Cookie { get; set; }
         internal uint ModuleOffset { get; set; }
         internal string ClassID { get; set; }
-        public eModuleType Type { get; internal set; }
-        public bool ReadOnly { get; set; }
-        public bool Private { get; set; }
         public override string ToString()
         {
             return Name;
