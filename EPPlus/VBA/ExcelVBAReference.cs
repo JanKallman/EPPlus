@@ -35,39 +35,76 @@ using System.Text;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// A VBA reference
+    /// </summary>
     public class ExcelVbaReference
     {
         public ExcelVbaReference()
         {
             ReferenceRecordID = 0xD;
         }
-        public int ReferenceRecordID { get; set; }
+        public int ReferenceRecordID { get; internal set; }
+        /// <summary>
+        /// The name of the reference
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// LibID
+        /// For more info check MS-OVBA 2.1.1.8 LibidReference and 2.3.4.2.2 PROJECTREFERENCES
+        /// </summary>
         public string Libid { get; set; }
         public override string ToString()
         {
             return Name;
         }
     }
+    /// <summary>
+    /// A reference to a twiddled type library
+    /// </summary>
     public class ExcelVbaReferenceControl : ExcelVbaReference
     {
         public ExcelVbaReferenceControl()
         {
             ReferenceRecordID = 0x2F;
         }
+        /// <summary>
+        /// LibIdExternal 
+        /// For more info check MS-OVBA 2.1.1.8 LibidReference and 2.3.4.2.2 PROJECTREFERENCES
+        /// </summary>
         public string LibIdExternal { get; set; }
+        /// <summary>
+        /// LibIdTwiddled
+        /// For more info check MS-OVBA 2.1.1.8 LibidReference and 2.3.4.2.2 PROJECTREFERENCES
+        /// </summary>
         public string LibIdTwiddled { get; set; }
+        /// <summary>
+        /// A GUID that specifies the Automation type library the extended type library was generated from.
+        /// </summary>
         public Guid OriginalTypeLib { get; set; }
-        public uint Cookie { get; set; }
+        internal uint Cookie { get; set; }
     }
+    /// <summary>
+    /// A reference to an external VBA project
+    /// </summary>
     public class ExcelVbaReferenceProject : ExcelVbaReference
     {
         public ExcelVbaReferenceProject()
         {
             ReferenceRecordID = 0x0E;
         }
+        /// <summary>
+        /// LibIdRelative
+        /// For more info check MS-OVBA 2.1.1.8 LibidReference and 2.3.4.2.2 PROJECTREFERENCES
+        /// </summary>
         public string LibIdRelative { get; set; }
+        /// <summary>
+        /// Major version of the referenced VBA project
+        /// </summary>
         public uint MajorVersion { get; set; }
+        /// <summary>
+        /// Minor version of the referenced VBA project
+        /// </summary>
         public ushort MinorVersion { get; set; }
     }
 }

@@ -75,7 +75,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public sealed class ExcelWorksheet : XmlHelper, ICalcEngine
+    public sealed class ExcelWorksheet : XmlHelper
 	{
         internal class Formulas
         {
@@ -2715,79 +2715,5 @@ namespace OfficeOpenXml
         //    }
         //}
 
-
-        Dictionary<string, string> ICalcEngine.GetFormulas(string address)
-        {
-            var d = new Dictionary<string, string>();
-            var range = new ExcelAddressBase(address);
-            foreach (ExcelCell f in _formulaCells)
-            {
-                if (range.Collide(new ExcelAddressBase(f.CellAddress))!=ExcelAddressBase.eAddressCollition.No)
-                {
-                    d.Add(f.CellAddress,f.Formula);
-                }
-            }
-            foreach(var sf in _sharedFormulas.Values)
-            {
-                if (range.Collide(new ExcelAddressBase(sf.Address)) != ExcelAddressBase.eAddressCollition.No)
-                {
-                    d.Add(sf.Address, sf.Formula);
-                }
-            }
-            return d;
-        }
-        Dictionary<string, object> ICalcEngine.GetNameValues(string address)
-        {
-            var d = new Dictionary<string, object>();
-            var range = new ExcelAddressBase(address);
-            foreach (var name in Names)
-            {
-                if (!string.IsNullOrEmpty(name.NameFormula))
-                {
-                    if (name.NameValue!=null)
-                    {
-                        d.Add(name.Name, name.Value);
-                    }
-                    else
-                        if (name.Collide(range) != ExcelAddressBase.eAddressCollition.No)
-                        {
-                            d.Add(name.Name, name.Value);
-                        }
-                }
-            }
-            return d;
-        }
-
-        Dictionary<string, object> ICalcEngine.GetWorkbookNameValues()
-        {
-            var d = new Dictionary<string, object>();
-            var range = new ExcelAddressBase();
-            foreach (var name in Workbook.Names)
-            {
-                if (!string.IsNullOrEmpty(name.NameFormula))
-                {
-                    if (name.NameValue != null)
-                    {
-                        d.Add(name.Name, name.Value);
-                    }
-                    else
-                        if (name.Collide(range) != ExcelAddressBase.eAddressCollition.No)
-                        {
-                            d.Add(name.Name, name.Value);
-                        }
-                }
-            }
-            return d;
-        }
-
-        object ICalcEngine.GetValue(int row, int col)
-        {
-            return Cell(row, col)._value;
-        }
-
-        void ICalcEngine.SetValue(int row, int col, object value)
-        {
-            Cell(row, col)._value = value;
-        }
     }  // END class Worksheet
 }

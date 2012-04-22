@@ -85,20 +85,20 @@ namespace OfficeOpenXml.VBA
     public class ExcelVbaModuleCollection : ExcelVBACollectionBase<ExcelVBAModule>
     {
         ExcelVbaProject _project;
-        public ExcelVbaModuleCollection (ExcelVbaProject project)
+        internal ExcelVbaModuleCollection (ExcelVbaProject project)
 	    {
             _project=project;
 	    }
-        public void Add(ExcelVBAModule Item)
+        internal void Add(ExcelVBAModule Item)
         {
             _list.Add(Item);
         }
-        internal ExcelVBAModule AddModule(string Name)
+        public ExcelVBAModule AddModule(string Name)
         {
             var m = new ExcelVBAModule();
             m.Name = Name;
             m.Type = eModuleType.Module;
-            m.Code = _project.GetBlankModule(Name);
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Name", Value = Name, DataType = eAttributeDataType.String });
             m.Type = eModuleType.Module;
             _list.Add(m);
             return m;
@@ -114,7 +114,16 @@ namespace OfficeOpenXml.VBA
             var m = new ExcelVBAModule();
             m.Name = Name;            
             m.Type = eModuleType.Class;
-            m.Code = _project.GetBlankClassModule(Name, Exposed);
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Name", Value = Name, DataType = eAttributeDataType.String });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Base", Value = "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}", DataType = eAttributeDataType.String });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_GlobalNameSpace", Value = "False", DataType = eAttributeDataType.NonString });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Creatable", Value = "False", DataType = eAttributeDataType.NonString });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_PredeclaredId", Value = "False", DataType = eAttributeDataType.NonString });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Exposed", Value = Exposed ? "True" : "False", DataType = eAttributeDataType.NonString });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_TemplateDerived", Value = "False", DataType = eAttributeDataType.NonString });
+            m.Attributes._list.Add(new ExcelVbaModuleAttribute() { Name = "VB_Customizable", Value = "False", DataType = eAttributeDataType.NonString });
+
+            //m.Code = _project.GetBlankClassModule(Name, Exposed);
             m.Private = !Exposed;
             //m.ClassID=
             _list.Add(m);
@@ -130,6 +139,19 @@ namespace OfficeOpenXml.VBA
         public void Add(ExcelVbaReference Item)
         {
             _list.Add(Item);
+        }
+    }
+    public class ExcelVbaModuleAttributesCollection : ExcelVBACollectionBase<ExcelVbaModuleAttribute>
+    {
+        internal string GetAttributeText()
+        {
+            StringBuilder sb=new StringBuilder();
+
+            foreach (var attr in this)
+            {
+                sb.AppendFormat("Attribute {0} = {1}\r\n", attr.Name, attr.DataType==eAttributeDataType.String ? "\"" + attr.Value + "\"" : attr.Value);
+            }
+            return sb.ToString();
         }
     }
 }

@@ -48,11 +48,11 @@ namespace OfficeOpenXml.VBA
             VisibilityState = true;
         }
         public bool UserProtected { get; internal set; }
-        internal bool HostProtected { get; set; }
-        internal bool VbeProtected { get; set; }
+        public bool HostProtected { get; internal set; }
+        public bool VbeProtected { get; internal set; }
+        public bool VisibilityState { get; internal set; }
         internal byte[] PasswordHash { get; set; }
         internal byte[] PasswordKey { get; set; }
-        internal bool VisibilityState { get; set; }
         public void SetPassword(string Password)
         {
 
@@ -64,7 +64,7 @@ namespace OfficeOpenXml.VBA
                 HostProtected = false;
                 UserProtected = false;
                 VisibilityState = true;
-                _project.ProjectID = "{5DD90D76-4904-47A2-AF0D-D69B4673604E}";                         
+                _project.ProjectID = "{5DD90D76-4904-47A2-AF0D-D69B4673604E}";
             }
             else
             {

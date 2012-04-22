@@ -147,6 +147,7 @@
     <Compile Include="ExcelTextFormat.cs" />
     <Compile Include="ICalcEngine.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />
+    <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
     <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
     <Compile Include="VBA\ExcelVbaProject.cs" />
     <Compile Include="ExcelWorkbookView.cs" />

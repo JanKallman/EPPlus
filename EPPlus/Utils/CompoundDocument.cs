@@ -123,6 +123,7 @@ namespace OfficeOpenXml.Utils
                     br.Write(header);
                     br.Write(chunk);                    
                 }
+                decompEnd = part.Length < decompStart + 4096 ? part.Length : decompStart+4096;
             }
 
             
@@ -146,7 +147,7 @@ namespace OfficeOpenXml.Utils
                         int bestCandidate = -1;
                         int bestLength = 0;
                         int candidate = dPos - 1;
-                        int bitCount = GetLengthBits(dPos);
+                        int bitCount = GetLengthBits(dPos-startPos);
                         int bits = (16 - bitCount);
                         ushort lengthMask = (ushort)((0xFFFF) >> bits);
 
@@ -200,7 +201,7 @@ namespace OfficeOpenXml.Utils
             }
             var ret = new byte[cPos - 1];
             Array.Copy(comprBuffer, ret, ret.Length);
-            startPos = dPos;
+            startPos = dEnd;
             return ret;
         }
         internal static byte[] DecompressPart(byte[] part)

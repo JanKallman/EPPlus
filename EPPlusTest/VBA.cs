@@ -33,7 +33,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadVBA()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\report.xlsm"));
             File.WriteAllText(@"c:\temp\vba\modules\dir.txt", package.Workbook.VbaProject.CodePage + "," + package.Workbook.VbaProject.Constants + "," + package.Workbook.VbaProject.Description+ "," + package.Workbook.VbaProject.HelpContextID.ToString()+ "," + package.Workbook.VbaProject.HelpFile1+ "," + package.Workbook.VbaProject.HelpFile2+ "," + package.Workbook.VbaProject.Lcid.ToString()+ "," + package.Workbook.VbaProject.LcidInvoke.ToString()+ "," + package.Workbook.VbaProject.LibFlags.ToString()+ "," + package.Workbook.VbaProject.MajorVersion.ToString()+ "," + package.Workbook.VbaProject.MinorVersion.ToString()+ "," + package.Workbook.VbaProject.Name+ "," + package.Workbook.VbaProject.ProjectID + "," + package.Workbook.VbaProject.SystemKind.ToString() + "," + package.Workbook.VbaProject.Protection.HostProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.UserProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.VbeProtected.ToString()+ "," + package.Workbook.VbaProject.Protection.VisibilityState.ToString());
             foreach (var module in package.Workbook.VbaProject.Modules)
             {
@@ -47,10 +47,9 @@ namespace EPPlusTest
             List<X509Certificate2> ret = new List<X509Certificate2>();
             X509Store store = new X509Store(StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
-            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
-
+            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
+            //package.Workbook.VbaProject.Protection.SetPassword("");
             package.SaveAs(new FileInfo(@"c:\temp\vbaSaved.xlsm"));
-            //Assert.AreNotEqual(package.Workbook.VbaProject.Signature.Uri.AbsolutePath, "");
         }
         [TestMethod]
         public void WriteVBA()
@@ -67,7 +66,7 @@ namespace EPPlusTest
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
 
-            var m=package.Workbook.VbaProject.Modules.AddModule("Module1");            
+            var m=package.Workbook.VbaProject.Modules.AddModule("Module1");         
             m.Code += "Public Sub Test(param1 as string)\r\n\r\nEnd sub\r\nPublic Function functest() As String\r\n\r\nEnd Function\r\n";
             var c = package.Workbook.VbaProject.Modules.AddClass("Class1", false);
             c.Code += "Private Sub Class_Initialize()\r\n\r\nEnd Sub\r\nPrivate Sub Class_Terminate()\r\n\r\nEnd Sub";
@@ -86,6 +85,32 @@ namespace EPPlusTest
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
             package.SaveAs(new FileInfo(@"c:\temp\vbaWrite2.xlsm"));
+        }
+        [TestMethod]
+        public void WriteLongVBAModule()
+        {
+            var package = new ExcelPackage();
+            package.Workbook.Worksheets.Add("VBASetData");
+            package.Workbook.CreateVBAProject();
+            package.Workbook.CodeModule.Code = "Private Sub Workbook_Open()\r\nCreateData\r\nEnd Sub";
+            var module=package.Workbook.VbaProject.Modules.AddModule("Code");
+
+                StringBuilder code = new StringBuilder("Public Sub CreateData()\r\n");
+            for (int row = 1; row < 30; row++)
+            {
+                for (int col = 1; col < 30; col++)
+                {
+                    code.AppendLine(string.Format("VBASetData.Cells({0},{1}).Value=\"Cell {2}\"", row, col, new ExcelAddressBase(row, col, row, col).Address));
+                }                
+            }
+            code.AppendLine("End Sub");
+            module.Code = code.ToString();
+
+            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            store.Open(OpenFlags.ReadOnly);
+            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
+
+            package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
         }
     }
 }

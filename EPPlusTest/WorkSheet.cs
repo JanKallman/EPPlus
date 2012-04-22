@@ -764,7 +764,7 @@ namespace EPPlusTest
             ws.Cells["Address"].Value = 1;
             ws.Names.AddValue("Value", 5);            
             //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
-            ws.Names.AddFormla("Formula", "Names!A2+Names!A3+Names!Value");
+            ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
         }
         [TestMethod]
         public void LoadDataTable()
