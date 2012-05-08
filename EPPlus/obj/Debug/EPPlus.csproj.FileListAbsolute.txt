@@ -1,0 +1,6 @@
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\obj\Debug\ResolveAssemblyReference.cache
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\bin\Debug\EPPlus.dll
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\bin\Debug\EPPlus.pdb
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\obj\Debug\EPPlus.dll
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\obj\Debug\EPPlus.pdb
+C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlus\bin\Debug\EPPlus.XML
