@@ -130,7 +130,7 @@ namespace OfficeOpenXml
 
 		#region Add Worksheet
 		/// <summary>
-		/// Adds a new blank worksheet
+		/// Adds a new blank worksheet.
 		/// </summary>
 		/// <param name="Name">The name of the workbook</param>
 		public ExcelWorksheet Add(string Name)
@@ -742,7 +742,7 @@ namespace OfficeOpenXml
 			{
 				throw new ArgumentException(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			Delete(sheet.PositionID);
+			 Delete(sheet.PositionID);
 		}
 
 		/// <summary>

@@ -417,6 +417,7 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = "_x0099_";
             ws.Cells["A2"].Value = " Test \b" + (char)1 + " end\"";
             ws.Cells["A3"].Value = "_x0097_ test_x001D_1234";
+            ws.Cells["A4"].Value = "test" + (char)31;   //Bug issue 14689 //Fixed
         }
         [TestMethod]
         public void WorksheetCopy()
@@ -673,6 +674,18 @@ namespace EPPlusTest
             _pck.Workbook.Worksheets.Copy("File4", "Copied table");
         }
         [TestMethod]
+        public void CopyRange()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyTest");
+
+            ws.Cells["A1"].Value = "Single Cell";
+            ws.Cells["A2"].Value = "Merged Cells";
+            ws.Cells["A2:D30"].Merge = true;
+            ws.Cells["A1"].Style.Font.Bold = true;
+            ws.Cells["G4:H5"].Merge = true;
+            ws.Cells["B3:C5"].Copy(ws.Cells["G4"]);
+        }
+        [TestMethod]
         public void CopyPivotTable()
         {
             _pck.Workbook.Worksheets.Copy("Pivot-Group Date", "Copied Pivottable 1");
@@ -764,7 +777,17 @@ namespace EPPlusTest
             ws.Cells["Address"].Value = 1;
             ws.Names.AddValue("Value", 5);            
             //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
-            ws.Names.AddFormla("Formula", "Names!A2+Names!A3+Names!Value");
+            ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
+        }
+        [TestMethod]
+        public void URL()
+        {
+            var p = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx"));
+            foreach (var ws in p.Workbook.Worksheets)
+            {
+
+            }
+            p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
         }
         [TestMethod]
         public void LoadDataTable()
@@ -785,19 +808,19 @@ namespace EPPlusTest
             dr[3] = 1.5;
             dt.Rows.Add(dr);
 
-            dr = dt.NewRow();
-            dr[0] = "Row2";
-            dr[1] = 2;
-            dr[2] = false;
-            dr[3] = 2.25;
-            dt.Rows.Add(dr);
+            //dr = dt.NewRow();
+            //dr[0] = "Row2";
+            //dr[1] = 2;
+            //dr[2] = false;
+            //dr[3] = 2.25;
+            //dt.Rows.Add(dr);
 
-            dr = dt.NewRow();
-            dr[0] = "Row3";
-            dr[1] = 3;
-            dr[2] = true;
-            dr[3] = 3.125;
-            dt.Rows.Add(dr);
+            //dr = dt.NewRow();
+            //dr[0] = "Row3";
+            //dr[1] = 3;
+            //dr[2] = true;
+            //dr[3] = 3.125;
+            //dt.Rows.Add(dr);
 
             ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
         }
@@ -822,7 +845,9 @@ namespace EPPlusTest
             ws = _pck.Workbook.Worksheets.Add("File4");
             ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
                 OfficeOpenXml.Table.TableStyles.Medium27, true);
-            
+
+            ws.Cells["A1"].LoadFromText("1,\"Test\",\"\",\"\"\"\",3", new ExcelTextFormat() { TextQualifier = '\"' });
+
             var style = _pck.Workbook.Styles.CreateNamedStyle("RedStyle");
             style.Style.Fill.PatternType=ExcelFillStyle.Solid;
             style.Style.Fill.BackgroundColor.SetColor(Color.Red);
@@ -1217,6 +1242,42 @@ namespace EPPlusTest
             pck.Workbook.Worksheets[6].Drawings.AddChart("chart1", OfficeOpenXml.Drawing.Chart.eChartType.ColumnStacked3D, pivot6);
 
             pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
+        }
+        [TestMethod]
+        public void CreatePivotMultData()
+        {
+            FileInfo fi = new FileInfo(@"c:\temp\test.xlsx");
+            ExcelPackage pck = new ExcelPackage(fi);
+
+            var ws = pck.Workbook.Worksheets.Add("Data");
+            var pv = pck.Workbook.Worksheets.Add("Pivot");
+
+            ws.Cells["A1"].Value = "Data1";
+            ws.Cells["B1"].Value = "Data2";
+
+            ws.Cells["A2"].Value = "1";
+            ws.Cells["B2"].Value = "2";
+
+            ws.Cells["A3"].Value = "3";
+            ws.Cells["B3"].Value = "4";
+
+            ws.Select("A1:B3");
+
+            var pt = pv.PivotTables.Add(pv.SelectedRange, ws.SelectedRange, "Pivot");
+
+            pt.RowFields.Add(pt.Fields["Data2"]);
+
+            var df=pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.Count;
+
+            df=pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.Sum;
+
+            df = pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.StdDev;
+            df.Name = "DatA1_2";
+
+            pck.Save();
         }
         [TestMethod]
         public void SetBackground()

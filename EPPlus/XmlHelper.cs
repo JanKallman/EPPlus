@@ -360,6 +360,19 @@ namespace OfficeOpenXml
                 return int.MinValue;
             }
         }
+        internal int? GetXmlNodeIntNull(string path)
+        {
+            int i;
+            string s = GetXmlNodeString(path);
+            if (s!="" && int.TryParse(s, out i))
+            {
+                return i;
+            }
+            else
+            {
+                return null;
+            }
+        }
         internal decimal GetXmlNodeDecimal(string path)
         {
             decimal d;
