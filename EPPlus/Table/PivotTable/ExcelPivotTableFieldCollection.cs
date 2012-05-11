@@ -265,12 +265,46 @@ namespace OfficeOpenXml.Table.PivotTable
                 dataFieldsNode = field.TopNode.SelectSingleNode("../../d:dataFields", field.NameSpaceManager);
             }
 
-            XmlElement node = field.AppendField(dataFieldsNode, field.Index, "dataField", "fld");
+            XmlElement node = _table.PivotTableXml.CreateElement("dataField", ExcelPackage.schemaMain);
+            node.SetAttribute("fld", field.Index.ToString());
+            dataFieldsNode.AppendChild(node);
+
+            //XmlElement node = field.AppendField(dataFieldsNode, field.Index, "dataField", "fld");
             field.SetXmlNodeBool("@dataField", true,false);
 
             var dataField = new ExcelPivotTableDataField(field.NameSpaceManager, node, field);
+            ValidateDupName(dataField);
+
             _list.Add(dataField);
             return dataField;
+        }
+        private void ValidateDupName(ExcelPivotTableDataField dataField)
+        {
+            if(ExistsDfName(dataField.Field.Name, null))
+            {
+                var index = 2;
+                string name;
+                do
+                {
+                    name = dataField.Field.Name + "_" + index++.ToString();
+                }
+                while (ExistsDfName(name,null));
+                dataField.Name = name;
+            }
+        }
+
+        internal bool ExistsDfName(string name, ExcelPivotTableDataField datafield)
+        {
+            name = name.ToLower();
+            foreach (var df in _list)
+            {
+                if (((!string.IsNullOrEmpty(df.Name) && df.Name.ToLower() == name) ||
+                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.ToLower() == name)) && datafield != df)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
         /// <summary>
         /// Remove a datafield

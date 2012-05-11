@@ -282,5 +282,14 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Test", ws);
             pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
         }
+        [TestMethod]
+        public void ReadConditionalFormatting()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\cond.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
+        }
+
     }
 }

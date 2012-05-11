@@ -140,7 +140,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines","title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
         }
         internal string Id
         {
@@ -403,6 +403,25 @@ namespace OfficeOpenXml.Drawing.Chart
                 v=v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
                 SetXmlNodeString(_ticLblPos_Path,v);
             }
+        }
+        ExcelChartTitle _title = null;
+        public ExcelChartTitle Title
+        {
+            get
+            {
+                if (_title == null)
+                {
+                    var node = TopNode.SelectSingleNode("c:title", NameSpaceManager);
+                    if (node == null)
+                    {
+                        CreateNode("c:title");
+                        node = TopNode.SelectSingleNode("c:title", NameSpaceManager);
+                        node.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
+                    }
+                    _title = new ExcelChartTitle(NameSpaceManager, TopNode);
+                }
+                return _title;
+            }            
         }
         #region "Scaling"
         const string _minValuePath = "c:scaling/c:min/@val";

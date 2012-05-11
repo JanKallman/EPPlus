@@ -232,7 +232,7 @@
     <Compile Include="Style\ExcelFill.cs" />
     <Compile Include="Style\ExcelRichText.cs" />
     <Compile Include="Style\ExcelRichTextCollection.cs" />
-    <Compile Include="Style\IExcelCell.cs" />
+    <Compile Include="Utils\IExcelCell.cs" />
     <Compile Include="Style\ExcelStyle.cs" />
     <Compile Include="Style\ExcelFont.cs" />
     <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />
