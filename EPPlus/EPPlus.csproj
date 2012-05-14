@@ -270,6 +270,14 @@
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
     <Compile Include="EncryptedPackageHandler.cs" />
+    <Compile Include="Style\Dxf\DxfStyleBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorder.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorderItem.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfColor.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFill.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFontBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfNumberFormat.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfStyle.cs" />
     <Compile Include="Style\ExcelGradientFill.cs" />
     <Compile Include="Style\XmlAccess\ExcelGradientFillXml.cs" />
     <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />

@@ -429,7 +429,8 @@ namespace OfficeOpenXml
 						xml.Append("<cellStyleXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" /></cellStyleXfs>");
 						xml.Append("<cellXfs count=\"1\"><xf numFmtId=\"0\" fontId=\"0\" xfId=\"0\" /></cellXfs>");
 						xml.Append("<cellStyles><cellStyle name=\"Normal\" xfId=\"0\" builtinId=\"0\" /></cellStyles>");
-						xml.Append("</styleSheet>");
+                        xml.Append("<dxfs count=\"0\" />");
+                        xml.Append("</styleSheet>");
 						
 						_stylesXml = new XmlDocument();
 						_stylesXml.LoadXml(xml.ToString());
