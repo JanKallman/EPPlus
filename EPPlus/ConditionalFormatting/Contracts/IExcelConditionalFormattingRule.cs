@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Style.Dxf;
 
 namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
@@ -78,5 +79,9 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// (§18.18.25).</para>
     /// </summary>
     int DxfId { get; set; }
+    /// <summary>
+    /// Gives access to the differencial styling (DXF) for the rule.
+    /// </summary>
+    ExcelDxfStyleConditionalFormatting Style{ get; }
   }
 }
