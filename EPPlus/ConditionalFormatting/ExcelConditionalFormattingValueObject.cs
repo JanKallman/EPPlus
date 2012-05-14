@@ -428,7 +428,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 				CreateNodeByOrdem(
 					eExcelConditionalFormattingValueObjectNodeType.Color,
 					ExcelConditionalFormattingConstants.Paths.RgbAttribute,
-					value.Name.ToUpper());
+					value.ToArgb().ToString("x"));
 			}
 		}
 

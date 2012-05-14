@@ -1,8 +1,0 @@
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\obj\Debug\ResolveAssemblyReference.cache
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\bin\EPPlusWebSample.dll
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\bin\EPPlusWebSample.pdb
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\bin\EPPlus.dll
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\bin\EPPlus.pdb
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\bin\EPPlus.xml
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\obj\Debug\EPPlusWebSample.dll
-C:\KÉSSEM\Desenvolvimento\EPPlus Repository\EPPlusWebSample\obj\Debug\EPPlusWebSample.pdb

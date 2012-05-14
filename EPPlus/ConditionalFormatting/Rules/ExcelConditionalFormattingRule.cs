@@ -37,6 +37,7 @@ using System.Xml;
 using OfficeOpenXml.Utils;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
+using OfficeOpenXml.Style.Dxf;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
@@ -118,6 +119,11 @@ namespace OfficeOpenXml.ConditionalFormatting
       Address = address;
       Priority = priority;
       Type = type;
+      if (DxfId >= 0)
+      {
+          worksheet.Workbook.Styles.Dxfs[DxfId].AllowChange = true;  //This Id is referenced by CF, so we can use it when we save.
+          _style = worksheet.Workbook.Styles.Dxfs[DxfId].Clone();    //Clone, so it can be altered without effecting other dxf styles
+      }
     }
 
     /// <summary>
@@ -341,7 +347,18 @@ namespace OfficeOpenXml.ConditionalFormatting
           true);
       }
     }
-
+    internal ExcelDxfStyleConditionalFormatting _style = null;
+    public ExcelDxfStyleConditionalFormatting Style
+    {
+        get
+        {
+            if (_style == null)
+            {
+                _style = new ExcelDxfStyleConditionalFormatting(NameSpaceManager, null, _worksheet.Workbook.Styles);
+            }
+            return _style;
+        }
+    }
     /// <summary>
     /// StdDev (zero is not allowed and will be converted to 1)
     /// </summary>

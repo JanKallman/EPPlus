@@ -1872,7 +1872,7 @@ namespace OfficeOpenXml
 			if (_worksheetXml != null)
 			{
 
-				// save the header & footer (if defined)
+                // save the header & footer (if defined)
 				if (_headerFooter != null)
 					HeaderFooter.Save();
 
@@ -1902,6 +1902,11 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
+        private void UpdateDxfStyles()
+        {
+            throw new NotImplementedException();
+        }
 
 		/// <summary>
 		/// Delete the printersettings relationship and part.

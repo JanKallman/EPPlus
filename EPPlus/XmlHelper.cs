@@ -669,6 +669,27 @@ namespace OfficeOpenXml
 				return int.MinValue;
 			}
 		}
+        internal int? GetXmlNodeIntNull(string path)
+        {
+            string s = GetXmlNodeString(path);
+            if (s == "")
+            {
+                return null;
+            }
+            else
+            {
+                int v;
+                if (int.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                {
+                    return v;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
+
 		internal decimal GetXmlNodeDecimal(string path)
 		{
 			decimal d;

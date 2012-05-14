@@ -66,87 +66,87 @@ namespace EPPlusSamples
         Console.WriteLine();
         output = "";
 
-        if (SqlServerName != "")
-        {
-          string connectionStr = string.Format(@"server={0};database=AdventureWorks;Integrated Security=true;", SqlServerName);
-          // Sample 3 - creates a workbook from scratch 
-          // This is the same sample as the original Excelpackage, sample 4, but without the template
-          // This sample requires the AdventureWorks database.  
-          //Shows how to use Ranges, Styling, Namedstyles and Hyperlinks
-          Console.WriteLine("Running sample 3");
-          output = Sample3.RunSample3(outputDir, connectionStr);
-          Console.WriteLine("Sample 3 created: {0}", output);
-          Console.WriteLine();
+        //if (SqlServerName != "")
+        //{
+        //  string connectionStr = string.Format(@"server={0};database=AdventureWorks;Integrated Security=true;", SqlServerName);
+        //  // Sample 3 - creates a workbook from scratch 
+        //  // This is the same sample as the original Excelpackage, sample 4, but without the template
+        //  // This sample requires the AdventureWorks database.  
+        //  //Shows how to use Ranges, Styling, Namedstyles and Hyperlinks
+        //  Console.WriteLine("Running sample 3");
+        //  output = Sample3.RunSample3(outputDir, connectionStr);
+        //  Console.WriteLine("Sample 3 created: {0}", output);
+        //  Console.WriteLine();
 
-          // Sample 4 - creates a workbook based on a template.
-          // Populates a range with data and set the series of a linechart.
-          // This sample requires the AdventureWorks database.  
-          Console.WriteLine("Running sample 4");
-          output = Sample4.RunSample4(connectionStr, new FileInfo("..\\..\\GraphTemplate.xlsx"), outputDir);      //Template path from /bin/debug or /bin/release
-          Console.WriteLine("Sample 4 created: {0}", output);
-          Console.WriteLine();
-        }
+        //  // Sample 4 - creates a workbook based on a template.
+        //  // Populates a range with data and set the series of a linechart.
+        //  // This sample requires the AdventureWorks database.  
+        //  Console.WriteLine("Running sample 4");
+        //  output = Sample4.RunSample4(connectionStr, new FileInfo("..\\..\\GraphTemplate.xlsx"), outputDir);      //Template path from /bin/debug or /bin/release
+        //  Console.WriteLine("Sample 4 created: {0}", output);
+        //  Console.WriteLine();
+        //}
 
-        //Sample 5
-        //Open sample 1 and add a pie chart.
-        Console.WriteLine("Running sample 5");
-        output = Sample5.RunSample5(outputDir);
-        Console.WriteLine("Sample 5 created:", output);
-        Console.WriteLine();
+        ////Sample 5
+        ////Open sample 1 and add a pie chart.
+        //Console.WriteLine("Running sample 5");
+        //output = Sample5.RunSample5(outputDir);
+        //Console.WriteLine("Sample 5 created:", output);
+        //Console.WriteLine();
 
-        //Sample 6
-        //Creates an advanced report on a directory in the filesystem.
-        //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
-        //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
-        Console.WriteLine("Running sample 6");
-        output = Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
-        Console.WriteLine("Sample 6 created:", output);
-        Console.WriteLine();
+        ////Sample 6
+        ////Creates an advanced report on a directory in the filesystem.
+        ////Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
+        ////This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
+        //Console.WriteLine("Running sample 6");
+        //output = Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
+        //Console.WriteLine("Sample 6 created:", output);
+        //Console.WriteLine();
 
-        //Sample 7
-        //This sample shows the performance capabilities of the component and shows sheet protection.
-        //Load X(param 2) rows with five columns
-        Console.WriteLine("Running sample 7");
-        output = Sample7.RunSample7(outputDir, 65534);
-        Console.WriteLine("Sample 7 created:", output);
-        Console.WriteLine();
+        ////Sample 7
+        ////This sample shows the performance capabilities of the component and shows sheet protection.
+        ////Load X(param 2) rows with five columns
+        //Console.WriteLine("Running sample 7");
+        //output = Sample7.RunSample7(outputDir, 65534);
+        //Console.WriteLine("Sample 7 created:", output);
+        //Console.WriteLine();
 
-        //Sample 8 - Linq
-        //Opens Sample 7 and perform some Linq queries
-        Console.WriteLine("Running sample 8-Linq");
-        LinqSample.RunLinqSample(outputDir);
-        Console.WriteLine();
+        ////Sample 8 - Linq
+        ////Opens Sample 7 and perform some Linq queries
+        //Console.WriteLine("Running sample 8-Linq");
+        //LinqSample.RunLinqSample(outputDir);
+        //Console.WriteLine();
 
-        //Sample 9 Loads two csv files into tables and creates an area chart and a Column/Line chart on the data.
-        //This sample also shows how to use a secondary axis.
-        Console.WriteLine("Running sample 9");
-        output = Sample9.RunSample9(outputDir);
-        Console.WriteLine("Sample 9 created: {0}", output);
-        Console.WriteLine();
+        ////Sample 9 Loads two csv files into tables and creates an area chart and a Column/Line chart on the data.
+        ////This sample also shows how to use a secondary axis.
+        //Console.WriteLine("Running sample 9");
+        //output = Sample9.RunSample9(outputDir);
+        //Console.WriteLine("Sample 9 created: {0}", output);
+        //Console.WriteLine();
 
-        //Sample 10 Swedish Quiz : Shows Encryption and workbook and sheet protection.
-        Console.WriteLine("Running sample 10");
-        Sample10.RunSample10(outputDir);
-        Console.WriteLine("Sample 10 created: {0}", outputDir.FullName);
-        Console.WriteLine();
+        ////Sample 10 Swedish Quiz : Shows Encryption and workbook and sheet protection.
+        //Console.WriteLine("Running sample 10");
+        //Sample10.RunSample10(outputDir);
+        //Console.WriteLine("Sample 10 created: {0}", outputDir.FullName);
+        //Console.WriteLine();
 
-        //Sample 11 - Data validation
-        Console.WriteLine("Running sample 11");
-        output = Sample11.RunSample11(outputDir);
-        Console.WriteLine("Sample 11 created {0}", output);
-        Console.WriteLine();
+        ////Sample 11 - Data validation
+        //Console.WriteLine("Running sample 11");
+        //output = Sample11.RunSample11(outputDir);
+        //Console.WriteLine("Sample 11 created {0}", output);
+        //Console.WriteLine();
 
-        //Sample 12 - Pivottables
-        Console.WriteLine("Running sample 12");
-        output = Sample12.RunSample12(SqlServerName, outputDir);
-        Console.WriteLine("Sample 12 created {0}", output);
-        Console.WriteLine();
+        ////Sample 12 - Pivottables
+        //Console.WriteLine("Running sample 12");
+        //output = Sample12.RunSample12(SqlServerName, outputDir);
+        //Console.WriteLine("Sample 12 created {0}", output);
+        //Console.WriteLine();
 
-        //Sample 13 - Shows a few ways to load data (Datatable, IEnumrable and more).
-        Console.WriteLine("Running sample 13");
-        Sample13.RunSample13(outputDir);
-        Console.WriteLine("Sample 13 created {0}", outputDir.Name);
-        Console.WriteLine();
+        ////Sample 13 - Shows a few ways to load data (Datatable, IEnumrable and more).
+        //Console.WriteLine("Running sample 13");
+        //Sample13.RunSample13(outputDir);
+        //Console.WriteLine("Sample 13 created {0}", outputDir.Name);
+        //Console.WriteLine();
 
         //Sample 14 - Conditional Formatting
         Console.WriteLine("Running sample 14");
