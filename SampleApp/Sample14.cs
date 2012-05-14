@@ -37,6 +37,7 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using OfficeOpenXml.Style.Dxf;
 using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.ConditionalFormatting;
 
@@ -118,6 +119,7 @@ namespace EPPlusSamples
         // happen and group the rules in one <conditionalFormatting> node)
         // -------------------------------------------------------------------
         var cfRule3 = worksheet.Cells[cfAddress1.Address].ConditionalFormatting.AddThreeColorScale();
+        cfRule3.LowValue.Color = Color.LemonChiffon;
 
         // -------------------------------------------------------------------
         // Change the rules priorities to change their execution order
@@ -131,6 +133,9 @@ namespace EPPlusSamples
         // -------------------------------------------------------------------
         var cfRule5 = worksheet.ConditionalFormatting.AddAboveAverage(
           new ExcelAddress("B11:B20"));
+        cfRule5.Style.Font.Bold = true;
+        cfRule5.Style.Font.Color.Color = Color.Red;
+        cfRule5.Style.Font.Strike = true;
 
         // -------------------------------------------------------------------
         // Create an Above Or Equal Average rule
@@ -193,6 +198,15 @@ namespace EPPlusSamples
         // -------------------------------------------------------------------
         var cfRule14 = worksheet.ConditionalFormatting.AddTopPercent(
           new ExcelAddress("B11:B20"));
+        
+        cfRule14.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+        cfRule14.Style.Border.Left.Color.Theme = 3;
+        cfRule14.Style.Border.Bottom.Style = ExcelBorderStyle.DashDot;
+        cfRule14.Style.Border.Bottom.Color.Index=8;
+        cfRule14.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+        cfRule14.Style.Border.Right.Color.Color=Color.Blue;
+        cfRule14.Style.Border.Top.Style = ExcelBorderStyle.Hair;
+        cfRule14.Style.Border.Top.Color.Auto=true;
 
         // -------------------------------------------------------------------
         // Create a Last 7 Days rule
@@ -201,17 +215,23 @@ namespace EPPlusSamples
         var cfRule15 = worksheet.ConditionalFormatting.AddLast7Days(
           timePeriodAddress);
 
+        cfRule15.Style.Fill.PatternType = ExcelFillStyle.LightTrellis;
+        cfRule15.Style.Fill.PatternColor.Color = Color.BurlyWood;
+        cfRule15.Style.Fill.BackgroundColor.Color = Color.LightCyan;
+
         // -------------------------------------------------------------------
         // Create a Last Month rule
         // -------------------------------------------------------------------
         var cfRule16 = worksheet.ConditionalFormatting.AddLastMonth(
           timePeriodAddress);
 
+        cfRule16.Style.NumberFormat.Format = "YYYY";
         // -------------------------------------------------------------------
         // Create a Last Week rule
         // -------------------------------------------------------------------
         var cfRule17 = worksheet.ConditionalFormatting.AddLastWeek(
           timePeriodAddress);
+        cfRule17.Style.NumberFormat.Format = "YYYY";
 
         // -------------------------------------------------------------------
         // Create a Next Month rule
