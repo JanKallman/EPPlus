@@ -35,7 +35,6 @@ using System.Collections.Generic;
 using draw=System.Drawing;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
-using OfficeOpenXml.Style.Dxf;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -50,7 +49,6 @@ namespace OfficeOpenXml
         const string CellStyleXfsPath = "d:styleSheet/d:cellStyleXfs";
         const string CellXfsPath = "d:styleSheet/d:cellXfs";
         const string CellStylesPath = "d:styleSheet/d:cellStyles";
-        const string dxfsPath = "d:styleSheet/d:dxfs";
 
         //internal Dictionary<int, ExcelXfs> Styles = new Dictionary<int, ExcelXfs>();
         XmlDocument _styleXml;
@@ -136,17 +134,6 @@ namespace OfficeOpenXml
             {
                 ExcelNamedStyleXml item = new ExcelNamedStyleXml(_nameSpaceManager, n, this);
                 NamedStyles.Add(item.Name, item);
-            }
-
-            //dxfsPath
-            XmlNode dxfsNode = _styleXml.SelectSingleNode(dxfsPath, _nameSpaceManager);
-            if (dxfsNode != null)
-            {
-                foreach (XmlNode x in dxfsNode)
-                {
-                    ExcelDxfStyleCF item = new ExcelDxfStyleCF(_nameSpaceManager, x, this);
-                    Dxfs.Add(item.Id, item);
-                }
             }
         }
         internal ExcelStyle GetStyleObject(int Id,int PositionID, string Address)
@@ -385,7 +372,6 @@ namespace OfficeOpenXml
         public ExcelStyleCollection<ExcelXfs> CellStyleXfs = new ExcelStyleCollection<ExcelXfs>();
         public ExcelStyleCollection<ExcelXfs> CellXfs = new ExcelStyleCollection<ExcelXfs>();
         public ExcelStyleCollection<ExcelNamedStyleXml> NamedStyles = new ExcelStyleCollection<ExcelNamedStyleXml>();
-        public ExcelStyleCollection<ExcelDxfStyleCF> Dxfs = new ExcelStyleCollection<ExcelDxfStyleCF>();
         
         internal string Id
         {
