@@ -73,6 +73,7 @@ namespace OfficeOpenXml.Drawing.Vml
                     list.Add(new ExcelVmlDrawingComment(node, ws.Cells[1, 1], NameSpaceManager));
                 }
             }
+            list.Sort(new Comparison<IRangeID>((r1, r2) => (r1.RangeID < r2.RangeID ? -1 : r1.RangeID > r2.RangeID ? 1 : 0)));  //Vml drawings are not sorted. Sort to avoid missmatches.
             _drawings = new RangeCollection(list);
         }
         private string CreateVmlDrawings()
