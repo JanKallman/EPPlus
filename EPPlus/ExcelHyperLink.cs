@@ -54,6 +54,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="uriString">The URI</param>
         /// <param name="dontEscape"></param>
+        [Obsolete("base constructor 'System.Uri.Uri(string, bool)' is obsolete: 'The constructor has been deprecated. Please use new ExcelHyperLink(string). The dontEscape parameter is deprecated and is always false.")]
         public ExcelHyperLink(string uriString, bool dontEscape) :
             base(uriString, dontEscape)
         {
