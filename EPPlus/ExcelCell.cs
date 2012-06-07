@@ -367,7 +367,7 @@ namespace OfficeOpenXml
                 {
                     if (_worksheet._sharedFormulas.ContainsKey(SharedFormulaID))
                     {
-						Worksheet.Formulas f = _worksheet._sharedFormulas[SharedFormulaID];
+						var f = _worksheet._sharedFormulas[SharedFormulaID];
                         return TranslateToR1C1(f.Formula, f.StartRow, f.StartCol);
                     }
                     else
