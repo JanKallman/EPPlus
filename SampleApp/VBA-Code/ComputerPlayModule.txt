@@ -1,0 +1,117 @@
+﻿Dim possibleCells As Collection
+Dim Hits As Range
+Public Sub Init()
+    Dim b As Range
+    Dim col As Integer, row As Integer
+        
+    Set possibleCells = New Collection
+    Set b = Battleship.Range(board2)
+    For col = 1 To b.Columns.Count
+        For row = 1 To b.Rows.Count
+            possibleCells.Add (b.Cells(row, col).Address)
+        Next
+    Next
+End Sub
+Public Sub Move()
+    Dim index As Integer
+    index = -1
+    Dim oShip As ship
+    For Each oShip In g_userShips
+        If oShip.Hits.Count > 0 And oShip.Hits.Count < oShip.Position.Cells.Count Then
+            index = GetHit(oShip)
+            Exit For
+        End If
+    Next
+    
+    If index < 0 Then
+        index = (Rnd * (possibleCells.Count - 1)) + 1
+    End If
+    Dim cell As Range
+    Set cell = Battleship.Range(possibleCells(index))
+        
+    SetHit cell
+    For Each oShip In g_userShips
+        If oShip.IsHit(cell) Then
+            If CheckWinner(g_userShips) Then
+                SetShipsVisible
+                MsgBox "Computer wins!"
+                Exit Sub
+            End If
+        End If
+    Next
+    possibleCells.Remove index
+End Sub
+
+Private Sub SetShipsVisible()
+    Battleship.Unprotect
+    Dim oShip As Ship
+    For Each oShip In g_Ships
+        Dim cell As Range
+        For Each cell In oShip.Position.Cells
+            If cell.Interior.Color <> ColorConstants.vbRed Then
+                cell.Interior.Color = ColorConstants.vbBlack
+            End If
+        Next
+    Next
+    Battleship.Protect ""
+End Sub
+Private Function GetHit(oShip As ship) As Integer
+    Dim isHorizontal As Boolean
+    If oShip.Hits.Count = 1 Then
+        isHorizontal = Int((Rnd * 2)) = 1
+    Else
+        If oShip.Hits(1).row = oShip.Hits(2).row Then
+            isHorizontal = True
+        Else
+            isHorizontal = False
+        End If
+    End If
+    
+    Dim index As Integer
+    index = -1
+    While index = -1
+        If isHorizontal Then
+            For Each Hit In oShip.Hits
+                index = FindPossible(Hit.Offset(0, -1))
+                If index = -1 Then
+                    index = FindPossible(Hit.Offset(0, 1))
+                    If index <> -1 Then
+                        Exit For
+                    End If
+                Else
+                    Exit For
+                End If
+            Next
+            If index = -1 Then
+                isHorizontal = False
+            End If
+        Else
+            For Each Hit In oShip.Hits
+                index = FindPossible(Hit.Offset(-1, 0))
+                If index = -1 Then
+                    index = FindPossible(Hit.Offset(1, 0))
+                    If index > -1 Then
+                        Exit For
+                    End If
+                Else
+                    Exit For
+                End If
+            Next
+            If index = -1 Then
+                isHorizontal = True
+            End If
+        End If
+    Wend
+    GetHit = index
+End Function
+Private Function FindPossible(r As Range)
+Dim index As Integer
+Dim cell As Range
+For index = 1 To possibleCells.Count
+    If possibleCells(index) = r.Address Then
+        FindPossible = index
+        Exit Function
+    End If
+Next
+FindPossible = -1
+End Function

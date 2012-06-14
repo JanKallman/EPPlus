@@ -277,6 +277,13 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug11()
         {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\test.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+
+        }
+        [TestMethod]
+        public void ReadBug12()
+        {
             var package = new ExcelPackage(new FileInfo(@"c:\temp\sample.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             var pck2 = new ExcelPackage();
