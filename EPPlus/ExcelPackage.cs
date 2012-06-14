@@ -39,6 +39,7 @@ using System.IO.Packaging;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -160,7 +161,7 @@ namespace OfficeOpenXml
 		/// Relationship schema name
 		/// </summary>
 		internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
-                                                                
+                                                                              
         internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
         internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
         
@@ -187,6 +188,12 @@ namespace OfficeOpenXml
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
         internal const string schemaPivotCacheRecords = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheRecords+xml";
 
+        //VBA
+        internal const string schemaVBA = @"application/vnd.ms-office.vbaProject";
+        internal const string schemaVBASignature = @"application/vnd.ms-office.vbaProjectSignature";
+
+        internal const string contentTypeWorkbookDefault = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml";
+        internal const string contentTypeWorkbookMacroEnabled = "application/vnd.ms-excel.sheet.macroEnabled.main+xml";
         //Package reference
         private Package _package;
 		private ExcelWorkbook _workbook;
@@ -607,9 +614,41 @@ namespace OfficeOpenXml
 		/// <param name="xmlDoc">The XmlDocument to save</param>
 		internal void SavePart(Uri uri, XmlDocument xmlDoc)
 		{
-			PackagePart part = _package.GetPart(uri);
+            PackagePart part = _package.GetPart(uri);
 			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
 		}
+        /// <summary>
+		/// Saves the XmlDocument into the package at the specified Uri.
+		/// </summary>
+		/// <param name="uri">The Uri of the component</param>
+		/// <param name="xmlDoc">The XmlDocument to save</param>
+        internal void SaveWorkbook(Uri uri, XmlDocument xmlDoc)
+		{
+            PackagePart part = _package.GetPart(uri);
+            if(Workbook.VbaProject==null)
+            {
+                if (part.ContentType != contentTypeWorkbookDefault)
+                {
+                    part = _package.CreatePart(uri, contentTypeWorkbookDefault, Compression);
+                }
+            }
+            else
+            {
+                if (part.ContentType != contentTypeWorkbookMacroEnabled)
+                {
+                    var rels = part.GetRelationships();
+                    _package.DeletePart(uri);
+                    part = Package.CreatePart(uri, contentTypeWorkbookMacroEnabled);
+                    foreach (var rel in rels)
+                    {
+                        Package.DeleteRelationship(rel.Id);
+                        part.CreateRelationship(rel.TargetUri, rel.TargetMode, rel.RelationshipType);
+                    }
+                }
+            }
+			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
+		}
+
         #endregion
 
 		#region Dispose
