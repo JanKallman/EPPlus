@@ -154,7 +154,6 @@ namespace EPPlusSamples
 
             }
 			catch (Exception ex)
-            
             {
                 Console.WriteLine("Error: {0}", ex.Message);
 			}

@@ -685,7 +685,7 @@ namespace OfficeOpenXml
         private void GetBlockPos(string xml, string tag, ref int start, ref int end)
         {
             Match startmMatch, endMatch;
-            startmMatch = Regex.Match(xml, string.Format("(<[^>]*{0}[^>]*>)", tag)); //"<[a-zA-Z:]*" + tag + "[?]*>");
+            startmMatch = Regex.Match(xml.Substring(start), string.Format("(<[^>]*{0}[^>]*>)", tag)); //"<[a-zA-Z:]*" + tag + "[?]*>");
 
             if (!startmMatch.Success) //Not found
             {
@@ -693,19 +693,20 @@ namespace OfficeOpenXml
                 end = -1;
                 return;
             }
-            start=startmMatch.Index;
+            var startPos=startmMatch.Index+start;
             if(startmMatch.Value.Substring(startmMatch.Value.Length-2,1)=="/")
             {
-                end=startmMatch.Index+startmMatch.Length;
+                end = startPos + startmMatch.Length;
             }
             else
             {
-                endMatch = Regex.Match(xml, string.Format("(</[^>]*{0}[^>]*>)", tag));
+                endMatch = Regex.Match(xml.Substring(start), string.Format("(</[^>]*{0}[^>]*>)", tag));
                 if (endMatch.Success)
                 {
-                    end = endMatch.Index + endMatch.Length;
+                    end = endMatch.Index + endMatch.Length + start;
                 }
             }
+            start = startPos;
         }
         private bool ReadUntil(XmlTextReader xr,params string[] tagName)
         {
@@ -2106,10 +2107,8 @@ namespace OfficeOpenXml
             CreateNode("d:colBreaks");
 
             string xml = _worksheetXml.OuterXml;
-            PackagePart partPack = _package.Package.GetPart(WorksheetUri);
             StreamWriter sw=new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
-
-            int colStart=0, colEnd=0;
+            int colStart = 0, colEnd = 0;
             GetBlockPos(xml, "cols", ref colStart, ref colEnd);
 
             sw.Write(xml.Substring(0, colStart));
@@ -2122,7 +2121,7 @@ namespace OfficeOpenXml
             int cellStart = colEnd, cellEnd = colEnd;
             GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
             sw.Write(xml.Substring(colEnd, cellStart - colEnd));
-            var rowBreaks=new List<int>();
+            var rowBreaks = new List<int>();
             UpdateRowCellData(sw);
 
             int mergeStart = cellEnd, mergeEnd = cellEnd;
@@ -2149,7 +2148,7 @@ namespace OfficeOpenXml
             sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
             //if (rowBreaks.Count > 0)
             //{
-                UpdateRowBreaks(sw);
+            UpdateRowBreaks(sw);
             //}
 
             int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
@@ -2157,11 +2156,12 @@ namespace OfficeOpenXml
             sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
             //if (colBreaks.Count > 0)
             //{
-                UpdateColBreaks(sw);
+            UpdateColBreaks(sw);
             //}
 
             sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
+            sw.Close();
         }
         private void UpdateColBreaks(StreamWriter sw)
         {

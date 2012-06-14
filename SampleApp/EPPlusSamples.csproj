@@ -118,6 +118,11 @@
   <ItemGroup>
     <Content Include="csv\Sample9-2.txt" />
     <Content Include="csv\Sample9-1.txt" />
+    <Content Include="VBA-Code\ComputerPlayModule.txt" />
+    <Content Include="VBA-Code\BattleshipSheet.txt" />
+    <Content Include="VBA-Code\ThisWorkbook.txt" />
+    <Content Include="VBA-Code\CodeModule.txt" />
+    <Content Include="VBA-Code\ShipClass.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

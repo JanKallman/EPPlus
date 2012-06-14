@@ -1,0 +1,43 @@
+﻿Dim rPosition As Range
+Public HitCount As Integer
+Dim oSize As Integer
+Dim m_hits As Collection
+
+Public Property Get Position() As Range
+    Set Position = rPosition
+End Property
+Public Property Set Position(ByVal value As Range)
+    Set rPosition = value
+End Property
+
+Public Function IsHit(cell As Range) As Boolean
+   If Code.Collide(cell, Position) Then
+        cell.Worksheet.Unprotect
+        cell.Interior.Color = vbRed
+        IsHit = True
+        Hits.Add cell
+        If Hits.Count = Size Then
+            Position.BorderAround Weight:=xlMedium
+        End If
+        cell.Worksheet.Protect ""
+        IsHit = True
+   Else
+        IsHit = False
+   End If
+End Function
+Public Property Get Hits() As Collection
+    Set Hits = m_hits
+End Property
+Public Property Set Hits(ByVal value As Collection)
+    Set m_hits = value
+End Property
+Private Sub Class_Initialize()
+    HitCount = 0
+    Set Hits = New Collection
+End Sub
+Public Property Get Size() As Integer
+Size = oSize
+End Property
+Public Property Let Size(ByVal vNewValue As Integer)
+oSize = vNewValue
+End Property

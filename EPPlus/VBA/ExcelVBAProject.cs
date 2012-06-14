@@ -1082,13 +1082,11 @@ namespace OfficeOpenXml.VBA
             MinorVersion = 6;
             HelpContextID = 0;
             Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes=GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-            //_wb.CodeModuleName = "ThisWorkbook";
             foreach (var sheet in _wb.Worksheets)
             {
                 if (!Modules.Exists(sheet.Name))
                 {
                     Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-                    //sheet.CodeModuleName = sheet.Name;
                 }
             }
             //References.Add(new ExcelVbaReference() { Name = "stdole", Libid = "*\\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\\Windows\\SysWOW64\\stdole2.tlb#OLE Automation", ReferenceRecordID = 13 });         
