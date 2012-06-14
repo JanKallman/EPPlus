@@ -7,7 +7,6 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
-using System.Security.Cryptography.X509Certificates;
 
 namespace EPPlusTest
 {
@@ -277,13 +276,6 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug11()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\test.xlsx"));
-            var ws = package.Workbook.Worksheets[1];
-
-        }
-        [TestMethod]
-        public void ReadBug12()
-        {
             var package = new ExcelPackage(new FileInfo(@"c:\temp\sample.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             var pck2 = new ExcelPackage();
@@ -291,26 +283,13 @@ namespace EPPlusTest
             pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
         }
         [TestMethod]
-        public void ReadVBA()
+        public void ReadConditionalFormatting()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\vba.xlsm"));
-            foreach (var module in package.Workbook.VbaProject.Modules)
-            {
-                Assert.AreNotEqual(module, null);
-            }
-
-            List<X509Certificate2> ret = new List<X509Certificate2>();
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            foreach (var c in store.Certificates)
-            {
-                ret.Add(c);
-            }
-            
-            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[8];
-            package.Workbook.VbaProject.Signature.Save(package.Workbook.VbaProject);
-            package.Save();
-            //Assert.AreNotEqual(package.Workbook.VbaProject.Signature.Uri.AbsolutePath, "");
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\cond.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+
     }
 }

@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+﻿/************** *****************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -53,7 +53,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
             }
             TopNode = topNode;
-            SchemaNodeOrder = new string[] { "tx", "layout", "overlay" };
+            SchemaNodeOrder = new string[] { "tx","bodyPr", "lstStyle", "layout", "overlay" };
         }
         const string titlePath = "c:tx/c:rich/a:p/a:r/a:t";
         /// <summary>
@@ -145,11 +145,91 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool("overlay/@val");
+                return GetXmlNodeBool("c:overlay/@val");
             }
             set
             {
-                SetXmlNodeBool("overlay/@val", value);
+                SetXmlNodeBool("c:overlay/@val", value);
+            }
+        }
+        /// <summary>
+        /// Specifies the centering of the text box. 
+        /// The way it works fundamentally is to determine the smallest possible "bounds box" for the text and then to center that "bounds box" accordingly. 
+        /// This is different than paragraph alignment, which aligns the text within the "bounds box" for the text. 
+        /// This flag is compatible with all of the different kinds of anchoring. 
+        /// If this attribute is omitted, then a value of 0 or false is implied.
+        /// </summary>
+        public bool AnchorCtr
+        {
+            get
+            {
+                return GetXmlNodeBool("c:tx/c:rich/a:bodyPr/@anchorCtr", false);
+            }
+            set
+            {
+                SetXmlNodeBool("c:tx/c:rich/a:bodyPr/@anchorCtr", value, false);
+            }
+        }
+        public eTextAnchoringType Anchor
+        {
+            get
+            {
+                return ExcelDrawing.GetTextAchoringEnum(GetXmlNodeString("c:tx/c:rich/a:bodyPr/@anchor"));
+            }
+            set
+            {
+                SetXmlNodeString("c:tx/c:rich/a:bodyPr/@anchorCtr", ExcelDrawing.GetTextAchoringText(value));
+            }
+        }
+        const string TextVerticalPath = "xdr:sp/xdr:txBody/a:bodyPr/@vert";
+        /// <summary>
+        /// Vertical text
+        /// </summary>
+        public eTextVerticalType TextVertical
+        {
+            get
+            {
+                return ExcelDrawing.GetTextVerticalEnum(GetXmlNodeString("c:tx/c:rich/a:bodyPr/@vert"));
+            }
+            set
+            {
+                SetXmlNodeString("c:tx/c:rich/a:bodyPr/@vert", ExcelDrawing.GetTextVerticalText(value));
+            }
+        }
+        /// <summary>
+        /// Rotation in degrees (0-360)
+        /// </summary>
+        public double Rotation
+        {
+            get
+            {
+                var i=GetXmlNodeInt("c:tx/c:rich/a:bodyPr/@rot");
+                if (i < 0)
+                {
+                    return 360 - (i / 60000);
+                }
+                else
+                {
+                    return (i / 60000);
+                }
+            }
+            set
+            {
+                int v;
+                if(value <0 || value > 360)
+                {
+                    throw(new ArgumentOutOfRangeException("Rotation must be between 0 and 360"));
+                }
+
+                if (value > 180)
+                {
+                    v = (int)((value - 360) * 60000);
+                }
+                else
+                {
+                    v = (int)(value * 60000);
+                }
+                SetXmlNodeString("c:tx/c:rich/a:bodyPr/@rot", v.ToString());
             }
         }
     }

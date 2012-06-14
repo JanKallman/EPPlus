@@ -359,7 +359,70 @@ namespace OfficeOpenXml
             set
             {
                 _styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
-                _changePropMethod(Set_StyleName, value);
+                if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)    //Full column
+                {
+                    ExcelColumn column;
+                    //Get the startcolumn
+                    ulong colID = ExcelColumn.GetColumnID(_worksheet.SheetID, _fromCol);
+                    if (!_worksheet._columns.ContainsKey(colID))
+                    {
+                        column = _worksheet.Column(_fromCol);
+                    }
+                    else
+                    {
+                        column = _worksheet._columns[colID] as ExcelColumn;
+                    }
+
+                    var index = _worksheet._columns.IndexOf(colID);
+                    while(column.ColumnMin <= _toCol)
+                    {
+                        if (column.ColumnMax > _toCol)
+                        {
+                            var newCol=_worksheet.CopyColumn(column, _toCol+1);
+                            newCol.ColumnMax = column.ColumnMax;
+                            column.ColumnMax = _toCol;
+                        }
+
+                        column._styleName = value;
+                        column._styleID = _styleID;
+
+                        index++;
+                        if (index >= _worksheet._columns.Count)
+                        {
+                            break;
+                        }
+                        else
+                        {
+                            column = (_worksheet._columns[index] as ExcelColumn);
+                        }
+                    }
+
+                    if (column._columnMax < _toCol)
+                    {
+                        var newCol = _worksheet.Column(column._columnMax + 1) as ExcelColumn;
+                        newCol._columnMax = _toCol;
+
+                        newCol._styleID = _styleID;
+                        newCol._styleName = value;
+                    }
+                }
+                else if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns) //FullRow
+                {
+                    for (int row = _fromRow; row <= _toRow; row++)
+                    {
+                        _worksheet.Row(row)._styleName = value;
+                        _worksheet.Row(row)._styleId = _styleID;
+                    }
+                }
+                int tempIndex = _index;
+                var e = this as IEnumerator;
+                e.Reset();
+                while(MoveNext())
+                {
+                    ((ExcelCell)_worksheet._cells[_index]).SetNewStyleName(value, _styleID);
+                }
+                _index = tempIndex;
+                //_changePropMethod(Set_StyleName, value);
             }
         }
         /// <summary>
@@ -427,7 +490,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private object GetValueArray()
         {
             ExcelAddressBase addr;
@@ -461,7 +523,6 @@ namespace OfficeOpenXml
             }
             return v;
         }
-
         private ExcelAddressBase GetAddressDim(ExcelRangeBase addr)
         {
             int fromRow,fromCol, toRow, toCol;
@@ -1452,9 +1513,9 @@ namespace OfficeOpenXml
             LoadFromDataTable(Table, PrintHeaders);
 
             int rows = Table.Rows.Count + (PrintHeaders ? 1 : 0)-1;
-            if (rows > 0 && Table.Columns.Count>0)
+            if (rows >= 0 && Table.Columns.Count>0)
             {
-                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + rows, _fromCol + Table.Columns.Count-1), Table.TableName);
+                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows==0 ? 1 : rows), _fromCol + Table.Columns.Count-1), Table.TableName);
                 tbl.ShowHeader = PrintHeaders;
                 tbl.TableStyle = TableStyle;
             }
@@ -1694,10 +1755,15 @@ namespace OfficeOpenXml
                             }
                             else
                             {
-                                if (QCount > 1)
+                                if (QCount > 1 && !string.IsNullOrEmpty(v))
                                 {
                                     v += new string(Format.TextQualifier, QCount / 2);
                                 }
+                                else if(QCount>2 && string.IsNullOrEmpty(v))
+                                {
+                                    v += new string(Format.TextQualifier, (QCount-1) / 2);
+                                }
+
                                 if (isQualifier)
                                 {
                                     v += c;
@@ -1987,8 +2053,9 @@ namespace OfficeOpenXml
         }
         private void Delete(ExcelAddressBase Range)
         {
+            DeleteCheckMergedCells(Range);
             //First find the start cell
-            ulong startID=GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
+            ulong startID = GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
             int index = _worksheet._cells.IndexOf(startID);
             if (index < 0)
             {
@@ -2024,6 +2091,30 @@ namespace OfficeOpenXml
                 {
                     Delete(sub);
                 }
+            }
+        }
+
+        private void DeleteCheckMergedCells(ExcelAddressBase Range)
+        {
+            var removeItems = new List<string>();
+            foreach (var addr in Worksheet.MergedCells)
+            {
+                var addrCol = Range.Collide(new ExcelAddress(Range.WorkSheet, addr));
+                if (addrCol != eAddressCollition.No)
+                {
+                    if (addrCol == eAddressCollition.Inside)
+                    {
+                        removeItems.Add(addr);
+                    }
+                    else
+                    {
+                        throw (new InvalidOperationException("Can't remove/overwrite cells that are merged"));
+                    }
+                }
+            }
+            foreach (var item in removeItems)
+            {
+                Worksheet.MergedCells.Remove(item);
             }
         }
         #endregion

@@ -90,6 +90,20 @@ namespace OfficeOpenXml
             return item;
         }
         /// <summary>
+        /// Add a defined name referencing a formula -- the method name contains a typo.
+        /// This method is obsolete and will be removed in the future.
+        /// Use <see cref="AddFormula"/>
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="Formula"></param>
+        /// <returns></returns>
+        [Obsolete("Call AddFormula() instead.  See Issue Tracker Id #14687")]
+        public  ExcelNamedRange AddFormla(string Name, string Formula)
+        {
+            return  this.AddFormula(Name, Formula);
+        }
+
+        /// <summary>
         /// Add a defined name referencing a formula
         /// </summary>
         /// <param name="Name"></param>
@@ -110,10 +124,18 @@ namespace OfficeOpenXml
         {
             _dic.Remove(Name);
         }
+        /// <summary>
+        /// Checks collection for the presence of a key
+        /// </summary>
+        /// <param name="key">key to search for</param>
+        /// <returns>true if the key is in the collection</returns>
         public bool ContainsKey(string key)
         {
             return _dic.ContainsKey(key);
         }
+        /// <summary>
+        /// The current number of items in the collection
+        /// </summary>
         public int Count
         {
             get
@@ -122,10 +144,13 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Names
+        /// Name indexer
         /// </summary>
-        /// <param name="Name">The name</param>
-        /// <returns></returns>
+        /// <param name="Name">The name (key) for a Named range</param>
+        /// <returns>a reference to the range</returns>
+        /// <remarks>
+        /// Throws a KeyNotFoundException if the key is not in the collection.
+        /// </remarks>
         public ExcelNamedRange this[string Name]
         {
             get
@@ -136,12 +161,20 @@ namespace OfficeOpenXml
 
         #region "IEnumerable"
         #region IEnumerable<ExcelNamedRange> Members
+        /// <summary>
+        /// Implement interface method IEnumerator&lt;ExcelNamedRange&gt; GetEnumerator()
+        /// </summary>
+        /// <returns></returns>
         public IEnumerator<ExcelNamedRange> GetEnumerator()
         {
             return _dic.Values.GetEnumerator();
         }
         #endregion
         #region IEnumerable Members
+        /// <summary>
+        /// Implement interface method IEnumeratable GetEnumerator()
+        /// </summary>
+        /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
             return _dic.Values.GetEnumerator();

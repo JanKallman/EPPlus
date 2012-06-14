@@ -208,7 +208,7 @@ namespace OfficeOpenXml
                 return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, letter + ":" + endLetter);
             }
         }
-        string _styleName="";
+        internal string _styleName="";
         /// <summary>
 		/// Sets the style for the entire column using a style name.
 		/// </summary>
@@ -224,7 +224,7 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
 		}
-        int _styleID = 0;
+        internal int _styleID = 0;
         /// <summary>
 		/// Sets the style for the entire column using the style ID.  
 		/// </summary>

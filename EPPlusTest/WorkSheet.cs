@@ -406,7 +406,9 @@ namespace EPPlusTest
 
             ExcelRange styleRng = ws.Cells["A1"];
             ExcelStyle tempStyle = styleRng.Style;
-            var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);  
+            var namedStyle = _pck.Workbook.Styles.CreateNamedStyle("HyperLink", tempStyle);
+            namedStyle.Style.Font.UnderLineType = ExcelUnderLineType.Single;
+            namedStyle.Style.Font.Color.SetColor(Color.Blue);
         }
         [TestMethod]
         public void Encoding()
@@ -415,6 +417,7 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = "_x0099_";
             ws.Cells["A2"].Value = " Test \b" + (char)1 + " end\"";
             ws.Cells["A3"].Value = "_x0097_ test_x001D_1234";
+            ws.Cells["A4"].Value = "test" + (char)31;   //Bug issue 14689 //Fixed
         }
         [TestMethod]
         public void WorksheetCopy()
@@ -467,8 +470,6 @@ namespace EPPlusTest
 
             var ints = new int[] {1,3,4,76,2,5};
             ws.Cells["A15"].Value = ints;
-            ws.Column(1).Hidden = true;
-            ws.Cells.AutoFitColumns(0);
         }        
         static void Create(string file)
         {
@@ -673,6 +674,18 @@ namespace EPPlusTest
             _pck.Workbook.Worksheets.Copy("File4", "Copied table");
         }
         [TestMethod]
+        public void CopyRange()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyTest");
+
+            ws.Cells["A1"].Value = "Single Cell";
+            ws.Cells["A2"].Value = "Merged Cells";
+            ws.Cells["A2:D30"].Merge = true;
+            ws.Cells["A1"].Style.Font.Bold = true;
+            ws.Cells["G4:H5"].Merge = true;
+            ws.Cells["B3:C5"].Copy(ws.Cells["G4"]);
+        }
+        [TestMethod]
         public void CopyPivotTable()
         {
             _pck.Workbook.Worksheets.Copy("Pivot-Group Date", "Copied Pivottable 1");
@@ -767,6 +780,16 @@ namespace EPPlusTest
             ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
         }
         [TestMethod]
+        public void URL()
+        {
+            var p = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx"));
+            foreach (var ws in p.Workbook.Worksheets)
+            {
+
+            }
+            p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
+        }
+        [TestMethod]
         public void LoadDataTable()
         {
             var ws = _pck.Workbook.Worksheets.Add("Loaded DataTable");
@@ -785,19 +808,19 @@ namespace EPPlusTest
             dr[3] = 1.5;
             dt.Rows.Add(dr);
 
-            dr = dt.NewRow();
-            dr[0] = "Row2";
-            dr[1] = 2;
-            dr[2] = false;
-            dr[3] = 2.25;
-            dt.Rows.Add(dr);
+            //dr = dt.NewRow();
+            //dr[0] = "Row2";
+            //dr[1] = 2;
+            //dr[2] = false;
+            //dr[3] = 2.25;
+            //dt.Rows.Add(dr);
 
-            dr = dt.NewRow();
-            dr[0] = "Row3";
-            dr[1] = 3;
-            dr[2] = true;
-            dr[3] = 3.125;
-            dt.Rows.Add(dr);
+            //dr = dt.NewRow();
+            //dr[0] = "Row3";
+            //dr[1] = 3;
+            //dr[2] = true;
+            //dr[3] = 3.125;
+            //dt.Rows.Add(dr);
 
             ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
         }
@@ -822,7 +845,9 @@ namespace EPPlusTest
             ws = _pck.Workbook.Worksheets.Add("File4");
             ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
                 OfficeOpenXml.Table.TableStyles.Medium27, true);
-            
+
+            ws.Cells["A1"].LoadFromText("1,\"Test\",\"\",\"\"\"\",3", new ExcelTextFormat() { TextQualifier = '\"' });
+
             var style = _pck.Workbook.Styles.CreateNamedStyle("RedStyle");
             style.Style.Fill.PatternType=ExcelFillStyle.Solid;
             style.Style.Fill.BackgroundColor.SetColor(Color.Red);
@@ -1219,6 +1244,42 @@ namespace EPPlusTest
             pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
         }
         [TestMethod]
+        public void CreatePivotMultData()
+        {
+            FileInfo fi = new FileInfo(@"c:\temp\test.xlsx");
+            ExcelPackage pck = new ExcelPackage(fi);
+
+            var ws = pck.Workbook.Worksheets.Add("Data");
+            var pv = pck.Workbook.Worksheets.Add("Pivot");
+
+            ws.Cells["A1"].Value = "Data1";
+            ws.Cells["B1"].Value = "Data2";
+
+            ws.Cells["A2"].Value = "1";
+            ws.Cells["B2"].Value = "2";
+
+            ws.Cells["A3"].Value = "3";
+            ws.Cells["B3"].Value = "4";
+
+            ws.Select("A1:B3");
+
+            var pt = pv.PivotTables.Add(pv.SelectedRange, ws.SelectedRange, "Pivot");
+
+            pt.RowFields.Add(pt.Fields["Data2"]);
+
+            var df=pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.Count;
+
+            df=pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.Sum;
+
+            df = pt.DataFields.Add(pt.Fields["Data1"]);
+            df.Function = DataFieldFunctions.StdDev;
+            df.Name = "DatA1_2";
+
+            pck.Save();
+        }
+        [TestMethod]
         public void SetBackground()
         {
             var ws = _pck.Workbook.Worksheets.Add("backimg");
@@ -1267,6 +1328,8 @@ namespace EPPlusTest
 				
             var s=firstNamedStyle.Style;
 
+            s.Fill.PatternType = ExcelFillStyle.Solid;
+            s.Fill.BackgroundColor.SetColor(Color.LightGreen);
             s.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
             s.VerticalAlignment = ExcelVerticalAlignment.Center;
 
@@ -1278,6 +1341,19 @@ namespace EPPlusTest
 
             wsSheet.Cells["B2"].Value = "Text Center";
             wsSheet.Cells["B2"].StyleName = "first";
+            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name="Arial";
+
+            var rowStyle = _pck.Workbook.Styles.CreateNamedStyle("RowStyle", firstNamedStyle.Style).Style;
+            rowStyle.Fill.BackgroundColor.SetColor(Color.Pink);
+            wsSheet.Cells.StyleName = "templateFirst";
+            wsSheet.Cells["C5:H15"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            wsSheet.Cells["C5:H15"].Style.Fill.BackgroundColor.SetColor(Color.OrangeRed);
+
+           wsSheet.Cells["30:35"].StyleName = "RowStyle";
+           var colStyle = _pck.Workbook.Styles.CreateNamedStyle("columnStyle", firstNamedStyle.Style).Style;
+           colStyle.Fill.BackgroundColor.SetColor(Color.CadetBlue);
+
+           wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
         }
         [TestMethod]
         public void StyleFill()
@@ -1318,41 +1394,28 @@ namespace EPPlusTest
             Assert.AreNotEqual(ws.Cells["A1:D5"].Value, null);
         }
         [TestMethod]
-        public void LoadFromCollection_Strings()
+        public void BuildInStyles()
         {
-            using (ExcelPackage pck = new ExcelPackage())
-            {
-                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet 1");
-                IEnumerable<String> list = new List<String>() { "a", "b", "c", "d", "e", "f", "g" };
-
-                ws.Cells["A1"].LoadFromCollection(list, false);
-
-                Assert.AreEqual("b", ws.Cells["A2"].Value);
-            }
-        }
-
-        [TestMethod]
-        public void LoadFromCollection_Objects()
-        {
-            using (ExcelPackage pck = new ExcelPackage())
-            {
-                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet 1");
-                IEnumerable<Obj> list = new[] { new Obj("a"), new Obj("b"), new Obj("c"), new Obj("d"), new Obj("e"), new Obj("f"), new Obj("g") };
-
-                ws.Cells["A1"].LoadFromCollection(list, false);
-
-                Assert.AreEqual("b", ws.Cells["A2"].Value);
-            }
-        }
-
-        class Obj
-        {
-            public Obj(String name)
-            {
-                Name = name;
-            }
-
-            public String Name { get; set; }
+            var pck = new ExcelPackage();
+            var ws=pck.Workbook.Worksheets.Add("Default");
+            ws.Cells.Style.Font.Name = "Arial";
+            ws.Cells.Style.Font.Size = 15;
+            ws.Cells.Style.Border.Bottom.Style = ExcelBorderStyle.MediumDashed;
+            var n=pck.Workbook.Styles.NamedStyles[0];
+            n.Style.Numberformat.Format = "yyyy";
+            n.Style.Font.Name = "Arial";
+            n.Style.Font.Size=15;
+            n.Style.Border.Bottom.Style = ExcelBorderStyle.Dotted;
+            n.Style.Border.Bottom.Color.SetColor(Color.Red);
+            n.Style.Fill.PatternType=ExcelFillStyle.Solid;
+            n.Style.Fill.BackgroundColor.SetColor(Color.Blue);
+            n.Style.Border.Bottom.Color.SetColor(Color.Red);
+            n.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            n.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+            n.Style.TextRotation = 90;
+            ws.Cells["a1:c3"].StyleName="Normal";
+            //  n.CustomBuildin = true;
+            pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
     }
 }
