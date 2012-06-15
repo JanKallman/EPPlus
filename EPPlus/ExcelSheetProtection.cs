@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Security.Cryptography;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml
 {

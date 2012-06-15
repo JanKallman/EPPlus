@@ -267,9 +267,14 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="ICalcEngine.cs" />
+    <Compile Include="VBA\ExcelVbaModule.cs" />
+    <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
+    <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
+    <Compile Include="VBA\ExcelVbaProject.cs" />
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
-    <Compile Include="EncryptedPackageHandler.cs" />
+    <Compile Include="Utils\EncryptedPackageHandler.cs" />
     <Compile Include="Style\Dxf\DxfStyleBase.cs" />
     <Compile Include="Style\Dxf\ExcelDxfBorder.cs" />
     <Compile Include="Style\Dxf\ExcelDxfBorderItem.cs" />
@@ -311,9 +316,13 @@
     <Compile Include="Utils\AddressUtility.cs" />
     <Compile Include="Utils\Argument.cs" />
     <Compile Include="Utils\ArgumentExtensions.cs" />
+    <Compile Include="Utils\CompoundDocument.cs" />
     <Compile Include="Utils\IArgument.cs" />
     <Compile Include="Utils\Require.cs" />
     <Compile Include="Utils\SqRefUtility.cs" />
+    <Compile Include="VBA\ExcelVbaProtection.cs" />
+    <Compile Include="VBA\ExcelVbaReference.cs" />
+    <Compile Include="VBA\ExcelVbaSignature.cs" />
     <Compile Include="XmlHelper.cs" />
     <Compile Include="XmlHelperFactory.cs" />
   </ItemGroup>
@@ -361,7 +370,7 @@
     <Compile Include="Style\ExcelFill.cs" />
     <Compile Include="Style\ExcelRichText.cs" />
     <Compile Include="Style\ExcelRichTextCollection.cs" />
-    <Compile Include="Style\IExcelCell.cs" />
+    <Compile Include="Utils\IExcelCell.cs" />
     <Compile Include="Style\ExcelStyle.cs" />
     <Compile Include="Style\ExcelFont.cs" />
     <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />

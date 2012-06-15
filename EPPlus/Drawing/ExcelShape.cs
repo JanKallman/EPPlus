@@ -528,6 +528,7 @@ namespace OfficeOpenXml.Drawing
                 SetXmlNodeString(TextVerticalPath, GetTextVerticalText(value));
             }
         }
+
         #endregion
         #region "Private Methods"
         private string ShapeStartXml()
@@ -535,78 +536,6 @@ namespace OfficeOpenXml.Drawing
             StringBuilder xml = new StringBuilder();
             xml.AppendFormat("<xdr:nvSpPr><xdr:cNvPr id=\"{0}\" name=\"{1}\" /><xdr:cNvSpPr /></xdr:nvSpPr><xdr:spPr><a:prstGeom prst=\"rect\"><a:avLst /></a:prstGeom></xdr:spPr><xdr:style><a:lnRef idx=\"2\"><a:schemeClr val=\"accent1\"><a:shade val=\"50000\" /></a:schemeClr></a:lnRef><a:fillRef idx=\"1\"><a:schemeClr val=\"accent1\" /></a:fillRef><a:effectRef idx=\"0\"><a:schemeClr val=\"accent1\" /></a:effectRef><a:fontRef idx=\"minor\"><a:schemeClr val=\"lt1\" /></a:fontRef></xdr:style><xdr:txBody><a:bodyPr vertOverflow=\"clip\" rtlCol=\"0\" anchor=\"ctr\" /><a:lstStyle /><a:p></a:p></xdr:txBody>", _id, Name);
             return xml.ToString();
-        }
-        private string GetTextAchoringText(eTextAnchoringType value)
-        {
-            switch (value)
-            {
-                case eTextAnchoringType.Bottom:
-                    return "b";
-                case eTextAnchoringType.Center:
-                    return "ctr";
-                case eTextAnchoringType.Distributed:
-                    return "dist";
-                case eTextAnchoringType.Justify:
-                    return "just";
-                default:
-                    return "t";
-            }
-        }
-        private string GetTextVerticalText(eTextVerticalType value)
-        {
-            switch (value)
-            {
-                case eTextVerticalType.EastAsianVertical:
-                    return "eaVert";
-                case eTextVerticalType.MongolianVertical:
-                    return "mongolianVert";
-                case eTextVerticalType.Vertical:
-                    return "vert";
-                case eTextVerticalType.Vertical270:
-                    return "vert270";
-                case eTextVerticalType.WordArtVertical:
-                    return "wordArtVert";
-                case eTextVerticalType.WordArtVerticalRightToLeft:
-                    return "wordArtVertRtl";
-                default:
-                    return "horz";
-            }
-        }
-        private eTextVerticalType GetTextVerticalEnum(string text)
-        {
-            switch (text)
-            {
-                case "eaVert":
-                    return eTextVerticalType.EastAsianVertical;
-                case "mongolianVert":
-                    return eTextVerticalType.MongolianVertical;
-                case "vert":
-                    return eTextVerticalType.Vertical;
-                case "vert270":
-                    return eTextVerticalType.Vertical270;
-                case "wordArtVert":
-                    return eTextVerticalType.WordArtVertical;
-                case "wordArtVertRtl":
-                    return eTextVerticalType.WordArtVerticalRightToLeft;
-                default:
-                    return eTextVerticalType.Horizontal;
-            }
-        }
-        private eTextAnchoringType GetTextAchoringEnum(string text)
-        {
-            switch (text)
-            {
-                case "b":
-                    return eTextAnchoringType.Bottom;
-                case "ctr":
-                    return eTextAnchoringType.Center;
-                case "dist":
-                    return eTextAnchoringType.Distributed;
-                case "just":
-                    return eTextAnchoringType.Justify;
-                default:
-                    return eTextAnchoringType.Top;
-            }
         }
         #endregion
         internal new string Id

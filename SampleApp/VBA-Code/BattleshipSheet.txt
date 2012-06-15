@@ -1,0 +1,33 @@
+﻿Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
+   Dim sheet As Worksheet
+   If g_gameEnded = True Then
+    Exit Sub
+   End If
+   
+   Set sheet = ThisWorkbook.ActiveSheet
+   If g_Ships Is Nothing Then Code.AddShips Battleship.Range(board1)
+   If Collide(Target, Battleship.Range(board1)) Then
+    If Target.Borders(xlDiagonalUp).Weight <> xlMedium Then
+         SetHit Target
+         Dim Ship
+         For Each Ship In g_Ships
+            If Ship.IsHit(Target.Cells(1, 1)) Then
+                If CheckWinner(g_Ships) Then
+                    MsgBox "You win!", vbOKOnly + vbExclamation, "Battleships"
+                    g_gameEnded = True
+					Cancel = True
+                    Exit Sub
+                End If
+                Exit For
+            End If
+         Next
+         
+         ComputerPlay.Move
+         
+    End If
+   End If
+   Cancel = True
+End Sub
+Private Sub Worksheet_SelectionChange(ByVal Target As Range)
+    Target.Cells(1, 1).Select
+End Sub

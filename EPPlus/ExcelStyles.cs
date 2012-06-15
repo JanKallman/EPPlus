@@ -401,7 +401,7 @@ namespace OfficeOpenXml
         {
             if (_wb.Styles.NamedStyles.ExistsKey(name))
             {
-                throw new Exception(string.Format("Key {0} already exist in collection", name));
+                throw new Exception(string.Format("Key {0} already exists in collection", name));
             }
 
             ExcelNamedStyleXml style;

@@ -38,6 +38,7 @@ using System.Text;
 using System.Security;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.VBA;
 
 namespace OfficeOpenXml
 {
@@ -316,21 +317,39 @@ namespace OfficeOpenXml
 				return _view;
 			}
 		}
-        //ExcelVBAProject _vba = null;
-        ///// <summary>
-        ///// A reference to the VBA project
-        ///// </summary>
-        //public ExcelVBAProject VbaProject
-        //{
-        //    get
-        //    {
-        //        if (_vba == null)
-        //        {
-        //            _vba = new ExcelVBAProject(this);
-        //        }
-        //        return _vba;
-        //    }
-        //}
+        ExcelVbaProject _vba = null;
+        /// <summary>
+        /// A reference to the VBA project.
+        /// Null if no project exists.
+        /// User Workbook.CreateVBAProject to create a new VBA-Project
+        /// </summary>
+        public ExcelVbaProject VbaProject
+        {
+            get
+            {
+                if (_vba == null)
+                {
+                    if(_package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
+                    {
+                        _vba = new ExcelVbaProject(this);
+                    }
+                }
+                return _vba;
+            }
+        }
+        /// <summary>
+        /// Create an empty VBA project.
+        /// </summary>
+        public void CreateVBAProject()
+        {
+            if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
+            {
+                throw (new InvalidOperationException("VBA project already exists."));
+            }
+                        
+            _vba = new ExcelVbaProject(this);
+            _vba.Create();
+        }
 		/// <summary>
 		/// URI to the workbook inside the package
 		/// </summary>
@@ -364,6 +383,36 @@ namespace OfficeOpenXml
 				return (_workbookXml);
 			}
 		}
+        const string codeModuleNamePath = "d:workbookPr/@codeName";
+        internal string CodeModuleName
+        {
+            get
+            {
+                return GetXmlNodeString(codeModuleNamePath);
+            }
+            set
+            {
+                SetXmlNodeString(codeModuleNamePath,value);
+            }
+        }
+        internal void CodeNameChange(string value)
+        {
+            CodeModuleName = value;
+        }
+        public VBA.ExcelVBAModule CodeModule
+        {
+            get
+            {
+                if (VbaProject != null)
+                {
+                    return VbaProject.Modules[CodeModuleName];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
 		/// <summary>
 		/// Create or read the XML for the workbook.
 		/// </summary>
@@ -542,6 +591,21 @@ namespace OfficeOpenXml
 				throw new InvalidOperationException("The workbook must contain at least one worksheet");
 
 			DeleteCalcChain();
+
+            if (VbaProject == null)
+            {
+                if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
+                {
+                    ChangeContentTypeWorkbook(ExcelPackage.contentTypeWorkbookDefault);
+                }
+            }
+            else
+            {
+                if (Part.ContentType != ExcelPackage.contentTypeWorkbookMacroEnabled)
+                {
+                    ChangeContentTypeWorkbook(ExcelPackage.contentTypeWorkbookMacroEnabled);
+                }
+            }
 			
 			UpdateDefinedNamesXml();
 
@@ -576,7 +640,38 @@ namespace OfficeOpenXml
 			
 			// Data validation
 			ValidateDataValidations();
+
+            //VBA
+            if (VbaProject!=null)
+            {
+                VbaProject.Save();
+            }
+
 		}
+        /// <summary>
+        /// Recreate the workbook part with a new contenttype
+        /// </summary>
+        /// <param name="contentType">The new contenttype</param>
+        private void ChangeContentTypeWorkbook(string contentType)
+        {            
+            var p=_package.Package;
+            var part = Part;
+            var rels = part.GetRelationships();
+
+            p.DeletePart(WorkbookUri);
+            part = p.CreatePart(WorkbookUri, contentType);
+            
+            foreach (var rel in rels)
+            {
+                p.DeleteRelationship(rel.Id);
+                var newRel=part.CreateRelationship(rel.TargetUri, rel.TargetMode, rel.RelationshipType);
+                if (rel.RelationshipType.EndsWith("worksheet"))
+                {
+                    var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:sheets/d:sheet[@r:id='{0}']", rel.Id), NameSpaceManager);
+                    sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
+                }
+            }
+        }
 
 		private void DeleteCalcChain()
 		{
@@ -670,7 +765,7 @@ namespace OfficeOpenXml
 			}
 			for (int i=0;i<t.Length;i++)
 			{
-				if (t[i] < 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
+				if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
 				{
 					sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));                    
 				}
