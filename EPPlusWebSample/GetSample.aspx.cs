@@ -34,6 +34,7 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using System.Text;
 namespace EPPlusWebSample
 {
     public partial class GetSample : System.Web.UI.Page
@@ -50,6 +51,9 @@ namespace EPPlusWebSample
                     break;
                 case "3":
                     Sample3();
+                    break;
+                case "4":
+                    Sample4();
                     break;
                 default:
                     Response.Write("<script>javascript:alert('Invalid querystring');</script>");
@@ -135,5 +139,30 @@ namespace EPPlusWebSample
             Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             Response.AddHeader("content-disposition", "attachment;  filename=Sample3.xlsx");
         }
+        private void Sample4()
+        {
+             ExcelPackage pck = new ExcelPackage();
+
+            //Add a worksheet.
+            var ws=pck.Workbook.Worksheets.Add("VBA Sample");
+            ws.Drawings.AddShape("VBASampleRect", eShapeStyle.RoundRect);
+            
+            //Create a vba project             
+            pck.Workbook.CreateVBAProject();
+
+            //Now add some code that creates a bubble chart...
+            var sb = new StringBuilder();
+
+            sb.AppendLine("Private Sub Workbook_Open()");
+            sb.AppendLine("    [VBA Sample].Shapes(\"VBASampleRect\").TextEffect.Text = \"This text is set from VBA!\"");
+            sb.AppendLine("End Sub");
+            pck.Workbook.CodeModule.Code = sb.ToString();
+
+            Response.BinaryWrite(pck.GetAsByteArray());
+            Response.ContentType = "application/vnd.ms-excel.sheet.macroEnabled.12";            //.xlsm files uses a different contenttype than .xlsx
+            Response.AddHeader("content-disposition", "attachment;  filename=Sample4.xlsm");
+
+        }
+
     }
 }

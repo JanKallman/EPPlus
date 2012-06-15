@@ -1,0 +1,6 @@
+﻿Private Sub Workbook_Open()
+    Code.AddShips Battleship.Range(board1)
+    Code.AddUserShips Battleship.Range(board2)
+    ComputerPlay.Init
+	g_gameEnded=false
+End Sub

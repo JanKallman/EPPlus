@@ -35,6 +35,8 @@ using System.Collections.Generic;
 using draw=System.Drawing;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Style.Dxf;
+using OfficeOpenXml.ConditionalFormatting;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -49,11 +51,13 @@ namespace OfficeOpenXml
         const string CellStyleXfsPath = "d:styleSheet/d:cellStyleXfs";
         const string CellXfsPath = "d:styleSheet/d:cellXfs";
         const string CellStylesPath = "d:styleSheet/d:cellStyles";
+        const string dxfsPath = "d:styleSheet/d:dxfs";
 
         //internal Dictionary<int, ExcelXfs> Styles = new Dictionary<int, ExcelXfs>();
         XmlDocument _styleXml;
         ExcelWorkbook _wb;
         XmlNamespaceManager _nameSpaceManager;
+        internal int _nextDfxNumFmtID = 164;
         internal ExcelStyles(XmlNamespaceManager NameSpaceManager, XmlDocument xml, ExcelWorkbook wb) :
             base(NameSpaceManager, xml)
         {       
@@ -134,6 +138,17 @@ namespace OfficeOpenXml
             {
                 ExcelNamedStyleXml item = new ExcelNamedStyleXml(_nameSpaceManager, n, this);
                 NamedStyles.Add(item.Name, item);
+            }
+
+            //dxfsPath
+            XmlNode dxfsNode = _styleXml.SelectSingleNode(dxfsPath, _nameSpaceManager);
+            if (dxfsNode != null)
+            {
+                foreach (XmlNode x in dxfsNode)
+                {
+                    ExcelDxfStyleConditionalFormatting item = new ExcelDxfStyleConditionalFormatting(_nameSpaceManager, x, this);
+                    Dxfs.Add(item.Id, item);
+                }
             }
         }
         internal ExcelStyle GetStyleObject(int Id,int PositionID, string Address)
@@ -372,6 +387,7 @@ namespace OfficeOpenXml
         public ExcelStyleCollection<ExcelXfs> CellStyleXfs = new ExcelStyleCollection<ExcelXfs>();
         public ExcelStyleCollection<ExcelXfs> CellXfs = new ExcelStyleCollection<ExcelXfs>();
         public ExcelStyleCollection<ExcelNamedStyleXml> NamedStyles = new ExcelStyleCollection<ExcelNamedStyleXml>();
+        public ExcelStyleCollection<ExcelDxfStyleConditionalFormatting> Dxfs = new ExcelStyleCollection<ExcelDxfStyleConditionalFormatting>();
         
         internal string Id
         {
@@ -386,7 +402,7 @@ namespace OfficeOpenXml
         {
             if (_wb.Styles.NamedStyles.ExistsKey(name))
             {
-                throw new Exception(string.Format("Key {0} already exist in collection", name));
+                throw new Exception(string.Format("Key {0} already exists in collection", name));
             }
 
             ExcelNamedStyleXml style;
@@ -581,6 +597,31 @@ namespace OfficeOpenXml
                 }
             }
             (cellXfsNode as XmlElement).SetAttribute("count", count.ToString());
+
+            //Set dxf styling for conditional Formatting
+            XmlNode dxfsNode = _styleXml.SelectSingleNode(dxfsPath, _nameSpaceManager);
+            foreach (var ws in _wb.Worksheets)
+            {
+                foreach (var cf in ws.ConditionalFormatting)
+                {
+                    if (cf.Style.HasValue)
+                    {
+                        int ix = Dxfs.FindIndexByID(cf.Style.Id);
+                        if (ix < 0)
+                        {
+                            ((ExcelConditionalFormattingRule)cf).DxfId = Dxfs.Count;
+                            Dxfs.Add(cf.Style.Id, cf.Style);
+                            var elem = ((XmlDocument)TopNode).CreateElement("d", "dxf", ExcelPackage.schemaMain);
+                            cf.Style.CreateNodes(new XmlHelperInstance(NameSpaceManager, elem), "");
+                            dxfsNode.AppendChild(elem);
+                        }
+                        else
+                        {
+                            ((ExcelConditionalFormattingRule)cf).DxfId = ix;
+                        }
+                    }
+                }
+            }
         }
 
         private void RemoveUnusedStyles()

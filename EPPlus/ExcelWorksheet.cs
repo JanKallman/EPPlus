@@ -51,6 +51,7 @@ using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
+using OfficeOpenXml.ConditionalFormatting;
 
 namespace OfficeOpenXml
 {
@@ -75,7 +76,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-	public sealed class ExcelWorksheet : XmlHelper
+    public sealed class ExcelWorksheet : XmlHelper
 	{
         internal class Formulas
         {
@@ -85,7 +86,6 @@ namespace OfficeOpenXml
             public string Formula { get; set; }
             public int StartRow { get; set; }
             public int StartCol { get; set; }
-
         }
         /// <summary>
         /// Collection containing merged cell addresses
@@ -438,6 +438,36 @@ namespace OfficeOpenXml
                 SetXmlNodeString(tabColorPath, value.ToArgb().ToString("X"));
             }
         }
+        const string codeModuleNamePath = "d:sheetPr/@codeName";
+        internal string CodeModuleName
+        {
+            get
+            {
+                return GetXmlNodeString(codeModuleNamePath);
+            }
+            set
+            {
+                SetXmlNodeString(codeModuleNamePath, value);
+            }
+        }
+        internal void CodeNameChange(string value)
+        {
+            CodeModuleName = value;
+        }
+        public VBA.ExcelVBAModule CodeModule
+        {
+            get
+            {
+                if (_package.Workbook.VbaProject != null)
+                {
+                    return _package.Workbook.VbaProject.Modules[CodeModuleName];
+                }
+                else
+                {
+                    return null;
+                }
+            }
+        }
         #region WorksheetXml
 		/// <summary>
 		/// The XML document holding the worksheet data.
@@ -660,7 +690,7 @@ namespace OfficeOpenXml
         private void GetBlockPos(string xml, string tag, ref int start, ref int end)
         {
             Match startmMatch, endMatch;
-            startmMatch = Regex.Match(xml, string.Format("(<[^>]*{0}[^>]*>)", tag)); //"<[a-zA-Z:]*" + tag + "[?]*>");
+            startmMatch = Regex.Match(xml.Substring(start), string.Format("(<[^>]*{0}[^>]*>)", tag)); //"<[a-zA-Z:]*" + tag + "[?]*>");
 
             if (!startmMatch.Success) //Not found
             {
@@ -668,19 +698,20 @@ namespace OfficeOpenXml
                 end = -1;
                 return;
             }
-            start=startmMatch.Index;
+            var startPos=startmMatch.Index+start;
             if(startmMatch.Value.Substring(startmMatch.Value.Length-2,1)=="/")
             {
-                end=startmMatch.Index+startmMatch.Length;
+                end = startPos + startmMatch.Length;
             }
             else
             {
-                endMatch = Regex.Match(xml, string.Format("(</[^>]*{0}[^>]*>)", tag));
+                endMatch = Regex.Match(xml.Substring(start), string.Format("(</[^>]*{0}[^>]*>)", tag));
                 if (endMatch.Success)
                 {
-                    end = endMatch.Index + endMatch.Length;
+                    end = endMatch.Index + endMatch.Length + start;
                 }
             }
+            start = startPos;
         }
         private bool ReadUntil(XmlTextReader xr,params string[] tagName)
         {
@@ -799,7 +830,6 @@ namespace OfficeOpenXml
             var cellList=new List<IRangeID>();
             var rowList = new List<IRangeID>();
             var formulaList = new List<IRangeID>();
-            string v="";
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelCell cell = null;
             xr.Read();
@@ -2090,10 +2120,8 @@ namespace OfficeOpenXml
             CreateNode("d:colBreaks");
 
             string xml = _worksheetXml.OuterXml;
-            PackagePart partPack = _package.Package.GetPart(WorksheetUri);
             StreamWriter sw=new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
-
-            int colStart=0, colEnd=0;
+            int colStart = 0, colEnd = 0;
             GetBlockPos(xml, "cols", ref colStart, ref colEnd);
 
             sw.Write(xml.Substring(0, colStart));
@@ -2106,7 +2134,7 @@ namespace OfficeOpenXml
             int cellStart = colEnd, cellEnd = colEnd;
             GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
             sw.Write(xml.Substring(colEnd, cellStart - colEnd));
-            var rowBreaks=new List<int>();
+            var rowBreaks = new List<int>();
             UpdateRowCellData(sw);
 
             int mergeStart = cellEnd, mergeEnd = cellEnd;
@@ -2133,7 +2161,7 @@ namespace OfficeOpenXml
             sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
             //if (rowBreaks.Count > 0)
             //{
-                UpdateRowBreaks(sw);
+            UpdateRowBreaks(sw);
             //}
 
             int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
@@ -2141,11 +2169,12 @@ namespace OfficeOpenXml
             sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
             //if (colBreaks.Count > 0)
             //{
-                UpdateColBreaks(sw);
+            UpdateColBreaks(sw);
             //}
 
             sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
+            sw.Close();
         }
         private void UpdateColBreaks(StreamWriter sw)
         {
@@ -2609,6 +2638,23 @@ namespace OfficeOpenXml
                 return _pivotTables;
             }
         }
+        private ExcelConditionalFormattingCollection _conditionalFormatting = null;
+        /// <summary>
+        /// ConditionalFormatting defined in the worksheet. Use the Add methods to create ConditionalFormatting and add them to the worksheet. Then
+        /// set the properties on the instance returned.
+        /// </summary>
+        /// <seealso cref="ExcelConditionalFormattingCollection"/>
+        public ExcelConditionalFormattingCollection ConditionalFormatting
+        {
+            get
+            {
+                if (_conditionalFormatting == null)
+                {
+                    _conditionalFormatting = new ExcelConditionalFormattingCollection(this);
+                }
+                return _conditionalFormatting;
+            }
+        }
         private ExcelDataValidationCollection _dataValidation = null;
         /// <summary>
         /// DataValidation defined in the worksheet. Use the Add methods to create DataValidations and add them to the worksheet. Then
@@ -2692,5 +2738,22 @@ namespace OfficeOpenXml
         {
             SetXmlNodeString("d:legacyDrawingHF/@r:id", relID);
         }
+        //List<IFormulaCell> _fc = null;
+        //public List<ExcelRange> FormulaCells
+        //{
+        //    get 
+        //    {
+        //        if (_fc == null)
+        //        {
+        //            _fc = new List<ExcelRange>();
+        //            foreach (var r in _sharedFormulas)
+        //            {
+        //                _fc.Add(new IFormulaCell))
+        //            }
+        //        }
+        //        return _fc;
+        //    }
+        //}
+
     }  // END class Worksheet
 }
