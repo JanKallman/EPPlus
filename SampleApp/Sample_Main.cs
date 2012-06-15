@@ -145,9 +145,21 @@ namespace EPPlusSamples
                 Sample13.RunSample13(outputDir);
                 Console.WriteLine("Sample 13 created {0}", outputDir.Name);
                 Console.WriteLine();
+                
+                //Sample 14 - Conditional Formatting
+               Console.WriteLine("Running sample 14");
+               Sample14.RunSample14(outputDir);
+               Console.WriteLine("Sample 14 created {0}", outputDir.Name);
+               Console.WriteLine();
+
+                //Sample 15 - Shows a how to use VBA
+                Console.WriteLine("Running sample 15-VBA");
+                Sample15.VBASample(outputDir);
+                Console.WriteLine("Sample 15 created {0}", outputDir.Name);
+                Console.WriteLine();
+
             }
 			catch (Exception ex)
-            
             {
                 Console.WriteLine("Error: {0}", ex.Message);
 			}
