@@ -88,8 +88,8 @@ namespace EPPlusSamples
         cfRule1.LowValue.Color = ColorTranslator.FromHtml("#FFFFEB84");
         cfRule1.HighValue.Type = eExcelConditionalFormattingValueObjectType.Formula;
         cfRule1.HighValue.Formula = "IF($G$1=\"A</x:&'cfRule>\",1,5)";
-        cfRule1.DxfId = 34;
         cfRule1.StopIfTrue = true;
+        cfRule1.Style.Font.Bold = true;
 
         // But others you can't (readonly)
         // cfRule1.Type = eExcelConditionalFormattingRuleType.ThreeColorScale;
@@ -160,8 +160,7 @@ namespace EPPlusSamples
         // -------------------------------------------------------------------
         var cfRule9 = worksheet.ConditionalFormatting.AddAboveStdDev(
           new ExcelAddress("B11:B20"));
-
-        cfRule9.StdDev = 0;
+          cfRule9.StdDev = 0;
 
         // -------------------------------------------------------------------
         // Create a Below StdDev rule

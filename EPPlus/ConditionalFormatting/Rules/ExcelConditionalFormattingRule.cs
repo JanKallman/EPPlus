@@ -332,7 +332,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// DxfId Style Attribute
     /// </summary>
-    public int DxfId
+    internal int DxfId
     {
       get
       {

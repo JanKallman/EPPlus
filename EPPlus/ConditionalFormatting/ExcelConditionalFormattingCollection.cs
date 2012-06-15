@@ -377,7 +377,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// </summary>
     /// <param name="type"></param>
     /// <param name="address"></param>
-    /// <returns></returns>
+    /// <returns></returns>F
     internal IExcelConditionalFormattingRule AddRule(
       eExcelConditionalFormattingRuleType type,
       ExcelAddress address)

@@ -54,6 +54,14 @@ A:hover{color:#CC6699}
             This sample demonstrates how to use a template stored in the Application cashe.
         </td>
         </tr>
+        <tr>
+        <td>
+        <asp:HyperLink ID="sample4" runat="server" NavigateUrl="~/GetSample.aspx?Sample=4">Sample 4</asp:HyperLink>
+        </td>
+        <td>
+            This sample demonstrates how to use a macro-enabled spreadsheet.
+        </td>
+        </tr>
         </table>
     </form>
 </body>
