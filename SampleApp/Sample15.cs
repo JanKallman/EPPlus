@@ -1,4 +1,32 @@
-﻿using System;
+﻿/* 
+ * You may amend and distribute as you like, but don't remove this header!
+ * 
+ * EPPlus provides server-side generation of Excel 2007 spreadsheets.
+ * See http://www.codeplex.com/EPPlus for details.
+ * 
+ * All rights reserved.
+ * 
+ * EPPlus is an Open Source project provided under the 
+ * GNU General Public License (GPL) as published by the 
+ * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ * 
+ * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ * 
+ * The code for this project may be used and redistributed by any means PROVIDING it is 
+ * not sold for profit without the author's written consent, and providing that this notice 
+ * and the author's name and all copyright notices remain intact.
+ * 
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ *  Code change notes:
+ * 
+ * Author							Change						Date
+ * ******************************************************************************
+ * Jan Källman                      Added       		        2012-05-01
+ *******************************************************************************/
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,8 +42,9 @@ namespace EPPlusSamples
     {
         public static void VBASample(DirectoryInfo outputDir)
         {
-            //Create a macroenabled workbook from scratch.
+            //Create a macro-enabled workbook from scratch.
             VBASample1(outputDir);
+            
             //Open Sample 1 and add code to change the chart to a bubble chart.
             VBASample2(outputDir);
 
@@ -38,20 +67,9 @@ namespace EPPlusSamples
             var sb = new StringBuilder();
 
             sb.AppendLine("Private Sub Workbook_Open()");
-            sb.AppendLine("    [VBA Sample].Shapes(\"VBASampleRect\").TextEffect.Text = \"This test is set from VBA!\"");
+            sb.AppendLine("    [VBA Sample].Shapes(\"VBASampleRect\").TextEffect.Text = \"This text is set from VBA!\"");
             sb.AppendLine("End Sub");
             pck.Workbook.CodeModule.Code = sb.ToString();            
-
-            /*** Try to find a cert valid for signing... ***/
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            foreach (var cert in store.Certificates)
-            {
-                if(cert.HasPrivateKey && cert.NotBefore <= DateTime.Today && cert.NotAfter >= DateTime.Today)
-                {
-                    //pck.Workbook.VbaProject.Signature.Certificate = cert;
-                }
-            }
 
             //And Save as xlsm
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-1.xlsm"));
@@ -94,6 +112,9 @@ namespace EPPlusSamples
 
         private static void VBASample3(DirectoryInfo outputDir)
         {
+            //Now, lets do something a little bit more fun.
+            //We are going to create a simple battleships game from scratch.
+
             ExcelPackage pck = new ExcelPackage();
 
             //Add a worksheet.
@@ -107,6 +128,7 @@ namespace EPPlusSamples
 
             int gridSize=10;
 
+            //Create the boards
             var board1 = ws.Cells[2, 2, 2 + gridSize - 1, 2 + gridSize - 1];
             var board2 = ws.Cells[2, 4+gridSize-1, 2 + gridSize-1, 4 + (gridSize-1)*2];
             CreateBoard(board1);
@@ -121,6 +143,7 @@ namespace EPPlusSamples
             //Password protect your code
             pck.Workbook.VbaProject.Protection.SetPassword("EPPlus");
 
+            //Add all the code from the textfiles in the Vba-Code sub-folder.
             pck.Workbook.CodeModule.Code = File.ReadAllText("..\\..\\VBA-Code\\ThisWorkbook.txt");
             
             //Add the sheet code
@@ -128,7 +151,7 @@ namespace EPPlusSamples
             var m1=pck.Workbook.VbaProject.Modules.AddModule("Code");
             string code = File.ReadAllText("..\\..\\VBA-Code\\CodeModule.txt");
             
-            //Insert your ships on the right board
+            //Insert your ships on the right board. you can changes these, but don't cheat ;)
             var ships = new string[]{
                 "N3:N7",
                 "P2:S2",
@@ -138,6 +161,7 @@ namespace EPPlusSamples
 
             code = string.Format(code, ships[0],ships[1],ships[2],ships[3],ships[4], board1.Address, board2.Address);  //Ships are injected into the constants in the module
             m1.Code = code;
+
             //Ships are displayed with a black background
             string shipsaddress = string.Join(",", ships);
             ws.Cells[shipsaddress].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -149,6 +173,7 @@ namespace EPPlusSamples
             var c1 = pck.Workbook.VbaProject.Modules.AddClass("Ship",false);
             c1.Code = File.ReadAllText("..\\..\\VBA-Code\\ShipClass.txt");
 
+            //Add the info text shape.
             var tb = ws.Drawings.AddShape("txtInfo", eShapeStyle.Rect);
             tb.SetPosition(1, 0, 27, 0);
             tb.Fill.Color = Color.LightSlateGray;
@@ -156,9 +181,23 @@ namespace EPPlusSamples
             rt1.Bold = true;
             tb.RichText.Add("\r\nDouble-click on the left board to make your move. Find and sink all ships to Win!");
 
+            //Set the headers.
             ws.SetValue("B1", "Computer Grid");
             ws.SetValue("M1", "Your Grid");
             ws.Row(1).Style.Font.Size = 18;
+
+            //If you have a valid certificate for code signing you can use this code to set it.
+            ///*** Try to find a cert valid for signing... ***/
+            //X509Store store = new X509Store(StoreLocation.CurrentUser);
+            //store.Open(OpenFlags.ReadOnly);
+            //foreach (var cert in store.Certificates)
+            //{
+            //    if (cert.HasPrivateKey && cert.NotBefore <= DateTime.Today && cert.NotAfter >= DateTime.Today)
+            //    {
+            //        pck.Workbook.VbaProject.Signature.Certificate = cert;
+            //        break;
+            //    }
+            //}
 
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-3.xlsm"));
         }

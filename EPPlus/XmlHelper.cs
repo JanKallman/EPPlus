@@ -682,13 +682,6 @@ namespace OfficeOpenXml
                 return null;
             }
         }
-                }
-                else
-                {
-                    return null;
-                }
-            }
-        }
 
 		internal decimal GetXmlNodeDecimal(string path)
 		{

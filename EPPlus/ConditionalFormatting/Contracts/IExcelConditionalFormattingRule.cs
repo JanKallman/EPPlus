@@ -78,7 +78,7 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// <para>The possible values for this attribute are defined by the ST_DxfId simple type
     /// (§18.18.25).</para>
     /// </summary>
-    int DxfId { get; set; }
+//    int DxfId { get; set; }
     /// <summary>
     /// Gives access to the differencial styling (DXF) for the rule.
     /// </summary>

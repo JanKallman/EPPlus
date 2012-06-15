@@ -36,6 +36,7 @@ using draw=System.Drawing;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Style.Dxf;
+using OfficeOpenXml.ConditionalFormatting;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -608,7 +609,7 @@ namespace OfficeOpenXml
                         int ix = Dxfs.FindIndexByID(cf.Style.Id);
                         if (ix < 0)
                         {
-                            cf.DxfId = Dxfs.Count;
+                            ((ExcelConditionalFormattingRule)cf).DxfId = Dxfs.Count;
                             Dxfs.Add(cf.Style.Id, cf.Style);
                             var elem = ((XmlDocument)TopNode).CreateElement("d", "dxf", ExcelPackage.schemaMain);
                             cf.Style.CreateNodes(new XmlHelperInstance(NameSpaceManager, elem), "");
@@ -616,7 +617,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            cf.DxfId = ix;
+                            ((ExcelConditionalFormattingRule)cf).DxfId = ix;
                         }
                     }
                 }
