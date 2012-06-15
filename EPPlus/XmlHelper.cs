@@ -671,17 +671,17 @@ namespace OfficeOpenXml
 		}
         internal int? GetXmlNodeIntNull(string path)
         {
+            int i;
             string s = GetXmlNodeString(path);
-            if (s == "")
+            if (s!="" && int.TryParse(s, out i))
             {
-                return null;
+                return i;
             }
             else
             {
-                int v;
-                if (int.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
-                {
-                    return v;
+                return null;
+            }
+        }
                 }
                 else
                 {

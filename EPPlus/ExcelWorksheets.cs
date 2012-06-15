@@ -130,7 +130,7 @@ namespace OfficeOpenXml
 
 		#region Add Worksheet
 		/// <summary>
-		/// Adds a new blank worksheet
+		/// Adds a new blank worksheet.
 		/// </summary>
 		/// <param name="Name">The name of the workbook</param>
 		public ExcelWorksheet Add(string Name)
@@ -157,6 +157,12 @@ namespace OfficeOpenXml
             ExcelWorksheet worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
 
 			_worksheets.Add(positionID, worksheet);
+            if (_pck.Workbook.VbaProject != null)
+            {
+                _pck.Workbook.VbaProject.Modules.Add(new VBA.ExcelVBAModule(worksheet.CodeNameChange) {  Name = Name, Type = VBA.eModuleType.Document });
+                worksheet.CodeModuleName = Name;
+
+            }
 			return worksheet;
 		}
         /// <summary>
@@ -727,7 +733,10 @@ namespace OfficeOpenXml
 				}
 			}
 			_worksheets.Remove(Index);
-
+            if (_pck.Workbook.VbaProject != null)
+            {
+                _pck.Workbook.VbaProject.Modules.Remove(worksheet.CodeModule);
+            }
 			ReindexWorksheetDictionary();
 		}
 
@@ -742,7 +751,7 @@ namespace OfficeOpenXml
 			{
 				throw new ArgumentException(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			Delete(sheet.PositionID);
+			 Delete(sheet.PositionID);
 		}
 
 		/// <summary>

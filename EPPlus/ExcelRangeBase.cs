@@ -494,7 +494,6 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-
 		private object GetValueArray()
 		{
 			ExcelAddressBase addr;
@@ -528,7 +527,6 @@ namespace OfficeOpenXml
 			}
 			return v;
 		}
-
 		private ExcelAddressBase GetAddressDim(ExcelRangeBase addr)
 		{
 			int fromRow, fromCol, toRow, toCol;
@@ -1514,7 +1512,7 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				return new RangeDataValidation(_worksheet, Address);
+                return new RangeDataValidation(_worksheet, Address);
 			}
 		}
 		#endregion
@@ -1530,9 +1528,9 @@ namespace OfficeOpenXml
 			LoadFromDataTable(Table, PrintHeaders);
 
 			int rows = Table.Rows.Count + (PrintHeaders ? 1 : 0) - 1;
-			if (rows > 0 && Table.Columns.Count > 0)
+            if (rows >= 0 && Table.Columns.Count>0)
 			{
-				var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + rows, _fromCol + Table.Columns.Count - 1), Table.TableName);
+                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows==0 ? 1 : rows), _fromCol + Table.Columns.Count-1), Table.TableName);
 				tbl.ShowHeader = PrintHeaders;
 				tbl.TableStyle = TableStyle;
 			}
@@ -1682,21 +1680,28 @@ namespace OfficeOpenXml
 				foreach (var item in Collection)
 				{
 					col = _fromCol;
-					foreach (var t in Members)
-					{
-						if (t is PropertyInfo)
-						{
-							_worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
-						}
-						else if (t is FieldInfo)
-						{
-							_worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
-						}
-						else if (t is MethodInfo)
-						{
-							_worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
-						}
-					}
+                    if (item is string || item is decimal || item is DateTime || item.GetType().IsPrimitive)
+                    {
+                        _worksheet.Cells[row, col++].Value = item;
+                    }
+                    else
+                    {
+                        foreach (var t in Members)
+                        {
+                            if (t is PropertyInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
+                            }
+                            else if (t is FieldInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
+                            }
+                            else if (t is MethodInfo)
+                            {
+                                _worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                            }
+                        }
+                    }
 					row++;
 				}
 			}
@@ -1765,10 +1770,15 @@ namespace OfficeOpenXml
 							}
 							else
 							{
-								if (QCount > 1)
+                                if (QCount > 1 && !string.IsNullOrEmpty(v))
 								{
 									v += new string(Format.TextQualifier, QCount / 2);
 								}
+                                else if(QCount>2 && string.IsNullOrEmpty(v))
+                                {
+                                    v += new string(Format.TextQualifier, (QCount-1) / 2);
+                                }
+
 								if (isQualifier)
 								{
 									v += c;
@@ -2058,8 +2068,9 @@ namespace OfficeOpenXml
 		}
 		private void Delete(ExcelAddressBase Range)
 		{
+            DeleteCheckMergedCells(Range);
 			//First find the start cell
-			ulong startID = GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
+            ulong startID = GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
 			int index = _worksheet._cells.IndexOf(startID);
 			if (index < 0)
 			{
@@ -2095,6 +2106,30 @@ namespace OfficeOpenXml
 				{
 					Delete(sub);
 				}
+            }
+        }
+
+        private void DeleteCheckMergedCells(ExcelAddressBase Range)
+        {
+            var removeItems = new List<string>();
+            foreach (var addr in Worksheet.MergedCells)
+            {
+                var addrCol = Range.Collide(new ExcelAddress(Range.WorkSheet, addr));
+                if (addrCol != eAddressCollition.No)
+                {
+                    if (addrCol == eAddressCollition.Inside)
+                    {
+                        removeItems.Add(addr);
+                    }
+                    else
+                    {
+                        throw (new InvalidOperationException("Can't remove/overwrite cells that are merged"));
+                    }
+                }
+            }
+            foreach (var item in removeItems)
+            {
+                Worksheet.MergedCells.Remove(item);
 			}
 		}
 		#endregion

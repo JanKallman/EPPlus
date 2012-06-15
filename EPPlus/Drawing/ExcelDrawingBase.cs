@@ -561,5 +561,78 @@ namespace OfficeOpenXml.Drawing
             SetPixelHeight(PixelHeight);
         }
         #endregion
+
+        internal static string GetTextAchoringText(eTextAnchoringType value)
+        {
+            switch (value)
+            {
+                case eTextAnchoringType.Bottom:
+                    return "b";
+                case eTextAnchoringType.Center:
+                    return "ctr";
+                case eTextAnchoringType.Distributed:
+                    return "dist";
+                case eTextAnchoringType.Justify:
+                    return "just";
+                default:
+                    return "t";
+            }
+        }
+        internal static eTextAnchoringType GetTextAchoringEnum(string text)
+        {
+            switch (text)
+            {
+                case "b":
+                    return eTextAnchoringType.Bottom;
+                case "ctr":
+                    return eTextAnchoringType.Center;
+                case "dist":
+                    return eTextAnchoringType.Distributed;
+                case "just":
+                    return eTextAnchoringType.Justify;
+                default:
+                    return eTextAnchoringType.Top;
+            }
+        }
+        internal static string GetTextVerticalText(eTextVerticalType value)
+        {
+            switch (value)
+            {
+                case eTextVerticalType.EastAsianVertical:
+                    return "eaVert";
+                case eTextVerticalType.MongolianVertical:
+                    return "mongolianVert";
+                case eTextVerticalType.Vertical:
+                    return "vert";
+                case eTextVerticalType.Vertical270:
+                    return "vert270";
+                case eTextVerticalType.WordArtVertical:
+                    return "wordArtVert";
+                case eTextVerticalType.WordArtVerticalRightToLeft:
+                    return "wordArtVertRtl";
+                default:
+                    return "horz";
+            }
+        }
+        internal static eTextVerticalType GetTextVerticalEnum(string text)
+        {
+            switch (text)
+            {
+                case "eaVert":
+                    return eTextVerticalType.EastAsianVertical;
+                case "mongolianVert":
+                    return eTextVerticalType.MongolianVertical;
+                case "vert":
+                    return eTextVerticalType.Vertical;
+                case "vert270":
+                    return eTextVerticalType.Vertical270;
+                case "wordArtVert":
+                    return eTextVerticalType.WordArtVertical;
+                case "wordArtVertRtl":
+                    return eTextVerticalType.WordArtVerticalRightToLeft;
+                default:
+                    return eTextVerticalType.Horizontal;
+            }
+        }
     }
 }

@@ -367,6 +367,14 @@ namespace EPPlusTest
             chrt.DataLabel.ShowLeaderLines=true;
             chrt.EditAs = eEditAs.OneCell;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Span;
+            chrt.Axis[0].Title.Text = "Axis 0";
+            chrt.Axis[0].Title.Rotation = 90;
+            chrt.Axis[0].Title.Overlay = true;
+            chrt.Axis[1].Title.Text = "Axis 1";
+            chrt.Axis[1].Title.AnchorCtr = true;
+            chrt.Axis[1].Title.TextVertical = eTextVerticalType.Vertical270;
+            chrt.Axis[1].Title.Border.LineStyle=eLineStyle.LongDashDotDot;
+
         }
         [TestMethod]
         public void LineMarker()

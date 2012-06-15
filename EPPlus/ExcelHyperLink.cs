@@ -47,7 +47,7 @@ namespace OfficeOpenXml
         public ExcelHyperLink(string uriString) :
             base(uriString)
         {
-
+            OriginalUri = (Uri)this;
         }
         /// <summary>
         /// A new hyperlink with the specified URI. This syntax is obsolete
@@ -57,7 +57,7 @@ namespace OfficeOpenXml
         public ExcelHyperLink(string uriString, bool dontEscape) :
             base(uriString, dontEscape)
         {
-
+            OriginalUri = (Uri)this;
         }
         /// <summary>
         /// A new hyperlink with the specified URI and kind
@@ -67,7 +67,7 @@ namespace OfficeOpenXml
         public ExcelHyperLink(string uriString, UriKind uriKind) :
             base(uriString, uriKind)
         {
-
+            OriginalUri = (Uri)this;
         }
         /// <summary>
         /// Sheet internal reference
@@ -79,6 +79,16 @@ namespace OfficeOpenXml
         {
             _referenceAddress = referenceAddress;
             _display = display;
+        }
+        /// <summary>
+        /// Intended for non absolute uri's. 
+        /// </summary>
+        /// <param name="uriString">The Original URI</param>
+        internal ExcelHyperLink(Uri originalUri) : 
+            base("xl://nonAbsolute")
+        {
+            OriginalUri = originalUri;
+            //Not the best of solutions, but to stay compatible with older version (Baseclass URI), the interface should be compatible.
         }
 
         string _referenceAddress = null;
@@ -148,6 +158,15 @@ namespace OfficeOpenXml
             {
                 _rowSpann = value;
             }
+        }
+        /// <summary>
+        /// Used to handle non absolute URI's. 
+        /// Is used if IsAblsoluteUri is true. The base URI will have a dummy value of xl://nonAbsolute.
+        /// </summary>
+        public Uri OriginalUri
+        {
+            get;
+            internal set;
         }
     }
 }

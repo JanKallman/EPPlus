@@ -544,7 +544,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 int fieldIndex;
                 if(int.TryParse(x, out fieldIndex))
                 {
-                    if (fieldIndex == index)    //Row already exist
+                    if (fieldIndex == index)    //Row already exists
                     {
                         return field;
                     }

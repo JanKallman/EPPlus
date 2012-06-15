@@ -122,7 +122,7 @@ namespace OfficeOpenXml
             var ix = IndexOf(cell.RangeID);
             if (ix >= 0)
             {
-                throw (new Exception("Item already exist"));
+                throw (new Exception("Item already exists"));
             }
             Insert(~ix, cell);
         }
@@ -131,7 +131,7 @@ namespace OfficeOpenXml
             var ix = IndexOf(key);
             if (ix < 0)
             {
-                throw (new Exception("Key does not exist"));
+                throw (new Exception("Key does not exists"));
             }
             int listPointer = _cellIndex[ix].ListPointer;
             Array.Copy(_cellIndex, ix + 1, _cellIndex, ix, _cells.Count - ix - 1);

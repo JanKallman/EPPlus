@@ -83,6 +83,10 @@ namespace OfficeOpenXml.Table.PivotTable
             }
             set
             {
+                if (Field._table.DataFields.ExistsDfName(value, this))
+                {
+                    throw (new InvalidOperationException("Duplicate datafield name"));
+                }
                 SetXmlNodeString("@name", value);
             }
         }
