@@ -477,6 +477,11 @@ namespace OfficeOpenXml
 			}
 			set
 			{
+                if(IsInfinityValue(value))
+                {
+                    value = "Infinity";
+                }
+
 				if (IsName)
 				{
 					if (_worksheet == null)
@@ -494,6 +499,20 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
+        private bool IsInfinityValue(object value)
+        {
+            double? valueAsDouble = value as double?;
+
+            if(valueAsDouble.HasValue && 
+                (double.IsNegativeInfinity(valueAsDouble.Value) || double.IsPositiveInfinity(valueAsDouble.Value)))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
 		private object GetValueArray()
 		{
 			ExcelAddressBase addr;
