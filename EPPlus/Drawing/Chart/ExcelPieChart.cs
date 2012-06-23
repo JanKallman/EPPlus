@@ -76,11 +76,12 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _DataLabel;
             }
         }
+
         internal override eChartType GetChartType(string name)
         {
             if (name == "pieChart")
             {
-                if (((ExcelPieChartSerie)Series[0]).Explosion>0)
+                if (Series.Count > 0 && ((ExcelPieChartSerie)Series[0]).Explosion>0)
                 {
                     return eChartType.PieExploded;
                 }
@@ -91,7 +92,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             else if (name == "pie3DChart")
             {
-                if (((ExcelPieChartSerie)Series[0]).Explosion > 0)
+                if (Series.Count > 0 && ((ExcelPieChartSerie)Series[0]).Explosion > 0)
                 {
                     return eChartType.PieExploded3D;
                 }
