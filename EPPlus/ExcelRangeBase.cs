@@ -1521,7 +1521,7 @@ namespace OfficeOpenXml
 		/// Load the data from the datatable starting from the top left cell of the range
 		/// </summary>
 		/// <param name="Table">The datatable to load</param>
-		/// <param name="PrintHeaders">Print the column names on first row</param>
+		/// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
 		/// <param name="TableStyle">The table style to apply to the data</param>
 		public void LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
 		{
@@ -1539,7 +1539,7 @@ namespace OfficeOpenXml
 		/// Load the data from the datatable starting from the top left cell of the range
 		/// </summary>
 		/// <param name="Table">The datatable to load</param>
-		/// <param name="PrintHeaders">Print the column names on first row</param>
+		/// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
 		public void LoadFromDataTable(DataTable Table, bool PrintHeaders)
 		{
 			if (Table == null)
@@ -1552,7 +1552,8 @@ namespace OfficeOpenXml
 			{
 				foreach (DataColumn dc in Table.Columns)
 				{
-					_worksheet.Cell(row, col++).Value = dc.ColumnName;
+                    // If no caption is set, the ColumnName property is called implicitly.
+					_worksheet.Cell(row, col++).Value = dc.Caption;
 				}
 				row++;
 				col = _fromCol;
