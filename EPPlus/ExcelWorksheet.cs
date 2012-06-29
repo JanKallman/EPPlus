@@ -26,9 +26,9 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		    Initial Release		       2011-11-02
+ * Jan Källman		    Initial Release		        2011-11-02
  * Jan Källman          Total rewrite               2010-03-01
- * Jan Källman		    License changed GPL-->LGPL 2011-12-27
+ * Jan Källman		    License changed GPL-->LGPL  2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -52,7 +52,6 @@ using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
-
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -1931,6 +1930,7 @@ namespace OfficeOpenXml
                         Part.DeleteRelationship(_comments.RelId);
                         _package.Package.DeletePart(_comments.Uri);                        
                     }
+                    RemoveLegacyDrawingRel(VmlDrawingsComments.RelId);
                 }
                 else
                 {
@@ -2290,7 +2290,7 @@ namespace OfficeOpenXml
             foreach (ExcelRow r in _rows)
             {
                 int nextCell = ~_cells.IndexOf(r.RowID);
-                if (nextCell >= _cells.Count || ((ExcelCell)_cells[nextCell]).Row!=r.Row)
+                if (nextCell >= 0 && (nextCell >= _cells.Count || ((ExcelCell)_cells[nextCell]).Row != r.Row))
                 {
                     _cells.Add(r);
                 }
@@ -2376,6 +2376,10 @@ namespace OfficeOpenXml
                                         {
                                             s = "0";
                                         }
+                                        else if (cell._value is double && double.IsInfinity((double)cell._value))
+                                        {
+                                            s="#NUM!";
+                                        }
                                         else
                                         {
                                             s = Convert.ToDouble(cell._value, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
@@ -2390,6 +2394,10 @@ namespace OfficeOpenXml
                                 if (cell._value is bool)
                                 {
                                     sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"b\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                                }
+                                else if (cell._value is double && double.IsInfinity((double)cell._value))
+                                {
+                                    sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"e\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
                                 }
                                 else
                                 {
@@ -2737,6 +2745,14 @@ namespace OfficeOpenXml
         internal void SetHFLegacyDrawingRel(string relID)
         {
             SetXmlNodeString("d:legacyDrawingHF/@r:id", relID);
+        }
+        internal void RemoveLegacyDrawingRel(string relID)
+        {
+            var n = WorksheetXml.DocumentElement.SelectSingleNode(string.Format("d:legacyDrawing[@r:id=\"{0}\"]", relID), NameSpaceManager);
+            if (n != null)
+            {
+                n.ParentNode.RemoveChild(n);
+            }
         }
         //List<IFormulaCell> _fc = null;
         //public List<ExcelRange> FormulaCells

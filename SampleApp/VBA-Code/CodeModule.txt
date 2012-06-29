@@ -1,12 +1,13 @@
-﻿Public Const board1 = "{5}"
-Public Const board2 = "{6}"
+﻿Public Const board1 = "B2:K11"
+Public Const board2 = "M2:V11"
 
-Public Const userShip1 = "{0}"
-Public Const userShip2 = "{1}"
-Public Const userShip3 = "{2}"
-Public Const userShip4 = "{3}"
-Public Const userShip5 = "{4}"
+Public Const userShip1 = "N3:N7"
+Public Const userShip2 = "P2:S2"
+Public Const userShip3 = "V9:V11"
+Public Const userShip4 = "O10:Q10"
+Public Const userShip5 = "R11:S11"
 
+Global g_logRow As Integer
 Global g_gameEnded As Boolean
 Global g_Ships As Collection
 Global g_userShips As Collection
@@ -26,31 +27,26 @@ Public Sub AddShips(board As Range)
     s1.Size = 5
     Set s1.Position = GetShipPos(board, s1.Size)
     g_Ships.Add s1, "carrier"
-    'Range("A25").value = s1.Position.Address
     
     Dim s2 As New Ship
     s2.Size = 4
     Set s2.Position = GetShipPos(board, s2.Size)
     g_Ships.Add s2, "battleship"
-    'Range("A26").value = s2.Position.Address
 
     Dim s3 As New Ship
     s3.Size = 3
     Set s3.Position = GetShipPos(board, s3.Size)
     g_Ships.Add s3, "sub"
-    'Range("A27").value = s3.Position.Address
 
     Dim s4 As New Ship
     s4.Size = 3
     Set s4.Position = GetShipPos(board, s4.Size)
     g_Ships.Add s4, "cruiser"
-    'Range("A28").value = s4.Position.Address
 
     Dim s5 As New Ship
     s5.Size = 2
     Set s5.Position = GetShipPos(board, s5.Size)
     g_Ships.Add s5, "destroyer"
-    'Range("A29").value = s5.Position.Address
 End Sub
 Public Sub AddUserShips(board As Range)
     Set g_userShips = New Collection
@@ -65,61 +61,57 @@ Public Sub AddUserShips(board As Range)
     s2.Size = 4
     Set s2.Position = Battleship.Range(userShip2)
     g_userShips.Add s2, "battleship"
-    'Range("A26").value = s2.Position.Address
 
     Dim s3 As New Ship
     s3.Size = 3
     Set s3.Position = Battleship.Range(userShip3)
     g_userShips.Add s3, "sub"
-    'Range("A27").value = s3.Position.Address
 
     Dim s4 As New Ship
     s4.Size = 3
     Set s4.Position = Battleship.Range(userShip4)
     g_userShips.Add s4, "cruiser"
-    'Range("A28").value = s4.Position.Address
 
     Dim s5 As New Ship
     s5.Size = 2
     Set s5.Position = Battleship.Range(userShip5)
     g_userShips.Add s5, "destroyer"
-    'Range("A29").value = s5.Position.Address
 End Sub
 Public Function GetShipPos(board As Range, ByVal Size As Integer) As Range
     Dim row As Integer, column As Integer
     Dim Horizontal As Integer
     
     Do
-            Randomize
-                row = (Rnd * (board.Rows.Count - 1)) + 1
-                column = (Rnd * (board.Rows.Count - 1)) + 1
-                Horizontal = Rnd
+        Randomize
+        row = (Rnd * (board.Rows.Count - 1)) + 1
+        column = (Rnd * (board.Rows.Count - 1)) + 1
+        Horizontal = Rnd
     
-                If Horizontal = 1 Then
-                        If column - Size > 0 And column + Size < 10 Then
-                                If Rnd = 0 Then
-                                        Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
-                                Else
-                                        Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
-                                End If
-                        ElseIf column - Size > 0 Then
-                                Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
-                        Else
-                                Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
-                        End If
+        If Horizontal = 1 Then
+            If column - Size > 0 And column + Size < 10 Then
+                If Rnd = 0 Then
+                        Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
                 Else
-                        If row - Size > 0 And row + Size < 10 Then
-                                If Rnd = 0 Then
-                                        Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
-                                Else
-                                        Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
-                                End If
-                        ElseIf row - Size > 0 Then
-                                Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
-                        Else
-                                Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
-                        End If
+                        Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
                 End If
+            ElseIf column - Size > 0 Then
+                Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
+            Else
+                Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
+            End If
+        Else
+            If row - Size > 0 And row + Size < 10 Then
+                If Rnd = 0 Then
+                        Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
+                Else
+                        Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
+                End If
+            ElseIf row - Size > 0 Then
+                Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
+            Else
+                Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
+            End If
+        End If
     Loop Until ValidSpot(GetShipPos)
 End Function
 'Make sure the spot isn't occupied

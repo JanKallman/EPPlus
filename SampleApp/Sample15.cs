@@ -35,6 +35,7 @@ using OfficeOpenXml;
 using System.Security.Cryptography.X509Certificates;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using OfficeOpenXml.Drawing.Chart;
 
 namespace EPPlusSamples
 {
@@ -186,6 +187,16 @@ namespace EPPlusSamples
             ws.SetValue("M1", "Your Grid");
             ws.Row(1).Style.Font.Size = 18;
 
+            AddChart(ws.Cells["B13"], "chtHitPercent", "Player");
+            AddChart(ws.Cells["M13"], "chtComputerHitPercent", "Computer");
+
+            ws.Names.Add("LogStart", ws.Cells["B24"]);
+            ws.Cells["B24:X224"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
+            ws.Cells["B25:X224"].Style.Font.Name = "Consolas";
+            ws.SetValue("B24", "Log");
+            ws.Cells["B24"].Style.Font.Bold = true;
+            ws.Cells["B24:X24"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
+            
             //If you have a valid certificate for code signing you can use this code to set it.
             ///*** Try to find a cert valid for signing... ***/
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
@@ -200,6 +211,28 @@ namespace EPPlusSamples
             //}
 
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-3.xlsm"));
+        }
+
+        private static void AddChart(ExcelRange rng,string name, string prefix)
+        {
+            var chrt = (ExcelPieChart)rng.Worksheet.Drawings.AddChart(name, eChartType.Pie);
+            chrt.SetPosition(rng.Start.Row-1, 0, rng.Start.Column-1, 0);
+            chrt.To.Row = rng.Start.Row+9;
+            chrt.To.Column = rng.Start.Column + 9;
+            chrt.Style = eChartStyle.Style18;
+            chrt.DataLabel.ShowPercent = true;
+
+            var serie = chrt.Series.Add(rng.Offset(2, 2, 1, 2), rng.Offset(1, 2, 1, 2));
+            serie.Header = "Hits";
+            
+            chrt.Title.Text = "Hit ratio";
+            
+            var n1 = rng.Worksheet.Names.Add(prefix + "Misses", rng.Offset(2, 2));
+            n1.Value = 0;
+            var n2 = rng.Worksheet.Names.Add(prefix + "Hits", rng.Offset(2, 3));
+            n2.Value = 0;
+            rng.Offset(1, 2).Value = "Misses";
+            rng.Offset(1, 3).Value = "Hits";            
         }
 
         private static void CreateBoard(ExcelRange rng)

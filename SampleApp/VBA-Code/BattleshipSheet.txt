@@ -10,18 +10,27 @@
     If Target.Borders(xlDiagonalUp).Weight <> xlMedium Then
          SetHit Target
          Dim Ship
+         Dim isHit As Boolean
+         isHit = False
          For Each Ship In g_Ships
-            If Ship.IsHit(Target.Cells(1, 1)) Then
+            If Ship.isHit(Target.Cells(1, 1), True) Then
                 If CheckWinner(g_Ships) Then
                     MsgBox "You win!", vbOKOnly + vbExclamation, "Battleships"
                     g_gameEnded = True
-					Cancel = True
+                    Cancel = True
                     Exit Sub
                 End If
+                isHit = True
                 Exit For
             End If
          Next
-         
+         If isHit = False Then
+            Unprotect
+            Battleship.Cells(g_logRow, 2).value = "You get a miss on " & Target.Address
+            Battleship.Names("PlayerMisses").RefersToRange.value = Battleship.Names("PlayerMisses").RefersToRange.value + 1
+			g_logRow = g_logRow + 1
+            Protect ""
+         End If
          ComputerPlay.Move
          
     End If

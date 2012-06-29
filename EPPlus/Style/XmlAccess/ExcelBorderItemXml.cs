@@ -109,7 +109,17 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal override string Id
         {
-            get { return Style + Color.Id; }
+            get 
+            {
+                if (Exists)
+                {
+                    return Style + Color.Id;
+                }
+                else
+                {
+                    return "None";
+                }
+            }
         }
 
         internal ExcelBorderItemXml Copy()

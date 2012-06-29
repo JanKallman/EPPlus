@@ -579,9 +579,11 @@ namespace EPPlusTest
             ws.Cells[1, 3].Value = "R1 C3";
             ws.Cells[2, 1].Value = "R2 C1";
             ws.Cells[2, 2].Value = "R2 C2";
-            ws.Cells[2, 3].Value = "R2 C3";
-
-            var ns=_pck.Workbook.Styles.CreateNamedStyle("TestStyle");
+            ws.Cells[2, 3].Value = "R2 C3";            
+            ws.Cells[3, 1].Value = double.PositiveInfinity;
+            ws.Cells[3, 2].Value = double.NegativeInfinity;
+            ws.Cells[4, 1].CreateArrayFormula("A1+B1");
+            var ns = _pck.Workbook.Styles.CreateNamedStyle("TestStyle");
             ns.Style.Font.Bold = true;
 
             ws.Cells["A1:C1"].StyleName = "TestStyle";
@@ -834,17 +836,17 @@ namespace EPPlusTest
             ws.Cells["A3"].LoadFromText("\"1,3\",\"Test av \"\"data\",\"12,2\",\"Test\"\"\"", new ExcelTextFormat() { TextQualifier = '"' });
 
             ws = _pck.Workbook.Worksheets.Add("File1");
-            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
+           // ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
 
             ws = _pck.Workbook.Worksheets.Add("File2");
-            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\etiv2812.csv"), new ExcelTextFormat() { SkipLinesBeginning = 3, SkipLinesEnd = 1, EOL = "\n" });
+            //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\etiv2812.csv"), new ExcelTextFormat() { SkipLinesBeginning = 3, SkipLinesEnd = 1, EOL = "\n" });
 
             //ws = _pck.Workbook.Worksheets.Add("File3");
             //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\last_gics.txt"), new ExcelTextFormat() { SkipLinesBeginning = 1, Delimiter='|'});
 
             ws = _pck.Workbook.Worksheets.Add("File4");
-            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
-                OfficeOpenXml.Table.TableStyles.Medium27, true);
+            //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
+            //    OfficeOpenXml.Table.TableStyles.Medium27, true);
 
             ws.Cells["A1"].LoadFromText("1,\"Test\",\"\",\"\"\"\",3", new ExcelTextFormat() { TextQualifier = '\"' });
 
@@ -852,10 +854,10 @@ namespace EPPlusTest
             style.Style.Fill.PatternType=ExcelFillStyle.Solid;
             style.Style.Fill.BackgroundColor.SetColor(Color.Red);
             
-            var tbl = ws.Tables[ws.Tables.Count - 1];
-            tbl.ShowTotal = true;
-            tbl.TotalsRowCellStyle = "RedStyle";
-            tbl.HeaderRowCellStyle = "RedStyle";
+            //var tbl = ws.Tables[ws.Tables.Count - 1];
+            //tbl.ShowTotal = true;
+            //tbl.TotalsRowCellStyle = "RedStyle";
+            //tbl.HeaderRowCellStyle = "RedStyle";
         }
         [TestMethod]
         public void Merge()

@@ -218,16 +218,16 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Handles shared formulas
 		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="address"></param>
-		/// <param name="IsArray"></param>
+		/// <param name="value">The  formula</param>
+		/// <param name="address">The address of the formula</param>
+		/// <param name="IsArray">If the forumla is an array formula.</param>
 		private void Set_SharedFormula(string value, ExcelAddress address, bool IsArray)
 		{
 			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
 			{
 				throw (new InvalidOperationException("Can't set a formula for the entire worksheet"));
 			}
-			else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column)             //is it really a shared formula?
+			else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column && !IsArray)             //is it really a shared formula? Arrayformulas can be one cell only
 			{
 				//Nope, single cell. Set the formula
 				Set_Formula(value, address.Start.Row, address.Start.Column);
@@ -242,33 +242,6 @@ namespace OfficeOpenXml
 			f.StartCol = address.Start.Column;
 			f.StartRow = address.Start.Row;
 			f.IsArray = IsArray;
-
-			_worksheet._sharedFormulas.Add(f.Index, f);
-			_worksheet.Cell(address.Start.Row, address.Start.Column).SharedFormulaID = f.Index;
-			_worksheet.Cell(address.Start.Row, address.Start.Column).Formula = value;
-
-			for (int col = address.Start.Column; col <= address.End.Column; col++)
-			{
-				for (int row = address.Start.Row; row <= address.End.Row; row++)
-				{
-					_worksheet.Cell(row, col).SharedFormulaID = f.Index;
-				}
-			}
-		}
-		/// <summary>
-		/// Handles array formulas
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="address"></param>
-		private void Set_ArrayFormula(string value, ExcelAddress address)
-		{
-			RemoveFormuls(address);
-			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas();
-			f.Formula = value;
-			f.Index = _worksheet.GetMaxShareFunctionIndex(true);
-			f.Address = address.FirstAddress;
-			f.StartCol = address.Start.Column;
-			f.StartRow = address.Start.Row;
 
 			_worksheet._sharedFormulas.Add(f.Index, f);
 			_worksheet.Cell(address.Start.Row, address.Start.Column).SharedFormulaID = f.Index;
@@ -477,11 +450,6 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-                if(IsInfinityValue(value))
-                {
-                    value = "Infinity";
-                }
-
 				if (IsName)
 				{
 					if (_worksheet == null)

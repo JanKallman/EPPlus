@@ -15,7 +15,8 @@ End Sub
 Public Sub Move()
     Dim index As Integer
     index = -1
-    Dim oShip As ship
+    Dim oShip As Ship
+    Dim isHit As Boolean
     For Each oShip In g_userShips
         If oShip.Hits.Count > 0 And oShip.Hits.Count < oShip.Position.Cells.Count Then
             index = GetHit(oShip)
@@ -28,17 +29,27 @@ Public Sub Move()
     End If
     Dim cell As Range
     Set cell = Battleship.Range(possibleCells(index))
-        
+    isHit = False
     SetHit cell
     For Each oShip In g_userShips
-        If oShip.IsHit(cell) Then
+        If oShip.isHit(cell, False) Then
             If CheckWinner(g_userShips) Then
                 SetShipsVisible
                 MsgBox "Computer wins!"
                 Exit Sub
             End If
+            isHit = True
+            Exit For
         End If
     Next
+
+    If IsHit = False Then
+        Battleship.Unprotect
+        Battleship.Cells(g_logRow, 2).value = "Computers gets a miss on " & cell.Address
+        Battleship.Names("ComputerMisses").RefersToRange.value = Battleship.Names("ComputerMisses").RefersToRange.value + 1
+        g_logRow = g_logRow + 1
+		Battleship.Protect ""
+    End If
     possibleCells.Remove index
 End Sub
 
@@ -55,7 +66,7 @@ Private Sub SetShipsVisible()
     Next
     Battleship.Protect ""
 End Sub
-Private Function GetHit(oShip As ship) As Integer
+Private Function GetHit(oShip As Ship) As Integer
     Dim isHorizontal As Boolean
     If oShip.Hits.Count = 1 Then
         isHorizontal = Int((Rnd * 2)) = 1

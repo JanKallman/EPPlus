@@ -3,4 +3,5 @@
     Code.AddUserShips Battleship.Range(board2)
     ComputerPlay.Init
 	g_gameEnded=false
+	g_logRow = Battleship.Names("LogStart").RefersToRange.row+1
 End Sub
