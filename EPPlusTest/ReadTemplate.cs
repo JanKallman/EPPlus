@@ -290,6 +290,13 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
-
+        [TestMethod]
+        public void ReadStyleBug()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\acquisitions-1993-2.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
+        }
     }
 }
