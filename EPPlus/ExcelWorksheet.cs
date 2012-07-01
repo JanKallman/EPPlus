@@ -2133,6 +2133,7 @@ namespace OfficeOpenXml
 
             int cellStart = colEnd, cellEnd = colEnd;
             GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
+
             sw.Write(xml.Substring(colEnd, cellStart - colEnd));
             var rowBreaks = new List<int>();
             UpdateRowCellData(sw);
@@ -2146,7 +2147,6 @@ namespace OfficeOpenXml
             {
                 UpdateMergedCells(sw);
             }
-
 
             int hyperStart = mergeEnd, hyperEnd = mergeEnd;
             GetBlockPos(xml, "hyperlinks", ref hyperStart, ref hyperEnd);
@@ -2340,8 +2340,16 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            sw.Write("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
-                            sw.Write("<f>{0}</f></c>", SecurityElement.Escape(f.Formula));
+                            // We can also have a single cell array formula
+                            if(f.IsArray)
+                            {
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula));
+                            }
+                            else
+                            {
+                                sw.Write("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
+                                sw.Write("<f>{0}</f></c>", SecurityElement.Escape(f.Formula));
+                            }
                         }
                     }
                     else if (cell.Formula != "")
@@ -2438,6 +2446,8 @@ namespace OfficeOpenXml
 
             if (row != -1) sw.Write("</row>");
             sw.Write("</sheetData>");
+
+            
         }
 
         private void WriteRow(StreamWriter sw, ExcelStyleCollection<ExcelXfs> cellXfs, int prevRow, int row)
