@@ -1786,7 +1786,18 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        return default(T);
+                        try
+                        {
+                            // Issue 14682 -- "GetValue<decimal>() won't convert strings"
+                            // As suggested, after all special cases, all .NET to do it's 
+                            // preferred conversion rather than simply returning the default
+                            return (T)Convert.ChangeType(v, typeof(T));
+                        }
+                        catch (Exception)
+                        {
+                            // This was the previous behaviour -- no conversion is available.
+                            return default(T);
+                        }
                     }
                 }
             }

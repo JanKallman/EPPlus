@@ -342,6 +342,39 @@ namespace EPPlusTest
             ws.Cells["G3"].RichText.Add(" a new t");
             ws.Cells["G3"].RichText[1].Bold = false; ;
         }
+
+        /// <summary>
+        /// Testing compliance with Issue 14682
+        /// "GetValue&lt;decimal&gt;() won't convert strings"
+        /// </summary>
+        /// <remarks>
+        /// Issue Description:
+        /// ExcelWorksheet.GetValue&lt;decimal&gt;() always returns 0 for a cell that contains 
+        /// a number stored as a string. The GetTypedValue() method has no case for this conversion, 
+        /// and the final else returns a type's default value. GetTypedValue() looks more complicated 
+        /// than it needs to be as most of its functionality can be achieved with something like:
+        /// <f>convertedValue = (T) Convert.ChangeType(v, typeof (T));</f>
+        /// where v is the value before conversion.
+        ///
+        /// I suggest that the GetTypedValue method should be simplified.
+        /// </remarks>
+        [TestMethod]
+        public void ConvertDecimal()
+        {
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("ConvertDecimal");
+            ws.Cells["B2"].Value = "123";
+            Assert.AreEqual(ws.Cells["B2"].GetValue<decimal>(), new Decimal(123));
+            ws.Cells["B3"].Value = "123.456";
+            Assert.AreEqual(ws.Cells["B3"].GetValue<decimal>(), new Decimal(123.456));
+            ws.Cells["B4"].Value = "-123";
+            Assert.AreEqual(ws.Cells["B4"].GetValue<decimal>(), new Decimal(-123));
+            ws.Cells["B5"].Value = "-123.456";
+            Assert.AreEqual(ws.Cells["B5"].GetValue<decimal>(), new Decimal(-123.456));
+            ws.Cells["B6"].Value = "123";
+            Assert.AreEqual(ws.Cells["B6"].GetValue<int>(), 123);
+            ws.Cells["B7"].Value = "-123";
+            Assert.AreEqual(ws.Cells["B7"].GetValue<int>(), -123);
+        }
         [TestMethod]
         public void SaveWorksheet()
         {
@@ -434,7 +467,7 @@ namespace EPPlusTest
         [TestMethod]
         public void TestDelete()
         {
-            string file = "test.xlsx";
+            const string file = "test.xlsx";
 
             if (File.Exists(file))
                 File.Delete(file);
