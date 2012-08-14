@@ -165,7 +165,7 @@ namespace OfficeOpenXml
             string Ret = "R";
             if (GetRowCol(part, out addrRow, out addrCol, false))
             {
-                if (part.StartsWith("$"))
+                if (part.IndexOf('$', 1) > 0)
                 {
                     Ret += addrRow.ToString();
                 }
@@ -174,7 +174,7 @@ namespace OfficeOpenXml
                     Ret += string.Format("[{0}]", addrRow - row);
                 }
 
-                if (part.IndexOf('$', 1) > 0)
+                if (part.StartsWith("$"))
                 {
                     return Ret + "C" + addrCol;
                 }
