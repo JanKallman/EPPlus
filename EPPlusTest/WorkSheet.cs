@@ -645,6 +645,48 @@ namespace EPPlusTest
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
         [TestMethod]
+        public void FormulaCopy()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("FormulaCopy");
+            int originRow = 3;
+            int originCol = 11;
+            var origin = ws.Cells[originRow, originCol];
+
+            origin.Formula = "C6*10";
+
+            // copy to row + 1
+            Assert.AreEqual("C7*10", GetFormulaCopyTo(origin, originRow + 1, originCol));
+
+            // copy to column + 1
+            Assert.AreEqual("D6*10", GetFormulaCopyTo(origin, originRow, originCol + 1));
+
+            // copy to row - 1
+            Assert.AreEqual("C5*10", GetFormulaCopyTo(origin, originRow - 1, originCol));
+
+            // copy to column -1
+            Assert.AreEqual("B6*10", GetFormulaCopyTo(origin, originRow, originCol - 1));
+
+            // copy to row + 1,column + 1
+            Assert.AreEqual("D7*10", GetFormulaCopyTo(origin, originRow + 1, originCol + 1));
+
+            // copy to row + 1, column - 1
+            Assert.AreEqual("B7*10", GetFormulaCopyTo(origin, originRow + 1, originCol - 1));
+
+            // copy to row - 1, column - 1
+            Assert.AreEqual("B5*10", GetFormulaCopyTo(origin, originRow - 1, originCol - 1));
+
+            // copy to row - 1, column + 1
+            Assert.AreEqual("D5*10", GetFormulaCopyTo(origin, originRow - 1, originCol + 1));
+        }
+
+        private string GetFormulaCopyTo(ExcelRange origin, int toRow, int toCol)
+        {
+            var target = origin.Worksheet.Cells[toRow, toCol];
+            origin.Copy(target);
+
+            return target.Formula;
+        }
+        [TestMethod]
         public void TableTest()
         {            
             var ws = _pck.Workbook.Worksheets.Add("Table");

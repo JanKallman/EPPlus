@@ -259,28 +259,27 @@ namespace OfficeOpenXml
             }
             if (GetRowCol(Address, out fromRow, out fromCol, false))
             {
-                if (row != 0 && fromRow >= row && Address.IndexOf('$', 1) == -1)
+                if (rowIncr != 0 && row != 0 && fromRow >= row && Address.IndexOf('$', 1) == -1)
                 {
-                    if (rowIncr > 0) //Insert
+                    if (fromRow < row - rowIncr)
                     {
-                        Address = GetAddress(fromRow + rowIncr, false, fromCol, Address.StartsWith("$"));
+                        return "#REF!";
                     }
-                    else                    //Delete
-                    {
-                        if (fromRow >= row && fromRow < row - rowIncr)
-                        {
-                            Address = "#REF!";
-                        }
-                        else
-                        {
-                            Address = GetAddress(fromRow + rowIncr, false, fromCol, Address.StartsWith("$"));
-                        }
-                    }
+
+                    fromRow = fromRow + rowIncr;
                 }
-                else if (col != 0 && fromCol >= col && Address.StartsWith("$") == false)
+
+                if (colIncr != 0 && col != 0 && fromCol >= col && Address.StartsWith("$") == false)
                 {
-                    Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol + colIncr, false);
+                    if (fromCol < col - colIncr)
+                    {
+                        return "#REF!";
+                    }
+
+                    fromCol = fromCol + colIncr;
                 }
+
+                Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol, Address.StartsWith("$"));
             }
             return Address;
         }
