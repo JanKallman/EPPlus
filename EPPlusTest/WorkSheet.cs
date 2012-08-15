@@ -609,7 +609,21 @@ namespace EPPlusTest
             ws.Cells["A1:K3"].Formula = "A3+A4";
             ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP(RC[1]/10,0)*10";
 
+            ws = _pck.Workbook.Worksheets.Add("Sheet-RC1");
+            ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP('Sheet-RC1'!RC[1]/10,0)*10";
+
             //ws.Cells["B2:I2"].Formula = "";   //Error
+        }
+        [TestMethod]
+        public void PictureURL()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Pic URL");
+
+            ExcelHyperLink hl = new ExcelHyperLink("http://epplus.codeplex.com");
+            hl.ToolTip = "Screen Tip";
+
+            ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
+
         }
         [TestMethod]
         public void TableTest()
