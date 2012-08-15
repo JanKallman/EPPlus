@@ -60,13 +60,32 @@ namespace OfficeOpenXml.Drawing
                 FileInfo f = new FileInfo(UriPic.OriginalString);
                 ContentType = GetContentType(f.Extension);
                 _image = Image.FromStream(part.GetStream());
+                string relID = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@r:id");
+                if (!string.IsNullOrEmpty(relID))
+                {
+                    var rel = drawings.Part.GetRelationship(relID);
+                    if (rel.TargetUri.IsAbsoluteUri)
+                    {
+                        _hyperlink = new ExcelHyperLink(rel.TargetUri.AbsoluteUri);
+                    }
+                    else
+                    {
+                        _hyperlink = new ExcelHyperLink(rel.TargetUri.OriginalString,UriKind.Relative);
+                    }
+                    ((ExcelHyperLink)_hyperlink).ToolTip = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@tooltip");
+                }
             }
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image) :
+           this(drawings, node, image, null)
+        {
+        }
+        internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image, Uri hyperlink) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
         {
             XmlElement picNode = node.OwnerDocument.CreateElement("xdr", "pic", ExcelPackage.schemaSheetDrawings);
             node.InsertAfter(picNode,node.SelectSingleNode("xdr:to",NameSpaceManager));
+            _hyperlink = hyperlink;
             picNode.InnerXml = PicStartXml();
 
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
@@ -83,10 +102,15 @@ namespace OfficeOpenXml.Drawing
             package.Flush();
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile) :
+           this(drawings,node,imageFile,null)
+        {
+        }
+        internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile, Uri hyperlink) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
         {
             XmlElement picNode = node.OwnerDocument.CreateElement("xdr", "pic", ExcelPackage.schemaSheetDrawings);
             node.InsertAfter(picNode, node.SelectSingleNode("xdr:to", NameSpaceManager));
+            _hyperlink = hyperlink;
             picNode.InnerXml = PicStartXml();
 
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
@@ -217,11 +241,39 @@ namespace OfficeOpenXml.Drawing
             SetPixelWidth(image.Width, image.HorizontalResolution);
             SetPixelHeight(image.Height, image.VerticalResolution);
         }
+
         private string PicStartXml()
         {
             StringBuilder xml = new StringBuilder();
-            xml.AppendFormat("<xdr:nvPicPr><xdr:cNvPr id=\"{0}\" descr=\"\" />", _id);
+            
+            xml.Append("<xdr:nvPicPr>");
+            
+            if (_hyperlink == null)
+            {
+                xml.AppendFormat("<xdr:cNvPr id=\"{0}\" descr=\"\" />", _id);
+            }
+            else
+            {
+               PackageRelationship relationship = _drawings.Part.CreateRelationship(_hyperlink, TargetMode.External, ExcelPackage.schemaHyperlink);
+               xml.AppendFormat("<xdr:cNvPr id=\"{0}\" descr=\"\">", _id);
+               if (relationship != null)
+               {
+                   if (_hyperlink is ExcelHyperLink)
+                   {
+                       xml.AppendFormat("<a:hlinkClick xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"{0}\" tooltip=\"{1}\"/>",
+                         relationship.Id, ((ExcelHyperLink)_hyperlink).ToolTip);
+                   }
+                   else
+                   {
+                       xml.AppendFormat("<a:hlinkClick xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"{0}\" />",
+                         relationship.Id);
+                   }
+               }
+               xml.Append("</xdr:cNvPr>");
+            }
+           
             xml.Append("<xdr:cNvPicPr><a:picLocks noChangeAspect=\"1\" /></xdr:cNvPicPr></xdr:nvPicPr><xdr:blipFill><a:blip xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:embed=\"\" cstate=\"print\" /><a:stretch><a:fillRect /> </a:stretch> </xdr:blipFill> <xdr:spPr> <a:xfrm> <a:off x=\"0\" y=\"0\" />  <a:ext cx=\"0\" cy=\"0\" /> </a:xfrm> <a:prstGeom prst=\"rect\"> <a:avLst /> </a:prstGeom> </xdr:spPr>");
+
             return xml.ToString();
         }
 
@@ -332,6 +384,18 @@ namespace OfficeOpenXml.Drawing
                 }
                 return _border;
             }
+        }
+
+        private Uri _hyperlink = null;
+        /// <summary>
+        /// Hyperlink
+        /// </summary>
+        public Uri Hyperlink
+        {
+           get
+           {
+              return _hyperlink;
+           }
         }
     }
 }

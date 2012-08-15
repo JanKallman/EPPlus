@@ -103,7 +103,7 @@ namespace OfficeOpenXml.VBA
         /// </summary>
         public string Constants { get; set; }
         /// <summary>
-        /// Codepage for encoding. Default to current regional setting.
+        /// Codepage for encoding. Default is current regional setting.
         /// </summary>
         public int CodePage { get; internal set; }
         internal int LibFlags { get; set; }
@@ -167,43 +167,7 @@ namespace OfficeOpenXml.VBA
             ProjectStreamText = Encoding.GetEncoding(CodePage).GetString(Document.Storage.DataStreams["PROJECT"]);
             ReadModules();
             ReadProjectProperties();
-            //foreach (var key in Document.Storage.SubStorage.Keys)
-            //{
-            //    if (key != "VBA")
-            //    {
-            //        var st = Document.Storage.SubStorage[key];
-            //        VBFrame = Encoding.GetEncoding(CodePage).GetString(st.DataStreams["\x3VBFrame"]);
-            //    }
-            //}
         }
-        /*
-        ID="{00000000-0000-0000-0000-000000000000}"
-        Document=ThisWorkbook/&H00000000
-        Document=Sheet1/&H00000000
-        Document=Sheet2/&H00000000
-        Document=Sheet3/&H00000000
-        Package={AC9F2F90-E877-11CE-9F68-00AA00574A4F}
-        BaseClass=UserForm1
-        HelpFile="HelpFile.chm"
-        Name="Testproject"
-        HelpContextID="5"
-        Description="This is the Description"
-        VersionCompatible32="393222000"
-        CMG="8A88263422382238273D273D"
-        DPB="8A8826343B513B51C4AF3C5132D93B2C3E551F7C2E083636FA06B2CDD3FF5AB8B410EAFDE7"
-        GC="8A8826342735273527"
-
-        [Host Extender Info]
-        &H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000
-
-        [Workspace]
-        ThisWorkbook=25, 25, 1242, 533, 
-        Sheet1=0, 0, 0, 0, C
-        Sheet2=0, 0, 0, 0, C
-        Sheet3=0, 0, 0, 0, C
-        UserForm1=125, 125, 1342, 633, C, 75, 75, 1292, 583, 
-          
-                 */
         private void ReadModules()
         {
             foreach (var modul in Modules)
@@ -532,7 +496,6 @@ namespace OfficeOpenXml.VBA
                         break;
                     case 0x21:
                     case 0x22:
-                        //currentModule.Type=(eModuleType)id;
                         break;
                     case 0x2B:      //Modul Terminator
                         break;
@@ -565,8 +528,6 @@ namespace OfficeOpenXml.VBA
                     case 0x2F:
                         var contrRef = (ExcelVbaReferenceControl)currentRef;
                         contrRef.ReferenceRecordID = id;
-                        //contrRef.Name = referenceName;
-                        //contrRef.Libid = GetString(br, size);
 
                         var sizeTwiddled = br.ReadUInt32();
                         contrRef.LibIdTwiddled = GetString(br, sizeTwiddled);
@@ -661,7 +622,6 @@ namespace OfficeOpenXml.VBA
             bw.Write((ushort)0xFFFF); //Version
             bw.Write((byte)0x0); //Reserved3
             bw.Write((ushort)0x0); //Reserved4
-            //bw.Write((ushort))     //Perfomance Cache, Ignored
             return ((MemoryStream)bw.BaseStream).ToArray();
         }
         /// <summary>
@@ -693,9 +653,6 @@ namespace OfficeOpenXml.VBA
             bw.Write((ushort)4);                                            //ID
             bw.Write((uint)Name.Length);                             //Size
             bw.Write(Encoding.GetEncoding(CodePage).GetBytes(Name)); //Project Name
-            //bw.Write((ushort)0x40);                                           //ID
-            //bw.Write((uint)Name.Length * 2);                         //Size
-            //bw.Write(Encoding.Unicode.GetBytes(Name));               //Project Name
 
             //Description
             bw.Write((ushort)5);                                            //ID
@@ -850,8 +807,6 @@ namespace OfficeOpenXml.VBA
             WriteOrginalReference(bw, reference);
 
             bw.Write((ushort)0x2F);
-            //bw.Write((uint)reference.Libid.Length);
-            //bw.Write(Encoding.GetEncoding(CodePage).GetBytes(reference.Libid));  //LibID
             var controlRef=(ExcelVbaReferenceControl)reference;
             bw.Write((uint)(4 + controlRef.LibIdTwiddled.Length + 4 + 2));    // Size of SizeOfLibidTwiddled, LibidTwiddled, Reserved1, and Reserved2.
             bw.Write((uint)controlRef.LibIdTwiddled.Length);                              //Size            
@@ -950,14 +905,9 @@ namespace OfficeOpenXml.VBA
             }
             sb.AppendFormat("VersionCompatible32=\"393222000\"\r\n");
 
-            //sb.Append("CMG=\"2527F0D930FA34FA34FA34FA34\"\r\n");
-
             sb.AppendFormat("CMG=\"{0}\"\r\n", WriteProtectionStat());
             sb.AppendFormat("DPB=\"{0}\"\r\n", WritePassword());
             sb.AppendFormat("GC=\"{0}\"\r\n\r\n", WriteVisibilityState());
-
-            //sb.Append("DPB=\"4A489F38C539C539C5\"\r\n");
-            //sb.Append("GC=\"6F6DBA67FAA91EAA1EAAE1\"\r\n");
 
             sb.Append("[Host Extender Info]\r\n");
             sb.Append("&H00000001={3832D640-CF90-11CF-8E43-00A0C911005A};VBE;&H00000000\r\n");
@@ -1089,20 +1039,7 @@ namespace OfficeOpenXml.VBA
                     Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 }
             }
-            //References.Add(new ExcelVbaReference() { Name = "stdole", Libid = "*\\G{00020430-0000-0000-C000-000000000046}#2.0#0#C:\\Windows\\SysWOW64\\stdole2.tlb#OLE Automation", ReferenceRecordID = 13 });         
-            //References.Add(new ExcelVbaReference() { Name = "Office", Libid = "*\\G{2DF8D04C-5BFA-101B-BDE5-00AA0044DE52}#2.0#0#C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\OFFICE12\\MSO.DLL#Microsoft Office 12.0 Object Library", ReferenceRecordID = 13 });
             _protection = new ExcelVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
-            //References.Add(new ExcelVbaReferenceControl()
-            //{
-            //    Name = "MSForms",
-            //    Libid = "*\\G{0D452EE1-E08F-101A-852E-02608C4D0BB4}#2.0#0#C:\\Windows\\System32\\FM20.DLL#Microsoft Forms 2.0 Object Library",
-            //    LibIdExternal = "*\\G{75A950D8-F976-4F2D-B7DA-E961BA02257E}#2.0#0#MSForms.exd#Microsoft Forms 2.0 Object Library",
-            //    LibIdTwiddled = "*\\G{00000000-0000-0000-0000-000000000000}#0.0#0##",
-            //    OriginalTypeLib=new Guid("0d452ee1-e08f-101a-852e-02608c4d0bb4"),
-            //    Cookie=1,
-            //    ReferenceRecordID=47
-            //});
-
         }
         internal ExcelVbaModuleAttributesCollection GetDocumentAttributes(string name, string clsid)
         {

@@ -39,7 +39,6 @@ using System.Security;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
-
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -978,5 +977,5 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-	} // end Workbook
+    } // end Workbook
 }

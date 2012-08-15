@@ -134,7 +134,6 @@ namespace EPPlusSamples
             var board2 = ws.Cells[2, 4+gridSize-1, 2 + gridSize-1, 4 + (gridSize-1)*2];
             CreateBoard(board1);
             CreateBoard(board2);
-
             ws.Select("B2");
             ws.Protection.IsProtected = true;
             ws.Protection.AllowSelectLockedCells = true;
@@ -180,7 +179,7 @@ namespace EPPlusSamples
             tb.Fill.Color = Color.LightSlateGray;
             var rt1 = tb.RichText.Add("Battleships");
             rt1.Bold = true;
-            tb.RichText.Add("\r\nDouble-click on the left board to make your move. Find and sink all ships to Win!");
+            tb.RichText.Add("\r\nDouble-click on the left board to make your move. Find and sink all ships to win!");
 
             //Set the headers.
             ws.SetValue("B1", "Computer Grid");
