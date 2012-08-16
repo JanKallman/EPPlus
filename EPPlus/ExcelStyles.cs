@@ -206,8 +206,7 @@ namespace OfficeOpenXml
                 {
                     if (column.ColumnMax > address.End.Column)
                     {
-                        var newCol=ws.CopyColumn(column, address.End.Column+1);
-                        newCol.ColumnMax = column.ColumnMax;
+                        var newCol = ws.CopyColumn(column, address.End.Column + 1, column.ColumnMax);
                         column.ColumnMax = address.End.Column;
                     }
 

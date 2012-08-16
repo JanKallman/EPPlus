@@ -35,6 +35,9 @@ using System.Text;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// Type of code VBA module
+    /// </summary>
     public enum eModuleType
     {
         /// <summary>

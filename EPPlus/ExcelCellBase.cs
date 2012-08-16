@@ -110,16 +110,19 @@ namespace OfficeOpenXml
             bool isText = false;
             string ret = "";
             string part = "";
+            char prevTQ = (char)0;
             for (int pos = 0; pos < value.Length; pos++)
             {
                 char c = value[pos];
-                if (c == '"')
+                if (c == '"' || c=='\'')
                 {
-                    if (isText == false && part != "")
+                    if (isText == false && part != "" && prevTQ==c)
                     {
                         ret += addressTranslator(part, row, col, rowIncr, colIncr);
                         part = "";
+                        prevTQ = (char)0;
                     }
+                    prevTQ = c;
                     isText = !isText;
                     ret += c;
                 }

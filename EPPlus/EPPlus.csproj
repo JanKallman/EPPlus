@@ -267,7 +267,6 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
-    <Compile Include="ICalcEngine.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />
     <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
     <Compile Include="VBA\ExcelVbaModuleCollection.cs" />

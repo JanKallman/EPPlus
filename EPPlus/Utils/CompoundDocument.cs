@@ -78,10 +78,6 @@ namespace OfficeOpenXml.Utils
                 {
                     Storage = new StoragePart();
                     ReadParts(storage, Storage);
-                    //foreach (var key in Storage.SubStorage["VBA"].DataStreams.Keys)
-                    //{
-                    //    File.WriteAllBytes(string.Format(@"c:\temp\vba\{0}.bin",key), Storage.SubStorage["VBA"].DataStreams[key]);
-                    //}
                     Marshal.ReleaseComObject(storage);
                 }
             }

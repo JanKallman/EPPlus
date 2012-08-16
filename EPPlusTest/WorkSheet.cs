@@ -342,39 +342,6 @@ namespace EPPlusTest
             ws.Cells["G3"].RichText.Add(" a new t");
             ws.Cells["G3"].RichText[1].Bold = false; ;
         }
-
-        /// <summary>
-        /// Testing compliance with Issue 14682
-        /// "GetValue&lt;decimal&gt;() won't convert strings"
-        /// </summary>
-        /// <remarks>
-        /// Issue Description:
-        /// ExcelWorksheet.GetValue&lt;decimal&gt;() always returns 0 for a cell that contains 
-        /// a number stored as a string. The GetTypedValue() method has no case for this conversion, 
-        /// and the final else returns a type's default value. GetTypedValue() looks more complicated 
-        /// than it needs to be as most of its functionality can be achieved with something like:
-        /// <f>convertedValue = (T) Convert.ChangeType(v, typeof (T));</f>
-        /// where v is the value before conversion.
-        ///
-        /// I suggest that the GetTypedValue method should be simplified.
-        /// </remarks>
-        [TestMethod]
-        public void ConvertDecimal()
-        {
-            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("ConvertDecimal");
-            ws.Cells["B2"].Value = "123";
-            Assert.AreEqual(ws.Cells["B2"].GetValue<decimal>(), new Decimal(123));
-            ws.Cells["B3"].Value = "123.456";
-            Assert.AreEqual(ws.Cells["B3"].GetValue<decimal>(), new Decimal(123.456));
-            ws.Cells["B4"].Value = "-123";
-            Assert.AreEqual(ws.Cells["B4"].GetValue<decimal>(), new Decimal(-123));
-            ws.Cells["B5"].Value = "-123.456";
-            Assert.AreEqual(ws.Cells["B5"].GetValue<decimal>(), new Decimal(-123.456));
-            ws.Cells["B6"].Value = "123";
-            Assert.AreEqual(ws.Cells["B6"].GetValue<int>(), 123);
-            ws.Cells["B7"].Value = "-123";
-            Assert.AreEqual(ws.Cells["B7"].GetValue<int>(), -123);
-        }
         [TestMethod]
         public void SaveWorksheet()
         {
@@ -467,7 +434,7 @@ namespace EPPlusTest
         [TestMethod]
         public void TestDelete()
         {
-            const string file = "test.xlsx";
+            string file = "test.xlsx";
 
             if (File.Exists(file))
                 File.Delete(file);
@@ -642,49 +609,21 @@ namespace EPPlusTest
             ws.Cells["A1:K3"].Formula = "A3+A4";
             ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP(RC[1]/10,0)*10";
 
+            ws = _pck.Workbook.Worksheets.Add("Sheet-RC1");
+            ws.Cells["A4"].FormulaR1C1 = "+ROUNDUP('Sheet-RC1'!RC[1]/10,0)*10";
+
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
         [TestMethod]
-        public void FormulaCopy()
+        public void PictureURL()
         {
-            var ws = _pck.Workbook.Worksheets.Add("FormulaCopy");
-            int originRow = 3;
-            int originCol = 11;
-            var origin = ws.Cells[originRow, originCol];
+            var ws = _pck.Workbook.Worksheets.Add("Pic URL");
 
-            origin.Formula = "C6*10";
+            ExcelHyperLink hl = new ExcelHyperLink("http://epplus.codeplex.com");
+            hl.ToolTip = "Screen Tip";
 
-            // copy to row + 1
-            Assert.AreEqual("C7*10", GetFormulaCopyTo(origin, originRow + 1, originCol));
+            ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
 
-            // copy to column + 1
-            Assert.AreEqual("D6*10", GetFormulaCopyTo(origin, originRow, originCol + 1));
-
-            // copy to row - 1
-            Assert.AreEqual("C5*10", GetFormulaCopyTo(origin, originRow - 1, originCol));
-
-            // copy to column -1
-            Assert.AreEqual("B6*10", GetFormulaCopyTo(origin, originRow, originCol - 1));
-
-            // copy to row + 1,column + 1
-            Assert.AreEqual("D7*10", GetFormulaCopyTo(origin, originRow + 1, originCol + 1));
-
-            // copy to row + 1, column - 1
-            Assert.AreEqual("B7*10", GetFormulaCopyTo(origin, originRow + 1, originCol - 1));
-
-            // copy to row - 1, column - 1
-            Assert.AreEqual("B5*10", GetFormulaCopyTo(origin, originRow - 1, originCol - 1));
-
-            // copy to row - 1, column + 1
-            Assert.AreEqual("D5*10", GetFormulaCopyTo(origin, originRow - 1, originCol + 1));
-        }
-
-        private string GetFormulaCopyTo(ExcelRange origin, int toRow, int toCol)
-        {
-            var target = origin.Worksheet.Cells[toRow, toCol];
-            origin.Copy(target);
-
-            return target.Formula;
         }
         [TestMethod]
         public void TableTest()
