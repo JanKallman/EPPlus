@@ -105,7 +105,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Allows the column to be hidden in the worksheet
 		/// </summary>
-        bool _hidden=false;
+        internal bool _hidden=false;
         public bool Hidden
 		{
 			get

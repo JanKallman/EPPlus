@@ -454,6 +454,15 @@ namespace OfficeOpenXml
         internal static AddressType IsValid(string Address)
         {
             string ws="";
+            if (Address.StartsWith("'"))
+            {
+                int ix = Address.IndexOf('\'', 1);
+                if (ix > -1)
+                {
+                    ws = Address.Substring(1, ix-1);
+                    Address = Address.Substring(ix + 2);
+                }
+            }
             if (Address.IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=','^','&','%','\"' })>-1)
             {
                 return AddressType.Invalid;

@@ -270,7 +270,7 @@ namespace OfficeOpenXml
 				_name = value;
             }
 		}
-        private ExcelNamedRangeCollection _names;
+        internal ExcelNamedRangeCollection _names;
         /// <summary>
         /// Provides access to named ranges
         /// </summary>
@@ -797,7 +797,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            cell.Hyperlink = new ExcelHyperLink(uri);
+                            cell.Hyperlink = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
                         }
                         Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                     }
@@ -1182,8 +1182,7 @@ namespace OfficeOpenXml
                 {
                     int maxCol = column.ColumnMax;
                     column.ColumnMax=col;
-                    ExcelColumn copy = CopyColumn(column, col+1);
-                    copy.ColumnMax = maxCol;
+                    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
                 }
             }
             else
@@ -1196,10 +1195,9 @@ namespace OfficeOpenXml
                         checkColumn.ColumnMax = col - 1;
                         if (maxCol > col)
                         {
-                            ExcelColumn newC = CopyColumn(checkColumn, col + 1);
-                            newC.ColumnMax = maxCol;
+                            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
                         }
-                        return CopyColumn(checkColumn, col);                        
+                        return CopyColumn(checkColumn, col,col);                        
                     }
                 }
                 column = new ExcelColumn(this, col);
@@ -1214,17 +1212,18 @@ namespace OfficeOpenXml
         public override string ToString()
         {
             return Name;
-        } 
-        internal ExcelColumn CopyColumn(ExcelColumn c, int col)
+        }
+        internal ExcelColumn CopyColumn(ExcelColumn c, int col, int maxCol)
         {
             ExcelColumn newC = new ExcelColumn(this, col);
+            newC.ColumnMax = maxCol;
             if (c.StyleName != "")
                 newC.StyleName = c.StyleName;
             else
                 newC.StyleID = c.StyleID;
 
-            newC.Width = c.Width;
-            newC.Hidden = c.Hidden;
+            newC._width = c._width;
+            newC._hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
             newC.Phonetic = c.Phonetic;
             newC.BestFit = c.BestFit;
@@ -2775,22 +2774,5 @@ namespace OfficeOpenXml
                 n.ParentNode.RemoveChild(n);
             }
         }
-        //List<IFormulaCell> _fc = null;
-        //public List<ExcelRange> FormulaCells
-        //{
-        //    get 
-        //    {
-        //        if (_fc == null)
-        //        {
-        //            _fc = new List<ExcelRange>();
-        //            foreach (var r in _sharedFormulas)
-        //            {
-        //                _fc.Add(new IFormulaCell))
-        //            }
-        //        }
-        //        return _fc;
-        //    }
-        //}
-
     }  // END class Worksheet
 }

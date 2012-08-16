@@ -355,8 +355,7 @@ namespace OfficeOpenXml
 					{
 						if (column.ColumnMax > _toCol)
 						{
-							var newCol = _worksheet.CopyColumn(column, _toCol + 1);
-							newCol.ColumnMax = column.ColumnMax;
+                            var newCol = _worksheet.CopyColumn(column, _toCol + 1, column.ColumnMax);
 							column.ColumnMax = _toCol;
 						}
 
@@ -2251,6 +2250,6 @@ namespace OfficeOpenXml
 			}
 			_index--;
 		}
-	}
-		#endregion
+    #endregion
+    }
 }

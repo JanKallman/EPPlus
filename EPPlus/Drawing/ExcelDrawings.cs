@@ -285,6 +285,17 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelPicture AddPicture(string Name, Image image)
             {
+               return AddPicture(Name, image, null);
+            }
+            /// <summary>
+            /// Add a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="image">An image. Allways saved in then JPeg format</param>
+            /// <param name="Hyperlink">Picture Hyperlink</param>
+            /// <returns></returns>
+            public ExcelPicture AddPicture(string Name, Image image, Uri Hyperlink)
+            {
                 if (image != null)
                 {
                     if (_drawingNames.ContainsKey(Name.ToLower()))
@@ -293,7 +304,7 @@ namespace OfficeOpenXml.Drawing
                     }
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
-                    ExcelPicture pic = new ExcelPicture(this, drawNode, image);
+                    ExcelPicture pic = new ExcelPicture(this, drawNode, image, Hyperlink);
                     pic.Name = Name;
                     _drawings.Add(pic);
                     _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
@@ -309,22 +320,34 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
             {
-                if (ImageFile != null)
-                {
-                    if (_drawingNames.ContainsKey(Name.ToLower()))
-                    {
-                        throw new Exception("Name already exists in the drawings collection");
-                    }
-                    XmlElement drawNode = CreateDrawingXml();
-                    drawNode.SetAttribute("editAs", "oneCell");
-                    ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile);
-                    pic.Name = Name;
-                    _drawings.Add(pic);
-                    _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
-                    return pic;
-                }
-                throw (new Exception("AddPicture: ImageFile can't be null"));
+               return AddPicture(Name, ImageFile, null);
             }
+            /// <summary>
+            /// Add a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="ImageFile">The image file</param>
+            /// <param name="Hyperlink">Picture Hyperlink</param>
+            /// <returns></returns>
+            public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink)
+            {
+               if (ImageFile != null)
+               {
+                  if (_drawingNames.ContainsKey(Name.ToLower()))
+                  {
+                     throw new Exception("Name already exists in the drawings collection");
+                  }
+                  XmlElement drawNode = CreateDrawingXml();
+                  drawNode.SetAttribute("editAs", "oneCell");
+                  ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile, Hyperlink);
+                  pic.Name = Name;
+                  _drawings.Add(pic);
+                  _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                  return pic;
+               }
+               throw (new Exception("AddPicture: ImageFile can't be null"));
+            }
+
         /// <summary>
         /// Add a new shape to the worksheet
         /// </summary>
