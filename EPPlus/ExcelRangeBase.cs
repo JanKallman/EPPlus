@@ -1714,7 +1714,7 @@ namespace OfficeOpenXml
 		/// Default settings is Comma separation
 		/// </summary>
 		/// <param name="Text">The Text</param>
-		/// <returns>The range containg the data</returns>
+		/// <returns>The range containing the data</returns>
 		public ExcelRangeBase LoadFromText(string Text)
 		{
 			return LoadFromText(Text, new ExcelTextFormat());
@@ -1724,7 +1724,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="Text">The Text</param>
 		/// <param name="Format">Information how to load the text</param>
-		/// <returns>The range containg the data</returns>
+		/// <returns>The range containing the data</returns>
 		public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
 		{
 			if (Format == null) Format = new ExcelTextFormat();
