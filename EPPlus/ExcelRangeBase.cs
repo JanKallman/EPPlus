@@ -552,7 +552,7 @@ namespace OfficeOpenXml
 			}
 		}
 		/// <summary>
-		/// Returns the formated value.
+		/// Returns the formatted value.
 		/// </summary>
 		public string Text
 		{
@@ -564,7 +564,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
 		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-		/// Wraped and merged cells are also ignored.
+		/// Wrapped and merged cells are also ignored.
 		/// </summary>
 		public void AutoFitColumns()
 		{
@@ -573,7 +573,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Set the column width from the content of the range.
 		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-		///       Wraped and merged cells are also ignored.
+		///       Wrapped and merged cells are also ignored.
 		/// </summary>
 		/// <param name="MinimumWidth">Minimum column width</param>
 		public void AutoFitColumns(double MinimumWidth)
@@ -1567,7 +1567,7 @@ namespace OfficeOpenXml
 		/// <param name="Data">The data.</param>
 		public ExcelRangeBase LoadFromArrays(IEnumerable<object[]> Data)
 		{
-			//thanx to Abdullin for the code contibution
+			//thanx to Abdullin for the code contribution
 			if (Data == null) throw new ArgumentNullException("data");
 
 			int column = _fromCol, row = _fromRow;
@@ -1587,7 +1587,7 @@ namespace OfficeOpenXml
 		#endregion
 		#region LoadFromCollection
 		/// <summary>
-		/// Load a collection into a the worksheet startng from the top left row of the range.
+		/// Load a collection into a the worksheet starting from the top left row of the range.
 		/// </summary>
 		/// <typeparam name="T">The datatype in the collection</typeparam>
 		/// <param name="Collection">The collection to load</param>
