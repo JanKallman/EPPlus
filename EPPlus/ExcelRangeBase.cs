@@ -1509,9 +1509,10 @@ namespace OfficeOpenXml
 		/// <param name="Table">The datatable to load</param>
 		/// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
 		/// <param name="TableStyle">The table style to apply to the data</param>
-		public void LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
+		/// <returns>The filled range</returns>
+		public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
 		{
-			LoadFromDataTable(Table, PrintHeaders);
+			var r = LoadFromDataTable(Table, PrintHeaders);
 
 			int rows = Table.Rows.Count + (PrintHeaders ? 1 : 0) - 1;
             if (rows >= 0 && Table.Columns.Count>0)
@@ -1520,13 +1521,15 @@ namespace OfficeOpenXml
 				tbl.ShowHeader = PrintHeaders;
 				tbl.TableStyle = TableStyle;
 			}
+		    return r;
 		}
 		/// <summary>
 		/// Load the data from the datatable starting from the top left cell of the range
 		/// </summary>
 		/// <param name="Table">The datatable to load</param>
 		/// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
-		public void LoadFromDataTable(DataTable Table, bool PrintHeaders)
+		/// <returns>The filled range</returns>
+		public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders)
 		{
 			if (Table == null)
 			{
@@ -1553,6 +1556,7 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
+			return _worksheet.Cells[_fromRow, _fromCol, row - 1, Table.Columns.Count];
 		}
 		#endregion
 		#region LoadFromArrays
