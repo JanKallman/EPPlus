@@ -570,6 +570,7 @@ namespace OfficeOpenXml
 		{
 			AutoFitColumns(_worksheet.DefaultColWidth);
 		}
+
 		/// <summary>
 		/// Set the column width from the content of the range.
 		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
@@ -577,6 +578,18 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <param name="MinimumWidth">Minimum column width</param>
 		public void AutoFitColumns(double MinimumWidth)
+		{
+		    AutoFitColumns(MinimumWidth, double.MaxValue);
+		}
+
+	    /// <summary>
+	    /// Set the column width from the content of the range.
+	    /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+	    ///       Wrapped and merged cells are also ignored.
+	    /// </summary>
+	    /// <param name="MinimumWidth">Minimum column width</param>
+	    /// <param name="MaximumWidth">Maximum column width</param>
+	    public void AutoFitColumns(double MinimumWidth, double MaximumWidth)
 		{
 			if (_fromCol < 1 || _fromRow < 1)
 			{
@@ -683,7 +696,7 @@ namespace OfficeOpenXml
 
 						if (width > _worksheet.Column(cell._fromCol).Width)
 						{
-							_worksheet.Column(cell._fromCol).Width = width;
+							_worksheet.Column(cell._fromCol).Width = width > MaximumWidth ? MaximumWidth : width;
 						}
 					}
 				}
@@ -691,6 +704,7 @@ namespace OfficeOpenXml
 			_worksheet.Drawings.AdjustWidth(drawWidths);
 			_worksheet._package.DoAdjustDrawings = doAdjust;
 		}
+
 		internal string TextForWidth
 		{
 			get
