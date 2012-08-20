@@ -79,6 +79,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Calculation\ICalcEngineFormulaInfo.cs" />
+    <Compile Include="Calculation\ICalcEngineValueInfo.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationDateTime.cs" />

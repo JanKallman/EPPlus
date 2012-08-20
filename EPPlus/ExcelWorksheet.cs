@@ -51,6 +51,7 @@ using OfficeOpenXml.DataValidation;
 using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
+using OfficeOpenXml.Calculation;
 
 namespace OfficeOpenXml
 {
@@ -75,7 +76,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-	public sealed class ExcelWorksheet : XmlHelper
+	public sealed class ExcelWorksheet : XmlHelper, ICalcEngineFormulaInfo, ICalcEngineValueInfo
 	{
         internal class Formulas
         {
@@ -267,7 +268,7 @@ namespace OfficeOpenXml
 				_name = value;
             }
 		}
-        private ExcelNamedRangeCollection _names;
+        internal ExcelNamedRangeCollection _names;
         /// <summary>
         /// Provides access to named ranges
         /// </summary>
@@ -2670,5 +2671,86 @@ namespace OfficeOpenXml
         {
             SetXmlNodeString("d:legacyDrawingHF/@r:id", relID);
         }
+
+        #region Formulas
+        Dictionary<string, string> ICalcEngineFormulaInfo.GetFormulas()
+        {
+            Dictionary<string, string> fs = new Dictionary<string, string>();
+
+            //Single Cell Formulas
+            foreach (var r in _formulaCells)
+            {
+                var f = (ExcelCell)r;
+                fs.Add(f.CellAddress, f._formula);
+            }
+
+            //Shared Formulas
+            foreach (var sf in _sharedFormulas.Values)
+            {
+                fs.Add(sf.Address, sf.Formula);
+            }
+
+            //Name formulas
+            foreach (var n in _names)
+            {
+                if (!string.IsNullOrEmpty(n.NameFormula))
+                {
+                    fs.Add(n.Name, n.NameFormula);
+                }
+            }
+            return fs;
+        }
+
+
+
+        Dictionary<string, object> ICalcEngineFormulaInfo.GetNameValues()
+        {
+            Dictionary<string, object> nv = new Dictionary<string, object>();
+            //Name formulas
+            foreach (var n in _names)
+            {
+                if (string.IsNullOrEmpty(n.NameFormula))
+                {
+                    nv.Add(n.Name, n.Value);
+                }
+            }
+            return nv;
+        }
+
+        object ICalcEngineValueInfo.GetValue(int row, int col)
+        {
+            return ((ExcelCell)_cells[ExcelCell.GetCellID(SheetID, row, col)]).Value;
+        }
+
+
+
+        bool ICalcEngineValueInfo.IsHidden(int row, int col)
+        {
+            var colID = ExcelColumn.GetColumnID(_sheetID, col);
+            if (_columns.ContainsKey(colID))
+            {
+                if (((ExcelColumn)_columns[col]).Width == 0)
+                {
+                    return true;
+                }
+            }
+            var rowID = ExcelRow.GetRowID(_sheetID, row);
+            if (_rows.ContainsKey(rowID))
+            {
+                if (((ExcelRow)_rows[rowID]).Height == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+
+        void ICalcEngineValueInfo.SetFormulaValue(int row, int col, object value)
+        {
+            ((ExcelCell)_cells[ExcelCell.GetCellID(SheetID, row, col)])._value = value;
+        }
+        #endregion
     }  // END class Worksheet
 }
