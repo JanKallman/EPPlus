@@ -38,6 +38,7 @@ using System.Text;
 using System.Security;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Calculation;
 
 namespace OfficeOpenXml
 {
@@ -68,7 +69,7 @@ namespace OfficeOpenXml
 	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
-	public sealed class ExcelWorkbook : XmlHelper
+    public sealed class ExcelWorkbook : XmlHelper, ICalcEngineFormulaInfo
 	{
 		internal class SharedStringItem
 		{
@@ -882,5 +883,34 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
+        Dictionary<string,string> ICalcEngineFormulaInfo.GetFormulas()
+        {
+            Dictionary<string,string> fs = new Dictionary<string, string>();
+            //Name formulas
+            foreach (var n in _names)
+            {
+                if (!string.IsNullOrEmpty(n.NameFormula))
+                {
+                    fs.Add(n.Name, n.NameFormula);
+                }
+            }
+            return fs;
+        }
+
+        Dictionary<string, object> ICalcEngineFormulaInfo.GetNameValues()
+        {
+            Dictionary<string, object> nv = new Dictionary<string, object>();
+            //Name formulas
+            foreach (var n in _names)
+            {
+                if (string.IsNullOrEmpty(n.NameFormula))
+                {
+                    nv.Add(n.Name, n.Value);
+                }
+            }
+
+            return nv;
+        }
 	} // end Workbook
 }

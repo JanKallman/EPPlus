@@ -47,12 +47,13 @@ using OfficeOpenXml.DataValidation.Contracts;
 using System.Reflection;
 using OfficeOpenXml.Style.XmlAccess;
 using System.Security;
+using OfficeOpenXml.Calculation;
 namespace OfficeOpenXml
 {
     /// <summary>
     /// A range of cells 
     /// </summary>
-    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
+    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>, ICalcEngineFormulaInfo, ICalcEngineValueInfo
     {
         /// <summary>
         /// Reference to the worksheet
@@ -2019,6 +2020,87 @@ namespace OfficeOpenXml
                 }
             }
         }
+        #endregion
+
+        #region Calculation
+        Dictionary<string, string> ICalcEngineFormulaInfo.GetFormulas()
+        {
+            Dictionary<string, string> fs = new Dictionary<string, string>();
+
+            //Single Cell Formulas
+            foreach (var r in _worksheet._formulaCells)
+            {
+                var f = (ExcelCell)r;
+                if (Collide(new ExcelAddress(f.CellAddress)) != eAddressCollition.No)
+                {
+                    fs.Add(f.CellAddress, f._formula);
+                }
+            }
+
+            //Shared Formulas
+            foreach (var sf in _worksheet._sharedFormulas.Values)
+            {
+                if (Collide(new ExcelAddress(sf.Address)) != eAddressCollition.No)
+                {
+                    fs.Add(sf.Address, sf.Formula);
+                }
+            }
+            return fs;
+        }
+
+
+
+        Dictionary<string, object> ICalcEngineFormulaInfo.GetNameValues()
+        {
+
+           Dictionary<string,object> nv = new Dictionary<string, object>();
+
+           //Name formulas
+            foreach (var n in _worksheet._names)
+            {
+
+                if (string.IsNullOrEmpty(n.NameFormula))
+                {
+                    nv.Add(n.Name, n.Value);
+                }
+            }
+           return nv;
+        }
+
+        object ICalcEngineValueInfo.GetValue(int row, int col)
+        {
+            return ((ExcelCell)_worksheet._cells[ExcelCell.GetCellID(_worksheet.SheetID, row, col)]).Value;
+        }
+
+
+
+        bool ICalcEngineValueInfo.IsHidden(int row, int col)
+        {
+            var colID = ExcelColumn.GetColumnID(_worksheet.SheetID, col);
+            if (_worksheet._columns.ContainsKey(colID))
+            {
+                if (((ExcelColumn)_worksheet._columns[col]).Width == 0)
+                {
+                    return true;
+                }
+            }
+            var rowID = ExcelRow.GetRowID(_worksheet.SheetID, row);
+            if (_worksheet._rows.ContainsKey(rowID))
+            {
+                if (((ExcelRow)_worksheet._rows[rowID]).Height == 0)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+
+        void ICalcEngineValueInfo.SetFormulaValue(int row, int col, object value)
+        {
+            ((ExcelCell)_worksheet._cells[ExcelCell.GetCellID(_worksheet.SheetID, row, col)])._value = value;
+        } 
         #endregion
         #region IDisposable Members
 
