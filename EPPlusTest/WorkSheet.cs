@@ -762,6 +762,29 @@ namespace EPPlusTest
             ws.Cells["G4:H5"].Merge = true;
             ws.Cells["B3:C5"].Copy(ws.Cells["G4"]);
         }
+
+        [TestMethod]
+        public void CopyMergedRange()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyMergedRangeTest");
+
+            ws.Cells["A11:C11"].Merge = true;
+            ws.Cells["A12:C12"].Merge = true;
+
+            var source = ws.Cells["A11:C12"];
+            var target = ws.Cells["A21"];
+
+            source.Copy(target);
+
+            var a21 = ws.Cell(21, 1);
+            var a22 = ws.Cell(22, 1);
+
+            Assert.IsTrue(a21.Merge);
+            Assert.IsTrue(a22.Merge);
+
+            Assert.AreNotEqual(a21.MergeId, a22.MergeId);
+        }
+
         [TestMethod]
         public void CopyPivotTable()
         {

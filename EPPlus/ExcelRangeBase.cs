@@ -1931,108 +1931,123 @@ namespace OfficeOpenXml
 		/// <param name="Destination">The start cell where the range will be copied.</param>
 		public void Copy(ExcelRangeBase Destination)
 		{
-			bool sameWorkbook = Destination._worksheet.Workbook == _worksheet.Workbook;
-			ExcelStyles sourceStyles = _worksheet.Workbook.Styles,
-									styles = Destination._worksheet.Workbook.Styles;
-			Dictionary<int, int> styleCashe = new Dictionary<int, int>();
+            bool sameWorkbook = Destination._worksheet.Workbook == _worksheet.Workbook;
+            ExcelStyles sourceStyles = _worksheet.Workbook.Styles,
+                                    styles = Destination._worksheet.Workbook.Styles;
+            Dictionary<int, int> styleCashe = new Dictionary<int, int>();
 
-			//Delete all existing cells;            
-			List<ExcelCell> newCells = new List<ExcelCell>();
-			Dictionary<ulong, ExcelCell> mergedCells = new Dictionary<ulong, ExcelCell>();
-			foreach (var cell in this)
-			{
-				//Clone the cell
-				var copiedCell = (_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell);
+            //Delete all existing cells;            
+            List<ExcelCell> newCells = new List<ExcelCell>();
+            Dictionary<ulong, ExcelCell> mergedCells = new Dictionary<ulong, ExcelCell>();
+            foreach (var cell in this)
+            {
+                //Clone the cell
+                var copiedCell = (_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell);
 
-				var newCell = copiedCell.Clone(Destination._worksheet,
-						Destination._fromRow + (copiedCell.Row - _fromRow),
-						Destination._fromCol + (copiedCell.Column - _fromCol));
+                var newCell = copiedCell.Clone(Destination._worksheet,
+                        Destination._fromRow + (copiedCell.Row - _fromRow),
+                        Destination._fromCol + (copiedCell.Column - _fromCol));
 
-				//If the formula is shared, remove the shared ID and set the formula for the cell.
-				if (newCell._sharedFormulaID >= 0)
-				{
-					newCell._sharedFormulaID = int.MinValue;
-					newCell.Formula = cell.Formula;
-				}
+                newCell.MergeId = _worksheet.GetMergeCellId(copiedCell.Row, copiedCell.Column);
 
-				if (!string.IsNullOrEmpty(newCell.Formula))
-				{
-					newCell.Formula = ExcelCell.UpdateFormulaReferences(newCell.Formula, newCell.Row - copiedCell.Row, (newCell.Column - copiedCell.Column), 1, 1);
-				}
+                //If the formula is shared, remove the shared ID and set the formula for the cell.
+                if (newCell._sharedFormulaID >= 0)
+                {
+                    newCell._sharedFormulaID = int.MinValue;
+                    newCell.Formula = cell.Formula;
+                }
 
-				//If its not the same workbook we must copy the styles to the new workbook.
-				if (!sameWorkbook)
-				{
-					if (styleCashe.ContainsKey(cell.StyleID))
-					{
-						newCell.StyleID = styleCashe[cell.StyleID];
-					}
-					else
-					{
-						newCell.StyleID = styles.CloneStyle(sourceStyles, cell.StyleID);
-						styleCashe.Add(cell.StyleID, newCell.StyleID);
-					}
-				}
-				newCells.Add(newCell);
-				if (newCell.Merge) mergedCells.Add(newCell.CellID, newCell);
-			}
+                if (!string.IsNullOrEmpty(newCell.Formula))
+                {
+                    newCell.Formula = ExcelCell.UpdateFormulaReferences(newCell.Formula, newCell.Row - copiedCell.Row, (newCell.Column - copiedCell.Column), 1, 1);
+                }
 
-			//Now clear the destination.
-			Destination.Offset(0, 0, (_toRow - _fromRow) + 1, (_toCol - _fromCol) + 1).Clear();
+                //If its not the same workbook we must copy the styles to the new workbook.
+                if (!sameWorkbook)
+                {
+                    if (styleCashe.ContainsKey(cell.StyleID))
+                    {
+                        newCell.StyleID = styleCashe[cell.StyleID];
+                    }
+                    else
+                    {
+                        newCell.StyleID = styles.CloneStyle(sourceStyles, cell.StyleID);
+                        styleCashe.Add(cell.StyleID, newCell.StyleID);
+                    }
+                }
+                newCells.Add(newCell);
+                if (newCell.Merge) mergedCells.Add(newCell.CellID, newCell);
+            }
 
-			//And last add the new cells to the worksheet
-			foreach (var cell in newCells)
-			{
-				Destination.Worksheet._cells.Add(cell);
-			}
-			//Add merged cells
-			if (mergedCells.Count > 0)
-			{
-				List<ExcelAddressBase> mergedAddresses = new List<ExcelAddressBase>();
-				foreach (var cell in mergedCells.Values)
-				{
-					if (!IsAdded(cell, mergedAddresses))
-					{
-						int startRow = cell.Row, startCol = cell.Column, endRow = cell.Row, endCol = cell.Column + 1;
-						while (mergedCells.ContainsKey(ExcelCell.GetCellID(Destination.Worksheet.SheetID, endRow, endCol)))
-						{
-							endCol++;
-						}
+            //Now clear the destination.
+            Destination.Offset(0, 0, (_toRow - _fromRow) + 1, (_toCol - _fromCol) + 1).Clear();
 
-						while (IsMerged(mergedCells, Destination.Worksheet, endRow, startCol, endCol - 1))
-						{
-							endRow++;
-						}
+            //And last add the new cells to the worksheet
+            foreach (var cell in newCells)
+            {
+                Destination.Worksheet._cells.Add(cell);
+            }
+            //Add merged cells
+            if (mergedCells.Count > 0)
+            {
+                List<ExcelAddressBase> mergedAddresses = new List<ExcelAddressBase>();
+                foreach (var cell in mergedCells.Values)
+                {
+                    if (!IsAdded(cell, mergedAddresses))
+                    {
+                        int startRow = cell.Row, startCol = cell.Column, endRow = cell.Row, endCol = cell.Column + 1;
+                        while (mergedCells.ContainsKey(ExcelCell.GetCellID(Destination.Worksheet.SheetID, endRow, endCol)))
+                        {
+                            ExcelCell next = mergedCells[ExcelCell.GetCellID(Destination.Worksheet.SheetID, endRow, endCol)];
+                            if (cell.MergeId != next.MergeId)
+                            {
+                                break;
+                            }
+                            endCol++;
+                        }
 
-						mergedAddresses.Add(new ExcelAddressBase(startRow, startCol, endRow - 1, endCol - 1));
-					}
-				}
-				Destination.Worksheet.MergedCells.List.AddRange((from r in mergedAddresses select r.Address));
-			}
+                        while (IsMerged(mergedCells, Destination.Worksheet, endRow, startCol, endCol - 1, cell))
+                        {
+                            endRow++;
+                        }
+
+                        mergedAddresses.Add(new ExcelAddressBase(startRow, startCol, endRow - 1, endCol - 1));
+                    }
+                }
+                Destination.Worksheet.MergedCells.List.AddRange((from r in mergedAddresses select r.Address));
+            }
 		}
 
 		private bool IsAdded(ExcelCell cell, List<ExcelAddressBase> mergedAddresses)
 		{
-			foreach (var address in mergedAddresses)
-			{
-				if (address.Collide(new ExcelAddressBase(cell.CellAddress)) == eAddressCollition.Inside)
-				{
-					return true;
-				}
-			}
-			return false;
+            foreach (var address in mergedAddresses)
+            {
+                if (address.Collide(new ExcelAddressBase(cell.CellAddress)) == eAddressCollition.Inside)
+                {
+                    return true;
+                }
+            }
+            return false;
 		}
 
-		private bool IsMerged(Dictionary<ulong, ExcelCell> mergedCells, ExcelWorksheet worksheet, int row, int startCol, int endCol)
+		private bool IsMerged(Dictionary<ulong, ExcelCell> mergedCells, ExcelWorksheet worksheet, int row, int startCol, int endCol, ExcelCell cell)
 		{
-			for (int col = startCol; col <= endCol; col++)
-			{
-				if (!mergedCells.ContainsKey(ExcelCell.GetCellID(worksheet.SheetID, row, col)))
-				{
-					return false;
-				}
-			}
-			return true;
+            for (int col = startCol; col <= endCol; col++)
+            {
+                if (!mergedCells.ContainsKey(ExcelCell.GetCellID(worksheet.SheetID, row, col)))
+                {
+                    return false;
+                }
+                else
+                {
+                    ExcelCell next = mergedCells[ExcelCell.GetCellID(worksheet.SheetID, row, col)];
+                    if (cell.MergeId != next.MergeId)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
 		}
 
 		/// <summary>

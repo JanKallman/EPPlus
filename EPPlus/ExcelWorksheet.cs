@@ -1858,6 +1858,33 @@ namespace OfficeOpenXml
             }
             Cell(row, col).Value = Value;
         }
+
+        #region MergeCellId
+
+        /// <summary>
+        /// Get MergeCell Index No
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public int GetMergeCellId(int row, int column)
+        {
+            for (int i = 0; i < _mergedCells.Count; i++)
+            {
+                ExcelRange range = Cells[_mergedCells[i]];
+
+                if (range.Start.Row <= row && row <= range.End.Row)
+                {
+                    if (range.Start.Column <= column && column <= range.End.Column)
+                    {
+                        return i + 1;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        #endregion
 		#endregion // END Worksheet Public Methods
 
 		#region Worksheet Private Methods
