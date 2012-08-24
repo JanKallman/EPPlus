@@ -48,7 +48,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <param name="topNode"></param>
     /// <param name="nameSpaceManager"></param>
     /// <returns></returns>
-    public static eExcelConditionalFormattingRuleType GetTypeByAttrbiute(
+    internal static eExcelConditionalFormattingRuleType GetTypeByAttrbiute(
       string attribute,
       XmlNode topNode,
       XmlNamespaceManager nameSpaceManager)
@@ -130,13 +130,33 @@ namespace OfficeOpenXml.ConditionalFormatting
         case ExcelConditionalFormattingConstants.RuleType.ColorScale:
           return GetColorScaleType(
             topNode,
-            nameSpaceManager);
-
-        //TODO: Add DataBar and IconSet
+            nameSpaceManager);        
+        case ExcelConditionalFormattingConstants.RuleType.IconSet:
+            return GetIconSetType(topNode, nameSpaceManager);
+        case ExcelConditionalFormattingConstants.RuleType.DataBar:
+            return eExcelConditionalFormattingRuleType.DataBar;
      }
 
       throw new Exception(
         ExcelConditionalFormattingConstants.Errors.UnexpectedRuleTypeAttribute);
+    }
+
+    private static eExcelConditionalFormattingRuleType GetIconSetType(XmlNode topNode, XmlNamespaceManager nameSpaceManager)
+    {
+        var v = topNode.SelectSingleNode("d:iconSet/@iconSet", nameSpaceManager).Value;
+
+        if (v[0] == '3')
+        {
+            return eExcelConditionalFormattingRuleType.ThreeIconSet;
+        }
+        else if (v[0] == '4')
+        {
+            return eExcelConditionalFormattingRuleType.FourIconSet;
+        }
+        else
+        {
+          return eExcelConditionalFormattingRuleType.FiveIconSet;
+        }
     }
 
     /// <summary>
@@ -144,7 +164,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// If we have excatly 2 "cfvo" and "color" childs, then we return "twoColorScale"
     /// </summary>
     /// <returns>TwoColorScale or ThreeColorScale</returns>
-    public static eExcelConditionalFormattingRuleType GetColorScaleType(
+    internal static eExcelConditionalFormattingRuleType GetColorScaleType(
       XmlNode topNode,
       XmlNamespaceManager nameSpaceManager)
     {
@@ -192,7 +212,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// @AboveAverage = "0" and @EqualAverage = "1"           == BelowOrEqualAverage
     /// /// </summary>
     /// <returns>AboveAverage, AboveOrEqualAverage, BelowAverage or BelowOrEqualAverage</returns>
-    public static eExcelConditionalFormattingRuleType GetAboveAverageType(
+    internal static eExcelConditionalFormattingRuleType GetAboveAverageType(
       XmlNode topNode,
       XmlNamespaceManager nameSpaceManager)
     {

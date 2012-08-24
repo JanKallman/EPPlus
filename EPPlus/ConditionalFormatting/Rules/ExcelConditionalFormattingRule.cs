@@ -51,7 +51,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /****************************************************************************************/
 
     #region Private Properties
-    private eExcelConditionalFormattingRuleType _type;
+    private eExcelConditionalFormattingRuleType? _type;
     private ExcelWorksheet _worksheet;
 
     /// <summary>
@@ -223,14 +223,19 @@ namespace OfficeOpenXml.ConditionalFormatting
       get
       {
         // Transform the @type attribute to EPPlus Rule Type (slighty diferente)
-        return ExcelConditionalFormattingRuleType.GetTypeByAttrbiute(
+        if(_type==null)
+        {
+          _type = ExcelConditionalFormattingRuleType.GetTypeByAttrbiute(
           GetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute),
           TopNode,
           _worksheet.NameSpaceManager);
+        }
+        return (eExcelConditionalFormattingRuleType)_type;
       }
       internal set
       {
-        // Transform the EPPlus Rule Type to @type attribute (slighty diferente)
+          _type = value;
+          // Transform the EPPlus Rule Type to @type attribute (slighty diferente)
         SetXmlNodeString(
           ExcelConditionalFormattingConstants.Paths.TypeAttribute,
           ExcelConditionalFormattingRuleType.GetAttributeByType(value),

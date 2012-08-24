@@ -45,7 +45,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 	/// 18.3.1.11 cfvo (Conditional Format Value Object)
 	/// Describes the values of the interpolation points in a gradient scale.
 	/// </summary>
-	public class ExcelConditionalFormattingValueObject
+	public class ExcelConditionalFormattingColorScaleValue
 		: XmlHelper
 	{
 		/****************************************************************************************/
@@ -74,7 +74,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <param name="itemElementNode">The cfvo (§18.3.1.11) node parent. Can be any of the following:
     /// colorScale (§18.3.1.16); dataBar (§18.3.1.28); iconSet (§18.3.1.49)</param>
     /// <param name="namespaceManager"></param>
-		internal ExcelConditionalFormattingValueObject(
+		internal ExcelConditionalFormattingColorScaleValue(
 			eExcelConditionalFormattingValueObjectPosition position,
 			eExcelConditionalFormattingValueObjectType type,
 			Color color,
@@ -161,7 +161,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 		}
 
 		/// <summary>
-		/// Initialize the <see cref="ExcelConditionalFormattingValueObject"/>
+		/// Initialize the <see cref="ExcelConditionalFormattingColorScaleValue"/>
 		/// </summary>
 		/// <param name="position"></param>
 		/// <param name="type"></param>
@@ -173,7 +173,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// <param name="address"></param>
 		/// <param name="worksheet"></param>
 		/// <param name="namespaceManager"></param>
-		internal ExcelConditionalFormattingValueObject(
+		internal ExcelConditionalFormattingColorScaleValue(
 			eExcelConditionalFormattingValueObjectPosition position,
 			eExcelConditionalFormattingValueObjectType type,
 			Color color,
@@ -200,7 +200,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 		}
 
 		/// <summary>
-		/// Initialize the <see cref="ExcelConditionalFormattingValueObject"/>
+		/// Initialize the <see cref="ExcelConditionalFormattingColorScaleValue"/>
 		/// </summary>
 		/// <param name="position"></param>
 		/// <param name="type"></param>
@@ -210,7 +210,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// <param name="address"></param>
 		/// <param name="worksheet"></param>
 		/// <param name="namespaceManager"></param>
-		internal ExcelConditionalFormattingValueObject(
+		internal ExcelConditionalFormattingColorScaleValue(
 			eExcelConditionalFormattingValueObjectPosition position,
 			eExcelConditionalFormattingValueObjectType type,
 			Color color,

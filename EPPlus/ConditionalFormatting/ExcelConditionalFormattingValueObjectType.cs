@@ -37,7 +37,7 @@ using System.Xml;
 namespace OfficeOpenXml.ConditionalFormatting
 {
 	/// <summary>
-	/// Functions related to the <see cref="ExcelConditionalFormattingValueObject"/>
+	/// Functions related to the <see cref="ExcelConditionalFormattingColorScaleValue"/>
 	/// </summary>
 	internal static class ExcelConditionalFormattingValueObjectType
 	{
@@ -188,13 +188,13 @@ namespace OfficeOpenXml.ConditionalFormatting
 					return ExcelConditionalFormattingConstants.Paths.ColorScale;
 
 				case eExcelConditionalFormattingRuleType.ThreeIconSet:
-        case eExcelConditionalFormattingRuleType.FourIconSet:
-        case eExcelConditionalFormattingRuleType.FiveIconSet:
-					return ExcelConditionalFormattingConstants.Paths.IconSet;
+                case eExcelConditionalFormattingRuleType.FourIconSet:
+                case eExcelConditionalFormattingRuleType.FiveIconSet:
+					        return ExcelConditionalFormattingConstants.Paths.IconSet;
 
-        case eExcelConditionalFormattingRuleType.DataBar:
-          return ExcelConditionalFormattingConstants.Paths.DataBar;
-      }
+                case eExcelConditionalFormattingRuleType.DataBar:
+                  return ExcelConditionalFormattingConstants.Paths.DataBar;
+              }
 
 			return string.Empty;
 		}

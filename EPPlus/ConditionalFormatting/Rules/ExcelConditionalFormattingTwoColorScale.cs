@@ -51,12 +51,12 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Private Low Value
     /// </summary>
-    private ExcelConditionalFormattingValueObject _lowValue;
+    private ExcelConditionalFormattingColorScaleValue _lowValue;
 
     /// <summary>
     /// Private High Value
     /// </summary>
-    private ExcelConditionalFormattingValueObject _highValue;
+    private ExcelConditionalFormattingColorScaleValue _highValue;
     #endregion Private Properties
 
     /****************************************************************************************/
@@ -90,7 +90,7 @@ namespace OfficeOpenXml.ConditionalFormatting
         ExcelConditionalFormattingConstants.Paths.ColorScale);
 
       // LowValue default
-      LowValue = new ExcelConditionalFormattingValueObject(
+      LowValue = new ExcelConditionalFormattingColorScaleValue(
         eExcelConditionalFormattingValueObjectPosition.Low,
         eExcelConditionalFormattingValueObjectType.Min,
         ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
@@ -101,7 +101,7 @@ namespace OfficeOpenXml.ConditionalFormatting
         NameSpaceManager);
 
       // HighValue default
-      HighValue = new ExcelConditionalFormattingValueObject(
+      HighValue = new ExcelConditionalFormattingColorScaleValue(
         eExcelConditionalFormattingValueObjectPosition.High,
         eExcelConditionalFormattingValueObjectType.Max,
         ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
@@ -159,7 +159,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Low Value for Two Color Scale Object Value
     /// </summary>
-    public ExcelConditionalFormattingValueObject LowValue
+    public ExcelConditionalFormattingColorScaleValue LowValue
     {
       get { return _lowValue; }
       set { _lowValue = value; }
@@ -168,7 +168,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// High Value for Two Color Scale Object Value
     /// </summary>
-    public ExcelConditionalFormattingValueObject HighValue
+    public ExcelConditionalFormattingColorScaleValue HighValue
     {
       get { return _highValue; }
       set { _highValue = value; }
