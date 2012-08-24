@@ -63,7 +63,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Release\EPPlus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -122,6 +122,10 @@
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithShowValue.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithStdDev.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithText.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingIconDataBarValue.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDataBar.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFourIconSet.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveStdDev.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveOrEqualAverage.cs">
       <SubType>Code</SubType>
@@ -137,7 +141,7 @@
     </Compile>
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingConstants.cs" />
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingTimePeriodType.cs" />
-    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingValueObject.cs">
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingColorScaleValue.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingEnums.cs">
@@ -183,6 +187,7 @@
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisMonth.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisWeek.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeIconSet.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTimePeriodGroup.cs">
       <SubType>Code</SubType>
     </Compile>

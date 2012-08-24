@@ -64,7 +64,7 @@ namespace EPPlusSamples
         ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Conditional Formatting");
 
         // Create 4 columns of samples data
-        for (int col = 1; col < 5; col++)
+        for (int col = 1; col < 10; col++)
         {
           // Add the headers
           worksheet.Cells[1, col].Value = "Sample " + col;
@@ -120,7 +120,7 @@ namespace EPPlusSamples
         // -------------------------------------------------------------------
         var cfRule3 = worksheet.Cells[cfAddress1.Address].ConditionalFormatting.AddThreeColorScale();
         cfRule3.LowValue.Color = Color.LemonChiffon;
-
+        
         // -------------------------------------------------------------------
         // Change the rules priorities to change their execution order
         // -------------------------------------------------------------------
@@ -411,7 +411,13 @@ namespace EPPlusSamples
 
         cfRule42.Formula = "14";
 
-        // -----------------------------------------------------------
+        ExcelAddress cfAddress43 = new ExcelAddress("G2:G10");
+        var cfRule43 = worksheet.ConditionalFormatting.AddThreeIconSet(cfAddress43, eExcelconditionalFormatting3IconsSetType.TrafficLights1);
+
+        ExcelAddress cfAddress44 = new ExcelAddress("H2:H10");
+        var cfRule44 = worksheet.ConditionalFormatting.AddDatabar(cfAddress44, Color.DarkBlue);
+        
+          // -----------------------------------------------------------
         // Removing Conditional Formatting rules
         // -----------------------------------------------------------
         // Remove one Rule by its object

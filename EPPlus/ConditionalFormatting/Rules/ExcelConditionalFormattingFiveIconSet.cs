@@ -39,29 +39,15 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 namespace OfficeOpenXml.ConditionalFormatting
 {
   /// <summary>
-  /// ExcelConditionalFormattingThreeColorScale
+  /// ExcelConditionalFormattingThreeIconSet
   /// </summary>
-  public class ExcelConditionalFormattingThreeColorScale
-    : ExcelConditionalFormattingRule,
-    IExcelConditionalFormattingThreeColorScale
+  public class ExcelConditionalFormattingFiveIconSet
+    : ExcelConditionalFormattingIconSetBase<eExcelconditionalFormatting5IconsSetType>, IExcelConditionalFormattingFiveIconSet
   {
     /****************************************************************************************/
 
     #region Private Properties
-    /// <summary>
-    /// Private Low Value
-    /// </summary>
-    private ExcelConditionalFormattingColorScaleValue _lowValue;
 
-    /// <summary>
-    /// Private Middle Value
-    /// </summary>
-    private ExcelConditionalFormattingColorScaleValue _middleValue;
-
-    /// <summary>
-    /// Private High Value
-    /// </summary>
-    private ExcelConditionalFormattingColorScaleValue _highValue;
     #endregion Private Properties
 
     /****************************************************************************************/
@@ -70,65 +56,72 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="type"></param>
     /// <param name="priority"></param>
     /// <param name="address"></param>
     /// <param name="worksheet"></param>
     /// <param name="itemElementNode"></param>
     /// <param name="namespaceManager"></param>
-    internal ExcelConditionalFormattingThreeColorScale(
+    internal ExcelConditionalFormattingFiveIconSet(
       ExcelAddress address,
       int priority,
       ExcelWorksheet worksheet,
       XmlNode itemElementNode,
       XmlNamespaceManager namespaceManager)
       : base(
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
+        eExcelConditionalFormattingRuleType.FiveIconSet,
         address,
         priority,
         worksheet,
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      // Create the <colorScale> node inside the <cfRule> node
-      var colorScaleNode = CreateComplexNode(
-        Node,
-        ExcelConditionalFormattingConstants.Paths.ColorScale);
+        if (itemElementNode != null && itemElementNode.HasChildNodes)
+        {
+            XmlNode iconNode4 = TopNode.SelectSingleNode("d:iconSet/d:cfvo[position()=4]", NameSpaceManager);
+            Icon4 = new ExcelConditionalFormattingIconDataBarValue(
+                    eExcelConditionalFormattingRuleType.FiveIconSet,
+                    address,
+                    worksheet,
+                    iconNode4,
+                    namespaceManager);
+            
+            XmlNode iconNode5 = TopNode.SelectSingleNode("d:iconSet/d:cfvo[position()=5]", NameSpaceManager);
+            Icon5 = new ExcelConditionalFormattingIconDataBarValue(
+                    eExcelConditionalFormattingRuleType.FiveIconSet,
+                    address,
+                    worksheet,
+                    iconNode5,
+                    namespaceManager);
+        }
+        else
+        {
+            XmlNode iconSetNode = TopNode.SelectSingleNode("d:iconSet", NameSpaceManager);
+            var iconNode4 = iconSetNode.OwnerDocument.CreateElement(ExcelConditionalFormattingConstants.Paths.Cfvo, ExcelPackage.schemaMain);
+            iconSetNode.AppendChild(iconNode4);
 
-      // LowValue default
-      LowValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.Low,
-        eExcelConditionalFormattingValueObjectType.Min,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+            Icon4 = new ExcelConditionalFormattingIconDataBarValue(eExcelConditionalFormattingValueObjectType.Percent,
+                    60,
+                    "",
+                    eExcelConditionalFormattingRuleType.ThreeIconSet,
+                    address,
+                    priority,
+                    worksheet,
+                    iconNode4,
+                    namespaceManager);
 
-      // MiddleValue default
-      MiddleValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.Middle,
-        eExcelConditionalFormattingValueObjectType.Percent,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue),
-        50,
-        string.Empty,
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+            var iconNode5 = iconSetNode.OwnerDocument.CreateElement(ExcelConditionalFormattingConstants.Paths.Cfvo, ExcelPackage.schemaMain);
+            iconSetNode.AppendChild(iconNode5);
 
-      // HighValue default
-      HighValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.High,
-        eExcelConditionalFormattingValueObjectType.Max,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+            Icon5 = new ExcelConditionalFormattingIconDataBarValue(eExcelConditionalFormattingValueObjectType.Percent,
+                    80,
+                    "",
+                    eExcelConditionalFormattingRuleType.ThreeIconSet,
+                    address,
+                    priority,
+                    worksheet,
+                    iconNode5,
+                    namespaceManager);
+        }
     }
 
     /// <summary>
@@ -138,7 +131,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <param name="address"></param>
     /// <param name="worksheet"></param>
     /// <param name="itemElementNode"></param>
-    internal ExcelConditionalFormattingThreeColorScale(
+    internal ExcelConditionalFormattingFiveIconSet(
       ExcelAddress address,
       int priority,
       ExcelWorksheet worksheet,
@@ -158,7 +151,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <param name="priority"></param>
     /// <param name="address"></param>
     /// <param name="worksheet"></param>
-    internal ExcelConditionalFormattingThreeColorScale(
+    internal ExcelConditionalFormattingFiveIconSet(
       ExcelAddress address,
       int priority,
       ExcelWorksheet worksheet)
@@ -172,37 +165,16 @@ namespace OfficeOpenXml.ConditionalFormatting
     }
     #endregion Constructors
 
-    /****************************************************************************************/
-
-    #region Public Properties
-    /// <summary>
-    /// Low Value for Three Color Scale Object Value
-    /// </summary>
-    public ExcelConditionalFormattingColorScaleValue LowValue
+    public ExcelConditionalFormattingIconDataBarValue Icon5
     {
-      get { return _lowValue; }
-      set { _lowValue = value; }
+        get;
+        internal set;
     }
 
-    /// <summary>
-    /// Middle Value for Three Color Scale Object Value
-    /// </summary>
-    public ExcelConditionalFormattingColorScaleValue MiddleValue
+    public ExcelConditionalFormattingIconDataBarValue Icon4
     {
-      get { return _middleValue; }
-      set { _middleValue = value; }
+        get;
+        internal set;
     }
-
-    /// <summary>
-    /// High Value for Three Color Scale Object Value
-    /// </summary>
-    public ExcelConditionalFormattingColorScaleValue HighValue
-    {
-      get { return _highValue; }
-      set { _highValue = value; }
-    }
-    #endregion Public Properties
-
-    /****************************************************************************************/
   }
-}
+  }

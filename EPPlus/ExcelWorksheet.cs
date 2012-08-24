@@ -644,7 +644,7 @@ namespace OfficeOpenXml
                 sb.Append(block);
                 length += size;
             }
-            while (length < start);
+            while (length < start + 20 && length < end);
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
