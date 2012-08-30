@@ -40,6 +40,9 @@ using System.IO;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// The code signature properties of the project
+    /// </summary>
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
