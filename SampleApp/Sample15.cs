@@ -195,7 +195,10 @@ namespace EPPlusSamples
             ws.SetValue("B24", "Log");
             ws.Cells["B24"].Style.Font.Bold = true;
             ws.Cells["B24:X24"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
-            
+            var cf=ws.Cells["B25:B224"].ConditionalFormatting.AddContainsText();
+            cf.Text = "hit";
+            cf.Style.Font.Color.Color = Color.Red;
+
             //If you have a valid certificate for code signing you can use this code to set it.
             ///*** Try to find a cert valid for signing... ***/
             //X509Store store = new X509Store(StoreLocation.CurrentUser);

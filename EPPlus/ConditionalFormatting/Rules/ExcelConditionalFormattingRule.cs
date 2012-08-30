@@ -104,7 +104,7 @@ namespace OfficeOpenXml.ConditionalFormatting
           // {1}
             ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
           // {2}
-            address.Address,
+            address.AddressSpaceSeparated,          //CF node don't what to have comma between multi addresses, use space instead.
           // {3}
             ExcelConditionalFormattingConstants.Paths.CfRule,
           //{4}
@@ -200,7 +200,7 @@ namespace OfficeOpenXml.ConditionalFormatting
             // {1}
               ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
             // {2}
-              value.Address));
+              value.AddressSpaceSeparated)); 
 
           // Move the <cfRule> node to the new <conditionalFormatting> parent node
           TopNode = newParentNode.AppendChild(Node);
@@ -623,7 +623,6 @@ namespace OfficeOpenXml.ConditionalFormatting
       }
     }
     #endregion Internal Properties
-
     /****************************************************************************************/
   }
 }
