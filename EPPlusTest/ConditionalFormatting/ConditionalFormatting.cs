@@ -42,12 +42,11 @@ namespace EPPlusTest
     [ClassInitialize()]
     public static void MyClassInitialize(TestContext testContext)
     {
-      if (Directory.Exists("Test"))
+      if (!Directory.Exists("Test"))
       {
-        Directory.Delete("Test", true);
+          Directory.CreateDirectory(string.Format("Test"));
       }
 
-      Directory.CreateDirectory(string.Format("Test"));
       _pck = new ExcelPackage(new FileInfo(@"Test\ConditionalFormatting.xlsx"));
     }
 
@@ -95,8 +94,15 @@ namespace EPPlusTest
     {
       var pck = new ExcelPackage(new FileInfo(@"c:\temp\cf.xlsx"));
 
-      Assert.IsTrue(pck.Workbook.Worksheets[1].ConditionalFormatting.Count == 6);
-      Assert.IsTrue(pck.Workbook.Worksheets[1].ConditionalFormatting[0].Type==eExcelConditionalFormattingRuleType.DataBar);
+      var ws = pck.Workbook.Worksheets[1];
+      Assert.IsTrue(ws.ConditionalFormatting.Count == 6);
+      Assert.IsTrue(ws.ConditionalFormatting[0].Type==eExcelConditionalFormattingRuleType.DataBar);
+
+      var cf1 = ws.ConditionalFormatting.AddEqual(ws.Cells["C3"]);
+      //cf1.Formula = "TRUE";
+      var cf2 = ws.Cells["C8:C12"].ConditionalFormatting.AddExpression();
+      var cf3 = ws.Cells["d12:D22,H12:H22"].ConditionalFormatting.AddFourIconSet(eExcelconditionalFormatting4IconsSetType.RedToBlack);
+      pck.SaveAs(new FileInfo(@"c:\temp\cf2.xlsx"));
     }
     /// <summary>
     /// 

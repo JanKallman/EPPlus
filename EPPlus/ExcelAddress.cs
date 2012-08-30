@@ -203,7 +203,7 @@ namespace OfficeOpenXml
             {
                 return _address;
             }
-        }
+        }        
         /// <summary>
         /// If the address is a defined name
         /// </summary>
@@ -235,6 +235,13 @@ namespace OfficeOpenXml
                 {
                     return _firstAddress;
                 }
+            }
+        }
+        internal string AddressSpaceSeparated
+        {
+            get
+            {
+                return _address.Replace(',', ' '); //Conditional formatting and a few other places use space as separator for mulit addresses.
             }
         }
         /// <summary>

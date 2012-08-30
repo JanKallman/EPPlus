@@ -376,6 +376,7 @@ namespace EPPlusTest
 
             var rt2=ws.Cells["B2"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
             ws.Cells["c3"].Comment.AutoFit = true;
+            
         }
         [TestMethod]
         public void Address()
@@ -1432,6 +1433,20 @@ namespace EPPlusTest
             ws.Cells["a1:c3"].StyleName="Normal";
             //  n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
+        }
+        [TestMethod]
+        public void AutoFitColumns()
+        {
+           var ws=_pck.Workbook.Worksheets.Add("Autofit");
+           ws.Cells["A1:H1"].Value = "Auto fit column that is veeery long...";
+           ws.Cells["B1"].Style.TextRotation = 30;
+           ws.Cells["C1"].Style.TextRotation = 45;
+           ws.Cells["D1"].Style.TextRotation = 75;
+           ws.Cells["E1"].Style.TextRotation = 90;
+           ws.Cells["F1"].Style.TextRotation = 120;
+           ws.Cells["G1"].Style.TextRotation = 135;
+           ws.Cells["H1"].Style.TextRotation = 180;
+           ws.Cells["A1:H1"].AutoFitColumns(0);
         }
     }
 }

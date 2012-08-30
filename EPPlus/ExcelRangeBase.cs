@@ -573,7 +573,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Set the column width from the content of the range.
 		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-		///       Wraped and merged cells are also ignored.
+		/// Wraped and merged cells are also ignored.
 		/// </summary>
 		/// <param name="MinimumWidth">Minimum column width</param>
 		public void AutoFitColumns(double MinimumWidth)
@@ -641,7 +641,7 @@ namespace OfficeOpenXml
 			if (nf.Italic) fs |= FontStyle.Italic;
 			if (nf.Strike) fs |= FontStyle.Strikeout;
 			var nfont = new Font(nf.Name, nf.Size, fs);
-
+            
 			using (Bitmap b = new Bitmap(1, 1))
 			{
 				using (Graphics g = Graphics.FromImage(b))
@@ -670,7 +670,18 @@ namespace OfficeOpenXml
 
 						//Truncate(({pixels}-5)/{Maximum Digit Width} * 100+0.5)/100
 
-						double width = (g.MeasureString(cell.TextForWidth, f).Width + 5) / normalSize;
+                        var size = g.MeasureString(cell.TextForWidth, f);
+                        double width;
+                        double r = styles.CellXfs[cell.StyleID].TextRotation;
+                        if (r <= 0 )
+                        {
+                            width = (size.Width + 5) / normalSize;
+                        }
+                        else
+                        {
+                            r = (r <= 90 ? r : r - 90);
+                            width = (((size.Width - size.Height) * Math.Abs(System.Math.Cos(System.Math.PI * r / 180.0)) + size.Height) + 5) / normalSize;
+                        }
 
 						foreach (var a in afAddr)
 						{
