@@ -82,6 +82,9 @@ namespace OfficeOpenXml.VBA
             _list.Clear();
         }
     }
+    /// <summary>
+    /// Collection class for VBA modules
+    /// </summary>
     public class ExcelVbaModuleCollection : ExcelVBACollectionBase<ExcelVBAModule>
     {
         ExcelVbaProject _project;
@@ -93,6 +96,11 @@ namespace OfficeOpenXml.VBA
         {
             _list.Add(Item);
         }
+        /// <summary>
+        /// Adds a new VBA Module
+        /// </summary>
+        /// <param name="Name">The name of the module</param>
+        /// <returns>The module object</returns>
         public ExcelVBAModule AddModule(string Name)
         {
             var m = new ExcelVBAModule();
@@ -104,11 +112,11 @@ namespace OfficeOpenXml.VBA
             return m;
         }
         /// <summary>
-        /// 
+        /// Adds a new VBA class
         /// </summary>
         /// <param name="Name">The name of the class</param>
         /// <param name="Exposed">Private or Public not createble</param>
-        /// <returns></returns>
+        /// <returns>The class object</returns>
         public ExcelVBAModule AddClass(string Name, bool Exposed)
         {
             var m = new ExcelVBAModule();
@@ -130,17 +138,27 @@ namespace OfficeOpenXml.VBA
             return m;
         }
     }
+    /// <summary>
+    /// A collection of the vba projects references
+    /// </summary>
     public class ExcelVbaReferenceCollection : ExcelVBACollectionBase<ExcelVbaReference>
     {
         public ExcelVbaReferenceCollection()
         {
 
         }
+        /// <summary>
+        /// Adds a new reference 
+        /// </summary>
+        /// <param name="Item">The reference object</param>
         public void Add(ExcelVbaReference Item)
         {
             _list.Add(Item);
         }
     }
+    /// <summary>
+    /// A collection of the module level attributes
+    /// </summary>
     public class ExcelVbaModuleAttributesCollection : ExcelVBACollectionBase<ExcelVbaModuleAttribute>
     {
         internal string GetAttributeText()
