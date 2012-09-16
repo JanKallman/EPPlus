@@ -657,7 +657,10 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Dispose()
 		{
-			_package.Close();
+            if (_package != null)
+            {
+                _package.Close();
+            }
 		}
 		#endregion
 
