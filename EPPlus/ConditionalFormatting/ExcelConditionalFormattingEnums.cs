@@ -76,6 +76,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// This conditional formatting rule highlights cells that are above the standard
     /// deviationa for all values in the range.
     /// <remarks>AboveAverage Excel CF Rule Type</remarks>
+    /// </summary>
     AboveStdDev,
 
     /// <summary>

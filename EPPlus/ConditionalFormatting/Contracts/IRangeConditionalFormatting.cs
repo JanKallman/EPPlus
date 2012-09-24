@@ -286,7 +286,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     IExcelConditionalFormattingTwoColorScale AddTwoColorScale();
 
     /// <summary>
-    /// Adds a <see cref="IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType>"/> to the range
+    /// Adds a <see cref="IExcelConditionalFormattingThreeIconSet&lt;eExcelconditionalFormatting3IconsSetType&gt"/> to the range
     /// </summary>
     /// <param name="IconSet"></param>
     /// <returns></returns>
