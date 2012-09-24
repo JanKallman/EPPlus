@@ -29,7 +29,7 @@ namespace OfficeOpenXml.Style.Dxf
         {
             get
             {
-                return GetAsString(PatternType) + "|" + GetAsString(PatternColor) + "|" + GetAsString(BackgroundColor);
+                return GetAsString(PatternType) + "|" + (PatternColor == null ? "" : PatternColor.Id) + "|" + (BackgroundColor == null ? "" : BackgroundColor.Id);
             }
         }
         protected internal override void CreateNodes(XmlHelper helper, string path)

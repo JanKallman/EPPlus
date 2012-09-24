@@ -376,6 +376,7 @@ namespace EPPlusTest
 
             var rt2=ws.Cells["B2"].AddComment("Range Added Comment test test test test test test test test test test testtesttesttesttesttesttesttesttesttesttest", "Jan Källman");
             ws.Cells["c3"].Comment.AutoFit = true;
+            
         }
         [TestMethod]
         public void Address()
@@ -586,8 +587,11 @@ namespace EPPlusTest
             var ns = _pck.Workbook.Styles.CreateNamedStyle("TestStyle");
             ns.Style.Font.Bold = true;
 
+            ws.Cells.Style.Locked = true;
             ws.Cells["A1:C1"].StyleName = "TestStyle";
             ws.DefaultRowHeight = 35;
+            ws.Cells["A1:C4"].Style.Locked = false;
+            ws.Protection.IsProtected = true;
         }
         [TestMethod]
         public void ValueError()
@@ -701,6 +705,29 @@ namespace EPPlusTest
             ws.Cells["G4:H5"].Merge = true;
             ws.Cells["B3:C5"].Copy(ws.Cells["G4"]);
         }
+
+        [TestMethod]
+        public void CopyMergedRange()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyMergedRangeTest");
+
+            ws.Cells["A11:C11"].Merge = true;
+            ws.Cells["A12:C12"].Merge = true;
+
+            var source = ws.Cells["A11:C12"];
+            var target = ws.Cells["A21"];
+
+            source.Copy(target);
+
+            var a21 = ws.Cell(21, 1);
+            var a22 = ws.Cell(22, 1);
+
+            Assert.IsTrue(a21.Merge);
+            Assert.IsTrue(a22.Merge);
+
+            Assert.AreNotEqual(a21.MergeId, a22.MergeId);
+        }
+
         [TestMethod]
         public void CopyPivotTable()
         {
@@ -1432,6 +1459,31 @@ namespace EPPlusTest
             ws.Cells["a1:c3"].StyleName="Normal";
             //  n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
+        }
+        [TestMethod]
+        public void AutoFitColumns()
+        {
+           var ws=_pck.Workbook.Worksheets.Add("Autofit");
+           ws.Cells["A1:H1"].Value = "Auto fit column that is veeery long...";
+           ws.Cells["B1"].Style.TextRotation = 30;
+           ws.Cells["C1"].Style.TextRotation = 45;
+           ws.Cells["D1"].Style.TextRotation = 75;
+           ws.Cells["E1"].Style.TextRotation = 90;
+           ws.Cells["F1"].Style.TextRotation = 120;
+           ws.Cells["G1"].Style.TextRotation = 135;
+           ws.Cells["H1"].Style.TextRotation = 180;
+           ws.Cells["A1:H1"].AutoFitColumns(0);
+        }
+        [TestMethod]
+        public void FileLockedProblem()
+        {
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx")))
+            {
+                pck.Workbook.Worksheets[1].DeleteRow(1, 1);
+                pck.Save();
+                pck.Dispose();
+            }
+            
         }
     }
 }

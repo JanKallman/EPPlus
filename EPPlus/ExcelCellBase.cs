@@ -134,8 +134,8 @@ namespace OfficeOpenXml
                 {
                     if ((c == '-' || c == '+' || c == '*' || c == '/' ||
                         c == '=' || c == '^' || c == ',' || c == ':' ||
-                        c == '<' || c == '>' || c == '(' || c == ')' || c == '!' || 
-                        c == ' ') &&
+                        c == '<' || c == '>' || c == '(' || c == ')' || c == '!' ||
+                        c == ' ' || c == '&' || c == '%') &&
                         (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
                     {
                         ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;

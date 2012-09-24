@@ -37,7 +37,7 @@ using System.Xml;
 namespace OfficeOpenXml.ConditionalFormatting
 {
 	/// <summary>
-	/// Functions related to the <see cref="ExcelConditionalFormattingValueObject"/>
+	/// Functions related to the <see cref="ExcelConditionalFormattingColorScaleValue"/>
 	/// </summary>
 	internal static class ExcelConditionalFormattingValueObjectType
 	{
@@ -77,8 +77,6 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// Get the CFVO type by its @type attribute
 		/// </summary>
 		/// <param name="attribute"></param>
-		/// <param name="topNode"></param>
-		/// <param name="nameSpaceManager"></param>
 		/// <returns></returns>
 		public static eExcelConditionalFormattingValueObjectType GetTypeByAttrbiute(
 			string attribute)
@@ -188,13 +186,13 @@ namespace OfficeOpenXml.ConditionalFormatting
 					return ExcelConditionalFormattingConstants.Paths.ColorScale;
 
 				case eExcelConditionalFormattingRuleType.ThreeIconSet:
-        case eExcelConditionalFormattingRuleType.FourIconSet:
-        case eExcelConditionalFormattingRuleType.FiveIconSet:
-					return ExcelConditionalFormattingConstants.Paths.IconSet;
+                case eExcelConditionalFormattingRuleType.FourIconSet:
+                case eExcelConditionalFormattingRuleType.FiveIconSet:
+					        return ExcelConditionalFormattingConstants.Paths.IconSet;
 
-        case eExcelConditionalFormattingRuleType.DataBar:
-          return ExcelConditionalFormattingConstants.Paths.DataBar;
-      }
+                case eExcelConditionalFormattingRuleType.DataBar:
+                  return ExcelConditionalFormattingConstants.Paths.DataBar;
+              }
 
 			return string.Empty;
 		}

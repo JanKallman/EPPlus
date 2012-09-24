@@ -93,7 +93,7 @@ namespace EPPlusTest
                 Assert.AreEqual(r1.Bold, true);
 
                 ws=pck.Workbook.Worksheets["Pic URL"];
-                Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");                
+                    Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");                
 
                 Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
 
@@ -296,6 +296,14 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug12()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
     }
 }

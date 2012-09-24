@@ -436,10 +436,12 @@ namespace OfficeOpenXml
 							{
 								case eNodeInsertOrder.After:
 									node.InsertAfter(subNode, referenceNode);
-									break;
+                                    referenceNode = null;
+                                    break;
 
 								case eNodeInsertOrder.Before:
 									node.InsertBefore(subNode, referenceNode);
+                                    referenceNode = null;
 									break;
 
 								case eNodeInsertOrder.First:

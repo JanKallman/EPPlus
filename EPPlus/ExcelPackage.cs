@@ -252,6 +252,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Create a new instance of the ExcelPackage class based on a existing template.
         /// If newFile exists, it will be overwritten when the Save method is called
+        /// </summary>
         /// <param name="newFile">The name of the Excel file to be created</param>
         /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
         /// <param name="password">Password to decrypted the template</param>
@@ -376,29 +377,61 @@ namespace OfficeOpenXml
         {
             var hashProvider = new SHA1CryptoServiceProvider();
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
+            lock (_images)
+            {
+                if (_images.ContainsKey(hash))
+                {
+                    _images[hash].RefCount++;
+                }
+                else
+                {
+                    PackagePart imagePart;
+                    if (uri == null)
+                    {
+                        uri = GetNewUri(Package, "/xl/media/image{0}.jpg");
+                        imagePart = Package.CreatePart(uri, "image/jpeg", CompressionOption.NotCompressed);
+                    }
+                    else
+                    {
+                        imagePart = Package.CreatePart(uri, contentType, CompressionOption.NotCompressed);
+                    }
+                    var stream = imagePart.GetStream(FileMode.Create, FileAccess.Write);
+                    stream.Write(image, 0, image.GetLength(0));
 
-            if(_images.ContainsKey(hash))
+                    _images.Add(hash, new ImageInfo() { Uri = uri, RefCount = 1, Hash = hash, Part = imagePart });
+                }
+            }
+            return _images[hash];
+        }
+        internal ImageInfo LoadImage(byte[] image, Uri uri, PackagePart imagePart)
+        {
+            var hashProvider = new SHA1CryptoServiceProvider();
+            var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-", "");
+            if (_images.ContainsKey(hash))
             {
                 _images[hash].RefCount++;
             }
             else
             {
-                PackagePart imagePart;
-                if (uri == null)
-                {
-                    uri = GetNewUri(Package, "/xl/media/image{0}.jpg");
-                    imagePart = Package.CreatePart(uri, "image/jpeg", CompressionOption.NotCompressed);
-                }
-                else
-                {
-                    imagePart = Package.CreatePart(uri, contentType, CompressionOption.NotCompressed);
-                }
-                var stream = imagePart.GetStream(FileMode.Create, FileAccess.Write);
-                stream.Write(image, 0, image.GetLength(0));
-                
-                _images.Add(hash, new ImageInfo() { Uri = uri, RefCount = 1, Hash=hash, Part=imagePart });
+                _images.Add(hash, new ImageInfo() { Uri = uri, RefCount = 1, Hash = hash, Part = imagePart });
             }
             return _images[hash];
+        }
+        internal void RemoveImage(string hash)
+        {
+            lock (_images)
+            {
+                if (_images.ContainsKey(hash))
+                {
+                    var ii = _images[hash];
+                    ii.RefCount--;
+                    if (ii.RefCount == 0)
+                    {
+                        Package.DeletePart(ii.Uri);
+                        _images.Remove(hash);
+                    }
+                }
+            }
         }
         internal ImageInfo GetImageInfo(byte[] image)
         {
@@ -485,7 +518,7 @@ namespace OfficeOpenXml
             if (File != null) File.Refresh();
             if (File != null && File.Exists)
             {
-                  if (password != null)
+                if (password != null)
                 {
                     var encrHandler = new EncryptedPackageHandler();
                     Encryption.IsEncrypted = true;
@@ -598,7 +631,7 @@ namespace OfficeOpenXml
             ns.AddNamespace("ctp", schemaCustom);
             // core properties
             ns.AddNamespace("cp", schemaCore);
-            // core property namespaces
+            // core property namespaces 
             ns.AddNamespace("dc", schemaDc);
             ns.AddNamespace("dcterms", schemaDcTerms);
             ns.AddNamespace("dcmitype", schemaDcmiType);
@@ -657,7 +690,10 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Dispose()
 		{
-			_package.Close();
+            if (_package != null)
+            {
+                _package.Close();
+            }
 		}
 		#endregion
 

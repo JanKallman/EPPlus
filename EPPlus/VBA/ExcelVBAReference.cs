@@ -44,6 +44,9 @@ namespace OfficeOpenXml.VBA
         {
             ReferenceRecordID = 0xD;
         }
+        /// <summary>
+        /// The reference record ID. See MS-OVBA documentation for more info. 
+        /// </summary>
         public int ReferenceRecordID { get; internal set; }
         /// <summary>
         /// The name of the reference
@@ -54,6 +57,10 @@ namespace OfficeOpenXml.VBA
         /// For more info check MS-OVBA 2.1.1.8 LibidReference and 2.3.4.2.2 PROJECTREFERENCES
         /// </summary>
         public string Libid { get; set; }
+        /// <summary>
+        /// A string representation of the object (the Name)
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return Name;

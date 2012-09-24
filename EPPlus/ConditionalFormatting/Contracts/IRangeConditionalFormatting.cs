@@ -29,6 +29,7 @@
  * Eyal Seagull		    Conditional Formatting    2012-04-03
  *******************************************************************************/
 using OfficeOpenXml.ConditionalFormatting.Contracts;
+using System.Drawing;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
@@ -284,6 +285,29 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <returns></returns>
     IExcelConditionalFormattingTwoColorScale AddTwoColorScale();
 
-    //TODO: Add the DataBar and IconSet
-  }
+    /// <summary>
+    /// Adds a <see cref="IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType>"/> to the range
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType> AddThreeIconSet(eExcelconditionalFormatting3IconsSetType IconSet);
+    /// <summary>
+    /// Adds a <see cref="IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType>"/> to the range
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType> AddFourIconSet(eExcelconditionalFormatting4IconsSetType IconSet);
+    /// <summary>
+    /// Adds a <see cref="IExcelConditionalFormattingFiveIconSet"/> to the range
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    IExcelConditionalFormattingFiveIconSet AddFiveIconSet(eExcelconditionalFormatting5IconsSetType IconSet);
+    /// <summary>
+    /// Adds a <see cref="IExcelConditionalFormattingDataBarGroup"/> to the range
+    /// </summary>
+    /// <param name="color"></param>
+    /// <returns></returns>
+    IExcelConditionalFormattingDataBarGroup AddDatabar(Color color);
+    }
 }

@@ -47,12 +47,12 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// <summary>
     /// Two Color Scale Low Value
     /// </summary>
-    ExcelConditionalFormattingValueObject LowValue { get; set; }
+    ExcelConditionalFormattingColorScaleValue LowValue { get; set; }
 
     /// <summary>
     /// Two Color Scale High Value
     /// </summary>
-    ExcelConditionalFormattingValueObject HighValue { get; set; }
+    ExcelConditionalFormattingColorScaleValue HighValue { get; set; }
     #endregion Public Properties
 	}
 }

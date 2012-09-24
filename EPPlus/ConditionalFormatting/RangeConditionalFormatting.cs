@@ -471,7 +471,61 @@ namespace OfficeOpenXml.ConditionalFormatting
         _address));
     }
 
-    //TODO: Add the DataBar and IconSet
+    /// <summary>
+    /// Adds a ThreeIconSet rule 
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType> AddThreeIconSet(eExcelconditionalFormatting3IconsSetType IconSet)
+    {
+        var rule = (IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType>)(_worksheet.ConditionalFormatting.AddRule(
+          eExcelConditionalFormattingRuleType.ThreeIconSet,
+          _address));
+        rule.IconSet = IconSet;
+        return rule;
+    }
+
+    /// <summary>
+    /// Adds a FourIconSet rule 
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType> AddFourIconSet(eExcelconditionalFormatting4IconsSetType IconSet)
+    {
+        var rule = (IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType>)(_worksheet.ConditionalFormatting.AddRule(
+          eExcelConditionalFormattingRuleType.FourIconSet,
+          _address));
+        rule.IconSet = IconSet;
+        return rule;
+    }
+
+    /// <summary>
+    /// Adds a FiveIconSet rule 
+    /// </summary>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingFiveIconSet AddFiveIconSet(eExcelconditionalFormatting5IconsSetType IconSet)
+    {
+        var rule = (IExcelConditionalFormattingFiveIconSet)(_worksheet.ConditionalFormatting.AddRule(
+          eExcelConditionalFormattingRuleType.FiveIconSet,
+          _address));
+        rule.IconSet = IconSet;
+        return rule;
+    }
+
+    /// <summary>
+    /// Adds a Databar rule 
+    /// </summary>
+    /// <param name="Color">The color of the databar</param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingDataBarGroup AddDatabar(System.Drawing.Color Color)
+    {
+        var rule = (IExcelConditionalFormattingDataBarGroup)(_worksheet.ConditionalFormatting.AddRule(
+          eExcelConditionalFormattingRuleType.DataBar,
+          _address));
+        rule.Color = Color;
+        return rule;
+    }
     #endregion Conditional Formatting Rule Types
   }
 }

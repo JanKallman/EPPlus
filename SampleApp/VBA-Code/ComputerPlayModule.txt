@@ -45,7 +45,7 @@ Public Sub Move()
 
     If IsHit = False Then
         Battleship.Unprotect
-        Battleship.Cells(g_logRow, 2).value = "Computers gets a miss on " & cell.Address
+        Battleship.Cells(g_logRow, 2).value = "The Computer gets a miss on " & cell.Address
         Battleship.Names("ComputerMisses").RefersToRange.value = Battleship.Names("ComputerMisses").RefersToRange.value + 1
         g_logRow = g_logRow + 1
 		Battleship.Protect ""

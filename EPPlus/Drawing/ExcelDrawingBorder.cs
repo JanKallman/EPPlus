@@ -37,12 +37,18 @@ using System.Drawing;
 
 namespace OfficeOpenXml.Drawing
 {
+    /// <summary>
+    /// Type of Line cap
+    /// </summary>
     public enum eLineCap
     {
         Flat,   //flat
         Round,  //rnd
         Square  //Sq
     }
+    /// <summary>
+    /// Line style.
+    /// </summary>
     public enum eLineStyle
     {
         Dash,

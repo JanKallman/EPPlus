@@ -38,7 +38,10 @@ using System.Collections;
 using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
-   public sealed class ExcelChartSeries : XmlHelper, IEnumerable
+   /// <summary>
+   /// Collection class for chart series
+   /// </summary>
+    public sealed class ExcelChartSeries : XmlHelper, IEnumerable
     {
        List<ExcelChartSerie> _list=new List<ExcelChartSerie>();
        internal ExcelChart _chart;

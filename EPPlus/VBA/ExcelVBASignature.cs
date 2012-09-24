@@ -40,6 +40,9 @@ using System.IO;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// The code signature properties of the project
+    /// </summary>
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
@@ -70,8 +73,8 @@ namespace OfficeOpenXml.VBA
                 uint cbTimestampUrl = br.ReadUInt32();
                 uint timestampUrlOffset = br.ReadUInt32();  
                 byte[] signature = br.ReadBytes((int)cbSignature);
-                uint version = br.ReadUInt32();             
-                uint fileType = br.ReadUInt32();            
+                uint version = br.ReadUInt32();
+                uint fileType = br.ReadUInt32();
 
                 uint id = br.ReadUInt32();
                 while (id != 0)
