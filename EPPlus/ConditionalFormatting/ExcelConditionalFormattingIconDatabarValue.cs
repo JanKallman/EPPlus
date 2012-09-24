@@ -51,7 +51,6 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/****************************************************************************************/
 
 		#region Private Properties
-		private eExcelConditionalFormattingValueObjectPosition _position;
 		private eExcelConditionalFormattingRuleType _ruleType;
 		private ExcelWorksheet _worksheet;
 		#endregion Private Properties
