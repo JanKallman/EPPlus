@@ -692,7 +692,7 @@ namespace OfficeOpenXml
 		{
             if (_package != null)
             {
-                _package.Close();                
+                _package.Close();
             }
 		}
 		#endregion
