@@ -145,6 +145,10 @@ namespace OfficeOpenXml
         /// If the cell is merged with other cells
         /// </summary>
         public bool Merge { get; internal set; }
+        /// <summary>
+        /// Merge Id
+        /// </summary>
+        internal int MergeId { get; set; }
 		#endregion  
 
         #region ExcelCell DataType
