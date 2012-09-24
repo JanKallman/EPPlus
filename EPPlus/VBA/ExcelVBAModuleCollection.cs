@@ -35,6 +35,10 @@ using System.Text;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// Base class for VBA collections
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class ExcelVBACollectionBase<T> : IEnumerable<T>
     {
         internal protected List<T> _list=new List<T>();

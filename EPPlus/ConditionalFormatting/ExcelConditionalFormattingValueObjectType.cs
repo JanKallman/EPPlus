@@ -77,8 +77,6 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// Get the CFVO type by its @type attribute
 		/// </summary>
 		/// <param name="attribute"></param>
-		/// <param name="topNode"></param>
-		/// <param name="nameSpaceManager"></param>
 		/// <returns></returns>
 		public static eExcelConditionalFormattingValueObjectType GetTypeByAttrbiute(
 			string attribute)

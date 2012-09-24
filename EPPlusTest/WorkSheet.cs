@@ -587,8 +587,11 @@ namespace EPPlusTest
             var ns = _pck.Workbook.Styles.CreateNamedStyle("TestStyle");
             ns.Style.Font.Bold = true;
 
+            ws.Cells.Style.Locked = true;
             ws.Cells["A1:C1"].StyleName = "TestStyle";
             ws.DefaultRowHeight = 35;
+            ws.Cells["A1:C4"].Style.Locked = false;
+            ws.Protection.IsProtected = true;
         }
         [TestMethod]
         public void ValueError()
@@ -1447,6 +1450,17 @@ namespace EPPlusTest
            ws.Cells["G1"].Style.TextRotation = 135;
            ws.Cells["H1"].Style.TextRotation = 180;
            ws.Cells["A1:H1"].AutoFitColumns(0);
+        }
+        [TestMethod]
+        public void FileLockedProblem()
+        {
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx")))
+            {
+                pck.Workbook.Worksheets[1].DeleteRow(1, 1);
+                pck.Save();
+                pck.Dispose();
+            }
+            
         }
     }
 }

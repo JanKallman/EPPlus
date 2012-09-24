@@ -239,6 +239,7 @@ namespace EPPlusSamples
 
         private static void CreateBoard(ExcelRange rng)
         {
+            //Create a gradiant background with one dark and one light blue color
             rng.Style.Fill.Gradient.Color1.SetColor(Color.FromArgb(0x80, 0x80, 0XFF));
             rng.Style.Fill.Gradient.Color2.SetColor(Color.FromArgb(0x20, 0x20, 0XFF));
             rng.Style.Fill.Gradient.Type = ExcelFillGradientType.None;
@@ -264,18 +265,17 @@ namespace EPPlusSamples
                     }
                 }
             }
-            rng.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            //Set the inner cell border to thin, light gray
+            rng.Style.Border.Top.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Top.Color.SetColor(Color.Gray);
-            rng.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Right.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Right.Color.SetColor(Color.Gray);
-            rng.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Left.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Left.Color.SetColor(Color.Gray);
-            rng.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Bottom.Color.SetColor(Color.Gray);
 
-            rng.Offset(0, 0, 1, rng.End.Column - rng.Start.Column+1).Style.Border.Top.Color.SetColor(Color.Black);
-            rng.Offset(0, 0, 1, rng.End.Column - rng.Start.Column + 1).Style.Border.Top.Style=ExcelBorderStyle.Medium;
-            int rows=rng.End.Row - rng.Start.Row;
+            //Solid black border around the board.
             rng.Style.Border.BorderAround(ExcelBorderStyle.Medium, Color.Black);
         }
     }

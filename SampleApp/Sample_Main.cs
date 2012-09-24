@@ -140,7 +140,7 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 12 created {0}", output);
                 Console.WriteLine();
 
-                //Sample 13 - Shows a few ways to load data (Datatable, IEnumrable and more).
+                //Sample 13 - Shows a few ways to load data (Datatable, IEnumerable and more).
                 Console.WriteLine("Running sample 13");
                 Sample13.RunSample13(outputDir);
                 Console.WriteLine("Sample 13 created {0}", outputDir.Name);
@@ -152,7 +152,7 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 14 created {0}", outputDir.Name);
                 Console.WriteLine();
 
-                //Sample 15 - Shows a how to use VBA
+                //Sample 15 - Shows how to work with macro-enabled workbooks(VBA).
                 Console.WriteLine("Running sample 15-VBA");
                 Sample15.VBASample(outputDir);
                 Console.WriteLine("Sample 15 created {0}", outputDir.Name);

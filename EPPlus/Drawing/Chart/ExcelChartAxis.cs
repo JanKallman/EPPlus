@@ -37,6 +37,9 @@ using OfficeOpenXml.Style;
 using System.Globalization;
 namespace OfficeOpenXml.Drawing.Chart
 {
+    /// <summary>
+    /// Position of the axis.
+    /// </summary>
     public enum eAxisPosition
     {
         Left = 0,
@@ -44,16 +47,25 @@ namespace OfficeOpenXml.Drawing.Chart
         Right = 2,
         Top = 3
     }
+    /// <summary>
+    /// Position of the Y-Axis
+    /// </summary>
     public enum eYAxisPosition
     {
         Left = 0,
         Right = 2,
     }
+    /// <summary>
+    /// Position of the X-Axis
+    /// </summary>
     public enum eXAxisPosition
     {
         Bottom = 1,
         Top = 3
     }
+    /// <summary>
+    /// Axis orientaion
+    /// </summary>
     public enum eAxisOrientation
     {
         MaxMin,
@@ -405,6 +417,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         ExcelChartTitle _title = null;
+        /// <summary>
+        /// Chart axis title
+        /// </summary>
         public ExcelChartTitle Title
         {
             get

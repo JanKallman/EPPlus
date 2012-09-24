@@ -138,7 +138,7 @@ namespace OfficeOpenXml
             Formula = "";
         }
         /// <summary>
-        /// If cell has inline formating. 
+        /// If cell has inline formatting. 
         /// </summary>
         public bool IsRichText { get; set; }
         /// <summary>

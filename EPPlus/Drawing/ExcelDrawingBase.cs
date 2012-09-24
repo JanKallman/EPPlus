@@ -37,6 +37,9 @@ using System.Xml;
 using OfficeOpenXml.Drawing.Chart;
 namespace OfficeOpenXml.Drawing
 {
+    /// <summary>
+    /// Text anchoring
+    /// </summary>
     public enum eTextAnchoringType
     {
         Bottom,
@@ -45,6 +48,9 @@ namespace OfficeOpenXml.Drawing
         Justify,
         Top
     }
+    /// <summary>
+    /// Vertical text type
+    /// </summary>
     public enum eTextVerticalType
     {
         EastAsianVertical,
@@ -56,6 +62,9 @@ namespace OfficeOpenXml.Drawing
         WordArtVerticalRightToLeft
 
     }
+    /// <summary>
+    /// How the drawing will be resized.
+    /// </summary>
     public enum eEditAs
     {
         /// <summary>
@@ -86,7 +95,6 @@ namespace OfficeOpenXml.Drawing
     {
         /// <summary>
         /// Position of the a drawing.
-        /// 
         /// </summary>
         public class ExcelPosition : XmlHelper
         {
@@ -633,6 +641,10 @@ namespace OfficeOpenXml.Drawing
                 default:
                     return eTextVerticalType.Horizontal;
             }
+        }
+        internal virtual void DeleteMe()
+        {
+            TopNode.ParentNode.RemoveChild(TopNode);
         }
     }
 }

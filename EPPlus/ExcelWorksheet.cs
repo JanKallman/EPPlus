@@ -1881,6 +1881,12 @@ namespace OfficeOpenXml
                     this.SetXmlNodeString("d:dimension/@ref", Dimension.Address);
                 }
 
+                if (_drawings != null && _drawings.Count == 0)
+                {
+                    //Remove node if no drawings exists.
+                    DeleteNode("d:drawing");
+                }
+
                 SaveComments();
                 HeaderFooter.SaveHeaderFooterImages();
                 SaveTables();
@@ -1890,16 +1896,24 @@ namespace OfficeOpenXml
             
             if (Drawings.UriDrawing!=null)
             {
-                PackagePart partPack = Drawings.Part;
-				Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
-                foreach (ExcelDrawing d in Drawings)
+                if (Drawings.Count == 0)
+                {                    
+                    Part.DeleteRelationship(Drawings._drawingRelation.Id);
+                    _package.Package.DeletePart(Drawings.UriDrawing);                    
+                }
+                else
                 {
-                    if (d is ExcelChart)
+                    PackagePart partPack = Drawings.Part;
+                    Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+                    foreach (ExcelDrawing d in Drawings)
                     {
-                        ExcelChart c = (ExcelChart)d;
-                        c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        if (d is ExcelChart)
+                        {
+                            ExcelChart c = (ExcelChart)d;
+                            c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        }
                     }
-                }   
+                }
             }
 		}
 

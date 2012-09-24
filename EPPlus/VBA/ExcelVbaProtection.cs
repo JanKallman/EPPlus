@@ -49,22 +49,18 @@ namespace OfficeOpenXml.VBA
         }
         /// <summary>
         /// Specifies whether access to the VBA project was restricted by the user
-        /// Don't mess with this property unless you know what you are doing!
         /// </summary>
         public bool UserProtected { get; internal set; }
         /// <summary>
         /// Specifies whether access to the VBA project was restricted by the VBA host application
-        /// Don't mess with this property unless you know what you are doing!
         /// </summary>
         public bool HostProtected { get; internal set; }
         /// <summary>
         /// Specifies whether access to the VBA project was restricted by the VBA project editor
-        /// Don't mess with this property unless you know what you are doing!
         /// </summary>
         public bool VbeProtected { get; internal set; }
         /// <summary>
         /// Specifies whether the VBA project is visible.
-        /// Don't mess with this property unless you know what you are doing!
         /// </summary>
         public bool VisibilityState { get; internal set; }
         internal byte[] PasswordHash { get; set; }

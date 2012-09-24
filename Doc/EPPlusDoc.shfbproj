@@ -20,7 +20,8 @@
     <FrameworkVersion>.NET 3.5</FrameworkVersion>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.dll" />
-<DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.XML" /></DocumentationSources>
+      <DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.XML" />
+    </DocumentationSources>
     <ProjectSummary>EPPlus is a .net library that reads and writes Excel files using the Open Office Xml format. 
 EPPlus supports ranges, cell styling, charts, picture, shapes, named ranges, comments,tables and a lot of other stuff.
 EPPlus started with the source from the ExcelPackage project hosted on CodePlex.</ProjectSummary>
@@ -30,14 +31,17 @@ EPPlus started with the source from the ExcelPackage project hosted on CodePlex.
 <NamespaceSummaryItem name="OfficeOpenXml.Drawing.Chart" isDocumented="True">Contains chart classes</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Style" isDocumented="True">Contains classes for cell styling and named styles</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Style.XmlAccess" isDocumented="True">Contains the classes that write the style xml</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Vml" isDocumented="True">Contains classes used for Vml drawings. Vml drawings are used for comments</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Drawing.Vml" isDocumented="True">Contains classes used for Vml drawings. Vml drawings are used for comments and background images</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Table" isDocumented="True">Contains the classes used for Excel tables</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.DataValidation" isDocumented="True">Contains classes for Datavalidation</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Table.PivotTable" isDocumented="True">Contains classes for Excel Pivottables</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Utils" isDocumented="True">Internal utility classes</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.ConditionalFormatting" isDocumented="True">Contains classes for Conditional Formatting</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.Style.Dxf" isDocumented="True">Contains classes for differential styling. EPPlus only support dxf styling in conditional formatting at this point</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.VBA" isDocumented="True">Contains classes for Excel VBA support</NamespaceSummaryItem></NamespaceSummaries>
+<NamespaceSummaryItem name="OfficeOpenXml.VBA" isDocumented="True">Contains classes for Excel VBA support</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.ConditionalFormatting.Contracts" isDocumented="True">Contains interfaces for Conditional formatting</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Contracts" isDocumented="True">Contains interfaces for data validation</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Formulas.Contracts" isDocumented="True">Contains interfaces for data validation formulas</NamespaceSummaryItem></NamespaceSummaries>
     <HelpTitle>EPPlus 3.1</HelpTitle>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers</VisibleItems>
     <BuildLogFile />

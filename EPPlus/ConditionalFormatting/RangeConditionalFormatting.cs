@@ -516,7 +516,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Adds a Databar rule 
     /// </summary>
-    /// <param name="IconSet"></param>
+    /// <param name="Color">The color of the databar</param>
     /// <returns></returns>
     public IExcelConditionalFormattingDataBarGroup AddDatabar(System.Drawing.Color Color)
     {
