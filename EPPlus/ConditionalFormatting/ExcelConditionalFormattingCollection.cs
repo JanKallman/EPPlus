@@ -37,6 +37,7 @@ using OfficeOpenXml.Utils;
 using System.Xml;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
@@ -163,7 +164,8 @@ namespace OfficeOpenXml.ConditionalFormatting
               cfRuleNode);
 
             // Add the new rule to the list
-            _rules.Add(cfRule);
+            if(cfRule!=null)
+              _rules.Add(cfRule);
           }
         }
       }
@@ -935,9 +937,62 @@ namespace OfficeOpenXml.ConditionalFormatting
         address);
     }
 
-    //TODO: Add the DataBar and IconSet
+    /// <summary>
+    /// Add ThreeIconSet Rule
+    /// </summary>
+    /// <param name="Address"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType> AddThreeIconSet(ExcelAddress Address, eExcelconditionalFormatting3IconsSetType IconSet)
+    {
+        var icon = (IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType>)AddRule(
+            eExcelConditionalFormattingRuleType.ThreeIconSet,
+            Address);
+        icon.IconSet = IconSet;
+        return icon;
+    }
+    /// <summary>
+    /// Adds a FourIconSet rule
+    /// </summary>
+    /// <param name="Address"></param>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType> AddFourIconSet(ExcelAddress Address, eExcelconditionalFormatting4IconsSetType IconSet)
+    {
+        var icon = (IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting4IconsSetType>)AddRule(
+            eExcelConditionalFormattingRuleType.FourIconSet,
+            Address);
+        icon.IconSet = IconSet;
+        return icon;
+    }
+    /// <summary>
+    /// Adds a FiveIconSet rule
+    /// </summary>
+    /// <param name="Address"></param>
+    /// <param name="IconSet"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingFiveIconSet AddFiveIconSet(ExcelAddress Address, eExcelconditionalFormatting5IconsSetType IconSet)
+    {
+        var icon = (IExcelConditionalFormattingFiveIconSet)AddRule(
+            eExcelConditionalFormattingRuleType.FiveIconSet,
+            Address);
+        icon.IconSet = IconSet;
+        return icon;
+    }
+    /// <summary>
+    /// Adds a databar rule
+    /// </summary>
+    /// <param name="Address"></param>
+    /// <param name="color"></param>
+    /// <returns></returns>
+    public IExcelConditionalFormattingDataBarGroup AddDatabar(ExcelAddress Address, Color color)
+    {
+        var dataBar = (IExcelConditionalFormattingDataBarGroup)AddRule(
+            eExcelConditionalFormattingRuleType.DataBar,
+            Address);
+        dataBar.Color=color;
+        return dataBar;
+    }
     #endregion Conditional Formatting Rules
 
-    /****************************************************************************************/
   }
 }

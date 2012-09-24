@@ -570,6 +570,33 @@ namespace EPPlusTest
             if (element!=null) element.ParentNode.RemoveChild(element);
         }
         [TestMethod]
+        public void DeleteDrawing()
+        {
+            var ws=_pck.Workbook.Worksheets.Add("DeleteDrawing1");
+            var chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
+            var chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
+            var shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
+            var pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            ws.Drawings.Remove(2);
+            ws.Drawings.Remove(chart2);
+            ws.Drawings.Remove("Pic1");
+
+            ws = _pck.Workbook.Worksheets.Add("DeleteDrawing2");
+            chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
+            chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
+            shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
+            pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+
+            ws.Drawings.Remove("chart1");
+
+            ws = _pck.Workbook.Worksheets.Add("ClearDrawing2");
+            chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
+            chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
+            shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
+            pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            ws.Drawings.Clear();
+        }
+        [TestMethod]
         public void ReadDocument()
         {
             ExcelPackage pck = new ExcelPackage(new FileInfo("Test\\Drawing.xlsx"),true);

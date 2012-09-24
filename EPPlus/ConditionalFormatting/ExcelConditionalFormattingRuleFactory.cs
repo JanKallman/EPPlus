@@ -345,8 +345,38 @@ namespace OfficeOpenXml.ConditionalFormatting
             priority,
 						worksheet,
 						itemElementNode);
+        case eExcelConditionalFormattingRuleType.ThreeIconSet:
+          return new ExcelConditionalFormattingThreeIconSet(
+            address,
+            priority,
+            worksheet,
+            itemElementNode,
+            null);
+        case eExcelConditionalFormattingRuleType.FourIconSet:
+          return new ExcelConditionalFormattingFourIconSet(
+            address,
+            priority,
+            worksheet,
+            itemElementNode,
+            null);
+        case eExcelConditionalFormattingRuleType.FiveIconSet:
+          return new ExcelConditionalFormattingFiveIconSet(
+            address,
+            priority,
+            worksheet,
+            itemElementNode,
+            null);
+        case eExcelConditionalFormattingRuleType.DataBar:
+          return new ExcelConditionalFormattingDataBar(
+            eExcelConditionalFormattingRuleType.DataBar,
+            address,
+            priority,
+            worksheet,
+            itemElementNode,
+            null);
 
-        //TODO: Add DataBar and IconSet
+
+        //TODO: Add DataBar
 			}
 
 			throw new InvalidOperationException(

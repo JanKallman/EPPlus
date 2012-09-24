@@ -5,9 +5,18 @@ using System.Text;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// To determine if the attribute uses double quotes around the value
+    /// </summary>
     public enum eAttributeDataType
     {
+        /// <summary>
+        /// A string
+        /// </summary>
         String=0,
+        /// <summary>
+        /// Not a string
+        /// </summary>
         NonString=1
     }
     public class ExcelVbaModuleAttribute
@@ -21,7 +30,7 @@ namespace OfficeOpenXml.VBA
         /// </summary>
         public string Name { get; internal set; }
         /// <summary>
-        /// The datatype.
+        /// The datatype. Determine if the attribute uses double quotes around the value.
         /// </summary>
         public eAttributeDataType DataType { get; internal set; }
         /// <summary>

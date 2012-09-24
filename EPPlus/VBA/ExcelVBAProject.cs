@@ -113,7 +113,6 @@ namespace OfficeOpenXml.VBA
         internal int LcidInvoke { get; set; }
         internal string ProjectID { get; set; }
         internal string ProjectStreamText { get; set; }
-        //internal string VBFrame { get; set; }
         /// <summary>
         /// Project references
         /// </summary>        
@@ -311,6 +310,11 @@ namespace OfficeOpenXml.VBA
             }
         }
 
+        /// <summary>
+        /// 2.4.3.3 Decryption
+        /// </summary>
+        /// <param name="value">Byte hex string</param>
+        /// <returns>The decrypted value</returns>
         private byte[] Decrypt(string value)
         {
             byte[] enc = GetByte(value);

@@ -172,7 +172,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges","scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "linePrint", "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors", "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture", "oleObjects", "activeXControls", "webPublishItems", "tableParts" };
+            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges","scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "linePrint", "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors", "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture", "oleObjects", "activeXControls", "webPublishItems", "tableParts" , "extLst" };
             _package = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -644,7 +644,7 @@ namespace OfficeOpenXml
                 sb.Append(block);
                 length += size;
             }
-            while (length < start);
+            while (length < start + 20 && length < end);
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
@@ -1857,6 +1857,33 @@ namespace OfficeOpenXml
             }
             Cell(row, col).Value = Value;
         }
+
+        #region MergeCellId
+
+        /// <summary>
+        /// Get MergeCell Index No
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        public int GetMergeCellId(int row, int column)
+        {
+            for (int i = 0; i < _mergedCells.Count; i++)
+            {
+                ExcelRange range = Cells[_mergedCells[i]];
+
+                if (range.Start.Row <= row && row <= range.End.Row)
+                {
+                    if (range.Start.Column <= column && column <= range.End.Column)
+                    {
+                        return i + 1;
+                    }
+                }
+            }
+            return 0;
+        }
+
+        #endregion
 		#endregion // END Worksheet Public Methods
 
 		#region Worksheet Private Methods
@@ -1881,6 +1908,12 @@ namespace OfficeOpenXml
                     this.SetXmlNodeString("d:dimension/@ref", Dimension.Address);
                 }
 
+                if (_drawings != null && _drawings.Count == 0)
+                {
+                    //Remove node if no drawings exists.
+                    DeleteNode("d:drawing");
+                }
+
                 SaveComments();
                 HeaderFooter.SaveHeaderFooterImages();
                 SaveTables();
@@ -1890,16 +1923,24 @@ namespace OfficeOpenXml
             
             if (Drawings.UriDrawing!=null)
             {
-                PackagePart partPack = Drawings.Part;
-				Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
-                foreach (ExcelDrawing d in Drawings)
+                if (Drawings.Count == 0)
+                {                    
+                    Part.DeleteRelationship(Drawings._drawingRelation.Id);
+                    _package.Package.DeletePart(Drawings.UriDrawing);                    
+                }
+                else
                 {
-                    if (d is ExcelChart)
+                    PackagePart partPack = Drawings.Part;
+                    Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+                    foreach (ExcelDrawing d in Drawings)
                     {
-                        ExcelChart c = (ExcelChart)d;
-                        c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        if (d is ExcelChart)
+                        {
+                            ExcelChart c = (ExcelChart)d;
+                            c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        }
                     }
-                }   
+                }
             }
 		}
 

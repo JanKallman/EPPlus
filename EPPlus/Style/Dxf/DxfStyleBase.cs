@@ -12,7 +12,7 @@ namespace OfficeOpenXml.Style.Dxf
         internal DxfStyleBase(ExcelStyles styles)
         {
             _styles = styles;
-            AllowChange = false; //Don't touch this value in the styles.xml by default.
+            AllowChange = false; //Don't touch this value in the styles.xml (by default). When Dxfs is fully implemented this can be removed.
         }
         protected internal abstract string Id { get; }
         protected internal abstract bool HasValue{get;}

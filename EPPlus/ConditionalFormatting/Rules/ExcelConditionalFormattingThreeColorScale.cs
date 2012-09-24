@@ -51,17 +51,17 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Private Low Value
     /// </summary>
-    private ExcelConditionalFormattingValueObject _lowValue;
+    private ExcelConditionalFormattingColorScaleValue _lowValue;
 
     /// <summary>
     /// Private Middle Value
     /// </summary>
-    private ExcelConditionalFormattingValueObject _middleValue;
+    private ExcelConditionalFormattingColorScaleValue _middleValue;
 
     /// <summary>
     /// Private High Value
     /// </summary>
-    private ExcelConditionalFormattingValueObject _highValue;
+    private ExcelConditionalFormattingColorScaleValue _highValue;
     #endregion Private Properties
 
     /****************************************************************************************/
@@ -96,7 +96,7 @@ namespace OfficeOpenXml.ConditionalFormatting
         ExcelConditionalFormattingConstants.Paths.ColorScale);
 
       // LowValue default
-      LowValue = new ExcelConditionalFormattingValueObject(
+      LowValue = new ExcelConditionalFormattingColorScaleValue(
         eExcelConditionalFormattingValueObjectPosition.Low,
         eExcelConditionalFormattingValueObjectType.Min,
         ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
@@ -107,7 +107,7 @@ namespace OfficeOpenXml.ConditionalFormatting
         NameSpaceManager);
 
       // MiddleValue default
-      MiddleValue = new ExcelConditionalFormattingValueObject(
+      MiddleValue = new ExcelConditionalFormattingColorScaleValue(
         eExcelConditionalFormattingValueObjectPosition.Middle,
         eExcelConditionalFormattingValueObjectType.Percent,
         ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue),
@@ -120,7 +120,7 @@ namespace OfficeOpenXml.ConditionalFormatting
         NameSpaceManager);
 
       // HighValue default
-      HighValue = new ExcelConditionalFormattingValueObject(
+      HighValue = new ExcelConditionalFormattingColorScaleValue(
         eExcelConditionalFormattingValueObjectPosition.High,
         eExcelConditionalFormattingValueObjectType.Max,
         ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
@@ -178,7 +178,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Low Value for Three Color Scale Object Value
     /// </summary>
-    public ExcelConditionalFormattingValueObject LowValue
+    public ExcelConditionalFormattingColorScaleValue LowValue
     {
       get { return _lowValue; }
       set { _lowValue = value; }
@@ -187,7 +187,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Middle Value for Three Color Scale Object Value
     /// </summary>
-    public ExcelConditionalFormattingValueObject MiddleValue
+    public ExcelConditionalFormattingColorScaleValue MiddleValue
     {
       get { return _middleValue; }
       set { _middleValue = value; }
@@ -196,7 +196,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// High Value for Three Color Scale Object Value
     /// </summary>
-    public ExcelConditionalFormattingValueObject HighValue
+    public ExcelConditionalFormattingColorScaleValue HighValue
     {
       get { return _highValue; }
       set { _highValue = value; }

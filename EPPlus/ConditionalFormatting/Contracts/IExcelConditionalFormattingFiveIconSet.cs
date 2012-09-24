@@ -39,15 +39,14 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
   /// <summary>
   /// IExcelConditionalFormattingFiveIconSet
-  /// </summary>
-  public interface IExcelConditionalFormattingFiveIconSet<T, I>
-    : IExcelConditionalFormattingFourIconSet<T, I>
+  /// </summary>eExcelconditionalFormatting4IconsSetType
+    public interface IExcelConditionalFormattingFiveIconSet : IExcelConditionalFormattingFourIconSet<eExcelconditionalFormatting5IconsSetType>
   {
     #region Public Properties
     /// <summary>
     /// Icon5 (part of the 5 Icon Set)
     /// </summary>
-    I Icon5 { get; set; }
+      ExcelConditionalFormattingIconDataBarValue Icon5 { get; }
     #endregion Public Properties
   }
 }
