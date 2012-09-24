@@ -11,6 +11,8 @@ Public Property Set Position(ByVal value As Range)
 End Property
 
 Public Function IsHit(cell As Range, isPlayer As Boolean) As Boolean
+Attribute IsHit.VB_Description = "Checks if the current move is a hit"
+Attribute IsHit.VB_HelpID = 1
 'Sample of attribute use on function level (show up in the objectbrowser(F2) --> Method --> Properties
    If Code.Collide(cell, Position) Then
         cell.Worksheet.Unprotect
@@ -22,10 +24,10 @@ Public Function IsHit(cell As Range, isPlayer As Boolean) As Boolean
         End If
         
         If isPlayer Then
-            Battleship.Cells(g_logRow, 2).value = "You get a hit on " & cell.Address
+            Battleship.Cells(g_logRow, 2).value = "You get a hit on " & cell.Address & "!"
             Battleship.Names("PlayerHits").RefersToRange.value = Battleship.Names("PlayerHits").RefersToRange.value + 1
         Else
-            Battleship.Cells(g_logRow, 2).value = "Computers gets a hit on " & cell.Address
+            Battleship.Cells(g_logRow, 2).value = "The Computer gets a hit on " & cell.Address
             Battleship.Names("ComputerHits").RefersToRange.value = Battleship.Names("ComputerHits").RefersToRange.value + 1
         End If
         g_logRow = g_logRow + 1

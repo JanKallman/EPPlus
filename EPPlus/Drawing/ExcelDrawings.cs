@@ -75,6 +75,7 @@ namespace OfficeOpenXml.Drawing
         //internal List<ImageCompare> _pics = new List<ImageCompare>();
         internal Dictionary<string, string> _hashes = new Dictionary<string, string>();
         internal ExcelPackage _package;
+        internal PackageRelationship _drawingRelation=null;
         internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();                
@@ -87,8 +88,8 @@ namespace OfficeOpenXml.Drawing
                 CreateNSM();
                 if (node != null)
                 {
-                    PackageRelationship drawingRelation = sheet.Part.GetRelationship(node.Attributes["r:id"].Value);
-                    _uriDrawing = PackUriHelper.ResolvePartUri(sheet.WorksheetUri, drawingRelation.TargetUri);
+                    _drawingRelation = sheet.Part.GetRelationship(node.Attributes["r:id"].Value);
+                    _uriDrawing = PackUriHelper.ResolvePartUri(sheet.WorksheetUri, _drawingRelation.TargetUri);
 
                     _part = xlPackage.Package.GetPart(_uriDrawing);
                     _drawingsXml.Load(_part.GetStream());
@@ -226,7 +227,7 @@ namespace OfficeOpenXml.Drawing
             }
         }
         #endregion
-        #region "Add functions"
+        #region Add functions
             /// <summary>
             /// Add a new chart to the worksheet.
             /// Do not support Bubble-, Radar-, Stock- or Surface charts. 
@@ -285,6 +286,17 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelPicture AddPicture(string Name, Image image)
             {
+               return AddPicture(Name, image, null);
+            }
+            /// <summary>
+            /// Add a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="image">An image. Allways saved in then JPeg format</param>
+            /// <param name="Hyperlink">Picture Hyperlink</param>
+            /// <returns></returns>
+            public ExcelPicture AddPicture(string Name, Image image, Uri Hyperlink)
+            {
                 if (image != null)
                 {
                     if (_drawingNames.ContainsKey(Name.ToLower()))
@@ -293,7 +305,7 @@ namespace OfficeOpenXml.Drawing
                     }
                     XmlElement drawNode = CreateDrawingXml();
                     drawNode.SetAttribute("editAs", "oneCell");
-                    ExcelPicture pic = new ExcelPicture(this, drawNode, image);
+                    ExcelPicture pic = new ExcelPicture(this, drawNode, image, Hyperlink);
                     pic.Name = Name;
                     _drawings.Add(pic);
                     _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
@@ -309,22 +321,34 @@ namespace OfficeOpenXml.Drawing
             /// <returns></returns>
             public ExcelPicture AddPicture(string Name, FileInfo ImageFile)
             {
-                if (ImageFile != null)
-                {
-                    if (_drawingNames.ContainsKey(Name.ToLower()))
-                    {
-                        throw new Exception("Name already exists in the drawings collection");
-                    }
-                    XmlElement drawNode = CreateDrawingXml();
-                    drawNode.SetAttribute("editAs", "oneCell");
-                    ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile);
-                    pic.Name = Name;
-                    _drawings.Add(pic);
-                    _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
-                    return pic;
-                }
-                throw (new Exception("AddPicture: ImageFile can't be null"));
+               return AddPicture(Name, ImageFile, null);
             }
+            /// <summary>
+            /// Add a picure to the worksheet
+            /// </summary>
+            /// <param name="Name"></param>
+            /// <param name="ImageFile">The image file</param>
+            /// <param name="Hyperlink">Picture Hyperlink</param>
+            /// <returns></returns>
+            public ExcelPicture AddPicture(string Name, FileInfo ImageFile, Uri Hyperlink)
+            {
+               if (ImageFile != null)
+               {
+                  if (_drawingNames.ContainsKey(Name.ToLower()))
+                  {
+                     throw new Exception("Name already exists in the drawings collection");
+                  }
+                  XmlElement drawNode = CreateDrawingXml();
+                  drawNode.SetAttribute("editAs", "oneCell");
+                  ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile, Hyperlink);
+                  pic.Name = Name;
+                  _drawings.Add(pic);
+                  _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                  return pic;
+               }
+               throw (new Exception("AddPicture: ImageFile can't be null"));
+            }
+
         /// <summary>
         /// Add a new shape to the worksheet
         /// </summary>
@@ -361,9 +385,9 @@ namespace OfficeOpenXml.Drawing
                     streamChart.Close();
                     package.Flush();
 
-                    PackageRelationship drawRelation = Worksheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                    _drawingRelation = Worksheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                     XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
-                    e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
+                    e.SetAttribute("id",ExcelPackage.schemaRelationships, _drawingRelation.Id);
 
                     Worksheet.WorksheetXml.DocumentElement.AppendChild(e);
                     package.Flush();                    
@@ -384,7 +408,49 @@ namespace OfficeOpenXml.Drawing
                 return drawNode;
             }
         #endregion
-
+        #region Remove methods
+            /// <summary>
+            /// Removes a drawing.
+            /// </summary>
+            /// <param name="Index">The index of the drawing</param>
+            public void Remove(int Index)
+        {
+            var draw=_drawings[Index];
+            draw.DeleteMe();
+            for (int i = Index + 1; i < _drawings.Count; i++)
+            {
+                _drawingNames[_drawings[i].Name.ToLower()]--;
+            }
+            _drawingNames.Remove(draw.Name.ToLower());
+            _drawings.Remove(draw);
+        }
+        /// <summary>
+        /// Removes a drawing.
+        /// </summary>
+        /// <param name="Drawing">The drawing</param>
+        public void Remove(ExcelDrawing Drawing)
+        {
+            Remove(_drawingNames[Drawing.Name.ToLower()]);
+        }
+        /// <summary>
+        /// Removes a drawing.
+        /// </summary>
+        /// <param name="Name">The name of the drawing</param>
+        public void Remove(string Name)
+        {
+            Remove(_drawingNames[Name.ToLower()]);
+        }
+        /// <summary>
+        /// Removes all drawings from the collection
+        /// </summary>
+        public void Clear()
+        {
+            while (Count > 0)
+            {
+                Remove(0);
+            }
+        }
+        #endregion
             internal void AdjustWidth(int[,] pos)
             {
                 var ix = 0;

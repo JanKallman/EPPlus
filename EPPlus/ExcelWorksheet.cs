@@ -172,7 +172,7 @@ namespace OfficeOpenXml
                               eWorkSheetHidden hide) :
             base(ns, null)
         {
-            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges","scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "linePrint", "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors", "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture", "oleObjects", "activeXControls", "webPublishItems", "tableParts" };
+            SchemaNodeOrder = new string[] { "sheetPr", "tabColor", "outlinePr", "pageSetUpPr", "dimension", "sheetViews", "sheetFormatPr", "cols", "sheetData", "sheetProtection", "protectedRanges","scenarios", "autoFilter", "sortState", "dataConsolidate", "customSheetViews", "customSheetViews", "mergeCells", "phoneticPr", "conditionalFormatting", "dataValidations", "hyperlinks", "printOptions", "pageMargins", "pageSetup", "headerFooter", "linePrint", "rowBreaks", "colBreaks", "customProperties", "cellWatches", "ignoredErrors", "smartTags", "drawing", "legacyDrawing", "legacyDrawingHF", "picture", "oleObjects", "activeXControls", "webPublishItems", "tableParts" , "extLst" };
             _package = excelPackage;   
             _relationshipID = relID;
             _worksheetUri = uriWorksheet;
@@ -270,7 +270,7 @@ namespace OfficeOpenXml
 				_name = value;
             }
 		}
-        private ExcelNamedRangeCollection _names;
+        internal ExcelNamedRangeCollection _names;
         /// <summary>
         /// Provides access to named ranges
         /// </summary>
@@ -644,7 +644,7 @@ namespace OfficeOpenXml
                 sb.Append(block);
                 length += size;
             }
-            while (length < start);
+            while (length < start + 20 && length < end);
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
@@ -797,7 +797,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            cell.Hyperlink = new ExcelHyperLink(uri);
+                            cell.Hyperlink = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
                         }
                         Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                     }
@@ -1182,8 +1182,7 @@ namespace OfficeOpenXml
                 {
                     int maxCol = column.ColumnMax;
                     column.ColumnMax=col;
-                    ExcelColumn copy = CopyColumn(column, col+1);
-                    copy.ColumnMax = maxCol;
+                    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
                 }
             }
             else
@@ -1196,10 +1195,9 @@ namespace OfficeOpenXml
                         checkColumn.ColumnMax = col - 1;
                         if (maxCol > col)
                         {
-                            ExcelColumn newC = CopyColumn(checkColumn, col + 1);
-                            newC.ColumnMax = maxCol;
+                            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
                         }
-                        return CopyColumn(checkColumn, col);                        
+                        return CopyColumn(checkColumn, col,col);                        
                     }
                 }
                 column = new ExcelColumn(this, col);
@@ -1214,17 +1212,18 @@ namespace OfficeOpenXml
         public override string ToString()
         {
             return Name;
-        } 
-        internal ExcelColumn CopyColumn(ExcelColumn c, int col)
+        }
+        internal ExcelColumn CopyColumn(ExcelColumn c, int col, int maxCol)
         {
             ExcelColumn newC = new ExcelColumn(this, col);
+            newC.ColumnMax = maxCol;
             if (c.StyleName != "")
                 newC.StyleName = c.StyleName;
             else
                 newC.StyleID = c.StyleID;
 
-            newC.Width = c.Width;
-            newC.Hidden = c.Hidden;
+            newC._width = c._width;
+            newC._hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
             newC.Phonetic = c.Phonetic;
             newC.BestFit = c.BestFit;
@@ -1909,6 +1908,12 @@ namespace OfficeOpenXml
                     this.SetXmlNodeString("d:dimension/@ref", Dimension.Address);
                 }
 
+                if (_drawings != null && _drawings.Count == 0)
+                {
+                    //Remove node if no drawings exists.
+                    DeleteNode("d:drawing");
+                }
+
                 SaveComments();
                 HeaderFooter.SaveHeaderFooterImages();
                 SaveTables();
@@ -1918,16 +1923,24 @@ namespace OfficeOpenXml
             
             if (Drawings.UriDrawing!=null)
             {
-                PackagePart partPack = Drawings.Part;
-				Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
-                foreach (ExcelDrawing d in Drawings)
+                if (Drawings.Count == 0)
+                {                    
+                    Part.DeleteRelationship(Drawings._drawingRelation.Id);
+                    _package.Package.DeletePart(Drawings.UriDrawing);                    
+                }
+                else
                 {
-                    if (d is ExcelChart)
+                    PackagePart partPack = Drawings.Part;
+                    Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+                    foreach (ExcelDrawing d in Drawings)
                     {
-                        ExcelChart c = (ExcelChart)d;
-                        c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        if (d is ExcelChart)
+                        {
+                            ExcelChart c = (ExcelChart)d;
+                            c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                        }
                     }
-                }   
+                }
             }
 		}
 
@@ -2802,22 +2815,5 @@ namespace OfficeOpenXml
                 n.ParentNode.RemoveChild(n);
             }
         }
-        //List<IFormulaCell> _fc = null;
-        //public List<ExcelRange> FormulaCells
-        //{
-        //    get 
-        //    {
-        //        if (_fc == null)
-        //        {
-        //            _fc = new List<ExcelRange>();
-        //            foreach (var r in _sharedFormulas)
-        //            {
-        //                _fc.Add(new IFormulaCell))
-        //            }
-        //        }
-        //        return _fc;
-        //    }
-        //}
-
     }  // END class Worksheet
 }

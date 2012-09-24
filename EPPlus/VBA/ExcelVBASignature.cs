@@ -40,6 +40,9 @@ using System.IO;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// The code signature properties of the project
+    /// </summary>
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
@@ -70,8 +73,8 @@ namespace OfficeOpenXml.VBA
                 uint cbTimestampUrl = br.ReadUInt32();
                 uint timestampUrlOffset = br.ReadUInt32();  
                 byte[] signature = br.ReadBytes((int)cbSignature);
-                uint version = br.ReadUInt32();             
-                uint fileType = br.ReadUInt32();            
+                uint version = br.ReadUInt32();
+                uint fileType = br.ReadUInt32();
 
                 uint id = br.ReadUInt32();
                 while (id != 0)
@@ -326,7 +329,7 @@ namespace OfficeOpenXml.VBA
         /// The certificate to sign the VBA project.
         /// <remarks>
         /// This certificate must have a private key.
-        /// There is no validation that the certificate is valid for codesigning, so make sure it's valid to sign Excel files with (Excel 2010 is more strict that prior versions).
+        /// There is no validation that the certificate is valid for codesigning, so make sure it's valid to sign Excel files (Excel 2010 is more strict that prior versions).
         /// </remarks>
         /// </summary>
         public X509Certificate2 Certificate { get; set; }

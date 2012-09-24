@@ -40,24 +40,24 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
 	/// <summary>
 	/// IExcelConditionalFormattingThreeIconSet
 	/// </summary>
-	public interface IExcelConditionalFormattingThreeIconSet<T, I>
+	public interface IExcelConditionalFormattingThreeIconSet<T>
     : IExcelConditionalFormattingIconSetGroup<T>
 	{
 		#region Public Properties
     /// <summary>
     /// Icon1 (part of the 3, 4 ou 5 Icon Set)
     /// </summary>
-    I Icon1 { get; set; }
+        ExcelConditionalFormattingIconDataBarValue Icon1 { get; }
 
     /// <summary>
     /// Icon2 (part of the 3, 4 ou 5 Icon Set)
     /// </summary>
-    I Icon2 { get; set; }
+    ExcelConditionalFormattingIconDataBarValue Icon2 { get;  }
 
     /// <summary>
     /// Icon3 (part of the 3, 4 ou 5 Icon Set)
     /// </summary>
-    I Icon3 { get; set; }
+    ExcelConditionalFormattingIconDataBarValue Icon3 { get; }
     #endregion Public Properties
 	}
 }

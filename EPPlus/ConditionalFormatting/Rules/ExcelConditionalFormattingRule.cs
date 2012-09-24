@@ -51,7 +51,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     /****************************************************************************************/
 
     #region Private Properties
-    private eExcelConditionalFormattingRuleType _type;
+    private eExcelConditionalFormattingRuleType? _type;
     private ExcelWorksheet _worksheet;
 
     /// <summary>
@@ -104,7 +104,7 @@ namespace OfficeOpenXml.ConditionalFormatting
           // {1}
             ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
           // {2}
-            address.Address,
+            address.AddressSpaceSeparated,          //CF node don't what to have comma between multi addresses, use space instead.
           // {3}
             ExcelConditionalFormattingConstants.Paths.CfRule,
           //{4}
@@ -200,7 +200,7 @@ namespace OfficeOpenXml.ConditionalFormatting
             // {1}
               ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
             // {2}
-              value.Address));
+              value.AddressSpaceSeparated)); 
 
           // Move the <cfRule> node to the new <conditionalFormatting> parent node
           TopNode = newParentNode.AppendChild(Node);
@@ -223,14 +223,19 @@ namespace OfficeOpenXml.ConditionalFormatting
       get
       {
         // Transform the @type attribute to EPPlus Rule Type (slighty diferente)
-        return ExcelConditionalFormattingRuleType.GetTypeByAttrbiute(
+        if(_type==null)
+        {
+          _type = ExcelConditionalFormattingRuleType.GetTypeByAttrbiute(
           GetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute),
           TopNode,
           _worksheet.NameSpaceManager);
+        }
+        return (eExcelConditionalFormattingRuleType)_type;
       }
       internal set
       {
-        // Transform the EPPlus Rule Type to @type attribute (slighty diferente)
+          _type = value;
+          // Transform the EPPlus Rule Type to @type attribute (slighty diferente)
         SetXmlNodeString(
           ExcelConditionalFormattingConstants.Paths.TypeAttribute,
           ExcelConditionalFormattingRuleType.GetAttributeByType(value),
@@ -618,7 +623,6 @@ namespace OfficeOpenXml.ConditionalFormatting
       }
     }
     #endregion Internal Properties
-
     /****************************************************************************************/
   }
 }

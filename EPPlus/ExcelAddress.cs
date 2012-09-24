@@ -46,6 +46,8 @@ namespace OfficeOpenXml
         internal protected string _wb;
         internal protected string _ws;
         internal protected string _address;
+        internal protected event EventHandler AddressChange;
+
         internal enum eAddressCollition
         {
             No,
@@ -139,7 +141,13 @@ namespace OfficeOpenXml
             _address = address;
             Validate();
         }
-
+        internal void ChangeAddress()
+        {
+            if (AddressChange != null)
+            {
+                AddressChange(this, new EventArgs());
+            }
+        }
         private void SetWbWs(string address)
         {
             int pos;
@@ -203,7 +211,7 @@ namespace OfficeOpenXml
             {
                 return _address;
             }
-        }
+        }        
         /// <summary>
         /// If the address is a defined name
         /// </summary>
@@ -235,6 +243,13 @@ namespace OfficeOpenXml
                 {
                     return _firstAddress;
                 }
+            }
+        }
+        internal string AddressSpaceSeparated
+        {
+            get
+            {
+                return _address.Replace(',', ' '); //Conditional formatting and a few other places use space as separator for mulit addresses.
             }
         }
         /// <summary>
@@ -454,6 +469,15 @@ namespace OfficeOpenXml
         internal static AddressType IsValid(string Address)
         {
             string ws="";
+            if (Address.StartsWith("'"))
+            {
+                int ix = Address.IndexOf('\'', 1);
+                if (ix > -1)
+                {
+                    ws = Address.Substring(1, ix-1);
+                    Address = Address.Substring(ix + 2);
+                }
+            }
             if (Address.IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=','^','&','%','\"' })>-1)
             {
                 return AddressType.Invalid;
@@ -584,6 +608,7 @@ namespace OfficeOpenXml
             set
             {                
                 SetAddress(value);
+                base.ChangeAddress();
             }
         }
     }

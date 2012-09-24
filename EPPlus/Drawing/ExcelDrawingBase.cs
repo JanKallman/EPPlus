@@ -37,6 +37,9 @@ using System.Xml;
 using OfficeOpenXml.Drawing.Chart;
 namespace OfficeOpenXml.Drawing
 {
+    /// <summary>
+    /// Text anchoring
+    /// </summary>
     public enum eTextAnchoringType
     {
         Bottom,
@@ -45,6 +48,9 @@ namespace OfficeOpenXml.Drawing
         Justify,
         Top
     }
+    /// <summary>
+    /// Vertical text type
+    /// </summary>
     public enum eTextVerticalType
     {
         EastAsianVertical,
@@ -56,6 +62,9 @@ namespace OfficeOpenXml.Drawing
         WordArtVerticalRightToLeft
 
     }
+    /// <summary>
+    /// How the drawing will be resized.
+    /// </summary>
     public enum eEditAs
     {
         /// <summary>
@@ -86,7 +95,6 @@ namespace OfficeOpenXml.Drawing
     {
         /// <summary>
         /// Position of the a drawing.
-        /// 
         /// </summary>
         public class ExcelPosition : XmlHelper
         {
@@ -327,7 +335,7 @@ namespace OfficeOpenXml.Drawing
             int pix = 0;
             for (int col = 0; col < From.Column; col++)
             {
-                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col+1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
             pix += From.ColumnOff / EMU_PER_PIXEL;
             return pix;
@@ -338,7 +346,7 @@ namespace OfficeOpenXml.Drawing
             int pix = 0;
             for (int row = 0; row < From.Row; row++)
             {
-                pix += (int)(GetRowWidth(row) / 0.75);
+                pix += (int)(GetRowWidth(row+1) / 0.75);
             }
             pix += From.RowOff / EMU_PER_PIXEL;
             return pix;
@@ -423,13 +431,13 @@ namespace OfficeOpenXml.Drawing
             ExcelWorksheet ws = _drawings.Worksheet;
             decimal mdw = ws.Workbook.MaxFontWidth;
             int prevPix = 0;
-            int pix = (int)decimal.Truncate(((256 * (decimal)ws.Column(1).VisualWidth + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+            int pix = (int)decimal.Truncate(((256 * GetColumnWidth(1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             int col = 2;
 
             while (pix < pixels)
             {
                 prevPix = pix;
-                pix += (int)decimal.Truncate(((256 * (decimal)ws.Column(col++).VisualWidth + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col++) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
             if (pix == pixels)
             {
@@ -633,6 +641,10 @@ namespace OfficeOpenXml.Drawing
                 default:
                     return eTextVerticalType.Horizontal;
             }
+        }
+        internal virtual void DeleteMe()
+        {
+            TopNode.ParentNode.RemoveChild(TopNode);
         }
     }
 }

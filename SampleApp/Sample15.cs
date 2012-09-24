@@ -134,7 +134,6 @@ namespace EPPlusSamples
             var board2 = ws.Cells[2, 4+gridSize-1, 2 + gridSize-1, 4 + (gridSize-1)*2];
             CreateBoard(board1);
             CreateBoard(board2);
-
             ws.Select("B2");
             ws.Protection.IsProtected = true;
             ws.Protection.AllowSelectLockedCells = true;
@@ -180,7 +179,7 @@ namespace EPPlusSamples
             tb.Fill.Color = Color.LightSlateGray;
             var rt1 = tb.RichText.Add("Battleships");
             rt1.Bold = true;
-            tb.RichText.Add("\r\nDouble-click on the left board to make your move. Find and sink all ships to Win!");
+            tb.RichText.Add("\r\nDouble-click on the left board to make your move. Find and sink all ships to win!");
 
             //Set the headers.
             ws.SetValue("B1", "Computer Grid");
@@ -196,7 +195,10 @@ namespace EPPlusSamples
             ws.SetValue("B24", "Log");
             ws.Cells["B24"].Style.Font.Bold = true;
             ws.Cells["B24:X24"].Style.Border.BorderAround(ExcelBorderStyle.Thin, Color.Black);
-            
+            var cf=ws.Cells["B25:B224"].ConditionalFormatting.AddContainsText();
+            cf.Text = "hit";
+            cf.Style.Font.Color.Color = Color.Red;
+
             //If you have a valid certificate for code signing you can use this code to set it.
             ///*** Try to find a cert valid for signing... ***/
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
@@ -237,6 +239,7 @@ namespace EPPlusSamples
 
         private static void CreateBoard(ExcelRange rng)
         {
+            //Create a gradiant background with one dark and one light blue color
             rng.Style.Fill.Gradient.Color1.SetColor(Color.FromArgb(0x80, 0x80, 0XFF));
             rng.Style.Fill.Gradient.Color2.SetColor(Color.FromArgb(0x20, 0x20, 0XFF));
             rng.Style.Fill.Gradient.Type = ExcelFillGradientType.None;
@@ -262,18 +265,17 @@ namespace EPPlusSamples
                     }
                 }
             }
-            rng.Style.Border.Top.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            //Set the inner cell border to thin, light gray
+            rng.Style.Border.Top.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Top.Color.SetColor(Color.Gray);
-            rng.Style.Border.Right.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Right.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Right.Color.SetColor(Color.Gray);
-            rng.Style.Border.Left.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Left.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Left.Color.SetColor(Color.Gray);
-            rng.Style.Border.Bottom.Style = OfficeOpenXml.Style.ExcelBorderStyle.Thin;
+            rng.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
             rng.Style.Border.Bottom.Color.SetColor(Color.Gray);
 
-            rng.Offset(0, 0, 1, rng.End.Column - rng.Start.Column+1).Style.Border.Top.Color.SetColor(Color.Black);
-            rng.Offset(0, 0, 1, rng.End.Column - rng.Start.Column + 1).Style.Border.Top.Style=ExcelBorderStyle.Medium;
-            int rows=rng.End.Row - rng.Start.Row;
+            //Solid black border around the board.
             rng.Style.Border.BorderAround(ExcelBorderStyle.Medium, Color.Black);
         }
     }

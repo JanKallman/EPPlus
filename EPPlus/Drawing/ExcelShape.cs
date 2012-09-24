@@ -36,6 +36,9 @@ using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Style;
+/// <summary>
+/// Shape style
+/// </summary>
 public enum eShapeStyle
 {
     AccentBorderCallout1,
@@ -226,6 +229,9 @@ public enum eShapeStyle
     WedgeRoundRectCallout,
     VerticalScroll
 }
+/// <summary>
+/// Text alignment
+/// </summary>
 public enum eTextAlignment
 {
     Left,

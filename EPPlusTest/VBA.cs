@@ -95,7 +95,7 @@ namespace EPPlusTest
             package.Workbook.CodeModule.Code = "Private Sub Workbook_Open()\r\nCreateData\r\nEnd Sub";
             var module=package.Workbook.VbaProject.Modules.AddModule("Code");
 
-                StringBuilder code = new StringBuilder("Public Sub CreateData()\r\n");
+            StringBuilder code = new StringBuilder("Public Sub CreateData()\r\n");
             for (int row = 1; row < 30; row++)
             {
                 for (int col = 1; col < 30; col++)

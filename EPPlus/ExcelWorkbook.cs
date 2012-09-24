@@ -39,7 +39,7 @@ using System.Security;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
-
+using System.Drawing;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -272,6 +272,7 @@ namespace OfficeOpenXml
 		decimal _standardFontWidth = decimal.MinValue;
 		/// <summary>
 		/// Max font width for the workbook
+        /// <remarks>This method uses GDI. If you use Asure or another environment that does not support GDI, you have to set this value manually if you don't use the standard Calibri font</remarks>
 		/// </summary>
 		public decimal MaxFontWidth 
 		{
@@ -280,11 +281,32 @@ namespace OfficeOpenXml
 				if (_standardFontWidth == decimal.MinValue)
 				{
 					var font = Styles.Fonts[0];
-					System.Drawing.Font f = new System.Drawing.Font(font.Name, font.Size);
-					_standardFontWidth=(decimal)(System.Windows.Forms.TextRenderer.MeasureText("00", f).Width - System.Windows.Forms.TextRenderer.MeasureText("0", f).Width);
+                    try
+                    {
+                        Font f = new Font(font.Name, font.Size);
+                        using (Bitmap b = new Bitmap(1, 1))
+                        {
+                            using (Graphics g = Graphics.FromImage(b))
+                            {
+                                _standardFontWidth = (decimal)Math.Truncate(g.MeasureString("00", f).Width - g.MeasureString("0", f).Width);
+                            }
+                        }
+                        if (_standardFontWidth <= 0) //No GDI?
+                        {
+                            _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox. for Calibri.
+                        }
+                    }
+                    catch   //Error, set default value
+                    {
+                        _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox for Calibri.
+                    }
 				}
 				return _standardFontWidth;
 			}
+            set
+            {
+                _standardFontWidth = value;
+            }
 		}
 		ExcelProtection _protection = null;
 		/// <summary>
@@ -978,5 +1000,5 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-	} // end Workbook
+    } // end Workbook
 }

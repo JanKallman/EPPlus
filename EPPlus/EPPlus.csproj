@@ -67,15 +67,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
-    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -122,6 +119,10 @@
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithShowValue.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithStdDev.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithText.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingIconDataBarValue.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDataBar.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFourIconSet.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveStdDev.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveOrEqualAverage.cs">
       <SubType>Code</SubType>
@@ -137,7 +138,7 @@
     </Compile>
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingConstants.cs" />
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingTimePeriodType.cs" />
-    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingValueObject.cs">
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingColorScaleValue.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ConditionalFormatting\ExcelConditionalFormattingEnums.cs">
@@ -183,6 +184,7 @@
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisMonth.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisWeek.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeIconSet.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTimePeriodGroup.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -267,7 +269,6 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
-    <Compile Include="ICalcEngine.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />
     <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
     <Compile Include="VBA\ExcelVbaModuleCollection.cs" />

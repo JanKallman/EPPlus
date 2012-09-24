@@ -20,7 +20,7 @@ namespace OfficeOpenXml.Style.Dxf
         {
             get
             {
-                return GetAsString(Style) + "|" + GetAsString(Color);
+                return GetAsString(Style) + "|" + (Color == null ? "" : Color.Id);
             }
         }
 

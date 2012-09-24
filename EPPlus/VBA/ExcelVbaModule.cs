@@ -35,6 +35,9 @@ using System.Text;
 
 namespace OfficeOpenXml.VBA
 {
+    /// <summary>
+    /// Type of VBA module
+    /// </summary>
     public enum eModuleType
     {
         /// <summary>
@@ -46,7 +49,7 @@ namespace OfficeOpenXml.VBA
         /// </summary>
         Module=1,
         /// <summary>
-        /// A class
+        /// A Class
         /// </summary>
         Class=2,
         /// <summary>
@@ -98,7 +101,7 @@ namespace OfficeOpenXml.VBA
         private string _code="";
         /// <summary>
         /// The code without any module level attributes.
-        /// Can contain function level attributes.
+        /// <remarks>Can contain function level attributes.</remarks> 
         /// </summary>
         public string Code {
             get

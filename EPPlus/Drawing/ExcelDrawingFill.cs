@@ -38,7 +38,7 @@ using System.Drawing;
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
-    /// Fill for drawing objects
+    /// Fill properties for drawing objects
     /// </summary>
     public sealed class ExcelDrawingFill : XmlHelper
     {
@@ -64,6 +64,9 @@ namespace OfficeOpenXml.Drawing
         }
         eFillStyle _style;
         XmlNode _fillTypeNode = null;
+        /// <summary>
+        /// Fill style
+        /// </summary>
         public eFillStyle Style
         {
             get
@@ -141,6 +144,9 @@ namespace OfficeOpenXml.Drawing
         }
 
         const string ColorPath = "/a:solidFill/a:srgbClr/@val";
+        /// <summary>
+        /// Fill color for solid fills
+        /// </summary>
         public Color Color
         {
             get

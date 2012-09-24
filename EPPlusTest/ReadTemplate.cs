@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
+using OfficeOpenXml.Drawing;
 
 namespace EPPlusTest
 {
@@ -90,19 +91,9 @@ namespace EPPlusTest
                 var r1 = ws.Cells["A1"].RichText[0];
                 Assert.AreEqual(r1.Text,"Test");
                 Assert.AreEqual(r1.Bold, true);
-                //r1.Bold = true;
-                //r1.Color = Color.Pink;
 
-                //var r2 = rs.Add(" of");
-                //r2.Size = 14;
-                //r2.Italic = true;
-
-                //var r3 = rs.Add(" rich");
-                //r3.FontName = "Arial";
-                //r3.Size = 18;
-                //r3.Italic = true;
-
-                //var r4 = rs.Add("text.");
+                ws=pck.Workbook.Worksheets["Pic URL"];
+                    Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");                
 
                 Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
 
@@ -297,6 +288,22 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
+        }
+        [TestMethod]
+        public void ReadURL()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug12()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
     }
 }

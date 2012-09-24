@@ -100,7 +100,7 @@ namespace OfficeOpenXml
         /// </summary>
         public char Delimiter { get; set; }
         /// <summary>
-        /// Text quualifier character 
+        /// Text qualifier character 
         /// </summary>
         public char TextQualifier {get; set; }
         /// <summary>
@@ -124,7 +124,7 @@ namespace OfficeOpenXml
         /// </summary>
         public int SkipLinesEnd { get; set; }
         /// <summary>
-        /// Only used when reading files from disk using a FileInfo object
+        /// Only used when reading files from disk using a FileInfo object. Default AscII
         /// </summary>
         public Encoding Encoding { get; set; }
     }

@@ -262,6 +262,9 @@ namespace OfficeOpenXml.Drawing.Chart
         Style47,
         Style48
     }
+    /// <summary>
+    /// Type of Trendline for a chart
+    /// </summary>
     public enum eTrendLine
     {
         /// <summary>
@@ -1780,6 +1783,22 @@ namespace OfficeOpenXml.Drawing.Chart
            fmts.InnerXml = "<c:pivotFmt><c:idx val=\"0\"/><c:marker><c:symbol val=\"none\"/></c:marker></c:pivotFmt>";
 
            Series.AddPivotSerie(pivotTableSource);
+       }
+       internal override void DeleteMe()
+       {
+           try
+           {
+               foreach (var rel in Part.GetRelationships())
+               {
+                   Part.DeleteRelationship(rel.Id);
+               }
+               Part.Package.DeletePart(UriChart);               
+           }
+           catch (Exception ex)
+           {
+               throw (new InvalidDataException("EPPlus internal error when deleteing chart.", ex));
+           }
+           base.DeleteMe();
        }
     }
 }

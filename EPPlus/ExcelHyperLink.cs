@@ -81,17 +81,6 @@ namespace OfficeOpenXml
             _referenceAddress = referenceAddress;
             _display = display;
         }
-        /// <summary>
-        /// Intended for non absolute uri's. 
-        /// </summary>
-        /// <param name="uriString">The Original URI</param>
-        internal ExcelHyperLink(Uri originalUri) : 
-            base("xl://nonAbsolute")
-        {
-            OriginalUri = originalUri;
-            //Not the best of solutions, but to stay compatible with older version (Baseclass URI), the interface should be compatible.
-        }
-
         string _referenceAddress = null;
         /// <summary>
         /// The Excel address for internal links.

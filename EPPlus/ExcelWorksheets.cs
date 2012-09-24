@@ -223,6 +223,10 @@ namespace OfficeOpenXml
             {
                 CopyPivotTable(Copy, added);
             }
+            if (Copy.Names.Count > 0)
+            {
+                CopySheetNames(Copy, added);
+            }
 
             //Copy all cells
             CloneCells(Copy, added);
@@ -243,6 +247,34 @@ namespace OfficeOpenXml
             }
 
             return added;
+        }
+
+        private void CopySheetNames(ExcelWorksheet Copy, ExcelWorksheet added)
+        {
+            foreach (var name in Copy.Names)
+            {
+                ExcelNamedRange newName;
+                if (!name.IsName)
+                {
+                    if (name.WorkSheet == Copy.Name)
+                    {
+                        newName = added.Names.Add(name.Name, added.Cells[name.FirstAddress]);
+                    }
+                    else
+                    {
+                        newName = added.Names.Add(name.Name, added.Workbook.Worksheets[name.WorkSheet].Cells[name.FirstAddress]);
+                    }
+                }
+                else if (!string.IsNullOrEmpty(name.NameFormula))
+                {
+                    newName=added.Names.AddFormula(name.Name, name.Formula);
+                }
+                else
+                {
+                    newName=added.Names.AddValue(name.Name, name.Value);
+                }
+               newName.NameComment = name.NameComment;
+            }
         }
 
         private void CopyTable(ExcelWorksheet Copy, ExcelWorksheet added)
@@ -718,7 +750,11 @@ namespace OfficeOpenXml
 		public void Delete(int Index)
 		{
 			ExcelWorksheet worksheet = _worksheets[Index];
-			//Delete the worksheet part and relation from the package 
+            if (worksheet.Drawings.Count > 0)
+            {
+                worksheet.Drawings.Clear();
+            }
+            //Delete the worksheet part and relation from the package 
 			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 

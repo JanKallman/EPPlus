@@ -1,11 +1,11 @@
-﻿Public Const board1 = "B2:K11"
-Public Const board2 = "M2:V11"
+﻿Public Const board1 = "{5}"
+Public Const board2 = "{6}"
 
-Public Const userShip1 = "N3:N7"
-Public Const userShip2 = "P2:S2"
-Public Const userShip3 = "V9:V11"
-Public Const userShip4 = "O10:Q10"
-Public Const userShip5 = "R11:S11"
+Public Const userShip1 = "{0}"
+Public Const userShip2 = "{1}"
+Public Const userShip3 = "{2}"
+Public Const userShip4 = "{3}"
+Public Const userShip5 = "{4}"
 
 Global g_logRow As Integer
 Global g_gameEnded As Boolean
