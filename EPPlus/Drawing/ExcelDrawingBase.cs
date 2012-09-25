@@ -457,7 +457,7 @@ namespace OfficeOpenXml.Drawing
         internal void SetPixelHeight(int pixels, float dpi)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            decimal mdw = ws.Workbook.MaxFontWidth;
+            //decimal mdw = ws.Workbook.MaxFontWidth;
             pixels = (int)(pixels / (dpi / STANDARD_DPI) + .5);
             int pixOff = pixels - ((int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL));
             int prevPixOff = pixels;

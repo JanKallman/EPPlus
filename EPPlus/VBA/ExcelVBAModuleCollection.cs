@@ -41,7 +41,7 @@ namespace OfficeOpenXml.VBA
     /// <typeparam name="T"></typeparam>
     public class ExcelVBACollectionBase<T> : IEnumerable<T>
     {
-        internal protected List<T> _list=new List<T>();
+        internal protected List<T> _list=new List<T>();        
         public IEnumerator<T> GetEnumerator()
         {
             return _list.GetEnumerator();
@@ -51,6 +51,11 @@ namespace OfficeOpenXml.VBA
         {
             return _list.GetEnumerator();
         }
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        /// <param name="Name">Name</param>
+        /// <returns></returns>
         public T this [string Name]
         {
             get
@@ -58,6 +63,11 @@ namespace OfficeOpenXml.VBA
                 return _list.Find((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
             }
         }
+        /// <summary>
+        /// Indexer
+        /// </summary>
+        /// <param name="Index">Position</param>
+        /// <returns></returns>
         public T this[int Index]
         {
             get
@@ -65,22 +75,39 @@ namespace OfficeOpenXml.VBA
                 return _list[Index];
             }
         }
+        /// <summary>
+        /// Number of items in the collection
+        /// </summary>
         public int Count
         {
             get { return _list.Count; }
         }
+        /// <summary>
+        /// If a specific name exists in the collection
+        /// </summary>
+        /// <param name="Name">The name</param>
+        /// <returns>True if the name exists</returns>
         public bool Exists(string Name)
         {
             return _list.Exists((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
         }
+        /// <summary>
+        /// Removes the item
+        /// </summary>
+        /// <param name="Item"></param>
         public void Remove(T Item)
         {
             _list.Remove(Item);
         }
+        /// <summary>
+        /// Removes the item at the specified index
+        /// </summary>
+        /// <param name="index">THe index</param>
         public void RemoveAt(int index)
         {
             _list.RemoveAt(index);
         }
+        
         internal void Clear()
         {
             _list.Clear();
@@ -146,8 +173,8 @@ namespace OfficeOpenXml.VBA
     /// A collection of the vba projects references
     /// </summary>
     public class ExcelVbaReferenceCollection : ExcelVBACollectionBase<ExcelVbaReference>
-    {
-        public ExcelVbaReferenceCollection()
+    {        
+        internal ExcelVbaReferenceCollection()
         {
 
         }

@@ -940,7 +940,8 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// Add ThreeIconSet Rule
     /// </summary>
-    /// <param name="Address"></param>
+    /// <param name="Address">The address</param>
+    /// <param name="IconSet">Type of iconset</param>
     /// <returns></returns>
     public IExcelConditionalFormattingThreeIconSet<eExcelconditionalFormatting3IconsSetType> AddThreeIconSet(ExcelAddress Address, eExcelconditionalFormatting3IconsSetType IconSet)
     {

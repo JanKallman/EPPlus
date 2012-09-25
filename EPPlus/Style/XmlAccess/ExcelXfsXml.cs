@@ -853,7 +853,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_fillId >= 0) SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
             if(_borderId >= 0) SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
             if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
-            if (!isCellStyleXsf && _xfID > int.MinValue)
+            if (!isCellStyleXsf && _xfID > int.MinValue && _styles.CellStyleXfs.Count>0)
                 SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
 
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
