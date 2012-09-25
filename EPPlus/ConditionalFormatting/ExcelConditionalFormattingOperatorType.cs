@@ -46,7 +46,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// </summary>
 		/// <param name="type"></param>
 		/// <returns></returns>
-		public static string GetAttributeByType(
+		internal static string GetAttributeByType(
 			eExcelConditionalFormattingOperatorType type)
 		{
 			switch (type)
@@ -94,9 +94,9 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="type"></param>
+    /// param name="attribute"
     /// <returns></returns>
-    public static eExcelConditionalFormattingOperatorType GetTypeByAttribute(
+    internal static eExcelConditionalFormattingOperatorType GetTypeByAttribute(
       string attribute)
     {
       switch (attribute)

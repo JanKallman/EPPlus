@@ -77,7 +77,8 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="priority"></param>
+      /// <param name="type"></param>
+      /// <param name="priority"></param>
     /// <param name="address"></param>
     /// <param name="worksheet"></param>
     /// <param name="itemElementNode"></param>

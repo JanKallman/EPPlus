@@ -64,6 +64,7 @@ namespace OfficeOpenXml
             _styleXml=xml;
             _wb = wb;
             _nameSpaceManager = NameSpaceManager;
+            SchemaNodeOrder = new string[] { "numFmts", "fonts", "fills", "borders", "cellStyleXfs", "cellXfs", "cellStyles", "dxfs" };
             LoadFromDocument();
         }
         /// <summary>
@@ -118,10 +119,13 @@ namespace OfficeOpenXml
 
             //cellStyleXfs
             XmlNode styleXfsNode = _styleXml.SelectSingleNode(CellStyleXfsPath, _nameSpaceManager);
-            foreach (XmlNode n in styleXfsNode)
+            if (styleXfsNode != null)
             {
-                ExcelXfs item = new ExcelXfs(_nameSpaceManager, n, this);
-                CellStyleXfs.Add(item.Id, item);
+                foreach (XmlNode n in styleXfsNode)
+                {
+                    ExcelXfs item = new ExcelXfs(_nameSpaceManager, n, this);
+                    CellStyleXfs.Add(item.Id, item);
+                }
             }
 
             XmlNode styleNode = _styleXml.SelectSingleNode(CellXfsPath, _nameSpaceManager);
@@ -134,10 +138,13 @@ namespace OfficeOpenXml
 
             //cellStyle
             XmlNode namedStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
-            foreach (XmlNode n in namedStyleNode)
+            if (namedStyleNode != null)
             {
-                ExcelNamedStyleXml item = new ExcelNamedStyleXml(_nameSpaceManager, n, this);
-                NamedStyles.Add(item.Name, item);
+                foreach (XmlNode n in namedStyleNode)
+                {
+                    ExcelNamedStyleXml item = new ExcelNamedStyleXml(_nameSpaceManager, n, this);
+                    NamedStyles.Add(item.Name, item);
+                }
             }
 
             //dxfsPath
@@ -465,7 +472,7 @@ namespace OfficeOpenXml
 
             int count = 0;
             //Normal should be first in the collection
-            if (NamedStyles[0].Style.Numberformat.NumFmtID >= 164)
+            if (NamedStyles.Count > 0 && NamedStyles[0].Style.Numberformat.NumFmtID >= 164)
             {
                 ExcelNumberFormatXml nf = NumberFormats[NumberFormats.FindIndexByID(NamedStyles[0].Style.Numberformat.Id)];
                 nfNode.AppendChild(nf.CreateXmlNode(_styleXml.CreateElement("numFmt", ExcelPackage.schemaMain)));
@@ -488,7 +495,7 @@ namespace OfficeOpenXml
             fntNode.RemoveAll();
 
             //Normal should be first in the collection
-            if (NamedStyles[0].Style.Font.Index>0)
+            if (NamedStyles.Count > 0 && NamedStyles[0].Style.Font.Index > 0)
             {
                 ExcelFontXml fnt = Fonts[NamedStyles[0].Style.Font.Index];
                 fntNode.AppendChild(fnt.CreateXmlNode(_styleXml.CreateElement("font", ExcelPackage.schemaMain)));
@@ -542,15 +549,23 @@ namespace OfficeOpenXml
             (bordersNode as XmlElement).SetAttribute("count", count.ToString());
 
             XmlNode styleXfsNode = _styleXml.SelectSingleNode(CellStyleXfsPath, _nameSpaceManager);
-            styleXfsNode.RemoveAll();
-            count = 0;
-
+            if (styleXfsNode == null && NamedStyles.Count > 0)
+            {
+                CreateNode(CellStyleXfsPath);
+                styleXfsNode = _styleXml.SelectSingleNode(CellStyleXfsPath, _nameSpaceManager);
+            }
+            if (NamedStyles.Count > 0)
+            {
+                styleXfsNode.RemoveAll();
+            }
             //NamedStyles
             count = 0;
 
             XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
-            cellStyleNode.RemoveAll();
-
+            if(cellStyleNode!=null)
+            {
+                cellStyleNode.RemoveAll();
+            }
             XmlNode cellXfsNode = _styleXml.SelectSingleNode(CellXfsPath, _nameSpaceManager);
             cellXfsNode.RemoveAll();
             
@@ -582,8 +597,8 @@ namespace OfficeOpenXml
                     style.XfId = 0;
                 count++;
             }
-            (cellStyleNode as XmlElement).SetAttribute("count", count.ToString());
-            (styleXfsNode as XmlElement).SetAttribute("count", count.ToString());
+            if (cellStyleNode!=null) (cellStyleNode as XmlElement).SetAttribute("count", count.ToString());
+            if (styleXfsNode != null) (styleXfsNode as XmlElement).SetAttribute("count", count.ToString());
 
             //CellStyle
             foreach (ExcelXfs xf in CellXfs)

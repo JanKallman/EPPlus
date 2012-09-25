@@ -627,7 +627,6 @@ namespace EPPlusTest
             hl.ToolTip = "Screen Tip";
 
             ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
-
         }
         [TestMethod]
         public void TableTest()

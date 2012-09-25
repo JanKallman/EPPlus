@@ -70,10 +70,9 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// <summary>
     /// 
     /// </summary>
-    /// <param name="type"></param>
-    /// <param name="priority"></param>
     /// <param name="address"></param>
-    /// <param name="worksheet"></param>
+    /// <param name="priority"></param>
+     /// <param name="worksheet"></param>
     /// <param name="itemElementNode"></param>
     /// <param name="namespaceManager"></param>
     internal ExcelConditionalFormattingThreeColorScale(

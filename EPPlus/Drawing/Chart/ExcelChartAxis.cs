@@ -125,7 +125,6 @@ namespace OfficeOpenXml.Drawing.Chart
         /// </summary>
         Out
     }
-
     /// <summary>
     /// An axis for a chart
     /// </summary>
@@ -152,7 +151,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines","title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos","spPr","txPr", "crossAx", "crossesAt", "crosses", "crossBetween","auto", "lblOffset","majorUnit","minorUnit", "spPr", "txPr" };
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos", "spPr", "txPr", "crossAx", "crossesAt", "crosses", "crossBetween", "auto", "lblOffset", "majorUnit", "minorUnit", "dispUnits", "spPr", "txPr" };
         }
         internal string Id
         {

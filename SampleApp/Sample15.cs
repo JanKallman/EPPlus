@@ -64,7 +64,7 @@ namespace EPPlusSamples
             //Create a vba project             
             pck.Workbook.CreateVBAProject();
 
-            //Now add some code that creates a bubble chart...
+            //Now add some code to update the text of the shape...
             var sb = new StringBuilder();
 
             sb.AppendLine("Private Sub Workbook_Open()");

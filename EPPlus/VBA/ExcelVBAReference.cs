@@ -40,6 +40,10 @@ namespace OfficeOpenXml.VBA
     /// </summary>
     public class ExcelVbaReference
     {
+        /// <summary>
+        /// Constructor.
+        /// Defaults ReferenceRecordID to 0xD
+        /// </summary>
         public ExcelVbaReference()
         {
             ReferenceRecordID = 0xD;
@@ -71,6 +75,10 @@ namespace OfficeOpenXml.VBA
     /// </summary>
     public class ExcelVbaReferenceControl : ExcelVbaReference
     {
+        /// <summary>
+        /// Constructor.
+        /// Sets ReferenceRecordID to 0x2F
+        /// </summary>
         public ExcelVbaReferenceControl()
         {
             ReferenceRecordID = 0x2F;
@@ -96,6 +104,10 @@ namespace OfficeOpenXml.VBA
     /// </summary>
     public class ExcelVbaReferenceProject : ExcelVbaReference
     {
+        /// <summary>
+        /// Constructor.
+        /// Sets ReferenceRecordID to 0x0E
+        /// </summary>
         public ExcelVbaReferenceProject()
         {
             ReferenceRecordID = 0x0E;

@@ -270,6 +270,7 @@ namespace OfficeOpenXml
 		}
 		#region Workbook Properties
 		decimal _standardFontWidth = decimal.MinValue;
+        string fontID = "";
 		/// <summary>
 		/// Max font width for the workbook
         /// <remarks>This method uses GDI. If you use Asure or another environment that does not support GDI, you have to set this value manually if you don't use the standard Calibri font</remarks>
@@ -278,12 +279,13 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-				if (_standardFontWidth == decimal.MinValue)
+                if (_standardFontWidth == decimal.MinValue || fontID != Styles.Fonts[0].Id)
 				{
 					var font = Styles.Fonts[0];
                     try
                     {
                         Font f = new Font(font.Name, font.Size);
+                        fontID = font.Id;
                         using (Bitmap b = new Bitmap(1, 1))
                         {
                             using (Graphics g = Graphics.FromImage(b))

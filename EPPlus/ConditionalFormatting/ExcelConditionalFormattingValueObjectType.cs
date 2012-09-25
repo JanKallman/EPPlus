@@ -45,8 +45,9 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// Get the sequencial order of a cfvo/color by its position.
 		/// </summary>
 		/// <param name="position"></param>
+        /// <param name="ruleType"></param>
 		/// <returns>1, 2 or 3</returns>
-		public static int GetOrderByPosition(
+		internal static int GetOrderByPosition(
 			eExcelConditionalFormattingValueObjectPosition position,
 			eExcelConditionalFormattingRuleType ruleType)
 		{
@@ -110,7 +111,8 @@ namespace OfficeOpenXml.ConditionalFormatting
 		/// 
 		/// </summary>
 		/// <param name="position"></param>
-		/// <param name="topNode"></param>
+		///<param name="ruleType"></param>
+        /// <param name="topNode"></param>
 		/// <param name="nameSpaceManager"></param>
 		/// <returns></returns>
 		public static XmlNode GetCfvoNodeByPosition(

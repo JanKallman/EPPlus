@@ -354,7 +354,7 @@ namespace OfficeOpenXml
                 double ret = GetXmlNodeDouble("d:sheetFormatPr/@defaultColWidth");
                 if (double.IsNaN(ret))
                 {
-                    ret = 9.140625; // Excel's default height
+                    ret = 9.140625; // Excel's default width
                 }
                 return ret;
             }
