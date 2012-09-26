@@ -471,10 +471,10 @@ namespace OfficeOpenXml
             }
 
             int count = 0;
-            //Normal should be first in the collection
-            if (NamedStyles.Count > 0 && NamedStyles[0].Style.Numberformat.NumFmtID >= 164)
+            int normalIx = NamedStyles.FindIndexByID("Normal");
+            if (NamedStyles.Count > 0 && normalIx>=0 && NamedStyles[normalIx].Style.Numberformat.NumFmtID >= 164)
             {
-                ExcelNumberFormatXml nf = NumberFormats[NumberFormats.FindIndexByID(NamedStyles[0].Style.Numberformat.Id)];
+                ExcelNumberFormatXml nf = NumberFormats[NumberFormats.FindIndexByID(NamedStyles[normalIx].Style.Numberformat.Id)];
                 nfNode.AppendChild(nf.CreateXmlNode(_styleXml.CreateElement("numFmt", ExcelPackage.schemaMain)));
                 nf.newID = count++;
             }
@@ -495,9 +495,9 @@ namespace OfficeOpenXml
             fntNode.RemoveAll();
 
             //Normal should be first in the collection
-            if (NamedStyles.Count > 0 && NamedStyles[0].Style.Font.Index > 0)
+            if (NamedStyles.Count > 0 && normalIx >= 0 && NamedStyles[normalIx].Style.Font.Index > 0)
             {
-                ExcelFontXml fnt = Fonts[NamedStyles[0].Style.Font.Index];
+                ExcelFontXml fnt = Fonts[NamedStyles[normalIx].Style.Font.Index];
                 fntNode.AppendChild(fnt.CreateXmlNode(_styleXml.CreateElement("font", ExcelPackage.schemaMain)));
                 fnt.newID = count++;
             }
@@ -559,7 +559,7 @@ namespace OfficeOpenXml
                 styleXfsNode.RemoveAll();
             }
             //NamedStyles
-            count = 0;
+            count = 1;
 
             XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
             if(cellStyleNode!=null)
@@ -568,34 +568,23 @@ namespace OfficeOpenXml
             }
             XmlNode cellXfsNode = _styleXml.SelectSingleNode(CellXfsPath, _nameSpaceManager);
             cellXfsNode.RemoveAll();
-            
+
+            if (NamedStyles.Count > 0 && normalIx >= 0)
+            {
+                AddNamedStyle(0, styleXfsNode, cellXfsNode, NamedStyles[normalIx]);
+            }
             foreach (ExcelNamedStyleXml style in NamedStyles)
             {
-                var styleXfs = CellStyleXfs[style.StyleXfId];
-                styleXfsNode.AppendChild(styleXfs.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain), true));
-                styleXfs.newID = count;
-                styleXfs.XfId = style.StyleXfId;
-
+                if (style.Name.ToLower() != "normal")
+                {
+                    style.newID = count;
+                    AddNamedStyle(count++, styleXfsNode, cellXfsNode, style);
+                }
+                else
+                {
+                    style.newID = 0;
+                }
                 cellStyleNode.AppendChild(style.CreateXmlNode(_styleXml.CreateElement("cellStyle", ExcelPackage.schemaMain)));
-                style.newID = count;
-                var ix = CellXfs.FindIndexByID(styleXfs.Id);
-                if (ix < 0)
-                {
-                    cellXfsNode.AppendChild(styleXfs.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
-                }
-                else
-                {
-                    cellXfsNode.AppendChild(CellXfs[ix].CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
-                    CellXfs[ix].useCnt = 0;
-                    CellXfs[ix].newID = count;
-
-                }
-
-                if (style.XfId >= 0)
-                    style.XfId = CellXfs[style.XfId].newID;
-                else
-                    style.XfId = 0;
-                count++;
             }
             if (cellStyleNode!=null) (cellStyleNode as XmlElement).SetAttribute("count", count.ToString());
             if (styleXfsNode != null) (styleXfsNode as XmlElement).SetAttribute("count", count.ToString());
@@ -636,6 +625,32 @@ namespace OfficeOpenXml
                     }
                 }
             }
+        }
+
+        private void AddNamedStyle(int id, XmlNode styleXfsNode,XmlNode cellXfsNode, ExcelNamedStyleXml style)
+        {
+            var styleXfs = CellStyleXfs[style.StyleXfId];
+            styleXfsNode.AppendChild(styleXfs.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain), true));
+            styleXfs.newID = id;
+            styleXfs.XfId = style.StyleXfId;
+
+            var ix = CellXfs.FindIndexByID(styleXfs.Id);
+            if (ix < 0)
+            {
+                cellXfsNode.AppendChild(styleXfs.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
+            }
+            else
+            {
+                cellXfsNode.AppendChild(CellXfs[ix].CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
+                CellXfs[ix].useCnt = 0;
+                CellXfs[ix].newID = id;
+
+            }
+
+            if (style.XfId >= 0)
+                style.XfId = CellXfs[style.XfId].newID;
+            else
+                style.XfId = 0;
         }
 
         private void RemoveUnusedStyles()
