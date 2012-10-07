@@ -70,9 +70,12 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      Bottom = true;
-      Percent = true;
-      Rank = 10;  // Last 10 percent
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            Bottom = true;
+            Percent = true;
+            Rank = 10;  // Last 10 percent
+        }
     }
 
     /// <summary>

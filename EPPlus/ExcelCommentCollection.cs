@@ -61,7 +61,7 @@ namespace OfficeOpenXml
             {
                 Uri = PackUriHelper.ResolvePartUri(commentPart.SourceUri, commentPart.TargetUri);
                 Part = pck.Package.GetPart(Uri);
-                CommentXml.Load(Part.GetStream());
+                XmlHelper.LoadXmlSafe(CommentXml, Part.GetStream()); 
                 RelId = commentPart.Id;
                 isLoaded=true;
             }

@@ -69,10 +69,13 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      TimePeriod = eExcelConditionalFormattingTimePeriodType.Last7Days;
-      Formula = string.Format(
-        "AND(TODAY()-FLOOR({0},1)<=6,FLOOR({0},1)<=TODAY())",
-        Address.Start.Address);
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            TimePeriod = eExcelConditionalFormattingTimePeriodType.Last7Days;
+            Formula = string.Format(
+              "AND(TODAY()-FLOOR({0},1)<=6,FLOOR({0},1)<=TODAY())",
+              Address.Start.Address);
+        }
     }
 
     /// <summary>

@@ -69,10 +69,13 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      TimePeriod = eExcelConditionalFormattingTimePeriodType.LastMonth;
-      Formula = string.Format(
-        "AND(MONTH({0})=MONTH(EDATE(TODAY(),0-1)),YEAR({0})=YEAR(EDATE(TODAY(),0-1)))",
-        Address.Start.Address);
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            TimePeriod = eExcelConditionalFormattingTimePeriodType.LastMonth;
+            Formula = string.Format(
+              "AND(MONTH({0})=MONTH(EDATE(TODAY(),0-1)),YEAR({0})=YEAR(EDATE(TODAY(),0-1)))",
+              Address.Start.Address);
+        }
     }
 
     /// <summary>

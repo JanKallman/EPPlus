@@ -70,9 +70,12 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      Formula = string.Format(
-        "LEN(TRIM({0}))>0",
-        Address.Start.Address);
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            Formula = string.Format(
+              "LEN(TRIM({0}))>0",
+              Address.Start.Address);
+        }
     }
 
     /// <summary>

@@ -187,7 +187,7 @@ namespace OfficeOpenXml.ConditionalFormatting
       internal const string NotContainsText = "notContainsText";
       internal const string TimePeriod = "timePeriod";
       internal const string Top10 = "top10";
-      internal const string UniqueValues = "UniqueValues";
+      internal const string UniqueValues = "uniqueValues";
 
       // EPPlus Extended Types
       internal const string AboveOrEqualAverage = "aboveOrEqualAverage";

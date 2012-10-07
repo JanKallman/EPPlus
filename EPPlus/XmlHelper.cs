@@ -39,6 +39,7 @@ using System.Xml;
 using OfficeOpenXml.Style;
 using System.IO.Packaging;
 using System.Globalization;
+using System.IO;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -801,5 +802,19 @@ namespace OfficeOpenXml
 			}
 			parentNode.InsertAfter(newNode, null);
 		}
+        internal static void LoadXmlSafe(XmlDocument xmlDoc, Stream stream)
+        {
+            XmlReaderSettings settings = new XmlReaderSettings();
+            //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
+            settings.ProhibitDtd = true;
+
+            XmlReader reader = XmlReader.Create(stream, settings);            
+            xmlDoc.Load(reader);
+        }        
+        internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml)
+        {
+            var stream = new MemoryStream(Encoding.Default.GetBytes(xml));
+            LoadXmlSafe(xmlDoc, stream);
+        }
 	}
 }

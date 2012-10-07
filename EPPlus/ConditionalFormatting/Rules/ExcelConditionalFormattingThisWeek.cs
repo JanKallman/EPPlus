@@ -69,10 +69,13 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      TimePeriod = eExcelConditionalFormattingTimePeriodType.ThisWeek;
-      Formula = string.Format(
-        "AND(TODAY()-ROUNDDOWN({0},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN({0},0)-TODAY()<=7-WEEKDAY(TODAY()))",
-        Address.Start.Address);
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            TimePeriod = eExcelConditionalFormattingTimePeriodType.ThisWeek;
+            Formula = string.Format(
+              "AND(TODAY()-ROUNDDOWN({0},0)<=WEEKDAY(TODAY())-1,ROUNDDOWN({0},0)-TODAY()<=7-WEEKDAY(TODAY()))",
+              Address.Start.Address);
+        }
     }
 
     /// <summary>

@@ -737,10 +737,12 @@ namespace OfficeOpenXml
                             var ms = eph.EncryptPackage(file, Encryption);
 
                             fi.Write(ms.GetBuffer(), 0, (int)ms.Length);
+                            ms.Close();
                         }
                         else
                         {
                             fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                            Stream.Close();
                         }
                         fi.Close();
                     }
@@ -877,7 +879,7 @@ namespace OfficeOpenXml
 		{
 			XmlDocument xml = new XmlDocument();
 			PackagePart part = _package.GetPart(uri);
-			xml.Load(part.GetStream());
+            XmlHelper.LoadXmlSafe(xml, part.GetStream()); 
 			return (xml);
 		}
 		#endregion

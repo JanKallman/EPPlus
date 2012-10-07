@@ -448,7 +448,7 @@ namespace OfficeOpenXml.Drawing.Chart
 
                ChartXml = new XmlDocument();
                ChartXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-               ChartXml.LoadXml(ChartStartXml(type));
+               LoadXmlSafe(ChartXml, ChartStartXml(type));
 
                // save it to the package
                Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _drawings._package.Compression);
@@ -1587,7 +1587,7 @@ namespace OfficeOpenXml.Drawing.Chart
 
                var part = drawings.Part.Package.GetPart(uriChart);
                var chartXml = new XmlDocument();
-               chartXml.Load(part.GetStream());
+               LoadXmlSafe(chartXml, part.GetStream()); 
 
                ExcelChart topChart = null;
                foreach (XmlElement n in chartXml.SelectSingleNode(rootPath, drawings.NameSpaceManager).ChildNodes)
