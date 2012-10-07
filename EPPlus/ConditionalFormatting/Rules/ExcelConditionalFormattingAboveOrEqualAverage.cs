@@ -68,9 +68,12 @@ namespace OfficeOpenXml.ConditionalFormatting
         worksheet,
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
-    {      
-      AboveAverage = true;
-      EqualAverage = true;
+    {
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            AboveAverage = true;
+            EqualAverage = true;
+        }
     }
 
     /// <summary>

@@ -84,7 +84,6 @@ namespace OfficeOpenXml.VBA
                     if (length > 0)
                     {
                         byte[] value = br.ReadBytes((int)length);
-                        for (int i = 0; i < value.Length; i++) { System.Diagnostics.Debug.Write(",0x"+value[i].ToString("x")); }
                         switch (id)
                         {
                             //Add property values here...

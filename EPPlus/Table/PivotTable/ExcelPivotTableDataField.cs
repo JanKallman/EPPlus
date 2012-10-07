@@ -45,9 +45,13 @@ namespace OfficeOpenXml.Table.PivotTable
         internal ExcelPivotTableDataField(XmlNamespaceManager ns, XmlNode topNode,ExcelPivotTableField field) :
             base(ns, topNode)
         {
-            Index = field.Index;
-            BaseField = 0;
-            BaseItem = 0;
+            if (topNode.Attributes.Count == 0)
+            {
+                Index = field.Index;
+                BaseField = 0;
+                BaseItem = 0;
+            }
+            
             Field = field;
         }
         /// <summary>

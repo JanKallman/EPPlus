@@ -70,8 +70,11 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      Operator = eExcelConditionalFormattingOperatorType.Equal;
-      Formula = string.Empty;
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            Operator = eExcelConditionalFormattingOperatorType.Equal;
+            Formula = string.Empty;
+        }
     }
 
     /// <summary>

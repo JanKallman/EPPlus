@@ -121,7 +121,7 @@ namespace OfficeOpenXml.Table
             Part=pck.GetPart(TableUri);
 
             TableXml = new XmlDocument();
-            TableXml.Load(Part.GetStream());
+            LoadXmlSafe(TableXml, Part.GetStream());
             init();
             Address = new ExcelAddressBase(GetXmlNodeString("@ref"));
         }
@@ -131,7 +131,7 @@ namespace OfficeOpenXml.Table
             WorkSheet = sheet;
             Address = address;
             TableXml = new XmlDocument();
-            TableXml.LoadXml(GetStartXml(name, tblId)); 
+            LoadXmlSafe(TableXml, GetStartXml(name, tblId)); 
             TopNode = TableXml.DocumentElement;
 
             init();

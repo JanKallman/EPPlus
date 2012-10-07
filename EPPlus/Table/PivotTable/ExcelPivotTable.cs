@@ -54,7 +54,7 @@ namespace OfficeOpenXml.Table.PivotTable
             Part=pck.GetPart(PivotTableUri);
 
             PivotTableXml = new XmlDocument();
-            PivotTableXml.Load(Part.GetStream());
+            LoadXmlSafe(PivotTableXml, Part.GetStream());
             init();
             TopNode = PivotTableXml.DocumentElement;
             Address = new ExcelAddressBase(GetXmlNodeString("d:location/@ref"));
@@ -62,21 +62,6 @@ namespace OfficeOpenXml.Table.PivotTable
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this);
 
             LoadFields();
-            //int index=0;
-            ////Add fields.
-            //foreach (XmlElement fieldElem in TopNode.SelectNodes("d:pivotFields/d:pivotField", NameSpaceManager))
-            //{
-            //    var fld=new ExcelPivotTableField(NameSpaceManager, fieldElem, this, index++);
-            //    Fields.AddInternal(fld);
-            //}
-
-            ////Add fields.
-            //index = 0;
-            //foreach (XmlElement fieldElem in _cacheDefinition.TopNode.SelectNodes("d:cacheFields/d:cacheField", NameSpaceManager))
-            //{
-            //    var fld = Fields[index++];
-            //    fld.SetCacheFieldNode(fieldElem);
-            //}
 
             //Add row fields.
             foreach (XmlElement rowElem in TopNode.SelectNodes("d:rowFields/d:field", NameSpaceManager))
@@ -148,7 +133,7 @@ namespace OfficeOpenXml.Table.PivotTable
             var pck = sheet._package.Package;
 
             PivotTableXml = new XmlDocument();
-            PivotTableXml.LoadXml(GetStartXml(name, tblId, address, sourceAddress)); 
+            LoadXmlSafe(PivotTableXml, GetStartXml(name, tblId, address, sourceAddress));
             TopNode = PivotTableXml.DocumentElement;
             PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", tblId);
             init();

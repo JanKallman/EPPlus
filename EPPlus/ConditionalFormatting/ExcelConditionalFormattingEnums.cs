@@ -297,6 +297,13 @@ namespace OfficeOpenXml.ConditionalFormatting
     NotBetween,
 
     /// <summary>
+    /// This conditional formatting rule highlights cells that does not contains the
+    /// given formula.
+    /// </summary>
+    /// <remarks>CellIs Excel CF Rule Type</remarks>
+    NotContains,
+
+    /// <summary>
     /// This conditional formatting rule highlights cells that are not blank.
     /// </summary>
     /// <remarks>

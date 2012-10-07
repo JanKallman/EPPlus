@@ -69,10 +69,13 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      TimePeriod = eExcelConditionalFormattingTimePeriodType.Tomorrow;
-      Formula = string.Format(
-        "FLOOR({0},1)=TODAY()+1",
-        Address.Start.Address);
+        if (itemElementNode==null) //Set default values and create attributes if needed
+        {
+            TimePeriod = eExcelConditionalFormattingTimePeriodType.Tomorrow;
+            Formula = string.Format(
+              "FLOOR({0},1)=TODAY()+1",
+              Address.Start.Address);
+        }
     }
 
     /// <summary>

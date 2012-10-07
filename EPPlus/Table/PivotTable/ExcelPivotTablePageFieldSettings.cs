@@ -45,8 +45,10 @@ namespace OfficeOpenXml.Table.PivotTable
         internal ExcelPivotTablePageFieldSettings(XmlNamespaceManager ns, XmlNode topNode, ExcelPivotTableField field, int index) :
             base(ns, topNode)
         {
-            Index = index;
-            Hier = -1;
+            if (GetXmlNodeString("@hier")=="")
+            {
+                Hier = -1;
+            }
             _field = field;
         }
         internal int Index 

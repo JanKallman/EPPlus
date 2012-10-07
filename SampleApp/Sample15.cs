@@ -158,6 +158,11 @@ namespace EPPlusSamples
                 "V9:V11",
                 "O10:Q10",
                 "R11:S11"};
+            
+            //Note: For security reasons you should never mix external data and code(to avoid code injections!), especially not on a webserver. 
+            //If you deside to do that anyway, be very careful with the validation of the data.
+            //Be extra carefull if you sign the code.
+            //Read more here http://en.wikipedia.org/wiki/Code_injection
 
             code = string.Format(code, ships[0],ships[1],ships[2],ships[3],ships[4], board1.Address, board2.Address);  //Ships are injected into the constants in the module
             m1.Code = code;

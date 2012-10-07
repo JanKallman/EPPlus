@@ -541,7 +541,9 @@ namespace OfficeOpenXml
             bool doAdjust = _package.DoAdjustDrawings;
             _package.DoAdjustDrawings = false;
             Stream stream = packPart.GetStream();
-            XmlTextReader xr = new XmlTextReader(stream);            
+
+            XmlTextReader xr = new XmlTextReader(stream);
+            xr.ProhibitDtd = true;
             
             LoadColumns(xr);    //columnXml
             long start = stream.Position;
@@ -556,15 +558,14 @@ namespace OfficeOpenXml
             xml = GetWorkSheetXml(stream, start, end);
 
             //first char is invalid sometimes?? 
-            if (xml[0] != '<') 
-                _worksheetXml.LoadXml(xml.Substring(1,xml.Length-1));
+            if (xml[0] != '<')
+                LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1));
             else
-                _worksheetXml.LoadXml(xml);
+                LoadXmlSafe(_worksheetXml, xml);
 
             _package.DoAdjustDrawings = doAdjust;
             ClearNodes();
         }
-
         private void LoadRowPageBreakes(XmlTextReader xr)
         {
             if(!ReadUntil(xr, "rowBreaks","colBreaks")) return;

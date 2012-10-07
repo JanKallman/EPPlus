@@ -92,7 +92,7 @@ namespace OfficeOpenXml.Drawing
                     _uriDrawing = PackUriHelper.ResolvePartUri(sheet.WorksheetUri, _drawingRelation.TargetUri);
 
                     _part = xlPackage.Package.GetPart(_uriDrawing);
-                    _drawingsXml.Load(_part.GetStream());
+                    XmlHelper.LoadXmlSafe(_drawingsXml, _part.GetStream()); 
 
                     AddDrawings();
                 }

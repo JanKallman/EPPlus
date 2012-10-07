@@ -86,6 +86,11 @@ namespace OfficeOpenXml
                 _cellIndex[i] = new IndexItem(cells[i].RangeID, i);
             }
         }
+        ~RangeCollection()
+        {
+            _cellIndex = null;
+            _cells = null;
+        }
         /// <summary>
         /// Return the item with the RangeID
         /// </summary>

@@ -58,7 +58,7 @@ namespace OfficeOpenXml.Drawing.Vml
             else
             {
                 Part=pck.Package.GetPart(uri);
-                VmlDrawingXml.Load(Part.GetStream());
+                XmlHelper.LoadXmlSafe(VmlDrawingXml, Part.GetStream()); 
             }
         }
         internal XmlDocument VmlDrawingXml { get; set; }

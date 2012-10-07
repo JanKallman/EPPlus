@@ -69,12 +69,13 @@ namespace OfficeOpenXml.ConditionalFormatting
           return GetTimePeriodType(
             topNode,
             nameSpaceManager);
-
+        case ExcelConditionalFormattingConstants.RuleType.CellIs:
+          return GetCellIs((XmlElement)topNode);
         case ExcelConditionalFormattingConstants.RuleType.BeginsWith:
           return eExcelConditionalFormattingRuleType.BeginsWith;
 
-        case ExcelConditionalFormattingConstants.RuleType.Between:
-          return eExcelConditionalFormattingRuleType.Between;
+        //case ExcelConditionalFormattingConstants.RuleType.Between:
+        //  return eExcelConditionalFormattingRuleType.Between;
 
         case ExcelConditionalFormattingConstants.RuleType.ContainsBlanks:
           return eExcelConditionalFormattingRuleType.ContainsBlanks;
@@ -91,26 +92,26 @@ namespace OfficeOpenXml.ConditionalFormatting
         case ExcelConditionalFormattingConstants.RuleType.EndsWith:
           return eExcelConditionalFormattingRuleType.EndsWith;
 
-        case ExcelConditionalFormattingConstants.RuleType.Equal:
-          return eExcelConditionalFormattingRuleType.Equal;
+        //case ExcelConditionalFormattingConstants.RuleType.Equal:
+        //  return eExcelConditionalFormattingRuleType.Equal;
 
         case ExcelConditionalFormattingConstants.RuleType.Expression:
           return eExcelConditionalFormattingRuleType.Expression;
 
-        case ExcelConditionalFormattingConstants.RuleType.GreaterThan:
-          return eExcelConditionalFormattingRuleType.GreaterThan;
+        //case ExcelConditionalFormattingConstants.RuleType.GreaterThan:
+        //  return eExcelConditionalFormattingRuleType.GreaterThan;
 
-        case ExcelConditionalFormattingConstants.RuleType.GreaterThanOrEqual:
-          return eExcelConditionalFormattingRuleType.GreaterThanOrEqual;
+        //case ExcelConditionalFormattingConstants.RuleType.GreaterThanOrEqual:
+        //  return eExcelConditionalFormattingRuleType.GreaterThanOrEqual;
 
-        case ExcelConditionalFormattingConstants.RuleType.LessThan:
-          return eExcelConditionalFormattingRuleType.LessThan;
+        //case ExcelConditionalFormattingConstants.RuleType.LessThan:
+        //  return eExcelConditionalFormattingRuleType.LessThan;
 
-        case ExcelConditionalFormattingConstants.RuleType.LessThanOrEqual:
-          return eExcelConditionalFormattingRuleType.LessThanOrEqual;
+        //case ExcelConditionalFormattingConstants.RuleType.LessThanOrEqual:
+        //  return eExcelConditionalFormattingRuleType.LessThanOrEqual;
 
-        case ExcelConditionalFormattingConstants.RuleType.NotBetween:
-          return eExcelConditionalFormattingRuleType.NotBetween;
+        //case ExcelConditionalFormattingConstants.RuleType.NotBetween:
+        //  return eExcelConditionalFormattingRuleType.NotBetween;
 
         case ExcelConditionalFormattingConstants.RuleType.NotContainsBlanks:
           return eExcelConditionalFormattingRuleType.NotContainsBlanks;
@@ -121,8 +122,8 @@ namespace OfficeOpenXml.ConditionalFormatting
         case ExcelConditionalFormattingConstants.RuleType.NotContainsText:
           return eExcelConditionalFormattingRuleType.NotContainsText;
 
-        case ExcelConditionalFormattingConstants.RuleType.NotEqual:
-          return eExcelConditionalFormattingRuleType.NotEqual;
+        //case ExcelConditionalFormattingConstants.RuleType.NotEqual:
+        //  return eExcelConditionalFormattingRuleType.NotEqual;
 
         case ExcelConditionalFormattingConstants.RuleType.UniqueValues:
           return eExcelConditionalFormattingRuleType.UniqueValues;
@@ -141,6 +142,49 @@ namespace OfficeOpenXml.ConditionalFormatting
         ExcelConditionalFormattingConstants.Errors.UnexpectedRuleTypeAttribute);
     }
 
+    private static eExcelConditionalFormattingRuleType GetCellIs(XmlElement node)
+    {
+        switch(node.GetAttribute("operator"))
+        {
+            case ExcelConditionalFormattingConstants.Operators.BeginsWith:
+              return eExcelConditionalFormattingRuleType.BeginsWith;
+            case ExcelConditionalFormattingConstants.Operators.Between:
+              return eExcelConditionalFormattingRuleType.Between;
+
+            case ExcelConditionalFormattingConstants.Operators.ContainsText:
+              return eExcelConditionalFormattingRuleType.ContainsText;
+
+            case ExcelConditionalFormattingConstants.Operators.EndsWith:
+              return eExcelConditionalFormattingRuleType.EndsWith;
+
+            case ExcelConditionalFormattingConstants.Operators.Equal:
+              return eExcelConditionalFormattingRuleType.Equal;
+
+            case ExcelConditionalFormattingConstants.Operators.GreaterThan:
+              return eExcelConditionalFormattingRuleType.GreaterThan;
+
+            case ExcelConditionalFormattingConstants.Operators.GreaterThanOrEqual:
+              return eExcelConditionalFormattingRuleType.GreaterThanOrEqual;
+
+            case ExcelConditionalFormattingConstants.Operators.LessThan:
+              return eExcelConditionalFormattingRuleType.LessThan;
+
+            case ExcelConditionalFormattingConstants.Operators.LessThanOrEqual:
+              return eExcelConditionalFormattingRuleType.LessThanOrEqual;
+
+            case ExcelConditionalFormattingConstants.Operators.NotBetween:
+              return eExcelConditionalFormattingRuleType.NotBetween;
+
+            case ExcelConditionalFormattingConstants.Operators.NotContains:
+              return eExcelConditionalFormattingRuleType.NotContains;
+
+            case ExcelConditionalFormattingConstants.Operators.NotEqual:
+              return eExcelConditionalFormattingRuleType.NotEqual;
+            default:
+              throw new Exception(
+                ExcelConditionalFormattingConstants.Errors.UnexistentOperatorTypeAttribute);
+        }
+    }
     private static eExcelConditionalFormattingRuleType GetIconSetType(XmlNode topNode, XmlNamespaceManager nameSpaceManager)
     {
         var v = topNode.SelectSingleNode("d:iconSet/@iconSet", nameSpaceManager).Value;

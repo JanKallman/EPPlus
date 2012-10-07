@@ -1115,7 +1115,7 @@ namespace OfficeOpenXml
 			{
 				if (cell.IsRichText)
 				{
-					xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + cell.Value.ToString() + "</d:si>");
+                    XmlHelper.LoadXmlSafe(xml, "<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + cell.Value.ToString() + "</d:si>");
 				}
 				else
 				{

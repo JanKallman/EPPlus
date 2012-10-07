@@ -986,7 +986,7 @@ namespace OfficeOpenXml
 					PackageRelationship rel = Part.GetRelationship(rID);
 					var part = _package.Package.GetPart(PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
 					XmlDocument xmlExtRef = new XmlDocument();
-					xmlExtRef.Load(part.GetStream());
+                    LoadXmlSafe(xmlExtRef, part.GetStream()); 
 
 					XmlElement book=xmlExtRef.SelectSingleNode("//d:externalBook", NameSpaceManager) as XmlElement;
 					if(book!=null)
