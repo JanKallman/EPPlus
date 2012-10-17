@@ -36,7 +36,7 @@ namespace OfficeOpenXml.Style.Dxf
                 }
                 else if (color.Index != null)
                 {
-                    SetValue(helper, path + "/@index", color.Index);
+                    SetValue(helper, path + "/@indexed", color.Index);
                 }
                 if (color.Tint != null)
                 {

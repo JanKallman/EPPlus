@@ -168,6 +168,10 @@ namespace OfficeOpenXml
             string Ret = "R";
             if (GetRowCol(part, out addrRow, out addrCol, false))
             {
+                if (addrRow == 0 || addrCol == 0)
+                {
+                    return part;
+                }
                 if (part.IndexOf('$', 1) > 0)
                 {
                     Ret += addrRow.ToString();
@@ -262,6 +266,10 @@ namespace OfficeOpenXml
             }
             if (GetRowCol(Address, out fromRow, out fromCol, false))
             {
+                if (fromRow == 0 || fromCol == 0)
+                {
+                    return Address;
+                }
                 if (rowIncr != 0 && row != 0 && fromRow >= row && Address.IndexOf('$', 1) == -1)
                 {
                     if (fromRow < row - rowIncr)
@@ -371,8 +379,9 @@ namespace OfficeOpenXml
         /// <param name="FromColumn">Returns the from column</param>
         /// <param name="ToRow">Returns the to row</param>
         /// <param name="ToColumn">Returns the from row</param>
-        internal static void GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
+        internal static bool GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
         {
+            bool ret;
             CellAddress = CellAddress.ToUpper();
             //This one can be removed when the worksheet Select format is fixed
             if (CellAddress.IndexOf(' ') > 0)
@@ -382,15 +391,20 @@ namespace OfficeOpenXml
 
             if (CellAddress.IndexOf(':') < 0)
             {
-                GetRowColFromAddress(CellAddress, out FromRow, out FromColumn);
+                ret=GetRowColFromAddress(CellAddress, out FromRow, out FromColumn);
                 ToColumn = FromColumn;
                 ToRow = FromRow;
             }
             else
             {
                 string[] cells = CellAddress.Split(':');
-                GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
-                GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+                ret=GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
+                if (ret)
+                    ret = GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+                else
+                {
+                    GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+                }
 
                 if (FromColumn <= 0)
                     FromColumn = 1;
@@ -401,6 +415,7 @@ namespace OfficeOpenXml
                 if (ToRow <= 0)
                     ToRow = ExcelPackage.MaxRows;
             }
+            return ret;
         }
         /// <summary>
         /// Get the row/column for n Cell-address
@@ -482,10 +497,10 @@ namespace OfficeOpenXml
             {
                 col = 0;
                 int.TryParse(sRow, out row);
-                return false;
+                return row>0;
             }
             // Get the row number
-            if (sRow == "")
+            if (sRow == "") //Blank, fullRow
             {
                 //if (throwException)
                 //{
@@ -494,7 +509,7 @@ namespace OfficeOpenXml
                 //else
                 //{                    
                 row = 0;
-                return false;
+                return col > 0;
                 //}
             }
             else
@@ -598,15 +613,34 @@ namespace OfficeOpenXml
         /// <returns>The full address</returns>
         public static string GetFullAddress(string worksheetName, string address)
         {
+            return GetFullAddress(worksheetName, address, true);
+        }
+        internal static string GetFullAddress(string worksheetName, string address, bool fullRowCol)
+        {
                if (address.IndexOf("!") == -1 || address=="#REF!")
                {
-                   string[] cells = address.Split(':');
-                   if (cells.Length > 0)
+                   if (fullRowCol)
                    {
-                       address = string.Format("'{0}'!{1}", worksheetName, cells[0]);
-                       if (cells.Length > 1)
+                       string[] cells = address.Split(':');
+                       if (cells.Length > 0)
                        {
-                           address += string.Format(":{0}", cells[1]);
+                           address = string.Format("'{0}'!{1}", worksheetName, cells[0]);
+                           if (cells.Length > 1)
+                           {
+                               address += string.Format(":{0}", cells[1]);
+                           }
+                       }
+                   }
+                   else
+                   {
+                       var a = new ExcelAddressBase(address);
+                       if ((a._fromRow == 1 && a._toRow == ExcelPackage.MaxRows) || (a._fromCol == 1 && a._toCol == ExcelPackage.MaxColumns))
+                       {
+                           address = string.Format("'{0}'!{1}{2}:{3}{4}", worksheetName, ExcelAddress.GetColumnLetter(a._fromCol), a._fromRow, ExcelAddress.GetColumnLetter(a._toCol), a._toRow);
+                       }
+                       else
+                       {
+                           address=GetFullAddress(worksheetName, address, true);
                        }
                    }
                }

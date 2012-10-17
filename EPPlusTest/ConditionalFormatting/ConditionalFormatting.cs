@@ -108,6 +108,17 @@ namespace EPPlusTest
     /// 
     /// </summary>
     [TestMethod]
+    public void ReadConditionalFormattingError()
+    {
+      var pck = new ExcelPackage(new FileInfo(@"c:\temp\CofCTemplate.xlsx"));
+
+      var ws = pck.Workbook.Worksheets[1];
+      pck.SaveAs(new FileInfo(@"c:\temp\cf2.xlsx"));
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    [TestMethod]
     public void TwoBackColor()
     {
         var ws = _pck.Workbook.Worksheets.Add("TwoBackColor");

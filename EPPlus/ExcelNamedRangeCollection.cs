@@ -73,7 +73,7 @@ namespace OfficeOpenXml
                 item = new ExcelNamedRange(Name, _ws, Range.Worksheet, Range.Address);
             }
             
-            _dic.Add(Name, item);
+            _dic.Add(Name.ToLower(), item);
             return item;
         }
         /// <summary>
@@ -86,7 +86,7 @@ namespace OfficeOpenXml
         {
             var item = new ExcelNamedRange(Name,_wb, _ws);
             item.NameValue = value;
-            _dic.Add(Name, item);
+            _dic.Add(Name.ToLower(), item);
             return item;
         }
         /// <summary>
@@ -98,7 +98,7 @@ namespace OfficeOpenXml
         /// <param name="Formula"></param>
         /// <returns></returns>
         [Obsolete("Call AddFormula() instead.  See Issue Tracker Id #14687")]
-        public  ExcelNamedRange AddFormla(string Name, string Formula)
+        public ExcelNamedRange AddFormla(string Name, string Formula)
         {
             return  this.AddFormula(Name, Formula);
         }
@@ -113,7 +113,7 @@ namespace OfficeOpenXml
         {
             var item = new ExcelNamedRange(Name, _wb, _ws);
             item.NameFormula = Formula;
-            _dic.Add(Name, item);
+            _dic.Add(Name.ToLower(), item);
             return item;
         }
         /// <summary>
@@ -122,7 +122,7 @@ namespace OfficeOpenXml
         /// <param name="Name">The name</param>
         public void Remove(string Name)
         {
-            _dic.Remove(Name);
+            _dic.Remove(Name.ToLower());
         }
         /// <summary>
         /// Checks collection for the presence of a key
@@ -131,7 +131,7 @@ namespace OfficeOpenXml
         /// <returns>true if the key is in the collection</returns>
         public bool ContainsKey(string key)
         {
-            return _dic.ContainsKey(key);
+            return _dic.ContainsKey(key.ToLower());
         }
         /// <summary>
         /// The current number of items in the collection
@@ -155,7 +155,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _dic[Name];
+                return _dic[Name.ToLower()];
             }
         }
 

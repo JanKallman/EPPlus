@@ -137,9 +137,8 @@ namespace EPPlusTest
             ws.Cells["F5"].Style.Font.UnderLineType = ExcelUnderLineType.None;
             ws.Cells["F6:F7"].Style.Font.UnderLine = true;
             ws.Cells["F7"].Style.Font.UnderLine = false;
-
-
-
+            
+            ws.Cells["F7"].Style.Font.UnderLine = false;
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
 
@@ -190,7 +189,7 @@ namespace EPPlusTest
             Random r = new Random();
             for (int i = 1; i <= PERF_ROWS; i++)
             {
-                ws.Cells[i,1].Value=string.Format("Row {0}\n.Test new row\"'",i);
+                ws.Cells[i,1].Value=string.Format("Row {0}\n.Test new row\"' öäåü",i);
                 ws.Cells[i,2].Value=i;
                 ws.Cells[i, 2].Style.WrapText = true;
                 ws.Cells[i, 3].Value=DateTime.Now;
@@ -817,7 +816,9 @@ namespace EPPlusTest
 
             ws.Names.Add("Address", ws.Cells["A2:A3"]);
             ws.Cells["Address"].Value = 1;
-            ws.Names.AddValue("Value", 5);            
+            ws.Names.AddValue("Value", 5);          
+            ws.Names.Add("FullRow", ws.Cells["2:2"]);
+            ws.Names.Add("FullCol", ws.Cells["A:A"]);
             //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
             ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
         }

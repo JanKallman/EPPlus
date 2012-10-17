@@ -85,7 +85,7 @@ namespace OfficeOpenXml.Style.Dxf
         {            
             ExcelDxfColor ret = new ExcelDxfColor(_styles);
             ret.Theme = helper.GetXmlNodeIntNull(path + "/@theme");
-            ret.Index = helper.GetXmlNodeIntNull(path + "/@index");
+            ret.Index = helper.GetXmlNodeIntNull(path + "/@indexed");
             string rgb=helper.GetXmlNodeString(path + "/@rgb");
             if(rgb!="")
             {

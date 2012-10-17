@@ -98,7 +98,7 @@ namespace EPPlusTest
              ws.Column(1).Width = 53;
              ws.Column(4).Width = 58;
 
-             pic = ws.Drawings.AddPicture("Pic6", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
+             pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
              pic.SetPosition(400, 400);
              pic.SetSize(100);
          }
@@ -161,6 +161,13 @@ namespace EPPlusTest
             ws.Cells["V22"].Value = 103;
             ws.Cells["V23"].Value = 105;
             ws.Cells["V24"].Value = 104;
+
+            ws.Cells["X19"].Value = "öäå";
+            ws.Cells["X20"].Value = "ÖÄÅ";
+            ws.Cells["X21"].Value = "üÛ";
+            ws.Cells["X22"].Value = "&%#¤";
+            ws.Cells["X23"].Value = "ÿ";
+            ws.Cells["X24"].Value = "û";
 
             chrt.Series.Add("V19:V24", "U19:U24");
         }

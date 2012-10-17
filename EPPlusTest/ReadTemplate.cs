@@ -8,6 +8,7 @@ using System.IO;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.ConditionalFormatting;
 
 namespace EPPlusTest
 {
@@ -108,7 +109,9 @@ namespace EPPlusTest
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(instream))
             {
-                var ws = pck.Workbook.Worksheets["Perf"];
+                var ws = pck.Workbook.Worksheets["Names"];
+                Assert.AreEqual(ws.Names["FullCol"].Start.Row, 1);
+                Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
                 pck.SaveAs(stream);
             }
             instream.Close();
@@ -276,9 +279,10 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadConditionalFormatting()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\cond.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\cf2.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
+            Assert.AreEqual(ws.ConditionalFormatting[6].Type, eExcelConditionalFormattingRuleType.Equal);
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
         [TestMethod]

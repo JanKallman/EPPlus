@@ -80,7 +80,7 @@ namespace OfficeOpenXml
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", "Row cannot be less then 1.");
+                    throw new ArgumentOutOfRangeException("value", "Row cannot be less than 1.");
                 }
                 this._row = value;
                 if(_column>0) 
@@ -102,7 +102,7 @@ namespace OfficeOpenXml
             {
                 if (value <= 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", "Column cannot be less then 1.");
+                    throw new ArgumentOutOfRangeException("value", "Column cannot be less than 1.");
                 }
                 this._column = value;
                 if (_row > 0)

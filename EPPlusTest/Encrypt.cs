@@ -54,8 +54,11 @@ namespace EPPlusTest
             ws.Row(1).Style.Font.Bold = true;
             ws.Column(1).Style.Font.Bold = true;
 
-            package.Encryption.Algorithm = EncryptionAlgorithm.AES256;
-            package.SaveAs(new FileInfo(@"c:\temp\encrTest.xlsx"), "test");
+            //package.Encryption.Algorithm = EncryptionAlgorithm.AES256;
+            //package.SaveAs(new FileInfo(@"c:\temp\encrTest.xlsx"), "ABxsw23edc");
+            package.Encryption.Password = "test";
+            package.Encryption.IsEncrypted = true;
+            package.SaveAs(new FileInfo(@"c:\temp\encrTest.xlsx"));
         }
         [TestMethod]
         public void WriteProtect()
