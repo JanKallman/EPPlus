@@ -27,8 +27,8 @@
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		    Initial Release		        2010-01-28
- * Jan Källman		    License changed GPL-->LGPL 2011-12-27
- * Eyal Seagull		    Conditional Formatting    2012-04-03
+ * Jan Källman		    License changed GPL-->LGPL  2011-12-27
+ * Eyal Seagull		    Conditional Formatting      2012-04-03
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -1210,7 +1210,25 @@ namespace OfficeOpenXml
 				return fullAddress;
 			}
 		}
-
+        /// <summary>
+        /// Address including sheetname
+        /// </summary>
+        internal string FullAddressAbsoluteNoFullRowCol
+        {
+            get
+            {
+                string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
+                string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true), false);
+                if (Addresses != null)
+                {
+                    foreach (var a in Addresses)
+                    {
+                        fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true),false); ;
+                    }
+                }
+                return fullAddress;
+            }
+        }
 		#endregion
 		#region Private Methods
 		/// <summary>

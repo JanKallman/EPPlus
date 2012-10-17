@@ -113,7 +113,7 @@ namespace OfficeOpenXml
         {
             if(address.StartsWith("'"))
             {
-                int pos = address.LastIndexOf("'");
+                int pos = address.IndexOf("'", 1);
                 SetWbWs(address.Substring(1,pos-1).Replace("''","'"));
                 _address = address.Substring(pos + 2);
             }
@@ -508,10 +508,10 @@ namespace OfficeOpenXml
                     return AddressType.Invalid;
                 }
             }
-            int row, col;
-            if(ExcelAddressBase.GetRowCol(Address,out row, out col, false))
+            int _fromRow, _fromCol, _toRow, _toCol;
+            if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out _fromCol, out _toRow, out _toCol))
             {
-                if (row > 0 && col > 0 && row <= ExcelPackage.MaxRows && col <= ExcelPackage.MaxColumns)
+                if (_fromRow > 0 && _fromCol > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
                 {
                     if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
                     {

@@ -36,7 +36,6 @@ using System.Security.Cryptography.X509Certificates;
 using System.Drawing;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing.Chart;
-
 namespace EPPlusSamples
 {
     class Sample15
@@ -52,7 +51,6 @@ namespace EPPlusSamples
             //Simple battleships game from scratch.
             VBASample3(outputDir);
         }
-
         private static void VBASample1(DirectoryInfo outputDir)
         {
             ExcelPackage pck = new ExcelPackage();
@@ -75,7 +73,6 @@ namespace EPPlusSamples
             //And Save as xlsm
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-1.xlsm"));
         }
-
         private static void VBASample2(DirectoryInfo outputDir)
         {
             //Open Sample 1 again
@@ -110,7 +107,6 @@ namespace EPPlusSamples
             //And Save as xlsm
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-2.xlsm"));
         }
-
         private static void VBASample3(DirectoryInfo outputDir)
         {
             //Now, lets do something a little bit more fun.

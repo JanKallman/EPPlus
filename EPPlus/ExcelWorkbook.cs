@@ -912,7 +912,7 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				elem.InnerText = name.FullAddressAbsolute;
+                elem.InnerText = name.FullAddressAbsolute;
 			}
 		}
 		/// <summary>
