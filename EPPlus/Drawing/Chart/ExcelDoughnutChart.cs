@@ -57,8 +57,8 @@ namespace OfficeOpenXml.Drawing.Chart
             base(drawings, node, type, topChart, PivotTableSource)
         {
             //SetPaths();
-        }        
-        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        }
+        internal ExcelDoughnutChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             //SetPaths();

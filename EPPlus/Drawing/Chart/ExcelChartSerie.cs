@@ -33,7 +33,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Collections;
 
 namespace OfficeOpenXml.Drawing.Chart

@@ -390,6 +390,7 @@ namespace EPPlusTest
             ws.Cells["B:B"].Style.Font.Name = "Times New Roman";
 
             ws.Cells["C4:G4,H8:H30,B15"].FormulaR1C1 = "RC[-1]+R1C[-1]";
+            ws.Cells["C4:G4,H8:H30,B15"].Style.Numberformat.Format = "#,##0.000";
             ws.Cells["G1,G3"].Hyperlink = new ExcelHyperLink("Comment!$A$1","Comment");
             ws.Cells["G1,G3"].Style.Font.Color.SetColor(Color.Blue);
             ws.Cells["G1,G3"].Style.Font.UnderLine = true;

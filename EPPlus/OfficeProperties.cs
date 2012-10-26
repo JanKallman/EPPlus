@@ -33,8 +33,8 @@
 using System;
 using System.Xml;
 using System.IO;
-using System.IO.Packaging;
 using System.Globalization;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml
 {
@@ -110,16 +110,16 @@ namespace OfficeOpenXml
                 xmlDoc.LoadXml(startXml);
 
                 // Create a the part and add to the package
-                PackagePart part = _package.Package.CreatePart(uri, contentType);
+                Zip.ZipPackagePart part = _package.Package.CreatePart(uri, contentType);
 
                 // Save it to the package
                 StreamWriter stream = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 xmlDoc.Save(stream);
-                stream.Close();
+                //stream.Close();
                 _package.Package.Flush();
 
                 // create the relationship between the workbook and the new shared strings part
-                _package.Package.CreateRelationship(PackUriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), uri), TargetMode.Internal, relationship);
+                _package.Package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), uri), Zip.TargetMode.Internal, relationship);
                 _package.Package.Flush();
             }
             return xmlDoc;

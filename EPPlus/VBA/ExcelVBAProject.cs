@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO.Packaging;
 using System.IO;
 using OfficeOpenXml.Utils;
 using System.Security.Cryptography.Pkcs;
@@ -61,7 +60,7 @@ namespace OfficeOpenXml.VBA
             var rel = _wb.Part.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
             if (rel != null)
             {
-                Uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _pck.GetPart(Uri);
                 GetProject();                
             }
@@ -72,7 +71,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         internal ExcelWorkbook _wb;
-        internal Package _pck;
+        internal Zip.ZipPackage _pck;
         #region Dir Stream Properties
         /// <summary>
         /// System kind. Default Win32.
@@ -594,13 +593,12 @@ namespace OfficeOpenXml.VBA
                 {
                     Uri = new Uri(PartUri, UriKind.Relative);
                     Part = _pck.CreatePart(Uri, ExcelPackage.schemaVBA);
-                    var rel = _wb.Part.CreateRelationship(Uri, TargetMode.Internal, schemaRelVba);
+                    var rel = _wb.Part.CreateRelationship(Uri, Zip.TargetMode.Internal, schemaRelVba);
                 }
                 var vbaBuffer=doc.Save();
                 var st = Part.GetStream(FileMode.Create);
                 st.Write(vbaBuffer, 0, vbaBuffer.Length);
                 st.Flush();
-                st.Close();
                 //Save the digital signture
                 Signature.Save(this);
             }
@@ -1015,7 +1013,7 @@ namespace OfficeOpenXml.VBA
             return sUC.Length == 0 ? s : sUC;
         }
         internal CompoundDocument Document { get; set; }
-        internal PackagePart Part { get; set; }
+        internal Zip.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
         /// <summary>
         /// Create a new VBA Project

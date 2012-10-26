@@ -33,9 +33,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.IO;
 using OfficeOpenXml.Table.PivotTable;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -361,7 +361,7 @@ namespace OfficeOpenXml.Drawing.Chart
                }
            }
        }
-       internal ExcelChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+       internal ExcelChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
            UriChart = uriChart;
@@ -443,7 +443,7 @@ namespace OfficeOpenXml.Drawing.Chart
                graphFrame.InnerXml = string.Format("<xdr:nvGraphicFramePr><xdr:cNvPr id=\"{0}\" name=\"Chart 1\" /><xdr:cNvGraphicFramePr /></xdr:nvGraphicFramePr><xdr:xfrm><a:off x=\"0\" y=\"0\" /> <a:ext cx=\"0\" cy=\"0\" /></xdr:xfrm><a:graphic><a:graphicData uri=\"http://schemas.openxmlformats.org/drawingml/2006/chart\"><c:chart xmlns:c=\"http://schemas.openxmlformats.org/drawingml/2006/chart\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" r:id=\"rId1\" />   </a:graphicData>  </a:graphic>",_id);
                TopNode.AppendChild(TopNode.OwnerDocument.CreateElement("clientData", ExcelPackage.schemaSheetDrawings));
 
-               Package package = drawings.Worksheet._package.Package;
+               var package = drawings.Worksheet._package.Package;
                UriChart = GetNewUri(package, "/xl/charts/chart{0}.xml");
 
                ChartXml = new XmlDocument();
@@ -458,7 +458,7 @@ namespace OfficeOpenXml.Drawing.Chart
                streamChart.Close();
                package.Flush();
 
-               PackageRelationship chartRelation = drawings.Part.CreateRelationship(PackUriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+               var chartRelation = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                graphFrame.SelectSingleNode("a:graphic/a:graphicData/c:chart", NameSpaceManager).Attributes["r:id"].Value = chartRelation.Id;
                package.Flush();
                _chartNode = ChartXml.SelectSingleNode(string.Format("c:chartSpace/c:chart/c:plotArea/{0}", GetChartNodeText()), NameSpaceManager);
@@ -1537,7 +1537,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
             }
         }
-        internal PackagePart Part { get; set; }
+        internal Zip.ZipPackagePart Part { get; set; }
         /// <summary>
         /// Package internal URI
         /// </summary>
@@ -1582,8 +1582,8 @@ namespace OfficeOpenXml.Drawing.Chart
            XmlNode chartNode = node.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart", drawings.NameSpaceManager);
            if (chartNode != null)
            {
-               PackageRelationship drawingRelation = drawings.Part.GetRelationship(chartNode.Attributes["r:id"].Value);
-               var uriChart = PackUriHelper.ResolvePartUri(drawings.UriDrawing, drawingRelation.TargetUri);
+               var drawingRelation = drawings.Part.GetRelationship(chartNode.Attributes["r:id"].Value);
+               var uriChart = UriHelper.ResolvePartUri(drawings.UriDrawing, drawingRelation.TargetUri);
 
                var part = drawings.Part.Package.GetPart(uriChart);
                var chartXml = new XmlDocument();
@@ -1616,7 +1616,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return null;
            }           
        }
-       internal static ExcelChart GetChart(XmlElement chartNode, ExcelDrawings drawings, XmlNode node,  Uri uriChart, PackagePart part, XmlDocument chartXml, ExcelChart topChart)
+       internal static ExcelChart GetChart(XmlElement chartNode, ExcelDrawings drawings, XmlNode node,  Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, ExcelChart topChart)
        {
            switch (chartNode.LocalName)
            {

@@ -40,7 +40,6 @@ using System.Runtime.InteropServices;
 using comTypes=System.Runtime.InteropServices.ComTypes;
 using System.IO;
 using System.Security.Cryptography;
-using System.IO.Packaging; 
 namespace OfficeOpenXml.Utils
 {
     /// <summary>

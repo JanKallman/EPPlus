@@ -33,8 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
 {
@@ -111,11 +111,11 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public class ExcelTable : XmlHelper
     {
-        internal ExcelTable(PackageRelationship rel, ExcelWorksheet sheet) : 
+        internal ExcelTable(Zip.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
-            TableUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+            TableUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             RelationshipID = rel.Id;
             var pck = sheet._package.Package;
             Part=pck.GetPart(TableUri);
@@ -185,7 +185,7 @@ namespace OfficeOpenXml.Table
         {
             return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
-        internal PackagePart Part
+        internal Zip.ZipPackagePart Part
         {
             get;
             set;

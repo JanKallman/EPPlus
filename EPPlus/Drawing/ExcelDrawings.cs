@@ -32,7 +32,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.IO.Packaging;
 using System.Xml;
 using System.Collections;
 using System.IO;
@@ -40,6 +39,7 @@ using System.Drawing;
 using System.Linq;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Table.PivotTable;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
@@ -75,7 +75,7 @@ namespace OfficeOpenXml.Drawing
         //internal List<ImageCompare> _pics = new List<ImageCompare>();
         internal Dictionary<string, string> _hashes = new Dictionary<string, string>();
         internal ExcelPackage _package;
-        internal PackageRelationship _drawingRelation=null;
+        internal Zip.ZipPackageRelationship _drawingRelation = null;
         internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();                
@@ -89,7 +89,7 @@ namespace OfficeOpenXml.Drawing
                 if (node != null)
                 {
                     _drawingRelation = sheet.Part.GetRelationship(node.Attributes["r:id"].Value);
-                    _uriDrawing = PackUriHelper.ResolvePartUri(sheet.WorksheetUri, _drawingRelation.TargetUri);
+                    _uriDrawing = UriHelper.ResolvePartUri(sheet.WorksheetUri, _drawingRelation.TargetUri);
 
                     _part = xlPackage.Package.GetPart(_uriDrawing);
                     XmlHelper.LoadXmlSafe(_drawingsXml, _part.GetStream()); 
@@ -210,8 +210,8 @@ namespace OfficeOpenXml.Drawing
                 }
             }
         }
-        PackagePart _part=null;
-        internal PackagePart Part
+        Zip.ZipPackagePart _part=null;
+        internal Zip.ZipPackagePart Part
         {
             get
             {
@@ -377,7 +377,7 @@ namespace OfficeOpenXml.Drawing
                     DrawingXml.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><xdr:wsDr xmlns:xdr=\"{0}\" xmlns:a=\"{1}\" />", ExcelPackage.schemaSheetDrawings, ExcelPackage.schemaDrawings));
                     _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", Worksheet.SheetID),UriKind.Relative);
 
-                    Package package = Worksheet._package.Package;
+                    Zip.ZipPackage package = Worksheet._package.Package;
                     _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", _package.Compression);
 
                     StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
@@ -385,7 +385,7 @@ namespace OfficeOpenXml.Drawing
                     streamChart.Close();
                     package.Flush();
 
-                    _drawingRelation = Worksheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                    _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                     XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
                     e.SetAttribute("id",ExcelPackage.schemaRelationships, _drawingRelation.Id);
 

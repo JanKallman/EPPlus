@@ -66,6 +66,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Ionic.Zip.Reduced">
+      <HintPath>lib\Ionic.Zip.Reduced.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
@@ -74,7 +77,6 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
@@ -269,6 +271,8 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="Utils\UriHelper.cs" />
+    <Compile Include="Zip\ZipPackage.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />
     <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
     <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
@@ -326,6 +330,10 @@
     <Compile Include="VBA\ExcelVbaSignature.cs" />
     <Compile Include="XmlHelper.cs" />
     <Compile Include="XmlHelperFactory.cs" />
+    <Compile Include="Zip\ZipPackagePart.cs" />
+    <Compile Include="Zip\ZipPackageRelationship.cs" />
+    <Compile Include="Zip\ZipPackageRelationshipCollection.cs" />
+    <Compile Include="Zip\ZipRelationshipBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\Chart\ExcelLineChart.cs" />
@@ -401,6 +409,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConditionalFormatting\CF Implementation.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="lib\Ionic.Zip.Reduced.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

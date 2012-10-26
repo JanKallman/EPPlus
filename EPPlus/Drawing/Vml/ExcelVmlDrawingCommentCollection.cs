@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Collections;
-using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Vml
 {

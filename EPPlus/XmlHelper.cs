@@ -37,7 +37,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
-using System.IO.Packaging;
 using System.Globalization;
 using System.IO;
 namespace OfficeOpenXml
@@ -767,11 +766,11 @@ namespace OfficeOpenXml
 		{
      return GetXmlNodeString(TopNode, path);
 		}
-		internal static Uri GetNewUri(Package package, string sUri)
+		internal static Uri GetNewUri(Zip.ZipPackage package, string sUri)
 		{
 			return GetNewUri(package, sUri, 1);
 		}
-		internal static Uri GetNewUri(Package package, string sUri, int id)
+        internal static Uri GetNewUri(Zip.ZipPackage package, string sUri, int id)
 		{
 			Uri uri;
 			do

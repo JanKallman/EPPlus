@@ -33,8 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Linq;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml.Table.PivotTable
 {
     public enum eSourceType
@@ -68,7 +68,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 Relationship = r;
             }
-            CacheDefinitionUri = PackUriHelper.ResolvePartUri(Relationship.SourceUri, Relationship.TargetUri);
+            CacheDefinitionUri = UriHelper.ResolvePartUri(Relationship.SourceUri, Relationship.TargetUri);
 
             var pck = pivotTable.WorkSheet._package.Package;
             Part = pck.GetPart(CacheDefinitionUri);
@@ -107,7 +107,7 @@ namespace OfficeOpenXml.Table.PivotTable
             var recPart = pck.CreatePart(CacheRecordUri, ExcelPackage.schemaPivotCacheRecords);
             cacheRecord.Save(recPart.GetStream());
 
-            RecordRelationship = Part.CreateRelationship(PackUriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
+            RecordRelationship = Part.CreateRelationship(UriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
             RecordRelationshipID = RecordRelationship.Id;
 
             CacheDefinitionXml.Save(Part.GetStream());
@@ -115,7 +115,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// Reference to the internal package part
         /// </summary>
-        internal PackagePart Part
+        internal Zip.ZipPackagePart Part
         {
             get;
             set;
@@ -137,12 +137,12 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        internal PackageRelationship Relationship
+        internal Zip.ZipPackageRelationship Relationship
         {
             get;
             set;
         }
-        internal PackageRelationship RecordRelationship
+        internal Zip.ZipPackageRelationship RecordRelationship
         {
             get;
             set;
