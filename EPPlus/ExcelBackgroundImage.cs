@@ -35,9 +35,10 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Drawing;
-using System.IO.Packaging;
 using System.IO;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Zip;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -71,7 +72,7 @@ namespace OfficeOpenXml
                 if (!string.IsNullOrEmpty(relID))
                 {
                     var rel = _workSheet.Part.GetRelationship(relID);
-                    var imagePart = _workSheet.Part.Package.GetPart(PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
+                    var imagePart = _workSheet.Part.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
                     return Image.FromStream(imagePart.GetStream());
                 }
                 return null;
@@ -88,7 +89,7 @@ namespace OfficeOpenXml
                     ImageConverter ic = new ImageConverter();
                     byte[] img = (byte[])ic.ConvertTo(value, typeof(byte[]));
                     var ii = _workSheet.Workbook._package.AddImage(img);
-                    var rel = _workSheet.Part.CreateRelationship(ii.Uri, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                    var rel = _workSheet.Part.CreateRelationship(ii.Uri, Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                     SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
                 }
             }
@@ -126,13 +127,13 @@ namespace OfficeOpenXml
                 _workSheet.Part.Package.DeletePart(imageURI);
             }
 
-            var imagePart = _workSheet.Part.Package.CreatePart(imageURI, contentType, CompressionOption.NotCompressed);
+            var imagePart = _workSheet.Part.Package.CreatePart(imageURI, contentType, Ionic.Zlib.CompressionLevel.None);
             //Save the picture to package.
 
             var strm = imagePart.GetStream(FileMode.Create, FileAccess.Write);
             strm.Write(fileBytes, 0, fileBytes.Length);
 
-            var rel = _workSheet.Part.CreateRelationship(imageURI, TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            var rel = _workSheet.Part.CreateRelationship(imageURI, Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
             SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
         }
         private void DeletePrevImage()

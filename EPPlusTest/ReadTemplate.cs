@@ -170,6 +170,14 @@ namespace EPPlusTest
             }
         }
         [TestMethod]
+        public void InternalZip()
+        {
+            //var file = @"c:\temp\condi.xlsx";
+            //using (ExcelPackage pck = new ExcelPackage(file))
+            //{
+            //}
+        }
+        [TestMethod]
         public void ReadBug4()
         {
             var lines = new List<string>();

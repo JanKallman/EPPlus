@@ -32,7 +32,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.IO.Packaging;
 using System.Xml;
 
 namespace OfficeOpenXml.Table.PivotTable
@@ -47,7 +46,7 @@ namespace OfficeOpenXml.Table.PivotTable
         ExcelWorksheet _ws;        
         internal ExcelPivotTableCollection(ExcelWorksheet ws)
         {
-            Package pck = ws._package.Package;
+            var pck = ws._package.Package;
             _ws = ws;            
             foreach(var rel in ws.Part.GetRelationships())
             {

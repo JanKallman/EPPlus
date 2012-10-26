@@ -35,12 +35,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO;
-using System.IO.Packaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing.Vml;
+using Ionic.Zlib;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -75,8 +76,8 @@ namespace OfficeOpenXml
 				if (attr != null)
 					hidden = TranslateHidden(attr.Value);
 
-				PackageRelationship sheetRelation = pck.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = PackUriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
+				var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				//add the worksheet
                 _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
@@ -142,13 +143,13 @@ namespace OfficeOpenXml
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            Zip.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
 
 			//Create the new, empty worksheet and save it to the package
 			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
 			XmlDocument worksheetXml = CreateNewWorksheet();
 			worksheetXml.Save(streamWorksheet);
-			streamWorksheet.Close();
+			//streamWorksheet.Close();
 			_pck.Package.Flush();
 
             string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet);
@@ -183,12 +184,12 @@ namespace OfficeOpenXml
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
 
             //Create a copy of the worksheet XML
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            Zip.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
             StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
             XmlDocument worksheetXml = new XmlDocument();
             worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
             worksheetXml.Save(streamWorksheet);
-            streamWorksheet.Close();
+            //streamWorksheet.Close();
             _pck.Package.Flush();
 
 
@@ -311,10 +312,11 @@ namespace OfficeOpenXml
                 var part = _pck.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
-                streamTbl.Close();
+                //streamTbl.Close();
+                streamTbl.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                var rel = added.Part.CreateRelationship(PackUriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                var rel = added.Part.CreateRelationship(UriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
 
                 if (tbl.RelationshipID == null)
                 {
@@ -370,11 +372,12 @@ namespace OfficeOpenXml
                 var part = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
-                streamTbl.Close();
+                //streamTbl.Close();
+                streamTbl.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                added.Part.CreateRelationship(PackUriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
-                part.CreateRelationship(PackUriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
+                added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+                part.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
             }
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
@@ -394,7 +397,7 @@ namespace OfficeOpenXml
                 Uri source = Copy.HeaderFooter.Pictures.Uri;
                 Uri dest = XmlHelper.GetNewUri(_pck.Package, @"/xl/drawings/vmlDrawing{0}.vml");
                 
-                var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
+                //var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
                 foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
                 {
                     var item = added.HeaderFooter.Pictures.Add(pic.Id, pic.ImageUri, pic.Title, pic.Width, pic.Height);
@@ -534,10 +537,11 @@ namespace OfficeOpenXml
 
             StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
             streamDrawing.Write(xml);
-            streamDrawing.Close();
+            //streamDrawing.Close();
+            streamDrawing.Flush();
 
             //Add the relationship ID to the worksheet xml.
-            PackageRelationship commentRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
+            var commentRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
 
             xml = Copy.VmlDrawingsComments.VmlDrawingXml.InnerXml;
 
@@ -550,9 +554,10 @@ namespace OfficeOpenXml
             var vmlPart = _pck.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
             StreamWriter streamVml = new StreamWriter(vmlPart.GetStream(FileMode.Create, FileAccess.Write));
             streamVml.Write(xml);
-            streamVml.Close();
+            //streamVml.Close();
+            streamVml.Flush();
 
-            PackageRelationship newVmlRel = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+            var newVmlRel = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 
             //Add the relationship ID to the worksheet xml.
             XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
@@ -576,12 +581,13 @@ namespace OfficeOpenXml
                 var part= _pck.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _pck.Compression);
                 StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(xml);
-                streamDrawing.Close();
+                //streamDrawing.Close();
+                streamDrawing.Flush();
 
                 XmlDocument drawXml = new XmlDocument();
                 drawXml.LoadXml(xml);
                 //Add the relationship ID to the worksheet xml.
-                PackageRelationship drawRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                var drawRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                 XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
@@ -596,10 +602,11 @@ namespace OfficeOpenXml
                         var chartPart = _pck.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _pck.Compression);
                         StreamWriter streamChart = new StreamWriter(chartPart.GetStream(FileMode.Create, FileAccess.Write));
                         streamChart.Write(xml);
-                        streamChart.Close();
+                        //streamChart.Close();
+                        streamChart.Flush();
                         //Now create the new relationship to the copied chart xml
                         var prevRelID=draw.TopNode.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart/@r:id", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(PackUriHelper.GetRelativeUri(uriDraw,UriChart), TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(uriDraw,UriChart), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//c:chart/@r:id[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value=rel.Id;
                     }
@@ -609,12 +616,12 @@ namespace OfficeOpenXml
                         var uri = pic.UriPic;
                         if(!workSheet.Workbook._package.Package.PartExists(uri))
                         {
-                            var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionOption.NotCompressed);
+                            var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionLevel.None);
                             pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), pic.ImageFormat);
                         }
 
                         var prevRelID = draw.TopNode.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//xdr:pic/xdr:blipFill/a:blip/@r:embed[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value = rel.Id;
                     }
@@ -622,7 +629,9 @@ namespace OfficeOpenXml
                 //rewrite the drawing xml with the new relID's
                 streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(drawXml.OuterXml);
-                streamDrawing.Close();
+               // streamDrawing.Close();
+                streamDrawing.Flush();
+
             //}
         }
 
@@ -634,10 +643,11 @@ namespace OfficeOpenXml
 			using (var streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
 			{
 				streamDrawing.Write(xml);
-			}
-
-			//Add the relationship ID to the worksheet xml.
-			PackageRelationship vmlRelation = newSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                streamDrawing.Flush();
+            }
+			
+            //Add the relationship ID to the worksheet xml.
+			var vmlRelation = newSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
 			if (e == null)
 			{
@@ -652,7 +662,7 @@ namespace OfficeOpenXml
 		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
         {
             //Create the relationship between the workbook and the new worksheet
-            PackageRelationship rel = _pck.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
+            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
             _pck.Package.Flush();
 
             //Create the new sheet node

@@ -34,7 +34,6 @@ using System;
 using System.Xml;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
 using System.Configuration;
 using OfficeOpenXml.Drawing;
 using System.Diagnostics;
@@ -52,6 +51,7 @@ using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -191,9 +191,9 @@ namespace OfficeOpenXml
         /// </summary>
         internal Uri WorksheetUri { get { return (_worksheetUri); } }
         /// <summary>
-        /// The PackagePart for the worksheet within the package
+        /// The Zip.ZipPackagePart for the worksheet within the package
         /// </summary>
-        internal PackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
+        internal Zip.ZipPackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
         /// <summary>
         /// The ID for the worksheet's relationship with the workbook in the package
         /// </summary>
@@ -522,7 +522,7 @@ namespace OfficeOpenXml
                 if (Part.RelationshipExists(vmlNode.Value))
                 {
                     var rel = Part.GetRelationship(vmlNode.Value);
-                    var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                    var vmlUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
 
                     _vmlDrawings = new ExcelVmlDrawingCommentCollection(_package, this, vmlUri);
                     _vmlDrawings.RelId = rel.Id;
@@ -534,7 +534,7 @@ namespace OfficeOpenXml
         {
             _worksheetXml = new XmlDocument();
             _worksheetXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-            PackagePart packPart = _package.Package.GetPart(WorksheetUri);
+            Zip.ZipPackagePart packPart = _package.Package.GetPart(WorksheetUri);
             string xml = "";
 
             // First Columns, rows, cells, mergecells, hyperlinks and pagebreakes are loaded from a xmlstream to optimize speed...
@@ -1931,7 +1931,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    PackagePart partPack = Drawings.Part;
+                    Zip.ZipPackagePart partPack = Drawings.Part;
                     Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
                     foreach (ExcelDrawing d in Drawings)
                     {
@@ -1959,8 +1959,8 @@ namespace OfficeOpenXml
                 attr.OwnerElement.Attributes.Remove(attr);
                 if(Part.RelationshipExists(relID))
                 {
-                    PackageRelationship rel = Part.GetRelationship(relID);
-                    Uri printerSettingsUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                    var rel = Part.GetRelationship(relID);
+                    Uri printerSettingsUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                     Part.DeleteRelationship(rel.Id);
 
                     //Delete the part from the package
@@ -1993,7 +1993,7 @@ namespace OfficeOpenXml
                     if(_comments.Part==null)
                     {
                         _comments.Part = _package.Package.CreatePart(_comments.Uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _package.Compression);
-                        var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
                     }
                     _comments.CommentXml.Save(_comments.Part.GetStream());
                 }
@@ -2018,7 +2018,7 @@ namespace OfficeOpenXml
                     if (_vmlDrawings.Part == null)
                     {
                         _vmlDrawings.Part = _package.Package.CreatePart(_vmlDrawings.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _package.Compression);
-                        var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
                         SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
@@ -2103,7 +2103,7 @@ namespace OfficeOpenXml
                     tbl.Part = _package.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
-                    var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                    var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
                     tbl.RelationshipID = rel.Id;
 
                     CreateNode("d:tableParts");
@@ -2226,7 +2226,7 @@ namespace OfficeOpenXml
 
             sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
-            sw.Close();
+            //sw.Close();
         }
         private void UpdateColBreaks(StreamWriter sw)
         {
@@ -2588,7 +2588,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            PackageRelationship relationship = Part.CreateRelationship(hyp, TargetMode.External, ExcelPackage.schemaHyperlink);
+                            var relationship = Part.CreateRelationship(hyp, Zip.TargetMode.External, ExcelPackage.schemaHyperlink);
                             if (cell.Hyperlink is ExcelHyperLink)
                             {
                                 ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;

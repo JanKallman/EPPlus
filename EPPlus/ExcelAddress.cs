@@ -54,6 +54,13 @@ namespace OfficeOpenXml
             Partly,
             Inside,
             Equal
+        }        
+        internal enum eShiftType
+        {
+            Right,
+            Down,
+            EntireRow,
+            EntireColumn
         }
         #region "Constructors"
         internal ExcelAddressBase()
@@ -222,9 +229,13 @@ namespace OfficeOpenXml
                 return _fromRow < 0;
             }
         }
+        /// <summary>
+        /// Returns the address text
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
-            return base.ToString();
+            return _address;
         }
         string _firstAddress;
         /// <summary>
@@ -427,6 +438,46 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal ExcelAddressBase Insert(ExcelAddressBase address, eShiftType Shift/*, out ExcelAddressBase topAddress, out ExcelAddressBase leftAddress, out ExcelAddressBase rightAddress, out ExcelAddressBase bottomAddress*/)
+        {
+            //Before or after, no change
+            //if ((_toRow > address._fromRow && _toCol > address._fromCol) || 
+            //    (_fromRow > address._toRow && _fromCol > address._toCol))
+            if(_toRow < address._fromRow || _toCol < address._fromCol || (_fromRow > address._toRow && _fromCol > address._toCol))
+            {
+                //topAddress = null;
+                //leftAddress = null;
+                //rightAddress = null;
+                //bottomAddress = null;
+                return this;
+            }
+
+            int rows = address.Rows;
+            int cols = address.Columns;
+            string retAddress = "";
+            if (Shift==eShiftType.Right)
+            {
+                if (address._fromRow > _fromRow)
+                {
+                    retAddress=GetAddress(_fromRow, _fromCol, address._fromRow, _toCol);
+                }
+                if(address._fromCol > _fromCol)
+                {
+                    retAddress=GetAddress(_fromRow  < address._fromRow ? _fromRow : address._fromRow , _fromCol, address._fromRow, _toCol);
+                }
+            }
+            if (_toRow < address._fromRow)
+            {
+                if (_fromRow < address._fromRow)
+                {
+
+                }
+                else
+                {
+                }
+            }
+            return null;
+        }
         #endregion
         private void SetAddress(ref string first, ref string second, ref bool hasSheet)
         {
@@ -557,6 +608,21 @@ namespace OfficeOpenXml
             else
             {
                 return false;
+            }
+        }
+
+        public int Rows 
+        {
+            get
+            {
+                return _toRow - _fromRow+1;
+            }
+        }
+        public int Columns
+        {
+            get
+            {
+                return _toCol - _fromCol + 1;
             }
         }
     }

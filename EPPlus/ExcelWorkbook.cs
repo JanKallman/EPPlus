@@ -32,7 +32,6 @@
 using System;
 using System.Xml;
 using System.IO;
-using System.IO.Packaging;
 using System.Collections.Generic;
 using System.Text;
 using System.Security;
@@ -40,6 +39,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
 using System.Drawing;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -389,7 +389,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Returns a reference to the workbook's part within the package
 		/// </summary>
-		internal PackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
+		internal Zip.ZipPackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
 		
 		#region WorkbookXml
 		private XmlDocument _workbookXml;
@@ -447,7 +447,7 @@ namespace OfficeOpenXml
 			else
 			{
 				// create a new workbook part and add to the package
-				PackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
+				Zip.ZipPackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
 
 				// create the workbook
 				_workbookXml = new XmlDocument(namespaceManager.NameTable);                
@@ -470,7 +470,7 @@ namespace OfficeOpenXml
 				// save it to the package
 				StreamWriter stream = new StreamWriter(partWorkbook.GetStream(FileMode.Create, FileAccess.Write));
 				_workbookXml.Save(stream);
-				stream.Close();
+				//stream.Close();
 				_package.Package.Flush();
 			}
 		}
@@ -491,7 +491,7 @@ namespace OfficeOpenXml
 					else
 					{
 						// create a new styles part and add to the package
-						PackagePart part = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
+						Zip.ZipPackagePart part = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
 						// create the style sheet
 
 						StringBuilder xml = new StringBuilder("<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
@@ -512,11 +512,11 @@ namespace OfficeOpenXml
 						StreamWriter stream = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
 
 						_stylesXml.Save(stream);
-						stream.Close();
+						//stream.Close();
 						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						_package.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorkbookUri, StylesUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
+						_package.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, StylesUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
 						_package.Package.Flush();
 					}
 				}
@@ -620,14 +620,14 @@ namespace OfficeOpenXml
             {
                 if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
                 {
-                    ChangeContentTypeWorkbook(ExcelPackage.contentTypeWorkbookDefault);
+                    Part.ContentType = ExcelPackage.contentTypeWorkbookDefault;
                 }
             }
             else
             {
                 if (Part.ContentType != ExcelPackage.contentTypeWorkbookMacroEnabled)
                 {
-                    ChangeContentTypeWorkbook(ExcelPackage.contentTypeWorkbookMacroEnabled);
+                    Part.ContentType = ExcelPackage.contentTypeWorkbookMacroEnabled;
                 }
             }
 			
@@ -672,31 +672,6 @@ namespace OfficeOpenXml
             }
 
 		}
-        /// <summary>
-        /// Recreate the workbook part with a new contenttype
-        /// </summary>
-        /// <param name="contentType">The new contenttype</param>
-        private void ChangeContentTypeWorkbook(string contentType)
-        {            
-            var p=_package.Package;
-            var part = Part;
-            var rels = part.GetRelationships();
-
-            p.DeletePart(WorkbookUri);
-            part = p.CreatePart(WorkbookUri, contentType);
-            
-            foreach (var rel in rels)
-            {
-                p.DeleteRelationship(rel.Id);
-                var newRel=part.CreateRelationship(rel.TargetUri, rel.TargetMode, rel.RelationshipType);
-                if (rel.RelationshipType.EndsWith("worksheet"))
-                {
-                    var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:sheets/d:sheet[@r:id='{0}']", rel.Id), NameSpaceManager);
-                    sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
-                }
-            }
-        }
-
 		private void DeleteCalcChain()
 		{
 			//Remove the calc chain if it exists.
@@ -704,7 +679,7 @@ namespace OfficeOpenXml
 			if (_package.Package.PartExists(uriCalcChain))
 			{
 				Uri calcChain = new Uri("calcChain.xml", UriKind.Relative);
-				foreach (PackageRelationship relationship in _package.Workbook.Part.GetRelationships())
+				foreach (var relationship in _package.Workbook.Part.GetRelationships())
 				{
 					if (relationship.TargetUri == calcChain)
 					{
@@ -727,7 +702,7 @@ namespace OfficeOpenXml
 
 		private void UpdateSharedStringsXml()
 		{
-			PackagePart stringPart;
+			Zip.ZipPackagePart stringPart;
 			if (_package.Package.PartExists(SharedStringsUri))
 			{
 				stringPart=_package.Package.GetPart(SharedStringsUri);
@@ -735,7 +710,7 @@ namespace OfficeOpenXml
 			else
 			{
 				stringPart = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
-				Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+				Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 			}
 
 			StreamWriter sw = new StreamWriter(stringPart.GetStream(FileMode.Create, FileAccess.Write));
@@ -968,7 +943,7 @@ namespace OfficeOpenXml
 
 			XmlElement item = WorkbookXml.CreateElement("pivotCache", ExcelPackage.schemaMain);
 			item.SetAttribute("cacheId", cacheID);
-			var rel = Part.CreateRelationship(PackUriHelper.ResolvePartUri(WorkbookUri, defUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
+			var rel = Part.CreateRelationship(UriHelper.ResolvePartUri(WorkbookUri, defUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
 			item.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
 
 			var pivotCaches = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);
@@ -983,8 +958,8 @@ namespace OfficeOpenXml
 				foreach (XmlElement elem in nl)
 				{
 					string rID = elem.GetAttribute("r:id");
-					PackageRelationship rel = Part.GetRelationship(rID);
-					var part = _package.Package.GetPart(PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
+					var rel = Part.GetRelationship(rID);
+					var part = _package.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri));
 					XmlDocument xmlExtRef = new XmlDocument();
                     LoadXmlSafe(xmlExtRef, part.GetStream()); 
 

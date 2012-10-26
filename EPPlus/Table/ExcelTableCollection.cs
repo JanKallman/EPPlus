@@ -32,7 +32,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.IO.Packaging;
 using System.Xml;
 
 namespace OfficeOpenXml.Table
@@ -47,7 +46,7 @@ namespace OfficeOpenXml.Table
         ExcelWorksheet _ws;        
         internal ExcelTableCollection(ExcelWorksheet ws)
         {
-            Package pck = ws._package.Package;
+            var pck = ws._package.Package;
             _ws = ws;
             foreach(XmlElement node in ws.WorksheetXml.SelectNodes("//d:tableParts/d:tablePart", ws.NameSpaceManager))
             {

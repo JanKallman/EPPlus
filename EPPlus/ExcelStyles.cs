@@ -770,7 +770,7 @@ namespace OfficeOpenXml
             //Numberformat
             if (xfs.NumberFormatId > 0)
             {
-                string format="";
+                string format="";                
                 foreach (var fmt in style.NumberFormats)
                 {
                     if (fmt.NumFmtId == xfs.NumberFormatId)
