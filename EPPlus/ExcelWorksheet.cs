@@ -555,13 +555,14 @@ namespace OfficeOpenXml
             LoadColPageBreakes(xr);
             //...then the rest of the Xml is extracted and loaded into the WorksheetXml document.
             stream.Seek(0, SeekOrigin.Begin);
-            xml = GetWorkSheetXml(stream, start, end);
+            Encoding encoding;
+            xml = GetWorkSheetXml(stream, start, end, out encoding);
 
             //first char is invalid sometimes?? 
             if (xml[0] != '<')
-                LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1));
+                LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1), encoding);
             else
-                LoadXmlSafe(_worksheetXml, xml);
+                LoadXmlSafe(_worksheetXml, xml, encoding);
 
             _package.DoAdjustDrawings = doAdjust;
             ClearNodes();
@@ -629,26 +630,27 @@ namespace OfficeOpenXml
             }
         }
         const int BLOCKSIZE=8192;
-        private string GetWorkSheetXml(Stream stream, long start, long end)
+        private string GetWorkSheetXml(Stream stream, long start, long end, out Encoding encoding)
         {
             StreamReader sr = new StreamReader(stream);
             int length = 0;
             char[] block;
             int pos;
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();            
             Match startmMatch, endMatch;
             do
             {
-                int size = stream.Length < BLOCKSIZE ? (int)stream.Length : BLOCKSIZE;
+                int size = stream.Length-1 < BLOCKSIZE ? (int)stream.Length-1 : BLOCKSIZE;
                 block = new char[size];
                 pos = sr.ReadBlock(block, 0, size);                
                 sb.Append(block);
                 length += size;
             }
-            while (length < start + 20 && length < end);
+            while (length < start + 20 && length < end-1);
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
+                encoding = sr.CurrentEncoding;
                 return sb.ToString();
             }
             else
@@ -684,6 +686,7 @@ namespace OfficeOpenXml
                     xml += sr.ReadToEnd();
                 }
 
+                encoding = sr.CurrentEncoding;
                 return xml;
             }
         }

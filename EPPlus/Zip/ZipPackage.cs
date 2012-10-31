@@ -160,7 +160,7 @@ namespace OfficeOpenXml.Zip
         private void AddContentTypes(string xml)
         {
             var doc = new XmlDocument();
-            XmlHelper.LoadXmlSafe(doc, xml);
+            XmlHelper.LoadXmlSafe(doc, xml, Encoding.UTF8);
 
             foreach (XmlElement c in doc.DocumentElement.ChildNodes)
             {
