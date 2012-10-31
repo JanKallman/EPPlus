@@ -76,6 +76,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +272,7 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="Style\ExcelRichTextHtmlUtility.cs" />
     <Compile Include="Utils\UriHelper.cs" />
     <Compile Include="Zip\ZipPackage.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />

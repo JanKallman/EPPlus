@@ -28,6 +28,7 @@
  * ******************************************************************************
  * Jan Källman		    Initial Release		       2011-01-01
  * Jan Källman		    License changed GPL-->LGPL 2011-12-27
+ * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -735,12 +736,25 @@ namespace OfficeOpenXml
 					{
 						sw.Write("<si><t>");
 					}
-					ExcelEncodeString(sw, SecurityElement.Escape(t));
+					ExcelEncodeString(sw, ExcelEscapeString(t));
 					sw.Write("</t></si>");
 				}
 			}
 			sw.Write("</sst>");
 			sw.Flush();
+		}
+
+		/// <summary>
+		/// OOXML requires that <, >, and & be escaped, but ' and " should *not* be escaped, nor should
+		/// any extended Unicode characters. This function only encodes the required characters.
+		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
+		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
+		/// escape equivalent.
+		/// </summary>
+		/// <param name="s"></param>
+		/// <returns></returns>
+		private static string ExcelEscapeString(string s) {
+			return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 		}
 
 		/// <summary>
