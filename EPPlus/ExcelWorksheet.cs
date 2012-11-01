@@ -640,13 +640,13 @@ namespace OfficeOpenXml
             Match startmMatch, endMatch;
             do
             {
-                int size = stream.Length-1 < BLOCKSIZE ? (int)stream.Length-1 : BLOCKSIZE;
+                int size = stream.Length < BLOCKSIZE ? (int)stream.Length : BLOCKSIZE;
                 block = new char[size];
                 pos = sr.ReadBlock(block, 0, size);                
-                sb.Append(block);
+                sb.Append(block,0,pos);
                 length += size;
             }
-            while (length < start + 20 && length < end-1);
+            while (length < start + 20 && length < end);
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
@@ -674,7 +674,7 @@ namespace OfficeOpenXml
                             sr = new StreamReader(stream);
                             pos = sr.ReadBlock(block, 0, size);
                             sb = new StringBuilder();
-                            sb.Append(block);
+                            sb.Append(block, 0, pos);
                             s = sb.ToString();
                         }
                     }
