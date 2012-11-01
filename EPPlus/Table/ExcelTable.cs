@@ -131,7 +131,7 @@ namespace OfficeOpenXml.Table
             WorkSheet = sheet;
             Address = address;
             TableXml = new XmlDocument();
-            LoadXmlSafe(TableXml, GetStartXml(name, tblId)); 
+            LoadXmlSafe(TableXml, GetStartXml(name, tblId), Encoding.UTF8); 
             TopNode = TableXml.DocumentElement;
 
             init();

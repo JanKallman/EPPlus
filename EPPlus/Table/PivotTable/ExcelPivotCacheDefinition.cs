@@ -95,7 +95,7 @@ namespace OfficeOpenXml.Table.PivotTable
             
             //CacheDefinition
             CacheDefinitionXml = new XmlDocument();
-            LoadXmlSafe(CacheDefinitionXml, GetStartXml(sourceAddress));
+            LoadXmlSafe(CacheDefinitionXml, GetStartXml(sourceAddress), Encoding.UTF8);
             CacheDefinitionUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheDefinition{0}.xml", tblId); 
             Part = pck.CreatePart(CacheDefinitionUri, ExcelPackage.schemaPivotCacheDefinition);
             TopNode = CacheDefinitionXml.DocumentElement;
