@@ -133,7 +133,7 @@ namespace OfficeOpenXml.Table.PivotTable
             var pck = sheet._package.Package;
 
             PivotTableXml = new XmlDocument();
-            LoadXmlSafe(PivotTableXml, GetStartXml(name, tblId, address, sourceAddress));
+            LoadXmlSafe(PivotTableXml, GetStartXml(name, tblId, address, sourceAddress), Encoding.UTF8);
             TopNode = PivotTableXml.DocumentElement;
             PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", tblId);
             init();

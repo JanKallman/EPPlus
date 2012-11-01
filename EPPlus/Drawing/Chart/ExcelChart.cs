@@ -448,7 +448,7 @@ namespace OfficeOpenXml.Drawing.Chart
 
                ChartXml = new XmlDocument();
                ChartXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-               LoadXmlSafe(ChartXml, ChartStartXml(type));
+               LoadXmlSafe(ChartXml, ChartStartXml(type), Encoding.UTF8);
 
                // save it to the package
                Part = package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _drawings._package.Compression);
