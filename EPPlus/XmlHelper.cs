@@ -805,14 +805,14 @@ namespace OfficeOpenXml
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
-            settings.ProhibitDtd = true;
-
+            settings.ProhibitDtd = true;            
             XmlReader reader = XmlReader.Create(stream, settings);            
+            
             xmlDoc.Load(reader);
         }        
-        internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml)
+        internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml, Encoding encoding)
         {
-            var stream = new MemoryStream(Encoding.Default.GetBytes(xml));
+            var stream = new MemoryStream(encoding.GetBytes(xml));
             LoadXmlSafe(xmlDoc, stream);
         }
 	}

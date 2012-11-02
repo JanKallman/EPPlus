@@ -42,13 +42,11 @@ namespace OfficeOpenXml.Zip
     {
         protected ZipPackageRelationshipCollection _rels = new ZipPackageRelationshipCollection();
         int maxRId = 1;
-
         internal void DeleteRelationship(string id)
         {
             _rels.Remove(id);
             UpdateMaxRId(id, ref maxRId);
         }
-
         protected void UpdateMaxRId(string id, ref int maxRId)
         {
             if (id.StartsWith("rId"))
@@ -73,7 +71,6 @@ namespace OfficeOpenXml.Zip
             _rels.Add(rel);
             return rel;
         }
-
         internal bool RelationshipExists(string id)
         {
             return _rels.ContainsKey(id);
@@ -86,7 +83,6 @@ namespace OfficeOpenXml.Zip
         {
             return _rels;
         }
-
         internal ZipPackageRelationship GetRelationship(string id)
         {
             return _rels[id];
@@ -94,7 +90,7 @@ namespace OfficeOpenXml.Zip
         internal void ReadRelation(string xml, string source)
         {
             var doc = new XmlDocument();
-            XmlHelper.LoadXmlSafe(doc, xml);
+            XmlHelper.LoadXmlSafe(doc, xml, Encoding.UTF8);
 
             foreach (XmlElement c in doc.DocumentElement.ChildNodes)
             {
@@ -112,7 +108,7 @@ namespace OfficeOpenXml.Zip
                     int id;
                     if (int.TryParse(rel.Id.Substring(3), out id))
                     {
-                        if (id >= maxRId && id < int.MaxValue - 10000) //not likly to have this hig id's but make sure we have space to avoid overflow.
+                        if (id >= maxRId && id < int.MaxValue - 10000) //Not likly to have this high id's but make sure we have space to avoid overflow.
                         {
                             maxRId = id + 1;
                         }
