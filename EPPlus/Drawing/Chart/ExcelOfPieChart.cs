@@ -58,7 +58,7 @@ namespace OfficeOpenXml.Drawing.Chart
             SetTypeProperties();
         }
 
-        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelOfPieChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             SetTypeProperties();

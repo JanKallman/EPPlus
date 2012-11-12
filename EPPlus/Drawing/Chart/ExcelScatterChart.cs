@@ -48,7 +48,7 @@ namespace OfficeOpenXml.Drawing.Chart
             SetTypeProperties();
         }
 
-        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
             base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             SetTypeProperties();

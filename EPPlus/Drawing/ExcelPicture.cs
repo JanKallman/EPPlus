@@ -143,7 +143,7 @@ namespace OfficeOpenXml.Drawing
                 //var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
                 //strm.Write(file, 0, file.Length);
                 Part = ii.Part;
-                RelPic = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, ii.Uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                RelPic = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, ii.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                 relID = RelPic.Id;
                 _drawings._hashes.Add(ii.Hash, relID);
                 AddNewPicture(img, relID);
@@ -222,7 +222,7 @@ namespace OfficeOpenXml.Drawing
             }
 
             //Set the Image and save it to the package.
-            RelPic = _drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(_drawings.UriDrawing, UriPic), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            RelPic = _drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(_drawings.UriDrawing, UriPic), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
             
             //AddNewPicture(img, picRelation.Id);
             _drawings._hashes.Add(ii.Hash, RelPic.Id);
@@ -249,7 +249,7 @@ namespace OfficeOpenXml.Drawing
             }
             else
             {
-               HypRel = _drawings.Part.CreateRelationship(_hyperlink, Zip.TargetMode.External, ExcelPackage.schemaHyperlink);
+               HypRel = _drawings.Part.CreateRelationship(_hyperlink, Packaging.TargetMode.External, ExcelPackage.schemaHyperlink);
                xml.AppendFormat("<xdr:cNvPr id=\"{0}\" descr=\"\">", _id);
                if (HypRel != null)
                {
@@ -348,9 +348,9 @@ namespace OfficeOpenXml.Drawing
             }
         }
         internal Uri UriPic { get; set; }
-        internal Zip.ZipPackageRelationship RelPic {get; set;}
-        internal Zip.ZipPackageRelationship HypRel { get; set; }
-        internal Zip.ZipPackagePart Part;
+        internal Packaging.ZipPackageRelationship RelPic {get; set;}
+        internal Packaging.ZipPackageRelationship HypRel { get; set; }
+        internal Packaging.ZipPackagePart Part;
 
         internal new string Id
         {

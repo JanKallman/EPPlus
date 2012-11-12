@@ -98,6 +98,7 @@ namespace EPPlusSamples
 
             ws.Select("C2");
             Console.WriteLine("{0:HH.mm.ss}\tSaving...", DateTime.Now);
+            package.Compression = CompressionLevel.BestSpeed;
             package.SaveAs(newFile);
             Console.WriteLine("{0:HH.mm.ss}\tDone!!", DateTime.Now);
             return newFile.FullName;

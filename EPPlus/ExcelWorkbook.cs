@@ -41,6 +41,8 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
 using System.Drawing;
 using OfficeOpenXml.Utils;
+using System.Windows.Media;
+using System.Windows;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -271,7 +273,7 @@ namespace OfficeOpenXml
 		}
 		#region Workbook Properties
 		decimal _standardFontWidth = decimal.MinValue;
-        string fontID = "";
+        string _fontID = "";
 		/// <summary>
 		/// Max font width for the workbook
         /// <remarks>This method uses GDI. If you use Asure or another environment that does not support GDI, you have to set this value manually if you don't use the standard Calibri font</remarks>
@@ -280,20 +282,28 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                if (_standardFontWidth == decimal.MinValue || fontID != Styles.Fonts[0].Id)
+                if (_standardFontWidth == decimal.MinValue || _fontID != Styles.Fonts[0].Id)
 				{
 					var font = Styles.Fonts[0];
                     try
                     {
-                        Font f = new Font(font.Name, font.Size);
-                        fontID = font.Id;
-                        using (Bitmap b = new Bitmap(1, 1))
-                        {
-                            using (Graphics g = Graphics.FromImage(b))
-                            {
-                                _standardFontWidth = (decimal)Math.Truncate(g.MeasureString("00", f).Width - g.MeasureString("0", f).Width);
-                            }
-                        }
+                        //Font f = new Font(font.Name, font.Size);
+                        _fontID = font.Id;
+                        Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
+                                                     (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
+                                                     (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
+                                                     FontStretches.Normal);
+                        var ft = new System.Windows.Media.FormattedText("O", new CultureInfo("en-us"), System.Windows.FlowDirection.LeftToRight, tf, font.Size, System.Windows.Media.Brushes.Black);
+                        _standardFontWidth = (int)ft.Width;                            
+                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
+
+                        //using (Bitmap b = new Bitmap(1, 1))
+                        //{
+                        //    using (Graphics g = Graphics.FromImage(b))
+                        //    {
+                        //        _standardFontWidth = (decimal)Math.Truncate(g.MeasureString("00", f).Width - g.MeasureString("0", f).Width);
+                        //    }
+                        //}
                         if (_standardFontWidth <= 0) //No GDI?
                         {
                             _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox. for Calibri.
@@ -390,7 +400,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Returns a reference to the workbook's part within the package
 		/// </summary>
-		internal Zip.ZipPackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
+		internal Packaging.ZipPackagePart Part { get { return (_package.Package.GetPart(WorkbookUri)); } }
 		
 		#region WorkbookXml
 		private XmlDocument _workbookXml;
@@ -448,7 +458,7 @@ namespace OfficeOpenXml
 			else
 			{
 				// create a new workbook part and add to the package
-				Zip.ZipPackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
+				Packaging.ZipPackagePart partWorkbook = _package.Package.CreatePart(WorkbookUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml", _package.Compression);
 
 				// create the workbook
 				_workbookXml = new XmlDocument(namespaceManager.NameTable);                
@@ -492,7 +502,7 @@ namespace OfficeOpenXml
 					else
 					{
 						// create a new styles part and add to the package
-						Zip.ZipPackagePart part = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
+						Packaging.ZipPackagePart part = _package.Package.CreatePart(StylesUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml", _package.Compression);
 						// create the style sheet
 
 						StringBuilder xml = new StringBuilder("<styleSheet xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\">");
@@ -517,7 +527,7 @@ namespace OfficeOpenXml
 						_package.Package.Flush();
 
 						// create the relationship between the workbook and the new shared strings part
-						_package.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, StylesUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
+						_package.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, StylesUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/styles");
 						_package.Package.Flush();
 					}
 				}
@@ -703,7 +713,7 @@ namespace OfficeOpenXml
 
 		private void UpdateSharedStringsXml()
 		{
-			Zip.ZipPackagePart stringPart;
+			Packaging.ZipPackagePart stringPart;
 			if (_package.Package.PartExists(SharedStringsUri))
 			{
 				stringPart=_package.Package.GetPart(SharedStringsUri);
@@ -711,7 +721,7 @@ namespace OfficeOpenXml
 			else
 			{
 				stringPart = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
-				Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+				Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 			}
 
 			StreamWriter sw = new StreamWriter(stringPart.GetStream(FileMode.Create, FileAccess.Write));
@@ -957,7 +967,7 @@ namespace OfficeOpenXml
 
 			XmlElement item = WorkbookXml.CreateElement("pivotCache", ExcelPackage.schemaMain);
 			item.SetAttribute("cacheId", cacheID);
-			var rel = Part.CreateRelationship(UriHelper.ResolvePartUri(WorkbookUri, defUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
+			var rel = Part.CreateRelationship(UriHelper.ResolvePartUri(WorkbookUri, defUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
 			item.SetAttribute("id", ExcelPackage.schemaRelationships, rel.Id);
 
 			var pivotCaches = WorkbookXml.SelectSingleNode("//d:pivotCaches", NameSpaceManager);

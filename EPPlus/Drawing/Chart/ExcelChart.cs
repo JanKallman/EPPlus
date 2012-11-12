@@ -361,7 +361,7 @@ namespace OfficeOpenXml.Drawing.Chart
                }
            }
        }
-       internal ExcelChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+       internal ExcelChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
        {
            UriChart = uriChart;
@@ -458,7 +458,7 @@ namespace OfficeOpenXml.Drawing.Chart
                streamChart.Close();
                package.Flush();
 
-               var chartRelation = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+               var chartRelation = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                graphFrame.SelectSingleNode("a:graphic/a:graphicData/c:chart", NameSpaceManager).Attributes["r:id"].Value = chartRelation.Id;
                package.Flush();
                _chartNode = ChartXml.SelectSingleNode(string.Format("c:chartSpace/c:chart/c:plotArea/{0}", GetChartNodeText()), NameSpaceManager);
@@ -1537,7 +1537,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
             }
         }
-        internal Zip.ZipPackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         /// <summary>
         /// Package internal URI
         /// </summary>
@@ -1616,7 +1616,7 @@ namespace OfficeOpenXml.Drawing.Chart
                return null;
            }           
        }
-       internal static ExcelChart GetChart(XmlElement chartNode, ExcelDrawings drawings, XmlNode node,  Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, ExcelChart topChart)
+       internal static ExcelChart GetChart(XmlElement chartNode, ExcelDrawings drawings, XmlNode node,  Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, ExcelChart topChart)
        {
            switch (chartNode.LocalName)
            {

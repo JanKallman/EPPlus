@@ -766,11 +766,11 @@ namespace OfficeOpenXml
 		{
      return GetXmlNodeString(TopNode, path);
 		}
-		internal static Uri GetNewUri(Zip.ZipPackage package, string sUri)
+		internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
 		{
 			return GetNewUri(package, sUri, 1);
 		}
-        internal static Uri GetNewUri(Zip.ZipPackage package, string sUri, int id)
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, int id)
 		{
 			Uri uri;
 			do

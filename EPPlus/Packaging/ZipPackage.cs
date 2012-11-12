@@ -36,7 +36,7 @@ using System.IO;
 using Ionic.Zip;
 using Ionic.Zlib;
 using System.Xml;
-namespace OfficeOpenXml.Zip
+namespace OfficeOpenXml.Packaging
 {
     /// <summary>
     /// Specifies whether the target is inside or outside the System.IO.Packaging.Package.
@@ -52,7 +52,10 @@ namespace OfficeOpenXml.Zip
         /// </summary>
         External = 1,
     }
-    public class ZipPackage : ZipRelationshipBase
+    /// <summary>
+    /// Represent an OOXML Zip package.
+    /// </summary>
+    public class ZipPackage : ZipPackageRelationshipBase
     {
         internal class ContentType
         {
@@ -77,16 +80,6 @@ namespace OfficeOpenXml.Zip
         {
             _contentTypes.Add("xml", new ContentType(ExcelPackage.schemaXmlExtension, true, "xml"));
             _contentTypes.Add("rels", new ContentType(ExcelPackage.schemaRelsExtension, true, "rels"));
-        }
-        internal ZipPackage(string filePath)
-        {
-            using (ZipFile zip = new ZipFile(filePath))
-            {
-                foreach (var e in zip.Entries)
-                {
-                    Parts.Add(GetUriKey(e.FileName), new ZipPackagePart(this, e));
-                }
-            }
         }
 
         internal ZipPackage(Stream stream)
@@ -231,6 +224,7 @@ namespace OfficeOpenXml.Zip
             var ms = new MemoryStream();
             var enc = Encoding.UTF8;
             ZipOutputStream os = new ZipOutputStream(ms, true);
+            os.CompressionLevel = (Ionic.Zlib.CompressionLevel)_compression;
             /**** ContentType****/
             var entry = os.PutNextEntry("[Content_Types].xml");
             byte[] b = enc.GetBytes(GetContentTypeXml());
@@ -272,6 +266,25 @@ namespace OfficeOpenXml.Zip
         internal void Close()
         {
 
+        }
+        CompressionLevel _compression = CompressionLevel.Default;
+        public CompressionLevel Compression 
+        { 
+            get
+            {
+                return _compression;
+            }
+            set
+            {
+                foreach (var part in Parts.Values)
+                {
+                    if (part.CompressionLevel == _compression)
+                    {
+                        part.CompressionLevel = value;
+                    }
+                }
+                _compression = value;
+            }
         }
     }
 }
