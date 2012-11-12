@@ -43,6 +43,26 @@ using Ionic.Zlib;
 namespace OfficeOpenXml
 {
     /// <summary>
+    /// Maps to DotNetZips CompressionLevel enum
+    /// </summary>
+    public enum CompressionLevel
+    {
+        Level0 = 0,
+        None = 0,
+        Level1 = 1,
+        BestSpeed = 1,
+        Level2 = 2,
+        Level3 = 3,
+        Level4 = 4,
+        Level5 = 5,
+        Level6 = 6,
+        Default = 6,
+        Level7 = 7,
+        Level8 = 8,
+        BestCompression = 9,
+        Level9 = 9,
+    }
+    /// <summary>
     /// Represents an Excel 2007/2010 XLSX file package.  
     /// This is the top-level object to access all parts of the document.
     /// <code>
@@ -149,7 +169,7 @@ namespace OfficeOpenXml
             internal string Hash { get; set; }
             internal Uri Uri{get;set;}
             internal int RefCount { get; set; }
-            internal Zip.ZipPackagePart Part { get; set; }
+            internal Packaging.ZipPackagePart Part { get; set; }
         }
         internal Dictionary<string, ImageInfo> _images = new Dictionary<string, ImageInfo>();
 		#region Properties
@@ -200,7 +220,7 @@ namespace OfficeOpenXml
         internal const string contentTypeWorkbookDefault = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml";
         internal const string contentTypeWorkbookMacroEnabled = "application/vnd.ms-excel.sheet.macroEnabled.main+xml";
         //Package reference
-        private Zip.ZipPackage _package;
+        private Packaging.ZipPackage _package;
 		private ExcelWorkbook _workbook;
         /// <summary>
         /// Maximum number of columns in a worksheet (16384). 
@@ -333,7 +353,7 @@ namespace OfficeOpenXml
             {
                 _stream = newStream;
                 //_package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite); TODO:Remove
-                _package = new Zip.ZipPackage(_stream);
+                _package = new Packaging.ZipPackage(_stream);
                 CreateBlankWb();
             }
         }
@@ -391,7 +411,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    Zip.ZipPackagePart imagePart;
+                    Packaging.ZipPackagePart imagePart;
                     if (uri == null)
                     {
                         uri = GetNewUri(Package, "/xl/media/image{0}.jpg");
@@ -409,7 +429,7 @@ namespace OfficeOpenXml
             }
             return _images[hash];
         }
-        internal ImageInfo LoadImage(byte[] image, Uri uri, Zip.ZipPackagePart imagePart)
+        internal ImageInfo LoadImage(byte[] image, Uri uri, Packaging.ZipPackagePart imagePart)
         {
             var hashProvider = new SHA1CryptoServiceProvider();
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-", "");
@@ -453,7 +473,7 @@ namespace OfficeOpenXml
                 return null;
             }
         }
-        private Uri GetNewUri(Zip.ZipPackage package, string sUri)
+        private Uri GetNewUri(Packaging.ZipPackage package, string sUri)
         {
             int id = 1;
             Uri uri;
@@ -469,7 +489,6 @@ namespace OfficeOpenXml
         /// </summary>
         private void Init()
         {
-            Compression = CompressionLevel.Default;
             DoAdjustDrawings = true;
         }
         /// <summary>
@@ -501,7 +520,7 @@ namespace OfficeOpenXml
                 try
                 {
                     //_package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
-                    _package = new Zip.ZipPackage(_stream);
+                    _package = new Packaging.ZipPackage(_stream);
                 }
                 catch (Exception ex)
                 {
@@ -540,7 +559,7 @@ namespace OfficeOpenXml
                 try
                 {
                     //_package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
-                    _package = new Zip.ZipPackage(_stream);
+                    _package = new Packaging.ZipPackage(_stream);
                 }
                 catch (Exception ex)
                {
@@ -557,7 +576,7 @@ namespace OfficeOpenXml
             else
             {
                 //_package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
-                _package = new Zip.ZipPackage(_stream);
+                _package = new Packaging.ZipPackage(_stream);
                 CreateBlankWb();
             }
         }
@@ -571,13 +590,13 @@ namespace OfficeOpenXml
         {
             XmlDocument workbook = Workbook.WorkbookXml; // this will create the workbook xml in the package
             // create the relationship to the main part
-            _package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri), Zip.TargetMode.Internal, schemaRelationships + "/officeDocument");
+            _package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri), Packaging.TargetMode.Internal, schemaRelationships + "/officeDocument");
         }
 
 		/// <summary>
 		/// Returns a reference to the package
 		/// </summary>
-		public Zip.ZipPackage Package { get { return (_package); } }
+		public Packaging.ZipPackage Package { get { return (_package); } }
         ExcelEncryption _encryption=null;
         /// <summary>
         /// Information how and if the package is encrypted
@@ -656,7 +675,7 @@ namespace OfficeOpenXml
 		/// <param name="xmlDoc">The XmlDocument to save</param>
 		internal void SavePart(Uri uri, XmlDocument xmlDoc)
 		{
-            Zip.ZipPackagePart part = _package.GetPart(uri);
+            Packaging.ZipPackagePart part = _package.GetPart(uri);
 			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
 		}
         /// <summary>
@@ -666,7 +685,7 @@ namespace OfficeOpenXml
 		/// <param name="xmlDoc">The XmlDocument to save</param>
         internal void SaveWorkbook(Uri uri, XmlDocument xmlDoc)
 		{
-            Zip.ZipPackagePart part = _package.GetPart(uri);
+            Packaging.ZipPackagePart part = _package.GetPart(uri);
             if(Workbook.VbaProject==null)
             {
                 if (part.ContentType != contentTypeWorkbookDefault)
@@ -880,8 +899,18 @@ namespace OfficeOpenXml
 		#endregion
         /// <summary>
         /// Compression option for the package
-        /// </summary>
-        public Ionic.Zlib.CompressionLevel Compression { get; set; }
+        /// </summary>        
+        public CompressionLevel Compression 
+        { 
+            get
+            {
+                return Package.Compression;
+            }
+            set
+            {
+                Package.Compression = value;
+            }
+        }
 		#region GetXmlFromUri
 		/// <summary>
 		/// Get the XmlDocument from an URI
@@ -891,7 +920,7 @@ namespace OfficeOpenXml
 		internal XmlDocument GetXmlFromUri(Uri uri)
 		{
 			XmlDocument xml = new XmlDocument();
-			Zip.ZipPackagePart part = _package.GetPart(uri);
+			Packaging.ZipPackagePart part = _package.GetPart(uri);
             XmlHelper.LoadXmlSafe(xml, part.GetStream()); 
 			return (xml);
 		}
@@ -1023,7 +1052,7 @@ namespace OfficeOpenXml
             try
             {
                 //this._package = Package.Open(this._stream, FileMode.Open, FileAccess.ReadWrite);
-                _package = new Zip.ZipPackage(_stream);
+                _package = new Packaging.ZipPackage(_stream);
             }
             catch (Exception ex)
             {

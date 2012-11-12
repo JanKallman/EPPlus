@@ -37,7 +37,7 @@ using System.Xml;
 using System.Drawing;
 using System.IO;
 using OfficeOpenXml.Drawing;
-using OfficeOpenXml.Zip;
+using OfficeOpenXml.Packaging;
 using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {
@@ -89,7 +89,7 @@ namespace OfficeOpenXml
                     ImageConverter ic = new ImageConverter();
                     byte[] img = (byte[])ic.ConvertTo(value, typeof(byte[]));
                     var ii = _workSheet.Workbook._package.AddImage(img);
-                    var rel = _workSheet.Part.CreateRelationship(ii.Uri, Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                    var rel = _workSheet.Part.CreateRelationship(ii.Uri, Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                     SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
                 }
             }
@@ -127,13 +127,13 @@ namespace OfficeOpenXml
                 _workSheet.Part.Package.DeletePart(imageURI);
             }
 
-            var imagePart = _workSheet.Part.Package.CreatePart(imageURI, contentType, Ionic.Zlib.CompressionLevel.None);
+            var imagePart = _workSheet.Part.Package.CreatePart(imageURI, contentType, CompressionLevel.None);
             //Save the picture to package.
 
             var strm = imagePart.GetStream(FileMode.Create, FileAccess.Write);
             strm.Write(fileBytes, 0, fileBytes.Length);
 
-            var rel = _workSheet.Part.CreateRelationship(imageURI, Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+            var rel = _workSheet.Part.CreateRelationship(imageURI, Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
             SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
         }
         private void DeletePrevImage()

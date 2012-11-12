@@ -36,9 +36,9 @@ using Ionic.Zip;
 using Ionic.Zlib;
 using System.IO;
 
-namespace OfficeOpenXml.Zip
+namespace OfficeOpenXml.Packaging
 {
-    internal class ZipPackagePart : ZipRelationshipBase
+    internal class ZipPackagePart : ZipPackageRelationshipBase
     {
         internal ZipPackagePart(ZipPackage package, ZipEntry entry)
         {
@@ -125,6 +125,7 @@ namespace OfficeOpenXml.Zip
             byte[] b = GetStream().ToArray();
             if (b.Length > 0)   //Make sure the file isn't empty. DotNetZip streams does not seems to handle zero sized files.
             {
+                os.CompressionLevel = (Ionic.Zlib.CompressionLevel) CompressionLevel;
                 os.PutNextEntry(Uri.OriginalString);
                 os.Write(b, 0, b.Length);
 

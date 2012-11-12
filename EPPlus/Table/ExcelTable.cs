@@ -111,7 +111,7 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public class ExcelTable : XmlHelper
     {
-        internal ExcelTable(Zip.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
+        internal ExcelTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
@@ -185,7 +185,7 @@ namespace OfficeOpenXml.Table
         {
             return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
-        internal Zip.ZipPackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;

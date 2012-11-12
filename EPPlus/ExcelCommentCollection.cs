@@ -89,7 +89,7 @@ namespace OfficeOpenXml
         internal Uri Uri { get; set; }
         internal string RelId { get; set; }
         internal XmlNamespaceManager NameSpaceManager { get; set; }
-        internal Zip.ZipPackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
