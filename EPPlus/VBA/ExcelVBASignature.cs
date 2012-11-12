@@ -45,8 +45,8 @@ namespace OfficeOpenXml.VBA
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
-        Zip.ZipPackagePart _vbaPart = null;
-        internal ExcelVbaSignature(Zip.ZipPackagePart vbaPart)
+        Packaging.ZipPackagePart _vbaPart = null;
+        internal ExcelVbaSignature(Packaging.ZipPackagePart vbaPart)
         {
             _vbaPart = vbaPart;
             GetSignature();
@@ -194,7 +194,7 @@ namespace OfficeOpenXml.VBA
             }
             if (rel == null)
             {
-                proj.Part.CreateRelationship(UriHelper.ResolvePartUri(proj.Uri, Uri), Zip.TargetMode.Internal, schemaRelVbaSignature);                
+                proj.Part.CreateRelationship(UriHelper.ResolvePartUri(proj.Uri, Uri), Packaging.TargetMode.Internal, schemaRelVbaSignature);                
             }
             var b = ms.ToArray();
             Part.GetStream(FileMode.Create).Write(b, 0, b.Length);            
@@ -336,7 +336,7 @@ namespace OfficeOpenXml.VBA
         /// </summary>
         public SignedCms Verifier { get; internal set; }
         internal CompoundDocument Signature { get; set; }
-        internal Zip.ZipPackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }
 }

@@ -143,7 +143,7 @@ namespace OfficeOpenXml
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            Zip.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
 
 			//Create the new, empty worksheet and save it to the package
 			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
@@ -184,7 +184,7 @@ namespace OfficeOpenXml
             GetSheetURI(ref Name, out sheetID, out uriWorksheet);
 
             //Create a copy of the worksheet XML
-            Zip.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
             StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
             XmlDocument worksheetXml = new XmlDocument();
             worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
@@ -316,7 +316,7 @@ namespace OfficeOpenXml
                 streamTbl.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                var rel = added.Part.CreateRelationship(UriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                var rel = added.Part.CreateRelationship(UriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
 
                 if (tbl.RelationshipID == null)
                 {
@@ -376,7 +376,7 @@ namespace OfficeOpenXml
                 streamTbl.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+                added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
                 part.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
             }
         }
@@ -541,7 +541,7 @@ namespace OfficeOpenXml
             streamDrawing.Flush();
 
             //Add the relationship ID to the worksheet xml.
-            var commentRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
+            var commentRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
 
             xml = Copy.VmlDrawingsComments.VmlDrawingXml.InnerXml;
 
@@ -557,7 +557,7 @@ namespace OfficeOpenXml
             //streamVml.Close();
             streamVml.Flush();
 
-            var newVmlRel = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+            var newVmlRel = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 
             //Add the relationship ID to the worksheet xml.
             XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
@@ -587,7 +587,7 @@ namespace OfficeOpenXml
                 XmlDocument drawXml = new XmlDocument();
                 drawXml.LoadXml(xml);
                 //Add the relationship ID to the worksheet xml.
-                var drawRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                var drawRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                 XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
@@ -606,7 +606,7 @@ namespace OfficeOpenXml
                         streamChart.Flush();
                         //Now create the new relationship to the copied chart xml
                         var prevRelID=draw.TopNode.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart/@r:id", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(uriDraw,UriChart), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(uriDraw,UriChart), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//c:chart/@r:id[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value=rel.Id;
                     }
@@ -621,7 +621,7 @@ namespace OfficeOpenXml
                         }
 
                         var prevRelID = draw.TopNode.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//xdr:pic/xdr:blipFill/a:blip/@r:embed[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value = rel.Id;
                     }
@@ -647,7 +647,7 @@ namespace OfficeOpenXml
             }
 			
             //Add the relationship ID to the worksheet xml.
-			var vmlRelation = newSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+			var vmlRelation = newSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
 			if (e == null)
 			{
@@ -662,7 +662,7 @@ namespace OfficeOpenXml
 		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
         {
             //Create the relationship between the workbook and the new worksheet
-            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
+            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
             _pck.Package.Flush();
 
             //Create the new sheet node

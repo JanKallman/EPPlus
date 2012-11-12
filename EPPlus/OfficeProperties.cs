@@ -110,7 +110,7 @@ namespace OfficeOpenXml
                 xmlDoc.LoadXml(startXml);
 
                 // Create a the part and add to the package
-                Zip.ZipPackagePart part = _package.Package.CreatePart(uri, contentType);
+                Packaging.ZipPackagePart part = _package.Package.CreatePart(uri, contentType);
 
                 // Save it to the package
                 StreamWriter stream = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
@@ -119,7 +119,7 @@ namespace OfficeOpenXml
                 _package.Package.Flush();
 
                 // create the relationship between the workbook and the new shared strings part
-                _package.Package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), uri), Zip.TargetMode.Internal, relationship);
+                _package.Package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), uri), Packaging.TargetMode.Internal, relationship);
                 _package.Package.Flush();
             }
             return xmlDoc;

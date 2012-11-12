@@ -193,7 +193,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// The Zip.ZipPackagePart for the worksheet within the package
         /// </summary>
-        internal Zip.ZipPackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
+        internal Packaging.ZipPackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
         /// <summary>
         /// The ID for the worksheet's relationship with the workbook in the package
         /// </summary>
@@ -534,7 +534,7 @@ namespace OfficeOpenXml
         {
             _worksheetXml = new XmlDocument();
             _worksheetXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-            Zip.ZipPackagePart packPart = _package.Package.GetPart(WorksheetUri);
+            Packaging.ZipPackagePart packPart = _package.Package.GetPart(WorksheetUri);
             string xml = "";
 
             // First Columns, rows, cells, mergecells, hyperlinks and pagebreakes are loaded from a xmlstream to optimize speed...
@@ -1934,7 +1934,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    Zip.ZipPackagePart partPack = Drawings.Part;
+                    Packaging.ZipPackagePart partPack = Drawings.Part;
                     Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
                     foreach (ExcelDrawing d in Drawings)
                     {
@@ -1996,7 +1996,7 @@ namespace OfficeOpenXml
                     if(_comments.Part==null)
                     {
                         _comments.Part = _package.Package.CreatePart(_comments.Uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _package.Compression);
-                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
                     }
                     _comments.CommentXml.Save(_comments.Part.GetStream());
                 }
@@ -2021,7 +2021,7 @@ namespace OfficeOpenXml
                     if (_vmlDrawings.Part == null)
                     {
                         _vmlDrawings.Part = _package.Package.CreatePart(_vmlDrawings.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _package.Compression);
-                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
                         SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
@@ -2106,7 +2106,7 @@ namespace OfficeOpenXml
                     tbl.Part = _package.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
-                    var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                    var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
                     tbl.RelationshipID = rel.Id;
 
                     CreateNode("d:tableParts");
@@ -2591,7 +2591,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            var relationship = Part.CreateRelationship(hyp, Zip.TargetMode.External, ExcelPackage.schemaHyperlink);
+                            var relationship = Part.CreateRelationship(hyp, Packaging.TargetMode.External, ExcelPackage.schemaHyperlink);
                             if (cell.Hyperlink is ExcelHyperLink)
                             {
                                 ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;

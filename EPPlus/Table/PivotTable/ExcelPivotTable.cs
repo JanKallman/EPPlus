@@ -44,7 +44,7 @@ namespace OfficeOpenXml.Table.PivotTable
     /// </summary>
     public class ExcelPivotTable : XmlHelper
     {
-        internal ExcelPivotTable(Zip.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
+        internal ExcelPivotTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
@@ -142,10 +142,10 @@ namespace OfficeOpenXml.Table.PivotTable
             PivotTableXml.Save(Part.GetStream());
             
             //Worksheet-Pivottable relationship
-            Relationship = sheet.Part.CreateRelationship(UriHelper.ResolvePartUri(sheet.WorksheetUri, PivotTableUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+            Relationship = sheet.Part.CreateRelationship(UriHelper.ResolvePartUri(sheet.WorksheetUri, PivotTableUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
 
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this, sourceAddress, tblId);
-            _cacheDefinition.Relationship=Part.CreateRelationship(UriHelper.ResolvePartUri(PivotTableUri, _cacheDefinition.CacheDefinitionUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
+            _cacheDefinition.Relationship=Part.CreateRelationship(UriHelper.ResolvePartUri(PivotTableUri, _cacheDefinition.CacheDefinitionUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
 
             sheet.Workbook.AddPivotTable(CacheID.ToString(), _cacheDefinition.CacheDefinitionUri);
 
@@ -203,7 +203,7 @@ namespace OfficeOpenXml.Table.PivotTable
             xml += "</pivotTableDefinition>";
             return xml;
         }
-        internal Zip.ZipPackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -220,7 +220,7 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             internal set;
         }
-        internal Zip.ZipPackageRelationship Relationship
+        internal Packaging.ZipPackageRelationship Relationship
         {
             get;
             set;

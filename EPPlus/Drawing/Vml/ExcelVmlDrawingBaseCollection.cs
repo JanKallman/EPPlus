@@ -63,7 +63,7 @@ namespace OfficeOpenXml.Drawing.Vml
         internal XmlDocument VmlDrawingXml { get; set; }
         internal Uri Uri { get; set; }
         internal string RelId { get; set; }
-        internal Zip.ZipPackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal XmlNamespaceManager NameSpaceManager { get; set; }
     }
 }

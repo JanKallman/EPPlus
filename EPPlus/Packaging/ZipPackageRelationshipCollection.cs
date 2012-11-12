@@ -35,7 +35,7 @@ using System.Text;
 using Ionic.Zip;
 using System.IO;
 
-namespace OfficeOpenXml.Zip
+namespace OfficeOpenXml.Packaging
 {
     public class ZipPackageRelationshipCollection : IEnumerable<ZipPackageRelationship>
     {
