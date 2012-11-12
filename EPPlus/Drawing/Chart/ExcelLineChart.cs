@@ -43,7 +43,7 @@ namespace OfficeOpenXml.Drawing.Chart
     public class ExcelLineChart : ExcelChart
     {
         #region "Constructors"
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Zip.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
             base(drawings, node, uriChart, part, chartXml, chartNode)
         {
         }

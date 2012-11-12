@@ -36,9 +36,9 @@ using Ionic.Zip;
 using System.IO;
 using System.Xml;
 using Ionic.Zlib;
-namespace OfficeOpenXml.Zip
+namespace OfficeOpenXml.Packaging
 {
-    public abstract class ZipRelationshipBase
+    public abstract class ZipPackageRelationshipBase
     {
         protected ZipPackageRelationshipCollection _rels = new ZipPackageRelationshipCollection();
         int maxRId = 1;

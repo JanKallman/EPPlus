@@ -107,7 +107,7 @@ namespace OfficeOpenXml.Table.PivotTable
             var recPart = pck.CreatePart(CacheRecordUri, ExcelPackage.schemaPivotCacheRecords);
             cacheRecord.Save(recPart.GetStream());
 
-            RecordRelationship = Part.CreateRelationship(UriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
+            RecordRelationship = Part.CreateRelationship(UriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
             RecordRelationshipID = RecordRelationship.Id;
 
             CacheDefinitionXml.Save(Part.GetStream());
@@ -115,7 +115,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// Reference to the internal package part
         /// </summary>
-        internal Zip.ZipPackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -137,12 +137,12 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        internal Zip.ZipPackageRelationship Relationship
+        internal Packaging.ZipPackageRelationship Relationship
         {
             get;
             set;
         }
-        internal Zip.ZipPackageRelationship RecordRelationship
+        internal Packaging.ZipPackageRelationship RecordRelationship
         {
             get;
             set;

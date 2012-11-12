@@ -75,7 +75,7 @@ namespace OfficeOpenXml.Drawing
         //internal List<ImageCompare> _pics = new List<ImageCompare>();
         internal Dictionary<string, string> _hashes = new Dictionary<string, string>();
         internal ExcelPackage _package;
-        internal Zip.ZipPackageRelationship _drawingRelation = null;
+        internal Packaging.ZipPackageRelationship _drawingRelation = null;
         internal ExcelDrawings(ExcelPackage xlPackage, ExcelWorksheet sheet)
         {
                 _drawingsXml = new XmlDocument();                
@@ -210,8 +210,8 @@ namespace OfficeOpenXml.Drawing
                 }
             }
         }
-        Zip.ZipPackagePart _part=null;
-        internal Zip.ZipPackagePart Part
+        Packaging.ZipPackagePart _part=null;
+        internal Packaging.ZipPackagePart Part
         {
             get
             {
@@ -377,7 +377,7 @@ namespace OfficeOpenXml.Drawing
                     DrawingXml.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><xdr:wsDr xmlns:xdr=\"{0}\" xmlns:a=\"{1}\" />", ExcelPackage.schemaSheetDrawings, ExcelPackage.schemaDrawings));
                     _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", Worksheet.SheetID),UriKind.Relative);
 
-                    Zip.ZipPackage package = Worksheet._package.Package;
+                    Packaging.ZipPackage package = Worksheet._package.Package;
                     _part = package.CreatePart(_uriDrawing, "application/vnd.openxmlformats-officedocument.drawing+xml", _package.Compression);
 
                     StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
@@ -385,7 +385,7 @@ namespace OfficeOpenXml.Drawing
                     streamChart.Close();
                     package.Flush();
 
-                    _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Zip.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                    _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                     XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
                     e.SetAttribute("id",ExcelPackage.schemaRelationships, _drawingRelation.Id);
 

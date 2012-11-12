@@ -71,7 +71,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         internal ExcelWorkbook _wb;
-        internal Zip.ZipPackage _pck;
+        internal Packaging.ZipPackage _pck;
         #region Dir Stream Properties
         /// <summary>
         /// System kind. Default Win32.
@@ -593,7 +593,7 @@ namespace OfficeOpenXml.VBA
                 {
                     Uri = new Uri(PartUri, UriKind.Relative);
                     Part = _pck.CreatePart(Uri, ExcelPackage.schemaVBA);
-                    var rel = _wb.Part.CreateRelationship(Uri, Zip.TargetMode.Internal, schemaRelVba);
+                    var rel = _wb.Part.CreateRelationship(Uri, Packaging.TargetMode.Internal, schemaRelVba);
                 }
                 var vbaBuffer=doc.Save();
                 var st = Part.GetStream(FileMode.Create);
@@ -1013,7 +1013,7 @@ namespace OfficeOpenXml.VBA
             return sUC.Length == 0 ? s : sUC;
         }
         internal CompoundDocument Document { get; set; }
-        internal Zip.ZipPackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
         /// <summary>
         /// Create a new VBA Project
