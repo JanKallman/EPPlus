@@ -8,6 +8,7 @@ using OfficeOpenXml;
 using System.Security.Cryptography.X509Certificates;
 using System.IO;
 using System.Security.Cryptography;
+using OfficeOpenXml.VBA;
 
 namespace EPPlusTest
 {
@@ -111,6 +112,28 @@ namespace EPPlusTest
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
 
             package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
+        }
+        [TestMethod]
+        public void VbaError()
+        {
+            DirectoryInfo workingDir = new DirectoryInfo(@"C:\epplusExample\folder");
+            if (!workingDir.Exists) workingDir.Create();
+            FileInfo f = new FileInfo(workingDir.FullName + "//" + "temp.xlsx");
+            if (f.Exists) f.Delete();
+            ExcelPackage myPackage = new ExcelPackage(f);
+            myPackage.Workbook.CreateVBAProject();
+            ExcelWorksheet excelWorksheet = myPackage.Workbook.Worksheets.Add("Sheet1");
+            ExcelWorksheet excelWorksheet2 = myPackage.Workbook.Worksheets.Add("Sheet2"); 
+            ExcelWorksheet excelWorksheet3 = myPackage.Workbook.Worksheets.Add("Sheet3");
+            FileInfo f2 = new FileInfo(workingDir.FullName + "//" + "newfile.xlsm"); 
+            ExcelVBAModule excelVbaModule = myPackage.Workbook.VbaProject.Modules.AddModule("Module1"); 
+            StringBuilder mybuilder = new StringBuilder(); mybuilder.AppendLine("Sub Jiminy()");             
+            mybuilder.AppendLine("Range(\"D6\").Select"); 
+            mybuilder.AppendLine("ActiveCell.FormulaR1C1 = \"Jiminy\""); 
+            mybuilder.AppendLine("End Sub"); 
+            excelVbaModule.Code = mybuilder.ToString(); 
+            myPackage.SaveAs(f2); 
+            myPackage.Dispose();
         }
     }
 }

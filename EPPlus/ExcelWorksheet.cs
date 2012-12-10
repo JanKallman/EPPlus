@@ -1902,7 +1902,10 @@ namespace OfficeOpenXml
 
 			if (_worksheetXml != null)
 			{
-                
+                if (TopNode.Name == "chartsheet")
+                {
+                    return;
+                }
 				// save the header & footer (if defined)
 				if (_headerFooter != null)
 					HeaderFooter.Save();
