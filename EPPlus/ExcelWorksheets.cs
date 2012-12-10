@@ -41,6 +41,7 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing.Vml;
+using OfficeOpenXml.VBA;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -159,7 +160,7 @@ namespace OfficeOpenXml
 			_worksheets.Add(positionID, worksheet);
             if (_pck.Workbook.VbaProject != null)
             {
-                _pck.Workbook.VbaProject.Modules.Add(new VBA.ExcelVBAModule(worksheet.CodeNameChange) {  Name = Name, Type = VBA.eModuleType.Document });
+                _pck.Workbook.VbaProject.Modules.Add(new VBA.ExcelVBAModule(worksheet.CodeNameChange) { Name = Name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 worksheet.CodeModuleName = Name;
 
             }

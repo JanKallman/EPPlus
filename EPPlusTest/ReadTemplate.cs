@@ -304,7 +304,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug12()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\ex1.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));

@@ -865,7 +865,9 @@ namespace EPPlusTest
             //dr[3] = 3.125;
             //dt.Rows.Add(dr);
 
-            ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
+            var rng = ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
+            ws.Tables[0].ShowTotal = true;
+            rng.AutoFitColumns();
         }
         [TestMethod]
         public void LoadText()
@@ -1459,6 +1461,17 @@ namespace EPPlusTest
             ws.Cells["a1:c3"].StyleName="Normal";
             //  n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
+        }
+        [TestMethod]
+        public void MergeWrap()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("newWorkbook");
+            ws.Cells["A1"].Value = "Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap";
+            ws.Row(1).Height
+            ws.Cells["A1:F1"].Merge = true;
+            ws.Cells["A1:F1"].Style.WrapText = true;
+            pck.SaveAs(new FileInfo(@"c:\temp\merge.xlsx"));
         }
         [TestMethod]
         public void AutoFitColumns()
