@@ -40,10 +40,13 @@ namespace OfficeOpenXml.Packaging
 {
     internal class ZipPackagePart : ZipPackageRelationshipBase
     {
+        internal delegate void SaveHandlerDelegate(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName);
+
         internal ZipPackagePart(ZipPackage package, ZipEntry entry)
         {
             Package = package;
             Entry = entry;
+            SaveHandler = null;
             Uri = new Uri(package.GetUriKey(entry.FileName), UriKind.Relative);
         }
         internal ZipPackagePart(ZipPackage package, Uri partUri, string contentType, CompressionLevel compressionLevel)
@@ -119,22 +122,41 @@ namespace OfficeOpenXml.Packaging
             }
         }
         public Uri Uri { get; private set; }
-
+        public Stream GetZipStream()
+        {
+            MemoryStream ms = new MemoryStream();
+            ZipOutputStream os = new ZipOutputStream(ms);
+            return os;
+        }
+        internal SaveHandlerDelegate SaveHandler
+        {
+            get;
+            set;
+        }
         internal void WriteZip(ZipOutputStream os)
         {
-            byte[] b = GetStream().ToArray();
-            if (b.Length > 0)   //Make sure the file isn't empty. DotNetZip streams does not seems to handle zero sized files.
+            byte[] b;
+            if (SaveHandler == null)
             {
-                os.CompressionLevel = (Ionic.Zlib.CompressionLevel) CompressionLevel;
+                b = GetStream().ToArray();
+                if (b.Length == 0)   //Make sure the file isn't empty. DotNetZip streams does not seems to handle zero sized files.
+                {
+                    return;
+                }
+                os.CompressionLevel = (Ionic.Zlib.CompressionLevel)CompressionLevel;
                 os.PutNextEntry(Uri.OriginalString);
                 os.Write(b, 0, b.Length);
+            }
+            else
+            {
+                SaveHandler(os, (Ionic.Zlib.CompressionLevel)CompressionLevel, Uri.OriginalString);
+            }
 
-                if (_rels.Count > 0)
-                {
-                    string f = Uri.OriginalString;
-                    var fi = new FileInfo(f);
-                    _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - fi.Name.Length), fi.Name)));
-                }
+            if (_rels.Count > 0)
+            {
+                string f = Uri.OriginalString;
+                var fi = new FileInfo(f);
+                _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - fi.Name.Length), fi.Name)));
             }
         }
 

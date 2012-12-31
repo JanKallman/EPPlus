@@ -43,6 +43,7 @@ using System.Drawing;
 using OfficeOpenXml.Utils;
 using System.Windows.Media;
 using System.Windows;
+using Ionic.Zip;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -72,7 +73,7 @@ namespace OfficeOpenXml
 	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
-	public sealed class ExcelWorkbook : XmlHelper
+	public sealed class ExcelWorkbook : XmlHelper, IDisposable
 	{
 		internal class SharedStringItem
 		{
@@ -142,6 +143,16 @@ namespace OfficeOpenXml
 						}
 					}
 				}
+                //Delete the shared string part, it will be recreated when the package is saved.
+                foreach (var rel in Part.GetRelationships())
+                {
+                    if (rel.TargetUri.OriginalString.ToLower().EndsWith("sharedstrings.xml"))
+                    {
+                        Part.DeleteRelationship(rel.Id);
+                        break;
+                    }
+                }                
+                _package.Package.DeletePart(SharedStringsUri); //Remove the part, it is recreated when saved.
 			}
 		}
 		internal void GetDefinedNames()
@@ -626,7 +637,7 @@ namespace OfficeOpenXml
 				throw new InvalidOperationException("The workbook must contain at least one worksheet");
 
 			DeleteCalcChain();
-
+            
             if (VbaProject == null)
             {
                 if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
@@ -642,7 +653,7 @@ namespace OfficeOpenXml
                 }
             }
 			
-			UpdateDefinedNamesXml();
+            UpdateDefinedNamesXml();
 
 			// save the workbook
 			if (_workbookXml != null)
@@ -669,9 +680,13 @@ namespace OfficeOpenXml
 					worksheet.View.WindowProtection = true;
 				}
 				worksheet.Save();
+                worksheet.Part.SaveHandler = worksheet.SaveHandler;
 			}
-			
-			UpdateSharedStringsXml();
+
+            var part=_package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
+            part.SaveHandler = SaveSharedStringHandler;
+            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            //UpdateSharedStringsXml();
 			
 			// Data validation
 			ValidateDataValidations();
@@ -711,20 +726,25 @@ namespace OfficeOpenXml
 			}
 		}
 
-		private void UpdateSharedStringsXml()
+        private void SaveSharedStringHandler(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName)
 		{
-			Packaging.ZipPackagePart stringPart;
-			if (_package.Package.PartExists(SharedStringsUri))
-			{
-				stringPart=_package.Package.GetPart(SharedStringsUri);
-			}
-			else
-			{
-				stringPart = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
-				Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
-			}
+            //Packaging.ZipPackagePart stringPart;
+            //if (_package.Package.PartExists(SharedStringsUri))
+            //{
+            //    stringPart=_package.Package.GetPart(SharedStringsUri);
+            //}
+            //else
+            //{
+            //    stringPart = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
+                  //Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            //}
 
-			StreamWriter sw = new StreamWriter(stringPart.GetStream(FileMode.Create, FileAccess.Write));
+			//StreamWriter sw = new StreamWriter(stringPart.GetStream(FileMode.Create, FileAccess.Write));
+            //Init Zip
+            stream.CompressionLevel = compressionLevel;
+            stream.PutNextEntry(fileName);
+
+            StreamWriter sw = new StreamWriter(stream);
 			sw.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
 			foreach (string t in _sharedStrings.Keys)
 			{
@@ -752,6 +772,7 @@ namespace OfficeOpenXml
 			}
 			sw.Write("</sst>");
 			sw.Flush();
+            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 		}
 
 		/// <summary>
@@ -1001,5 +1022,16 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
+        public void Dispose()
+        {
+            _sharedStrings = null;
+            _sharedStringsList = null;
+            _vba = null;
+            foreach (var ws in Worksheets)
+            {
+                ws.Dispose();
+            }
+        }
     } // end Workbook
 }

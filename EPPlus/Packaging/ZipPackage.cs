@@ -224,15 +224,15 @@ namespace OfficeOpenXml.Packaging
             var ms = new MemoryStream();
             var enc = Encoding.UTF8;
             ZipOutputStream os = new ZipOutputStream(ms, true);
-            os.CompressionLevel = (Ionic.Zlib.CompressionLevel)_compression;
+            os.CompressionLevel = (Ionic.Zlib.CompressionLevel)_compression;            
             /**** ContentType****/
             var entry = os.PutNextEntry("[Content_Types].xml");
             byte[] b = enc.GetBytes(GetContentTypeXml());
             os.Write(b, 0, b.Length);
             /**** Top Rels ****/
-            _rels.WriteZip(os, "_rels\\.rels");
+            _rels.WriteZip(os, "_rels\\.rels");            
 
-            foreach (var part in Parts.Values)
+            foreach(var part in Parts.Values)
             {
                 part.WriteZip(os);
             }

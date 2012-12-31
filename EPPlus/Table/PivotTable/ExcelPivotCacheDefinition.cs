@@ -243,13 +243,13 @@ namespace OfficeOpenXml.Table.PivotTable
             var sourceWorksheet = PivotTable.WorkSheet.Workbook.Worksheets[sourceAddress.WorkSheet];
             for (int col = sourceAddress._fromCol; col <= sourceAddress._toCol; col++)
             {
-                if (sourceWorksheet == null || sourceWorksheet.Cell(sourceAddress._fromRow, col).Value == null || sourceWorksheet.Cell(sourceAddress._fromRow, col).Value.ToString().Trim() == "")
+                if (sourceWorksheet == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col) == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col).ToString().Trim() == "")
                 {
                     xml += string.Format("<cacheField name=\"Column{0}\" numFmtId=\"0\">", col - sourceAddress._fromCol + 1);
                 }
                 else
                 {
-                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet.Cell(sourceAddress._fromRow, col).Value);
+                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet._values.GetValue(sourceAddress._fromRow, col));
                 }
                 //xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
                 xml += "<sharedItems containsBlank=\"1\" /> ";
