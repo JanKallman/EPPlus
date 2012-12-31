@@ -46,7 +46,7 @@ namespace EPPlusSamples
                 string SqlServerName = "";
 
                 // change this line to contain the path to the output folder
-                DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
+                DirectoryInfo outputDir = new DirectoryInfo(@"e:\SampleApp");
 
                 if (!outputDir.Exists) throw new Exception("outputDir does not exist!");
 

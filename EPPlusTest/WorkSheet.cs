@@ -1468,7 +1468,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             var ws = pck.Workbook.Worksheets.Add("newWorkbook");
             ws.Cells["A1"].Value = "Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap";
-            ws.Row(1).Height
+            
             ws.Cells["A1:F1"].Merge = true;
             ws.Cells["A1:F1"].Style.WrapText = true;
             pck.SaveAs(new FileInfo(@"c:\temp\merge.xlsx"));
