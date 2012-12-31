@@ -559,7 +559,7 @@ namespace OfficeOpenXml
                 styleXfsNode.RemoveAll();
             }
             //NamedStyles
-            count = 1;
+            count = normalIx > -1 ? 1 : 0;  //If we have a normal style, we make sure it's added first.
 
             XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
             if(cellStyleNode!=null)
