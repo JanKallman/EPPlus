@@ -1634,7 +1634,7 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
-			return _worksheet.Cells[_fromRow, _fromCol, row - 1, Table.Columns.Count];
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromRow + Table.Columns.Count - 1];
 		}
 		#endregion
 		#region LoadFromArrays
