@@ -571,6 +571,7 @@ namespace OfficeOpenXml
 
             if (NamedStyles.Count > 0 && normalIx >= 0)
             {
+                NamedStyles[normalIx].newID = 0;
                 AddNamedStyle(0, styleXfsNode, cellXfsNode, NamedStyles[normalIx]);
             }
             foreach (ExcelNamedStyleXml style in NamedStyles)
@@ -641,6 +642,7 @@ namespace OfficeOpenXml
             }
             else
             {
+                if (id < 0) CellXfs[ix].XfId = id;
                 cellXfsNode.AppendChild(CellXfs[ix].CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
                 CellXfs[ix].useCnt = 0;
                 CellXfs[ix].newID = id;
