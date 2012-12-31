@@ -208,7 +208,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 }
                 else if (format.ToLower() == "general")
                 {
-                    NetFormat = NetFormatForWidth = "#.#####";
+                    NetFormat = NetFormatForWidth = "0.#####";
                     NetTextFormat = NetTextFormatForWidth = "";
                     DataType = eFormatType.Number;
                 }
