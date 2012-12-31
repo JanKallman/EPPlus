@@ -725,6 +725,7 @@ namespace OfficeOpenXml
                     Stream.Close();
                 }
                 _package.Close();
+                Workbook.Dispose();
             }
 		}
 		#endregion
@@ -799,9 +800,8 @@ namespace OfficeOpenXml
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
-        /// The package is closed after it has been saved
-        /// </summary>
-        /// <param name="password">The password to encrypt the workbook with. 
+        /// The package is closed after it ha
+        /// d to encrypt the workbook with. 
         /// This parameter overrides the Workbook.Encryption.Password.</param>
         public void Save(string password)
 		{

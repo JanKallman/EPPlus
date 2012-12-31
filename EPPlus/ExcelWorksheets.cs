@@ -42,6 +42,7 @@ using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing.Vml;
 using Ionic.Zlib;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.VBA;
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -160,7 +161,7 @@ namespace OfficeOpenXml
 			_worksheets.Add(positionID, worksheet);
             if (_pck.Workbook.VbaProject != null)
             {
-                _pck.Workbook.VbaProject.Modules.Add(new VBA.ExcelVBAModule(worksheet.CodeNameChange) {  Name = Name, Type = VBA.eModuleType.Document });
+                _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = Name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 worksheet.CodeModuleName = Name;
 
             }
@@ -362,22 +363,47 @@ namespace OfficeOpenXml
                 }
                 prevName=name;
                 XmlDocument xmlDoc = new XmlDocument();
-                Copy.Save();    //Save the worksheet first
+                //TODO: Fix save pivottable here
+                //Copy.Save();    //Save the worksheet first
                 xmlDoc.LoadXml(xml);
                 //xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
                 var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
-                var part = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
-                StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
+                var partTbl = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
+                StreamWriter streamTbl = new StreamWriter(partTbl.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
                 //streamTbl.Close();
                 streamTbl.Flush();
 
+                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;                
+                var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
+                while (_pck.Package.PartExists(uriCd))
+                {
+                    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
+                }
+
+                var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotTable, _pck.Compression);
+                StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
+                streamCd.Write(xml);
+                streamCd.Flush();
+
+                xml = "<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />";
+                var uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", Id), UriKind.Relative);
+                while (_pck.Package.PartExists(uriRec))
+                {
+                    uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", ++Id), UriKind.Relative);
+                }
+                var partRec = _pck.Package.CreatePart(uriRec, ExcelPackage.schemaPivotCacheRecords, _pck.Compression);
+                StreamWriter streamRec = new StreamWriter(partRec.GetStream(FileMode.Create, FileAccess.Write));
+                streamRec.Write(xml);
+                streamRec.Flush();
+
                 //create the relationship and add the ID to the worksheet xml.
                 added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
-                part.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
+                partTbl.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, uriCd), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
+                partCd.CreateRelationship(UriHelper.ResolvePartUri(uriCd, uriRec), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
             }
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
@@ -425,10 +451,10 @@ namespace OfficeOpenXml
             _pck.DoAdjustDrawings = false;
             added.MergedCells.List.AddRange(Copy.MergedCells.List);
             //Formulas
-            foreach (IRangeID f in Copy._formulaCells)
-            {
-                added._formulaCells.Add(f);
-            }
+            //foreach (IRangeID f in Copy._formulaCells)
+            //{
+            //    added._formulaCells.Add(f);
+            //}
             //Shared Formulas
             foreach (int key in Copy._sharedFormulas.Keys)
             {
@@ -437,92 +463,145 @@ namespace OfficeOpenXml
             
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
             //Cells
-            foreach (ExcelCell cell in Copy._cells)
+            int row,col;
+            var val = new CellsStoreEnumerator<object>(Copy._values);
+            //object f=null;
+            //foreach (var addr in val)
+            while(val.Next())
             {                
-                if (sameWorkbook)   //Same workbook == same styles
+                //row=(int)addr>>32;
+                //col=(int)addr&32;
+                row = val.Row;
+                col = val.Column;
+                //added._cells.Add(cell.Clone(added));
+                var styleID=CopyValues(Copy, added, row, col);
+                if (row == 0) //Column
                 {
-                    added._cells.Add(cell.Clone(added));
+                    var c = Copy._values.GetValue(row, col) as ExcelColumn;
+                    if (c != null)
+                    {
+                        added._values.SetValue(row, col, c.Clone(added, c.ColumnMin));
+                    }
+                }
+                else if (col == 0) //Row
+                {
+                    var r = Copy._values.GetValue(row, col) as ExcelRow;
+                    if (r != null)
+                    {
+                        r.Clone(added);
+                    }
                 }
                 else
                 {
-                    ExcelCell addedCell=cell.Clone(added);
-                    if (styleCashe.ContainsKey(cell.StyleID))
-                    {
-                        addedCell.StyleID = styleCashe[cell.StyleID];
-                    }
-                    else
-                    {
-                        addedCell.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles,  cell.StyleID);
-                        if (cell.StyleName != "") //Named styles
-                        {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(cell.StyleName))
-                            {
-                               var ns=Copy.Workbook.Styles.CreateNamedStyle(cell.StyleName);
-                               ns.StyleXfId  = addedCell.StyleID;
-                            }
-                            
-                        }
-                        styleCashe.Add(cell.StyleID, addedCell.StyleID);
-                    }
-                    added._cells.Add(addedCell);
+                   styleID = CopyValues(Copy, added, row, col);
                 }
-            }
-            //Rows
-            foreach (ExcelRow row in Copy._rows)
-            {
-                row.Clone(added);
-                if (!sameWorkbook)   //Same workbook == same styles
+                if (!sameWorkbook)
                 {
-                    ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
-                    if (styleCashe.ContainsKey(row.StyleID))
+                    if (styleCashe.ContainsKey(styleID))
                     {
-                        addedRow.StyleID = styleCashe[row.StyleID];
+                        added._styles.SetValue(row, col, styleCashe[styleID]);
                     }
                     else
                     {
-                        addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
-                        if (row.StyleName != "") //Named styles
+                        var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
+                        styleCashe.Add(styleID, s);
+                        added._styles.SetValue(row, col, s);
+                        if (Copy.Workbook.Styles.CellXfs[styleID].XfId > 0) //Named styles
                         {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
+                            var styleName = Copy.Workbook.Styles.NamedStyles[Copy.Workbook.Styles.CellXfs[styleID].XfId].Name;
+                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(styleName))
                             {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
-                                ns.StyleXfId = addedRow.StyleID;
+                                var ns = Copy.Workbook.Styles.CreateNamedStyle(styleName);
+                                ns.StyleXfId = s;
                             }
 
                         }
-                        styleCashe.Add(row.StyleID, addedRow.StyleID);
-                    }
-                }                
-            }
-            //Columns
-            foreach (ExcelColumn col in Copy._columns)
-            {
-                col.Clone(added);
-                if (!sameWorkbook)   //Same workbook == same styles
-                {
-                    ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
-                    if (styleCashe.ContainsKey(col.StyleID))
-                    {
-                        addedCol.StyleID = styleCashe[col.StyleID];
-                    }
-                    else
-                    {
-                        addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
-                        if (col.StyleName != "") //Named styles
-                        {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
-                            {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
-                                ns.StyleXfId = addedCol.StyleID;
-                            }
-
-                        }
-                        styleCashe.Add(col.StyleID, addedCol.StyleID);
                     }
                 }
             }
+            ////Rows
+            //foreach (ExcelRow row in Copy._rows)
+            //{
+            //    row.Clone(added);
+            //    if (!sameWorkbook)   //Same workbook == same styles
+            //    {
+            //        ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
+            //        if (styleCashe.ContainsKey(row.StyleID))
+            //        {
+            //            addedRow.StyleID = styleCashe[row.StyleID];
+            //        }
+            //        else
+            //        {
+            //            addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
+            //            if (row.StyleName != "") //Named styles
+            //            {
+            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
+            //                {
+            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
+            //                    ns.StyleXfId = addedRow.StyleID;
+            //                }
+
+            //            }
+            //            styleCashe.Add(row.StyleID, addedRow.StyleID);
+            //        }
+            //    }                
+            //}
+            ////Columns
+            //foreach (ExcelColumn col in Copy._columns)
+            //{
+            //    col.Clone(added);
+            //    if (!sameWorkbook)   //Same workbook == same styles
+            //    {
+            //        ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
+            //        if (styleCashe.ContainsKey(col.StyleID))
+            //        {
+            //            addedCol.StyleID = styleCashe[col.StyleID];
+            //        }
+            //        else
+            //        {
+            //            addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
+            //            if (col.StyleName != "") //Named styles
+            //            {
+            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
+            //                {
+            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
+            //                    ns.StyleXfId = addedCol.StyleID;
+            //                }
+
+            //            }
+            //            styleCashe.Add(col.StyleID, addedCol.StyleID);
+            //        }
+            //    }
+            //}
             added._package.DoAdjustDrawings = doAdjust;
         }
+
+        private int CopyValues(ExcelWorksheet Copy, ExcelWorksheet added, int row, int col)
+        {
+            added._values.SetValue(row, col, Copy._values.GetValue(row, col));
+            var t = Copy._types.GetValue(row, col);
+            if (t != null)
+            {
+                added._types.SetValue(row, col, t);
+            }
+            var v = Copy._formulas.GetValue(row, col);
+            if (v != null)
+            {
+                added.SetFormula(row, col, v);
+            }
+            var s = Copy._styles.GetValue(row, col);
+            if (s != 0)
+            {
+                added._styles.SetValue(row, col, s);
+            }
+            var f = Copy._formulas.GetValue(row, col);
+            if (f != null)
+            {
+                added._formulas.SetValue(row, col, f);
+            }
+            return s;
+        }
+
         private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
         {
             //First copy the drawing XML
@@ -797,7 +876,7 @@ namespace OfficeOpenXml
 			{
 				throw new ArgumentException(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			 Delete(sheet.PositionID);
+			Delete(sheet.PositionID);
 		}
 
 		/// <summary>

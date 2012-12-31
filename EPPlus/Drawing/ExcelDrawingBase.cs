@@ -380,19 +380,20 @@ namespace OfficeOpenXml.Drawing
         private decimal GetColumnWidth(int col)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            if (ws._columns.ContainsKey(ExcelColumn.GetColumnID(ws.SheetID, col)))   //Check that the column exists
+            var column = ws._values.GetValue(0, col) as ExcelColumn;
+            if (column==null)   //Check that the column exists
             {
-                return (decimal)ws.Column(col).VisualWidth;
+                return (decimal)ws.DefaultColWidth; 
             }
             else
             {
-                return (decimal)ws.DefaultColWidth;
+                return (decimal)ws.Column(col).VisualWidth;
             }
         }
         private double GetRowWidth(int row)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            if (ws._rows.ContainsKey(ExcelRow.GetRowID(ws.SheetID, row)))   //Check that the row exists
+            if (ws._values.Exists(row,0))   //Check that the row exists
             {
                 return (double)ws.Row(row).Height;
             }

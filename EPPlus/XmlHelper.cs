@@ -764,7 +764,7 @@ namespace OfficeOpenXml
     }
 		internal string GetXmlNodeString(string path)
 		{
-     return GetXmlNodeString(TopNode, path);
+            return GetXmlNodeString(TopNode, path);
 		}
 		internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
 		{

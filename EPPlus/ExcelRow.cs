@@ -35,7 +35,17 @@ using System.Xml;
 using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
-	/// <summary>
+	internal class RowInternal
+    {
+        internal double Height;
+        internal bool Hidden;
+        internal bool Collapsed;        
+        internal short OutlineLevel;
+        internal bool PageBreak;
+        internal bool Phonetic;
+        internal bool CustomHeight;
+    }
+    /// <summary>
 	/// Represents an individual row in the spreadsheet.
 	/// </summary>
 	public class ExcelRow : IRangeID
@@ -45,6 +55,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Internal RowID.
         /// </summary>
+        [Obsolete]
         public ulong RowID 
         {
             get
@@ -158,22 +169,22 @@ namespace OfficeOpenXml
                 _styleId = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
-        }        
+        }
         internal int _styleId = 0;
-		/// <summary>
-		/// Sets the style for the entire row using the style ID.  
-		/// </summary>
+        /// <summary>
+        /// Sets the style for the entire row using the style ID.  
+        /// </summary>
         public int StyleID
-		{
-			get
-			{
-				return _styleId; 
-			}
-			set	
-			{
-                _styleId = value;
-			}
-		}
+        {
+            get
+            {
+                return _worksheet._styles.GetValue(Row, 0);
+            }
+            set
+            {
+                _worksheet._styles.SetValue(Row, 0, value);
+            }
+        }
 
         /// <summary>
         /// Rownumber
