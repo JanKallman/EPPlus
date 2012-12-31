@@ -1,107 +1,25 @@
-﻿/*******************************************************************************
- * You may amend and distribute as you like, but don't remove this header!
- *
- * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
- *
- * Copyright (C) 2011  Jan Källman
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2.1 of the License, or (at your option) any later version.
-
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
- * See the GNU Lesser General Public License for more details.
- *
- * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
- * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
- *
- * All code and executables are provided "as is" with no warranty either express or implied. 
- * The author accepts no liability for any damage or loss of business that this product may cause.
- *
- * Code change notes:
- * 
- * Author							Change						Date
- *******************************************************************************
- * Jan Källman		Added		10-SEP-2009
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
- *******************************************************************************/
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
-using System.Globalization;
-using OfficeOpenXml.Style;
-using System.Text.RegularExpressions;
+
 namespace OfficeOpenXml
 {
-    internal class ExcelCell : ExcelCellBase, IExcelCell, IRangeID
+    internal class ExcelCell : ExcelCellBase
     {
-        [Flags]
-        private enum flags
-        {
-            isMerged=1,
-            isRichText=2,
-
-        }
-		#region Cell Private Properties
-		private ExcelWorksheet _worksheet;
-        private int _row;
-        private int _col;
-		internal string _formula="";
-        internal string _formulaR1C1 = "";
-        private Uri _hyperlink = null;
-        string _dataType = "";
-        #endregion
-		#region ExcelCell Constructor
-		/// <summary>
-		/// A cell in the worksheet. 
-		/// </summary>
-		/// <param name="worksheet">A reference to the worksheet</param>
-		/// <param name="row">The row number</param>
-		/// <param name="col">The column number</param>
-		internal ExcelCell(ExcelWorksheet worksheet, int row, int col)
-		{
-			if (row < 1 || col < 1)
-                throw new ArgumentException("Negative row and column numbers are not allowed");
-            if (row > ExcelPackage.MaxRows || col > ExcelPackage.MaxColumns)
-                throw new ArgumentException("Row or column numbers are out of range");
-            if (worksheet == null)
-				throw new ArgumentException("Worksheet must be set to a valid reference");
-
-			_row = row;
-			_col = col;
-            _worksheet = worksheet;
-            if (col < worksheet._minCol) worksheet._minCol = col;
-            if (col > worksheet._maxCol) worksheet._maxCol = col;
-            _sharedFormulaID = int.MinValue;
-            IsRichText = false;
-		}
-        internal ExcelCell(ExcelWorksheet worksheet, string cellAddress)
-        {
-            _worksheet = worksheet;
-            GetRowColFromAddress(cellAddress, out _row, out _col);
-            if (_col < worksheet._minCol) worksheet._minCol = _col;
-            if (_col > worksheet._maxCol) worksheet._maxCol = _col;
-            _sharedFormulaID = int.MinValue;
-            IsRichText = false;
-        }
-		#endregion 
-        internal ulong CellID
-        {
-            get
-            {
-                return GetCellID(_worksheet.SheetID, Row, Column);
-            }
-        }
-        #region ExcelCell Public Properties
-
-		/// <summary>
+        public ExcelCell (int row, int col)
+	    {
+            _row = row;
+            _col = col;
+	    }
+        /// <summary>
 		/// Row number
 		/// </summary>
-        internal int Row { get { return _row; } set { _row = value; } }
+        internal int Row 
+        { 
+            get { return _row; } 
+            set { _row = value; } 
+        }
 		/// <summary>
 		/// Column number
 		/// </summary>
@@ -417,7 +335,6 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <returns>The cell's value</returns>
 		public override string ToString()	{	return Value.ToString();	}
-		#endregion 
 		#region ExcelCell Private Methods
 		#endregion 
         #region IRangeID Members
@@ -442,7 +359,7 @@ namespace OfficeOpenXml
         }
         internal ExcelCell Clone(ExcelWorksheet added, int row, int col)
         {
-            ExcelCell newCell = new ExcelCell(added, row, col);
+            added._values.SetValue(row, col, _values);
             if(_hyperlink!=null) newCell.Hyperlink = Hyperlink;
             newCell._formula = _formula;
             newCell._formulaR1C1 = _formulaR1C1;

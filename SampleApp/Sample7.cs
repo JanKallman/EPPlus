@@ -42,14 +42,13 @@ namespace EPPlusSamples
                 ws.SetValue(row, 2, string.Format("Row {0}", row));
                 ws.SetValue(row, 3, DateTime.Today.AddDays(row));
                 ws.SetValue(row, 4, rnd.NextDouble() * 10000);
-
-                ws.Cells[row, 5].FormulaR1C1 = "RC[-4]+RC[-1]";
-
                 if (row % 10000 == 0)
                 {
                     Console.WriteLine("{0:HH.mm.ss}\tWriting row {1}...", DateTime.Now, row);
                 }
             }
+            ws.Cells[1, 5,Rows,5].FormulaR1C1 = "RC[-4]+RC[-1]";
+
             //Add a sum at the end
             ws.Cells[Rows + 1, 5].Formula = string.Format("Sum({0})", new ExcelAddress(1, 5, Rows, 5).Address);
             ws.Cells[Rows + 1, 5].Style.Font.Bold = true;
@@ -84,6 +83,8 @@ namespace EPPlusSamples
                 rng.Style.Fill.PatternType = ExcelFillStyle.Solid;
                 rng.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
             }
+
+            Console.WriteLine("{0:HH.mm.ss}\tAutofit columns and lock and format cells...", DateTime.Now);
 
             ws.Cells[Rows-100, 1, Rows, 5].AutoFitColumns(5);   //Auto fit using the last 100 rows with minimum width 5
             ws.Column(5).Width = 15;                            //We need to set the width for column F manually since the end sum formula is the widest cell in the column (EPPlus don't calculate any forumlas, so no output text is avalible). 
