@@ -312,7 +312,7 @@ using OfficeOpenXml;
                 for (int c = 0; c < ColumnCount; c++)
                 {                    
                     int first, last;
-                    if (_columnIndex[c].Pages[0].Rows[0].Index > 0)
+                    if (_columnIndex[c].PageCount > 0 && _columnIndex[c].Pages[0].RowCount > 0 && _columnIndex[c].Pages[0].Rows[0].Index > 0)
                     {
                         first = _columnIndex[c].Pages[0].IndexOffset + _columnIndex[c].Pages[0].Rows[0].Index;
                     }
@@ -337,8 +337,14 @@ using OfficeOpenXml;
                         lp--;
                     }
                     var p = _columnIndex[c].Pages[lp];
-                    last = p.IndexOffset + p.Rows[lp].Index;
-
+                    if (p.RowCount > 0)
+                    {
+                        last = p.IndexOffset + p.Rows[p.RowCount - 1].Index;
+                    }
+                    else
+                    {
+                        last = first;
+                    }
                     if (first > 0 && (first < fromRow || fromRow == 0))
                     {
                         fromRow=first;
@@ -554,9 +560,9 @@ using OfficeOpenXml;
                     var pagePos = column.GetPosition(fromRow);
                     if (pagePos >= 0)
                     {
-                        if (fromRow-1 >= column.Pages[pagePos].IndexOffset && fromRow-1<=column.Pages[pagePos].MaxIndex) //The row is inside the page
+                        if (fromRow >= column.Pages[pagePos].IndexOffset && fromRow <= column.Pages[pagePos].MaxIndex) //The row is inside the page
                         {
-                           int offset = fromRow - column.Pages[pagePos].IndexOffset;
+                            int offset = fromRow - column.Pages[pagePos].IndexOffset;
                            var rowPos = column.Pages[pagePos].GetPosition(offset);
                            if (rowPos < 0) 
                            {
@@ -570,7 +576,7 @@ using OfficeOpenXml;
                             var rowPos = column.Pages[pagePos-1].GetPosition(offset);
                             if (rowPos > 0 && pagePos>0)
                             {
-                                UpdateIndexOffset(column, pagePos-1, rowPos, fromRow, rows);
+                                UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow, rows);
                             }
                         }
                         else
