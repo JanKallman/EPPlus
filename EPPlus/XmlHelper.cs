@@ -765,7 +765,7 @@ namespace OfficeOpenXml
     }
 		internal string GetXmlNodeString(string path)
 		{
-     return GetXmlNodeString(TopNode, path);
+            return GetXmlNodeString(TopNode, path);
 		}
 		internal static Uri GetNewUri(Package package, string sUri)
 		{

@@ -60,7 +60,6 @@ namespace OfficeOpenXml.Table.PivotTable
             Address = new ExcelAddressBase(GetXmlNodeString("d:location/@ref"));
 
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this);
-
             LoadFields();
 
             //Add row fields.

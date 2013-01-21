@@ -435,7 +435,7 @@ namespace OfficeOpenXml.Table
         {
             get
             {
-                return GetXmlNodeString(StyleName);
+                return GetXmlNodeString(STYLENAME_PATH);
             }
             set
             {

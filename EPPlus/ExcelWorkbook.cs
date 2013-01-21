@@ -694,6 +694,11 @@ namespace OfficeOpenXml
                     var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:sheets/d:sheet[@r:id='{0}']", rel.Id), NameSpaceManager);
                     sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
                 }
+                else if (rel.RelationshipType.EndsWith("pivotCacheDefinition"))
+                {
+                    var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:pivotCaches/d:pivotCache[@r:id='{0}']", rel.Id), NameSpaceManager);
+                    sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
+                }
             }
         }
 
