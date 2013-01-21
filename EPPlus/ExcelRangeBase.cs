@@ -1634,7 +1634,7 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
-            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromRow + Table.Columns.Count - 1];
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + Table.Columns.Count - 1];
 		}
 		#endregion
 		#region LoadFromArrays
@@ -1775,7 +1775,7 @@ namespace OfficeOpenXml
 				}
 			}
 
-			var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, col - 1];
+            var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, Members.Length==0 ? col : col - 1];
 
 			if (TableStyle != TableStyles.None)
 			{

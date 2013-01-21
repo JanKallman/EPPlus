@@ -56,6 +56,16 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 Marker = eMarkerStyle.Square;
             }
+
+            if (chartSeries.Chart.ChartType == eChartType.XYScatterSmooth ||
+                chartSeries.Chart.ChartType == eChartType.XYScatterSmoothNoMarkers)
+            {
+                Smooth = 1;
+            }
+            else
+            {
+                Smooth = 0;
+            }
         }
         ExcelChartSerieDataLabel _DataLabel = null;
         /// <summary>
