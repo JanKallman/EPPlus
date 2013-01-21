@@ -1353,7 +1353,6 @@ namespace EPPlusTest
             Assert.AreEqual(img.Top, 0);
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
-
             img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"), PictureAlignment.Left);
             img.Title = "DiskFile";
 
@@ -1497,6 +1496,33 @@ namespace EPPlusTest
                 pck.Dispose();
             }
             
+        }
+        [TestMethod]
+        public void LoadDT()
+        {
+            var table = new DataTable("MyTable");
+            table.Columns.Add("User name", typeof(string));
+            table.Columns.Add("Date", typeof(DateTime));
+
+            for(int i=0;i<10;i++)
+            {
+                table.Rows.Add(string.Format("Name {0}",i+1, DateTime.Today));
+            }
+
+            ExcelPackage p=new ExcelPackage();
+            var ws=p.Workbook.Worksheets.Add("Load");
+            var r=ws.Cells["C1"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Light10);
+            Assert.AreEqual(r.Address, "C1:D11");
+            ws.Save();
+        }
+        [TestMethod]
+        public void LoadCollection()
+        {
+            ExcelPackage p = new ExcelPackage();
+            ExcelWorksheet worksheet = p.Workbook.Worksheets.Add("Test");
+            var ints = new int[] { 1, 2 };
+            var r = worksheet.Cells[1, 1].LoadFromCollection(ints); // throws System.ArgumentException "Column out of range"
+            Assert.AreEqual(r.Address, "A1:A2");            
         }
     }
 }
