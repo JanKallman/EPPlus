@@ -443,7 +443,7 @@ namespace OfficeOpenXml
             int styleXfId = CloneStyle(styles, xfIdCopy, true);
             //Close cells style
             CellStyleXfs[styleXfId].XfId = CellStyleXfs.Count-1;
-            int xfid = CloneStyle(styles, xfIdCopy);
+            int xfid = CloneStyle(styles, xfIdCopy, false, true); //Always add a new style (We create a new named style here)
             CellXfs[xfid].XfId = styleXfId;
             style.Style = new ExcelStyle(this, NamedStylePropertyChange, positionID, name, styleXfId);
             style.StyleXfId = styleXfId;
@@ -755,9 +755,13 @@ namespace OfficeOpenXml
 #endregion
         internal int CloneStyle(ExcelStyles style, int styleID)
         {
-            return CloneStyle(style, styleID, false);
+            return CloneStyle(style, styleID, false, false);
         }
         internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle)
+        {
+            return CloneStyle(style, styleID, isNamedStyle, false);
+        }
+        internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle, bool allwaysAdd)
         {
             ExcelXfs xfs;
             if (isNamedStyle)
@@ -850,10 +854,17 @@ namespace OfficeOpenXml
             }
             else
             {
-                index = CellXfs.FindIndexByID(newXfs.Id);
-                if (index < 0)
+                if (allwaysAdd)
                 {
                     index = CellXfs.Add(newXfs.Id, newXfs);
+                }
+                else
+                {
+                    index = CellXfs.FindIndexByID(newXfs.Id);
+                    if (index < 0)
+                    {
+                        index = CellXfs.Add(newXfs.Id, newXfs);
+                    }
                 }
             }
             return index;

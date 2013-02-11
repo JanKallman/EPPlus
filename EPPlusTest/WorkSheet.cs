@@ -877,6 +877,7 @@ namespace EPPlusTest
             ws.Cells["A1"].LoadFromText("1.2");
             ws.Cells["A2"].LoadFromText("1,\"Test av data\",\"12,2\",\"\"Test\"\"");
             ws.Cells["A3"].LoadFromText("\"1,3\",\"Test av \"\"data\",\"12,2\",\"Test\"\"\"", new ExcelTextFormat() { TextQualifier = '"' });
+            ws.Cells["A1"].LoadFromText((string)null);
 
             ws = _pck.Workbook.Worksheets.Add("File1");
            // ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
