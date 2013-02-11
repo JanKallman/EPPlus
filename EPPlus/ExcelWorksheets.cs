@@ -788,9 +788,8 @@ namespace OfficeOpenXml
 			{
 				throw new ArgumentException(string.Format("Could not find worksheet to delete '{0}'", name));
 			}
-			 Delete(sheet.PositionID);
+			Delete(sheet.PositionID);
 		}
-
 		/// <summary>
         /// Delete a worksheet from the collection
         /// </summary>
