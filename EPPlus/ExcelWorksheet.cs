@@ -53,6 +53,7 @@ using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.Utils;
 using Ionic.Zip;
+using ExcelFormulaParser.Engine.LexicalAnalysis;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -94,6 +95,38 @@ namespace OfficeOpenXml
             public string Formula { get; set; }
             public int StartRow { get; set; }
             public int StartCol { get; set; }
+
+            private IEnumerable<Token> Tokens {get; set;}
+
+            internal string GetFormula(int row, int column)
+            {
+                if (StartRow == row && StartCol == column)
+                {
+                    return Formula;
+                }
+
+                if (Tokens == null)
+                {
+                    var d=new Dictionary<string, object>();            
+                    SourceCodeTokenizer sct=new SourceCodeTokenizer(d,d);
+                    Tokens = sct.Tokenize(Formula);
+                }
+                
+                string f = "";
+                foreach (var token in Tokens)
+                {
+                    if (token.TokenType == TokenType.ExcelAddress)
+                    {
+                        var a = new ExcelFormulaAddress(token.Value);
+                        f += a.GetOffset(row - StartRow, column - StartCol);
+                    }
+                    else
+                    {
+                        f += token.Value;
+                    }
+                }
+                return f;
+            }
         }
         /// <summary>
         /// Collection containing merged cell addresses
@@ -1091,8 +1124,8 @@ namespace OfficeOpenXml
             else
             {
                 string v = xr.ReadElementContentAsString();
-
-                if ((styleID >= 14 && styleID <= 22) || (styleID >= 45 && styleID <= 47))
+                var nf = Workbook.Styles.CellXfs[styleID].NumberFormatId;
+                if ((nf >= 14 && nf <= 22) || (nf >= 45 && nf <= 47))
                 {
                     double res;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))

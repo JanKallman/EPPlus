@@ -281,7 +281,7 @@ namespace OfficeOpenXml
             }
         }
         List<ExcelAddress> _addresses = null;
-        internal List<ExcelAddress> Addresses
+        internal virtual List<ExcelAddress> Addresses
         {
             get
             {
@@ -676,6 +676,99 @@ namespace OfficeOpenXml
                 SetAddress(value);
                 base.ChangeAddress();
             }
+        }
+    }
+
+    public class ExcelFormulaAddress : ExcelAddressBase
+    {
+        bool _fromRowFixed, _toRowFixed, _fromColFixed, _toColFixed;
+        internal ExcelFormulaAddress()
+            : base()
+        {
+
+        }
+
+        public ExcelFormulaAddress(int fromRow, int fromCol, int toRow, int toColumn)
+            : base(fromRow, fromCol, toRow, toColumn)
+        {
+            _ws = "";
+        }
+        public ExcelFormulaAddress(string address)
+            : base(address)
+        {
+        }
+        
+        internal ExcelFormulaAddress(string ws, string address)
+            : base(address)
+        {
+            if (string.IsNullOrEmpty(_ws)) _ws = ws;
+        }
+        internal ExcelFormulaAddress(string ws, string address, bool isName)
+            : base(address, isName)
+        {
+            if (string.IsNullOrEmpty(_ws)) _ws = ws;
+        }
+        /// <summary>
+        /// The address for the range
+        /// </summary>
+        /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
+        public new string Address
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_address) && _fromRow>0)
+                {
+                    _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol, _fromRowFixed, _toRowFixed, _fromColFixed, _toColFixed);
+                }
+                return _address;
+            }
+            set
+            {                
+                SetAddress(value);
+                base.ChangeAddress();
+            }
+        }
+        internal List<ExcelFormulaAddress> _addresses;
+        public new List<ExcelFormulaAddress> Addresses
+        {
+            get
+            {
+                if (_addresses == null)
+                {
+                    _addresses = new List<ExcelFormulaAddress>();
+                }
+                return _addresses;
+
+            }
+        }
+        internal string GetOffset(int row, int column)
+        {
+            int fromRow = _fromRow, fromCol = _fromCol, toRow = _toRow, tocol = _toCol;
+            if (!_fromRowFixed)
+            {
+                fromRow += row;
+            }
+            if (!_fromColFixed)
+            {
+                fromCol += column;
+            }
+            if (!_toRowFixed)
+            {
+                toRow += row;
+            }
+            if (!_toColFixed)
+            {
+                tocol += column;
+            }
+            string a = GetAddress(fromRow, fromCol, toRow, tocol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
+            if (Addresses != null)
+            {
+                foreach (var sa in Addresses)
+                {
+                    a+="," + sa.GetOffset(row, column);
+                }
+            }
+            return a;
         }
     }
 }

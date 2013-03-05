@@ -270,6 +270,28 @@
     <Compile Include="ExcelStyles.cs" />
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="FormulaParser\CalculateExtentions.cs" />
+    <Compile Include="FormulaParser\CalculationChain.cs" />
+    <Compile Include="FormulaParser\Exceptions\CircularReferenceException.cs" />
+    <Compile Include="FormulaParser\Exceptions\ExcelErrorCodes.cs" />
+    <Compile Include="FormulaParser\Exceptions\ExcelFunctionException.cs" />
+    <Compile Include="FormulaParser\Exceptions\UnrecognizedTokenException.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\ILexer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\ISourceCodeTokenizer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\ISyntacticAnalyzer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\ITokenFactory.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\ITokenSeparatorProvider.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\Lexer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\SourceCodeTokenizer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\SyntacticAnalyzer.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\Token.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\TokenFactory.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\TokenizerContext.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\TokenSeparatorProvider.cs" />
+    <Compile Include="FormulaParser\LexicalAnalysis\TokenType.cs" />
+    <Compile Include="FormulaParser\Utilities\RegexConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Packaging\DotNetZip\ComHelper.cs" />
     <Compile Include="Packaging\DotNetZip\CRC32.cs">
       <SubType>Code</SubType>
