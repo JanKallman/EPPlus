@@ -34,8 +34,10 @@ using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
-using ExcelFormulaParser.Engine.LexicalAnalysis;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -816,7 +818,7 @@ namespace OfficeOpenXml
             var d=new Dictionary<string, object>();
             try
             {
-                var sct = new SourceCodeTokenizer(d, d);
+                var sct = new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty);
                 var tokens = sct.Tokenize(Formula);
                 String f = "";
                 foreach (var t in tokens)

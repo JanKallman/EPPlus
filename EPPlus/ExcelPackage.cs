@@ -40,6 +40,7 @@ using System.Security.Cryptography;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Utils;
 using Ionic.Zlib;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
     /// <summary>

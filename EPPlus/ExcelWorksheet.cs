@@ -53,7 +53,8 @@ using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.Utils;
 using Ionic.Zip;
-using ExcelFormulaParser.Engine.LexicalAnalysis;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -89,6 +90,12 @@ namespace OfficeOpenXml
 	{
         internal class Formulas
         {
+            public Formulas(ISourceCodeTokenizer tokenizer)
+            {
+                _tokenizer = tokenizer;
+            }
+
+            private ISourceCodeTokenizer _tokenizer;
             internal int Index { get; set; }
             internal string Address { get; set; }
             internal bool IsArray { get; set; }
@@ -107,9 +114,7 @@ namespace OfficeOpenXml
 
                 if (Tokens == null)
                 {
-                    var d=new Dictionary<string, object>();            
-                    SourceCodeTokenizer sct=new SourceCodeTokenizer(d,d);
-                    Tokens = sct.Tokenize(Formula);
+                    Tokens = _tokenizer.Tokenize(Formula);
                 }
                 
                 string f = "";
@@ -992,7 +997,7 @@ namespace OfficeOpenXml
                             string formula = xr.ReadElementContentAsString();
                             if (formula != "")
                             {
-                                _sharedFormulas.Add(sfIndex, new Formulas() { Index = sfIndex, Formula = formula, Address = fAddress, StartRow = address._fromRow, StartCol = address._fromCol });
+                                _sharedFormulas.Add(sfIndex, new Formulas(SourceCodeTokenizer.Default) { Index = sfIndex, Formula = formula, Address = fAddress, StartRow = address._fromRow, StartCol = address._fromCol });
                             }
                         }
                         else
@@ -1007,7 +1012,7 @@ namespace OfficeOpenXml
                         var afIndex = GetMaxShareFunctionIndex(true);
                         _formulas.SetValue(address._fromRow, address._fromCol, afIndex.ToString());
                         _values.SetValue(address._fromRow, address._fromCol, null);
-                        _sharedFormulas.Add(afIndex, new Formulas() { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
+                        _sharedFormulas.Add(afIndex, new Formulas(SourceCodeTokenizer.Default) { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
                     }
                     else // ??? some other type
                     {
@@ -1579,7 +1584,7 @@ namespace OfficeOpenXml
                         f.Address = ExcelCellBase.GetAddress(fromRow, fromCol) + ":" + ExcelCellBase.GetAddress(position - 1, toCol);
                         if (toRow != fromRow)
                         {
-                            Formulas newF = new Formulas();
+                            Formulas newF = new Formulas(SourceCodeTokenizer.Default);
                             newF.StartCol = f.StartCol;
                             newF.StartRow = position + rows;
                             newF.Address = ExcelCellBase.GetAddress(position + rows, fromCol) + ":" + ExcelCellBase.GetAddress(toRow + rows, toCol);
@@ -1717,7 +1722,7 @@ namespace OfficeOpenXml
                             {
                                 newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[newFormulas.Count - 1].StartCol, row - 1, col);
                             }
-                            var refFormula = new Formulas();
+                            var refFormula = new Formulas(SourceCodeTokenizer.Default);
                             refFormula.Formula = newFormula;
                             refFormula.StartRow = row;
                             refFormula.StartCol = col;
