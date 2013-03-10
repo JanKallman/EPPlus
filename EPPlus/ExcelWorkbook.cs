@@ -44,6 +44,7 @@ using OfficeOpenXml.Utils;
 using System.Windows.Media;
 using System.Windows;
 using Ionic.Zip;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode

@@ -50,6 +50,7 @@ using OfficeOpenXml.Style.XmlAccess;
 using System.Security;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 
 namespace OfficeOpenXml
 {
@@ -255,7 +256,7 @@ namespace OfficeOpenXml
 			}
 			//RemoveFormuls(address);
 			CheckAndSplitSharedFormula();
-			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas();
+			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 			f.Formula = value;
 			f.Index = _worksheet.GetMaxShareFunctionIndex(IsArray);
 			f.Address = address.FirstAddress;
@@ -1533,7 +1534,7 @@ namespace OfficeOpenXml
 				{
 					if (fIsSet)
 					{
-						f = new ExcelWorksheet.Formulas();
+						f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 						f.Index = _worksheet.GetMaxShareFunctionIndex(false);
 						f.StartCol = fRange._fromCol;
 						f.IsArray = false;
@@ -1567,7 +1568,7 @@ namespace OfficeOpenXml
 				{
 					if (fIsSet)
 					{
-						f = new ExcelWorksheet.Formulas();
+						f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 						f.Index = _worksheet.GetMaxShareFunctionIndex(false);
 						f.IsArray = false;
 						_worksheet._sharedFormulas.Add(f.Index, f);
@@ -1602,7 +1603,7 @@ namespace OfficeOpenXml
 				{
 					if (fIsSet)
 					{
-						f = new ExcelWorksheet.Formulas();
+						f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 						f.Index = _worksheet.GetMaxShareFunctionIndex(false);
 						f.IsArray = false;
 						_worksheet._sharedFormulas.Add(f.Index, f);
