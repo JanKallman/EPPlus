@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -15,7 +16,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            var date = double.Parse(ExpressionString);
+            var date = double.Parse(ExpressionString,CultureInfo.InvariantCulture);
             return new CompileResult(DateTime.FromOADate(date), DataType.Date);
         }
     }
