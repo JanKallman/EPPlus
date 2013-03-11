@@ -16,14 +16,15 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            string exp = string.Empty;
-            var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
-            if (decimalSeparator == ",")
-            {
+            //Remove JK 2013-03-11. Used CultureInfo.InvariantCulture as an alternative
+            //string exp = string.Empty;
+            //var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
+            //if (decimalSeparator == ",")
+            //{
                 
-                exp = ExpressionString.Replace('.', ',');
-            }
-            return new CompileResult(double.Parse(exp), DataType.Decimal);
+            //    exp = ExpressionString.Replace('.', ',');
+            //}
+            return new CompileResult(double.Parse(ExpressionString, CultureInfo.InvariantCulture), DataType.Decimal);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
             try
             {
-                return double.Parse(str);
+                return double.Parse(str,CultureInfo.InvariantCulture);
             }
             catch (Exception e)
             {

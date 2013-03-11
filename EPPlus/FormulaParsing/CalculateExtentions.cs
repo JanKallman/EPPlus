@@ -47,7 +47,7 @@ namespace OfficeOpenXml.Calculation
             {
                 var item = dc.list[ix];
                 var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
-                item.ws.SetFormula(item.Row, item.Column, v);
+                item.ws._values.SetValue(item.Row, item.Column, v);
             }
         }
 
