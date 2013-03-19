@@ -52,6 +52,7 @@ using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
+using System.Web;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -795,13 +796,21 @@ namespace OfficeOpenXml
                     {
                         cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
                         var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
-                        if (uri.IsAbsoluteUri)
+                        try
                         {
-                            cell.Hyperlink = new ExcelHyperLink(uri.AbsoluteUri);
+                            if (uri.IsAbsoluteUri)
+                            {
+                                cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString));
+                            }
+                            else
+                            {
+                                cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString), UriKind.Relative);
+                            }
                         }
-                        else
+                        catch
                         {
-                            cell.Hyperlink = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
+                            //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
+                            cell.Hyperlink = uri;
                         }
                         Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                     }

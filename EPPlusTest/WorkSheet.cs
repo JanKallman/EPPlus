@@ -240,7 +240,7 @@ namespace EPPlusTest
         [TestMethod]
         public void InsertDeleteTest()
         {
-            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDelete");
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("Insert Delete");
             //ws.Cells.Value = 0;
             ws.Cells["A1:C5"].Value = 1;
             Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
@@ -262,7 +262,7 @@ namespace EPPlusTest
 
             ws.PrinterSettings.PrintArea=null;
             ws.PrinterSettings.PrintArea=ws.Cells["B2:D99"];
-            ws.PrinterSettings.PrintArea = null;
+            //ws.PrinterSettings.PrintArea = null;
             ws.Row(15).PageBreak = true;
             ws.Column(3).PageBreak = true;
             ws.View.ShowHeaders = false;
@@ -285,6 +285,8 @@ namespace EPPlusTest
             Assert.AreEqual(addr.Start.Row, 1);
             Assert.AreEqual(addr.End.Column, 4);
             Assert.AreEqual(addr.End.Row, 3);
+
+            _pck.Workbook.Worksheets.Add("Print Area Copy", ws);
         }
         [TestMethod]
         public void RichTextCells()
@@ -1241,6 +1243,8 @@ namespace EPPlusTest
             pt.RowFields[0].AddNumericGrouping(-3.3, 5.5, 4.0);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
+            pt.ShowDrill = false;
+            pt.EnableDrill = false;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
 
             pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["H3"], ws.Cells["K1:O11"], "Pivottable10");
@@ -1249,6 +1253,8 @@ namespace EPPlusTest
             pt.Fields[4].AddDateGrouping(7, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
             pt.RowHeaderCaption = "Veckor";
             pt.GrandTotalCaption = "Totalt";
+            pt.ShowDrill = false;
+            pt.EnableDrill = false;
 
             pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A60"], ws.Cells["K1:O11"], "Pivottable11");
             pt.RowFields.Add(pt.Fields["Category"]);
@@ -1375,8 +1381,10 @@ namespace EPPlusTest
 
             s.Fill.PatternType = ExcelFillStyle.Solid;
             s.Fill.BackgroundColor.SetColor(Color.LightGreen);
-            s.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
+            s.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             s.VerticalAlignment = ExcelVerticalAlignment.Center;
+            s.Font.Size = 15; 
+
 
             var secondNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("first", firstNamedStyle.Style).Style;
             secondNamedStyle.Font.Bold = true;
@@ -1399,6 +1407,10 @@ namespace EPPlusTest
            colStyle.Fill.BackgroundColor.SetColor(Color.CadetBlue);
 
            wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
+
+           var newNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("testStyleinvalid"); 
+            newNamedStyle.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+           newNamedStyle.Style.Font.Size = 15;             
         }
         [TestMethod]
         public void StyleFill()

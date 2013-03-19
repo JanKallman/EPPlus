@@ -233,7 +233,7 @@ namespace OfficeOpenXml
             CloneCells(Copy, added);
 
             _worksheets.Add(_worksheets.Count + 1, added);
-            
+
             //Remove any relation to printersettings.
             XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
             if (pageSetup != null)

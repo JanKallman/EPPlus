@@ -188,7 +188,7 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         private string GetStartXml(string name, int id, ExcelAddressBase address, ExcelAddressBase sourceAddress)
         {
-            string xml = string.Format("<pivotTableDefinition xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" name=\"{0}\" cacheId=\"{1}\" dataOnRows=\"1\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"0\" applyPatternFormats=\"0\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"1\" dataCaption=\"Data\" updatedVersion=\"3\" showMemberPropertyTips=\"0\" useAutoFormatting=\"1\" itemPrintTitles=\"1\" createdVersion=\"1\" indent=\"0\" compact=\"0\" compactData=\"0\" gridDropZones=\"1\">",name, id);
+            string xml = string.Format("<pivotTableDefinition xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" name=\"{0}\" cacheId=\"{1}\" dataOnRows=\"1\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"0\" applyPatternFormats=\"0\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"1\" dataCaption=\"Data\"  createdVersion=\"4\" showMemberPropertyTips=\"0\" useAutoFormatting=\"1\" itemPrintTitles=\"1\" indent=\"0\" compact=\"0\" compactData=\"0\" gridDropZones=\"1\">", name, id);
 
             xml += string.Format("<location ref=\"{0}\" firstHeaderRow=\"1\" firstDataRow=\"1\" firstDataCol=\"1\" /> ", address.FirstAddress);
             xml += string.Format("<pivotFields count=\"{0}\">", sourceAddress._toCol-sourceAddress._fromCol+1);
@@ -420,7 +420,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@enableDrill");
+                return GetXmlNodeBool("@enableDrill", true);
             }
             set
             {
@@ -434,7 +434,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@showDrill");
+                return GetXmlNodeBool("@showDrill", true);
             }
             set
             {
@@ -448,11 +448,11 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@showDataTips");
+                return GetXmlNodeBool("@showDataTips", true);
             }
             set
             {
-                SetXmlNodeBool("@showDataTips", value);
+                SetXmlNodeBool("@showDataTips", value, true);
             }
         }
         /// <summary>
