@@ -137,6 +137,7 @@ namespace OfficeOpenXml
                 _addresses = null;
                 _start = null;
                 _end = null;
+                _firstAddress = _address;
             }
             _address = address;
             Validate();

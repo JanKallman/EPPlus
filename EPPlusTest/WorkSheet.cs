@@ -1205,7 +1205,12 @@ namespace EPPlusTest
             pt.PageFields.Add(pt.Fields[1]);
             pt.RowFields.Add(pt.Fields[0]);
             pt.DataFields.Add(pt.Fields[3]);
-            pt.DataFields.Add(pt.Fields[2]);
+            var d1=pt.DataFields.Add(pt.Fields[2]);
+            //d1.Name="Stock %";
+            //d1.ShowDataAs=eShowDataAs.Percent;
+            //d1.BaseField=0;
+            //d1.BaseItem=0;
+
             pt.DataOnRows = false;
             
             pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.Sum | eSubTotalFunctions.Max;
@@ -1262,7 +1267,6 @@ namespace EPPlusTest
             pt.RowFields.Add(pt.Fields["Date for grouping"]);
 
             pt.DataFields.Add(pt.Fields[3]);
-            pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = true;
         }
         [TestMethod]
@@ -1461,17 +1465,17 @@ namespace EPPlusTest
             var n=pck.Workbook.Styles.NamedStyles[0];
             n.Style.Numberformat.Format = "yyyy";
             n.Style.Font.Name = "Arial";
-            n.Style.Font.Size=15;
+            n.Style.Font.Size = 15;
             n.Style.Border.Bottom.Style = ExcelBorderStyle.Dotted;
             n.Style.Border.Bottom.Color.SetColor(Color.Red);
-            n.Style.Fill.PatternType=ExcelFillStyle.Solid;
+            n.Style.Fill.PatternType = ExcelFillStyle.Solid;
             n.Style.Fill.BackgroundColor.SetColor(Color.Blue);
             n.Style.Border.Bottom.Color.SetColor(Color.Red);
             n.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             n.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             n.Style.TextRotation = 90;
-            ws.Cells["a1:c3"].StyleName="Normal";
-            //  n.CustomBuildin = true;
+            ws.Cells["a1:c3"].StyleName = "Normal";
+            n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
         [TestMethod]

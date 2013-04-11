@@ -206,5 +206,27 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@subtotal", v);
             }
         }
+        ///Since we have no items, Excel will crash when we use showDataAs options that require baseItem's
+        //public eShowDataAs ShowDataAs
+        //{
+        //    get
+        //    {
+        //        string s = GetXmlNodeString("@showDataAs");
+        //        if (s == "")
+        //        {
+        //            return eShowDataAs.Normal;
+        //        }
+        //        else
+        //        {
+        //            return (eShowDataAs)Enum.Parse(typeof(eShowDataAs), s, true);
+        //        }
+        //    }
+        //    set
+        //    {
+        //        string v = value.ToString();
+        //        v = v.Substring(0, 1).ToLower() + v.Substring(1);
+        //        SetXmlNodeString("@showDataAs", v);
+        //    }
+        //}
     }
 }

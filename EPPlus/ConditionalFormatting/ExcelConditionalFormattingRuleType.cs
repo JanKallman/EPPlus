@@ -187,19 +187,27 @@ namespace OfficeOpenXml.ConditionalFormatting
     }
     private static eExcelConditionalFormattingRuleType GetIconSetType(XmlNode topNode, XmlNamespaceManager nameSpaceManager)
     {
-        var v = topNode.SelectSingleNode("d:iconSet/@iconSet", nameSpaceManager).Value;
-
-        if (v[0] == '3')
+        var node = topNode.SelectSingleNode("d:iconSet/@iconSet", nameSpaceManager);
+        if (node == null)
         {
             return eExcelConditionalFormattingRuleType.ThreeIconSet;
         }
-        else if (v[0] == '4')
-        {
-            return eExcelConditionalFormattingRuleType.FourIconSet;
-        }
         else
         {
-          return eExcelConditionalFormattingRuleType.FiveIconSet;
+            var v = node.Value;
+
+            if (v[0] == '3')
+            {
+                return eExcelConditionalFormattingRuleType.ThreeIconSet;
+            }
+            else if (v[0] == '4')
+            {
+                return eExcelConditionalFormattingRuleType.FourIconSet;
+            }
+            else
+            {
+                return eExcelConditionalFormattingRuleType.FiveIconSet;
+            }
         }
     }
 
