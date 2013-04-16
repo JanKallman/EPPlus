@@ -31,10 +31,11 @@ namespace EPPlusSamples
                 worksheet.Protection.AllowAutoFilter = true;
                 worksheet.Protection.AllowEditObject = true;
                 worksheet.Protection.IsProtected = true;
-                var r1 = new ExcelProtectedRange("Range1", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4));
-                worksheet.ProtectedRanges.Add(r1);
+                var r1=worksheet.ProtectedRanges.Add("Range1", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4));
                 worksheet.ProtectedRanges.Remove(r1);
-                worksheet.ProtectedRanges.Add(new ExcelProtectedRange("Range2", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4)));
+                var r2 = worksheet.ProtectedRanges.Add("Range2", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4));
+                r2.SetPassword("EPPlus");
+
                 worksheet.Column(1).Width = 30;
                 worksheet.Column(2).Width = 30;
                 worksheet.Column(3).Width = 100;

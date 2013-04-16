@@ -7,77 +7,87 @@ using System.Xml;
 
 namespace OfficeOpenXml
 {
-    public class ExcelProtectedRangeCollection : XmlHelper, ICollection<ExcelProtectedRange>
+    public class ExcelProtectedRangeCollection : XmlHelper, IEnumerable<ExcelProtectedRange>
     {
-        public ExcelProtectedRangeCollection(XmlNamespaceManager nsm, XmlNode topNode, ExcelWorksheet ws)
+        internal ExcelProtectedRangeCollection(XmlNamespaceManager nsm, XmlNode topNode, ExcelWorksheet ws)
             : base(nsm, topNode)
         {
             foreach (XmlNode protectedRangeNode in topNode.SelectNodes("d:protectedRanges/d:protectedRange", nsm))
             {
                 if (!(protectedRangeNode is XmlElement))
                     continue;
-                _baseCollection.Add(new ExcelProtectedRange(protectedRangeNode.Attributes["name"].Value, new ExcelAddress(protectedRangeNode.Attributes["sqref"].Value)));
+                _baseList.Add(new ExcelProtectedRange(protectedRangeNode.Attributes["name"].Value, new ExcelAddress(protectedRangeNode.Attributes["sqref"].Value), nsm, topNode));
             }
         }
 
-        private Collection<ExcelProtectedRange> _baseCollection = new Collection<ExcelProtectedRange>();
+        private List<ExcelProtectedRange> _baseList = new List<ExcelProtectedRange>();
 
-        public void Add(ExcelProtectedRange item)
+        public ExcelProtectedRange Add(string name, ExcelAddress address)
         {
             if (!ExistNode("d:protectedRanges"))
                 CreateNode("d:protectedRanges");
+            
             var newNode = CreateNode("d:protectedRanges/d:protectedRange");
-            var sqrefAttribute = TopNode.OwnerDocument.CreateAttribute("sqref");
-            sqrefAttribute.Value = item.Address.Address;
-            newNode.Attributes.Append(sqrefAttribute);
-            var nameAttribute = TopNode.OwnerDocument.CreateAttribute("name");
-            nameAttribute.Value = item.Name;
-            newNode.Attributes.Append(nameAttribute);
-            _baseCollection.Add(item);
+            var item = new ExcelProtectedRange(name, address, base.NameSpaceManager, newNode);
+            _baseList.Add(item);
+            return item;
         }
 
         public void Clear()
         {
             DeleteNode("d:protectedRanges");
-            _baseCollection.Clear();
+            _baseList.Clear();
         }
 
         public bool Contains(ExcelProtectedRange item)
         {
-            return _baseCollection.Contains(item);
+            return _baseList.Contains(item);
         }
 
         public void CopyTo(ExcelProtectedRange[] array, int arrayIndex)
         {
-            _baseCollection.CopyTo(array, arrayIndex);
+            _baseList.CopyTo(array, arrayIndex);
         }
 
         public int Count
         {
-            get { return _baseCollection.Count; }
+            get { return _baseList.Count; }
         }
 
         public bool Remove(ExcelProtectedRange item)
         {
             DeleteAllNode("d:protectedRanges/d:protectedRange[@name='" + item.Name + "' and @sqref='" + item.Address.Address + "']");
-            if (_baseCollection.Count == 0)
+            if (_baseList.Count == 0)
                 DeleteNode("d:protectedRanges");
-            return _baseCollection.Remove(item);
+            return _baseList.Remove(item);
         }
 
-        public IEnumerator<ExcelProtectedRange> GetEnumerator()
+        public int IndexOf(ExcelProtectedRange item)
         {
-            return _baseCollection.GetEnumerator();
+            return _baseList.IndexOf(item);
+        }
+
+        public void RemoveAt(int index)
+        {
+            _baseList.RemoveAt(index);
+        }
+
+        public ExcelProtectedRange this[int index]
+        {
+            get
+            {
+                return _baseList[index];
+            }
+        }
+
+        IEnumerator<ExcelProtectedRange> IEnumerable<ExcelProtectedRange>.GetEnumerator()
+        {
+            return _baseList.GetEnumerator();
         }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return _baseCollection.GetEnumerator();
-        }
-
-        public bool IsReadOnly
-        {
-            get { return false; }
+            return _baseList.GetEnumerator();
         }
     }
 }
