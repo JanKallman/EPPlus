@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84BB37E9-CE27-48E0-88F6-A741A46D5883}"
 	ProjectSection(SolutionItems) = preProject
 		ExcelPackage.vsmdi = ExcelPackage.vsmdi
