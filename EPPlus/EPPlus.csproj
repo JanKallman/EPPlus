@@ -259,6 +259,8 @@
     <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
     <Compile Include="DataValidation\ExcelDataValidationType.cs" />
     <Compile Include="ExcelEncryption.cs" />
+    <Compile Include="ExcelProtectedRange.cs" />
+    <Compile Include="ExcelProtectedRangeCollection.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
     <Compile Include="ExcelColumn.cs" />
     <Compile Include="Drawing\ExcelDrawings.cs" />

@@ -2676,6 +2676,18 @@ namespace OfficeOpenXml
                 return _protection;
             }
         }
+
+        private ExcelProtectedRangeCollection _protectedRanges;
+        public ExcelProtectedRangeCollection ProtectedRanges
+        {
+            get
+            {
+                if (_protectedRanges == null)
+                    _protectedRanges = new ExcelProtectedRangeCollection(NameSpaceManager, TopNode, this);
+                return _protectedRanges;
+            }
+        }
+
         #region Drawing
         ExcelDrawings _drawings = null;
         /// <summary>
