@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OfficeOpenXml.Utils;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -80,7 +81,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNodeString("@sqref",value.Address);
+                SetXmlNodeString("@sqref", SqRefUtility.ToSqRefAddress(value.Address));
                 _address=value;
             }
         }
@@ -132,7 +133,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                return SetXmlNodeString("@securityDescriptor",value);
+                SetXmlNodeString("@securityDescriptor",value);
             }
         }
         internal int SpinCount

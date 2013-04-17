@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OfficeOpenXml.Utils;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,7 +17,7 @@ namespace OfficeOpenXml
             {
                 if (!(protectedRangeNode is XmlElement))
                     continue;
-                _baseList.Add(new ExcelProtectedRange(protectedRangeNode.Attributes["name"].Value, new ExcelAddress(protectedRangeNode.Attributes["sqref"].Value), nsm, topNode));
+                _baseList.Add(new ExcelProtectedRange(protectedRangeNode.Attributes["name"].Value, new ExcelAddress(SqRefUtility.FromSqRefAddress(protectedRangeNode.Attributes["sqref"].Value)), nsm, topNode));
             }
         }
 

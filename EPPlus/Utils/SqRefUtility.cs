@@ -32,7 +32,7 @@ namespace OfficeOpenXml.Utils
        public static string FromSqRefAddress(string address)
        {
            Require.Argument(address).IsNotNullOrEmpty(address);
-           address = address.Replace(" ", ", ");
+           address = address.Replace(" ", ",");
            return address;
        }
     }
