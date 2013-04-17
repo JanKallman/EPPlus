@@ -33,7 +33,7 @@ namespace EPPlusSamples
                 worksheet.Protection.IsProtected = true;
                 var r1=worksheet.ProtectedRanges.Add("Range1", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4));
                 worksheet.ProtectedRanges.Remove(r1);
-                var r2 = worksheet.ProtectedRanges.Add("Range2", new ExcelAddress(1, 1, worksheet.Dimension.End.Row, 4));
+                var r2 = worksheet.ProtectedRanges.Add("Range2", new ExcelAddress("F3:T12,F15:T30"));
                 r2.SetPassword("EPPlus");
 
                 worksheet.Column(1).Width = 30;
