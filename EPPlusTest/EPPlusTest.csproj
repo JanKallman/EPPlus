@@ -165,6 +165,7 @@
     </Compile>
     <Compile Include="ReadTemplate.cs" />
     <Compile Include="TestDTO.cs" />
+    <Compile Include="CellStoreTest.cs" />
     <Compile Include="Utils\AddressUtilityTests.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="Utils\SqRefUtilityTests.cs" />

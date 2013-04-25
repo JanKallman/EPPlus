@@ -2034,6 +2034,10 @@ namespace OfficeOpenXml
         /// <param name="Value">The value</param>
         public void SetValue(int Row, int Column, object Value)
         {
+            if (Row < 1 || Column < 1 || Row > ExcelPackage.MaxRows && Column > ExcelPackage.MaxColumns)
+            {
+                throw new ArgumentOutOfRangeException("Row or Column out of range");
+            }            
             _values.SetValue(Row, Column, Value);
         }
         /// <summary>
