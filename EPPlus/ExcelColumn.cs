@@ -98,7 +98,7 @@ namespace OfficeOpenXml
                     var c = cse.Value as ExcelColumn;
                     if (cse.Column > _columnMin && c.ColumnMax <= value && cse.Column!=_columnMin)
                     {
-                        throw new Exception(string.Format("ColumnMax can not spann over existing column {0}.",c.ColumnMin));
+                        throw new Exception(string.Format("ColumnMax can not span over existing column {0}.",c.ColumnMin));
                     }
                 }
                 _columnMax = value; 
