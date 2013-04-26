@@ -634,7 +634,7 @@ namespace OfficeOpenXml
                 //Must span entire rows
                 if (!(value.Start.Row == 1 && value.End.Row== ExcelPackage.MaxRows))
                 {
-                    throw new InvalidOperationException("Address must spann rows only (for ex. Address=\"1:1\" for the first row).");
+                    throw new InvalidOperationException("Address must span rows only (for ex. Address=\"1:1\" for the first row).");
                 }
 
                 var horAddr = RepeatRows;
