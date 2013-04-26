@@ -579,7 +579,7 @@ namespace OfficeOpenXml
                 //Must span entire columns
                 if (!(value.Start.Column == 1 && value.End.Column == ExcelPackage.MaxColumns))
                 {
-                    throw new InvalidOperationException("Address must spann full columns only (for ex. Address=\"A:A\" for the first column).");
+                    throw new InvalidOperationException("Address must span full columns only (for ex. Address=\"A:A\" for the first column).");
                 }
 
                 var vertAddr = RepeatColumns;
