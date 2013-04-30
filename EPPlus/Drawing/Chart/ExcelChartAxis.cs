@@ -151,7 +151,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos", "spPr", "txPr", "crossAx", "crossesAt", "crosses", "crossBetween", "auto", "lblOffset", "majorUnit", "minorUnit", "dispUnits", "spPr", "txPr" };
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos", "spPr", "txPr", "crossAx", "crossesAt", "crosses", "crossBetween", "auto", "lblOffset", "majorUnit", "majorTimeUnit", "minorUnit", "minorTimeUnit", "dispUnits", "spPr", "txPr" };
         }
         internal string Id
         {
@@ -523,6 +523,39 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
             }
         }
+        const string _majorTimeUnitPath = "c:majorTimeUnit/@val";
+        /// <summary>
+        /// Major time unit for the axis.
+        /// Null is automatic
+        /// </summary>
+        public eTimeUnit? MajorTimeUnit
+        {
+            get
+            {
+                switch(GetXmlNodeString(_majorTimeUnitPath))
+                {
+                    case "years":
+                        return eTimeUnit.Years;
+                    case "months":
+                        return eTimeUnit.Months;
+                    case "days":
+                        return eTimeUnit.Days;
+                    default: 
+                        return null;
+                }
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    SetXmlNodeString(_majorTimeUnitPath, value.ToString().ToLower());
+                }
+                else
+                {
+                    DeleteNode(_majorTimeUnitPath);
+                }
+            }
+        }
         const string _minorUnitPath = "c:minorUnit/@val";
         const string _minorUnitCatPath = "c:tickMarkSkip/@val";
         /// <summary>
@@ -559,6 +592,39 @@ namespace OfficeOpenXml.Drawing.Chart
                     {
                         SetXmlNodeString(_minorUnitPath, ((double)value).ToString(CultureInfo.InvariantCulture));
                     }
+                }
+            }
+        }
+        const string _minorTimeUnitPath = "c:minorTimeUnit/@val";
+        /// <summary>
+        /// Minor time unit for the axis.
+        /// Null is automatic
+        /// </summary>
+        public eTimeUnit? MinorTimeUnit
+        {
+            get
+            {
+                switch(GetXmlNodeString(_minorTimeUnitPath))
+                {
+                    case "years":
+                        return eTimeUnit.Years;
+                    case "months":
+                        return eTimeUnit.Months;
+                    case "days":
+                        return eTimeUnit.Days;
+                    default: 
+                        return null;
+                }
+            }
+            set
+            {
+                if (value.HasValue)
+                {
+                    SetXmlNodeString(_minorTimeUnitPath, value.ToString().ToLower());
+                }
+                else
+                {
+                    DeleteNode(_minorTimeUnitPath);
                 }
             }
         }
