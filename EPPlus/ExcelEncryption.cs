@@ -62,6 +62,23 @@ namespace OfficeOpenXml
         AES256
     }
     /// <summary>
+    /// The major version of the Encryption 
+    /// </summary>
+    public enum EncryptionVersion
+    {
+        /// <summary>
+        /// Standard Encryption.
+        /// Used in Excel 2007
+        /// </summary>
+        Version3,
+        /// <summary>
+        /// Agile Encryption.
+        /// Used in Excel 2010-
+        /// Default.
+        /// </summary>
+        Version4
+    }
+    /// <summary>
     /// How and if the workbook is encrypted
     ///<seealso cref="ExcelProtection"/> 
     ///<seealso cref="ExcelSheetProtection"/> 
@@ -126,5 +143,10 @@ namespace OfficeOpenXml
         /// Algorithm used for encrypting the package. Default is AES 128-bit
         /// </summary>
         public EncryptionAlgorithm Algorithm { get; set; }
+        public EncryptionVersion Version
+        {
+            get;
+            set;
+        }
     }
 }

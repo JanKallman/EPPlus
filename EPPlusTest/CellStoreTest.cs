@@ -110,12 +110,5 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
-        public void EncrypTest()
-        {
-            var p=new ExcelPackage(new FileInfo(@"c:\temp\encr.xlsx"),"test");
-
-            var n=p.Workbook.Worksheets[1].Name;
-        }
     }
 }

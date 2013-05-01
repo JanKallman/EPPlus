@@ -84,5 +84,31 @@ namespace EPPlusTest
             package.SaveAs(new FileInfo(@"c:\temp\workbookprot2.xlsx"));
 
         }
+        [TestMethod]
+        public void DecrypTest()
+        {
+            var p = new ExcelPackage(new FileInfo(@"c:\temp\encr.xlsx"), "test");
+
+            var n = p.Workbook.Worksheets[1].Name;
+            p.Encryption.Password = null;
+            p.SaveAs(new FileInfo(@"c:\temp\encrNew.xlsx"));
+        
+        }
+        [TestMethod]
+        public void EncrypTest()
+        {
+            var p = new ExcelPackage(new FileInfo(@"c:\temp\encrwrite.xlsx"));
+            p.Workbook.Protection.SetPassword("test");
+            p.Workbook.Protection.LockStructure = true;
+            p.Encryption.Password = "test";
+            p.Encryption.Version = EncryptionVersion.Version4;
+
+            var ws = p.Workbook.Worksheets.Add("Sheet1");
+            for (int r = 1; r < 1000; r++)
+            {
+                ws.Cells[r, 1].Value = r;
+            }
+            p.Save();
+        }
     }
 }

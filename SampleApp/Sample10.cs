@@ -73,7 +73,8 @@ namespace EPPlusSamples
             }
 
             //Create the template...
-            using (ExcelPackage package = new ExcelPackage(templateFile))
+            using (
+            ExcelPackage package = new ExcelPackage(templateFile))
             {
                 //Lock the workbook totally
                 var workbook = package.Workbook;
@@ -160,7 +161,7 @@ namespace EPPlusSamples
                 package.Save();
 
                 //Quiz-template is done, now create the answer template and encrypt it...
-                using (     var packageAnswers = new ExcelPackage(package.Stream))       //We use the stream from the template here to get a copy of it.
+                using (var packageAnswers = new ExcelPackage(package.Stream))       //We use the stream from the template here to get a copy of it.
                 {
                     var sheetAnswers = packageAnswers.Workbook.Worksheets[1];
                     sheetAnswers.Cells["C7"].Value = "Stockholm";
