@@ -41,6 +41,7 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Utils;
 using Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.Encryption;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -525,7 +526,7 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                 {
-                    if (password == null && EncryptedPackageHandler.IsStorageFile(template.FullName)==0)
+                    if (password == null && CompoundDocument.IsStorageFile(template.FullName)==0)
                     {
                         throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                     }
@@ -564,7 +565,7 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                {
-                   if (password == null && EncryptedPackageHandler.IsStorageFile(File.FullName) == 0)
+                   if (password == null && CompoundDocument.IsStorageFile(File.FullName) == 0)
                    {
                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                    }
@@ -1058,7 +1059,7 @@ namespace OfficeOpenXml
             catch (Exception ex)
             {
                 EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                if (Password == null && EncryptedPackageHandler.IsStorageILockBytes(eph.GetLockbyte((MemoryStream)_stream)) == 0)
+                if (Password == null && CompoundDocument.IsStorageILockBytes(CompoundDocument.GetLockbyte((MemoryStream)_stream)) == 0)
                 {
                     throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                 }

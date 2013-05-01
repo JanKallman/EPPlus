@@ -91,7 +91,7 @@ namespace OfficeOpenXml.Packaging
             else
             {
                 var rels = new Dictionary<string, string>();
-                stream.Seek(0, SeekOrigin.Begin);
+                stream.Seek(0, SeekOrigin.Begin);                
                 using (ZipInputStream zip = new ZipInputStream(stream))
                 {
                     var e = zip.GetNextEntry();

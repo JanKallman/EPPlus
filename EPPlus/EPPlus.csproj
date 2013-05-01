@@ -254,6 +254,10 @@
     <Compile Include="Drawing\Vml\ExcelVmlDrawingCommentCollection.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawingPicture.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawingBase.cs" />
+    <Compile Include="Encryption\EncryptionHandler.cs" />
+    <Compile Include="Encryption\EncryptionHeader.cs" />
+    <Compile Include="Encryption\EncryptionInfo.cs" />
+    <Compile Include="Encryption\EncryptionVerifier.cs" />
     <Compile Include="ExcelBackgroundImage.cs" />
     <Compile Include="DataValidation\ExcelDataValidation.cs" />
     <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
@@ -572,7 +576,6 @@
     <Compile Include="VBA\ExcelVbaProject.cs" />
     <Compile Include="ExcelWorkbookView.cs" />
     <Compile Include="ExcelWorksheetView.cs" />
-    <Compile Include="Utils\EncryptedPackageHandler.cs" />
     <Compile Include="Style\Dxf\DxfStyleBase.cs" />
     <Compile Include="Style\Dxf\ExcelDxfBorder.cs" />
     <Compile Include="Style\Dxf\ExcelDxfBorderItem.cs" />
