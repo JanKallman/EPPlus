@@ -690,6 +690,8 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Dispose()
 		{
+            ((IDisposable)_workbook).Dispose();
+            _workbook = null;
             if (_package != null)
             {
                 _package.Close();

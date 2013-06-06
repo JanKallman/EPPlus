@@ -71,7 +71,7 @@ namespace OfficeOpenXml
         }
         IndexItem[] _cellIndex;
         List<IRangeID> _cells;
-        Compare _comparer;
+        static readonly Compare _comparer;
         /// <summary>
         /// Creates a new collection
         /// </summary>
@@ -79,18 +79,18 @@ namespace OfficeOpenXml
         internal RangeCollection(List<IRangeID> cells)
         {   
             _cells = cells;
-            _comparer = new Compare();
             InitSize(_cells);
             for (int i = 0; i < _cells.Count; i++)
             {
                 _cellIndex[i] = new IndexItem(cells[i].RangeID, i);
             }
         }
-        ~RangeCollection()
+
+        static RangeCollection()
         {
-            _cellIndex = null;
-            _cells = null;
+            _comparer = new Compare();
         }
+
         /// <summary>
         /// Return the item with the RangeID
         /// </summary>
@@ -279,6 +279,8 @@ namespace OfficeOpenXml
         void IDisposable.Dispose()
         {
             _ix = -1;
+            _cellIndex = null;
+            _cells = null;
         }
 
         #endregion
@@ -310,7 +312,7 @@ namespace OfficeOpenXml
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this;
+            return this.MemberwiseClone() as IEnumerator;
         }
 
         #endregion

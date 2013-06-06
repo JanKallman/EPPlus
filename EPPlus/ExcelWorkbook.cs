@@ -69,7 +69,7 @@ namespace OfficeOpenXml
 	/// Represents the Excel workbook and provides access to all the 
 	/// document properties and worksheets within the workbook.
 	/// </summary>
-	public sealed class ExcelWorkbook : XmlHelper
+	public sealed class ExcelWorkbook : XmlHelper, IDisposable
 	{
 		internal class SharedStringItem
 		{
@@ -1007,5 +1007,11 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
+        void IDisposable.Dispose()
+        {
+            ((IDisposable)_worksheets).Dispose();
+            _worksheets = null;
+        }
     } // end Workbook
 }
