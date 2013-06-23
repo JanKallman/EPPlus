@@ -626,11 +626,15 @@ namespace OfficeOpenXml
 	    /// <param name="MaximumWidth">Maximum column width</param>
 	    public void AutoFitColumns(double MinimumWidth, double MaximumWidth)
 		{
-			if (_fromCol < 1 || _fromRow < 1)
+            if (_worksheet.Dimension == null)
+            {
+                return;
+            }
+            if (_fromCol < 1 || _fromRow < 1)
 			{
 				SetToSelectedRange();
 			}
-			Dictionary<int, Font> fontCache = new Dictionary<int, Font>();
+            Dictionary<int, Font> fontCache = new Dictionary<int, Font>();
 			Font f;
 
 			bool doAdjust = _worksheet._package.DoAdjustDrawings;

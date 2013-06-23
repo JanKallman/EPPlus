@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml
@@ -187,6 +188,24 @@ namespace OfficeOpenXml
             Top = top;
             Width = width;
             Height = height;
+        }
+
+        const string ACTIVETAB_PATH = "d:bookViews/d:workbookView/@activeTab";
+        public int ActiveTab 
+        {
+            get
+            {
+                var v=GetXmlNodeInt(ACTIVETAB_PATH);
+                if (v < 0)
+                    return 0;
+                else
+                    return v;
+
+            }
+            set
+            {
+                SetXmlNodeString(ACTIVETAB_PATH, value.ToString(CultureInfo.InvariantCulture));
+            }
         }
     }
 }

@@ -315,13 +315,13 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
 
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
-            SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if(_size>0) SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (_color.Exists)
             {
                 CreateNode(_colorPath);
                 TopNode.AppendChild(_color.CreateXmlNode(TopNode.SelectSingleNode(_colorPath, NameSpaceManager)));
             }
-            SetXmlNodeString(namePath, _name);
+            if(!string.IsNullOrEmpty(_name)) SetXmlNodeString(namePath, _name);
             if(_family>int.MinValue) SetXmlNodeString(familyPath, _family.ToString());
             if (_scheme != "") SetXmlNodeString(schemePath, _scheme.ToString());
 

@@ -108,7 +108,27 @@ namespace OfficeOpenXml
                 SetAddress(address);
             }
         }
-
+        protected internal string GetAddress(string wb, string ws, string address)
+        {
+            var a="";
+            if(!string.IsNullOrEmpty(wb))
+            {
+                a="["+wb+"]";
+            }
+            if(!string.IsNullOrEmpty(ws))
+            {
+                if(ws!="#REF")
+                {
+                    a+= ws + "!";
+                }
+                else
+                {
+                    a += "'" + ws + "'!";
+                }
+            }
+            a+=address;
+            return a;
+        }
         protected internal void SetAddress(string address)
         {
             if(address.StartsWith("'"))
@@ -170,6 +190,36 @@ namespace OfficeOpenXml
                 _ws = _ws.Substring(0, pos);
             }
         }
+        internal void ChangeWorksheet(string wsName, string newWs)
+        {
+            if(_ws == wsName) _ws = newWs;
+            string wb, ws, address, fullAddress;            
+            ExtractAddress(FirstAddress, out wb, out ws, out address);
+            if (wsName == ws)
+            {
+                fullAddress = GetAddress(wb, newWs, address);
+            }
+            else
+            {
+                fullAddress = FirstAddress;
+            }
+
+            if(Addresses!=null)
+            {
+                foreach(var a in Addresses)
+                {
+                    ExtractAddress(a._address, out wb, out ws, out address);
+                    if (wsName == ws)
+                    {
+                        a._address = GetAddress(wb, newWs, address);
+                        if (_ws == wsName) _ws = newWs;
+                    }
+                    fullAddress += "," + a._address;
+                }
+            }
+            _address = fullAddress;
+        }
+
         ExcelCellAddress _start = null;
         #endregion
         /// <summary>
@@ -318,6 +368,61 @@ namespace OfficeOpenXml
                 }
             }
             SetAddress(ref first, ref second, ref hasSheet);
+        }
+        private void ExtractAddress(string fullAddress, out string wb, out string ws, out string address)
+        {
+            wb = "";
+            ws = "";
+            address = "";
+            if (string.IsNullOrEmpty(fullAddress))
+            {
+                return;
+            }
+            int ix = 0;
+            if (fullAddress[0] == '[')
+            {
+                ix=fullAddress.IndexOf(']',1);
+                if(ix>0)
+                {
+                    wb = fullAddress.Substring(1, ix);
+                }
+                ix++;
+            }
+            else
+            {
+                wb="";
+            }
+            if (fullAddress[ix] == '\'')
+            {
+                var wsIx=fullAddress.LastIndexOf('\'');
+                if(wsIx==ix)
+                {
+                    throw(new ArgumentException("Invalid address"));
+                }
+                ws=fullAddress.Substring(ix+1, wsIx-ix+1).Replace("'","''");
+                if(fullAddress[wsIx+1]=='!')
+                {
+                    address=fullAddress.Substring(wsIx+1);
+                }
+            }
+            else
+            {
+                var wsIx=fullAddress.LastIndexOf('!');
+                if(wsIx>0)
+                {
+                    ws=fullAddress.Substring(ix, wsIx-ix);
+                    address=fullAddress.Substring(wsIx+1);
+                }
+                else
+                {
+                    ws="";
+                    address=fullAddress;
+                }
+            }
+            if(address.IndexOf(";")>-1)
+            {
+                throw(new ArgumentException("Internal error: ExtractAddress can not handle address lists"));
+            }
         }
         #region Address manipulation methods
         internal eAddressCollition Collide(ExcelAddressBase address)

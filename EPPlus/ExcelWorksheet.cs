@@ -268,9 +268,33 @@ namespace OfficeOpenXml
                 if (value == _name) return;
                 Name=_package.Workbook.Worksheets.ValidateFixSheetName(Name);
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
-				_name = value;
+                ChangeChangeNames(value);
+
+                _name = value;
             }
 		}
+
+        private void ChangeChangeNames(string value)
+        {
+            //Renames name in this Worksheet;
+            foreach (var n in Workbook.Names)
+            {
+                if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                {
+                    n.ChangeWorksheet(_name, value);
+                }
+            }
+            foreach (var ws in Workbook.Worksheets)
+            {
+                foreach (var n in ws.Names)
+                {
+                    if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                    {
+                        n.ChangeWorksheet(_name, value);
+                    }
+                }
+            }
+        }
         internal ExcelNamedRangeCollection _names;
         /// <summary>
         /// Provides access to named ranges
@@ -575,10 +599,13 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "brk")
                 {
-                    int id;
-                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        Row(id).PageBreak = true;
+                        int id;
+                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        {
+                            Row(id).PageBreak = true;
+                        }
                     }
                 }
                 else
@@ -594,10 +621,13 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "brk")
                 {
-                    int id;
-                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        Column(id).PageBreak = true;
+                        int id;
+                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        {
+                            Column(id).PageBreak = true;
+                        }
                     }
                 }
                 else
@@ -737,25 +767,28 @@ namespace OfficeOpenXml
                 //var xr=new XmlTextReader(new StringReader(xml));
                 while(xr.Read())
                 {
-                    if(xr.LocalName!="col") break;
-                    int min = int.Parse(xr.GetAttribute("min"));
-
-                    int style;
-                    if (xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style))
+                    if (xr.LocalName != "col") break;
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        style = 0;
+                        int min = int.Parse(xr.GetAttribute("min"));
+
+                        int style;
+                        if (xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style))
+                        {
+                            style = 0;
+                        }
+                        ExcelColumn col = new ExcelColumn(this, min);
+
+                        col._columnMax = int.Parse(xr.GetAttribute("max"));
+                        col.StyleID = style;
+                        col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture);
+                        col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
+                        col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
+                        col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
+                        col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
+                        col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
+                        colList.Add(col);
                     }
-                    ExcelColumn col = new ExcelColumn(this, min);
-                   
-                    col._columnMax = int.Parse(xr.GetAttribute("max")); 
-                    col.StyleID = style;
-                    col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture); 
-                    col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
-                    col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
-                    col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
-                    col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
-                    col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
-                    colList.Add(col);
                 }
             }
             _columns = new RangeCollection(colList);
@@ -788,43 +821,46 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "hyperlink")
                 {
-                    int fromRow, fromCol, toRow, toCol;
-                    ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
-                    ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
-                    ExcelCell cell = _cells[id] as ExcelCell;
-                    if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
-                        var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
-                        try
+                        int fromRow, fromCol, toRow, toCol;
+                        ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
+                        ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
+                        ExcelCell cell = _cells[id] as ExcelCell;
+                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
                         {
-                            if (uri.IsAbsoluteUri)
+                            cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
+                            var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                            try
                             {
-                                cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString));
+                                if (uri.IsAbsoluteUri)
+                                {
+                                    cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString));
+                                }
+                                else
+                                {
+                                    cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString), UriKind.Relative);
+                                }
                             }
-                            else
+                            catch
                             {
-                                cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString), UriKind.Relative);
+                                //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
+                                cell.Hyperlink = uri;
                             }
+                            Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                         }
-                        catch
+                        else if (xr.GetAttribute("location") != null)
                         {
-                            //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
-                            cell.Hyperlink = uri;
+                            ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
+                            hl.RowSpann = toRow - fromRow;
+                            hl.ColSpann = toCol - fromCol;
+                            cell.Hyperlink = hl;
                         }
-                        Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
-                    }
-                    else if (xr.GetAttribute("location") != null)
-                    {
-                        ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                        hl.RowSpann = toRow - fromRow;
-                        hl.ColSpann = toCol - fromCol;
-                        cell.Hyperlink = hl;
-                    }
-                    string tt = xr.GetAttribute("tooltip");
-                    if (!string.IsNullOrEmpty(tt))
-                    {
-                        ((ExcelHyperLink)cell.Hyperlink).ToolTip = tt;
+                        string tt = xr.GetAttribute("tooltip");
+                        if (!string.IsNullOrEmpty(tt))
+                        {
+                            ((ExcelHyperLink)cell.Hyperlink).ToolTip = tt;
+                        }
                     }
                 }
                 else
@@ -948,21 +984,22 @@ namespace OfficeOpenXml
             if(ReadUntil(xr, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
             {
                 while (xr.Read())
-                {
+                {                    
                     if (xr.LocalName != "mergeCell") break;
-
-                    string address = xr.GetAttribute("ref");
-                    int fromRow, fromCol, toRow, toCol;
-                    ExcelCellBase.GetRowColFromAddress(address, out fromRow, out fromCol, out toRow, out toCol);
-                    for (int row = fromRow; row <= toRow; row++)
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        for (int col = fromCol; col <= toCol; col++)
+                        string address = xr.GetAttribute("ref");
+                        int fromRow, fromCol, toRow, toCol;
+                        ExcelCellBase.GetRowColFromAddress(address, out fromRow, out fromCol, out toRow, out toCol);
+                        for (int row = fromRow; row <= toRow; row++)
                         {
-                            Cell(row, col).Merge = true;
+                            for (int col = fromCol; col <= toCol; col++)
+                            {
+                                Cell(row, col).Merge = true;
+                            }
                         }
-                    }
-
                     _mergedCells.List.Add(address);
+                    }
                 }
             }
         }
