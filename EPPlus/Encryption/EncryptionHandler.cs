@@ -118,18 +118,6 @@ namespace OfficeOpenXml.Encryption
             }
 
         }
-        //internal ILockBytes GetLockbyte(MemoryStream stream)
-        //{
-        //    ILockBytes lb;
-        //    var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
-        //    byte[] docArray = stream.GetBuffer();
-        //    IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
-        //    Marshal.Copy(docArray, 0, buffer, docArray.Length);
-        //    UIntPtr readSize;
-        //    lb.WriteAt(0, buffer, docArray.Length, out readSize);
-        //    Marshal.FreeHGlobal(buffer);
-        //    return lb;
-        //}
         /// <summary>
         /// Encrypts a package
         /// </summary>
@@ -138,11 +126,11 @@ namespace OfficeOpenXml.Encryption
         /// <returns></returns>
         internal MemoryStream EncryptPackage(byte[] package, ExcelEncryption encryption)
         {
-            if (encryption.Version == EncryptionVersion.Version3) //Standard encryption
+            if (encryption.Version == EncryptionVersion.Standard) //Standard encryption
             {
                 return EncryptPackageBinary(package, encryption);
             }
-            else if (encryption.Version == EncryptionVersion.Version4) //Agile encryption
+            else if (encryption.Version == EncryptionVersion.Agile) //Agile encryption
             {
                 return EncryptPackageAgile(package, encryption);
             }
@@ -164,8 +152,8 @@ namespace OfficeOpenXml.Encryption
             encryptionInfo.ReadFromXml(xml);
             var encr = encryptionInfo.KeyEncryptors[0];
             var rnd = RandomNumberGenerator.Create();
+            
             var s = new byte[16];
-
             rnd.GetBytes(s);
             encryptionInfo.KeyData.SaltValue = s;
 
@@ -222,14 +210,12 @@ namespace OfficeOpenXml.Encryption
             ms.Write(byXml,0,byXml.Length);
 
             var doc = new CompoundDocument();
-            CreateDataSpaces(doc);
-            doc.Storage.DataStreams.Add("EncryptionInfo", ms.ToArray());
             
-            //Encrypt the package
-            //byte[] encryptedPackage = EncryptData(encr.KeyValue, package, false);
-            //ms = new MemoryStream();
-            //ms.Write(BitConverter.GetBytes((ulong)encrData.LongLength), 0, 8);
-            //ms.Write(encrData, 0, encrData.Length);
+            //Add the dataspace streams
+            CreateDataSpaces(doc);
+            //EncryptionInfo...
+            doc.Storage.DataStreams.Add("EncryptionInfo", ms.ToArray());
+            //...and the encrypted package
             doc.Storage.DataStreams.Add("EncryptedPackage", encrData);
 
             ms = new MemoryStream();
@@ -287,19 +273,19 @@ namespace OfficeOpenXml.Encryption
 
         private HMAC GetHmacProvider(EncryptionInfoAgile.EncryptionKeyEncryptor ei, byte[] salt)
         {
-            switch (ei.HashAlgorithm.ToUpper())
+            switch (ei.HashAlgorithm)
             {
-                case "RIPEMD160":
+                case eHashAlogorithm.RIPEMD160:
                     return new HMACRIPEMD160(salt);
-                case "MD5":
+                case eHashAlogorithm.MD5:
                     return new HMACMD5(salt);              
-                case "SHA1":
+                case eHashAlogorithm.SHA1:
                     return new HMACSHA1(salt);
-                case "SHA256":
+                case eHashAlogorithm.SHA256:
                     return new HMACSHA256(salt);
-                case "SHA384":
+                case eHashAlogorithm.SHA384:
                     return new HMACSHA384(salt);
-                case "SHA512":
+                case eHashAlogorithm.SHA512:
                     return new HMACSHA512(salt);
                 default:
                     throw(new NotSupportedException(string.Format("Hash method {0} not supported.",ei.HashAlgorithm)));
@@ -386,56 +372,21 @@ namespace OfficeOpenXml.Encryption
         {
             var ds = new CompoundDocument.StoragePart();
             doc.Storage.SubStorage.Add("\x06" + "DataSpaces", ds);
-            //IStorage dataSpaces;
-            //storage.CreateStorage("\x06" + "DataSpaces", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out dataSpaces);
-            //storage.Commit(0);
-
             var ver=new CompoundDocument.StoragePart();
             ds.DataStreams.Add("Version", CreateVersionStream());
-
-            ////Version Stream
-            //comTypes.IStream versionStream;
-            ////dataSpaces.CreateStream("Version", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out versionStream);
-            //byte[] version = CreateVersionStream();
-            //versionStream.Write(version, version.Length, IntPtr.Zero);
-
-            //DataSpaceMap
-            //comTypes.IStream dataSpaceMapStream;
-            //dataSpaces.CreateStream("DataSpaceMap", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out dataSpaceMapStream);
-            //byte[] dataSpaceMap = CreateDataSpaceMap();
-            //dataSpaceMapStream.Write(dataSpaceMap, dataSpaceMap.Length, IntPtr.Zero);
-
             ds.DataStreams.Add("DataSpaceMap", CreateDataSpaceMap());
-
-            //DataSpaceInfo
-            //IStorage dataSpaceInfo;
-            //dataSpaces.CreateStorage("DataSpaceInfo", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out dataSpaceInfo);
+            
             var dsInfo=new CompoundDocument.StoragePart();
             ds.SubStorage.Add("DataSpaceInfo", dsInfo);
-
-            //comTypes.IStream strongEncryptionDataSpaceStream;
-            //dataSpaceInfo.CreateStream("StrongEncryptionDataSpace", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out strongEncryptionDataSpaceStream);
-            //byte[] strongEncryptionDataSpace = CreateStrongEncryptionDataSpaceStream();
-            //strongEncryptionDataSpaceStream.Write(strongEncryptionDataSpace, strongEncryptionDataSpace.Length, IntPtr.Zero);
-            //dataSpaceInfo.Commit(0);
             dsInfo.DataStreams.Add("StrongEncryptionDataSpace", CreateStrongEncryptionDataSpaceStream());
-            //TransformInfo
-            //IStorage tranformInfo;
-            //dataSpaces.CreateStorage("TransformInfo", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out tranformInfo);
+            
             var transInfo=new CompoundDocument.StoragePart();
             ds.SubStorage.Add("TransformInfo", transInfo);
 
-            //IStorage strongEncryptionTransform;
-            //tranformInfo.CreateStorage("StrongEncryptionTransform", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out strongEncryptionTransform);
             var strEncTrans=new CompoundDocument.StoragePart();
             transInfo.SubStorage.Add("StrongEncryptionTransform", strEncTrans);
+            
             strEncTrans.DataStreams.Add("\x06Primary", CreateTransformInfoPrimary());
-            //comTypes.IStream primaryStream;
-            //strongEncryptionTransform.CreateStream("\x06Primary", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), 0, 0, out primaryStream);
-            //byte[] primary = CreateTransformInfoPrimary();
-            //primaryStream.Write(primary, primary.Length, IntPtr.Zero);
-            //tranformInfo.Commit(0);
-            //dataSpaces.Commit(0);
         }
         private byte[] CreateStrongEncryptionDataSpaceStream()
         {
@@ -646,7 +597,7 @@ namespace OfficeOpenXml.Encryption
         { 
             MemoryStream doc = new MemoryStream();
 
-            if (encryptionInfo.KeyData.CipherAlgorithm == "AES")
+            if (encryptionInfo.KeyData.CipherAlgorithm == eCipherAlgorithm.AES)
             {
                 var encr = encryptionInfo.KeyEncryptors[0];
                 var hashProvider = GetHashProvider(encr);
@@ -670,14 +621,14 @@ namespace OfficeOpenXml.Encryption
                     ivhmac = GetFinalHash(hashProvider, encr, BlockKey_HmacValue, encryptionInfo.KeyData.SaltValue);
                     var value = DecryptAgileFromKey(encr, encr.KeyValue, encryptionInfo.DataIntegrity.EncryptedHmacValue, encryptionInfo.KeyData.HashSize, ivhmac);
 
-                    var hmca = new HMACSHA512(key);
+                    var hmca = GetHmacProvider(encr, key);
                     var v2 = hmca.ComputeHash(data);
 
-                    for(int i=0;i<v2.Length;i++)
+                    for (int i = 0; i < v2.Length; i++)
                     {
-                        if(value[i]!=v2[i])
+                        if (value[i] != v2[i])
                         {
-                            throw(new Exception("Dataintegrity key missmatch"));
+                            throw (new Exception("Dataintegrity key missmatch"));
                         }
                     }
 
@@ -687,10 +638,10 @@ namespace OfficeOpenXml.Encryption
                     {
                         var segmentSize = (int)(size - pos > 4096 ? 4096 : size - pos);
                         var bufferSize = (int)(encryptedData.Length - pos > 4096 ? 4096 : encryptedData.Length - pos);
-                        var ivTmp = new byte[4+encryptionInfo.KeyData.SaltSize];
+                        var ivTmp = new byte[4 + encryptionInfo.KeyData.SaltSize];
                         Array.Copy(encryptionInfo.KeyData.SaltValue, 0, ivTmp, 0, encryptionInfo.KeyData.SaltSize);
                         Array.Copy(BitConverter.GetBytes(segment), 0, ivTmp, encryptionInfo.KeyData.SaltSize, 4);
-                        var iv=hashProvider.ComputeHash(ivTmp);
+                        var iv = hashProvider.ComputeHash(ivTmp);
                         var buffer = new byte[bufferSize];
                         Array.Copy(encryptedData, pos, buffer, 0, bufferSize);
 
@@ -702,46 +653,34 @@ namespace OfficeOpenXml.Encryption
                     doc.Flush();
                     return doc;
                 }
+                else
+                {
+                    throw (new UnauthorizedAccessException("Invalid password"));
+                }
             }
             return null;
         }
-
         private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
         {
             HashAlgorithm hashProvider;
-            switch (encr.HashAlgorithm.ToUpper())
+            switch (encr.HashAlgorithm)
             {
-                case "MD5":
-                    {
+                case eHashAlogorithm.MD5:
                         return new MD5CryptoServiceProvider();
-                    }
-                case "RIPEMD160":
-                    {
+                case eHashAlogorithm.RIPEMD160:
                         return new RIPEMD160Managed();
-                    }
-                case "SHA1":
-                    {
+                case eHashAlogorithm.SHA1:
                         return new SHA1CryptoServiceProvider();
-                    }
-                case "SHA256":
-                    {
+                case eHashAlogorithm.SHA256:
                         return  new SHA256CryptoServiceProvider();
-                    }
-                case "SHA384":
-                    {
+                case eHashAlogorithm.SHA384:
                         return new SHA384CryptoServiceProvider();
-                    }
-                case "SHA512":
-                    {
+                case eHashAlogorithm.SHA512:
                         return new SHA512CryptoServiceProvider();
-                    }
                 default:
-                    {
                         throw new NotSupportedException(string.Format("Hash provider is unsupported. {0}", encr.HashAlgorithm));
-                    }
             }
         }
-
         private MemoryStream DecryptBinary(EncryptionInfoBinary encryptionInfo, string password, long size, byte[] encryptedData)
         {
             MemoryStream doc = new MemoryStream();
@@ -759,17 +698,14 @@ namespace OfficeOpenXml.Encryption
                 decryptKey.Padding = PaddingMode.None;
 
                 var key = GetPasswordHashBinary(password, encryptionInfo);
-
                 if (IsPasswordValid(key, encryptionInfo))
                 {
                     ICryptoTransform decryptor = decryptKey.CreateDecryptor(
                                                              key,
                                                              null);
 
-
-                    MemoryStream dataStream = new MemoryStream(encryptedData);
-
-                    CryptoStream cryptoStream = new CryptoStream(dataStream,
+                    var dataStream = new MemoryStream(encryptedData);
+                    var cryptoStream = new CryptoStream(dataStream,
                                                                   decryptor,
                                                                   CryptoStreamMode.Read);
 
@@ -858,10 +794,10 @@ namespace OfficeOpenXml.Encryption
 
         private byte[] DecryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] key, byte[] encryptedData, long size, byte[] iv)
         {
-            RijndaelManaged decryptKey = new RijndaelManaged();
+            SymmetricAlgorithm decryptKey = GetEncryptionAlgorithm(encr);
             decryptKey.BlockSize = encr.BlockSize << 3;
             decryptKey.KeySize = encr.KeyBits;
-            decryptKey.Mode = CipherMode.CBC;
+            decryptKey.Mode = encr.ChiptherChaining == eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
             decryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform decryptor = decryptKey.CreateDecryptor(
@@ -880,12 +816,30 @@ namespace OfficeOpenXml.Encryption
             cryptoStream.Read(decryptedData, 0, (int)size);
             return decryptedData;
         }
+
+        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        {
+            switch (encr.CipherAlgorithm)
+            {
+                case eCipherAlgorithm.AES:
+                    return new RijndaelManaged();
+                case eCipherAlgorithm.DES:
+                    return new DESCryptoServiceProvider();
+                case eCipherAlgorithm.TRIPLE_DES:
+                case eCipherAlgorithm.TRIPLE_DES_112:
+                    return new TripleDESCryptoServiceProvider();
+                case eCipherAlgorithm.RC2:
+                    return new RC2CryptoServiceProvider();
+                default:
+                    throw(new NotSupportedException(string.Format("Unsupported Cipher Algorithm: {0}", encr.CipherAlgorithm.ToString())));
+            }
+        }
         private void EncryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] key, byte[] data, long pos, long size, byte[] iv,MemoryStream ms)
         {
-            RijndaelManaged encryptKey = new RijndaelManaged();
+            var encryptKey = GetEncryptionAlgorithm(encr);
             encryptKey.BlockSize = encr.BlockSize << 3;
             encryptKey.KeySize = encr.KeyBits;
-            encryptKey.Mode = CipherMode.CBC;
+            encryptKey.Mode = encr.ChiptherChaining==eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
             encryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform encryptor = encryptKey.CreateEncryptor(
@@ -1080,195 +1034,5 @@ namespace OfficeOpenXml.Encryption
 
             return hash;
         }
-
-        //[ComImport]
-        //[Guid("0000000d-0000-0000-C000-000000000046")]
-        //[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        //internal interface IEnumSTATSTG
-        //{
-        //    // The user needs to allocate an STATSTG array whose size is celt. 
-        //    [PreserveSig]
-        //    uint Next(
-        //        uint celt,
-        //        [MarshalAs(UnmanagedType.LPArray), Out] 
-        //    System.Runtime.InteropServices.ComTypes.STATSTG[] rgelt,
-        //        out uint pceltFetched
-        //    );
-
-        //    void Skip(uint celt);
-
-        //    void Reset();
-
-        //    [return: MarshalAs(UnmanagedType.Interface)]
-        //    IEnumSTATSTG Clone();
-        //}
-
-        //[ComImport]
-        //[Guid("0000000b-0000-0000-C000-000000000046")]
-        //[InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
-        //interface IStorage
-        //{
-        //    void CreateStream(
-        //        /* [string][in] */ string pwcsName,
-        //        /* [in] */ uint grfMode,
-        //        /* [in] */ uint reserved1,
-        //        /* [in] */ uint reserved2,
-        //        /* [out] */ out comTypes.IStream ppstm);
-
-        //    void OpenStream(
-        //        /* [string][in] */ string pwcsName,
-        //        /* [unique][in] */ IntPtr reserved1,
-        //        /* [in] */ uint grfMode,
-        //        /* [in] */ uint reserved2,
-        //        /* [out] */ out comTypes.IStream ppstm);
-
-        //    void CreateStorage(
-        //        /* [string][in] */ string pwcsName,
-        //        /* [in] */ uint grfMode,
-        //        /* [in] */ uint reserved1,
-        //        /* [in] */ uint reserved2,
-        //        /* [out] */ out IStorage ppstg);
-
-        //    void OpenStorage(
-        //        /* [string][unique][in] */ string pwcsName,
-        //        /* [unique][in] */ IStorage pstgPriority,
-        //        /* [in] */ uint grfMode,
-        //        /* [unique][in] */ IntPtr snbExclude,
-        //        /* [in] */ uint reserved,
-        //        /* [out] */ out IStorage ppstg);
-
-        //    void CopyTo(
-        //        [InAttribute] uint ciidExclude,
-        //        [InAttribute] Guid[] rgiidExclude,
-        //        [InAttribute] IntPtr snbExclude,
-        //        [InAttribute] IStorage pstgDest
-        //    );
-
-        //    void MoveElementTo(
-        //        /* [string][in] */ string pwcsName,
-        //        /* [unique][in] */ IStorage pstgDest,
-        //        /* [string][in] */ string pwcsNewName,
-        //        /* [in] */ uint grfFlags);
-
-        //    void Commit(
-        //        /* [in] */ uint grfCommitFlags);
-
-        //    void Revert();
-
-        //    void EnumElements(
-        //        /* [in] */ uint reserved1,
-        //        /* [size_is][unique][in] */ IntPtr reserved2,
-        //        /* [in] */ uint reserved3,
-        //        /* [out] */ out IEnumSTATSTG ppenum);
-
-        //    void DestroyElement(
-        //        /* [string][in] */ string pwcsName);
-
-        //    void RenameElement(
-        //        /* [string][in] */ string pwcsOldName,
-        //        /* [string][in] */ string pwcsNewName);
-
-        //    void SetElementTimes(
-        //        /* [string][unique][in] */ string pwcsName,
-        //        /* [unique][in] */ System.Runtime.InteropServices.ComTypes.FILETIME pctime,
-        //        /* [unique][in] */ System.Runtime.InteropServices.ComTypes.FILETIME patime,
-        //        /* [unique][in] */ System.Runtime.InteropServices.ComTypes.FILETIME pmtime);
-
-        //    void SetClass(
-        //        /* [in] */ Guid clsid);
-
-        //    void SetStateBits(
-        //        /* [in] */ uint grfStateBits,
-        //        /* [in] */ uint grfMask);
-
-        //    void Stat(
-        //        /* [out] */ out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg,
-        //        /* [in] */ uint grfStatFlag);
-
-        //}
-        //[ComVisible(false)]
-        //[ComImport, InterfaceType(ComInterfaceType.InterfaceIsIUnknown), Guid("0000000A-0000-0000-C000-000000000046")]
-        //internal interface ILockBytes
-        //{
-        //    void ReadAt(long ulOffset, System.IntPtr pv, int cb, out UIntPtr pcbRead);
-        //    void WriteAt(long ulOffset, System.IntPtr pv, int cb, out UIntPtr pcbWritten);
-        //    void Flush();
-        //    void SetSize(long cb);
-        //    void LockRegion(long libOffset, long cb, int dwLockType);
-        //    void UnlockRegion(long libOffset, long cb, int dwLockType);
-        //    void Stat(out System.Runtime.InteropServices.ComTypes.STATSTG pstatstg, int grfStatFlag);
-        //}
-        //[Flags]
-        //internal enum STGM : int
-        //{
-        //    DIRECT = 0x00000000,
-        //    TRANSACTED = 0x00010000,
-        //    SIMPLE = 0x08000000,
-        //    READ = 0x00000000,
-        //    WRITE = 0x00000001,
-        //    READWRITE = 0x00000002,
-        //    SHARE_DENY_NONE = 0x00000040,
-        //    SHARE_DENY_READ = 0x00000030,
-        //    SHARE_DENY_WRITE = 0x00000020,
-        //    SHARE_EXCLUSIVE = 0x00000010,
-        //    PRIORITY = 0x00040000,
-        //    DELETEONRELEASE = 0x04000000,
-        //    NOSCRATCH = 0x00100000,
-        //    CREATE = 0x00001000,
-        //    CONVERT = 0x00020000,
-        //    FAILIFTHERE = 0x00000000,
-        //    NOSNAPSHOT = 0x00200000,
-        //    DIRECT_SWMR = 0x00400000,
-        //}
-
-        //internal enum STATFLAG : uint
-        //{
-        //    STATFLAG_DEFAULT = 0,
-        //    STATFLAG_NONAME = 1,
-        //    STATFLAG_NOOPEN = 2
-        //}
-
-        //internal enum STGTY : int
-        //{
-        //    STGTY_STORAGE = 1,
-        //    STGTY_STREAM = 2,
-        //    STGTY_LOCKBYTES = 3,
-        //    STGTY_PROPERTY = 4
-        //}
-        //[DllImport("ole32.dll")]
-        //private static extern int StgIsStorageFile(
-        //    [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
-        //[DllImport("ole32.dll")]
-        //private static extern int StgIsStorageILockBytes(
-        //    ILockBytes plkbyt);
-
-
-        //[DllImport("ole32.dll")]
-        //static extern int StgOpenStorage(
-        //    [MarshalAs(UnmanagedType.LPWStr)] string pwcsName,
-        //    IStorage pstgPriority,
-        //    STGM grfMode,
-        //    IntPtr snbExclude,
-        //    uint reserved,
-        //    out IStorage ppstgOpen);
-
-        //[DllImport("ole32.dll")]
-        //static extern int StgOpenStorageOnILockBytes(
-        //    ILockBytes plkbyt,
-        //    IStorage pStgPriority,
-        //    STGM grfMode,
-        //    IntPtr snbEnclude,
-        //    uint reserved,
-        //    out IStorage ppstgOpen);
-        //[DllImport("ole32.dll")]
-        //static extern int CreateILockBytesOnHGlobal(
-        //    IntPtr hGlobal,
-        //    bool fDeleteOnRelease,
-        //    out ILockBytes ppLkbyt);
-
-        //[DllImport("ole32.dll")]
-        //static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
-
-
     }
 }

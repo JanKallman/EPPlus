@@ -257,7 +257,10 @@ using OfficeOpenXml;
                 }
             }
         }
-
+        public int GetIndex(int pos)
+        {
+            return IndexOffset + Rows[pos].Index;
+        }
         public void Dispose()
         {
             Rows = null;
@@ -270,9 +273,9 @@ using OfficeOpenXml;
     internal class CellStore<T> : IDisposable// : IEnumerable<ulong>, IEnumerator<ulong>
     {
         /**** Size constants ****/
-        internal const int pageBits = 4;   //8096
+        internal const int pageBits = 5;   //13bits=8192  Note: Maximum is 13 bits since short is used (PageMax=16K)
         internal const int PageSize = 1 << pageBits;
-        internal const int PageSizeMin = 16;
+        internal const int PageSizeMin = 1024;
         internal const int PageSizeMax = PageSize << 1; //Double page size
         internal const int ColSizeMin = 32;
         internal const int PagesPerColumnMin = 32;
@@ -614,7 +617,7 @@ using OfficeOpenXml;
                                 UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow, rows);
                             }
                         }
-                        else if(column.PageCount>pagePos+1)
+                        else if (column.PageCount >= pagePos + 1)
                         {
                             int offset = fromRow - column._pages[pagePos].IndexOffset;
                             var rowPos = column._pages[pagePos].GetPosition(offset);
@@ -622,7 +625,7 @@ using OfficeOpenXml;
                             {
                                 rowPos = ~rowPos;
                             }
-                            if (column._pages[pagePos].RowCount>rowPos)
+                            if (column._pages[pagePos].RowCount > rowPos)
                             {
                                 UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
                             }
@@ -657,7 +660,7 @@ using OfficeOpenXml;
             {
                 var toCol = fromCol + columns - 1;
                 var pageFromRow = fromRow >> pageBits;
-                for (int c = fromCol; c < ColumnCount; c++)
+                for (int c = 0; c < ColumnCount; c++)
                 {
                     var column = _columnIndex[c];
                     if (column.Index > toCol) break;
@@ -665,24 +668,22 @@ using OfficeOpenXml;
                     if (pagePos < 0) pagePos = ~pagePos;
                     var page = column._pages[pagePos];
 
-                    if (page.RowCount > 0 && page.IndexOffset <= fromRow && page.IndexOffset + page.Rows[page.RowCount - 1].Index >= fromRow) //The row is inside the page
+                    if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
                     {
                         var endRow = fromRow+rows;
-                        var delEndRow=DeleteCells(column._pages[pagePos], fromRow, rows);
-                        if (endRow > delEndRow && column._pages[pagePos].MaxIndex < endRow && pagePos < column.PageCount - 1)
+                        var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
+                        if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
+                        if (endRow > delEndRow && pagePos < column.PageCount  && column._pages[pagePos].MinIndex < endRow)
                         {
-                            delEndRow = DeletePage(delEndRow, endRow - delEndRow, column, pagePos + 1);
-                            if (shift) UpdatePageOffset(column, pagePos, endRow - delEndRow);
-                            if (endRow > delEndRow)
+                            pagePos=(delEndRow==fromRow ? pagePos : pagePos+1);
+                            var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
+                            //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
+                            if (rowsLeft>0)
                             {
                                 pagePos = column.GetPosition(fromRow);
-                                delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow - delEndRow);
-                                if (shift) UpdatePageOffset(column, pagePos, endRow - delEndRow);
+                                delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow+rowsLeft);
+                                if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
                             }
-                        }
-                        else
-                        {
-                            if (shift) UpdatePageOffset(column, pagePos, rows);
                         }
                     }
                     else if (column._pages[pagePos].IndexOffset > fromRow) //The row is on the page before.
@@ -709,7 +710,15 @@ using OfficeOpenXml;
             {
                 for (int p = pagePos; p < column.PageCount; p++)
                 {
-                    column._pages[p].Offset -= rows;
+                    if (column._pages[p].Offset - rows < -PageSize)
+                    {
+                        column._pages[p].Index++;
+                        column._pages[p].Offset -= rows+PageSize;
+                    }
+                    else
+                    {
+                        column._pages[p].Offset -= rows;
+                    }
                 }
 
                 if (Math.Abs(column._pages[pagePos].Offset) > PageSize ||
@@ -792,32 +801,45 @@ using OfficeOpenXml;
         private int DeletePage(int fromRow, int rows, ColumnIndex column, int pagePos)
         {
             PageIndex page = column._pages[pagePos];
-            while (page != null && page.IndexOffset >= fromRow && page.IndexOffset + page.Rows[page.RowCount - 1].Index <= fromRow + rows)
+            while (page != null && page.MinIndex >= fromRow && page.MaxIndex <= fromRow + rows)
             {
                 //Delete entire page.
-                var pageEndRow = page.Rows[page.RowCount - 1].Index;
+                var delSize=page.MaxIndex - page.MinIndex+1;
+                rows -= delSize;
                 var prevOffset = page.Offset;
                 Array.Copy(column._pages, pagePos + 1, column._pages, pagePos, column.PageCount - pagePos + 1);
                 column.PageCount--;
+                if (pagePos == 0)
+                {
+                    //Set offset to Zero
+                    for (var r = 0; r < column._pages[0].RowCount;r++)
+                    {
+                        var row = column._pages[0].Rows[r];
+                        row.Index = (short)((column._pages[0].IndexOffset + row.Index) - page.MaxIndex);
+                    }
+                    column._pages[0].Index--;
+                    column._pages[0].Offset = 0;
+                    pagePos++;
+                }
                 for (int i = pagePos; i < column.PageCount; i++)
                 {
                     column._pages[i].Index--;
+                    column._pages[i].Offset += (PageSize - delSize);
                 }
-                if (column.PageCount > pagePos)
-                {
-                    page = column._pages[pagePos];
-                    page.Offset = prevOffset;
-                }
-                else
-                {
-                    //No more pages, return 0
-                    return 0;
-                }
-                rows -= pageEndRow;
+                //if (column.PageCount > pagePos)
+                //{
+                //    page = column._pages[pagePos];
+                //    page.Offset = pagePos == 0 ? 1 : prevOffset;  //First page can only reference to rows starting from Index == 1
+                //}
+                //else
+                //{
+                //    //No more pages, return 0
+                //    return 0;
+                //}
             }
             return rows;
         }
-
+        ///
         private int DeleteCells(PageIndex page,  int fromRow, int toRow)
         {
             var fromPos = page.GetPosition(fromRow - (page.IndexOffset));
@@ -833,18 +855,23 @@ using OfficeOpenXml;
             {
                 toPos = ~toPos;
             }
-            
-            if (fromPos <= toPos && fromPos < page.RowCount && page.Rows[fromPos].Index < toRow - 1)
+
+            if (fromPos <= toPos && fromPos < page.RowCount && page.GetIndex(fromPos) < toRow)
             {
-                if (toPos >= page.RowCount-1)
+                if (toRow >= page.MaxIndex)
                 {
-                    var deletedRow = page.IndexOffset + page.Rows[page.RowCount - 1].Index - fromRow;
+                    if (fromRow == page.MinIndex) //Delete entire page, late in the page delete method
+                    {
+                        return fromRow;
+                    }
+                    var r = page.MaxIndex;
+                    var deletedRow = page.MaxIndex - page.GetIndex(fromPos)+1; 
                     page.RowCount -= deletedRow;
-                    return deletedRow;
+                    return r+1;
                 }
                 else
                 {
-                    int rows = toRow - fromRow;
+                    int rows = toPos - fromPos;
                     for (int r = toPos; r < page.RowCount; r++)
                     {
                         page.Rows[r].Index -= (short)rows;
@@ -1618,7 +1645,7 @@ using OfficeOpenXml;
 
 
     }
-    internal class CellsStoreEnumerator<T>
+    internal class CellsStoreEnumerator<T> : IEnumerable<T>, IEnumerator<T>
     {
         CellStore<T> _cellStore;
         int row, colPos;
@@ -1691,6 +1718,47 @@ using OfficeOpenXml;
             {
                 return ExcelAddressBase.GetAddress(Row, Column);
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this;
+        }
+
+        public T Current
+        {
+            get
+            {
+                return Value;
+            }
+        }
+
+        public void Dispose()
+        {
+            _cellStore=null;
+        }
+
+        object IEnumerator.Current
+        {
+            get 
+            { 
+                return this;
+            }
+        }
+
+        public bool MoveNext()
+        {
+            return Next();
+        }
+
+        public void Reset()
+        {
+            
         }
     }
     internal class FlagCellStore : CellStore<byte>

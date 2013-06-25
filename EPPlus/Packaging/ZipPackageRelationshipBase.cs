@@ -36,11 +36,13 @@ using Ionic.Zip;
 using System.IO;
 using System.Xml;
 using Ionic.Zlib;
+using System.Web;
 namespace OfficeOpenXml.Packaging
 {
     public abstract class ZipPackageRelationshipBase
     {
         protected ZipPackageRelationshipCollection _rels = new ZipPackageRelationshipCollection();
+        protected internal 
         int maxRId = 1;
         internal void DeleteRelationship(string id)
         {
@@ -98,7 +100,15 @@ namespace OfficeOpenXml.Packaging
                 rel.Id = c.GetAttribute("Id");
                 rel.RelationshipType = c.GetAttribute("Type");
                 rel.TargetMode = c.GetAttribute("TargetMode").ToLower() == "external" ? TargetMode.External : TargetMode.Internal;
-                rel.TargetUri = new Uri(c.GetAttribute("Target"), UriKind.RelativeOrAbsolute);
+                try
+                {
+                    rel.TargetUri = new Uri(c.GetAttribute("Target"), UriKind.RelativeOrAbsolute);
+                }
+                catch
+                {
+                    //The URI is not a valid URI. Encode it to make i valid.
+                    rel.TargetUri = new Uri(HttpUtility.UrlEncode("Invalid:URI "+c.GetAttribute("Target")), UriKind.RelativeOrAbsolute);
+                }
                 if (!string.IsNullOrEmpty(source))
                 {
                     rel.SourceUri = new Uri(source, UriKind.Relative);

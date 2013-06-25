@@ -66,6 +66,92 @@ namespace OfficeOpenXml.Encryption
             return ret;
         }
     }
+    internal enum eCipherAlgorithm
+    {
+        /// <summary>
+        /// AES. MUST conform to the AES algorithm.
+        /// </summary>
+        AES,
+        /// <summary>
+        /// RC2. MUST conform to [RFC2268].
+        /// </summary>
+        RC2,
+        /// <summary>
+        /// RC4. 
+        /// </summary>
+        RC4,
+        /// <summary>
+        /// MUST conform to the DES algorithm.
+        /// </summary>
+        DES,
+        /// <summary>
+        /// MUST conform to the [DRAFT-DESX] algorithm.
+        /// </summary>
+        DESX,
+        /// <summary>
+        /// 3DES. MUST conform to the [RFC1851] algorithm. 
+        /// </summary>
+        TRIPLE_DES,
+        /// 3DES_112 MUST conform to the [RFC1851] algorithm. 
+        TRIPLE_DES_112        
+    }
+    internal enum eChainingMode
+    {
+        /// <summary>
+        /// Cipher block chaining (CBC).
+        /// </summary>
+        ChainingModeCBC,
+        /// <summary>
+        /// Cipher feedback chaining (CFB), with 8-bit window.
+        /// </summary>
+        ChainingModeCFB
+    }
+    /// <summary>
+    /// Hashalgorithm
+    /// </summary>
+    internal enum eHashAlogorithm
+    {
+        /// <summary>
+        /// Sha 1-MUST conform to [RFC4634]
+        /// </summary>
+        SHA1,
+        /// <summary>
+        /// Sha 256-MUST conform to [RFC4634]
+        /// </summary>
+        SHA256,
+        /// <summary>
+        /// Sha 384-MUST conform to [RFC4634]
+        /// </summary>
+        SHA384,
+        /// <summary>
+        /// Sha 512-MUST conform to [RFC4634]
+        /// </summary>
+        SHA512,
+        /// <summary>
+        /// MD5
+        /// </summary>
+        MD5,
+        /// <summary>
+        /// MD4
+        /// </summary>
+        MD4,
+        /// <summary>
+        /// MD2
+        /// </summary>
+        MD2,
+        /// <summary>
+        /// RIPEMD-128 MUST conform to [ISO/IEC 10118]
+        /// </summary>
+        RIPEMD128,
+        /// <summary>
+        /// RIPEMD-160 MUST conform to [ISO/IEC 10118]
+        /// </summary>
+        RIPEMD160,
+        /// <summary>
+        /// WHIRLPOOL MUST conform to [ISO/IEC 10118]
+        /// </summary>
+        WHIRLPOOL
+    }
     /// <summary>
     /// Handels the agile encryption
     /// </summary>
@@ -103,37 +189,115 @@ namespace OfficeOpenXml.Encryption
                     SetXmlNodeString("@saltValue", Convert.ToBase64String(value));
                 }
             }
-            internal string HashAlgorithm
+            internal eHashAlogorithm HashAlgorithm
             {
                 get
                 {
-                    return GetXmlNodeString("@hashAlgorithm");
+                    return GetHashAlgorithm(GetXmlNodeString("@hashAlgorithm"));
                 }
                 set
                 {
-                    SetXmlNodeString("@hashAlgorithm", value);
+                    SetXmlNodeString("@hashAlgorithm", GetHashAlgorithmString(value));
                 }
             }
-            internal string ChiptherChaining
+
+            private eHashAlogorithm GetHashAlgorithm(string v)
             {
-                get
+                switch (v)
                 {
-                    return GetXmlNodeString("@cipherChaining");
-                }
-                set
-                {
-                    SetXmlNodeString("@cipherChaining", value);
+                    case "RIPEMD-128":
+                        return eHashAlogorithm.RIPEMD128;
+                    case "RIPEMD-160":
+                        return eHashAlogorithm.RIPEMD160;
+                    case "SHA-1":
+                        return eHashAlogorithm.SHA1;
+                    default:
+                        try
+                        {
+                            return (eHashAlogorithm)Enum.Parse(typeof(eHashAlogorithm),v);
+                        }
+                        catch
+                        {
+                            throw (new InvalidDataException("Invalid Hash algorithm"));
+                        }
                 }
             }
-            internal string CipherAlgorithm
+
+            private string GetHashAlgorithmString(eHashAlogorithm value)
+            {
+                switch (value)
+                {
+                    case eHashAlogorithm.RIPEMD128:
+                        return "RIPEMD-128";
+                    case eHashAlogorithm.RIPEMD160:
+                        return "RIPEMD-160";
+                    case eHashAlogorithm.SHA1:
+                        return "SHA-1";
+                    default: 
+                        return value.ToString();
+                }
+            }
+            internal eChainingMode ChiptherChaining
             {
                 get
                 {
-                    return GetXmlNodeString("@cipherAlgorithm");
+                    var v=GetXmlNodeString("@cipherChaining");
+                    try
+                    {
+                        return (eChainingMode)Enum.Parse(typeof(eChainingMode), v);
+                    }
+                    catch
+                    {
+                        throw (new InvalidDataException("Invalid chaining mode"));
+                    }
                 }
                 set
                 {
-                    SetXmlNodeString("@cipherAlgorithm", value);
+                    SetXmlNodeString("@cipherChaining", value.ToString());
+                }
+            }
+            internal eCipherAlgorithm CipherAlgorithm
+            {
+                get
+                {
+                    return GetCipherAlgorithm(GetXmlNodeString("@cipherAlgorithm"));
+                }
+                set
+                {
+                    SetXmlNodeString("@cipherAlgorithm", GetCipherAlgorithmString(value));
+                }
+            }
+
+            private eCipherAlgorithm GetCipherAlgorithm(string v)
+            {
+                switch (v)
+                {
+                    case "3DES":
+                        return eCipherAlgorithm.TRIPLE_DES;
+                    case "3DES_112":
+                        return eCipherAlgorithm.TRIPLE_DES_112;
+                    default:
+                        try
+                        {
+                            return (eCipherAlgorithm)Enum.Parse(typeof(eCipherAlgorithm), v);
+                        }
+                        catch
+                        {
+                            throw (new InvalidDataException("Invalid Hash algorithm"));
+                        }
+                }
+            }
+
+            private string GetCipherAlgorithmString(eCipherAlgorithm alg)
+            {
+                switch (alg)
+                {
+                    case eCipherAlgorithm.TRIPLE_DES:
+                        return "3DES";
+                    case eCipherAlgorithm.TRIPLE_DES_112:
+                        return "3DES_112";                    
+                    default:
+                        return alg.ToString();
                 }
             }
             internal int HashSize

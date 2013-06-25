@@ -54,7 +54,6 @@ namespace EPPlusTest
     [ClassCleanup()]
     public static void MyClassCleanup()
     {
-        _pck.Save();
         _pck = null;
     }
 

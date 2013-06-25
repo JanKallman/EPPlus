@@ -393,9 +393,10 @@ namespace OfficeOpenXml.Drawing
         private double GetRowWidth(int row)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            if (ws._values.Exists(row,0))   //Check that the row exists
+            object o=null;
+            if (ws._values.Exists(row, 0, ref o) && o!=null)   //Check that the row exists
             {
-                return (double)ws.Row(row).Height;
+                return ((RowInternal)o).Height;
             }
             else
             {

@@ -69,7 +69,7 @@ namespace EPPlusTest
                 ws.InsertRow(15, 1);
             }
             Assert.AreEqual(ws.GetValue(1, 1), "0,0");
-            Assert.AreEqual(ws.GetValue(34, 1), "1,0");
+            Assert.AreEqual(ws.GetValue(47, 1), "14,0");
         }
         [TestMethod]
         public void Insert3()
@@ -95,7 +95,35 @@ namespace EPPlusTest
                 ws.InsertRow(i, 1);
             }
         }
-        
+        [TestMethod]
+        public void EnumCellstore()
+        {
+            var ws = _package.Workbook.Worksheets.Add("enum");
+
+            LoadData(ws, 5000);
+
+            var o = new CellsStoreEnumerator<object>(ws._values, 2, 1, 5, 3);
+            foreach (var i in o)
+            {
+                Console.WriteLine(i);
+            }
+        }
+        [TestMethod]
+        public void DeleteCells()
+        {
+            var ws = _package.Workbook.Worksheets.Add("Delete");
+            LoadData(ws, 5000);
+
+            ws.DeleteRow(2, 2);
+            Assert.AreEqual("3,0",ws.GetValue(2,1));
+            ws.DeleteRow(10, 10);
+            Assert.AreEqual("21,0", ws.GetValue(10, 1));
+            ws.DeleteRow(50, 40);
+            Assert.AreEqual("101,0", ws.GetValue(50, 1));
+            ws.DeleteRow(100, 100);
+            Assert.AreEqual("251,0", ws.GetValue(100, 1));
+            ws.DeleteRow(1, 31);
+        }
         private void LoadData(ExcelWorksheet ws)
         {
             LoadData(ws, 1000);
@@ -110,5 +138,20 @@ namespace EPPlusTest
                 }
             }
         }
+        [TestMethod]
+        public void FillInsertTest()
+        {
+            var ws = _package.Workbook.Worksheets.Add("FillInsert");
+
+            LoadData(ws, 500);
+
+            var r=1;
+            for(int i=1;i<499;i++)
+            {
+                ws.InsertRow(r,i);
+                Assert.AreEqual((i-1).ToString()+",0", ws.GetValue(r+i,1).ToString());
+                r+=i+1;
+            }
+        }        
     }
 }

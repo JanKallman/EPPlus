@@ -69,11 +69,11 @@ namespace EPPlusTest
             //package.Encryption.IsEncrypted = true;
             package.Workbook.Protection.SetPassword("t");
             package.Workbook.Protection.LockStructure = true;
-            package.Workbook.View.Left=585;
-            package.Workbook.View.Top=150;
+            package.Workbook.View.Left = 585;
+            package.Workbook.View.Top = 150;
 
-            package.Workbook.View.Width=17310;
-            package.Workbook.View.Height=38055;
+            package.Workbook.View.Width = 17310;
+            package.Workbook.View.Height = 38055;
             var ws = package.Workbook.Worksheets.Add("First line test");
 
             ws.Cells[1, 1].Value = "1; 1";
@@ -101,7 +101,7 @@ namespace EPPlusTest
             p.Workbook.Protection.SetPassword("test");
             p.Workbook.Protection.LockStructure = true;
             p.Encryption.Password = "test";
-            p.Encryption.Version = EncryptionVersion.Version4;
+            p.Encryption.Version = EncryptionVersion.Agile;
 
             var ws = p.Workbook.Worksheets.Add("Sheet1");
             for (int r = 1; r < 1000; r++)

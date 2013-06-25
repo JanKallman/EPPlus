@@ -40,7 +40,7 @@ using System.Security;
 [assembly: AssemblyTitle("EPPlus")]
 [assembly: AssemblyDescription("Allows Excel files(xlsx;xlsm) to be created on the server. See epplus.codeplex.com")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("EPPlus")]
 [assembly: AssemblyProduct("EPPlus")]
 [assembly: AssemblyCopyright("Copyright 2009- ©Jan Källman. Parts of the Interface comes from ExcelPackage-project")]
 [assembly: AssemblyTrademark("The GNU Lesser General Public License (LGPL)")]

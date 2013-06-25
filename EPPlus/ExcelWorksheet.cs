@@ -1266,20 +1266,23 @@ namespace OfficeOpenXml
 		/// <returns></returns>
 		public ExcelRow Row(int row)
 		{
-            ExcelRow r;
+            //ExcelRow r;
             //ulong id = ExcelRow.GetRowID(_sheetID, row);
-            var v = _values.GetValue(row, 0);
-            if (v!=null)
-            {
-                r = v as ExcelRow;
-            }
-            else
-            {
-                r = new ExcelRow(this, row);
-                _values.SetValue(row, 0, r);
+            //TODO: Fixa.
+            //var v = _values.GetValue(row, 0);
+            //if (v!=null)
+            //{
+            //    var ri=(RowInternal)v;
+            //    r = new ExcelRow(this, row)
+            //}
+            //else
+            //{
+                //r = new ExcelRow(this, row);
+                //_values.SetValue(row, 0, r);
                 //_rows.Add(r);
-            }
-            return r;
+            //}
+            return new ExcelRow(this, row);
+            //return r;
 		}
 		/// <summary>
 		/// Provides access to an individual column within the worksheet so you can set its properties.
@@ -1442,7 +1445,13 @@ namespace OfficeOpenXml
         /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
 		public void  InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{
-            //rowFrom--; //Convert to base 0
+            var d=Dimension;
+            //Check that cells aren't shifted outside the boundries
+            if (d != null && d.End.Row > rowFrom && d.End.Row + rows > ExcelPackage.MaxRows)
+            {
+                throw (new ArgumentOutOfRangeException("Can't insert. Rows will be shifted outside the boundries of the worksheet."));
+            }
+
             _values.Insert(rowFrom, 0, rows, 0);
             _formulas.Insert(rowFrom, 0, rows, 0);
             _styles.Insert(rowFrom, 0, rows, 0);

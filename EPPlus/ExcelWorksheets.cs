@@ -384,7 +384,7 @@ namespace OfficeOpenXml
                     uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
                 }
 
-                var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotTable, _pck.Compression);
+                var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotCacheDefinition, _pck.Compression);
                 StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
                 streamCd.Write(xml);
                 streamCd.Flush();

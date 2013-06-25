@@ -84,6 +84,7 @@ namespace OfficeOpenXml.Packaging
 
         internal ZipPackage(Stream stream)
         {
+            bool hasContentTypeXml = false;
             if (stream == null || stream.Length == 0)
             {
                 AddNew();
@@ -104,6 +105,7 @@ namespace OfficeOpenXml.Packaging
                             if (e.FileName.ToLower() == "[content_types].xml")
                             {
                                 AddContentTypes(Encoding.UTF8.GetString(b));
+                                hasContentTypeXml = true;
                             }
                             else if (e.FileName.ToLower() == "_rels/.rels")
                             {
@@ -145,6 +147,10 @@ namespace OfficeOpenXml.Packaging
                         {
                             p.Value.ContentType = _contentTypes[fi.Extension.Substring(1)].Name;
                         }
+                    }
+                    if (!hasContentTypeXml)
+                    {
+                        throw (new FileFormatException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
                 }
             }
@@ -230,13 +236,24 @@ namespace OfficeOpenXml.Packaging
             byte[] b = enc.GetBytes(GetContentTypeXml());
             os.Write(b, 0, b.Length);
             /**** Top Rels ****/
-            _rels.WriteZip(os, "_rels\\.rels");            
-
+            _rels.WriteZip(os, "_rels\\.rels");
+            ZipPackagePart ssPart=null;
             foreach(var part in Parts.Values)
             {
-                part.WriteZip(os);
+                if (part.ContentType != ExcelPackage.contentTypeSharedString)
+                {
+                    part.WriteZip(os);
+                }
+                else
+                {
+                    ssPart = part;
+                }
             }
-
+            //Shared strings must be saved after all worksheets. The ss dictionary is populated when that workheets are saved (to get the best performance).
+            if (ssPart != null)
+            {
+                ssPart.WriteZip(os);
+            }
             os.Flush();
             os.Close();
             return ms;

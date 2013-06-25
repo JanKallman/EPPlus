@@ -526,6 +526,7 @@ namespace EPPlusTest
             var hl = new ExcelHyperLink("G1", "Till G1");
             hl.ToolTip = "Link to cell G1";
             ws.Cells["A1"].Hyperlink = hl;
+            //ws.Cells["A2"].Hyperlink = new ExcelHyperLink("mailto:ecsomany@google:huszar", UriKind.Absolute); //Invalid URL will throw an Exception
         }
         [TestMethod]
         public void VeryHideTest()
@@ -1487,6 +1488,20 @@ namespace EPPlusTest
                 pck.Dispose();
             }
             
+        }
+        [TestMethod]
+        public void CopyOverwrite()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyOverwrite");
+
+            for(int col=1;col<15;col++)
+            {
+                for (int row = 1; row < 30; row++)
+                {
+                    ws.SetValue(row, col, "cell " + ExcelAddressBase.GetAddress(row, col));
+                }
+            }
+            ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
         }
     }
 }
