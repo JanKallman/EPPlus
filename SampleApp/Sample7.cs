@@ -55,7 +55,7 @@ namespace EPPlusSamples
             ws.Cells[Rows + 1, 5].Style.Numberformat.Format = "#,##0.00";
 
             Console.WriteLine("{0:HH.mm.ss}\tWriting row {1}...", DateTime.Now, Rows);
-            Console.WriteLine("{0:HH.mm.ss}\tFormating...", DateTime.Now);
+            Console.WriteLine("{0:HH.mm.ss}\tFormatting...", DateTime.Now);
             //Format the date and numeric columns
             ws.Cells[1, 1, Rows, 1].Style.Numberformat.Format = "#,##0";
             ws.Cells[1, 3, Rows, 3].Style.Numberformat.Format = "YYYY-MM-DD";

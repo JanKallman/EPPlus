@@ -197,7 +197,7 @@ namespace EPPlusTest
                 ws.Cells[i, 3].Value=DateTime.Now;
                 ws.Cells[i, 4].Value = r.NextDouble()*100000;                
             }            
-            ws.Cells[1, 2, PERF_ROWS, 2].Style.Numberformat.Format="#,##0";
+            ws.Cells[1, 2, PERF_ROWS, 2].Style.Numberformat.Format = "#,##0";
             ws.Cells[1, 3, PERF_ROWS, 3].Style.Numberformat.Format = "yyyy-MM-dd HH:mm:ss";
             ws.Cells[1, 4, PERF_ROWS, 4].Style.Numberformat.Format = "#,##0.00";
             ws.Cells[PERF_ROWS + 1, 2].Formula = "SUM(B1:B" + PERF_ROWS.ToString() +")";
