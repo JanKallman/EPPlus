@@ -99,12 +99,12 @@ namespace OfficeOpenXml.FormulaParsing
         }
         /// <summary>
         /// This method follows the calculation chain to get the order of the calculation
-        /// Goto (!) is used internally to prevent stackoverflow on extremly larget dependency trees (that is many recursive formulas).
+        /// Goto (!) is used internally to prevent stackoverflow on extremly larget dependency trees (that is, many recursive formulas).
         /// </summary>
         /// <param name="depChain">The dependency chain object</param>
         /// <param name="sct">The formula tokenizer</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
-        /// <param name="f">The cell function obleject</param>
+        /// <param name="f">The cell function object</param>
         private static void FollowChain(DependencyChain depChain, SourceCodeTokenizer sct, ExcelWorksheet ws, FormulaCell f)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();

@@ -9,19 +9,25 @@ namespace EPPlusTest
     public class CellStoreTest
     {
         ExcelPackage _package;
-        [TestInitialize]
-        public void Init()
+        public CellStoreTest()
         {
-            _package=new ExcelPackage();
+            _package = new ExcelPackage();
         }
-        [TestCleanup]
-        public void CleanUp()
+        ~CellStoreTest()
         {
-            if(!Directory.Exists("Test"))
+            if (!Directory.Exists("test"))
             {
                 Directory.CreateDirectory("test");
             }
             _package.SaveAs(new FileInfo("test\\Insert.xlsx"));
+        }
+        [TestInitialize]
+        public void Init()
+        {
+        }
+        [TestCleanup]
+        public void CleanUp()
+        {
         }
         [TestMethod]
         public void Insert1()
@@ -123,16 +129,43 @@ namespace EPPlusTest
             ws.DeleteRow(100, 100);
             Assert.AreEqual("251,0", ws.GetValue(100, 1));
             ws.DeleteRow(1, 31);
+            Assert.AreEqual("43,0", ws.GetValue(1, 1));
+        }
+        [TestMethod]
+        public void DeleteCellsFirst()
+        {
+            var ws = _package.Workbook.Worksheets.Add("DeleteFirst");
+            LoadData(ws, 5000);
+
+            ws.DeleteRow(32, 30);
+            for (int i = 1; i < 50; i++)
+            {
+                ws.DeleteRow(1,1);
+            }
+        }
+        [TestMethod]
+        public void DeleteInsert()
+        {
+            var ws = _package.Workbook.Worksheets.Add("DeleteInsert");
+            LoadData(ws, 5000);
+
+            ws.DeleteRow(2, 33);
+            ws.InsertRow(2, 38);
+
+            for (int i = 0; i < 33; i++)
+            {
+                ws.SetValue(i + 2,1, i + 2);
+            }
         }
         private void LoadData(ExcelWorksheet ws)
         {
             LoadData(ws, 1000);
         }
-        private void LoadData(ExcelWorksheet ws, int rows)
+        private void LoadData(ExcelWorksheet ws, int rows, int cols=1)
         {
             for (int r = 0; r < rows; r++)
             {
-                for(int c=0;c<1;c++)
+                for (int c = 0; c < cols; c++)
                 {
                     ws.SetValue(r+1, c+1, r.ToString()+","+c.ToString());
                 }
@@ -146,12 +179,19 @@ namespace EPPlusTest
             LoadData(ws, 500);
 
             var r=1;
-            for(int i=1;i<499;i++)
+            for(int i=1;i<=500;i++)
             {
                 ws.InsertRow(r,i);
                 Assert.AreEqual((i-1).ToString()+",0", ws.GetValue(r+i,1).ToString());
                 r+=i+1;
             }
-        }        
+        }
+        [TestMethod]
+        public void FillInsertTest2()
+        {
+            var ws = _package.Workbook.Worksheets.Add("Performance");
+
+            LoadData(ws, 1000000,30);
+        }
     }
 }

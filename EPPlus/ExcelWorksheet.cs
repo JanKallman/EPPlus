@@ -2155,6 +2155,7 @@ namespace OfficeOpenXml
         internal void SaveHandler(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName)
         {
                     //Init Zip
+                    stream.CodecBufferSize = 8096;
                     stream.CompressionLevel = compressionLevel;
                     stream.PutNextEntry(fileName);
 

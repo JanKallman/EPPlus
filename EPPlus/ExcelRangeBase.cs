@@ -2153,14 +2153,14 @@ namespace OfficeOpenXml
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
 
             //Delete all existing cells; 
-            int toRow = _toRow-_fromRow+1,
-                toCol = _toCol-_fromCol+1;
-            Destination._worksheet._values.Clear(_fromRow, _fromCol, toRow, toCol);
-            Destination._worksheet._formulas.Clear(_fromRow, _fromCol, toRow, toCol);
-            Destination._worksheet._styles.Clear(_fromRow, _fromCol, toRow, toCol);
-            Destination._worksheet._types.Clear(_fromRow, _fromCol, toRow, toCol);
-            Destination._worksheet._hyperLinks.Clear(_fromRow, _fromCol, toRow, toCol);
-            Destination._worksheet._flags.Clear(_fromRow, _fromCol, toRow, toCol);
+            int toRow = Destination._toRow - Destination._fromRow + 1,
+                toCol = Destination._toCol - Destination._fromCol + 1;
+            Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
 
             string s = "";
             int i=0;
