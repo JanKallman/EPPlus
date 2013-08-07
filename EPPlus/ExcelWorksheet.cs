@@ -76,7 +76,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public sealed class ExcelWorksheet : XmlHelper
+    public sealed class ExcelWorksheet : XmlHelper, IDisposable
 	{
         internal class Formulas
         {
@@ -2879,6 +2879,16 @@ namespace OfficeOpenXml
             {
                 n.ParentNode.RemoveChild(n);
             }
+        }
+
+        void IDisposable.Dispose()
+        {
+            ((IDisposable)_cells).Dispose();
+            ((IDisposable)_rows).Dispose();
+            ((IDisposable)_columns).Dispose();
+            ((IDisposable)_formulaCells).Dispose();
+            if (_comments != null)
+                ((IDisposable)_comments).Dispose();
         }
     }  // END class Worksheet
 }

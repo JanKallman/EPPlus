@@ -40,7 +40,7 @@ namespace OfficeOpenXml
     /// <summary>
     /// Collection of Excelcomment objects
     /// </summary>  
-    public class ExcelCommentCollection : IEnumerable
+    public class ExcelCommentCollection : IEnumerable, IDisposable
     {
         internal RangeCollection _comments;
         internal ExcelCommentCollection(ExcelPackage pck, ExcelWorksheet ws, XmlNamespaceManager ns)
@@ -218,5 +218,11 @@ namespace OfficeOpenXml
         #endregion
 
 
+
+        void IDisposable.Dispose()
+        {
+            if (_comments != null)
+                ((IDisposable)_comments).Dispose();
+        }
     }
 }
