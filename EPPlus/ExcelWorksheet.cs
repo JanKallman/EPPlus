@@ -830,24 +830,31 @@ namespace OfficeOpenXml
                         if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
                         {
                             cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
-                            var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
                             try
                             {
-                                if (uri.IsAbsoluteUri)
+                                var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
+                                try
                                 {
-                                    cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString));
+                                    if (uri.IsAbsoluteUri)
+                                    {
+                                        cell.Hyperlink = new ExcelHyperLink(Uri.UnescapeDataString(uri.OriginalString));
+                                    }
+                                    else
+                                    {
+                                        cell.Hyperlink = new ExcelHyperLink(Uri.UnescapeDataString(uri.OriginalString), UriKind.Relative);
+                                    }
                                 }
-                                else
+                                catch
                                 {
-                                    cell.Hyperlink = new ExcelHyperLink(HttpUtility.UrlDecode(uri.OriginalString), UriKind.Relative);
+                                    //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
+                                    cell.Hyperlink = uri;
                                 }
+                                Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                             }
                             catch
                             {
-                                //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
-                                cell.Hyperlink = uri;
+                                //Invalid URI, remove it.
                             }
-                            Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
                         }
                         else if (xr.GetAttribute("location") != null)
                         {

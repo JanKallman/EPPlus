@@ -144,17 +144,31 @@ namespace OfficeOpenXml.VBA
         //}
         internal void Save(ExcelVbaProject proj)
         {
-            if (Certificate == null || Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            if (Certificate == null)
             {
-                if (Part != null)
+                return;
+            }
+            
+            if (Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            {
+                var storeCert = GetCertFromStore(StoreLocation.CurrentUser);
+                if (storeCert == null)
+                {
+                    storeCert = GetCertFromStore(StoreLocation.LocalMachine);
+                }
+                if (storeCert != null && storeCert.HasPrivateKey == true)
+                {
+                    Certificate = storeCert;
+                }
+                else
                 {
                     foreach (var r in Part.GetRelationships())
                     {
                         Part.DeleteRelationship(r.Id);
                     }
                     Part.Package.DeletePart(Part.Uri);
+                    return;
                 }
-                return;
             }
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
@@ -199,6 +213,32 @@ namespace OfficeOpenXml.VBA
             }
             var b = ms.ToArray();
             Part.GetStream(FileMode.Create).Write(b, 0, b.Length);            
+        }
+
+        private X509Certificate2 GetCertFromStore(StoreLocation loc)
+        {
+            try
+            {
+                X509Store store = new X509Store(loc);
+                store.Open(OpenFlags.ReadOnly);
+                try
+                {
+                    var storeCert = store.Certificates.Find(
+                                    X509FindType.FindByThumbprint,
+                                    Certificate.Thumbprint,
+                                    true
+                                    ).OfType<X509Certificate2>().FirstOrDefault();
+                    return storeCert;
+                }
+                finally
+                {
+                    store.Close();
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private byte[] GetCertStore()
