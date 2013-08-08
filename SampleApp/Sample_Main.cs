@@ -46,7 +46,6 @@ namespace EPPlusSamples
                 string SqlServerName = "";
 
                 // change this line to contain the path to the output folder
-                //DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
                 DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
                 if (!outputDir.Exists) throw new Exception("outputDir does not exist!");
 
@@ -105,7 +104,7 @@ namespace EPPlusSamples
                 //This sample shows the performance capabilities of the component and shows sheet protection.
                 //Load X(param 2) rows with five columns
                 Console.WriteLine("Running sample 7");
-                output = Sample7.RunSample7(outputDir, 65535);
+                output = Sample7.RunSample7(outputDir, 65534);
                 Console.WriteLine("Sample 7 created:", output);
                 Console.WriteLine();
 

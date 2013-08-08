@@ -35,7 +35,7 @@ using System.Text;
 using System.Collections;
 using OfficeOpenXml;
     internal class IndexBase : IComparable<IndexBase>
-    {
+    {        
         internal short Index;
         public int CompareTo(IndexBase other)
         {
@@ -49,18 +49,24 @@ using OfficeOpenXml;
             get; 
             set;
         }
-    }
+    }        
     internal class ColumnIndex : IndexBase, IDisposable
     {
+        internal IndexBase _searchIx=new IndexBase();
         public ColumnIndex ()
 	    {
             _pages=new PageIndex[CellStore<int>.PagesPerColumnMin];
             PageCount=0;
 	    }
+        ~ColumnIndex()
+	    {
+            _pages=null;            
+	    }
         internal int GetPosition(int Row)
         {
             var page = (short)(Row >> CellStore<int>.pageBits);
-            var res = Array.BinarySearch(_pages, 0, PageCount, new IndexBase() { Index = (short)(page) });
+            _searchIx.Index = page;
+            var res = Array.BinarySearch(_pages, 0, PageCount, _searchIx);
             if (res >= 0)
             {
                 GetPage(Row, ref res);
@@ -196,13 +202,18 @@ using OfficeOpenXml;
 
         public void Dispose()
         {
+            for (int p = 0; p < PageCount; p++)
+            {
+                ((IDisposable)_pages[p]).Dispose();
+            }
             _pages = null;
         }
 
     }
     internal class PageIndex : IndexBase, IDisposable
     {
-        public PageIndex ()
+        internal IndexBase _searchIx = new IndexBase();
+        public PageIndex()
 	    {
             Rows = new IndexItem[CellStore<int>.PageSizeMin];
             RowCount = 0;
@@ -225,6 +236,10 @@ using OfficeOpenXml;
             Index = index;
             Offset = offset;
         }
+        ~PageIndex()
+	    {
+            Rows=null;
+	    }
         internal int Offset = 0;
         internal int IndexOffset
         {
@@ -245,7 +260,8 @@ using OfficeOpenXml;
 
         internal int GetPosition(int offset)
         {
-            return Array.BinarySearch(Rows, 0, RowCount, new IndexBase() { Index = (short)(offset) });
+            _searchIx.Index = (short)offset;
+            return Array.BinarySearch(Rows, 0, RowCount, _searchIx);
         }
         internal int GetNextRow(int row)
         {
@@ -310,23 +326,34 @@ using OfficeOpenXml;
     internal class CellStore<T> : IDisposable// : IEnumerable<ulong>, IEnumerator<ulong>
     {
         /**** Size constants ****/
-        internal const int pageBits = 13;   //13bits=8192  Note: Maximum is 13 bits since short is used (PageMax=16K)
+        internal const int pageBits = 10;   //13bits=8192  Note: Maximum is 13 bits since short is used (PageMax=16K)
         internal const int PageSize = 1 << pageBits;
-        internal const int PageSizeMin = 1024;
+        internal const int PageSizeMin = 1<<10;
         internal const int PageSizeMax = PageSize << 1; //Double page size
         internal const int ColSizeMin = 32;
         internal const int PagesPerColumnMin = 32;
 
         List<T> _values = new List<T>();
         internal ColumnIndex[] _columnIndex;
+        internal IndexBase _searchIx = new IndexBase();
         internal int ColumnCount;
         public CellStore ()
 	    {
             _columnIndex = new ColumnIndex[ColSizeMin];
 	    }
+        ~CellStore()
+	    {
+            if (_values != null)
+            {
+                _values.Clear();
+                _values = null;
+            }
+            _columnIndex=null;
+	    }
         internal int GetPosition(int Column)
         {
-            return Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
+            _searchIx.Index = (short)Column;
+            return Array.BinarySearch(_columnIndex, 0, ColumnCount, _searchIx);
         }
         internal CellStore<T> Clone()
         {
@@ -521,7 +548,8 @@ using OfficeOpenXml;
                         }
                     }
                     short ix = (short)(Row - pageItem.IndexOffset);
-                    var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, new IndexBase() { Index = ix });
+                    _searchIx.Index = ix;
+                    var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchIx);
                     if (cellPos >= 0)
                     {
                         return pageItem.Rows[cellPos].IndexPointer;
@@ -595,7 +623,8 @@ using OfficeOpenXml;
                 }
 
                 short ix = (short)(Row - ((pageItem.Index << pageBits) + pageItem.Offset));
-                var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, new IndexBase() { Index = ix });
+                _searchIx.Index = ix;
+                var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchIx);
                 if (cellPos < 0)
                 {
                     cellPos = ~cellPos;
@@ -1355,7 +1384,12 @@ using OfficeOpenXml;
         }
 
         public void Dispose()
-        {            
+        {
+            _values.Clear();
+            for(var c=0;c<ColumnCount;c++)
+            {
+                ((IDisposable)_columnIndex[c]).Dispose();
+            }
             _values = null;
             _columnIndex = null;
         }

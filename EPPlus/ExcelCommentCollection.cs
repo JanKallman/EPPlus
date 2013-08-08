@@ -40,7 +40,7 @@ namespace OfficeOpenXml
     /// <summary>
     /// Collection of Excelcomment objects
     /// </summary>  
-    public class ExcelCommentCollection : IEnumerable
+    public class ExcelCommentCollection : IEnumerable, IDisposable
     {
         internal RangeCollection _comments;
         internal ExcelCommentCollection(ExcelPackage pck, ExcelWorksheet ws, XmlNamespaceManager ns)
@@ -201,6 +201,12 @@ namespace OfficeOpenXml
                 throw (new ArgumentException("Comment does not exist in the worksheet"));
             }
         }
+
+        void IDisposable.Dispose() 
+        { 
+            if (_comments != null) 
+                ((IDisposable)_comments).Dispose(); 
+        } 
         /// <summary>
         /// Removes the comment at the specified position
         /// </summary>

@@ -16,6 +16,7 @@ using System.Reflection;
 namespace EPPlusTest
 {
     [TestClass]
+    [DeploymentItem("Test\\Worksheet.xlsx")]
     public class WorkSheetTest
     {
         private TestContext testContextInstance;
@@ -43,7 +44,11 @@ namespace EPPlusTest
         [ClassInitialize()]
         public static void MyClassInitialize(TestContext testContext)
         {
-            Directory.CreateDirectory(string.Format("Test"));
+            if (!Directory.Exists("test"))
+            {
+                Directory.CreateDirectory("test");
+            }
+            testContext.AddResultFile(AppDomain.CurrentDomain.BaseDirectory + "\\Test\\Worksheet.xlsx");
             _pck = new ExcelPackage(new FileInfo("Test\\Worksheet.xlsx"));
         }
 
@@ -54,6 +59,7 @@ namespace EPPlusTest
             _pck = null;
         }
         [TestMethod]
+        [DeploymentItem("Test")]
         public void LoadData()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("newsheet");

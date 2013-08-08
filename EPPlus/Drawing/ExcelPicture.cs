@@ -403,5 +403,12 @@ namespace OfficeOpenXml.Drawing
             _drawings._package.RemoveImage(ImageHash);
             base.DeleteMe();
         }
+        public override void Dispose()
+        {
+            base.Dispose();
+            _hyperlink = null;
+            _image.Dispose();
+            _image = null;            
+        }
     }
 }

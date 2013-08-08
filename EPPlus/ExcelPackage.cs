@@ -224,7 +224,7 @@ namespace OfficeOpenXml
         internal const string contentTypeSharedString = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
         //Package reference
         private Packaging.ZipPackage _package;
-		private ExcelWorkbook _workbook;
+		internal ExcelWorkbook _workbook;
         /// <summary>
         /// Maximum number of columns in a worksheet (16384). 
         /// </summary>
@@ -728,7 +728,14 @@ namespace OfficeOpenXml
                     Stream.Close();
                 }
                 _package.Close();
-                Workbook.Dispose();
+                ((IDisposable)_stream).Dispose();
+                ((IDisposable)_workbook).Dispose();
+                _package = null;
+                _images = null;
+                _file = null;
+                _workbook = null;
+                _stream = null;
+                _workbook = null;
             }
 		}
 		#endregion

@@ -48,7 +48,7 @@ namespace OfficeOpenXml
 	/// <summary>
 	/// The collection of worksheets for the workbook
 	/// </summary>
-	public class ExcelWorksheets : XmlHelper, IEnumerable<ExcelWorksheet>
+	public class ExcelWorksheets : XmlHelper, IEnumerable<ExcelWorksheet>, IDisposable
 	{
 		#region Private Properties
         private ExcelPackage _pck;
@@ -1146,6 +1146,15 @@ namespace OfficeOpenXml
 		}
 
 		#endregion
-	} // end class Worksheets
+        public void Dispose()
+        {            
+             foreach (var sheet in this._worksheets.Values) 
+             { 
+                 ((IDisposable)sheet).Dispose(); 
+             } 
+             _worksheets = null;
+             _pck = null;            
+        }
+    } // end class Worksheets
 }
 

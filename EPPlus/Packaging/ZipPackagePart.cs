@@ -38,7 +38,7 @@ using System.IO;
 
 namespace OfficeOpenXml.Packaging
 {
-    internal class ZipPackagePart : ZipPackageRelationshipBase
+    internal class ZipPackagePart : ZipPackageRelationshipBase, IDisposable
     {
         internal delegate void SaveHandlerDelegate(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName);
 
@@ -158,7 +158,14 @@ namespace OfficeOpenXml.Packaging
                 var fi = new FileInfo(f);
                 _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - fi.Name.Length), fi.Name)));
             }
+            b = null;
         }
 
+
+        public void Dispose()
+        {
+            _stream.Close();
+            _stream.Dispose();
+        }
     }
 }

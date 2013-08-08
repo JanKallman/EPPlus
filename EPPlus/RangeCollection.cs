@@ -1,4 +1,25 @@
-﻿/*******************************************************************************
+﻿
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -33,14 +54,13 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
-using OfficeOpenXml.Drawing.Vml;
-namespace OfficeOpenXml
+using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
 {
     /// <summary>
     /// This is the store for all Rows, Columns and Cells.
     /// It is a Dictionary implementation that allows you to change the Key (the RowID, ColumnID or CellID )
     /// </summary>
-    internal class RangeCollection : IEnumerator<IRangeID>, IEnumerable
+    internal class RangeCollection : IEnumerator<IRangeID>, IEnumerable, IDisposable
     {
         private class IndexItem
         {
@@ -71,7 +91,7 @@ namespace OfficeOpenXml
         }
         IndexItem[] _cellIndex;
         List<IRangeID> _cells;
-        Compare _comparer;
+        static readonly Compare _comparer=new Compare(); 
         /// <summary>
         /// Creates a new collection
         /// </summary>
@@ -79,7 +99,6 @@ namespace OfficeOpenXml
         internal RangeCollection(List<IRangeID> cells)
         {   
             _cells = cells;
-            _comparer = new Compare();
             InitSize(_cells);
             for (int i = 0; i < _cells.Count; i++)
             {
@@ -88,8 +107,8 @@ namespace OfficeOpenXml
         }
         ~RangeCollection()
         {
-            _cellIndex = null;
             _cells = null;
+            _cellIndex = null;
         }
         /// <summary>
         /// Return the item with the RangeID

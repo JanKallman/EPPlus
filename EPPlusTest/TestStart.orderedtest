@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<OrderedTest name="TestStart" storage="c:\devexternal\epplus\epplustest\teststart.orderedtest" id="e7599e2e-436a-46b2-af22-96fff26346d3" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+<OrderedTest name="teststart" storage="c:\devexternal\epplus\epplustest\teststart.orderedtest" id="e7599e2e-436a-46b2-af22-96fff26346d3" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Execution timeOut="2147483647" id="d30919a1-3c12-43fd-bc5c-90d934ef0c15" />
   <TestLinks>
     <TestLink id="ec8c7cb6-bb68-0b2d-336e-e7ad6498dfbc" name="BarChart" storage="bin\debug\epplustest.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
@@ -74,6 +74,5 @@
     <TestLink id="60305f96-acc5-ca54-ffe0-836449c7cabc" name="MoveBeforeByNameWhereWorkSheetExists" storage="bin\debug\epplustest.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <TestLink id="c72be5f6-34f8-d825-898e-52c5e0d36620" name="MoveAfterByNameWhereWorkSheetExists" storage="bin\debug\epplustest.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <TestLink id="dc48ec47-15c1-323b-3509-010d4350ae45" name="MoveBeforeByPositionWhereWorkSheetExists" storage="bin\debug\epplustest.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <TestLink id="e51e18ef-7ef5-2aff-cef8-9d6fce588a61" name="MoveAfterByPositionWhereWorkSheetExists" storage="bin\debug\epplustest.dll" type="Microsoft.VisualStudio.TestTools.TestTypes.Unit.UnitTestElement, Microsoft.VisualStudio.QualityTools.Tips.UnitTest.ObjectModel, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   </TestLinks>
 </OrderedTest>

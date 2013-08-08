@@ -37,7 +37,7 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
-
+using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
 	class Sample1
@@ -104,6 +104,7 @@ namespace EPPlusSamples
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
+                worksheet.Calculate();
                 worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
                 // lets set the header text 

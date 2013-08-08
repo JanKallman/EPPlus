@@ -152,6 +152,7 @@ namespace OfficeOpenXml.Packaging
                     {
                         throw (new FileFormatException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
+                    zip.Close();
                 }
             }
         }
@@ -256,6 +257,7 @@ namespace OfficeOpenXml.Packaging
             }
             os.Flush();
             os.Close();
+            os.Dispose();            
             return ms;
         }
 
@@ -282,7 +284,7 @@ namespace OfficeOpenXml.Packaging
         }
         internal void Close()
         {
-
+            
         }
         CompressionLevel _compression = CompressionLevel.Default;
         public CompressionLevel Compression 
