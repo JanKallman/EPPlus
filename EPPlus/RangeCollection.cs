@@ -279,8 +279,6 @@ namespace OfficeOpenXml
         void IDisposable.Dispose()
         {
             _ix = -1;
-            _cellIndex = null;
-            _cells = null;
         }
 
         #endregion

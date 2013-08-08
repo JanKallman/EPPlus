@@ -616,7 +616,7 @@ namespace OfficeOpenXml
 
 			DeleteCalcChain();
 
-            if (VbaProject == null)
+            if (_vba == null && !_package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
                 {
@@ -666,7 +666,7 @@ namespace OfficeOpenXml
 			ValidateDataValidations();
 
             //VBA
-            if (VbaProject!=null)
+            if (_vba!=null) //VBA does not exist or is untouched, so ignore
             {
                 VbaProject.Save();
             }

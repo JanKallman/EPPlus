@@ -341,7 +341,13 @@ namespace EPPlusTest
             r1=ws.Cells["G3"].RichText.Add("Test");
             r1.Bold = true;
             ws.Cells["G3"].RichText.Add(" a new t");
-            ws.Cells["G3"].RichText[1].Bold = false; ;
+            ws.Cells["G3"].RichText[1].Bold = false;
+
+            var cell = ws.Cells["G4"];
+            cell.RichText.Add("toto: ");
+            cell.RichText[0].PreserveSpace = true;
+            cell.RichText[0].Bold = true;
+            cell.RichText.Add("tata");
         }
         [TestMethod]
         public void SaveWorksheet()

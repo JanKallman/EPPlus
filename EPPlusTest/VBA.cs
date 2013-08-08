@@ -82,9 +82,7 @@ namespace EPPlusTest
         public void Resign()
         {
             var package = new ExcelPackage(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
+            //package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
             package.SaveAs(new FileInfo(@"c:\temp\vbaWrite2.xlsm"));
         }
         [TestMethod]
