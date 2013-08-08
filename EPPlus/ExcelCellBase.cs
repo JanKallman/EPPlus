@@ -828,7 +828,7 @@ namespace OfficeOpenXml
                         ExcelAddressBase a = new ExcelAddressBase(t.Value);
                         if (rowIncrement > 0)
                         {
-                            a=a.AddRow(afterRow, rowIncrement);
+                            a = a.AddRow(afterRow, rowIncrement);
                         }
                         else if (rowIncrement < 0)
                         {
@@ -842,7 +842,15 @@ namespace OfficeOpenXml
                         {
                             a = a.DeleteColumn(afterColumn, -colIncrement);
                         }
-                        f += a.Address;
+                        if (a == null)
+                        {
+                            f += "#REF!";
+                        }
+                        else
+                        {
+                            f += a.Address;
+                        }
+
 
                     }
                     else

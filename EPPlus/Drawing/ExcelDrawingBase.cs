@@ -91,7 +91,7 @@ namespace OfficeOpenXml.Drawing
     /// Base class for drawings. 
     /// Drawings are Charts, shapes and Pictures.
     /// </summary>
-    public class ExcelDrawing : XmlHelper 
+    public class ExcelDrawing : XmlHelper, IDisposable 
     {
         /// <summary>
         /// Position of the a drawing.
@@ -647,6 +647,11 @@ namespace OfficeOpenXml.Drawing
         internal virtual void DeleteMe()
         {
             TopNode.ParentNode.RemoveChild(TopNode);
+        }
+
+        public virtual void Dispose()
+        {
+            _topNode = null;
         }
     }
 }

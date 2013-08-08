@@ -1310,15 +1310,15 @@ namespace OfficeOpenXml
                 {
                     column = _values.GetValue(0, c) as ExcelColumn;
                     int maxCol = column.ColumnMax;
-                    if (column.ColumnMax >= col)
+                    if (maxCol >= col)
                     {
                         column.ColumnMax = col-1;
+                        if (maxCol > col)
+                        {
+                            ExcelColumn newC = CopyColumn(column, col + 1, maxCol);
+                        }
+                        return CopyColumn(column, col, col);
                     }
-                    if (maxCol > col)
-                    {
-                        ExcelColumn newC = CopyColumn(column, col + 1, maxCol);
-                    }
-                    return CopyColumn(column, col, col);
                 }
                 //foreach (ExcelColumn checkColumn in _columns)
                 //{
@@ -1356,13 +1356,13 @@ namespace OfficeOpenXml
             else
                 newC.StyleID = c.StyleID;
 
-            newC._width = c._width;
             newC._hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
             newC.Phonetic = c.Phonetic;
             newC.BestFit = c.BestFit;
             //_columns.Add(newC);
             _values.SetValue(0, col, newC);
+            newC.Width = c._width;
             return newC;
        }
         /// <summary>
@@ -2707,11 +2707,11 @@ namespace OfficeOpenXml
                             {
                                 if (f.IsArray)
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula));
+                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
                                 else
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, SecurityElement.Escape(f.Formula));
+                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
 
                             }
@@ -2721,7 +2721,7 @@ namespace OfficeOpenXml
                             }
                             else
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" /></c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" />{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v));
                             }
                         }
                         else
@@ -2729,19 +2729,19 @@ namespace OfficeOpenXml
                             // We can also have a single cell array formula
                             if(f.IsArray)
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula));
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                             else
                             {
                                 sw.Write("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
-                                sw.Write("<f>{0}</f></c>", SecurityElement.Escape(f.Formula));
+                                sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                         }
                     }
                     else if (formula!=null && formula.ToString()!="")
                     {
                         sw.Write("<c r=\"{0}\" s=\"{1}\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
-                        sw.Write("<f>{0}</f></c>", SecurityElement.Escape(formula.ToString()));
+                        sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(formula.ToString()), GetFormulaValue(v));
                     }
                     else
                     {
@@ -2753,51 +2753,9 @@ namespace OfficeOpenXml
                         {
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan) && _types.GetValue(cse.Row,cse.Column) != "s")
                             {
-                                string s;
-                                try
-                                {
-                                    if (v is DateTime)
-                                    {
-                                        s = ((DateTime)v).ToOADate().ToString(CultureInfo.InvariantCulture);
-                                    }
-                                    else if (v is TimeSpan)
-                                    {
-                                        s = new DateTime(((TimeSpan)v).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
-                                    }
-                                    else
-                                    {
-                                        if (v is double && double.IsNaN((double)v))
-                                        {
-                                            s = "0";
-                                        }
-                                        else if (v is double && double.IsInfinity((double)v))
-                                        {
-                                            s="#NUM!";
-                                        }
-                                        else
-                                        {
-                                            s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
-                                        }
-                                    }
-                                }
-
-                                catch
-                                {
-                                    s = "0";
-                                }
-                                if (v is bool)
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"b\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                else if (v is double && double.IsInfinity((double)v))
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"e\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                else
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                sw.Write("<v>{0}</v></c>", s);
+                                string sv = GetValueForXml(v);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
+                                sw.Write("<v>{0}</v></c>", sv);
                             }
                             else
                             {
@@ -2834,6 +2792,71 @@ namespace OfficeOpenXml
             sw.Write("</sheetData>");
 
             
+        }
+
+        private object GetFormulaValue(object v)
+        {
+            if (_package.Workbook._isCalculated)
+            {
+                return "<v>" + GetValueForXml(v) + "</v>";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        private string GetCellType(object v)
+        {
+            if (v is bool)
+            {
+                return " t=\"b\"";
+            }
+            else if (v is double && double.IsInfinity((double)v))
+            {
+                return " t=\"e\"";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        private static string GetValueForXml(object v)
+        {
+            string s;
+            try
+            {
+                if (v is DateTime)
+                {
+                    s = ((DateTime)v).ToOADate().ToString(CultureInfo.InvariantCulture);
+                }
+                else if (v is TimeSpan)
+                {
+                    s = new DateTime(((TimeSpan)v).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
+                }
+                else
+                {
+                    if (v is double && double.IsNaN((double)v))
+                    {
+                        s = "0";
+                    }
+                    else if (v is double && double.IsInfinity((double)v))
+                    {
+                        s = "#NUM!";
+                    }
+                    else
+                    {
+                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
+                    }
+                }
+            }
+
+            catch
+            {
+                s = "0";
+            }
+            return s;
         }
 
         private void WriteRow(StreamWriter sw, ExcelStyleCollection<ExcelXfs> cellXfs, int prevRow, int row)
@@ -3203,6 +3226,36 @@ namespace OfficeOpenXml
         public void Dispose()
         {
             _values.Dispose();
+            _formulas.Dispose();
+            _flags.Dispose();
+            _hyperLinks.Dispose();
+            _styles.Dispose();
+            _types.Dispose();
+            _commentsStore.Dispose();
+
+            _values = null;
+            _formulas = null;
+            _flags = null;
+            _hyperLinks = null;
+            _styles = null;
+            _types = null;
+            _commentsStore = null;
+
+            _package = null;
+            _pivotTables = null;
+            _protection = null;
+            _sharedFormulas.Clear();
+            _sharedFormulas = null;
+            _sheetView = null;
+            _tables = null;
+            _vmlDrawings = null;
+            _conditionalFormatting = null;
+            _dataValidation = null;
+            _drawings = null;
+
+            _arrayFormulas.Clear();
+            _arrayFormulas = null;
+
         }
     }  // END class Worksheet
 }

@@ -387,7 +387,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// A reference to the VBA project.
         /// Null if no project exists.
-        /// User Workbook.CreateVBAProject to create a new VBA-Project
+        /// Use Workbook.CreateVBAProject to create a new VBA-Project
         /// </summary>
         public ExcelVbaProject VbaProject
         {
@@ -712,7 +712,7 @@ namespace OfficeOpenXml
 			ValidateDataValidations();
 
             //VBA
-            if (VbaProject!=null)
+            if (_vba!=null)
             {
                 VbaProject.Save();
             }
@@ -796,7 +796,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-		/// OOXML requires that <, >, and & be escaped, but ' and " should *not* be escaped, nor should
+		/// OOXML requires that "," , and & be escaped, but ' and " should *not* be escaped, nor should
 		/// any extended Unicode characters. This function only encodes the required characters.
 		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
 		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
@@ -1015,6 +1015,7 @@ namespace OfficeOpenXml
 			pivotCaches.AppendChild(item);
 		}
 		internal List<string> _externalReferences = new List<string>();
+        internal bool _isCalculated=false;
 		internal void GetExternalReferences()
 		{
 			XmlNodeList nl = WorkbookXml.SelectNodes("//d:externalReferences/d:externalReference", NameSpaceManager);
@@ -1045,13 +1046,16 @@ namespace OfficeOpenXml
 
         public void Dispose()
         {
+            _sharedStrings.Clear();
+            _sharedStringsList.Clear();
+            
             _sharedStrings = null;
             _sharedStringsList = null;
             _vba = null;
-            foreach (var ws in Worksheets)
-            {
-                ws.Dispose();
-            }
+            _worksheets.Dispose();
+            _package = null;
+            _worksheets = null;
+            _properties = null;
         }
     } // end Workbook
 }

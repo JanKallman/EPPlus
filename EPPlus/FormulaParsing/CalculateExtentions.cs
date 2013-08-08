@@ -29,11 +29,12 @@
  * Jan Källman                      Added                       2012-03-04  
  *******************************************************************************/
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.Calculation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml.Calculation
 {
     public static class CalculationExtension
@@ -49,12 +50,9 @@ namespace OfficeOpenXml.Calculation
                 var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
+            Workbook._isCalculated = true;
         }
 
-        private static object GetFormulaValue(FormulaCell item)
-        {
-            throw new NotImplementedException();
-        }
         public static void Calculate(this ExcelWorksheet Worksheet)
         {
             var parser = new FormulaParser(new EpplusExcelDataProvider(Worksheet._package));
@@ -63,8 +61,9 @@ namespace OfficeOpenXml.Calculation
             {
                 var item = dc.list[ix];
                 var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
-                item.ws.SetFormula(item.Row, item.Column, v);
+                item.ws._values.SetValue(item.Row, item.Column, v);
             }
+            Worksheet.Workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelRangeBase Range)
         {
@@ -74,8 +73,9 @@ namespace OfficeOpenXml.Calculation
             {
                 var item = dc.list[ix];
                 var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
-                item.ws.SetFormula(item.Row, item.Column, v);
+                item.ws._values.SetValue(item.Row, item.Column, v);
             }
+            Range.Worksheet.Workbook._isCalculated = true;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace OfficeOpenXml.Drawing
     /// <summary>
     /// Collection for Drawing objects.
     /// </summary>
-    public class ExcelDrawings : IEnumerable<ExcelDrawing>
+    public class ExcelDrawings : IEnumerable<ExcelDrawing>, IDisposable
     {
         private XmlDocument _drawingsXml=new XmlDocument();
         private Dictionary<string, int> _drawingNames;
@@ -510,6 +510,23 @@ namespace OfficeOpenXml.Drawing
                     pos[ix++, 1] = d.GetPixelHeight();
                 }
                 return pos;
+            }
+
+            public void Dispose()
+            {
+                _drawingsXml = null;
+                _hashes.Clear();
+                _hashes = null;
+                _part = null;
+                _drawingNames.Clear();
+                _drawingNames = null;
+                _drawingRelation = null;
+                foreach (var d in _drawings)
+                {
+                    d.Dispose();
+                }
+                _drawings.Clear();
+                _drawings = null;
             }
     }
 }

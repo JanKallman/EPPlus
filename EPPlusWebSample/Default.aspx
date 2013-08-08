@@ -11,7 +11,7 @@
         BACKGROUND-COLOR:#FFFFFF;
         COLOR: #111111;
         FONT-FAMILY: Arial;
-        font-size large;
+        font-size: large;
         margin-top: 1px
     }
     table

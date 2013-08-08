@@ -15,6 +15,7 @@ namespace EPPlusTest
     /// <summary>
     /// Summary description for UnitTest1
     /// </summary>
+    [DeploymentItem("Test\\Drawing.xlsx")]
     [TestClass]
     public class DrawingTest
     {
@@ -44,11 +45,10 @@ namespace EPPlusTest
          [ClassInitialize()]
          public static void MyClassInitialize(TestContext testContext) 
          {
-             if (Directory.Exists("Test"))
+             if (!Directory.Exists("test"))
              {
-                 Directory.Delete("Test", true);
+                 Directory.CreateDirectory("test");
              }
-             Directory.CreateDirectory(string.Format("Test"));
              _pck = new ExcelPackage(new FileInfo("Test\\Drawing.xlsx"));         
          }
         
