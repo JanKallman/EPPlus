@@ -62,10 +62,15 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
 
         public RangeAddress Create(int col, int row)
         {
+            return Create(string.Empty, col, row);
+        }
+
+        public RangeAddress Create(string worksheetName, int col, int row)
+        {
             return new RangeAddress()
             {
                 Address = _indexToAddressTranslator.ToAddress(col, row),
-                Worksheet = string.Empty,
+                Worksheet = worksheetName,
                 FromCol = col,
                 ToCol = col,
                 FromRow = row,

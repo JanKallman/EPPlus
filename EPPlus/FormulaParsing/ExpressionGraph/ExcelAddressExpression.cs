@@ -82,7 +82,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
             var result = _excelDataProvider.GetRangeValues(rangeAddress.Worksheet, rangeAddress.Address);
-            if (result == null || result.Count() == 0)
+            if (result == null && !result.Any())
             {
                 return null;
             }
@@ -96,14 +96,15 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             //    var factory = new CompileResultFactory();
             //    return factory.Create(rangeValueList.First());
             //}
-            if (result.Count() > 1)
+
+            if (ExcelAddressInfo.Parse(ExpressionString).IsMultipleCells)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
             else
             {
                 var factory = new CompileResultFactory();
-                return factory.Create(result.First());
+                return factory.Create(result.FirstOrDefault());
             }
         }
 

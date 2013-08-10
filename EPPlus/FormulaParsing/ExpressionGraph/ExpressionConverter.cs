@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -54,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 case DataType.String:
                     return new StringExpression(compileResult.Result.ToString());
                 case DataType.Decimal:
-                    return new DecimalExpression(compileResult.Result.ToString());
+                    return new DecimalExpression(((double)compileResult.Result).ToString(CultureInfo.InvariantCulture));
                 case DataType.Boolean:
                     return new BooleanExpression(compileResult.Result.ToString());
             }

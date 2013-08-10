@@ -102,7 +102,8 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void ColumnShouldReturnRowNumber()
         {
-            _excelDataProvider.Stub(x => x.GetRangeValues("B4")).Return(new List<ExcelCell> { new ExcelCell(null, "Column()", 0, 0) });
+            //_excelDataProvider.Stub(x => x.GetRangeValues("B4")).Return(new List<ExcelCell> { new ExcelCell(null, "Column()", 0, 0) });
+            _excelDataProvider.Stub(x => x.GetRangeValues("", "B4")).Return(new List<object> { "Column()"});
             var result = _parser.ParseAt("B4");
             Assert.AreEqual(2, result);
         }

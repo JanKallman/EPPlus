@@ -15,9 +15,9 @@ namespace EPPlusTest
         [TestMethod]
         public void Calulation()
         {
-            var pck = new ExcelPackage(new FileInfo("c:\\temp\\resultatmodell 2013-03-29.xlsx"));
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\chaintest.xlsx"));
             pck.Workbook.Calculate();
-            Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
+            Assert.AreEqual(1124662532499D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
         }
     }
 }

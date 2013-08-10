@@ -93,7 +93,7 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return Parse(formula, _parsingContext.RangeAddressFactory.Create(address));
         }
-
+        
         public virtual object Parse(string formula)
         {
             return Parse(formula, RangeAddress.Empty);
@@ -102,7 +102,21 @@ namespace OfficeOpenXml.FormulaParsing
         public virtual object ParseAt(string address)
         {
             Require.That(address).Named("address").IsNotNullOrEmpty();
-            return _excelDataProvider.GetRangeValues("", address).FirstOrDefault();
+            var rangeAddress = _parsingContext.RangeAddressFactory.Create(address);
+            return ParseAt(rangeAddress.Worksheet, rangeAddress.FromRow, rangeAddress.FromCol);
+        }
+
+        public virtual object ParseAt(string worksheetName, int row, int col)
+        {
+            var f = _excelDataProvider.GetRangeFormula(worksheetName, row, col);
+            if (string.IsNullOrEmpty(f))
+            {
+                return _excelDataProvider.GetRangeValue(worksheetName, row, col);
+            }
+            else
+            {
+                return Parse(f, _parsingContext.RangeAddressFactory.Create(worksheetName,col,row));
+            }
             //var dataItem = _excelDataProvider.GetRangeValues(address).FirstOrDefault();
             //if (dataItem == null /*|| (dataItem.Value == null && dataItem.Formula == null)*/) return null;
             //if (!string.IsNullOrEmpty(dataItem.Formula))

@@ -30,6 +30,9 @@ namespace OfficeOpenXml.FormulaParsing
 
         public abstract IEnumerable<object> GetRangeValues(string address);
 
+        public abstract string GetRangeFormula(string worksheetName, int row, int column);
+
+
         ///// <summary>
         ///// Returns a single cell value
         ///// </summary>
@@ -66,5 +69,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// Max number of rows in a worksheet that the Excel data provider can handle
         /// </summary>
         public abstract int ExcelMaxRows { get; }
+
+        public abstract object GetRangeValue(string worksheetName, int row, int column);
     }
 }
