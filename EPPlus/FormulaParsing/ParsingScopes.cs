@@ -30,7 +30,6 @@ namespace OfficeOpenXml.FormulaParsing
             _scopes.Push(scope);
             return scope;
         }
-
         public virtual ParsingScope Current
         {
             get { return _scopes.Count() > 0 ? _scopes.Peek() : null; }

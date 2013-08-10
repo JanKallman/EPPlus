@@ -13,6 +13,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
     [TestClass]
     public class LookupNavigatorTests
     {
+        const string WorksheetName = "";
         private LookupArguments GetArgs(params object[] args)
         {
             var lArgs = FunctionsHelper.CreateArgs(args);
@@ -30,8 +31,8 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void NavigatorShouldEvaluateFormula()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(null, "B5", 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(null, "B5", 0, 0));
             var args = GetArgs(4, "A1:B2", 1);
             var context = GetContext(provider);
             var parser = MockRepository.GenerateMock<FormulaParser>(provider);
@@ -45,8 +46,8 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void CurrentValueShouldBeFirstCell()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(4, null, 0, 0));
             var args = GetArgs(3, "A1:B2", 1);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(3, navigator.CurrentValue);
@@ -56,8 +57,8 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void MoveNextShouldReturnFalseIfLastCell()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(4, null, 0, 0));
             var args = GetArgs(3, "A1:B1", 1);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.IsFalse(navigator.MoveNext());
@@ -67,8 +68,8 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void HasNextShouldBeTrueIfNotLastCell()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(4, null, 0, 0));
             var args = GetArgs(3, "A1:B2", 1);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.IsTrue(navigator.MoveNext());
@@ -78,8 +79,8 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void MoveNextShouldNavigateVertically()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(4, null, 0, 0));
             var args = GetArgs(6, "A1:B2", 1);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             navigator.MoveNext();
@@ -90,8 +91,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void MoveNextShouldIncreaseIndex()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 1)).Return(4);
             var args = GetArgs(6, "A1:B2", 1);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(0, navigator.Index);
@@ -103,8 +106,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void GetLookupValueShouldReturnCorrespondingValue()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(0, 1)).Return(new ExcelCell(4, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 1)).Return(4);
             var args = GetArgs(6, "A1:B2", 2);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(4, navigator.GetLookupValue());
@@ -114,8 +119,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void GetLookupValueShouldReturnCorrespondingValueWithOffset()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(2, 2)).Return(new ExcelCell(4, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
+            //provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName, 0, 1)).Return(4);
             var args = new LookupArguments(3, "A1:A4", 3, 2, false);
             var navigator = new LookupNavigator(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(4, navigator.GetLookupValue());

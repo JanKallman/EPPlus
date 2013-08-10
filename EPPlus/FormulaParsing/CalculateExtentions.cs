@@ -39,40 +39,39 @@ namespace OfficeOpenXml.Calculation
 {
     public static class CalculationExtension
     {
-        public static void Calculate(this ExcelWorkbook Workbook)
+        public static void Calculate(this ExcelWorkbook workbook)
         {
-            var dc = CalculationChain.GetChain(Workbook);
-            var parser = new FormulaParser(new EpplusExcelDataProvider(Workbook._package));
+            var dc = DependencyChainFactory.Create(workbook);
+            var parser = workbook.FormulaParser;
             //TODO: Add calculation here
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
+                var v = parser.Parse(item.Tokens,item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
             Workbook._isCalculated = true;
         }
-
-        public static void Calculate(this ExcelWorksheet Worksheet)
+        public static void Calculate(this ExcelWorksheet worksheet)
         {
-            var parser = new FormulaParser(new EpplusExcelDataProvider(Worksheet._package));
-            var dc = CalculationChain.GetChain(Worksheet);
+            var parser = worksheet.Workbook.FormulaParser;
+            var dc = DependencyChainFactory.Create(worksheet);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
+                var v = parser.ParseAt(ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
             Worksheet.Workbook._isCalculated = true;
         }
-        public static void Calculate(this ExcelRangeBase Range)
+        public static void Calculate(this ExcelRangeBase range)
         {
-            var parser = new FormulaParser(new EpplusExcelDataProvider(Range.Worksheet._package));
-            var dc = CalculationChain.GetChain(Range);
+            var parser = range.Worksheet.Workbook.FormulaParser;
+            var dc = DependencyChainFactory.Create(range);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(ExcelAddressBase.GetAddress(item.Row, item.Column));
+                var v = parser.ParseAt(ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
             Range.Worksheet.Workbook._isCalculated = true;

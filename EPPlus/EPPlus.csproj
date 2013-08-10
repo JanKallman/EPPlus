@@ -277,7 +277,9 @@
     <Compile Include="ExcelProtection.cs" />
     <Compile Include="ExcelTextFormat.cs" />
     <Compile Include="FormulaParsing\CalculateExtentions.cs" />
-    <Compile Include="FormulaParsing\CalculationChain.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\DependenyChainFactory.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\DependencyChain.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\FormulaCell.cs" />
     <Compile Include="FormulaParsing\EpplusExcelDataProvider.cs" />
     <Compile Include="FormulaParsing\ExcelCell.cs" />
     <Compile Include="FormulaParsing\ExcelDataProvider.cs" />

@@ -23,61 +23,62 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return _package.Workbook.Worksheets.First().Names;
         }
-
-        public override IDictionary<string, string> GetWorksheetFormulas(string sheetName)
-        {
-            //var ws = _package.Workbook.Worksheets[sheetName]._formulas;
-            //return ((ICalcEngineFormulaInfo)ws).GetFormulas();
-            return new Dictionary<string, string>();
-        }
-
-        public override IDictionary<string, string> GetWorkbookFormulas()
-        {
-            //var wb = (ICalcEngineFormulaInfo)_package.Workbook;
-            //return wb.GetFormulas();
-            return new Dictionary<string, string>();
-        }
-
         public override ExcelNamedRangeCollection GetWorkbookNameValues()
         {
             return _package.Workbook.Names;
         }
 
-        public override IEnumerable<ExcelCell> GetRangeValues(string address)
+        public override IEnumerable<object> GetRangeValues(string worksheetName, string address)
         {
-            var returnList = new List<ExcelCell>();
-            var addressInfo = ExcelAddressInfo.Parse(address);
-            SetCurrentWorksheet(addressInfo);
-            var range = _currentWorksheet.Cells[addressInfo.AddressOnSheet];
-            foreach (var cell in range)
-            {
-                returnList.Add(new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row));
-            }
-            return returnList;
+            throw new NotImplementedException();
         }
 
-        public override ExcelCell GetCellValue(string address)
-        {
-            var addressInfo = ExcelAddressInfo.Parse(address);
-            SetCurrentWorksheet(addressInfo);
-            var cell = _currentWorksheet.Cells[addressInfo.AddressOnSheet].FirstOrDefault();
-            if (cell != null)
-            {
-                return new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row);
-            }
-            return null;
+        public override IEnumerable<object> GetRangeValues(string address)
+        {            
+            var addr = new ExcelAddress(address);
+            var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
+            var ws = _package.Workbook.Worksheets[wsName];
+            return (IEnumerable<object>)(new CellsStoreEnumerator<object>(ws._values));
+            //return ws.Cells[address];
+            //var returnList = new List<ExcelCell>();
+            //var addressInfo = ExcelAddressInfo.Parse(address);
+            //SetCurrentWorksheet(addressInfo);
+            //var range = _currentWorksheet.Cells[addressInfo.AddressOnSheet];
+            //foreach (var cell in range)
+            //{
+            //    returnList.Add(new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row));
+            //}
+            //return returnList;
         }
-
-        public override ExcelCell GetCellValue(int row, int col)
+        public object GetValue(int row, int column)
         {
-            var cell = _currentWorksheet.Cells[row, col];
-            if (cell != null)
-            {
-                return new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row);
-            }
-            return null;
+            return _currentWorksheet._values.GetValue(row, column);
         }
+        public bool IsMerged(int row, int column)
+        {
+            return _currentWorksheet._flags.GetFlagValue(row, column, CellFlags.Merged);
+        }
+        public bool IsHidden(int row, int column)
+        {
+            return _currentWorksheet.Column(column).Hidden || _currentWorksheet.Column(column).Width == 0 ||
+                   _currentWorksheet.Row(row).Hidden || _currentWorksheet.Row(column).Height == 0;
+        }        
+        //public override ExcelCell GetCellValue(string address)
+        //{
+        //    var addressInfo = ExcelAddressInfo.Parse(address);
+        //    SetCurrentWorksheet(addressInfo);
+        //    var cell = _currentWorksheet.Cells[addressInfo.AddressOnSheet].FirstOrDefault();
+        //    if (cell != null)
+        //    {
+        //        return new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row);
+        //    }
+        //    return null;
+        //}
 
+        public override object GetCellValue(string sheetName, int row, int col)
+        {
+            return _package.Workbook.Worksheets[sheetName]._values.GetValue(row, col);
+        }
         private void SetCurrentWorksheet(ExcelAddressInfo addressInfo)
         {
             if (addressInfo.WorksheetIsSpecified)
@@ -90,15 +91,15 @@ namespace OfficeOpenXml.FormulaParsing
             }
         }
 
-        public override void SetCellValue(string address, object value)
-        {
-            var addressInfo = ExcelAddressInfo.Parse(address);
-            var ra = _rangeAddressFactory.Create(address);
-            SetCurrentWorksheet(addressInfo);
-            //var valueInfo = (ICalcEngineValueInfo)_currentWorksheet;
-            //valueInfo.SetFormulaValue(ra.FromRow + 1, ra.FromCol + 1, value);
-            _currentWorksheet.Cells[ra.FromRow + 1, ra.FromCol + 1].Value = value;
-        }
+        //public override void SetCellValue(string address, object value)
+        //{
+        //    var addressInfo = ExcelAddressInfo.Parse(address);
+        //    var ra = _rangeAddressFactory.Create(address);
+        //    SetCurrentWorksheet(addressInfo);
+        //    //var valueInfo = (ICalcEngineValueInfo)_currentWorksheet;
+        //    //valueInfo.SetFormulaValue(ra.FromRow + 1, ra.FromCol + 1, value);
+        //    _currentWorksheet.Cells[ra.FromRow + 1, ra.FromCol + 1].Value = value;
+        //}
 
         public override void Dispose()
         {
