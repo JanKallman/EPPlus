@@ -199,7 +199,7 @@ namespace EPPlusSamples
                 wsUser.Cells[cell.Address].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 if (cell.Value.ToString().ToLower() == wsUser.Cells[cell.Address].Value.ToString().ToLower()) //Correct Answer?
                 {
-                        wsUser.Cells[cell.Address].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                    wsUser.Cells[cell.Address].Style.Fill.BackgroundColor.SetColor(Color.Green);
                 }
                 else
                 {

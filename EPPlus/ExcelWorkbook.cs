@@ -45,6 +45,7 @@ using System.Windows.Media;
 using System.Windows;
 using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.Excel.Functions;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -119,6 +120,7 @@ namespace OfficeOpenXml
 		internal int _nextTableID = 1;
 		internal int _nextPivotTableID = 1;
 		internal XmlNamespaceManager _namespaceManager;
+        internal FormulaParser _formulaParser = null;
 		/// <summary>
 		/// Read shared strings to list
 		/// </summary>
@@ -286,7 +288,24 @@ namespace OfficeOpenXml
 		#region Workbook Properties
 		decimal _standardFontWidth = decimal.MinValue;
         string _fontID = "";
-		/// <summary>
+        internal FormulaParser FormulaParser
+        {
+            get
+            {
+                if (_formulaParser == null)
+                {
+                    _formulaParser = new FormulaParser(new EpplusExcelDataProvider(_package));
+                }
+                return _formulaParser;
+            }
+        }
+
+        public void LoadFunctionModule(IFunctionModule module)
+        {
+            FormulaParser.Configure(x => x.FunctionRepository.LoadModule(module));
+        }
+
+        /// <summary>
 		/// Max font width for the workbook
         /// <remarks>This method uses GDI. If you use Asure or another environment that does not support GDI, you have to set this value manually if you don't use the standard Calibri font</remarks>
 		/// </summary>
@@ -348,7 +367,7 @@ namespace OfficeOpenXml
 				}
 				return _protection;
 			}
-		}
+		}        
 		ExcelWorkbookView _view = null;
 		/// <summary>
 		/// Access to workbook view properties

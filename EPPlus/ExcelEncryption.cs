@@ -140,13 +140,27 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Algorithm used for encrypting the package. Default is AES 128-bit
+        /// Algorithm used for encrypting the package. Default is AES 128-bit for version3 and AES 256 for version 4
         /// </summary>
         public EncryptionAlgorithm Algorithm { get; set; }
+        private EncryptionVersion _version = EncryptionVersion.Version4;
+        /// <summary>
+        /// The version of the encryption.        
+        /// </summary>
         public EncryptionVersion Version
         {
-            get;
-            set;
+            get
+            {
+                return _version;
+            }
+            set
+            {
+                _version=value;
+                if (value == EncryptionVersion.Version4)
+                {
+                    Algorithm = EncryptionAlgorithm.AES256;
+                }
+            }
         }
     }
 }

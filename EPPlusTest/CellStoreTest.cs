@@ -69,7 +69,7 @@ namespace EPPlusTest
                 ws.InsertRow(15, 1);
             }
             Assert.AreEqual(ws.GetValue(1, 1), "0,0");
-            Assert.AreEqual(ws.GetValue(34, 1), "1,0");
+            Assert.AreEqual(ws.GetValue(47, 1), "14,0");
         }
         [TestMethod]
         public void Insert3()

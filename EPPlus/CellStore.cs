@@ -270,9 +270,9 @@ using OfficeOpenXml;
     internal class CellStore<T> : IDisposable// : IEnumerable<ulong>, IEnumerator<ulong>
     {
         /**** Size constants ****/
-        internal const int pageBits = 4;   //8096
+        internal const int pageBits = 14;   //8096
         internal const int PageSize = 1 << pageBits;
-        internal const int PageSizeMin = 16;
+        internal const int PageSizeMin = 1024;
         internal const int PageSizeMax = PageSize << 1; //Double page size
         internal const int ColSizeMin = 32;
         internal const int PagesPerColumnMin = 32;
@@ -614,7 +614,7 @@ using OfficeOpenXml;
                                 UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow, rows);
                             }
                         }
-                        else if(column.PageCount>pagePos+1)
+                        else if (column.PageCount >= pagePos + 1)
                         {
                             int offset = fromRow - column._pages[pagePos].IndexOffset;
                             var rowPos = column._pages[pagePos].GetPosition(offset);
@@ -622,7 +622,7 @@ using OfficeOpenXml;
                             {
                                 rowPos = ~rowPos;
                             }
-                            if (column._pages[pagePos].RowCount>rowPos)
+                            if (column._pages[pagePos].RowCount > rowPos)
                             {
                                 UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
                             }
@@ -1618,7 +1618,7 @@ using OfficeOpenXml;
 
 
     }
-    internal class CellsStoreEnumerator<T>
+    internal class CellsStoreEnumerator<T> : IEnumerable<T>, IEnumerator<T>
     {
         CellStore<T> _cellStore;
         int row, colPos;
@@ -1691,6 +1691,47 @@ using OfficeOpenXml;
             {
                 return ExcelAddressBase.GetAddress(Row, Column);
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this;
+        }
+
+        public T Current
+        {
+            get
+            {
+                return Value;
+            }
+        }
+
+        public void Dispose()
+        {
+            _cellStore=null;
+        }
+
+        object IEnumerator.Current
+        {
+            get 
+            { 
+                return this;
+            }
+        }
+
+        public bool MoveNext()
+        {
+            return Next();
+        }
+
+        public void Reset()
+        {
+            
         }
     }
     internal class FlagCellStore : CellStore<byte>
