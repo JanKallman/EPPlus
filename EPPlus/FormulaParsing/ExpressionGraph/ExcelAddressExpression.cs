@@ -80,20 +80,30 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private CompileResult CompileRangeValues()
         {
-            var result = _excelDataProvider.GetRangeValues(ExpressionString);
+            var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
+            var result = _excelDataProvider.GetRangeValues(rangeAddress.Worksheet, rangeAddress.Address);
             if (result == null || result.Count() == 0)
             {
                 return null;
             }
-            var rangeValueList = HandleRangeValues(result);
-            if (rangeValueList.Count > 1)
+            //var rangeValueList = HandleRangeValues(result);
+            //if (rangeValueList.Count > 1)
+            //{
+            //    return new CompileResult(rangeValueList, DataType.Enumerable);
+            //}
+            //else
+            //{
+            //    var factory = new CompileResultFactory();
+            //    return factory.Create(rangeValueList.First());
+            //}
+            if (result.Count() > 1)
             {
-                return new CompileResult(rangeValueList, DataType.Enumerable);
+                return new CompileResult(result, DataType.Enumerable);
             }
             else
             {
                 var factory = new CompileResultFactory();
-                return factory.Create(rangeValueList.First());
+                return factory.Create(result.First());
             }
         }
 

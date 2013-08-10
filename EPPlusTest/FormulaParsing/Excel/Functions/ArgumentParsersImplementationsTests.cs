@@ -97,7 +97,7 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
-        public void DoubleParserConvertStringToDouble()
+        public void DoubleParserConvertStringToDoubleWithDotSeparator()
         {
             var parser = new DoubleArgumentParser();
             var result = parser.Parse("3.3");

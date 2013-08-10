@@ -280,7 +280,7 @@ namespace OfficeOpenXml
                 return _ws;
             }
         }
-        List<ExcelAddress> _addresses = null;
+        internal protected List<ExcelAddress> _addresses = null;
         internal virtual List<ExcelAddress> Addresses
         {
             get

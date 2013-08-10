@@ -1268,10 +1268,15 @@ namespace OfficeOpenXml
 		{
             ExcelRow r;
             //ulong id = ExcelRow.GetRowID(_sheetID, row);
+            //TODO: Fixa.
             var v = _values.GetValue(row, 0);
             if (v!=null)
             {
-                r = v as ExcelRow;
+                var ri=(RowInternal)v;
+                r = new ExcelRow(this, row)
+                {
+                   Collapsed=ri.Collapsed
+                };
             }
             else
             {

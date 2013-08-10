@@ -2467,52 +2467,36 @@ namespace OfficeOpenXml
 			}
 		}
 
-		public bool MoveNext()
+		int _enumAddressIx = -1;
+        public bool MoveNext()
 		{
-            //_index++;
-            //if (_enumAddressIx == -1)
-            //{
-            //    GetNextIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
-
-            //    if (_index >= _worksheet._cells.Count || _worksheet._cells[_index].RangeID > _toCellId)
-            //    {
-            //        if (Addresses == null)
-            //        {
-            //            return false;
-            //        }
-            //        else
-            //        {
-            //            _enumAddressIx++;
-            //            GetStartIndexEnum(Addresses[0].Start.Row, Addresses[0].Start.Column, Addresses[0].End.Row, Addresses[0].End.Column);
-            //            return MoveNext();
-            //        }
-            //    }
-
-            //}
-            //else
-            //{
-            //    GetNextIndexEnum(Addresses[_enumAddressIx].Start.Row, Addresses[_enumAddressIx].Start.Column, Addresses[_enumAddressIx].End.Row, Addresses[_enumAddressIx].End.Column);
-            //    if (_index >= _worksheet._cells.Count || _worksheet._cells[_index].RangeID > _toCellId)
-            //    {
-            //        if (++_enumAddressIx < Addresses.Count)
-            //        {
-            //            GetStartIndexEnum(Addresses[_enumAddressIx].Start.Row, Addresses[_enumAddressIx].Start.Column, Addresses[_enumAddressIx].End.Row, Addresses[_enumAddressIx].End.Column);
-            //            MoveNext();
-            //        }
-            //        else
-            //        {
-            //            return false;
-            //        }
-            //    }
-            //}
-            //return true;
-            return cellEnum.Next();
+            if (cellEnum.Next())
+            {
+                return true;
+            }
+            else if (_addresses!=null)
+            {
+                _enumAddressIx++;
+                if (_enumAddressIx < _addresses.Count)
+                {
+                    cellEnum = new CellsStoreEnumerator<object>(_worksheet._values, 
+                        _addresses[_enumAddressIx]._fromRow, 
+                        _addresses[_enumAddressIx]._fromCol, 
+                        _addresses[_enumAddressIx]._toRow, 
+                        _addresses[_enumAddressIx]._toCol);
+                    return MoveNext();
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            return false;
 		}
 
 		public void Reset()
 		{
-            //_enumAddressIx = -1;
-            //GetStartIndexEnum(_fromRow, _fromCol, _toRow, _toCol);
+            _enumAddressIx = -1;
             cellEnum = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
         }
 

@@ -38,42 +38,35 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing
 {
-    internal static class CalculationChain
+    internal static class DependencyChainFactory
     {
-        private static SourceCodeTokenizer GetTokenizer(ExcelWorkbook workbook)
-        {
-            var ctx = ParsingContext.Create();
-            return new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
-        }
-        internal static DependencyChain GetChain(ExcelWorkbook wb)
+        internal static DependencyChain Create(ExcelWorkbook wb)
         {
             var depChain = new DependencyChain();
-            var sct = GetTokenizer(wb);
             foreach (var ws in wb.Worksheets)
             {
-                GetChain(depChain, sct, ws.Cells);
+                GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells);
             }
             return depChain;
         }
-        internal static DependencyChain GetChain(ExcelWorksheet ws)
+
+        internal static DependencyChain Create(ExcelWorksheet ws)
         {
             var depChain = new DependencyChain();
-            var sct = GetTokenizer(ws.Workbook);
 
-            GetChain(depChain, sct, ws.Cells);
+            GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws.Cells);
 
             return depChain;
         }
-        internal static DependencyChain GetChain(ExcelRangeBase range)
+        internal static DependencyChain Create(ExcelRangeBase range)
         {
             var depChain = new DependencyChain();
-            var sct = GetTokenizer(range.Worksheet.Workbook);
 
-            GetChain(depChain, sct, range);
+            GetChain(depChain, range.Worksheet.Workbook.FormulaParser.Lexer, range);
 
             return depChain;
         }
-        private static void GetChain(DependencyChain depChain, SourceCodeTokenizer sct, ExcelRangeBase Range)
+        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelRangeBase Range)
         {
             var ws = Range.Worksheet;
             var fs = new CellsStoreEnumerator<object>(ws._formulas, Range.Start.Row, Range.Start.Column, Range.End.Row, Range.End.Column);
@@ -91,21 +84,21 @@ namespace OfficeOpenXml.FormulaParsing
                     {
                         f.Formula = fs.Value.ToString();
                     }
-                    f.Tokens = sct.Tokenize(f.Formula).ToList();
+                    f.Tokens = lexer.Tokenize(f.Formula).ToList();
                     depChain.Add(f);
-                    FollowChain(depChain, sct, ws, f);
+                    FollowChain(depChain, lexer, ws, f);
                 }
             }
         }
         /// <summary>
         /// This method follows the calculation chain to get the order of the calculation
-        /// Goto (!) is used internally to prevent stackoverflow on extremly larget dependency trees (that is many recursive formulas).
+        /// Goto (!) is used internally to prevent stackoverflow on extremly larget dependency trees (that is, many recursive formulas).
         /// </summary>
         /// <param name="depChain">The dependency chain object</param>
         /// <param name="sct">The formula tokenizer</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function obleject</param>
-        private static void FollowChain(DependencyChain depChain, SourceCodeTokenizer sct, ExcelWorksheet ws, FormulaCell f)
+        private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorksheet ws, FormulaCell f)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();
         iterateToken:
@@ -154,20 +147,23 @@ namespace OfficeOpenXml.FormulaParsing
                     {
                         rf.Formula = f.iterator.Value.ToString();
                     }
-                    rf.Tokens = sct.Tokenize(rf.Formula).ToList();
+                    rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
                     depChain.Add(rf);
                     stack.Push(f);
                     f = rf;
                     goto iterateToken;
                 }
-                else if (stack.Count > 0)
+                else 
                 {
-                    //Check for circular references
-                    foreach (var par in stack)
+                    if (stack.Count > 0)
                     {
-                        if (ExcelAddressBase.GetCellID(par.ws.SheetID, par.iterator.Row, par.iterator.Column) == id)
+                        //Check for circular references
+                        foreach (var par in stack)
                         {
-                            throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
+                            if (ExcelAddressBase.GetCellID(par.ws.SheetID, par.iterator.Row, par.iterator.Column) == id)
+                            {
+                                throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
+                            }
                         }
                     }
                 }
@@ -175,31 +171,5 @@ namespace OfficeOpenXml.FormulaParsing
             f.tokenIx++;
             goto iterateToken;
         }
-    }
-    internal class DependencyChain
-    {
-        internal List<FormulaCell> list = new List<FormulaCell>();
-        internal Dictionary<ulong, int> index = new Dictionary<ulong, int>();
-        internal List<int> CalcOrder = new List<int>();
-        internal void Add(FormulaCell f)
-        {
-            list.Add(f);
-            f.Index = list.Count - 1;
-            index.Add(ExcelCellBase.GetCellID(f.SheetID, f.Row, f.Column), f.Index);
-        }
-    }
-    internal class FormulaCell
-    {
-        internal int Index { get; set; }
-        internal int SheetID { get; set; }
-        internal int Row { get; set; }
-        internal int Column { get; set; }
-        internal string Formula { get; set; }
-        internal List<Token> Tokens { get; set; }
-
-        internal int tokenIx = 0;
-        internal int addressIx = 0;
-        internal CellsStoreEnumerator<object> iterator;
-        internal ExcelWorksheet ws;
     }
 }
