@@ -97,10 +97,15 @@ namespace EPPlusTest
         [TestMethod]
         public void EncrypTest()
         {
-            var p = new ExcelPackage(new FileInfo(@"c:\temp\encrwrite.xlsx"));
-            p.Workbook.Protection.SetPassword("test");
+            var f = new FileInfo(@"c:\temp\encrwrite.xlsx");
+            if (f.Exists)
+            {
+                f.Delete();
+            }
+            var p = new ExcelPackage(f);
+            
+            p.Workbook.Protection.SetPassword("");
             p.Workbook.Protection.LockStructure = true;
-            p.Encryption.Password = "test";
             p.Encryption.Version = EncryptionVersion.Agile;
 
             var ws = p.Workbook.Worksheets.Add("Sheet1");

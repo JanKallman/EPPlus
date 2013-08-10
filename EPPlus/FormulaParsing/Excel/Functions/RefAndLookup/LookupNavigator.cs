@@ -38,19 +38,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 
         private void SetCurrentValue()
         {
-            var cellValue = _parsingContext.ExcelDataProvider.GetCellValue(_currentRow, _currentCol);
-            if (cellValue.Value != null)
-            {
-                CurrentValue = cellValue.Value;
-            }
-            else if (!string.IsNullOrEmpty(cellValue.Formula))
-            {
-                CurrentValue = _parsingContext.Parser.Parse(cellValue.Formula);
-            }
-            else
-            {
-                CurrentValue = null;
-            }
+            CurrentValue = _parsingContext.ExcelDataProvider.GetCellValue(_rangeAddress.Worksheet, _currentRow, _currentCol);
+            //if (cellValue.Value != null)
+            //{
+            //    CurrentValue = cellValue.Value;
+            //}
+            ////else if (!string.IsNullOrEmpty(cellValue.Formula))
+            ////{
+            ////    CurrentValue = _parsingContext.Parser.Parse(cellValue.Formula);
+            ////}
+            //else
+            //{
+            //    CurrentValue = null;
+            //}
         }
 
         private bool HasNext()
@@ -107,8 +107,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 row += _arguments.LookupIndex - 1;
                 col += _arguments.LookupOffset;
             }
-            var cellValue = _parsingContext.ExcelDataProvider.GetCellValue(row, col);
-            return cellValue != null ? cellValue.Value : null;
+            return _parsingContext.ExcelDataProvider.GetCellValue(_rangeAddress.Worksheet, row, col); 
+            //var cellValue = _parsingContext.ExcelDataProvider.GetCellValue(row, col);
+            //return cellValue != null ? cellValue.Value : null;
         }
     }
 }
