@@ -1851,7 +1851,7 @@ using OfficeOpenXml;
 
         public void Dispose()
         {
-            _cellStore=null;
+            //_cellStore=null;
         }
 
         object IEnumerator.Current

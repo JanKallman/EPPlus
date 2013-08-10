@@ -369,6 +369,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Subtotal.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />

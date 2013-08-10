@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Calculation
                 var v = parser.Parse(item.Tokens,item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
-            Workbook._isCalculated = true;
+            workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
@@ -59,10 +59,10 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(ExcelCellBase.GetAddress(item.Row, item.Column));
+                var v = parser.ParseAt(item.ws.Name, item.Row, item.Column);
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
-            Worksheet.Workbook._isCalculated = true;
+            worksheet.Workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelRangeBase range)
         {
@@ -74,7 +74,7 @@ namespace OfficeOpenXml.Calculation
                 var v = parser.ParseAt(ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
-            Range.Worksheet.Workbook._isCalculated = true;
+            range.Worksheet.Workbook._isCalculated = true;
         }
     }
 }
