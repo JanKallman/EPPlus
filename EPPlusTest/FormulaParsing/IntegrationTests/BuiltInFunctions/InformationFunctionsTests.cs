@@ -45,7 +45,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void IsTextShouldReturnTrueWhenReferencedCellContainsText()
         {
-            _excelDataProvider.Stub(x => x.GetRangeValues("A1")).Return(new List<ExcelCell> { new ExcelCell("abc", string.Empty, 0, 0) });
+            _excelDataProvider.Stub(x => x.GetRangeValues(string.Empty, "A1")).Return(new List<object> { "abc" });
             var result = _parser.Parse("ISTEXT(A1)");
             Assert.IsTrue((bool)result);
         }

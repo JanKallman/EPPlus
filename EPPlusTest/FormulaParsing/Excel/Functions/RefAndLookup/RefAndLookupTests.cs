@@ -66,10 +66,10 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
             
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(2, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(2);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(5);
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -84,10 +84,10 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(5, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell(4, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(5);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(4);
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -192,12 +192,12 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell("A", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell("B", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return(new ExcelCell(5, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(new ExcelCell("C", null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return("A");
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return("B");
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return(5);
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return("C");
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -212,12 +212,12 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell("A", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell("B", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(new ExcelCell("C", null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return("A");
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return("B");
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return("C");
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -232,12 +232,12 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return(new ExcelCell("A", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(new ExcelCell("B", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(new ExcelCell("C", null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return("A");
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return("B");
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return("C");
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -252,12 +252,12 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(new ExcelCell("A", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(new ExcelCell("B", null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 3)).Return(new ExcelCell("C", null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return("A");
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return("B");
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 3)).Return("C");
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
@@ -272,9 +272,9 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(2, result.Result);
@@ -288,9 +288,9 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,2, 0)).Return(5);
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(2, result.Result);
@@ -304,9 +304,9 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(1, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(1);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(2, result.Result);
@@ -320,9 +320,9 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(10, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(8, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(10);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(8);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(2, result.Result);
@@ -336,9 +336,9 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(10, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(8, null, 0, 0));
-            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(new ExcelCell(5, null, 0, 0));
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(10);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(8);
+            provider.Stub(x => x.GetCellValue(WorksheetName,0, 2)).Return(5);
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(1, result.Result);

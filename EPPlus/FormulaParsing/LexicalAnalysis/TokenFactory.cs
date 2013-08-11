@@ -89,18 +89,18 @@ namespace OpenOffice.FormulaParser.LexicalAnalysis
             {
                 return new Token(token, TokenType.Boolean);
             }
-            if (ExcelAddressUtil.IsValidAddress(token))
-            {
-                return new Token(token, TokenType.ExcelAddress);
-            }
             if (_functionNameProvider.IsFunctionName(token))
             {
                 return new Token(token, TokenType.Function);
             }
-            if (_nameValueProvider.IsNamedValue(token))
+            if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token))
             {
                 return new Token(token, TokenType.NameValue);
             }
+            if (ExcelAddressUtil.IsValidAddress(token))
+            {
+                return new Token(token, TokenType.ExcelAddress);
+            } 
             return new Token(token, TokenType.Unrecognized);
 
         }
