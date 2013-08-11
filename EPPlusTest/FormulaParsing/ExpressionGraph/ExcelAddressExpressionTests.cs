@@ -52,8 +52,8 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var expectedAddress = "A1";
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
             provider
-                .Stub(x => x.GetRangeValues(expectedAddress))
-                .Return(new ExcelCell[] {CreateItem(1) });
+                .Stub(x => x.GetRangeValues(string.Empty, expectedAddress))
+                .Return(new object[]{ 1 });
 
             var expression = new ExcelAddressExpression(expectedAddress, provider, _parsingContext);
             var result = expression.Compile();

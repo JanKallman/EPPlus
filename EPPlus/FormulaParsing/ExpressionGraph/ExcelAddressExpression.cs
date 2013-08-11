@@ -82,7 +82,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
             var result = _excelDataProvider.GetRangeValues(rangeAddress.Worksheet, rangeAddress.Address);
-            if (result == null && !result.Any())
+            if (result == null || !result.Any())
             {
                 return null;
             }
