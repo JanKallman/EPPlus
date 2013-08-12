@@ -15,9 +15,16 @@ namespace EPPlusTest
         [TestMethod]
         public void Calulation()
         {
-            var pck = new ExcelPackage(new FileInfo("c:\\temp\\chaintest.xlsx"));
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\chain.xlsx"));
             pck.Workbook.Calculate();
-            Assert.AreEqual(1124662532499D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
+            Assert.AreEqual(50D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
+        }
+        [TestMethod]
+        public void Calulation2()
+        {
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\chainTest.xlsx"));
+            pck.Workbook.Calculate();
+            Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
         }
     }
 }

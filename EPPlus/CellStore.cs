@@ -1761,6 +1761,7 @@ using OfficeOpenXml;
         CellStore<T> _cellStore;
         int row, colPos;
         int[] pagePos, cellPos;
+        int _startRow, _startCol, _endRow, _endCol;
         int minRow, minColPos, maxRow, maxColPos;
         public CellsStoreEnumerator(CellStore<T> cellStore) :
             this(cellStore, 0,0,ExcelPackage.MaxRows, ExcelPackage.MaxColumns)        
@@ -1769,24 +1770,35 @@ using OfficeOpenXml;
         public CellsStoreEnumerator(CellStore<T> cellStore, int StartRow, int StartCol, int EndRow, int EndCol)
         {
             _cellStore = cellStore;
-            minRow = StartRow;
-            maxRow = EndRow;
-            minColPos = cellStore.GetPosition(StartCol);
-            if (minColPos < 0) minColPos = ~minColPos;
-            maxColPos = cellStore.GetPosition(EndCol);
-            if (maxColPos < 0) maxColPos = ~maxColPos-1;
-            row = minRow;
-            colPos = minColPos - 1;
+            
+            _startRow=StartRow;
+            _startCol=StartCol;
+            _endRow=EndRow;
+            _endCol=EndCol;
 
-            var cols = maxColPos - minColPos + 1;
-            pagePos = new int[cols];
-            cellPos = new int[cols];
-            for (int i = 0; i < cols; i++)
-            {
-                pagePos[i] = -1;
-                cellPos[i] = -1;
-            }
+            Init();
 
+        }
+
+        private void Init()
+        {
+                    minRow = _startRow;
+                    maxRow = _endRow;
+                    minColPos = _cellStore.GetPosition(_startCol);
+                    if (minColPos < 0) minColPos = ~minColPos;
+                    maxColPos = _cellStore.GetPosition(_endCol);
+                    if (maxColPos < 0) maxColPos = ~maxColPos-1;
+                    row = minRow;
+                    colPos = minColPos - 1;
+
+                    var cols = maxColPos - minColPos + 1;
+                    pagePos = new int[cols];
+                    cellPos = new int[cols];
+                    for (int i = 0; i < cols; i++)
+                    {
+                        pagePos[i] = -1;
+                        cellPos[i] = -1;
+                    }
         }
         internal int Row 
         {
@@ -1833,11 +1845,13 @@ using OfficeOpenXml;
 
         public IEnumerator<T> GetEnumerator()
         {
+            Reset();
             return this;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
+            Reset();
             return this;
         }
 
@@ -1857,7 +1871,8 @@ using OfficeOpenXml;
         object IEnumerator.Current
         {
             get 
-            { 
+            {
+                Reset();
                 return this;
             }
         }
@@ -1869,7 +1884,7 @@ using OfficeOpenXml;
 
         public void Reset()
         {
-            
+            Init();
         }
     }
     internal class FlagCellStore : CellStore<byte>
