@@ -64,5 +64,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             get { return DataType == DataType.Decimal || DataType == DataType.Integer; }
         }
+
+        public bool IsResultOfSubtotal { get; set; }
     }
 }

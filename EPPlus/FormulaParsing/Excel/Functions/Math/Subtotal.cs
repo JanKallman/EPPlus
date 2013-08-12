@@ -65,7 +65,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var actualArgs = arguments.Skip(1);
             ExcelFunction function = null;
             function = GetFunctionByCalcType(funcNum);
-            return function.Execute(actualArgs, context);
+            var compileResult = function.Execute(actualArgs, context);
+            compileResult.IsResultOfSubtotal = true;
+            return compileResult;
         }
 
         private ExcelFunction GetFunctionByCalcType(int funcNum)
