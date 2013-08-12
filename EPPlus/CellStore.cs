@@ -1385,10 +1385,13 @@ using OfficeOpenXml;
 
         public void Dispose()
         {
-            _values.Clear();
+            if(_values!=null) _values.Clear();
             for(var c=0;c<ColumnCount;c++)
             {
-                ((IDisposable)_columnIndex[c]).Dispose();
+                if (_columnIndex[c] != null)
+                {
+                    ((IDisposable)_columnIndex[c]).Dispose();
+                }
             }
             _values = null;
             _columnIndex = null;
@@ -1782,23 +1785,23 @@ using OfficeOpenXml;
 
         private void Init()
         {
-                    minRow = _startRow;
-                    maxRow = _endRow;
-                    minColPos = _cellStore.GetPosition(_startCol);
-                    if (minColPos < 0) minColPos = ~minColPos;
-                    maxColPos = _cellStore.GetPosition(_endCol);
-                    if (maxColPos < 0) maxColPos = ~maxColPos-1;
-                    row = minRow;
-                    colPos = minColPos - 1;
+            minRow = _startRow;
+            maxRow = _endRow;
+            minColPos = _cellStore.GetPosition(_startCol);
+            if (minColPos < 0) minColPos = ~minColPos;
+            maxColPos = _cellStore.GetPosition(_endCol);
+            if (maxColPos < 0) maxColPos = ~maxColPos-1;
+            row = minRow;
+            colPos = minColPos - 1;
 
-                    var cols = maxColPos - minColPos + 1;
-                    pagePos = new int[cols];
-                    cellPos = new int[cols];
-                    for (int i = 0; i < cols; i++)
-                    {
-                        pagePos[i] = -1;
-                        cellPos[i] = -1;
-                    }
+            var cols = maxColPos - minColPos + 1;
+            pagePos = new int[cols];
+            cellPos = new int[cols];
+            for (int i = 0; i < cols; i++)
+            {
+                pagePos[i] = -1;
+                cellPos[i] = -1;
+            }
         }
         internal int Row 
         {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,8 +32,8 @@ namespace OfficeOpenXml.FormulaParsing
         public abstract IEnumerable<object> GetRangeValues(string address);
 
         public abstract string GetRangeFormula(string worksheetName, int row, int column);
-
-
+        public abstract List<Token> GetRangeFormulaTokens(string worksheetName, int row, int column);
+        public abstract bool IsRowHidden(string worksheetName, int row);
         ///// <summary>
         ///// Returns a single cell value
         ///// </summary>

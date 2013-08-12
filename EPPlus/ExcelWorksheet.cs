@@ -190,6 +190,7 @@ namespace OfficeOpenXml
         internal CellStore<int> _styles;
         internal CellStore<object> _formulas;
         internal FlagCellStore _flags;
+        internal CellStore<List<Token>> _formulaTokens;
 
         //internal CellStore<bool> _mergedCellsStore;
         //internal CellStore<bool> _isRichText;
@@ -3233,6 +3234,7 @@ namespace OfficeOpenXml
             _types.Dispose();
             _commentsStore.Dispose();
 
+            if (_formulaTokens != null) _commentsStore.Dispose();
             _values = null;
             _formulas = null;
             _flags = null;
@@ -3240,6 +3242,7 @@ namespace OfficeOpenXml
             _styles = null;
             _types = null;
             _commentsStore = null;
+            _formulaTokens = null;
 
             _package = null;
             _pivotTables = null;

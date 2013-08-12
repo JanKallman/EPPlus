@@ -85,6 +85,7 @@ namespace OfficeOpenXml.FormulaParsing
                         f.Formula = fs.Value.ToString();
                     }
                     f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                    ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
                     depChain.Add(f);
                     FollowChain(depChain, lexer, ws, f);
                 }
