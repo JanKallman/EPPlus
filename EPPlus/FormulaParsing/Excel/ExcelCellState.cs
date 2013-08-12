@@ -39,6 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel
     public enum ExcelCellState
     {
         HiddenCell = 1,
-        ContainsError = 2
+        ContainsError = 2,
+        IsResultOfSubtotal = 4
     }
 }

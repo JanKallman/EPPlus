@@ -24,14 +24,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void SubtotalShouldNotIncludeSubtotalChildren()
         {
             _excelDataProvider
-                .Stub(x => x.GetRangeValues("A1"))
-                .Return(new List<ExcelCell> { new ExcelCell(null, "SUBTOTAL(9, A2:A3)", 0, 0)});
+                .Stub(x => x.GetRangeFormula(string.Empty, 0, 0))
+                .Return("SUBTOTAL(9, A2:A3)");
             _excelDataProvider
                 .Stub(x => x.GetRangeValues("A2:A3"))
-                .Return(new List<ExcelCell> { new ExcelCell(null, "SUBTOTAL(9, A5:A6)", 0, 1), new ExcelCell(2d, null, 0, 2)});
+                .Return(new List<object> { "SUBTOTAL(9, A5:A6)", 2d});
             _excelDataProvider
                 .Stub(x => x.GetRangeValues("A5:A6"))
-                .Return(new List<ExcelCell> { new ExcelCell(2d, null, 0, 4), new ExcelCell(2d, null, 0, 5)});
+                .Return(new List<object> { 2d, 2d });
             var result = _parser.ParseAt("A1");
             Assert.AreEqual(2d, result);
         }
