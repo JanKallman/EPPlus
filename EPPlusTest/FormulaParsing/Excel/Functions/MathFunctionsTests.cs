@@ -593,6 +593,26 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AtanShouldReturnCorrectResult()
+        {
+            var func = new Atan();
+            var args = FunctionsHelper.CreateArgs(10);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double) result.Result, 9);
+            Assert.AreEqual(1.471127674d, roundedResult);
+        }
+
+        [TestMethod]
+        public void Atan2ShouldReturnCorrectResult()
+        {
+            var func = new Atan2();
+            var args = FunctionsHelper.CreateArgs(1,2);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double)result.Result, 9);
+            Assert.AreEqual(1.107148718d, roundedResult);
+        }
+
+        [TestMethod]
         public void LogShouldReturnCorrectResult()
         {
             var func = new Log();

@@ -253,6 +253,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void AtanShouldReturnAResult()
+        {
+            var result = _parser.Parse("Atan(2)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
+
+        [TestMethod]
+        public void Atan2ShouldReturnAResult()
+        {
+            var result = _parser.Parse("Atan2(2,1)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
+
+        [TestMethod]
         public void TanhShouldReturnAResult()
         {
             var result = _parser.Parse("Tanh(2)");

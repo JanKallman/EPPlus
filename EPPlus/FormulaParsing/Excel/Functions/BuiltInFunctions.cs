@@ -61,6 +61,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["randbetween"] = new RandBetween();
             Functions["tan"] = new Tan();
             Functions["tanh"] = new Tanh();
+            Functions["atan"] = new Atan();
+            Functions["atan2"] = new Atan2();
             Functions["var"] = new Var();
             Functions["varp"] = new VarP();
             // Information
