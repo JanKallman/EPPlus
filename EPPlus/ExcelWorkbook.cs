@@ -1056,6 +1056,7 @@ namespace OfficeOpenXml
             _package = null;
             _worksheets = null;
             _properties = null;
+            _formulaParser = null;
         }
     } // end Workbook
 }

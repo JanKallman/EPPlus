@@ -150,6 +150,19 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return _package.Workbook.Worksheets[worksheetName].GetValue(row, column);
         }
+
+        public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)
+        {
+            return _package.Workbook.Worksheets[worksheetName]._formulaTokens.GetValue(row, column);
+        }
+
+        public override bool IsRowHidden(string worksheetName, int row)
+        {
+            var b = _package.Workbook.Worksheets[worksheetName].Row(row).Height == 0 || 
+                    _package.Workbook.Worksheets[worksheetName].Row(row).Hidden;
+
+            return b;
+        }
     }
 }
     

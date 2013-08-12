@@ -41,6 +41,15 @@ namespace OfficeOpenXml.Calculation
     {
         public static void Calculate(this ExcelWorkbook workbook)
         {
+            foreach (var ws in workbook.Worksheets)
+            {
+                if (ws._formulaTokens != null)
+                {
+                    ws._formulaTokens.Dispose();
+                }
+                ws._formulaTokens = new CellStore<List<Token>>();
+            }
+
             var dc = DependencyChainFactory.Create(workbook);
             var parser = workbook.FormulaParser;
             //TODO: Add calculation here
@@ -54,12 +63,18 @@ namespace OfficeOpenXml.Calculation
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
+            if (worksheet._formulaTokens != null)
+            {
+                worksheet._formulaTokens.Dispose();
+            }
+            worksheet._formulaTokens = new CellStore<List<Token>>();
+
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(item.ws.Name, item.Row, item.Column);
+                var v = parser.Parse(item.Tokens, item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
             worksheet.Workbook._isCalculated = true;
@@ -71,7 +86,7 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseAt(ExcelCellBase.GetAddress(item.Row, item.Column));
+                var v = parser.Parse(item.Tokens, item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
                 item.ws._values.SetValue(item.Row, item.Column, v);
             }
             range.Worksheet.Workbook._isCalculated = true;
