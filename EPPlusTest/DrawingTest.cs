@@ -15,7 +15,6 @@ namespace EPPlusTest
     /// <summary>
     /// Summary description for UnitTest1
     /// </summary>
-    [DeploymentItem("Test\\Drawing.xlsx")]
     [TestClass]
     public class DrawingTest
     {
@@ -82,7 +81,7 @@ namespace EPPlusTest
              pic.SetPosition(150, 200);
              pic.Border.LineStyle = eLineStyle.Solid;
              pic.Border.Fill.Color = Color.DarkCyan;
-             pic.Fill.Style=eFillStyle.SolidFill;
+             pic.Fill.Style = eFillStyle.SolidFill;
              pic.Fill.Color = Color.White;
              pic.Fill.Transparancy = 50;
 
@@ -118,7 +117,7 @@ namespace EPPlusTest
              pic.EditAs = eEditAs.TwoCell;
              pic.SetPosition(20, 5, 2, 4);
 
-             
+
              ws.Column(1).Width = 100;
              ws.Column(3).Width = 100;
          }
@@ -147,6 +146,12 @@ namespace EPPlusTest
 
         private static void AddTestSerie(ExcelWorksheet ws, ExcelChart chrt)
         {
+            AddTestData(ws);
+            chrt.Series.Add("V19:V24", "U19:U24");
+        }
+
+        private static void AddTestData(ExcelWorksheet ws)
+        {
             ws.Cells["U19"].Value = new DateTime(2009, 12, 31);
             ws.Cells["U20"].Value = new DateTime(2010, 1, 1);
             ws.Cells["U21"].Value = new DateTime(2010, 1, 2);
@@ -168,8 +173,6 @@ namespace EPPlusTest
             ws.Cells["X22"].Value = "&%#¤";
             ws.Cells["X23"].Value = "ÿ";
             ws.Cells["X24"].Value = "û";
-
-            chrt.Series.Add("V19:V24", "U19:U24");
         }
         [TestMethod]
         public void PieChart()
@@ -250,6 +253,74 @@ namespace EPPlusTest
             ////chrt.Series[0].DataLabel.Position = eLabelPosition.Center;
             //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
 
+        }
+        [TestMethod]
+        public void Bubble()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Bubble");
+            var chrt = ws.Drawings.AddChart("Bubble", eChartType.Bubble) as ExcelBubbleChart;
+            AddTestData(ws);
+
+            chrt.Series.Add("V19:V24", "U19:U24");
+
+            chrt = ws.Drawings.AddChart("Bubble3d", eChartType.Bubble3DEffect) as ExcelBubbleChart;
+            ws.Cells["W19"].Value = 1;
+            ws.Cells["W20"].Value = 1;
+            ws.Cells["W21"].Value = 2;
+            ws.Cells["W22"].Value = 2;
+            ws.Cells["W23"].Value = 3;
+            ws.Cells["W24"].Value = 4;
+
+            chrt.Series.Add("V19:V24", "U19:U24", "W19:W24");
+            chrt.Style = eChartStyle.Style25;
+
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.From.Row = 23;
+            chrt.From.Column = 12;
+            chrt.To.Row = 33;
+            chrt.To.Column = 22;
+            chrt.Title.Text = "Header Text";
+            
+
+        }
+        [TestMethod]
+        public void Radar()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Radar");
+            AddTestData(ws);
+
+            var chrt = ws.Drawings.AddChart("Radar1", eChartType.Radar) as ExcelRadarChart;
+            var s=chrt.Series.Add("V19:V24", "U19:U24");
+            s.Header = "serie1";
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.From.Row = 23;
+            chrt.From.Column = 12;
+            chrt.To.Row = 38;
+            chrt.To.Column = 22;
+            chrt.Title.Text = "Radar Chart 1";
+
+            chrt = ws.Drawings.AddChart("Radar2", eChartType.RadarFilled) as ExcelRadarChart;
+            s = chrt.Series.Add("V19:V24", "U19:U24");
+            s.Header = "serie1";
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.From.Row = 43;
+            chrt.From.Column = 12;
+            chrt.To.Row = 58;
+            chrt.To.Column = 22;
+            chrt.Title.Text = "Radar Chart 2";
+
+            chrt = ws.Drawings.AddChart("Radar3", eChartType.RadarMarkers) as ExcelRadarChart;
+            var rs = (ExcelRadarChartSerie)chrt.Series.Add("V19:V24", "U19:U24");
+            rs.Header = "serie1";
+            rs.Marker = eMarkerStyle.Star;
+            rs.MarkerSize = 14;
+
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.From.Row = 63;
+            chrt.From.Column = 12;
+            chrt.To.Row = 78;
+            chrt.To.Column = 22;
+            chrt.Title.Text = "Radar Chart 3";
         }
         [TestMethod]
         public void Pyramid()
