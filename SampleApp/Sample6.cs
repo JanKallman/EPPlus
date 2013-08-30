@@ -42,7 +42,7 @@ using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Table;
-
+using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
     /// <summary>
@@ -173,6 +173,7 @@ namespace EPPlusSamples
             shape.TextAnchoring = eTextAnchoringType.Top;
             shape.TextVertical = eTextVerticalType.Horizontal;
             shape.TextAnchoringControl=false;
+            ws.Calculate();
             ws.Cells[1,2,row,5].AutoFitColumns();
 
             //Add the graph sheet

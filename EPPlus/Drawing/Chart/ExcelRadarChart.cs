@@ -40,55 +40,81 @@ namespace OfficeOpenXml.Drawing.Chart
     /// <summary>
     /// Provides access to line chart specific properties
     /// </summary>
-    public class ExcelLineChart : ExcelChart
+    public class ExcelRadarChart : ExcelChart
     {
         #region "Constructors"
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelRadarChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
             base(drawings, node, uriChart, part, chartXml, chartNode)
         {
+            SetTypeProperties();
         }
 
-        internal ExcelLineChart (ExcelChart topChart, XmlNode chartNode) :
+        internal ExcelRadarChart(ExcelChart topChart, XmlNode chartNode) :
             base(topChart, chartNode)
         {
+            SetTypeProperties();
         }
-        internal ExcelLineChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
+        internal ExcelRadarChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
             base(drawings, node, type, topChart, PivotTableSource)
         {
-            Smooth = false;
+            SetTypeProperties();
         }
         #endregion
-        string MARKER_PATH="c:marker/@val";
-        /// <summary>
-        /// If the series has markers
-        /// </summary>
-        public bool Marker
+        private void SetTypeProperties()
         {
-            get
+            if (ChartType == eChartType.RadarFilled)
             {
-                return _chartXmlHelper.GetXmlNodeBool(MARKER_PATH, false);
+                RadarStyle = eRadarStyle.Filled;
             }
-            set
+            else if  (ChartType == eChartType.RadarMarkers)
             {
-                _chartXmlHelper.SetXmlNodeBool(MARKER_PATH, value, false);
+                RadarStyle =  eRadarStyle.Marker;
+            }
+            else
+            {
+                RadarStyle = eRadarStyle.Standard;
             }
         }
 
-        string SMOOTH_PATH = "c:smooth/@val";
+        string STYLE_PATH = "c:radarStyle/@val";
         /// <summary>
-        /// If the series has smooth lines
+        /// The type of radarchart
         /// </summary>
-        public bool Smooth
+        public eRadarStyle RadarStyle
         {
             get
             {
-                return _chartXmlHelper.GetXmlNodeBool(SMOOTH_PATH, false);
+                var v=_chartXmlHelper.GetXmlNodeString(STYLE_PATH);
+                if (string.IsNullOrEmpty(v))
+                {
+                    return eRadarStyle.Standard;
+                }
+                else
+                {
+                    return (eRadarStyle)Enum.Parse(typeof(eRadarStyle), v, true);
+                }
             }
             set
             {
-                _chartXmlHelper.SetXmlNodeBool(SMOOTH_PATH, value);
+                _chartXmlHelper.SetXmlNodeString(STYLE_PATH, value.ToString().ToLower());
             }
         }
+
+        //string SMOOTH_PATH = "c:smooth/@val";
+        ///// <summary>
+        ///// If the series has smooth lines
+        ///// </summary>
+        //public bool Smooth
+        //{
+        //    get
+        //    {
+        //        return _chartXmlHelper.GetXmlNodeBool(SMOOTH_PATH, false);
+        //    }
+        //    set
+        //    {
+        //        _chartXmlHelper.SetXmlNodeBool(SMOOTH_PATH, value);
+        //    }
+        //}
         //string _chartTopPath = "c:chartSpace/c:chart/c:plotArea/{0}";
         ExcelChartDataLabel _DataLabel = null;
         /// <summary>
@@ -107,44 +133,18 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         internal override eChartType GetChartType(string name)
         {
-               if(name=="lineChart")
-               {
-                   if(Marker)
-                   {
-                       if(Grouping==eGrouping.Stacked)
-                       {
-                           return eChartType.LineMarkersStacked;
-                       }
-                       else if (Grouping == eGrouping.PercentStacked)
-                       {
-                           return eChartType.LineMarkersStacked100;
-                       }
-                       else
-                       {
-                           return eChartType.LineMarkers;
-                       }
-                   }
-                   else
-                   {
-                       if(Grouping==eGrouping.Stacked)
-                       {
-                           return eChartType.LineStacked;
-                       }
-                       else if (Grouping == eGrouping.PercentStacked)
-                       {
-                           return eChartType.LineStacked100;
-                       }
-                       else
-                       {
-                           return eChartType.Line;
-                       }
-                   }
-               }
-               else if (name=="line3DChart")
-               {
-                   return eChartType.Line3D;               
-               }
-               return base.GetChartType(name);
+            if (RadarStyle == eRadarStyle.Filled)
+            {
+                return eChartType.RadarFilled;
+            }
+            else if (RadarStyle == eRadarStyle.Marker)
+            {
+                return eChartType.RadarMarkers;
+            }
+            else
+            {
+                return eChartType.Radar;
+            }
         }
     }
 }

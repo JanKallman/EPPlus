@@ -36,6 +36,7 @@ using System.IO;
 using Ionic.Zip;
 using Ionic.Zlib;
 using System.Xml;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml.Packaging
 {
     /// <summary>
@@ -227,8 +228,31 @@ namespace OfficeOpenXml.Packaging
 
         internal void DeletePart(Uri Uri)
         {
+            var delList=new List<object[]>(); 
+            foreach (var p in Parts.Values)
+            {
+                foreach (var r in p.GetRelationships())
+                {
+                    if (UriHelper.ResolvePartUri(p.Uri, r.TargetUri).OriginalString == Uri.OriginalString)
+                    {                        
+                        delList.Add(new object[]{r.Id, p});
+                    }
+                }
+            }
+            foreach (var o in delList)
+            {
+                ((ZipPackagePart)o[1]).DeleteRelationship(o[0].ToString());
+            }
+            var rels = GetPart(Uri).GetRelationships();
+            while (rels.Count > 0)
+            {
+                rels.Remove(rels.First().Id);
+            }
+            rels=null;
             _contentTypes.Remove(GetUriKey(Uri.OriginalString));
+            //remove all relations
             Parts.Remove(GetUriKey(Uri.OriginalString));
+            
         }
         internal MemoryStream Save()
         {

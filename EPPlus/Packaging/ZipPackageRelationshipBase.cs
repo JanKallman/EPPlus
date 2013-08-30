@@ -69,7 +69,7 @@ namespace OfficeOpenXml.Packaging
             rel.TargetUri = targetUri;
             rel.TargetMode = targetMode;
             rel.RelationshipType = relationshipType;
-            rel.Id = "RId" + (maxRId++).ToString();
+            rel.Id = "rId" + (maxRId++).ToString();
             _rels.Add(rel);
             return rel;
         }
