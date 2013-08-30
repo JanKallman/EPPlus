@@ -37,10 +37,26 @@ using System.Collections;
 using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
-   /// <summary>
+    public sealed class ExcelBubbleChartSeries : ExcelChartSeries
+    {
+        internal ExcelBubbleChartSeries(ExcelChart chart, XmlNamespaceManager ns, XmlNode node, bool isPivot)
+           : base(chart,ns,node, isPivot)
+        {
+            //_chartSeries = new ExcelChartSeries(this, _drawings.NameSpaceManager, _chartNode, isPivot);
+        }
+        public ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie, ExcelRangeBase BubbleSize)
+        {
+            return base.AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute, BubbleSize.FullAddressAbsolute);
+        }
+        public ExcelChartSerie Add(string SerieAddress, string XSerieAddress, string BubbleSizeAddress)
+        {
+            return base.AddSeries(SerieAddress, XSerieAddress, BubbleSizeAddress);
+        }
+    }
+    /// <summary>
    /// Collection class for chart series
    /// </summary>
-    public sealed class ExcelChartSeries : XmlHelper, IEnumerable
+    public class ExcelChartSeries : XmlHelper, IEnumerable
     {
        List<ExcelChartSerie> _list=new List<ExcelChartSerie>();
        internal ExcelChart _chart;
@@ -134,13 +150,13 @@ namespace OfficeOpenXml.Drawing.Chart
        /// <param name="Serie">The Y-Axis range</param>
        /// <param name="XSerie">The X-Axis range</param>
        /// <returns></returns>
-       public ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie)
+       public virtual ExcelChartSerie Add(ExcelRangeBase Serie, ExcelRangeBase XSerie)
        {
            if (_chart.PivotTableSource != null)
            {
                throw (new InvalidOperationException("Can't add a serie to a pivotchart"));
            }
-           return AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute);
+           return AddSeries(Serie.FullAddressAbsolute, XSerie.FullAddressAbsolute,"");
        }
        /// <summary>
        /// Add a new serie to the chart.Do not apply to pivotcharts.
@@ -148,15 +164,15 @@ namespace OfficeOpenXml.Drawing.Chart
        /// <param name="SerieAddress">The Y-Axis range</param>
        /// <param name="XSerieAddress">The X-Axis range</param>
        /// <returns></returns>
-       public ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
+       public virtual ExcelChartSerie Add(string SerieAddress, string XSerieAddress)
        {
            if (_chart.PivotTableSource != null)
            {
                throw (new InvalidOperationException("Can't add a serie to a pivotchart"));
            }
-           return AddSeries(SerieAddress, XSerieAddress);
+           return AddSeries(SerieAddress, XSerieAddress, "");
        }
-       private ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress)
+       internal protected ExcelChartSerie AddSeries(string SeriesAddress, string XSeriesAddress, string bubbleSizeAddress)
         {
                XmlElement ser = _node.OwnerDocument.CreateElement("ser", ExcelPackage.schemaChart);
                XmlNodeList node = _node.SelectNodes("c:ser", _ns);
@@ -173,12 +189,27 @@ namespace OfficeOpenXml.Drawing.Chart
                ExcelChartSerie serie;
                switch (Chart.ChartType)
                {
+                   case eChartType.Bubble:
+                   case eChartType.Bubble3DEffect:
+                       serie = new ExcelBubbleChartSerie(this, NameSpaceManager, ser, _isPivot)
+                       {
+                           Bubble3D=Chart.ChartType==eChartType.Bubble3DEffect,
+                           Series = SeriesAddress,
+                           XSeries = XSeriesAddress,
+                           BubbleSize = bubbleSizeAddress                            
+                       };
+                       break;
                    case eChartType.XYScatter:
                    case eChartType.XYScatterLines:
                    case eChartType.XYScatterLinesNoMarkers:
                    case eChartType.XYScatterSmooth:
                    case eChartType.XYScatterSmoothNoMarkers:
                        serie = new ExcelScatterChartSerie(this, NameSpaceManager, ser, _isPivot);
+                       break;
+                   case eChartType.Radar:
+                   case eChartType.RadarFilled:
+                   case eChartType.RadarMarkers:
+                       serie = new ExcelRadarChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
                    case eChartType.Pie:
                    case eChartType.Pie3D:
@@ -211,7 +242,7 @@ namespace OfficeOpenXml.Drawing.Chart
                        break;
                }               
                serie.Series = SeriesAddress;
-               serie.XSeries = XSeriesAddress;               
+               serie.XSeries = XSeriesAddress;                     
            _list.Add(serie);
                return serie;
         }
@@ -220,7 +251,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            var r=pivotTableSource.WorkSheet.Cells[pivotTableSource.Address.Address];
            _isPivot = true;
-           AddSeries(r.Offset(0, 1, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute, r.Offset(0, 0, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute);
+           AddSeries(r.Offset(0, 1, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute, r.Offset(0, 0, r._toRow - r._fromRow + 1, 1).FullAddressAbsolute,"");
        }
        private int FindIndex()
        {    
@@ -292,7 +323,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 chartType == eChartType.XYScatterLines ||
                 chartType == eChartType.XYScatterLinesNoMarkers ||
                 chartType == eChartType.XYScatterSmooth ||
-                chartType == eChartType.XYScatterSmoothNoMarkers)
+                chartType == eChartType.XYScatterSmoothNoMarkers || 
+                chartType == eChartType.Bubble ||
+                chartType == eChartType.Bubble3DEffect)
            {
                return "<c:xVal /><c:yVal />";
            }
