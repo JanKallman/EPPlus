@@ -16,7 +16,6 @@ using System.Reflection;
 namespace EPPlusTest
 {
     [TestClass]
-    [DeploymentItem("Test\\Worksheet.xlsx")]
     public class WorkSheetTest
     {
         private TestContext testContextInstance;
@@ -51,7 +50,6 @@ namespace EPPlusTest
             testContext.AddResultFile(AppDomain.CurrentDomain.BaseDirectory + "\\Test\\Worksheet.xlsx");
             _pck = new ExcelPackage(new FileInfo("Test\\Worksheet.xlsx"));
         }
-
         // Use ClassCleanup to run code after all tests in a class have run
         [ClassCleanup()]
         public static void MyClassCleanup()

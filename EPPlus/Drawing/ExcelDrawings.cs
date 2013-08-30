@@ -243,12 +243,7 @@ namespace OfficeOpenXml.Drawing
                     throw new Exception("Name already exists in the drawings collection");
                 }
 
-                if (ChartType == eChartType.Bubble ||
-                    ChartType == eChartType.Bubble3DEffect ||
-                    ChartType == eChartType.Radar ||
-                    ChartType == eChartType.RadarFilled ||
-                    ChartType == eChartType.RadarMarkers ||
-                    ChartType == eChartType.StockHLC ||
+                if (ChartType == eChartType.StockHLC ||
                     ChartType == eChartType.StockOHLC ||
                     ChartType == eChartType.StockVOHLC ||
                     ChartType == eChartType.Surface ||
@@ -413,7 +408,7 @@ namespace OfficeOpenXml.Drawing
             /// Removes a drawing.
             /// </summary>
             /// <param name="Index">The index of the drawing</param>
-            public void Remove(int Index)
+        public void Remove(int Index)
         {
             var draw=_drawings[Index];
             draw.DeleteMe();

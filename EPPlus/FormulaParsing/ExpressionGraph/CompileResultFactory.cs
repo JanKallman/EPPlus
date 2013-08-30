@@ -44,7 +44,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return new CompileResult(obj, DataType.String);
             }
-            if (obj.GetType().Equals(typeof(int)))
+            if (obj.GetType().Equals(typeof(int)) || obj is long)
             {
                 return new CompileResult(obj, DataType.Integer);
             }
