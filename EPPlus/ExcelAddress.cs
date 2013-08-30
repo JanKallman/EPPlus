@@ -728,7 +728,7 @@ namespace OfficeOpenXml
                 base.ChangeAddress();
             }
         }
-        internal List<ExcelFormulaAddress> _addresses;
+        internal new List<ExcelFormulaAddress> _addresses;
         public new List<ExcelFormulaAddress> Addresses
         {
             get
