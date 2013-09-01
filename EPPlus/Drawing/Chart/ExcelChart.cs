@@ -361,7 +361,7 @@ namespace OfficeOpenXml.Drawing.Chart
 
            _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode, isPivot);
 
-           SetTypeProperties(drawings);
+           SetTypeProperties();
            LoadAxis();
        }
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
@@ -375,7 +375,7 @@ namespace OfficeOpenXml.Drawing.Chart
            _chartSeries = new ExcelChartSeries(this, drawings.NameSpaceManager, _chartNode, PivotTableSource!=null);
            if (PivotTableSource != null) SetPivotSource(PivotTableSource);
 
-           SetTypeProperties(drawings);
+           SetTypeProperties();
            if (topChart == null)
                LoadAxis();
            else
@@ -422,12 +422,12 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "view3D", "plotArea", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "overlap", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "autoTitleDeleted", "view3D", "floor", "sideWall", "backWall", "plotArea", "wireframe", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "showDLblsOverMax", "overlap", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
        #region "Private functions"
-       private void SetTypeProperties(ExcelDrawings drawings)
+       private void SetTypeProperties()
        {
            /******* Grouping *******/
            if (IsTypeClustered())
@@ -505,7 +505,7 @@ namespace OfficeOpenXml.Drawing.Chart
                {
                    AddAxis();
                }
-               string serieXML = GetChartSerieStartXml(type, int.Parse(topChart.Axis[0].Id), int.Parse(topChart.Axis[1].Id));
+               string serieXML = GetChartSerieStartXml(type, int.Parse(topChart.Axis[0].Id), int.Parse(topChart.Axis[1].Id), topChart.Axis.Length>2?int.Parse(topChart.Axis[2].Id) : -1);
                _chartNode.InnerXml = serieXML;
            }
        }
@@ -620,15 +620,16 @@ namespace OfficeOpenXml.Drawing.Chart
            StringBuilder xml=new StringBuilder();
            int axID=1;
            int xAxID=2;
+           int serAxID = IsTypeSurface() ? 3 : -1;
 
            xml.Append("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
            xml.AppendFormat("<c:chartSpace xmlns:c=\"{0}\" xmlns:a=\"{1}\" xmlns:r=\"{2}\">", ExcelPackage.schemaChart, ExcelPackage.schemaDrawings, ExcelPackage.schemaRelationships);       
            xml.Append("<c:chart>");
-           xml.AppendFormat("{0}<c:plotArea><c:layout/>",AddPerspectiveXml(type));
+           xml.AppendFormat("{0}{1}<c:plotArea><c:layout/>",AddPerspectiveXml(type), AddSurfaceXml(type));
 
            string chartNodeText = GetChartNodeText();
            xml.AppendFormat("<{0}>", chartNodeText);
-           xml.Append(GetChartSerieStartXml(type, axID, xAxID));
+           xml.Append(GetChartSerieStartXml(type, axID, xAxID, serAxID));
            xml.AppendFormat("</{0}>", chartNodeText);
 
            //Axis
@@ -642,7 +643,11 @@ namespace OfficeOpenXml.Drawing.Chart
                {
                    xml.AppendFormat("<c:catAx><c:axId val=\"{0}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:delete val=\"0\"/><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{1}\"/><c:crosses val=\"autoZero\"/><c:auto val=\"1\"/><c:lblAlgn val=\"ctr\"/><c:lblOffset val=\"100\"/></c:catAx>", axID, xAxID);
                }
-               xml.AppendFormat("<c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:delete val=\"0\"/><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"1\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx>", axID, xAxID);
+               xml.AppendFormat("<c:valAx><c:axId val=\"{1}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:delete val=\"0\"/><c:axPos val=\"l\"/><c:majorGridlines/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{0}\"/><c:crosses val=\"autoZero\"/><c:crossBetween val=\"between\"/></c:valAx>", axID, xAxID);
+               if (serAxID==3) //Sureface Chart
+               {
+                   xml.AppendFormat("<c:serAx><c:axId val=\"{0}\"/><c:scaling><c:orientation val=\"minMax\"/></c:scaling><c:delete val=\"0\"/><c:axPos val=\"b\"/><c:tickLblPos val=\"nextTo\"/><c:crossAx val=\"{1}\"/><c:crosses val=\"autoZero\"/></c:serAx>", serAxID, xAxID);
+               }
            }
 
            xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/><c:overlay val=\"0\" /></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
@@ -651,7 +656,7 @@ namespace OfficeOpenXml.Drawing.Chart
            return xml.ToString();
        }
 
-       private string GetChartSerieStartXml(eChartType type, int axID, int xAxID)
+       private string GetChartSerieStartXml(eChartType type, int axID, int xAxID, int serAxID)
        {
            StringBuilder xml = new StringBuilder();
 
@@ -671,15 +676,22 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                xml.Append("<c:overlap val=\"100\"/>");
            }
-           xml.Append(AddAxisId(axID, xAxID));
+           xml.Append(AddAxisId(axID, xAxID, serAxID));
 
            return xml.ToString();
        }
-       private string AddAxisId(int axID,int xAxID)
+       private string AddAxisId(int axID,int xAxID, int serAxID)
        {
            if (!IsTypePieDoughnut())
            {
-               return string.Format("<c:axId val=\"{0}\"/><c:axId val=\"{1}\"/>",axID, xAxID);
+               if (IsTypeSurface())
+               {
+                   return string.Format("<c:axId val=\"{0}\"/><c:axId val=\"{1}\"/><c:axId val=\"{2}\"/>", axID, xAxID, serAxID);
+               }
+               else
+               {
+                   return string.Format("<c:axId val=\"{0}\"/><c:axId val=\"{1}\"/>", axID, xAxID);
+               }
            }
            else
            {
@@ -826,6 +838,22 @@ namespace OfficeOpenXml.Drawing.Chart
                 return "";
             }
         }
+       private string AddSurfaceXml(eChartType type)
+       {
+           if (IsTypeSurface())
+           {
+               return AddSurfacePart("floor") + AddSurfacePart("sideWall") + AddSurfacePart("backWall");
+           }
+           else
+           {
+               return "";
+           }
+       }
+
+       private string AddSurfacePart(string name)
+       {
+           return string.Format("<c:{0}><c:thickness val=\"0\"/><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/><a:sp3d/></c:spPr></c:{0}>", name);
+       }
        #endregion
        #endregion
        #region "Chart type functions
@@ -844,7 +872,6 @@ namespace OfficeOpenXml.Drawing.Chart
                             chartType == eChartType.Line3D ||
                             chartType == eChartType.Pie3D ||
                             chartType == eChartType.PieExploded3D ||
-                            //chartType == eChartType.Bubble3DEffect ||
                             chartType == eChartType.ConeBarClustered ||
                             chartType == eChartType.ConeBarStacked ||
                             chartType == eChartType.ConeBarStacked100 ||
@@ -865,15 +892,17 @@ namespace OfficeOpenXml.Drawing.Chart
                             chartType == eChartType.PyramidCol ||
                             chartType == eChartType.PyramidColClustered ||
                             chartType == eChartType.PyramidColStacked ||
-                            chartType == eChartType.PyramidColStacked100 /*||
-                            chartType == eChartType.Doughnut ||
-                            chartType == eChartType.DoughnutExploded*/;
+                            chartType == eChartType.PyramidColStacked100 ||
+                            chartType == eChartType.Surface ||
+                            chartType == eChartType.SurfaceTopView ||
+                            chartType == eChartType.SurfaceTopViewWireframe ||
+                            chartType == eChartType.SurfaceWireframe;
         }
        internal protected bool IsType3D()
        {
             return IsType3D(ChartType);
        }
-       protected bool IsTypeLine()
+        protected bool IsTypeLine()
        {
            return ChartType == eChartType.Line ||
                    ChartType == eChartType.LineMarkers ||
@@ -892,7 +921,14 @@ namespace OfficeOpenXml.Drawing.Chart
                    ChartType == eChartType.Bubble ||
                    ChartType == eChartType.Bubble3DEffect;
        }
-        protected bool IsTypeShape()
+        protected bool IsTypeSurface()
+        {
+            return ChartType == eChartType.Surface ||
+                   ChartType == eChartType.SurfaceTopView ||
+                   ChartType == eChartType.SurfaceTopViewWireframe ||
+                   ChartType == eChartType.SurfaceWireframe;
+        }
+       protected bool IsTypeShape()
        {
             return ChartType == eChartType.BarClustered3D ||
                     ChartType == eChartType.BarStacked3D ||
@@ -1075,6 +1111,10 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.XYScatterSmoothNoMarkers:
                     return "c:scatterChart";
                 case eChartType.Surface:
+                case eChartType.SurfaceWireframe:
+                    return "c:surface3DChart";
+                case eChartType.SurfaceTopView:
+                case eChartType.SurfaceTopViewWireframe:
                     return "c:surfaceChart";
                 case eChartType.StockHLC:
                     return "c:stockChart";
@@ -1680,9 +1720,6 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                case "area3DChart":
                case "areaChart":
-               case "radarChart":
-               case "surface3DChart":
-               case "surfaceChart":
                case "stockChart":
                    if (topChart == null)
                    {
@@ -1691,6 +1728,25 @@ namespace OfficeOpenXml.Drawing.Chart
                    else
                    {
                        return new ExcelChart(topChart, chartNode);
+                   }
+               case "surface3DChart":
+               case "surfaceChart":
+                   if (topChart == null)
+                   {
+                       return new ExcelSurfaceChart(drawings, node, uriChart, part, chartXml, chartNode);
+                   }
+                   else
+                   {
+                       return new ExcelSurfaceChart(topChart, chartNode);
+                   }
+               case "radarChart":
+                   if (topChart == null)
+                   {
+                       return new ExcelRadarChart(drawings, node, uriChart, part, chartXml, chartNode);
+                   }
+                   else
+                   {
+                       return new ExcelRadarChart(topChart, chartNode);
                    }
                case "bubbleChart":
                    if (topChart == null)
@@ -1834,6 +1890,11 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.RadarFilled:
                 case eChartType.RadarMarkers:
                     return new ExcelRadarChart(drawings, drawNode, chartType, topChart, PivotTableSource);
+                case eChartType.Surface:
+                case eChartType.SurfaceTopView:
+                case eChartType.SurfaceTopViewWireframe:
+                case eChartType.SurfaceWireframe:
+                    return new ExcelSurfaceChart(drawings, drawNode, chartType, topChart, PivotTableSource);
                 default:
                     return new ExcelChart(drawings, drawNode, chartType, topChart, PivotTableSource);
             }

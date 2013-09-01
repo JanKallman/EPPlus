@@ -211,6 +211,12 @@ namespace OfficeOpenXml.Drawing.Chart
                    case eChartType.RadarMarkers:
                        serie = new ExcelRadarChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;
+                   case eChartType.Surface:
+                   case eChartType.SurfaceTopView:
+                   case eChartType.SurfaceTopViewWireframe:
+                   case eChartType.SurfaceWireframe:
+                       serie = new ExcelSurfaceChartSerie(this, NameSpaceManager, ser, _isPivot);
+                       break;
                    case eChartType.Pie:
                    case eChartType.Pie3D:
                    case eChartType.PieExploded:

@@ -323,6 +323,45 @@ namespace EPPlusTest
             chrt.Title.Text = "Radar Chart 3";
         }
         [TestMethod]
+        public void Surface()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Surface");
+            AddTestData(ws);
+
+            var chrt = ws.Drawings.AddChart("Surface1", eChartType.Surface) as ExcelSurfaceChart;
+            var s = chrt.Series.Add("V19:V24", "U19:U24");
+            s.Header = "serie1";
+            // chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            chrt.From.Row = 23;
+            chrt.From.Column = 12;
+            chrt.To.Row = 38;
+            chrt.To.Column = 22;
+            chrt.Title.Text = "Surface Chart 1";
+
+            //chrt = ws.Drawings.AddChart("Surface", eChartType.RadarFilled) as ExcelRadarChart;
+            //s = chrt.Series.Add("V19:V24", "U19:U24");
+            //s.Header = "serie1";
+            //// chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            //chrt.From.Row = 43;
+            //chrt.From.Column = 12;
+            //chrt.To.Row = 58;
+            //chrt.To.Column = 22;
+            //chrt.Title.Text = "Radar Chart 2";
+
+            //chrt = ws.Drawings.AddChart("Radar3", eChartType.RadarMarkers) as ExcelRadarChart;
+            //var rs = (ExcelRadarChartSerie)chrt.Series.Add("V19:V24", "U19:U24");
+            //rs.Header = "serie1";
+            //rs.Marker = eMarkerStyle.Star;
+            //rs.MarkerSize = 14;
+
+            //// chrt.Series[0].Marker = eMarkerStyle.Diamond;
+            //chrt.From.Row = 63;
+            //chrt.From.Column = 12;
+            //chrt.To.Row = 78;
+            //chrt.To.Column = 22;
+            //chrt.Title.Text = "Radar Chart 3";
+        }
+        [TestMethod]
         public void Pyramid()
         {
             var ws = _pck.Workbook.Worksheets.Add("Pyramid");
@@ -702,6 +741,7 @@ namespace EPPlusTest
 
             var ws = pck.Workbook.Worksheets[1];
             ExcelChart c = ws.Drawings[0] as ExcelChart;
+
 
             var p = c.PlotArea;
             p.ChartTypes[1].Series[0].Series = "S7:S15";
