@@ -146,7 +146,11 @@ namespace OfficeOpenXml.Drawing.Chart
             /// <summary>
             /// Date axis
             /// </summary>
-            Date
+            Date,
+            /// <summary>
+            /// Series axis
+            /// </summary>
+            Serie
         }
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
@@ -266,7 +270,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 var v = value.ToString();
-                v = v.Substring(1).ToLower() + v.Substring(1, v.Length - 1);
+                v = v.Substring(0,1).ToLower() + v.Substring(1);
                 SetXmlNodeString(_crossBetweenPath, v);
             }
 

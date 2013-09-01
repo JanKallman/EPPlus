@@ -245,11 +245,7 @@ namespace OfficeOpenXml.Drawing
 
                 if (ChartType == eChartType.StockHLC ||
                     ChartType == eChartType.StockOHLC ||
-                    ChartType == eChartType.StockVOHLC ||
-                    ChartType == eChartType.Surface ||
-                    ChartType == eChartType.SurfaceTopView ||
-                    ChartType == eChartType.SurfaceTopViewWireframe ||
-                    ChartType == eChartType.SurfaceWireframe)
+                    ChartType == eChartType.StockVOHLC)
                 {
                     throw(new NotImplementedException("Chart type is not supported in the current version"));
                 }

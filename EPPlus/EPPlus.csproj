@@ -246,6 +246,8 @@
     <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
     <Compile Include="DataValidation\IRangeDataValidation.cs" />
     <Compile Include="DataValidation\RangeDataValidation.cs" />
+    <Compile Include="Drawing\Chart\ExcelSurfaceChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelSurfaceChart.cs" />
     <Compile Include="Drawing\Chart\ExcelRadarChart.cs" />
     <Compile Include="Drawing\Chart\ExcelBubbleChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelLineChartSerie.cs" />
@@ -253,6 +255,7 @@
     <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
     <Compile Include="Drawing\Chart\ExcelChartTrendline.cs" />
     <Compile Include="Drawing\Chart\ExcelBubbleChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSurface.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="Drawing\Chart\ExcelRadarChartSerie.cs" />
