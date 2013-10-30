@@ -79,12 +79,17 @@ namespace OfficeOpenXml
 
         void ExcelRangeBase_AddressChange(object sender, EventArgs e)
         {
+            if (Table != null)
+            {
+                SetRCFromTable(_workbook._package, null);
+            }
             SetDelegate();
         }
 		internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
 			base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
 		{
 			_worksheet = xlWorksheet;
+            base.SetRCFromTable(_worksheet._package, null);
 			if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
             this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);
             SetDelegate();
@@ -92,7 +97,8 @@ namespace OfficeOpenXml
 		internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
 			base(xlWorksheet == null ? "" : xlWorksheet.Name, address, isName)
 		{
-			_worksheet = xlWorksheet;
+            SetRCFromTable(wb._package, null);
+            _worksheet = xlWorksheet;
 			_workbook = wb;
 			if (string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
             this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);

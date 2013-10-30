@@ -60,8 +60,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             _expressions = expressions;
             return PerformCompilation();
         }
+        public CompileResult Compile(string worksheet, int row, int column, IEnumerable<Expression> expressions)
+        {
+            _expressions = expressions;
+            return PerformCompilation(worksheet, row, column);
+        }
 
-        private CompileResult PerformCompilation()
+        private CompileResult PerformCompilation(string worksheet="", int row=-1, int column=-1)
         {
             var compiledExpressions = HandleGroupedExpressions();
             while(compiledExpressions.Any(x => x.Operator != null))

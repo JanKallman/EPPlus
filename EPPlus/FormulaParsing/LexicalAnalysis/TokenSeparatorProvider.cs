@@ -60,13 +60,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add("=", new Token("=", TokenType.Operator));
             _tokens.Add("<=", new Token("<=", TokenType.Operator));
             _tokens.Add(">=", new Token(">=", TokenType.Operator));
-            _tokens.Add("(", new Token("(", TokenType.OpeningBracket));
-            _tokens.Add(")", new Token(")", TokenType.ClosingBracket));
+            _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
+            _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
             _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
             _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
             _tokens.Add("'", new Token("'", TokenType.String));
             _tokens.Add("\"", new Token("\"", TokenType.String));
             _tokens.Add(",", new Token(",", TokenType.Comma));
+            _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
+            _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
         }
 
         private static Dictionary<string, Token> _tokens = new Dictionary<string, Token>();

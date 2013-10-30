@@ -16,63 +16,57 @@ namespace EPPlusTest
     /// Summary description for UnitTest1
     /// </summary>
     [TestClass]
-    public class DrawingTest
+    public class DrawingTest : TestBase
     {
-        private TestContext testContextInstance;
-        private static ExcelPackage _pck;
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [TestMethod]
+        public void RunDrawingTests()
         {
-            get
+            InitBase();
+
+            BarChart();
+            Column();
+            Cone();
+            Dougnut();
+            Drawings();
+            Line();
+            LineMarker();
+            Picture();
+            PieChart();
+            PieChart3D();
+            Pyramid();
+            Scatter();
+            Bubble();
+            Radar();
+            Surface();
+            Line2Test();
+            MultiChartSeries();
+            DrawingSizingAndPositioning();
+            DrawingWorksheetCopy();
+            DeleteDrawing();
+            
+            SaveWorksheet("Drawing.xlsx");
+
+            ReadDocument();
+            ReadDrawing();
+        }
+        [TestMethod]
+        [Ignore]
+        public void ReadDrawing()
+        {
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(_worksheetPath + @"Drawing.xlsx")))
             {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
+                var ws = pck.Workbook.Worksheets["Pyramid"];
+                Assert.AreEqual(ws.Cells["V24"].Value, 104D);
+                ws = pck.Workbook.Worksheets["Scatter"];
+                var cht = ws.Drawings["ScatterChart1"] as ExcelScatterChart;
+                Assert.AreEqual(cht.Title.Text, "Header  Text");
+                cht.Title.Text = "Test";
+                Assert.AreEqual(cht.Title.Text, "Test");
             }
         }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-         [ClassInitialize()]
-         public static void MyClassInitialize(TestContext testContext) 
-         {
-             if (!Directory.Exists("test"))
-             {
-                 Directory.CreateDirectory("test");
-             }
-             _pck = new ExcelPackage(new FileInfo("Test\\Drawing.xlsx"));         
-         }
-        
-        // Use ClassCleanup to run code after all tests in a class have run
-         [ClassCleanup()]
-         public static void MyClassCleanup() 
-         {
-             _pck = null;         
-         }
-        
-        // //Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() 
-        // {
-        // }
-        
-        //// Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() 
-        // {
-        // }
-        
-        #endregion
-         [TestMethod]
-         public void Picture()
+        [TestMethod]
+        [Ignore]
+        public void Picture()
          {
              var ws = _pck.Workbook.Worksheets.Add("Picture");
              ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
@@ -102,6 +96,7 @@ namespace EPPlusTest
              pic.SetSize(100);
          }
          [TestMethod]
+         [Ignore]
          public void DrawingSizingAndPositioning()
          {
              var ws = _pck.Workbook.Worksheets.Add("DrawingPosSize");
@@ -123,7 +118,8 @@ namespace EPPlusTest
          }
 
         [TestMethod]
-        public void BarChart()
+         [Ignore]
+         public void BarChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("BarChart");            
             var chrt = ws.Drawings.AddChart("barChart", eChartType.BarClustered) as ExcelBarChart;
@@ -175,6 +171,7 @@ namespace EPPlusTest
             ws.Cells["X24"].Value = "û";
         }
         [TestMethod]
+        [Ignore]
         public void PieChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart");
@@ -194,6 +191,7 @@ namespace EPPlusTest
             chrt.Title.Text = "Piechart";
         }
         [TestMethod]
+        [Ignore]
         public void PieChart3D()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart3d");
@@ -213,6 +211,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void Scatter()
         {
             var ws = _pck.Workbook.Worksheets.Add("Scatter");
@@ -255,6 +254,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void Bubble()
         {
             var ws = _pck.Workbook.Worksheets.Add("Bubble");
@@ -284,6 +284,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void Radar()
         {
             var ws = _pck.Workbook.Worksheets.Add("Radar");
@@ -323,6 +324,7 @@ namespace EPPlusTest
             chrt.Title.Text = "Radar Chart 3";
         }
         [TestMethod]
+        [Ignore]
         public void Surface()
         {
             var ws = _pck.Workbook.Worksheets.Add("Surface");
@@ -362,6 +364,7 @@ namespace EPPlusTest
             //chrt.Title.Text = "Radar Chart 3";
         }
         [TestMethod]
+        [Ignore]
         public void Pyramid()
         {
             var ws = _pck.Workbook.Worksheets.Add("Pyramid");
@@ -405,6 +408,7 @@ namespace EPPlusTest
             chrt.DataLabel.Border.LineStyle = eLineStyle.Solid;
         }
         [TestMethod]
+        [Ignore]
         public void Cone()
         {
             var ws = _pck.Workbook.Worksheets.Add("Cone");
@@ -417,6 +421,7 @@ namespace EPPlusTest
             chrt.Legend.Position = eLegendPosition.Right;
         }
         [TestMethod]
+        [Ignore]
         public void Column()
         {
             var ws = _pck.Workbook.Worksheets.Add("Column");
@@ -435,6 +440,7 @@ namespace EPPlusTest
             chrt.EditAs = eEditAs.TwoCell;
         }
         [TestMethod]
+        [Ignore]
         public void Dougnut()
         {
             var ws = _pck.Workbook.Worksheets.Add("Dougnut");
@@ -446,6 +452,7 @@ namespace EPPlusTest
             chrt.EditAs = eEditAs.Absolute;
         }
         [TestMethod]
+        [Ignore]
         public void Line()
         {
             var ws = _pck.Workbook.Worksheets.Add("Line");
@@ -494,6 +501,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void LineMarker()
         {
             var ws = _pck.Workbook.Worksheets.Add("LineMarker1");
@@ -514,6 +522,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void Drawings()
         {
             var ws = _pck.Workbook.Worksheets.Add("Shapes");
@@ -581,6 +590,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void DrawingWorksheetCopy()
         {
             var wsShapes = _pck.Workbook.Worksheets.Add("Copy Shapes", _pck.Workbook.Worksheets["Shapes"]);
@@ -588,6 +598,7 @@ namespace EPPlusTest
             var wsPicture = _pck.Workbook.Worksheets.Add("Copy Picture", _pck.Workbook.Worksheets["Picture"]);
         }    
         [TestMethod]
+        [Ignore]
         public void Line2Test()
         {
            ExcelWorksheet worksheet = _pck.Workbook.Worksheets.Add("LineIssue");
@@ -616,6 +627,7 @@ namespace EPPlusTest
            chart.Series[0].Header = "Blah";
         }
         [TestMethod]
+        [Ignore]
         public void MultiChartSeries()
         {
             ExcelWorksheet worksheet = _pck.Workbook.Worksheets.Add("MultiChartTypes");
@@ -687,6 +699,7 @@ namespace EPPlusTest
             if (element!=null) element.ParentNode.RemoveChild(element);
         }
         [TestMethod]
+        [Ignore]
         public void DeleteDrawing()
         {
             var ws=_pck.Workbook.Worksheets.Add("DeleteDrawing1");
@@ -714,9 +727,15 @@ namespace EPPlusTest
             ws.Drawings.Clear();
         }
         [TestMethod]
+        [Ignore]
         public void ReadDocument()
         {
-            ExcelPackage pck = new ExcelPackage(new FileInfo("Test\\Drawing.xlsx"),true);
+            var fi=new FileInfo(_worksheetPath + "drawing.xlsx");
+            if (!fi.Exists)
+            {
+                Assert.Inconclusive("Drawing.xlsx is not created. Skippng");
+            }
+            var pck = new ExcelPackage(fi, true);
 
             foreach(var ws in pck.Workbook.Worksheets)
             {
@@ -728,13 +747,10 @@ namespace EPPlusTest
                     }
                 }
             }
+            pck.Dispose();
         }
         [TestMethod]
-        public void SaveDrawing()
-        {
-            _pck.Save();
-        }   
-        [TestMethod]
+        [Ignore]
         public void ReadMultiChartSeries()
         {
             ExcelPackage pck = new ExcelPackage(new FileInfo("c:\\temp\\chartseries.xlsx"), true);

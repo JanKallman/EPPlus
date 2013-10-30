@@ -84,9 +84,29 @@ namespace OfficeOpenXml
         ArrayFormula = 0x8
     }
     /// <summary>
+    /// Represents an Excel Chartsheet and provides access to its properties and methods
+    /// </summary>
+    public class ExcelChartsheet : ExcelWorksheet
+    {
+        ExcelDrawings draws;
+        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
+            base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
+        {
+            draws=new ExcelDrawings(pck, this);
+            Chart = new ExcelChart(draws, WorksheetXml.DocumentElement, chartType, false);
+        }
+        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
+            base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
+        {
+            draws = new ExcelDrawings(_package, this);
+            Chart = (ExcelChart)draws[0];
+        }
+        public ExcelChart Chart { get; set; }
+    }
+    /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public sealed class ExcelWorksheet : XmlHelper, IDisposable
+    public class ExcelWorksheet : XmlHelper, IDisposable
 	{
         internal class Formulas
         {
@@ -181,9 +201,6 @@ namespace OfficeOpenXml
 
             #endregion
         }
-        //internal RangeCollection _cells;
-        //internal RangeCollection _columns;
-        //internal RangeCollection _rows;
 
         internal CellStore<object> _values;
         internal CellStore<string> _types;
@@ -192,17 +209,13 @@ namespace OfficeOpenXml
         internal FlagCellStore _flags;
         internal CellStore<List<Token>> _formulaTokens;
 
-        //internal CellStore<bool> _mergedCellsStore;
-        //internal CellStore<bool> _isRichText;
         internal CellStore<Uri> _hyperLinks;
         internal CellStore<ExcelComment> _commentsStore;
 
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
         internal Dictionary<int, Formulas> _arrayFormulas = new Dictionary<int, Formulas>();
-        //internal RangeCollection _formulaCells;
         internal int _minCol = ExcelPackage.MaxColumns;
         internal int _maxCol = 0;
-        //internal List<ulong> _hyperLinkCells;   //Used when saving the sheet
         #region Worksheet Private Properties
         internal ExcelPackage _package;
 		private Uri _worksheetUri;
@@ -288,6 +301,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 string address = GetXmlNodeString("d:autoFilter/@ref");
                 if (address == "")
                 {
@@ -300,7 +314,16 @@ namespace OfficeOpenXml
             }
             internal set
             {
+                CheckSheetType();
                 SetXmlNodeString("d:autoFilter/@ref", value.Address);
+            }
+        }
+
+        internal void CheckSheetType()
+        {
+            if (this is ExcelChartsheet)
+            {
+                throw (new NotSupportedException("This property or method is not supported for a Chartsheet"));
             }
         }
 
@@ -347,6 +370,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return _names;
             }
         }
@@ -391,7 +415,8 @@ namespace OfficeOpenXml
 		{
 			get 
 			{
-				if(double.IsNaN(_defaultRowHeight))
+                CheckSheetType();
+                if (double.IsNaN(_defaultRowHeight))
                 {
                     _defaultRowHeight = GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight");
                     if(double.IsNaN(_defaultRowHeight))
@@ -403,6 +428,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
+                CheckSheetType();
                 _defaultRowHeight = value;
                 SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
                 SetXmlNodeBool("d:sheetFormatPr/@customHeight", value != 15);
@@ -420,6 +446,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 double ret = GetXmlNodeDouble("d:sheetFormatPr/@defaultColWidth");
                 if (double.IsNaN(ret))
                 {
@@ -429,6 +456,7 @@ namespace OfficeOpenXml
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString("d:sheetFormatPr/@defaultColWidth", value.ToString(CultureInfo.InvariantCulture));
 
                 if (double.IsNaN(GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight")))
@@ -446,10 +474,12 @@ namespace OfficeOpenXml
         { 
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineSummaryBelowPath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineSummaryBelowPath, value ? "1" : "0");
             }
         }
@@ -461,10 +491,12 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineSummaryRightPath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineSummaryRightPath, value ? "1" : "0");
             }
         }
@@ -476,10 +508,12 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineApplyStylePath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineApplyStylePath, value ? "1" : "0");
             }
         }
@@ -571,6 +605,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_comments == null)
                 {
                     CreateVmlCollection();
@@ -1236,6 +1271,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return new ExcelRange(this, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             }
         }
@@ -1246,6 +1282,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return new ExcelRange(this, View.SelectedRange);
             }
         }
@@ -1257,6 +1294,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return _mergedCells;
             }
         }
@@ -1282,6 +1320,7 @@ namespace OfficeOpenXml
                 //_values.SetValue(row, 0, r);
                 //_rows.Add(r);
             //}
+            CheckSheetType();
             return new ExcelRow(this, row);
             //return r;
 		}
@@ -1292,7 +1331,8 @@ namespace OfficeOpenXml
 		/// <returns></returns>
 		public ExcelColumn Column(int col)
 		{
-            ExcelColumn column=_values.GetValue(0,col) as ExcelColumn;
+            CheckSheetType();
+            ExcelColumn column = _values.GetValue(0, col) as ExcelColumn;
             // id=ExcelColumn.GetColumnID(_sheetID, col);
             if (column!=null)
             {
@@ -1373,6 +1413,7 @@ namespace OfficeOpenXml
         /// <param name="Address">An address range</param>
         public void Select(string Address)
         {
+            CheckSheetType();
             Select(Address, true);
         }
         /// <summary>
@@ -1382,6 +1423,7 @@ namespace OfficeOpenXml
         /// <param name="SelectSheet">Make the sheet active</param>
         public void Select(string Address, bool SelectSheet)
         {
+            CheckSheetType();
             int fromCol, fromRow, toCol, toRow;
             //Get rows and columns and validate as well
             ExcelCellBase.GetRowColFromAddress(Address, out fromRow, out fromCol, out toRow, out toCol);
@@ -1400,6 +1442,7 @@ namespace OfficeOpenXml
         /// <param name="Address">An address range</param>
         public void Select(ExcelAddress Address)
         {
+            CheckSheetType();
             Select(Address, true);
         }
         /// <summary>
@@ -1410,6 +1453,7 @@ namespace OfficeOpenXml
         public void Select(ExcelAddress Address, bool SelectSheet)
         {
 
+            CheckSheetType();
             if (SelectSheet)
             {
                 View.TabSelected = true;
@@ -1446,7 +1490,8 @@ namespace OfficeOpenXml
         /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
 		public void  InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{
-            var d=Dimension;
+            CheckSheetType();
+            var d = Dimension;
             //Check that cells aren't shifted outside the boundries
             if (d != null && d.End.Row > rowFrom && d.End.Row + rows > ExcelPackage.MaxRows)
             {
@@ -1797,6 +1842,7 @@ namespace OfficeOpenXml
         /// <param name="rows">Number of rows to delete</param>
         public void DeleteRow(int rowFrom, int rows)
         {
+            CheckSheetType();
             //ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
 
             //_cells.DeleteRows(rowID, rows, true);
@@ -1847,6 +1893,7 @@ namespace OfficeOpenXml
         /// <param name="shiftOtherRowsUp">Not used. Rows are always shifted</param>
         public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
 		{
+            CheckSheetType();
             if (shiftOtherRowsUp)
             {
                 DeleteRow(rowFrom, rows);
@@ -1871,6 +1918,7 @@ namespace OfficeOpenXml
         /// <returns>The value</returns>
         public object GetValue(int Row, int Column)
         {
+            CheckSheetType();
             //ulong cellID = ExcelCellBase.GetCellID(SheetID, Row, Column);
             var v = _values.GetValue(Row, Column);
             if (v!=null)
@@ -1900,7 +1948,8 @@ namespace OfficeOpenXml
         /// <returns>The value. If the value can't be converted to the specified type, the default value will be returned</returns>
         public T GetValue<T>(int Row, int Column)
         {
-             //ulong cellID=ExcelCellBase.GetCellID(SheetID, Row, Column);
+            CheckSheetType();
+            //ulong cellID=ExcelCellBase.GetCellID(SheetID, Row, Column);
             var v = _values.GetValue(Row, Column);           
             if (v==null)
             {
@@ -2044,6 +2093,7 @@ namespace OfficeOpenXml
         /// <param name="Value">The value</param>
         public void SetValue(int Row, int Column, object Value)
         {
+            CheckSheetType();
             if (Row < 1 || Column < 1 || Row > ExcelPackage.MaxRows && Column > ExcelPackage.MaxColumns)
             {
                 throw new ArgumentOutOfRangeException("Row or Column out of range");
@@ -2057,6 +2107,7 @@ namespace OfficeOpenXml
         /// <param name="Value">The value</param>
         public void SetValue(string Address, object Value)
         {
+            CheckSheetType();
             int row, col;
             ExcelAddressBase.GetRowCol(Address, out row, out col, true);
             if (row < 1 || col < 1 || row > ExcelPackage.MaxRows && col > ExcelPackage.MaxColumns)
@@ -2119,7 +2170,7 @@ namespace OfficeOpenXml
                     }
 
 
-                    if (_drawings != null && _drawings.Count == 0)
+                    if (Drawings.Count != null && _drawings.Count == 0)
                     {
                         //Remove node if no drawings exists.
                         DeleteNode("d:drawing");
@@ -2134,7 +2185,7 @@ namespace OfficeOpenXml
                 if (Drawings.UriDrawing!=null)
                 {
                     if (Drawings.Count == 0)
-                    {                    
+                    {                                            
                         Part.DeleteRelationship(Drawings._drawingRelation.Id);
                         _package.Package.DeletePart(Drawings.UriDrawing);                    
                     }
@@ -2322,62 +2373,11 @@ namespace OfficeOpenXml
                     {
                         if (tbl.ShowHeader)
                         {
-                            //Cell(tbl.Address._fromRow, colNum).Value = col.Name;
                             _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
                         }
                         if (tbl.ShowTotal)
                         {
-                            if (col.TotalsRowFunction == RowFunctions.Custom)
-                            {
-                                //Cell(tbl.Address._toRow, colNum).Formula = col.TotalsRowFormula;
-                                SetFormula(tbl.Address._toRow, colNum, col.TotalsRowFormula);
-                            }
-                            else if (col.TotalsRowFunction != RowFunctions.None)
-                            {
-                                switch (col.TotalsRowFunction)
-                                {
-                                    case RowFunctions.Average:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "101");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "101"));
-                                        break;
-                                    case RowFunctions.Count:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "102");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "102"));
-                                        break;
-                                    case RowFunctions.CountNums:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "103");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "103"));
-                                        break;
-                                    case RowFunctions.Max:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "104");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "104"));                                        
-                                        break;
-                                    case RowFunctions.Min:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "105");
-                                          SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "105"));
-                                        break;
-                                    case RowFunctions.StdDev:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "107");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "107"));
-                                        break;
-                                    case RowFunctions.Var:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "110");
-                                          SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "110"));
-                                        break;
-                                    case RowFunctions.Sum:
-                                        //Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "109");
-                                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "109"));
-                                        break;
-                                    default:
-                                        throw (new Exception("Unknown RowFunction enum"));
-                                }
-                            }
-                            else
-                            {
-                                //Cell(tbl.Address._toRow, colNum).Value = col.TotalsRowLabel;
-                                _values.SetValue(tbl.Address._toRow, colNum, col.TotalsRowLabel);
-
-                            }
+                            SetTableTotalFunction(tbl, col, colNum);
                         }
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
@@ -2413,6 +2413,61 @@ namespace OfficeOpenXml
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
                 }
+            }
+        }
+
+        internal void SetTableTotalFunction(ExcelTable tbl, ExcelTableColumn col, int colNum=-1)
+        {
+            if (colNum == -1)
+            {
+                for (int i = 0; i < tbl.Columns.Count; i++)
+                {
+                    if (tbl.Columns[i].Name == col.Name)
+                    {
+                        colNum = tbl.Address._fromCol + i;
+                    }
+                }
+            }
+            if (col.TotalsRowFunction == RowFunctions.Custom)
+            {
+                SetFormula(tbl.Address._toRow, colNum, col.TotalsRowFormula);
+            }
+            else if (col.TotalsRowFunction != RowFunctions.None)
+            {
+                switch (col.TotalsRowFunction)
+                {
+                    case RowFunctions.Average:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "101"));
+                        break;
+                    case RowFunctions.Count:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "102"));
+                        break;
+                    case RowFunctions.CountNums:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "103"));
+                        break;
+                    case RowFunctions.Max:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "104"));
+                        break;
+                    case RowFunctions.Min:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "105"));
+                        break;
+                    case RowFunctions.StdDev:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "107"));
+                        break;
+                    case RowFunctions.Var:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "110"));
+                        break;
+                    case RowFunctions.Sum:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "109"));
+                        break;
+                    default:
+                        throw (new Exception("Unknown RowFunction enum"));
+                }
+            }
+            else
+            {
+                _values.SetValue(tbl.Address._toRow, colNum, col.TotalsRowLabel);
+
             }
         }
 
@@ -2466,7 +2521,7 @@ namespace OfficeOpenXml
         }
         private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
         {
-            return string.Format("SUBTOTAL({0},[{1}])", FunctionNum, col.Name);
+            return string.Format("SUBTOTAL({0},{1}[{2}])", FunctionNum, col._tbl.Name, col.Name);
         }
         private void SaveXml(Stream stream)
         {
@@ -3005,6 +3060,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 int fromRow, fromCol, toRow, toCol;
                 if (_values.GetDimension(out fromRow, out fromCol, out toRow, out toCol))
                 {
@@ -3058,6 +3114,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_tables == null)
                 {
                     _tables = new ExcelTableCollection(this);
@@ -3073,6 +3130,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_pivotTables == null)
                 {
                     _pivotTables = new ExcelPivotTableCollection(this);
@@ -3090,6 +3148,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_conditionalFormatting == null)
                 {
                     _conditionalFormatting = new ExcelConditionalFormattingCollection(this);
@@ -3107,6 +3166,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_dataValidation == null)
                 {
                     _dataValidation = new ExcelDataValidationCollection(this);

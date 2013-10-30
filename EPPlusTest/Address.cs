@@ -84,9 +84,25 @@ namespace EPPlusTest
             addr.Insert(new ExcelAddressBase("B2"), ExcelAddressBase.eShiftType.Right);
             addr.Insert(new ExcelAddressBase("B3"), ExcelAddressBase.eShiftType.Right);
             addr.Insert(new ExcelAddressBase("D:D"), ExcelAddressBase.eShiftType.Right);
-
-
             addr.Insert(new ExcelAddressBase("5:5"), ExcelAddressBase.eShiftType.Down);
+        }
+        [TestMethod]
+        public void Addresses()
+        {
+            var a1 = new ExcelAddress("SalesData!$K$445");
+            var a2 = new ExcelAddress("SalesData!$K$445:$M$449,SalesData!$N$448:$Q$454,SalesData!$L$458:$O$464");
+            var a3 = new ExcelAddress("SalesData!$K$445:$L$448");
+            //var a4 = new ExcelAddress("'[1]Risk]TatTWRForm_TWRWEEKLY20130926090'!$N$527");
+            var a5 = new ExcelAddress("Table1[[#All],[Title]]");
+            var a6 = new ExcelAddress("Table1[#All]");
+            var a7 = new ExcelAddress("Table1[[#Headers],[FirstName]:[LastName]]");
+            var a8 = new ExcelAddress("Table1[#Headers]");
+            var a9 = new ExcelAddress("Table2[[#All],[SubTotal]]");
+            var a10 = new ExcelAddress("Table2[#All]");
+            var a11 = new ExcelAddress("Table1[[#All],[Freight]]");
+            var a12 = new ExcelAddress("[1]!Table1[[LastName]:[Name]]");
+            var a13 = new ExcelAddress("Table1[[#All],[Freight]]");
+            var a14 = new ExcelAddress("SalesData!$N$5+'test''1'!$J$33");
         }
     }
 }

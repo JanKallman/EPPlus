@@ -6,7 +6,6 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
-using OpenOffice.FormulaParser.LexicalAnalysis;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 {

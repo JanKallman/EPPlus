@@ -14,6 +14,7 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
+        [Ignore]
         [TestMethod]
         public void Compression()
         {
@@ -30,6 +31,7 @@ namespace EPPlusTest
             decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
         }
+        [Ignore]
         [TestMethod]
         public void ReadVBA()
         {
@@ -62,9 +64,9 @@ namespace EPPlusTest
             package.Workbook.CodeModule.Name = "DenHärArbetsboken";
             package.Workbook.Worksheets[1].Name = "FirstSheet";
             package.Workbook.CodeModule.Code += "\r\nPrivate Sub Workbook_Open()\r\nBlad1.Cells(1,1).Value = \"VBA test\"\r\nMsgBox \"VBA is running!\"\r\nEnd Sub";
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
+            //X509Store store = new X509Store(StoreLocation.CurrentUser);
+            //store.Open(OpenFlags.ReadOnly);
+            //package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
 
             var m=package.Workbook.VbaProject.Modules.AddModule("Module1");         
             m.Code += "Public Sub Test(param1 as string)\r\n\r\nEnd sub\r\nPublic Function functest() As String\r\n\r\nEnd Function\r\n";
@@ -77,6 +79,7 @@ namespace EPPlusTest
             package.SaveAs(new FileInfo(@"c:\temp\vbaWrite.xlsm"));
 
         }
+        [Ignore]
         [TestMethod]
         public void Resign()
         {
@@ -106,9 +109,9 @@ namespace EPPlusTest
             code.AppendLine("End Sub");
             module.Code = code.ToString();
 
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
+            //X509Store store = new X509Store(StoreLocation.CurrentUser);
+            //store.Open(OpenFlags.ReadOnly);
+            //package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
 
             package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
         }

@@ -422,7 +422,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "autoTitleDeleted", "view3D", "floor", "sideWall", "backWall", "plotArea", "wireframe", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "showDLblsOverMax", "overlap", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "autoTitleDeleted", "view3D", "floor", "sideWall", "backWall", "plotArea", "wireframe", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "showDLblsOverMax", "overlap", "bandFmts", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
@@ -676,6 +676,10 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                xml.Append("<c:overlap val=\"100\"/>");
            }
+           if (IsTypeSurface())
+           {
+               xml.Append("<c:bandFmts/>");
+           }
            xml.Append(AddAxisId(axID, xAxID, serAxID));
 
            return xml.ToString();
@@ -685,7 +689,7 @@ namespace OfficeOpenXml.Drawing.Chart
            if (!IsTypePieDoughnut())
            {
                if (IsTypeSurface())
-               {
+               {                                      
                    return string.Format("<c:axId val=\"{0}\"/><c:axId val=\"{1}\"/><c:axId val=\"{2}\"/>", axID, xAxID, serAxID);
                }
                else

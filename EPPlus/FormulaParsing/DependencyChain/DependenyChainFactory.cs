@@ -84,10 +84,13 @@ namespace OfficeOpenXml.FormulaParsing
                     {
                         f.Formula = fs.Value.ToString();
                     }
-                    f.Tokens = lexer.Tokenize(f.Formula).ToList();
-                    ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
-                    depChain.Add(f);
-                    FollowChain(depChain, lexer, ws, f);
+                    if(!string.IsNullOrEmpty(f.Formula))
+                    {
+                        f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                        ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
+                        depChain.Add(f);
+                        FollowChain(depChain, lexer, ws, f);
+                    }
                 }
             }
         }
@@ -109,6 +112,10 @@ namespace OfficeOpenXml.FormulaParsing
                 if (t.TokenType == TokenType.ExcelAddress)
                 {
                     var adr = new ExcelFormulaAddress(t.Value);
+                    if (adr.Table != null)
+                    {
+                        adr.SetRCFromTable(ws._package, new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column));
+                    }
                     if (string.IsNullOrEmpty(adr.WorkSheet))
                     {
                         f.ws = ws;
@@ -149,6 +156,7 @@ namespace OfficeOpenXml.FormulaParsing
                         rf.Formula = f.iterator.Value.ToString();
                     }
                     rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
+                    ws._formulaTokens.SetValue(rf.Row, rf.Column,rf .Tokens);
                     depChain.Add(rf);
                     stack.Push(f);
                     f = rf;

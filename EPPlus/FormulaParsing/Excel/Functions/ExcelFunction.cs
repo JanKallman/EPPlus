@@ -118,7 +118,50 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected bool IsNumeric(object val)
         {
             if (val == null) return false;
-            return val.GetType() == typeof(int) || val.GetType() == typeof(double) || val.GetType() == typeof(decimal);
+            return (val.GetType().IsPrimitive || val is double || val is decimal || val is System.DateTime || val is TimeSpan);
+        }
+        protected double GetNumeric(object value)
+        {
+            try
+            {
+                if ((value.GetType().IsPrimitive || value is double || value is decimal || value is System.DateTime || value is TimeSpan))
+                {
+                    if (value is System.DateTime)
+                    {
+                        return ((System.DateTime)value).ToOADate();
+                    }
+                    else if (value is TimeSpan)
+                    {
+                        return new System.DateTime(((TimeSpan)value).Ticks).ToOADate();
+                    }
+                    else if (value is bool)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        //if (v is double && double.IsNaN((double)v))
+                        //{
+                        //    return 0;
+                        //}
+                        //else if (v is double && double.IsInfinity((double)v))
+                        //{
+                        //    return "#NUM!";
+                        //}
+                        //else
+                        //{
+                        return Convert.ToDouble(value, CultureInfo.InvariantCulture);
+                    }
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments)

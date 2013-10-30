@@ -38,6 +38,7 @@ using System.IO;
 using OfficeOpenXml.Table;
 using OfficeOpenXml.Drawing.Chart;
 using System.Globalization;
+using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
     /// <summary>
@@ -127,6 +128,7 @@ namespace EPPlusSamples
             chart.Style = eChartStyle.Style27;
 
             sheet.View.ShowGridLines = false;
+            sheet.Calculate();
             sheet.Cells[sheet.Dimension.Address].AutoFitColumns();
         }
 
@@ -154,7 +156,7 @@ namespace EPPlusSamples
             var tbl = sheet.Tables.Add(range.Offset(0,0,range.End.Row-range.Start.Row+1, range.End.Column-range.Start.Column+2),"Table");
             tbl.ShowTotal = true;
             tbl.Columns[0].TotalsRowLabel = "Total";
-            tbl.Columns[1].TotalsRowFormula = "COUNT(3,[Product])";    //Add a custom formula
+            tbl.Columns[1].TotalsRowFormula = "COUNT(3,Table[Product])";    //Add a custom formula
             tbl.Columns[2].TotalsRowFunction = RowFunctions.Sum;
             tbl.Columns[3].TotalsRowFunction = RowFunctions.Sum;
             tbl.Columns[4].TotalsRowFunction = RowFunctions.Sum;
@@ -189,6 +191,7 @@ namespace EPPlusSamples
 
             chart.Style = eChartStyle.Style26;
             sheet.View.ShowGridLines = false;
+            sheet.Calculate();
         }
     }
 }

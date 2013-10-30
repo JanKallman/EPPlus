@@ -23,6 +23,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return base.ArgsToDoubleEnumerable(arguments);
         }
 
+        protected bool ShouldIgnore(ExcelDataProvider.ICellInfo c, ParsingContext context)
+        {
+            return (IgnoreHiddenValues  && c.IsHiddenRow) || (context.Scopes.Current.IsSubtotal && IsSubTotal(c));
+        }
         protected bool ShouldIgnore(FunctionArgument arg)
         {
             if (IgnoreHiddenValues && arg.ExcelStateFlagIsSet(ExcelCellState.HiddenCell))
@@ -31,5 +35,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
             return false;
         }
+        protected bool IsSubTotal(ExcelDataProvider.ICellInfo c)
+        {
+            var tokens = c.Tokens;
+            if (tokens == null) return false;
+            foreach (var token in c.Tokens)
+            {
+                if (token.TokenType == LexicalAnalysis.TokenType.Function && token.Value.Equals("SUBTOTAL", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
     }
 }

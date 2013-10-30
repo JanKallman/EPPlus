@@ -81,7 +81,14 @@ namespace OfficeOpenXml
 				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				//add the worksheet
-                _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                if(sheetRelation.RelationshipType.EndsWith("chartsheet"))
+                {
+                    _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                }
+                else
+                {
+                    _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                }
 				positionID++;
 			}
 		}
@@ -111,6 +118,7 @@ namespace OfficeOpenXml
 		#endregion
         private const string ERR_DUP_WORKSHEET = "A worksheet with this name already exists in the workbook";
         internal const string WORKSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
+        internal const string CHARTSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml";
 		#region ExcelWorksheets Public Methods
 		/// <summary>
         /// Foreach support
@@ -137,36 +145,50 @@ namespace OfficeOpenXml
 		/// <param name="Name">The name of the workbook</param>
 		public ExcelWorksheet Add(string Name)
 		{
+            ExcelWorksheet worksheet = AddSheet(Name,false, null);
+			return worksheet;
+		}
+
+        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType)
+        {
             int sheetID;
             Uri uriWorksheet;
             if (GetByName(Name) != null)
             {
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
+            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
 
-			//Create the new, empty worksheet and save it to the package
-			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
-			XmlDocument worksheetXml = CreateNewWorksheet();
-			worksheetXml.Save(streamWorksheet);
-			//streamWorksheet.Close();
-			_pck.Package.Flush();
+            //Create the new, empty worksheet and save it to the package
+            StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
+            XmlDocument worksheetXml = CreateNewWorksheet(isChart);
+            worksheetXml.Save(streamWorksheet);
+            //streamWorksheet.Close();
+            _pck.Package.Flush();
 
-            string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet);
+            string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
 
             int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+            ExcelWorksheet worksheet;
+            if (isChart)
+            {
+                worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType);
+            }
+            else
+            {
+                worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+            }
 
-			_worksheets.Add(positionID, worksheet);
+            _worksheets.Add(positionID, worksheet);
             if (_pck.Workbook.VbaProject != null)
             {
                 _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = Name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 worksheet.CodeModuleName = Name;
 
             }
-			return worksheet;
-		}
+            return worksheet;
+        }
         /// <summary>
         /// Adds a copy of a worksheet
         /// </summary>
@@ -176,13 +198,16 @@ namespace OfficeOpenXml
         {
             int sheetID;
             Uri uriWorksheet;
-
+            if (Copy is ExcelChartsheet)
+            {
+                throw (new ArgumentException("Can not copy a chartsheet"));
+            }
             if (GetByName(Name) != null)
             {
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
 
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet);
+            GetSheetURI(ref Name, out sheetID, out uriWorksheet, false);
 
             //Create a copy of the worksheet XML
             Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
@@ -195,7 +220,7 @@ namespace OfficeOpenXml
 
 
             //Create a relation to the workbook
-            string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet);
+            string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet, false);
             ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
 
             //Copy comments
@@ -250,7 +275,10 @@ namespace OfficeOpenXml
 
             return added;
         }
-
+        public ExcelChartsheet AddChart(string Name, eChartType chartType)
+        {
+            return (ExcelChartsheet)AddSheet(Name, true, chartType);
+        }
         private void CopySheetNames(ExcelWorksheet Copy, ExcelWorksheet added)
         {
             foreach (var name in Copy.Names)
@@ -603,7 +631,7 @@ namespace OfficeOpenXml
         }
 
         private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
-        {
+        {            
             //First copy the drawing XML
             string xml = Copy.Comments.CommentXml.InnerXml;
             var uriComment = new Uri(string.Format("/xl/comments{0}.xml", workSheet.SheetID), UriKind.Relative);
@@ -738,10 +766,10 @@ namespace OfficeOpenXml
 			}
 		}
 
-		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
+		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet, bool isChart)
         {
             //Create the relationship between the workbook and the new worksheet
-            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
+            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/" + (isChart ? "chartsheet" : "worksheet"));
             _pck.Package.Flush();
 
             //Create the new sheet node
@@ -753,7 +781,7 @@ namespace OfficeOpenXml
             TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
-        private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet)
+        private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet, bool isChart)
         {
             Name = ValidateFixSheetName(Name);
 
@@ -770,7 +798,14 @@ namespace OfficeOpenXml
             sheetID++;
 
             // add the new worksheet to the package
-            uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            if (isChart)
+            {
+                uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            }
+            else
+            {
+                uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            }
         }
 
         internal string ValidateFixSheetName(string Name)
@@ -807,26 +842,38 @@ namespace OfficeOpenXml
 		/// Creates the XML document representing a new empty worksheet
 		/// </summary>
 		/// <returns></returns>
-		internal XmlDocument CreateNewWorksheet()
+		internal XmlDocument CreateNewWorksheet(bool isChart)
 		{
 			XmlDocument xmlDoc = new XmlDocument();
-            XmlElement elemWs = xmlDoc.CreateElement("worksheet", ExcelPackage.schemaMain);
+            XmlElement elemWs = xmlDoc.CreateElement(isChart ? "chartsheet" : "worksheet", ExcelPackage.schemaMain);
             elemWs.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
             xmlDoc.AppendChild(elemWs);
 
-            XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
-            elemWs.AppendChild(elemSheetViews);
 
-            XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
-            elemSheetView.SetAttribute("workbookViewId", "0");
-            elemSheetViews.AppendChild(elemSheetView);
+            if (isChart)
+            {
+                XmlElement elemSheetPr = xmlDoc.CreateElement("sheetPr", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetPr);
 
-            XmlElement elemSheetFormatPr = xmlDoc.CreateElement("sheetFormatPr", ExcelPackage.schemaMain);
-            elemSheetFormatPr.SetAttribute("defaultRowHeight", "15");
-            elemWs.AppendChild(elemSheetFormatPr);
+                XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetViews);
+            }
+            else
+            {
+                XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetViews);
 
-            XmlElement elemSheetData = xmlDoc.CreateElement("sheetData", ExcelPackage.schemaMain);
-            elemWs.AppendChild(elemSheetData);
+                XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
+                elemSheetView.SetAttribute("workbookViewId", "0");
+                elemSheetViews.AppendChild(elemSheetView);
+
+                XmlElement elemSheetFormatPr = xmlDoc.CreateElement("sheetFormatPr", ExcelPackage.schemaMain);
+                elemSheetFormatPr.SetAttribute("defaultRowHeight", "15");
+                elemWs.AppendChild(elemSheetFormatPr);
+
+                XmlElement elemSheetData = xmlDoc.CreateElement("sheetData", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetData);
+            }
             return xmlDoc;
 		}
 		#endregion

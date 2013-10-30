@@ -389,6 +389,15 @@ namespace OfficeOpenXml
         internal static bool GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
         {
             bool ret;
+            if (CellAddress.IndexOf('[') > 0) //External reference or reference to Table or Pivottable.
+            {
+                FromRow = -1;
+                FromColumn = -1;
+                ToRow = -1;
+                ToColumn = -1;
+                return false;
+            }
+
             CellAddress = CellAddress.ToUpper();
             //This one can be removed when the worksheet Select format is fixed
             if (CellAddress.IndexOf(' ') > 0)

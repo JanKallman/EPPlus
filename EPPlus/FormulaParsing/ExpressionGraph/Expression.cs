@@ -108,6 +108,5 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public abstract CompileResult Compile();
 
-
     }
 }

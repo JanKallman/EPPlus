@@ -65,11 +65,11 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         {
             var tokens = new List<Token>
             {
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
                 new Token("+", TokenType.Operator),
                 new Token("4", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
                 new Token("*", TokenType.Operator),
                 new Token("2", TokenType.Integer)
             };
@@ -84,11 +84,11 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         {
             var tokens = new List<Token>
             {
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
                 new Token("+", TokenType.Operator),
                 new Token("4", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
                 new Token("*", TokenType.Operator),
                 new Token("2", TokenType.Integer)
             };
@@ -103,11 +103,11 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         {
             var tokens = new List<Token>
             {
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
                 new Token("+", TokenType.Operator),
                 new Token("4", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
                 new Token("*", TokenType.Operator),
                 new Token("2", TokenType.Integer)
             };
@@ -124,9 +124,9 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokens = new List<Token>
             {
                 new Token("CStr", TokenType.Function),
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
             };
             var result = _graphBuilder.Build(tokens);
 
@@ -140,9 +140,9 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokens = new List<Token>
             {
                 new Token("CStr", TokenType.Function),
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket)
+                new Token(")", TokenType.ClosingParenthesis)
             };
             var result = _graphBuilder.Build(tokens);
 
@@ -158,9 +158,9 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokens = new List<Token>
             {
                 new Token("CStr", TokenType.Function),
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
                 new Token("&", TokenType.Operator),
                 new Token("A", TokenType.StringContent)
             };
@@ -176,11 +176,11 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokens = new List<Token>
             {
                 new Token("Text", TokenType.Function),
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("2", TokenType.Integer),
                 new Token(",", TokenType.Comma),
                 new Token("3", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket),
+                new Token(")", TokenType.ClosingParenthesis),
                 new Token("&", TokenType.Operator),
                 new Token("A", TokenType.StringContent)
             };
@@ -211,13 +211,13 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokens = new List<Token>
             {
                 new Token("Text", TokenType.Function),
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("{", TokenType.OpeningEnumerable),
                 new Token("2", TokenType.Integer),
                 new Token(",", TokenType.Comma),
                 new Token("3", TokenType.Integer),
                 new Token("}", TokenType.ClosingEnumerable),
-                new Token(")", TokenType.ClosingBracket)
+                new Token(")", TokenType.ClosingParenthesis)
             };
 
             var result = _graphBuilder.Build(tokens);

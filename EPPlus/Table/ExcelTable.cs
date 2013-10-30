@@ -324,6 +324,10 @@ namespace OfficeOpenXml.Table
                 {
                     DeleteNode(HEADERROWCOUNT_PATH);
                     WriteAutoFilter(ShowTotal);
+                    for (int i = 0; i < Columns.Count; i++)
+                    {
+                        _cols[i].Name = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol+i);
+                    }
                 }
                 else
                 {

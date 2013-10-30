@@ -24,11 +24,11 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         {
             var input = new List<Token>
             {
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("1", TokenType.Integer),
                 new Token("+", TokenType.Operator),
                 new Token("2", TokenType.Integer),
-                new Token(")", TokenType.ClosingBracket)
+                new Token(")", TokenType.ClosingParenthesis)
             };
             _analyser.Analyze(input);
         }
@@ -38,7 +38,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         {
             var input = new List<Token>
             {
-                new Token("(", TokenType.OpeningBracket),
+                new Token("(", TokenType.OpeningParenthesis),
                 new Token("1", TokenType.Integer),
                 new Token("+", TokenType.Operator),
                 new Token("2", TokenType.Integer)

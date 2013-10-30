@@ -9,9 +9,15 @@ using System.IO;
 namespace EPPlusTest
 {
     [TestClass]
-    public class Encrypt
+    public class Encrypt : TestBase
     {
+        [ClassInitialize()]
+        public void ClassInit(TestContext testContext)
+        {
+            InitBase();
+        }
         [TestMethod]
+        [Ignore]
         public void ReadWriteEncrypt()
         {
             using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\Drawing.xlsx"), true))   
@@ -25,21 +31,22 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"Test\DrawingEncr.xlsx"));                
             }
 
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\DrawingEncr.xlsx"), true, "EPPlus"))            
+            using (ExcelPackage pck = new ExcelPackage(new FileInfo(_worksheetPath + @"\DrawingEncr.xlsx"), true, "EPPlus"))            
             {
                 pck.Encryption.IsEncrypted = false;
-                pck.SaveAs(new FileInfo(@"Test\DrawingNotEncr.xlsx"));
+                pck.SaveAs(new FileInfo(_worksheetPath + @"\DrawingNotEncr.xlsx"));
             }
 
-            FileStream fs = new FileStream(@"Test\DrawingEncr.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            FileStream fs = new FileStream(_worksheetPath + @"\DrawingEncr.xlsx", FileMode.Open, FileAccess.ReadWrite);
             using (ExcelPackage pck = new ExcelPackage(fs, "EPPlus"))
             {
                 pck.Encryption.IsEncrypted = false;
-                pck.SaveAs(new FileInfo(@"Test\DrawingNotEncr.xlsx"));
+                pck.SaveAs(new FileInfo(_worksheetPath + @"DrawingNotEncr.xlsx"));
             }
 
         }
         [TestMethod]
+        [Ignore]
         public void WriteEncrypt()
         {
             ExcelPackage package = new ExcelPackage();
@@ -61,6 +68,7 @@ namespace EPPlusTest
             package.SaveAs(new FileInfo(@"c:\temp\encrTest.xlsx"));
         }
         [TestMethod]
+        [Ignore]
         public void WriteProtect()
         {
             ExcelPackage package = new ExcelPackage(new FileInfo(@"c:\temp\workbookprot2.xlsx"), "");
@@ -85,6 +93,7 @@ namespace EPPlusTest
 
         }
         [TestMethod]
+        [Ignore]
         public void DecrypTest()
         {
             var p = new ExcelPackage(new FileInfo(@"c:\temp\encr.xlsx"), "test");
@@ -95,6 +104,7 @@ namespace EPPlusTest
         
         }
         [TestMethod]
+        [Ignore]
         public void EncrypTest()
         {
             var f = new FileInfo(@"c:\temp\encrwrite.xlsx");

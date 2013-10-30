@@ -17,6 +17,5 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var result = d / args.Count(); 
             return new CompileResult(result, DataType.Decimal);
         }
-
     }
 }

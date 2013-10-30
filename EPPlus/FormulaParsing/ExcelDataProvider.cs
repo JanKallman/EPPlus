@@ -12,6 +12,19 @@ namespace OfficeOpenXml.FormulaParsing
     /// </summary>
     public abstract class ExcelDataProvider : IDisposable
     {
+        public interface ICellInfo : IEnumerator<ICellInfo>, IEnumerable<ICellInfo>
+        {
+            string Address { get; }
+            int Row { get; }
+            int Column { get; }
+            string Formula { get;  }
+            object Value { get; }
+            bool IsHiddenRow { get; }
+            bool IsEmpty { get; }
+            bool IsMulti { get; }
+            bool NextCell();
+            IList<Token> Tokens { get; }
+        }
         /// <summary>
         /// Returns the names of all worksheet names
         /// </summary>
@@ -27,9 +40,9 @@ namespace OfficeOpenXml.FormulaParsing
         /// </summary>
         /// <param name="address">An Excel address</param>
         /// <returns>values from the required cells</returns>
-        public abstract IEnumerable<object> GetRangeValues(string worksheetName, string address);
+        internal abstract ICellInfo GetRange(string worksheetName, int row, int column, string address);
 
-        public abstract IEnumerable<object> GetRangeValues(string address);
+        internal abstract IEnumerable<object> GetRangeValues(string address);
 
         public abstract string GetRangeFormula(string worksheetName, int row, int column);
         public abstract List<Token> GetRangeFormulaTokens(string worksheetName, int row, int column);

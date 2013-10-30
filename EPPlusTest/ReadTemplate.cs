@@ -13,109 +13,18 @@ using OfficeOpenXml.ConditionalFormatting;
 namespace EPPlusTest
 {
     [TestClass]
-    public class ReadTemplate
+    public class ReadTemplate //: TestBase
     {
-        [TestMethod]
-        public void ReadDrawing()
-        {
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\Drawing.xlsx"))) 
-            {
-                var ws = pck.Workbook.Worksheets["Pyramid"];
-                Assert.AreEqual(ws.Cells["V24"].Value, 104D);
-                ws = pck.Workbook.Worksheets["Scatter"];
-                var cht = ws.Drawings["ScatterChart1"] as ExcelScatterChart;
-                Assert.AreEqual(cht.Title.Text, "Header  Text");
-                cht.Title.Text = "Test";
-                Assert.AreEqual(cht.Title.Text, "Test");
-            }
-        }
-        [TestMethod]
-        public void ReadWorkSheet()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
-            using (ExcelPackage pck = new ExcelPackage(instream))
-            {
-                var ws = pck.Workbook.Worksheets["Perf"];
-                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
-
-                ws = pck.Workbook.Worksheets["Comment"];
-                var comment = ws.Cells["B2"].Comment;
-
-                Assert.AreNotEqual(comment, null);
-                Assert.AreEqual(comment.Author, "Jan Källman");
-
-                ws = pck.Workbook.Worksheets["Hidden"];
-                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.Hidden);
-
-                ws = pck.Workbook.Worksheets["VeryHidden"];
-                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.VeryHidden);
-
-                ws = pck.Workbook.Worksheets["RichText"];
-                Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
-
-                ws = pck.Workbook.Worksheets["HeaderImage"];
-
-                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
-
-                ws = pck.Workbook.Worksheets["newsheet"];
-                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine,true);
-                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLineType, ExcelUnderLineType.Double);
-                Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
-                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
-                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
-                
-                //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
-            }
-            instream.Close();
-        }
-        [TestMethod]
-        public void ReadStreamWithTemplateWorkSheet()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.Read);
-            MemoryStream stream = new MemoryStream();
-            using (ExcelPackage pck = new ExcelPackage(stream, instream))
-            {
-                var ws = pck.Workbook.Worksheets["Perf"];                
-                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
-
-                ws = pck.Workbook.Worksheets["newsheet"];
-                Assert.AreEqual(ws.GetValue<DateTime>(20 ,21),new DateTime(2010,1,1));
-
-                ws = pck.Workbook.Worksheets["Loaded DataTable"];                
-                Assert.AreEqual(ws.GetValue<string>(2 ,1),"Row1");
-                Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
-                Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
-                Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
-
-                ws=pck.Workbook.Worksheets["RichText"];
-
-                var r1 = ws.Cells["A1"].RichText[0];
-                Assert.AreEqual(r1.Text,"Test");
-                Assert.AreEqual(r1.Bold, true);
-
-                ws=pck.Workbook.Worksheets["Pic URL"];
-                    Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");                
-
-                Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
-
-                pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
-            }
-            instream.Close();
-        }
-        [TestMethod]
-        public void ReadStreamSaveAsStream()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
-            MemoryStream stream = new MemoryStream();
-            using (ExcelPackage pck = new ExcelPackage(instream))
-            {
-                var ws = pck.Workbook.Worksheets["Names"];
-                Assert.AreEqual(ws.Names["FullCol"].Start.Row, 1);
-                Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
-                pck.SaveAs(stream);
-            }
-            instream.Close();
-        }
+        //[ClassInitialize()]
+        //public static void ClassInit(TestContext testContext)
+        //{
+        //    //InitBase();
+        //}
+        //[ClassCleanup()]
+        //public static void ClassCleanup()
+        //{
+        //    //SaveWorksheet("Worksheet.xlsx");
+        //}
         [TestMethod]
         public void ReadBlankStream()
         {
@@ -127,6 +36,7 @@ namespace EPPlusTest
             }
             stream.Close();
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug()
         {
@@ -137,6 +47,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug3()
         {
@@ -144,6 +55,7 @@ namespace EPPlusTest
             ExcelWorkbook xlsWb = xlsPack.Workbook;
             ExcelWorksheet xlsSheet = xlsWb.Worksheets["Billing"];
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug2()
         {
@@ -156,6 +68,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void CondFormatDataValBug()
         {            
@@ -169,6 +82,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\condi2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void InternalZip()
         {
@@ -177,6 +91,7 @@ namespace EPPlusTest
             //{
             //}
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug4()
         {
@@ -209,6 +124,7 @@ namespace EPPlusTest
             }
             }
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug5()
         {
@@ -218,6 +134,7 @@ namespace EPPlusTest
             package.Workbook.Worksheets[1].Protection.SetPassword("test");
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\protectnew.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug6()
         {
@@ -227,6 +144,7 @@ namespace EPPlusTest
             package.Workbook.Worksheets[1].Protection.SetPassword("test");
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug7()
         {
@@ -243,6 +161,7 @@ namespace EPPlusTest
             
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug8()
         {
@@ -259,6 +178,7 @@ namespace EPPlusTest
 
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\billing_template.xlsx.error"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug9()
         {
@@ -266,6 +186,7 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\new_t.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug10()
         {
@@ -275,6 +196,7 @@ namespace EPPlusTest
             Assert.IsNotNull(ws.Cells["B4"].Style.Fill.BackgroundColor.Indexed);
             Assert.IsNotNull(ws.Cells["B5"].Style.Fill.BackgroundColor.Indexed);
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug11()
         {
@@ -284,6 +206,7 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Test", ws);
             pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadConditionalFormatting()
         {
@@ -293,6 +216,7 @@ namespace EPPlusTest
             Assert.AreEqual(ws.ConditionalFormatting[6].Type, eExcelConditionalFormattingRuleType.Equal);
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadStyleBug()
         {
@@ -301,14 +225,24 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadURL()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\url.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [TestMethod]
+        public void ReadNameError()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\names2.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
+        }
+        [Ignore]
         [TestMethod]
         public void ReadBug12()
         {
