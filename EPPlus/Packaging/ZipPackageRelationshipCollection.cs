@@ -34,6 +34,7 @@ using System.Linq;
 using System.Text;
 using Ionic.Zip;
 using System.IO;
+using System.Security;
 
 namespace OfficeOpenXml.Packaging
 {
@@ -87,7 +88,7 @@ namespace OfficeOpenXml.Packaging
             StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
             foreach (var rel in _rels.Values)
             {
-                xml.AppendFormat("<Relationship Id=\"{0}\" Type=\"{1}\" Target=\"{2}\"{3}/>", Uri.EscapeDataString(rel.Id), rel.RelationshipType, Uri.EscapeUriString(rel.TargetUri.OriginalString), rel.TargetMode == TargetMode.External ? " TargetMode=\"External\"" : "");
+                xml.AppendFormat("<Relationship Id=\"{0}\" Type=\"{1}\" Target=\"{2}\"{3}/>", SecurityElement.Escape(rel.Id), rel.RelationshipType, SecurityElement.Escape(rel.TargetUri.OriginalString), rel.TargetMode == TargetMode.External ? " TargetMode=\"External\"" : "");
             }
             xml.Append("</Relationships>");
 

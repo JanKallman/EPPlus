@@ -15,33 +15,39 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 foreach (var arg in arguments)
                 {
-                    retVal += Calculate(arg);
+                    retVal += Calculate(arg, context);                    
                 }
             }
             return CreateResult(retVal, DataType.Decimal);
         }
 
-        private double Calculate(FunctionArgument arg)
+        private double Calculate(FunctionArgument arg, ParsingContext context)
         {
             var retVal = 0d;
             if (ShouldIgnore(arg))
             {
                 return retVal;
             }
-            if (arg.Value is double || arg.Value is int)
-            {
-                retVal += Convert.ToDouble(arg.Value);
-            }
-            else if (arg.Value is System.DateTime)
-            {
-                retVal += Convert.ToDateTime(arg.Value).ToOADate();
-            }
-            else if (arg.Value is IEnumerable<FunctionArgument>)
+            if (arg.Value is IEnumerable<FunctionArgument>)
             {
                 foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
                 {
-                    retVal += Calculate(item);
+                    retVal += Calculate(item, context);
                 }
+            }
+            else if (arg.Value is ExcelDataProvider.ICellInfo)
+            {
+                foreach (var c in (ExcelDataProvider.ICellInfo)arg.Value)
+                {
+                    if (ShouldIgnore(c, context) == false)
+                    {
+                        retVal += GetNumeric(c.Value);
+                    }
+                }
+            }
+            else
+            {
+                retVal += GetNumeric(arg.Value);
             }
             return retVal;
         }

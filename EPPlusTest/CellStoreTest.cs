@@ -6,33 +6,19 @@ using System.IO;
 namespace EPPlusTest
 {
     [TestClass]
-    public class CellStoreTest
+    public class CellStoreTest : TestBase
     {
-        ExcelPackage _package;
-        public CellStoreTest()
+        private static TestContext _testContext;
+        [ClassInitialize()]
+        public void ClassInit(TestContext testContext)
         {
-            _package = new ExcelPackage();
-        }
-        ~CellStoreTest()
-        {
-            if (!Directory.Exists("test"))
-            {
-                Directory.CreateDirectory("test");
-            }
-            _package.SaveAs(new FileInfo("test\\Insert.xlsx"));
-        }
-        [TestInitialize]
-        public void Init()
-        {
-        }
-        [TestCleanup]
-        public void CleanUp()
-        {
+            InitBase();
+            _testContext = testContext;
         }
         [TestMethod]
         public void Insert1()
         {
-            var ws=_package.Workbook.Worksheets.Add("Insert1");
+            var ws=_pck.Workbook.Worksheets.Add("Insert1");
             LoadData(ws);
 
             ws.InsertRow(2, 1000);
@@ -58,7 +44,7 @@ namespace EPPlusTest
         [TestMethod]
         public void Insert2()
         {
-            var ws = _package.Workbook.Worksheets.Add("Insert2-1");
+            var ws = _pck.Workbook.Worksheets.Add("Insert2-1");
             LoadData(ws);
 
             for (int i = 0; i < 32; i++)
@@ -66,8 +52,8 @@ namespace EPPlusTest
                 ws.InsertRow(1, 1);
             }
             Assert.AreEqual(ws.GetValue(33,1),"0,0");
-            
-            ws = _package.Workbook.Worksheets.Add("Insert2-2");
+
+            ws = _pck.Workbook.Worksheets.Add("Insert2-2");
             LoadData(ws);
 
             for (int i = 0; i < 32; i++)
@@ -80,7 +66,7 @@ namespace EPPlusTest
         [TestMethod]
         public void Insert3()
         {
-            var ws = _package.Workbook.Worksheets.Add("Insert3");
+            var ws = _pck.Workbook.Worksheets.Add("Insert3");
             LoadData(ws);
 
             for (int i = 0; i < 500; i+=4)
@@ -92,7 +78,7 @@ namespace EPPlusTest
         [TestMethod]
         public void InsertRandomTest()
         {
-            var ws = _package.Workbook.Worksheets.Add("Insert4-1");
+            var ws = _pck.Workbook.Worksheets.Add("Insert4-1");
             
             LoadData(ws, 5000);
 
@@ -104,7 +90,7 @@ namespace EPPlusTest
         [TestMethod]
         public void EnumCellstore()
         {
-            var ws = _package.Workbook.Worksheets.Add("enum");
+            var ws = _pck.Workbook.Worksheets.Add("enum");
 
             LoadData(ws, 5000);
 
@@ -117,7 +103,7 @@ namespace EPPlusTest
         [TestMethod]
         public void DeleteCells()
         {
-            var ws = _package.Workbook.Worksheets.Add("Delete");
+            var ws = _pck.Workbook.Worksheets.Add("Delete");
             LoadData(ws, 5000);
 
             ws.DeleteRow(2, 2);
@@ -134,7 +120,7 @@ namespace EPPlusTest
         [TestMethod]
         public void DeleteCellsFirst()
         {
-            var ws = _package.Workbook.Worksheets.Add("DeleteFirst");
+            var ws = _pck.Workbook.Worksheets.Add("DeleteFirst");
             LoadData(ws, 5000);
 
             ws.DeleteRow(32, 30);
@@ -146,7 +132,7 @@ namespace EPPlusTest
         [TestMethod]
         public void DeleteInsert()
         {
-            var ws = _package.Workbook.Worksheets.Add("DeleteInsert");
+            var ws = _pck.Workbook.Worksheets.Add("DeleteInsert");
             LoadData(ws, 5000);
 
             ws.DeleteRow(2, 33);
@@ -174,7 +160,7 @@ namespace EPPlusTest
         [TestMethod]
         public void FillInsertTest()
         {
-            var ws = _package.Workbook.Worksheets.Add("FillInsert");
+            var ws = _pck.Workbook.Worksheets.Add("FillInsert");
 
             LoadData(ws, 500);
 
@@ -189,7 +175,7 @@ namespace EPPlusTest
         [TestMethod]
         public void FillInsertTest2()
         {
-            var ws = _package.Workbook.Worksheets.Add("Performance");
+            var ws = _pck.Workbook.Worksheets.Add("Performance");
 
             LoadData(ws, 1000000,30);
         }

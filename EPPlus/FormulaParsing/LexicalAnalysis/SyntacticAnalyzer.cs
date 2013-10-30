@@ -75,11 +75,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         private void EnsureParenthesesAreWellFormed(Token token, AnalyzingContext context)
         {
-            if (token.TokenType == TokenType.OpeningBracket)
+            if (token.TokenType == TokenType.OpeningParenthesis)
             {
                 context.NumberOfOpenedParentheses++;
             }
-            else if (token.TokenType == TokenType.ClosingBracket)
+            else if (token.TokenType == TokenType.ClosingParenthesis)
             {
                 context.NumberOfClosedParentheses++;
             }

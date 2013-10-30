@@ -43,7 +43,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ParsingContext _parsingContext;
         private readonly RangeAddressFactory _rangeAddressFactory;
-
         public ExcelAddressExpression(string expression, ExcelDataProvider excelDataProvider, ParsingContext parsingContext)
             : this(expression, excelDataProvider, parsingContext, new RangeAddressFactory(excelDataProvider))
         {
@@ -80,9 +79,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private CompileResult CompileRangeValues()
         {
-            var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
-            var result = _excelDataProvider.GetRangeValues(rangeAddress.Worksheet, rangeAddress.Address);
-            if (result == null || !result.Any())
+            //var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
+            //ExcelAddressBase adr = new ExcelAddressBase(ExpressionString);          
+            //if(adr.Table!=null)
+            //{
+            // //   adr.SetRCFromTable(
+            //}
+            var c = this._parsingContext.Scopes.Current;
+            var result = _excelDataProvider.GetRange(c.Address.Worksheet, c.Address.FromRow, c.Address.FromCol, ExpressionString);
+            
+            if (result == null || result.IsEmpty)
             {
                 return null;
             }
@@ -97,14 +103,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             //    return factory.Create(rangeValueList.First());
             //}
 
-            if (ExcelAddressInfo.Parse(ExpressionString).IsMultipleCells)
+            //if (ExcelAddressInfo.Parse(ExpressionString).IsMultipleCells)
+            if(result.IsMulti)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
             else
             {
+                result.NextCell();
                 var factory = new CompileResultFactory();
-                return factory.Create(result.FirstOrDefault());
+                return factory.Create(result.Value);
             }
         }
 

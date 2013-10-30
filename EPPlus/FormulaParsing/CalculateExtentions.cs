@@ -56,8 +56,9 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.Parse(item.Tokens,item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
-                item.ws._values.SetValue(item.Row, item.Column, v);
+                var v = parser.ParseCell(item.Tokens,item.ws.Name, item.Row, item.Column);
+                var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                sheet._values.SetValue(item.Row, item.Column, v);
             }
             workbook._isCalculated = true;
         }
@@ -74,8 +75,9 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.Parse(item.Tokens, item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
-                item.ws._values.SetValue(item.Row, item.Column, v);
+                var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
+                var sheet = worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                sheet._values.SetValue(item.Row, item.Column, v);
             }
             worksheet.Workbook._isCalculated = true;
         }
@@ -86,8 +88,9 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.Parse(item.Tokens, item.ws.Name, ExcelCellBase.GetAddress(item.Row, item.Column));
-                item.ws._values.SetValue(item.Row, item.Column, v);
+                var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
+                var sheet = range.Worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                sheet._values.SetValue(item.Row, item.Column, v);
             }
             range.Worksheet.Workbook._isCalculated = true;
         }

@@ -89,6 +89,7 @@ namespace EPPlusTest
     /// 
     /// </summary>
     [TestMethod]
+    [Ignore]
     public void ReadConditionalFormatting()
     {
       var pck = new ExcelPackage(new FileInfo(@"c:\temp\cf.xlsx"));
@@ -107,6 +108,7 @@ namespace EPPlusTest
     /// 
     /// </summary>
     [TestMethod]
+    [Ignore]
     public void ReadConditionalFormattingError()
     {
       var pck = new ExcelPackage(new FileInfo(@"c:\temp\CofCTemplate.xlsx"));

@@ -164,6 +164,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="ReadTemplate.cs" />
+    <Compile Include="TestBase.cs" />
     <Compile Include="TestDTO.cs" />
     <Compile Include="CellStoreTest.cs" />
     <Compile Include="Utils\AddressUtilityTests.cs" />
@@ -184,6 +185,7 @@
     <None Include="packages.config" />
     <None Include="TestStart.orderedtest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
     <None Include="Resources\Test1.jpg" />
   </ItemGroup>
@@ -216,7 +218,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Workbooks\" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -109,16 +109,32 @@ namespace OfficeOpenXml.Drawing
             }
         }
         private void AddDrawings()
-        {
-            XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
+        {                        
+            //XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
 
-            foreach (XmlNode node in list)
+            foreach (XmlNode node in _drawingsXml.DocumentElement.ChildNodes)
             {
-                ExcelDrawing dr = ExcelDrawing.GetDrawing(this, node);
-                _drawings.Add(dr);
-                if (!_drawingNames.ContainsKey(dr.Name.ToLower()))
+                
+                ExcelDrawing dr;
+                switch(node.LocalName)
                 {
-                    _drawingNames.Add(dr.Name.ToLower(), _drawings.Count - 1);
+                    case "oneCellAnchor":
+                        dr = new ExcelDrawing(this, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name");
+                        break;
+                    case "twoCellAnchor":
+                        dr = ExcelDrawing.GetDrawing(this, node);
+                        break;
+                    default: //"absoluteCellAnchor":
+                        dr = null;
+                        break;
+                }
+                if (dr != null)
+                {
+                    _drawings.Add(dr);
+                    if (!_drawingNames.ContainsKey(dr.Name.ToLower()))
+                    {
+                        _drawingNames.Add(dr.Name.ToLower(), _drawings.Count - 1);
+                    }
                 }
             }
         }

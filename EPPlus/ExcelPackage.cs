@@ -721,7 +721,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Dispose()
 		{
-            if (_package != null)
+            if(_package != null)
             {
                 if (Stream != null && (Stream.CanRead || Stream.CanWrite))
                 {

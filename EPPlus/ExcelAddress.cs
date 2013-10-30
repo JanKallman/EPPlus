@@ -36,6 +36,16 @@ using System.Text.RegularExpressions;
 
 namespace OfficeOpenXml
 {
+    public class ExcelTableAddress
+    {
+        public string Name { get; set; }
+        public string ColumnSpan { get; set; }
+        public bool IsAll { get; set; }
+        public bool IsHeader { get; set; }
+        public bool IsData { get; set; }
+        public bool IsTotals { get; set; }
+        public bool IsThisRow { get; set; }
+    }
     /// <summary>
     /// A range address
     /// </summary>
@@ -92,7 +102,112 @@ namespace OfficeOpenXml
         {
             SetAddress(address);
         }
+        /// <summary>
+        /// Creates an Address object
+        /// </summary>
+        /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
+        /// <param name="pck">Reference to the package to find information about tables and names</param>
+        /// <param name="address">The Excel Address</param>
+        public ExcelAddressBase(string address, ExcelPackage pck, ExcelAddressBase referenceAddress)
+        {
+            SetAddress(address);
+            SetRCFromTable(pck, referenceAddress);
+        }
 
+        internal void SetRCFromTable(ExcelPackage pck, ExcelAddressBase referenceAddress)
+        {
+            if (string.IsNullOrEmpty(_wb) && Table != null)
+            {
+                foreach (var ws in pck.Workbook.Worksheets)
+                {
+                    foreach (var t in ws.Tables)
+                    {
+                        if (t.Name.Equals(Table.Name, StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            _ws = ws.Name;
+                            if (Table.IsAll)
+                            {
+                                _fromRow = t.Address._fromRow;
+                                _toRow = t.Address._toRow;
+                            }
+                            else
+                            {
+                                if (Table.IsThisRow)
+                                {
+                                    if (referenceAddress == null)
+                                    {
+                                        _fromRow = -1;
+                                        _toRow = -1;
+                                    }
+                                    else
+                                    {
+                                        _fromRow = referenceAddress._fromRow;
+                                        _toRow = _fromRow;
+                                    }
+                                }
+                                else if (Table.IsHeader && Table.IsData)
+                                {
+                                    _fromRow = t.Address._fromRow;
+                                    _toRow = t.ShowTotal ? t.Address._toRow - 1 : t.Address._toRow;
+                                }
+                                else if (Table.IsData && Table.IsTotals)
+                                {
+                                    _fromRow = t.ShowHeader ? t.Address._fromRow + 1 : t.Address._fromRow;
+                                    _toRow = t.Address._toRow;
+                                }
+                                else if (Table.IsHeader)
+                                {
+                                    _fromRow = t.ShowHeader ? t.Address._fromRow : -1;
+                                    _toRow = t.ShowHeader ? t.Address._fromRow : -1;
+                                }
+                                else if (Table.IsTotals)
+                                {
+                                    _fromRow = t.ShowTotal ? t.Address._toRow : -1;
+                                    _toRow = t.ShowTotal ? t.Address._toRow : -1;
+                                }
+                                else
+                                {
+                                    _fromRow = t.ShowHeader ? t.Address._fromRow + 1 : t.Address._fromRow;
+                                    _toRow = t.ShowTotal ? t.Address._toRow - 1 : t.Address._toRow;
+                                }
+                            }
+
+                            if (string.IsNullOrEmpty(Table.ColumnSpan))
+                            {
+                                _fromCol = t.Address._fromCol;
+                                _toCol = t.Address._toCol;
+                                return;
+                            }
+                            else
+                            {
+                                var col = t.Address._fromCol;
+                                var cols = Table.ColumnSpan.Split(':');
+                                foreach (var c in t.Columns)
+                                {
+                                    if (_fromCol <= 0 && cols[0].Equals(c.Name))
+                                    {
+                                        _fromCol = col;
+                                        if (cols.Length == 1)
+                                        {
+                                            _toCol = _fromCol;
+                                            return;
+                                        }
+                                    }
+                                    else if (cols.Length > 1 && _fromCol > 0 && cols[1].Equals(c.Name))
+                                    {
+                                        _toCol = col;
+                                        return;
+                                    }
+
+                                    col++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         /// <summary>
         /// Address is an defined name
         /// </summary>
@@ -132,9 +247,9 @@ namespace OfficeOpenXml
             {
                 _address = address;
             }
-            if(_address.IndexOfAny(new char[] {',','!'}) > -1)
+            if(_address.IndexOfAny(new char[] {',','!', '['}) > -1)
             {
-                //Advanced address. Including Sheet or multi
+                //Advanced address. Including Sheet or multi or table.
                 ExtractAddress(_address);
             }
             else
@@ -160,7 +275,7 @@ namespace OfficeOpenXml
             int pos;
             if (address[0] == '[')
             {
-                pos = address.LastIndexOf("]");
+                pos = address.IndexOf("]");
                 _wb = address.Substring(1, pos - 1);                
                 _ws = address.Substring(pos + 1);
             }
@@ -209,6 +324,15 @@ namespace OfficeOpenXml
                 return _end;
             }
         }
+        ExcelTableAddress _table=null;
+        public ExcelTableAddress Table
+        {
+            get
+            {
+                return _table;
+            }
+        }
+
         /// <summary>
         /// The address for the range
         /// </summary>
@@ -289,45 +413,142 @@ namespace OfficeOpenXml
             }
         }
 
-        private void ExtractAddress(string fullAddress)
+        private bool ExtractAddress(string fullAddress)
         {
+            var brackPos=new Stack<int>();
+            var bracketParts=new List<string>();
             string first="", second="";
             bool isText=false, hasSheet=false;
-            if (fullAddress == "#REF!")
+            try
             {
-                SetAddress(ref fullAddress, ref second, ref hasSheet );
-                return;
-            }
-            foreach (char c in fullAddress)
-            {
-                if(c=='\'')
+                if (fullAddress == "#REF!")
                 {
-                    isText=!isText;
+                    SetAddress(ref fullAddress, ref second, ref hasSheet);
+                    return true;
                 }
-                else
+                for (int i = 0; i < fullAddress.Length; i++)
                 {
-                    if(c=='!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
+                    var c = fullAddress[i];
+                    if (c == '\'')
                     {
-                        hasSheet=true;
-                    }
-                    else if (c == ',' && !isText)
-                    {
-                        SetAddress(ref first, ref second, ref hasSheet);
+                        if (isText && i + 1 < fullAddress.Length && fullAddress[i] == '\'')
+                        {
+                            if (hasSheet)
+                            {
+                                second += c;
+                            }
+                            else
+                            {
+                                first += c;
+                            }
+                        }
+                        isText = !isText;
                     }
                     else
                     {
-                        if (hasSheet)
+                        if (brackPos.Count > 0)
                         {
-                            second += c;
+                            if (c == '[' && !isText)
+                            {
+                                brackPos.Push(i);
+                            }
+                            else if (c == ']' && !isText)
+                            {
+                                if (brackPos.Count > 0)
+                                {
+                                    var from = brackPos.Pop();
+                                    bracketParts.Add(fullAddress.Substring(from + 1, i - from - 1));
+
+                                    if (brackPos.Count == 0)
+                                    {
+                                        HandleBrackets(first, second, bracketParts);
+                                    }
+                                }
+                                else
+                                {
+                                    //Invalid address!
+                                    return false;
+                                }
+                            }
+                        }
+                        else if (c == '[' && !isText)
+                        {
+                            brackPos.Push(i);
+                        }
+                        else if (c == '!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
+                        {
+                            hasSheet = true;
+                        }
+                        else if (c == ',' && !isText)
+                        {
+                            SetAddress(ref first, ref second, ref hasSheet);
                         }
                         else
                         {
-                            first += c;
+                            if (hasSheet)
+                            {
+                                second += c;
+                            }
+                            else
+                            {
+                                first += c;
+                            }
                         }
                     }
                 }
+                if (Table == null)
+                {
+                    SetAddress(ref first, ref second, ref hasSheet);
+                }
+                return true;
             }
-            SetAddress(ref first, ref second, ref hasSheet);
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void HandleBrackets(string first, string second, List<string> bracketParts)
+        {
+            if(!string.IsNullOrEmpty(first))
+            {
+                _table = new ExcelTableAddress();
+                Table.Name = first;
+                foreach (var s in bracketParts)
+                {
+                    if(s.IndexOf("[")<0)
+                    {
+                        switch(s.ToLower())                
+                        {
+                            case "#all":
+                                _table.IsAll = true;
+                                break;
+                            case "#headers":
+                               _table.IsHeader = true;
+                                break;
+                            case "#data":
+                                _table.IsData = true;
+                                break;
+                            case "#totals":
+                                _table.IsTotals = true;
+                                break;
+                            case "#this row":
+                                _table.IsThisRow = true;
+                                break;
+                            default:
+                                if(string.IsNullOrEmpty(_table.ColumnSpan))
+                                {
+                                    _table.ColumnSpan=s;
+                                }
+                                else
+                                {
+                                    _table.ColumnSpan += ":" + s;
+                                }
+                                break;
+                        }                
+                    }
+                }
+            }
         }
         #region Address manipulation methods
         internal eAddressCollition Collide(ExcelAddressBase address)
@@ -514,89 +735,232 @@ namespace OfficeOpenXml
             InternalAddress,
             ExternalAddress,
             InternalName,
-            ExternalName
+            ExternalName,
+            Formula
         }
 
         internal static AddressType IsValid(string Address)
         {
-            string ws="";
-            if (Address.StartsWith("'"))
-            {
-                int ix = Address.IndexOf('\'', 1);
-                if (ix > -1)
-                {
-                    ws = Address.Substring(1, ix-1);
-                    Address = Address.Substring(ix + 2);
-                }
-            }
-            if (Address.IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=','^','&','%','\"' })>-1)
+            if (Address == "#REF!")
             {
                 return AddressType.Invalid;
             }
-            if (Address.IndexOf('!') > 0)
+            else if (IsFormula(Address))
             {
-                string[] split = Address.Split('!');
-                if (split.Length == 2)
-                {
-                    ws = split[0];
-                    Address = split[1];
-                }
-                else if (split.Length == 3 && split[1] == "#REF" && split[2] == "")
-                {
-                    ws = split[0];
-                    Address = "#REF!";
-                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
-                    {
-                        return AddressType.ExternalAddress;
-                    }
-                    else
-                    {
-                        return AddressType.InternalAddress;
-                    }
-                }
-                else
-                {
-                    return AddressType.Invalid;
-                }
+                return AddressType.Formula;
             }
-            int _fromRow, _fromCol, _toRow, _toCol;
-            if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out _fromCol, out _toRow, out _toCol))
+            else
             {
-                if (_fromRow > 0 && _fromCol > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
+                string wb, ws, intAddress;
+                if(SplitAddress(Address, out wb, out ws, out intAddress))
                 {
-                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+                    if(intAddress.Contains("[")) //Table reference
                     {
-                        return AddressType.ExternalAddress;
+                        return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
+                    }
+                    else if(intAddress.Contains(","))
+                    {
+                        intAddress=intAddress.Substring(0, intAddress.IndexOf(','));
+                    }
+                    if(IsAddress(intAddress))
+                    {
+                        return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
                     }
                     else
                     {
-                        return AddressType.InternalAddress;
+                        return string.IsNullOrEmpty(wb) ? AddressType.InternalName : AddressType.ExternalName;
                     }
                 }
                 else
                 {
                     return AddressType.Invalid;
+                }
+
+                if(string.IsNullOrEmpty(wb));
+
+            }
+            ExcelAddress a = new ExcelAddress(Address);
+            //if (Address.IndexOf('!') > 0)
+            //{                
+            //    string[] split = Address.Split('!');
+            //    if (split.Length == 2)
+            //    {
+            //        ws = split[0];
+            //        Address = split[1];
+            //    }
+            //    else if (split.Length == 3 && split[1] == "#REF" && split[2] == "")
+            //    {
+            //        ws = split[0];
+            //        Address = "#REF!";
+            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+            //        {
+            //            return AddressType.ExternalAddress;
+            //        }
+            //        else
+            //        {
+            //            return AddressType.InternalAddress;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return AddressType.Invalid;
+            //    }            
+            //}
+            //int _fromRow, _fromCol, _toRow, _toCol;
+            //if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out _fromCol, out _toRow, out _toCol))
+            //{
+            //    if (_fromRow > 0 && _fromCol > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
+            //    {
+            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+            //        {
+            //            return AddressType.ExternalAddress;
+            //        }
+            //        else
+            //        {
+            //            return AddressType.InternalAddress;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return AddressType.Invalid;
+            //    }
+            //}
+            //else
+            //{
+            //    if(IsValidName(Address))
+            //    {
+            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+            //        {
+            //            return AddressType.ExternalName;
+            //        }
+            //        else
+            //        {
+            //            return AddressType.InternalName;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        return AddressType.Invalid;
+            //    }
+            //}
+
+        }
+
+        private static bool IsAddress(string intAddress)
+        {
+            if(string.IsNullOrEmpty(intAddress)) return false;            
+            var cells = intAddress.Split(':');
+            int fromRow,toRow, fromCol, toCol;
+
+            if(!GetRowCol(cells[0], out fromRow, out fromCol, false))
+            {
+                return false;
+            }
+            if (cells.Length > 1)
+            {
+                if (!GetRowCol(cells[1], out toRow, out toCol, false))
+                {
+                    return false;
                 }
             }
             else
             {
-                if(IsValidName(Address))
+                toRow = fromRow;
+                toCol = fromCol;
+            }
+            if( fromRow <= toRow && 
+                fromCol <= toCol && 
+                fromCol > 0 && 
+                toCol <= ExcelPackage.MaxColumns && 
+                fromRow > 0 && 
+                toRow <= ExcelPackage.MaxRows)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private static bool SplitAddress(string Address, out string wb, out string ws, out string intAddress)
+        {
+            wb = "";
+            ws = "";
+            intAddress = "";
+            var text = "";
+            bool isText = false;
+            var brackPos=-1;
+            for (int i = 0; i < Address.Length; i++)
+            {
+                if (Address[i] == '\'')
                 {
-                    if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
+                    isText = !isText;
+                    if(i>0 && Address[i-1]=='\'')
                     {
-                        return AddressType.ExternalName;
-                    }
-                    else
-                    {
-                        return AddressType.InternalName;
+                        text += "'";
                     }
                 }
                 else
                 {
-                    return AddressType.Invalid;
+                    if(Address[i]=='!' && !isText)
+                    {
+                        ws=text;
+                        intAddress=Address.Substring(i+1);
+                        return true;
+                    }
+                    else
+                    {
+                        if(Address[i]=='[' && !isText)
+                        {
+                            if (i > 0) //Table reference return full address;
+                            {
+                                intAddress=Address;
+                                return true;
+                            }
+                            brackPos=i;
+                        }
+                        else if(Address[i]==']')
+                        {
+                            if (brackPos > -1)
+                            {
+                                wb = text;
+                                text = "";
+                            }
+                            else
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            text+=Address[i];
+                        }
+                    }
                 }
             }
+            intAddress = text;
+            return true;
+        }
 
+        private static bool IsFormula(string address)
+        {
+            var isText = false;
+            for (int i = 0; i < address.Length; i++)
+            {
+                if (address[i] == '\'')
+                {
+                    isText = !isText;
+                }
+                else
+                {
+                    if (address.Substring(i, 1).IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=', '^', '&', '%', '\"' }) > -1)
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         private static bool IsValidName(string address)
@@ -625,12 +989,20 @@ namespace OfficeOpenXml
                 return _toCol - _fromCol + 1;
             }
         }
+
+        internal bool IsMultiCell()
+        {
+            return (_fromRow < _fromCol || _fromCol < _toCol);
+        }
     }
     /// <summary>
     /// Range address with the address property readonly
     /// </summary>
     public class ExcelAddress : ExcelAddressBase
     {
+        private string fullAddress;
+        private ExcelPackage _package;
+
         internal ExcelAddress()
             : base()
         {
@@ -657,6 +1029,12 @@ namespace OfficeOpenXml
         {
             if (string.IsNullOrEmpty(_ws)) _ws = ws;
         }
+
+        public ExcelAddress(string Address, ExcelPackage package, ExcelAddressBase referenceAddress) :
+            base(Address, package, referenceAddress)
+        {
+
+        }
         /// <summary>
         /// The address for the range
         /// </summary>
@@ -678,7 +1056,6 @@ namespace OfficeOpenXml
             }
         }
     }
-
     public class ExcelFormulaAddress : ExcelAddressBase
     {
         bool _fromRowFixed, _toRowFixed, _fromColFixed, _toColFixed;

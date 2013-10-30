@@ -87,7 +87,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                     _tokenIndex++;
                     BuildEnumerableExpression(tokens, parent);
                 }
-                else if (token.TokenType == TokenType.OpeningBracket)
+                else if (token.TokenType == TokenType.OpeningParenthesis)
                 {
                     _tokenIndex++;
                     BuildGroupExpression(tokens, parent);
@@ -96,7 +96,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                         return;
                     }
                 }
-                else if (token.TokenType == TokenType.ClosingBracket || token.TokenType == TokenType.ClosingEnumerable)
+                else if (token.TokenType == TokenType.ClosingParenthesis || token.TokenType == TokenType.ClosingEnumerable)
                 {
                     break;
                 }

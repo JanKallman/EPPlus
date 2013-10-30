@@ -66,10 +66,10 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
 
             Assert.AreEqual(4, tokens.Count());
             Assert.AreEqual(TokenType.Function, tokens.First().TokenType);
-            Assert.AreEqual(TokenType.OpeningBracket, tokens.ElementAt(1).TokenType);
+            Assert.AreEqual(TokenType.OpeningParenthesis, tokens.ElementAt(1).TokenType);
             Assert.AreEqual(TokenType.Integer, tokens.ElementAt(2).TokenType);
             Assert.AreEqual("2", tokens.ElementAt(2).Value);
-            Assert.AreEqual(TokenType.ClosingBracket, tokens.Last().TokenType);
+            Assert.AreEqual(TokenType.ClosingParenthesis, tokens.Last().TokenType);
         }
 
         [TestMethod]

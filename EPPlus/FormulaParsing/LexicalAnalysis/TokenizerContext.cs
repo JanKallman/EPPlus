@@ -72,6 +72,12 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             IsInString = !IsInString;
         }
 
+        internal int BracketCount
+        {
+            get;
+            set;
+        }
+
         public string CurrentToken
         {
             get { return _currentToken.ToString(); }

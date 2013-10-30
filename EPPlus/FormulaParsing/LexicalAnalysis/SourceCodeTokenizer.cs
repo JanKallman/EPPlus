@@ -32,10 +32,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OpenOffice.FormulaParser.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
-//using OfficeOpenXml.FormulaParsing.Excel.Functions;
-
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class SourceCodeTokenizer : ISourceCodeTokenizer
@@ -72,6 +69,23 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 if(CharIsTokenSeparator(c, out tokenSeparator))
                 {
                     if (context.IsInString && tokenSeparator.TokenType != TokenType.String)
+                    {
+                        context.AppendToCurrentToken(c);
+                        continue;
+                    }
+                    if (tokenSeparator.TokenType == TokenType.OpeningBracket)
+                    {
+                        context.AppendToCurrentToken(c);
+                        context.BracketCount++;
+                        continue;
+                    }
+                    if (tokenSeparator.TokenType == TokenType.ClosingBracket)
+                    {
+                        context.AppendToCurrentToken(c);
+                        context.BracketCount--;
+                        continue;
+                    }
+                    if (context.BracketCount > 0)
                     {
                         context.AppendToCurrentToken(c);
                         continue;
@@ -125,7 +139,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                                         ||
                                         context.LastToken.TokenType == TokenType.Operator
                                         ||
-                                        context.LastToken.TokenType == TokenType.OpeningBracket
+                                        context.LastToken.TokenType == TokenType.OpeningParenthesis
                                         ||
                                         context.LastToken.TokenType == TokenType.Comma
                                         ||

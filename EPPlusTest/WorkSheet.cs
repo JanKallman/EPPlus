@@ -16,48 +16,155 @@ using System.Reflection;
 namespace EPPlusTest
 {
     [TestClass]
-    public class WorkSheetTest
+    public class WorkSheetTest : TestBase
     {
-        private TestContext testContextInstance;
-        private static ExcelPackage _pck;
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
+        [TestMethod]
+        public void RunWorksheetTests()
         {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
+            InitBase();
 
+            InsertDeleteTest();
+            LoadData();
+            StyleFill();
+            Performance();
+            RichTextCells();
+            TestComments();
+            Hyperlink();
+            PictureURL();
+            CopyOverwrite();
+            HideTest();
+            VeryHideTest();
+            PrinterSettings();
+            Address();
+            Merge();
+            Encoding();
+            LoadText();
+            LoadDataTable();
+            LoadFromCollectionTest();
+            LoadArray();
+            WorksheetCopy();
+            DefaultColWidth();
+            CopyTable();
+            AutoFitColumns();
+            CopyRange();
+            CopyMergedRange();
+            ValueError();
+            FormulaOverwrite();
+            FormulaError();
+            StyleNameTest();
+            NamedStyles();
+            TableTest();
+            DefinedName();
+            CreatePivotTable();
+            SetBackground();
+            SetHeaderFooterImage();            
+
+            SaveWorksheet("Worksheet.xlsx");
+
+            ReadWorkSheet();
+            ReadStreamSaveAsStream();
+        }
+        [Ignore]
+        [TestMethod]
+        public void ReadWorkSheet()
+        {
+            FileStream instream = new FileStream(_worksheetPath + @"Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            using (ExcelPackage pck = new ExcelPackage(instream))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["Comment"];
+                var comment = ws.Cells["B2"].Comment;
+
+                Assert.AreNotEqual(comment, null);
+                Assert.AreEqual(comment.Author, "Jan Källman");
+
+                ws = pck.Workbook.Worksheets["Hidden"];
+                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.Hidden);
+
+                ws = pck.Workbook.Worksheets["VeryHidden"];
+                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.VeryHidden);
+
+                ws = pck.Workbook.Worksheets["RichText"];
+                Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
+
+                ws = pck.Workbook.Worksheets["HeaderImage"];
+
+                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+
+                ws = pck.Workbook.Worksheets["newsheet"];
+                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine, true);
+                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLineType, ExcelUnderLineType.Double);
+                Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
+                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
+                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
+
+                //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
+            }
+            instream.Close();
+        }
+        [Ignore]
+        [TestMethod]
+        public void ReadStreamWithTemplateWorkSheet()
+        {
+            FileStream instream = new FileStream(_worksheetPath + @"\Worksheet.xlsx", FileMode.Open, FileAccess.Read);
+            MemoryStream stream = new MemoryStream();
+            using (ExcelPackage pck = new ExcelPackage(stream, instream))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["newsheet"];
+                Assert.AreEqual(ws.GetValue<DateTime>(20, 21), new DateTime(2010, 1, 1));
+
+                ws = pck.Workbook.Worksheets["Loaded DataTable"];
+                Assert.AreEqual(ws.GetValue<string>(2, 1), "Row1");
+                Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
+                Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
+                Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
+
+                ws = pck.Workbook.Worksheets["RichText"];
+
+                var r1 = ws.Cells["A1"].RichText[0];
+                Assert.AreEqual(r1.Text, "Test");
+                Assert.AreEqual(r1.Bold, true);
+
+                ws = pck.Workbook.Worksheets["Pic URL"];
+                Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");
+
+                Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40, 1), "\b\t");
+
+                pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
+            }
+            instream.Close();
+        }
+        [Ignore]
+        [TestMethod]
+        public void ReadStreamSaveAsStream()
+        {
+            if (!File.Exists(_worksheetPath + @"Worksheet.xlsx"))
+            {
+                Assert.Inconclusive("Worksheet.xlsx does not exists");
+            }
+            FileStream instream = new FileStream(_worksheetPath + @"Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            MemoryStream stream = new MemoryStream();
+            using (ExcelPackage pck = new ExcelPackage(instream))
+            {
+                var ws = pck.Workbook.Worksheets["Names"];
+                Assert.AreEqual(ws.Names["FullCol"].Start.Row, 1);
+                Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
+                pck.SaveAs(stream);
+            }
+            instream.Close();
+        }
         //
         // You can use the following additional attributes as you write your tests:
         //
         // Use ClassInitialize to run code before running the first test in the class
-        [ClassInitialize()]
-        public static void MyClassInitialize(TestContext testContext)
-        {
-            if (!Directory.Exists("test"))
-            {
-                Directory.CreateDirectory("test");
-            }
-            testContext.AddResultFile(AppDomain.CurrentDomain.BaseDirectory + "\\Test\\Worksheet.xlsx");
-            _pck = new ExcelPackage(new FileInfo("Test\\Worksheet.xlsx"));
-        }
         // Use ClassCleanup to run code after all tests in a class have run
-        [ClassCleanup()]
-        public static void MyClassCleanup()
-        {
-            _pck = null;
-        }
+        [Ignore]
         [TestMethod]
-        [DeploymentItem("Test")]
         public void LoadData()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("newsheet");
@@ -186,6 +293,7 @@ namespace EPPlusTest
             _pck.Workbook.Properties.SetCustomPropertyValue("Author", 3);
         }
         const int PERF_ROWS=5000;
+        [Ignore]
         [TestMethod]
         public void Performance()
         {
@@ -243,6 +351,7 @@ namespace EPPlusTest
             ws.Cells["a1:B12"].Style.Hidden = true;
             TestContext.WriteLine("EndTime {0}", DateTime.Now);
         }
+        [Ignore]
         [TestMethod]
         public void InsertDeleteTest()
         {
@@ -292,6 +401,7 @@ namespace EPPlusTest
             Assert.AreEqual(addr.End.Column, 4);
             Assert.AreEqual(addr.End.Row, 3);
         }
+        [Ignore]
         [TestMethod]
         public void RichTextCells()
         {
@@ -347,11 +457,7 @@ namespace EPPlusTest
             ws.Cells["G3"].RichText.Add(" a new t");
             ws.Cells["G3"].RichText[1].Bold = false; ;
         }
-        [TestMethod]
-        public void SaveWorksheet()
-        {
-            _pck.Save();
-        }
+        [Ignore]
         [TestMethod]
         public void TestComments()
         {
@@ -383,6 +489,7 @@ namespace EPPlusTest
             ws.Cells["c3"].Comment.AutoFit = true;
             
         }
+        [Ignore]
         [TestMethod]
         public void Address()
         {
@@ -417,6 +524,7 @@ namespace EPPlusTest
             namedStyle.Style.Font.UnderLineType = ExcelUnderLineType.Single;
             namedStyle.Style.Font.Color.SetColor(Color.Blue);
         }
+        [Ignore]
         [TestMethod]
         public void Encoding()
         {
@@ -426,6 +534,7 @@ namespace EPPlusTest
             ws.Cells["A3"].Value = "_x0097_ test_x001D_1234";
             ws.Cells["A4"].Value = "test" + (char)31;   //Bug issue 14689 //Fixed
         }
+        [Ignore]
         [TestMethod]
         public void WorksheetCopy()
         {
@@ -434,14 +543,15 @@ namespace EPPlusTest
 
             ExcelPackage pck2 = new ExcelPackage();
             pck2.Workbook.Worksheets.Add("Copy From other pck", _pck.Workbook.Worksheets["Address"]);
-            pck2.SaveAs(new FileInfo("test\\copy.xlsx"));
+            pck2.SaveAs(new FileInfo(_worksheetPath + "copy.xlsx"));
             pck2=null;
             Assert.AreEqual(6, wsCopy.Comments.Count);
         }
+        [Ignore]
         [TestMethod]
         public void TestDelete()
         {
-            string file = "test.xlsx";
+            string file = _worksheetPath +"test.xlsx";
 
             if (File.Exists(file))
                 File.Delete(file);
@@ -454,6 +564,7 @@ namespace EPPlusTest
            
             pack.Save();
         }
+        [Ignore]
         [TestMethod]
         public void LoadFromCollectionTest()
         {                        
@@ -492,14 +603,15 @@ namespace EPPlusTest
             w.Cells[4, 2].Value = "C3+D3";
             pack.Save();
         }
+        [Ignore]
         [TestMethod]
         public void RowStyle()
         {
-            FileInfo newFile = new FileInfo(@"sample8.xlsx");
+            FileInfo newFile = new FileInfo(_worksheetPath + @"sample8.xlsx");
             if (newFile.Exists)
             {
                 newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(@"sample8.xlsx");
+                //newFile = new FileInfo(dir + @"sample8.xlsx");
             }
 
             ExcelPackage package = new ExcelPackage();
@@ -516,6 +628,7 @@ namespace EPPlusTest
             package.SaveAs(newFile);
 
         }
+        [Ignore]
         [TestMethod]
         public void HideTest()
         {
@@ -523,6 +636,7 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = "This workbook is hidden"    ;
             ws.Hidden = eWorkSheetHidden.Hidden;
         }
+        [Ignore]
         [TestMethod]
         public void Hyperlink()
         {
@@ -532,6 +646,7 @@ namespace EPPlusTest
             ws.Cells["A1"].Hyperlink = hl;
             //ws.Cells["A2"].Hyperlink = new ExcelHyperLink("mailto:ecsomany@google:huszar", UriKind.Absolute); //Invalid URL will throw an Exception
         }
+        [Ignore]
         [TestMethod]
         public void VeryHideTest()
         {
@@ -539,6 +654,7 @@ namespace EPPlusTest
             ws.Cells["a1"].Value = "This workbook is hidden";
             ws.Hidden = eWorkSheetHidden.VeryHidden;
         }
+        [Ignore]
         [TestMethod]
         public void PrinterSettings()
         {
@@ -577,6 +693,7 @@ namespace EPPlusTest
             ws.PrinterSettings.Orientation = eOrientation.Landscape;
             ws.PrinterSettings.PaperSize = ePaperSize.A4;
         }
+        [Ignore]
         [TestMethod]
         public void StyleNameTest()
         {
@@ -600,6 +717,7 @@ namespace EPPlusTest
             ws.Cells["A1:C4"].Style.Locked = false;
             ws.Protection.IsProtected = true;
         }
+        [Ignore]
         [TestMethod]
         public void ValueError()
         {
@@ -611,6 +729,7 @@ namespace EPPlusTest
             rt.Bold = true;
             TestContext.WriteLine(rt.Bold.ToString());
         }
+        [Ignore]
         [TestMethod]
         public void FormulaError()
         {
@@ -625,6 +744,7 @@ namespace EPPlusTest
 
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
+        [Ignore]
         [TestMethod]
         public void PictureURL()
         {
@@ -635,6 +755,7 @@ namespace EPPlusTest
 
             ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
         }
+        [Ignore]
         [TestMethod]
         public void TableTest()
         {            
@@ -694,11 +815,13 @@ namespace EPPlusTest
             tbl.ShowFilter = false;
             tbl.Columns[0].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
         }
+        [Ignore]
         [TestMethod]
         public void CopyTable()
         {
             _pck.Workbook.Worksheets.Copy("File4", "Copied table");
         }
+        [Ignore]
         [TestMethod]
         public void CopyRange()
         {
@@ -711,7 +834,7 @@ namespace EPPlusTest
             ws.Cells["G4:H5"].Merge = true;
             ws.Cells["B3:C5"].Copy(ws.Cells["G4"]);
         }
-
+        [Ignore]
         [TestMethod]
         public void CopyMergedRange()
         {
@@ -733,13 +856,14 @@ namespace EPPlusTest
 
             //Assert.AreNotEqual(a21.MergeId, a22.MergeId);
         }
-
+        [Ignore]
         [TestMethod]
         public void CopyPivotTable()
         {
             _pck.Workbook.Worksheets.Copy("Pivot-Group Date", "Copied Pivottable 1");
             _pck.Workbook.Worksheets.Copy("Pivot-Group Number", "Copied Pivottable 2");
         }
+        [Ignore]
         [TestMethod]
         public void Stylebug()
         {
@@ -776,6 +900,7 @@ namespace EPPlusTest
             ws.InsertRow(33, 1, 33);
             p.SaveAs(new FileInfo(@"c:\temp\FullProjecte_new.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug()
         {
@@ -787,6 +912,7 @@ namespace EPPlusTest
                 .ToList();
             }
         }
+        [Ignore]
         [TestMethod]
          public void FormulaOverwrite()
         {
@@ -813,6 +939,7 @@ namespace EPPlusTest
             ws.Cells["D12:I12"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
             ws.Cells["D12:I12"].Style.WrapText = true;
         }
+        [Ignore]
         [TestMethod]
         public void DefinedName()
         {
@@ -830,6 +957,7 @@ namespace EPPlusTest
             //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
             ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
         }
+        [Ignore]
         [TestMethod]
         public void URL()
         {
@@ -840,6 +968,7 @@ namespace EPPlusTest
             }
             p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void LoadDataTable()
         {
@@ -875,6 +1004,7 @@ namespace EPPlusTest
 
             ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
         }
+        [Ignore]
         [TestMethod]
         public void LoadText()
         {
@@ -908,6 +1038,7 @@ namespace EPPlusTest
             //tbl.TotalsRowCellStyle = "RedStyle";
             //tbl.HeaderRowCellStyle = "RedStyle";
         }
+        [Ignore]
         [TestMethod]
         public void Merge()
         {
@@ -918,12 +1049,14 @@ namespace EPPlusTest
             ws.Cells["D13:E18,G5,U32:U45"].Style.WrapText = true;
             ws.SetValue(13, 4, "Merged\r\nnew row");
         }
+        [Ignore]
         [TestMethod]
         public void DefaultColWidth()
         {
             var ws = _pck.Workbook.Worksheets.Add("DefColWidth");
             ws.DefaultColWidth = 45;
         }
+        [Ignore]
         [TestMethod]
         public void LoadArray()
         {
@@ -931,6 +1064,7 @@ namespace EPPlusTest
             List<object[]> testArray = new List<object[]>() { new object[] { 3, 4, 5, 6 }, new string[] { "Test1", "test", "5", "6" } };
             ws.Cells["A1"].LoadFromArrays(testArray);
         }
+        [Ignore]
         [TestMethod]
         public void DefColWidthBug()
         {
@@ -981,6 +1115,7 @@ namespace EPPlusTest
           //  return pkg
 
         }
+        [Ignore]
         [TestMethod]
         public void CloseProblem()
         {
@@ -1024,6 +1159,7 @@ namespace EPPlusTest
             }
             pck.SaveAs(new FileInfo(".\\test.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void OpenXlsm()
         {
@@ -1031,6 +1167,7 @@ namespace EPPlusTest
             int c = p.Workbook.Worksheets.Count;
             p.Save();
         }
+        [Ignore]
         [TestMethod]
         public void Mergebug()
         {
@@ -1050,6 +1187,7 @@ namespace EPPlusTest
             xlWorkSheet.Row(1).Height=50;
             xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void OpenProblem()
         {
@@ -1061,6 +1199,7 @@ namespace EPPlusTest
             ws.Cells["B1:B10"].FormulaR1C1 = "W2!R1C1+C1";
             xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ProtectionProblem()
         {
@@ -1069,6 +1208,7 @@ namespace EPPlusTest
             ws.Protection.SetPassword("Test");
             xlPackage.SaveAs(new FileInfo("c:\\temp\\Mergebug.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void Nametest()
         {
@@ -1077,6 +1217,7 @@ namespace EPPlusTest
             ws.Cells["H37"].Formula = "\"Test\"";
             pck.SaveAs(new FileInfo(@"c:\\temp\\nametest_new.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void CreatePivotTable()
         {
@@ -1264,6 +1405,7 @@ namespace EPPlusTest
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = true;
         }
+        [Ignore]
         [TestMethod]
         public void ReadPivotTable()
         {
@@ -1294,6 +1436,7 @@ namespace EPPlusTest
 
             pck.SaveAs(new FileInfo(@"c:\temp\pivot\pivotforread_new.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void CreatePivotMultData()
         {
@@ -1330,6 +1473,7 @@ namespace EPPlusTest
 
             pck.Save();
         }
+        [Ignore]
         [TestMethod]
         public void SetBackground()
         {
@@ -1339,6 +1483,7 @@ namespace EPPlusTest
             ws = _pck.Workbook.Worksheets.Add("backimg2");
             ws.BackgroundImage.SetFromFile(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"));
         }
+        [Ignore]
         [TestMethod]
         public void SetHeaderFooterImage()
         {
@@ -1369,6 +1514,7 @@ namespace EPPlusTest
 
             _pck.Workbook.Worksheets.Copy(ws.Name, "Copied HeaderImage");
         }
+        [Ignore]
         [TestMethod]
         public void NamedStyles()
         {
@@ -1406,6 +1552,7 @@ namespace EPPlusTest
 
            wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
         }
+        [Ignore]
         [TestMethod]
         public void StyleFill()
         {
@@ -1444,6 +1591,7 @@ namespace EPPlusTest
             ws.Cells.AutoFilter=true;
             Assert.AreNotEqual(ws.Cells["A1:D5"].Value, null);
         }
+        [Ignore]
         [TestMethod]
         public void BuildInStyles()
         {
@@ -1468,6 +1616,7 @@ namespace EPPlusTest
             //  n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void AutoFitColumns()
         {
@@ -1482,6 +1631,7 @@ namespace EPPlusTest
            ws.Cells["H1"].Style.TextRotation = 180;
            ws.Cells["A1:H1"].AutoFitColumns(0);
         }
+        [Ignore]
         [TestMethod]
         public void FileLockedProblem()
         {
@@ -1493,6 +1643,7 @@ namespace EPPlusTest
             }
             
         }
+        [Ignore]
         [TestMethod]
         public void CopyOverwrite()
         {

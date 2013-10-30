@@ -54,10 +54,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 
         protected void BuildFunctionArguments(object result, List<FunctionArgument> args)
         {
-            var objects = result as IEnumerable<object>;
-            if (objects != null)
+            if (result is IEnumerable<object> && !(result is ExcelDataProvider.ICellInfo))
             {
                 var argList = new List<FunctionArgument>();
+                var objects = result as IEnumerable<object>;
                 foreach (var arg in objects)
                 {
                     BuildFunctionArguments(arg, argList);

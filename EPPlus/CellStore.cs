@@ -1735,7 +1735,15 @@ using OfficeOpenXml;
                 {
                     colPos = ColumnCount;
                     row--;
-                    return GetPrevCell(ref colPos, ref row, startRow, startColPos, endColPos);
+                    if (row < startRow)
+                    {
+                        Reset();
+                        return false;
+                    }
+                    else
+                    {
+                        return GetPrevCell(ref colPos, ref row, startRow, startColPos, endColPos);
+                    }
                 }
             }
         }
@@ -1756,7 +1764,6 @@ using OfficeOpenXml;
         //    this.Reset();
         //    return this;
         //}
-
 
     }
     internal class CellsStoreEnumerator<T> : IEnumerable<T>, IEnumerator<T>
@@ -1783,7 +1790,7 @@ using OfficeOpenXml;
 
         }
 
-        private void Init()
+        internal void Init()
         {
             minRow = _startRow;
             maxRow = _endRow;

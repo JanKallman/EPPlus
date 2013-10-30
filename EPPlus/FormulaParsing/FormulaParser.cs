@@ -88,6 +88,20 @@ namespace OfficeOpenXml.FormulaParsing
                 return _compiler.Compile(graph.Expressions).Result;
             }
         }
+        internal virtual object ParseCell(IEnumerable<Token> tokens, string worksheet, int row, int column)
+        {
+            var rangeAddress = _parsingContext.RangeAddressFactory.Create(worksheet, column, row);
+            using (var scope = _parsingContext.Scopes.NewScope(rangeAddress))
+            {
+            //    _parsingContext.Dependencies.AddFormulaScope(scope);
+            var graph = _graphBuilder.Build(tokens);
+                if (graph.Expressions.Count() == 0)
+                {
+                    return null;
+                }
+                return _compiler.Compile(graph.Expressions).Result;
+            }
+        }
 
         public virtual object Parse(string formula, string address)
         {

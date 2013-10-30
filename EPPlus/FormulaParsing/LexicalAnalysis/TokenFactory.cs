@@ -37,11 +37,10 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
-using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-//using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml;
 
-namespace OpenOffice.FormulaParser.LexicalAnalysis
+namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class TokenFactory : ITokenFactory
     {
@@ -97,7 +96,8 @@ namespace OpenOffice.FormulaParser.LexicalAnalysis
             {
                 return new Token(token, TokenType.NameValue);
             }
-            if (ExcelAddressUtil.IsValidAddress(token))
+            var at = OfficeOpenXml.ExcelAddressBase.IsValid(token);
+            if (at==ExcelAddressBase.AddressType.InternalAddress)
             {
                 return new Token(token, TokenType.ExcelAddress);
             } 

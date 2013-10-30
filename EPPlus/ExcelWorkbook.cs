@@ -182,7 +182,7 @@ namespace OfficeOpenXml
 					ExcelRangeBase range;
 					ExcelNamedRange namedRange;
 
-					if (fullAddress.IndexOf("[") > -1)
+					if (fullAddress.IndexOf("[") == 0)
 					{
 						int start = fullAddress.IndexOf("[");
 						int end = fullAddress.IndexOf("]", start);
@@ -201,7 +201,7 @@ namespace OfficeOpenXml
 						}
 					}
 
-					if (addressType == ExcelAddressBase.AddressType.Invalid || addressType == ExcelAddressBase.AddressType.InternalName || addressType == ExcelAddressBase.AddressType.ExternalName)    //A value or a formula
+					if (addressType == ExcelAddressBase.AddressType.Invalid || addressType == ExcelAddressBase.AddressType.InternalName || addressType == ExcelAddressBase.AddressType.ExternalName || addressType==ExcelAddressBase.AddressType.Formula || addressType==ExcelAddressBase.AddressType.ExternalAddress)    //A value or a formula
 					{
 						double value;
 						range = new ExcelRangeBase(this, nameWorksheet, elem.GetAttribute("name"), true);
@@ -229,7 +229,7 @@ namespace OfficeOpenXml
 					}
 					else
 					{
-						ExcelAddress addr = new ExcelAddress(fullAddress);
+						ExcelAddress addr = new ExcelAddress(fullAddress, _package, null);
 						if (localSheetID > -1)
 						{
 							if (string.IsNullOrEmpty(addr._ws))

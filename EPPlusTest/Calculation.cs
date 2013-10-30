@@ -26,5 +26,12 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
         }
+        [TestMethod]
+        public void Calulation3()
+        {
+            var pck = new ExcelPackage(new FileInfo("c:\\temp\\names.xlsx"));
+            pck.Workbook.Calculate();
+            //Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
+        }
     }
 }

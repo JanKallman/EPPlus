@@ -192,6 +192,7 @@ namespace EPPlusSamples
             ws.PrinterSettings.FitToHeight = 0;
             ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1"); //Print titles
             ws.PrinterSettings.PrintArea = ws.Cells[1, 1, row - 1, 5];
+            pck.Workbook.Calculate();
 
             //Done! save the sheet
             pck.Save();

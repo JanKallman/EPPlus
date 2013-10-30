@@ -58,7 +58,7 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public class ExcelTableColumn : XmlHelper
     {
-        ExcelTable _tbl;
+        internal ExcelTable _tbl;
         internal ExcelTableColumn(XmlNamespaceManager ns, XmlNode topNode, ExcelTable tbl, int pos) :
             base(ns, topNode)
         {
@@ -99,6 +99,7 @@ namespace OfficeOpenXml.Table
             set
             {
                 SetXmlNodeString("@name", value);
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         /// <summary>
@@ -142,6 +143,7 @@ namespace OfficeOpenXml.Table
                 string s = value.ToString();
                 s = s.Substring(0, 1).ToLower() + s.Substring(1, s.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", s);
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         const string TOTALSROWFORMULA_PATH = "d:totalsRowFormula";
@@ -163,6 +165,7 @@ namespace OfficeOpenXml.Table
                 if (value.StartsWith("=")) value = value.Substring(1, value.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", "custom");                
                 SetXmlNodeString(TOTALSROWFORMULA_PATH, value);
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         const string DATACELLSTYLE_PATH = "@dataCellStyle";
