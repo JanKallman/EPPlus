@@ -46,6 +46,14 @@ namespace OfficeOpenXml.FormulaParsing
             foreach (var ws in wb.Worksheets)
             {
                 GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells);
+                GetWorksheetNames(ws, depChain);
+            }
+            foreach (var name in wb.Names)
+            {
+                if (name.NameValue==null)
+                {
+                    GetChain(depChain, wb.FormulaParser.Lexer, name);
+                }
             }
             return depChain;
         }
@@ -56,7 +64,20 @@ namespace OfficeOpenXml.FormulaParsing
 
             GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws.Cells);
 
+            GetWorksheetNames(ws, depChain);
+
             return depChain;
+        }
+
+        private static void GetWorksheetNames(ExcelWorksheet ws, DependencyChain depChain)
+        {
+            foreach (var name in ws.Names)
+            {
+                if (!string.IsNullOrEmpty(name.NameFormula))
+                {
+                    GetChain(depChain, ws.Workbook.FormulaParser.Lexer, name);
+                }
+            }
         }
         internal static DependencyChain Create(ExcelRangeBase range)
         {
@@ -66,6 +87,30 @@ namespace OfficeOpenXml.FormulaParsing
 
             return depChain;
         }
+        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelNamedRange name)
+        {
+            var ws = name.Worksheet;
+            var id = ExcelCellBase.GetCellID(ws==null?0:ws.SheetID, name.Index, 0);
+            if (!depChain.index.ContainsKey(id))
+            {
+                var f = new FormulaCell() { SheetID = ws == null ? 0 : ws.SheetID, Row = name.Index, Column = 0, Formula=name.NameFormula };
+                if (!string.IsNullOrEmpty(f.Formula))
+                {
+                    f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                    if (ws == null)
+                    {
+                        name._workbook._formulaTokens.SetValue(name.Index, 0, f.Tokens);
+                    }
+                    else
+                    {
+                        ws._formulaTokens.SetValue(name.Index, 0, f.Tokens);
+                    }
+                    depChain.Add(f);
+                    FollowChain(depChain, lexer,name._workbook, ws, f);
+                }
+            }
+        }
+
         private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelRangeBase Range)
         {
             var ws = Range.Worksheet;
@@ -84,12 +129,12 @@ namespace OfficeOpenXml.FormulaParsing
                     {
                         f.Formula = fs.Value.ToString();
                     }
-                    if(!string.IsNullOrEmpty(f.Formula))
+                    if (!string.IsNullOrEmpty(f.Formula))
                     {
                         f.Tokens = lexer.Tokenize(f.Formula).ToList();
                         ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
                         depChain.Add(f);
-                        FollowChain(depChain, lexer, ws, f);
+                        FollowChain(depChain, lexer, ws.Workbook, ws, f);
                     }
                 }
             }
@@ -102,32 +147,90 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="sct">The formula tokenizer</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function object</param>
-        private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorksheet ws, FormulaCell f)
+        private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();
         iterateToken:
             while (f.tokenIx < f.Tokens.Count)
             {
                 var t = f.Tokens[f.tokenIx];
-                if (t.TokenType == TokenType.ExcelAddress)
+                if (t.TokenType == TokenType.ExcelAddress || t.TokenType == TokenType.NameValue)
                 {
                     var adr = new ExcelFormulaAddress(t.Value);
                     if (adr.Table != null)
                     {
                         adr.SetRCFromTable(ws._package, new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column));
                     }
+
                     if (string.IsNullOrEmpty(adr.WorkSheet))
                     {
                         f.ws = ws;
                     }
                     else
                     {
-                        f.ws = ws.Workbook.Worksheets[adr.WorkSheet];
+                        f.ws = wb.Worksheets[adr.WorkSheet];
                     }
                     if (f.ws != null)
                     {
-                        f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, adr.Start.Row, adr.Start.Column, adr.End.Row, adr.End.Column);
-                        goto iterateCells;
+                        if (t.TokenType==TokenType.NameValue)
+                        {
+                            ExcelNamedRange name;
+                            if (!string.IsNullOrEmpty(adr.WorkSheet) && f.ws.Names.ContainsKey(t.Value))
+                            {
+                                name = f.ws.Names[t.Value];
+                            }
+                            else if (string.IsNullOrEmpty(adr.WorkSheet) && f.ws.Workbook.Names.ContainsKey(t.Value))
+                            {
+                                name = wb.Names[t.Value];
+                            }
+                            else
+                            {
+                                name = null;
+                            }
+
+                            if (name != null)
+                            {
+                                if (string.IsNullOrEmpty(name.NameFormula))
+                                {
+                                    f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, name.Start.Row, name.Start.Column, name.End.Row, name.End.Column);
+                                    goto iterateCells;
+                                }
+                                else
+                                {
+                                    var id = ExcelAddressBase.GetCellID(name.LocalSheetId, name.Index, 0);
+
+                                    if (!depChain.index.ContainsKey(id))
+                                    {
+                                        var rf = new FormulaCell() { SheetID = name.LocalSheetId, Row = name.Index, Column = 0 };
+                                        rf.Formula = name.NameFormula;
+                                        rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
+                                        depChain.Add(rf);
+                                        stack.Push(f);
+                                        f = rf;
+                                        goto iterateToken;
+                                    }
+                                    else
+                                    {
+                                        if (stack.Count > 0)
+                                        {
+                                            //Check for circular references
+                                            foreach (var par in stack)
+                                            {
+                                                if (ExcelAddressBase.GetCellID(par.SheetID, par.Row, par.Column) == id)
+                                                {
+                                                    throw (new CircularReferenceException(string.Format("Circular Reference in name {0}", name.Name)));
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, adr.Start.Row, adr.Start.Column, adr.End.Row, adr.End.Column);
+                            goto iterateCells;
+                        }
                     }
                 }
                 f.tokenIx++;
@@ -156,13 +259,13 @@ namespace OfficeOpenXml.FormulaParsing
                         rf.Formula = f.iterator.Value.ToString();
                     }
                     rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
-                    ws._formulaTokens.SetValue(rf.Row, rf.Column,rf .Tokens);
+                    ws._formulaTokens.SetValue(rf.Row, rf.Column, rf.Tokens);
                     depChain.Add(rf);
                     stack.Push(f);
                     f = rf;
                     goto iterateToken;
                 }
-                else 
+                else
                 {
                     if (stack.Count > 0)
                     {

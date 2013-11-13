@@ -48,18 +48,20 @@ namespace OfficeOpenXml
         /// <param name="nameSheet">The sheet containing the name. null if its a global name</param>
         /// <param name="sheet">Sheet where the address points</param>
         /// <param name="address">The address</param>
-        public ExcelNamedRange(string name, ExcelWorksheet nameSheet , ExcelWorksheet sheet, string address) :
+        public ExcelNamedRange(string name, ExcelWorksheet nameSheet , ExcelWorksheet sheet, string address, int index) :
             base(sheet, address)
         {
             Name = name;
             _sheet = nameSheet;
+            Index = index;
 
         }
-        internal ExcelNamedRange(string name,ExcelWorkbook wb, ExcelWorksheet nameSheet) :
+        internal ExcelNamedRange(string name,ExcelWorkbook wb, ExcelWorksheet nameSheet, int index) :
             base(wb, nameSheet, name, true)
         {
             Name = name;
             _sheet = nameSheet;
+            Index = index;
         }
 
         /// <summary>
@@ -86,7 +88,12 @@ namespace OfficeOpenXml
                     return _sheet.PositionID-1;
                 }
             }
-        }        
+        }
+        internal int Index
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Is the name hidden
         /// </summary>

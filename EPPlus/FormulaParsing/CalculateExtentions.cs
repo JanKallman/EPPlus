@@ -41,14 +41,7 @@ namespace OfficeOpenXml.Calculation
     {
         public static void Calculate(this ExcelWorkbook workbook)
         {
-            foreach (var ws in workbook.Worksheets)
-            {
-                if (ws._formulaTokens != null)
-                {
-                    ws._formulaTokens.Dispose();
-                }
-                ws._formulaTokens = new CellStore<List<Token>>();
-            }
+            Init(workbook);
 
             var dc = DependencyChainFactory.Create(workbook);
             var parser = workbook.FormulaParser;
@@ -56,20 +49,30 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseCell(item.Tokens,item.ws.Name, item.Row, item.Column);
-                var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                sheet._values.SetValue(item.Row, item.Column, v);
-            }
+                var v = parser.ParseCell(item.Tokens, item.ws==null ? "" : item.ws.Name, item.Row, item.Column);
+                if (item.Column == 0)
+                {
+                    if (item.SheetID == 0)
+                    {
+                        workbook.Names[item.Row].NameValue = v;
+                    }
+                    else
+                    {
+                        var sh = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                        sh.Names[item.Index].NameValue = v;
+                    }
+                }
+                else
+                {
+                    var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                    sheet._values.SetValue(item.Row, item.Column, v);
+                }
+            }            
             workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
-            if (worksheet._formulaTokens != null)
-            {
-                worksheet._formulaTokens.Dispose();
-            }
-            worksheet._formulaTokens = new CellStore<List<Token>>();
-
+            Init(worksheet.Workbook);
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet);
             foreach (var ix in dc.CalcOrder)
@@ -83,6 +86,7 @@ namespace OfficeOpenXml.Calculation
         }
         public static void Calculate(this ExcelRangeBase range)
         {
+            Init(range._workbook);
             var parser = range.Worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(range);
             foreach (var ix in dc.CalcOrder)
@@ -94,5 +98,18 @@ namespace OfficeOpenXml.Calculation
             }
             range.Worksheet.Workbook._isCalculated = true;
         }
+        private static void Init(ExcelWorkbook workbook)
+        {
+            workbook._formulaTokens = new CellStore<List<Token>>();;
+            foreach (var ws in workbook.Worksheets)
+            {
+                if (ws._formulaTokens != null)
+                {
+                    ws._formulaTokens.Dispose();
+                }
+                ws._formulaTokens = new CellStore<List<Token>>();
+            }
+        }
+
     }
 }

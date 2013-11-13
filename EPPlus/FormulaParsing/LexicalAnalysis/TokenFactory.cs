@@ -68,6 +68,36 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return tokenSeparator;
             }
+            var tokenList = (IList<Token>)tokens;
+            //Address with worksheet-string before  /JK
+            if (token.StartsWith("!") && tokenList[tokenList.Count-1].TokenType == TokenType.String)
+            {
+                string addr = "";
+                var i = tokenList.Count - 2;
+                if (i > 0)
+                {
+                    if (tokenList[i].TokenType == TokenType.StringContent)
+                    {
+                        addr = "'" + tokenList[i].Value.Replace("'", "''") + "'";
+                    }
+                    else
+                    {
+                        throw(new ArgumentException(string.Format("Invalid formula token sequence near {0}",token)));
+                    }
+                    //Remove the string tokens and content
+                    tokenList.RemoveAt(tokenList.Count - 1);
+                    tokenList.RemoveAt(tokenList.Count - 1);
+                    tokenList.RemoveAt(tokenList.Count - 1);
+
+                    return new Token(addr + token, TokenType.ExcelAddress);
+                }
+                else
+                {
+                    throw(new ArgumentException(string.Format("Invalid formula token sequence near {0}",token)));
+                }
+                
+            }
+
             if (tokens.Any() && tokens.Last().TokenType == TokenType.String)
             {
                 return new Token(token, TokenType.StringContent);
@@ -87,6 +117,22 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             if (Regex.IsMatch(token, RegexConstants.Boolean, RegexOptions.IgnoreCase))
             {
                 return new Token(token, TokenType.Boolean);
+            }
+            if (token.ToUpper() == "#REF!")
+            {
+                return new Token(token, TokenType.InvalidReference);
+            }
+            if (token.ToUpper() == "#NUM!")
+            {
+                return new Token(token, TokenType.NumericError);
+            }
+            if (token.ToUpper() == "#VALUE!")
+            {
+                return new Token(token, TokenType.ValueDataTypeError);
+            }
+            if (token.ToUpper() == "#NULL!")
+            {
+                return new Token(token, TokenType.Null);
             }
             if (_functionNameProvider.IsFunctionName(token))
             {

@@ -46,6 +46,7 @@ using System.Windows;
 using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -121,6 +122,7 @@ namespace OfficeOpenXml
 		internal int _nextPivotTableID = 1;
 		internal XmlNamespaceManager _namespaceManager;
         internal FormulaParser _formulaParser = null;
+        internal CellStore<List<Token>> _formulaTokens;
 		/// <summary>
 		/// Read shared strings to list
 		/// </summary>
@@ -319,13 +321,22 @@ namespace OfficeOpenXml
                     try
                     {
                         //Font f = new Font(font.Name, font.Size);
-                        _fontID = font.Id;
+                        _standardFontWidth = 0;
+                        _fontID = font.Id;                        
                         Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
                                                      (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
                                                      (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
                                                      FontStretches.Normal);
-                        var ft = new System.Windows.Media.FormattedText("O", new CultureInfo("en-us"), System.Windows.FlowDirection.LeftToRight, tf, font.Size, System.Windows.Media.Brushes.Black);
-                        _standardFontWidth = (int)ft.Width;                            
+                        for(int i=0;i<10;i++)
+                        {
+                            var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), System.Windows.Media.Brushes.Black);
+                            var width=(int)Math.Round(ft.Width,0);   
+                            if(width>_standardFontWidth)
+                            {
+                                _standardFontWidth = width;
+                            }
+                        }
+                         
                         //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
 
                         //using (Bitmap b = new Bitmap(1, 1))

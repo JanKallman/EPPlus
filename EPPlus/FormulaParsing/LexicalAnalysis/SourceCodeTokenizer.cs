@@ -63,15 +63,25 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 return Enumerable.Empty<Token>();
             }
             var context = new TokenizerContext(input);
-            foreach (var c in context.FormulaChars)
+            for (int i = 0; i<context.FormulaChars.Length;i++)
             {
+                var c = context.FormulaChars[i];
                 Token tokenSeparator;
-                if(CharIsTokenSeparator(c, out tokenSeparator))
+                if (CharIsTokenSeparator(c, out tokenSeparator))
                 {
-                    if (context.IsInString && tokenSeparator.TokenType != TokenType.String)
+                    if (context.IsInString)
                     {
-                        context.AppendToCurrentToken(c);
-                        continue;
+                        if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\'')
+                        {
+                            i++;
+                            context.AppendToCurrentToken(c);
+                            continue;
+                        }
+                        else if(tokenSeparator.TokenType != TokenType.String)
+                        {
+                            context.AppendToCurrentToken(c);
+                            continue;
+                        }
                     }
                     if (tokenSeparator.TokenType == TokenType.OpeningBracket)
                     {
@@ -100,7 +110,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     if (tokenSeparator.TokenType == TokenType.String)
                     {
                         if (context.LastToken != null &&
-                            context.LastToken.TokenType == TokenType.String && 
+                            context.LastToken.TokenType == TokenType.String &&
                             !context.CurrentTokenHasValue)
                         {
                             // We are dealing with an empty string ('').

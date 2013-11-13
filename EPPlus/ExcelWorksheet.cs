@@ -357,7 +357,7 @@ namespace OfficeOpenXml
 			set
 			{
                 if (value == _name) return;
-                Name=_package.Workbook.Worksheets.ValidateFixSheetName(Name);
+                value=_package.Workbook.Worksheets.ValidateFixSheetName(value);
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
 				_name = value;
             }

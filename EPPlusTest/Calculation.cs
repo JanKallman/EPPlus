@@ -33,5 +33,12 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             //Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
         }
+        [TestMethod]
+        public void Calulation4()
+        {
+            var pck = new ExcelPackage(new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\..\\..\\EPPlusTest\\workbooks\\chainname.xlsx"));
+            pck.Workbook.Calculate();
+            //Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
+        }
     }
 }

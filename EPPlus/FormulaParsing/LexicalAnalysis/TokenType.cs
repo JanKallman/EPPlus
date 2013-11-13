@@ -55,6 +55,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         Function,
         ExcelAddress,
         NameValue,
+        InvalidReference,
+        NumericError,
+        ValueDataTypeError,
+        Null,
         Unrecognized
     }
 }

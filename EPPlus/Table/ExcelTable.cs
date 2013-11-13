@@ -326,7 +326,11 @@ namespace OfficeOpenXml.Table
                     WriteAutoFilter(ShowTotal);
                     for (int i = 0; i < Columns.Count; i++)
                     {
-                        _cols[i].Name = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol+i);
+                        var v = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol + i);
+                        if (!string.IsNullOrEmpty(v.Trim()) || v != _cols[i].Name)
+                        {
+                            _cols[i].Name = v;
+                        }
                     }
                 }
                 else

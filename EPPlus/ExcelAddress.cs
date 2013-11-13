@@ -236,7 +236,11 @@ namespace OfficeOpenXml
             if(address.StartsWith("'"))
             {
                 int pos = address.IndexOf("'", 1);
-                SetWbWs(address.Substring(1,pos-1).Replace("''","'"));
+                while (pos < address.Length && address[pos + 1] == '\'')
+                {
+                    pos = address.IndexOf("'", pos+2);
+                }
+                _ws = address.Substring(1,pos-1).Replace("''","'");
                 _address = address.Substring(pos + 2);
             }
             else if (address.StartsWith("[")) //Remove any external reference
@@ -870,9 +874,9 @@ namespace OfficeOpenXml
             }
             if( fromRow <= toRow && 
                 fromCol <= toCol && 
-                fromCol > 0 && 
+                fromCol > -1 && 
                 toCol <= ExcelPackage.MaxColumns && 
-                fromRow > 0 && 
+                fromRow > -1 && 
                 toRow <= ExcelPackage.MaxRows)
             {
                 return true;

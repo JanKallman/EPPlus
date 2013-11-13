@@ -63,7 +63,7 @@ namespace OfficeOpenXml
 		/// Reference to the worksheet
 		/// </summary>
 		protected ExcelWorksheet _worksheet;
-		private ExcelWorkbook _workbook = null;
+		internal ExcelWorkbook _workbook = null;
 		private delegate void _changeProp(_setValue method, object value);
 		private delegate void _setValue(object value, int row, int col);
 		private _changeProp _changePropMethod;

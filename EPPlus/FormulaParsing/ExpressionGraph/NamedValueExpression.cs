@@ -47,9 +47,41 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            var value = _parsingContext.NameValueProvider.GetNamedValue(ExpressionString);
-            var result = _parsingContext.Parser.Parse(value.ToString());
-            return new CompileResultFactory().Create(result);
+            var c = this._parsingContext.Scopes.Current;
+            var name = _parsingContext.ExcelDataProvider.GetName(c.Address.Worksheet, ExpressionString);
+            //var result = _parsingContext.Parser.Parse(value.ToString());
+
+            if (name == null || name.Value==null)
+            {
+                return null;
+            }
+            if (name.Value is ExcelDataProvider.ICellInfo)
+            {
+                var range = (ExcelDataProvider.ICellInfo)name.Value;
+                if (range.IsMulti)
+                {
+                    return new CompileResult(name.Value, DataType.Enumerable);
+                }
+                else
+                {
+                    if (range.IsEmpty)
+                    {
+                        return null;
+                    }
+                    var factory = new CompileResultFactory();
+                    range.NextCell();
+                    return factory.Create(range.Value);
+                }
+            }
+            else
+            {                
+                var factory = new CompileResultFactory();
+                return factory.Create(name.Value);
+            }
+
+            
+            
+            //return new CompileResultFactory().Create(result);
         }
     }
 }

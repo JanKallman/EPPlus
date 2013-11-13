@@ -56,7 +56,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             get { return _chars; }
         }
 
-        public IEnumerable<Token> Result
+        public IList<Token> Result
         {
             get { return _result; }
         }

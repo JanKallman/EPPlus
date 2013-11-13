@@ -5,6 +5,7 @@ using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -16,14 +17,14 @@ namespace OfficeOpenXml.FormulaParsing
             CellsStoreEnumerator<object> _values=null;
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
-            public CellInfo(ExcelWorksheet ws,int fromRow,int toRow, int fromCol, int toCol)                
+            public CellInfo(ExcelWorksheet ws,int fromRow, int fromCol, int toRow, int toCol)                
             {
                 _ws = ws;
                 _fromRow=fromRow;
                 _fromCol=fromCol;
                 _toRow=toRow;
                 _toCol=toCol;
-                _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _toRow, _fromCol, _toCol);
+                _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
             }
             public string Address
             {
@@ -161,7 +162,7 @@ namespace OfficeOpenXml.FormulaParsing
             }
 
 
-            public IList<LexicalAnalysis.Token> Tokens
+            public IList<Token> Tokens
             {
                 get 
                 {
@@ -169,13 +170,22 @@ namespace OfficeOpenXml.FormulaParsing
                 }
             }
         }
+        public class NameInfo : INameInfo
+        {
+            public ulong Id { get; set; }
+            public string Name  { get; set; }
+            public string Formula { get; set; }
+            public IList<Token> Tokens { get; internal set; }
+            public object Value { get; set; }
+        }
         private readonly ExcelPackage _package;
         private ExcelWorksheet _currentWorksheet;
         private RangeAddressFactory _rangeAddressFactory;
-
+        private Dictionary<ulong, INameInfo> _names=new Dictionary<ulong,INameInfo>();
         public EpplusExcelDataProvider(ExcelPackage package)
         {
             _package = package;
+
             _rangeAddressFactory = new RangeAddressFactory(this);
         }
 
@@ -188,19 +198,6 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return _package.Workbook.Names;
         }
-
-        //internal override CellsStoreEnumerator<object> GetRangeValues(string worksheetName, string address)
-        //{
-        //    SetCurrentWorksheet(worksheetName);
-        //    var addr = new ExcelAddress(worksheetName, address);
-        //    if (addr.Table != null)
-        //    {
-        //        addr.SetRCFromTable(_package, null);
-        //    }
-        //    var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
-        //    var ws = _package.Workbook.Worksheets[wsName];
-        //    return new CellsStoreEnumerator<object>(ws._values,addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
-        //}
         internal override ICellInfo GetRange(string worksheet, int row, int column, string address)
         {
             var addr = new ExcelAddress(worksheet, address);
@@ -214,7 +211,47 @@ namespace OfficeOpenXml.FormulaParsing
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
             return new CellInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
         }
+        internal override INameInfo GetName(string worksheet, string name)
+        {
+            ExcelNamedRange nameItem;
+            ulong id;            
+            ExcelWorksheet ws;
+            if (string.IsNullOrEmpty(worksheet))
+            {
+                nameItem = _package._workbook.Names[name];
+                ws = null;
+            }
+            else
+            {
+                ws = _package._workbook.Worksheets[worksheet];
+                nameItem = _package._workbook.Names[name];
+            }
 
+            id = ExcelAddressBase.GetCellID(nameItem.LocalSheetId, nameItem.Index, 0);
+
+            if (_names.ContainsKey(id))
+            {
+                return _names[id];
+            }
+            else
+            {
+                var ni=new NameInfo(){
+                    Id=id,
+                    Name=name,
+                    Formula=nameItem.Formula
+                };
+                if (nameItem._fromRow > 0)
+                {
+                    ni.Value = new CellInfo(nameItem.Worksheet ?? ws, nameItem._fromRow, nameItem._fromCol, nameItem._toRow, nameItem._toCol);
+                }
+                else
+                {
+                    ni.Value= nameItem.Value;
+                }
+                _names.Add(id, ni);
+                return ni;
+            }
+        }
         internal override IEnumerable<object> GetRangeValues(string address)
         {
             SetCurrentWorksheet(ExcelAddressInfo.Parse(address));
@@ -222,16 +259,6 @@ namespace OfficeOpenXml.FormulaParsing
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             return (new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol));
-            //return ws.Cells[address];
-            //var returnList = new List<ExcelCell>();
-            //var addressInfo = ExcelAddressInfo.Parse(address);
-            //SetCurrentWorksheet(addressInfo);
-            //var range = _currentWorksheet.Cells[addressInfo.AddressOnSheet];
-            //foreach (var cell in range)
-            //{
-            //    returnList.Add(new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row));
-            //}
-            //return returnList;
         }
 
 
@@ -250,18 +277,6 @@ namespace OfficeOpenXml.FormulaParsing
             return _currentWorksheet.Column(column).Hidden || _currentWorksheet.Column(column).Width == 0 ||
                    _currentWorksheet.Row(row).Hidden || _currentWorksheet.Row(column).Height == 0;
         }
-
-        //public override ExcelCell GetCellValue(string address)
-        //{
-        //    var addressInfo = ExcelAddressInfo.Parse(address);
-        //    SetCurrentWorksheet(addressInfo);
-        //    var cell = _currentWorksheet.Cells[addressInfo.AddressOnSheet].FirstOrDefault();
-        //    if (cell != null)
-        //    {
-        //        return new ExcelCell(cell.Value, cell.Formula, cell.Start.Column, cell.Start.Row);
-        //    }
-        //    return null;
-        //}
 
         public override object GetCellValue(string sheetName, int row, int col)
         {

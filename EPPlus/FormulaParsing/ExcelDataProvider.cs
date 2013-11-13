@@ -25,6 +25,14 @@ namespace OfficeOpenXml.FormulaParsing
             bool NextCell();
             IList<Token> Tokens { get; }
         }
+        public interface INameInfo
+        {
+            ulong Id { get; set; }
+            string Name { get; set; }
+            string Formula { get; set; }
+            IList<Token> Tokens { get; }
+            object Value { get; set; }
+        }
         /// <summary>
         /// Returns the names of all worksheet names
         /// </summary>
@@ -41,6 +49,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="address">An Excel address</param>
         /// <returns>values from the required cells</returns>
         internal abstract ICellInfo GetRange(string worksheetName, int row, int column, string address);
+        internal abstract INameInfo GetName(string worksheet, string name);
 
         internal abstract IEnumerable<object> GetRangeValues(string address);
 
