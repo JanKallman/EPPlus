@@ -40,9 +40,9 @@ namespace OfficeOpenXml.FormulaParsing
         /// </summary>
         /// <param name="address">An Excel address</param>
         /// <returns>values from the required cells</returns>
-        internal abstract ICellInfo GetRange(string worksheetName, int row, int column, string address);
+        public abstract ICellInfo GetRange(string worksheetName, int row, int column, string address);
 
-        internal abstract IEnumerable<object> GetRangeValues(string address);
+        public abstract IEnumerable<object> GetRangeValues(string address);
 
         public abstract string GetRangeFormula(string worksheetName, int row, int column);
         public abstract List<Token> GetRangeFormulaTokens(string worksheetName, int row, int column);
