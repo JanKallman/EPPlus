@@ -201,7 +201,7 @@ namespace OfficeOpenXml.FormulaParsing
         //    var ws = _package.Workbook.Worksheets[wsName];
         //    return new CellsStoreEnumerator<object>(ws._values,addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
         //}
-        internal override ICellInfo GetRange(string worksheet, int row, int column, string address)
+        public override ICellInfo GetRange(string worksheet, int row, int column, string address)
         {
             var addr = new ExcelAddress(worksheet, address);
             if (addr.Table != null)
@@ -215,7 +215,7 @@ namespace OfficeOpenXml.FormulaParsing
             return new CellInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
         }
 
-        internal override IEnumerable<object> GetRangeValues(string address)
+        public override IEnumerable<object> GetRangeValues(string address)
         {
             SetCurrentWorksheet(ExcelAddressInfo.Parse(address));
             var addr = new ExcelAddress(address);
