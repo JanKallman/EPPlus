@@ -12,39 +12,54 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             ValidateArguments(arguments, 1);
             var nItems = 0d;
-            Calculate(arguments, ref nItems);
+            Calculate(arguments, ref nItems, context);
             return CreateResult(nItems, DataType.Integer);
         }
 
-        private void Calculate(IEnumerable<FunctionArgument> items, ref double nItems)
+        private void Calculate(IEnumerable<FunctionArgument> items, ref double nItems, ParsingContext context)
         {
             foreach (var item in items)
             {
-                if (item.Value is IEnumerable<FunctionArgument>)
+                var cs = item.Value as ExcelDataProvider.ICellInfo;
+                if (cs != null)
                 {
-                    Calculate((IEnumerable<FunctionArgument>)item.Value, ref nItems);
+                    foreach (var c in cs)
+                    {
+                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value))
+                        {
+                            nItems++;
+                        }
+                    }
                 }
-                else if (ShouldCount(item))
+                else
                 {
-                    nItems++;
+                    var value = item.Value as IEnumerable<FunctionArgument>;
+                    if (value != null)
+                    {
+                        Calculate(value, ref nItems, context);
+                    }
+                    else if (ShouldIgnore(item) == false && ShouldCount(item.Value))
+                    {
+                        nItems++;
+                    }
                 }
             }
         }
 
-        private bool ShouldCount(FunctionArgument item)
+        private bool ShouldCount(object value)
         {
-            if (ShouldIgnore(item))
-            {
-                return false;
-            }
-            if (item.Value == null) return false;
-            if (item.Value.GetType() == typeof(int)
+            //if (ShouldIgnore(item))
+            //{
+            //    return false;
+            //}
+            if (value == null) return false;
+            if (value is int
                 ||
-                item.Value.GetType() == typeof(double)
+                value is double
                 ||
-                item.Value.GetType() == typeof(decimal)
+                value is decimal
                 ||
-                item.Value.GetType() == typeof(System.DateTime))
+                value is System.DateTime)
             {
                 return true;
             }

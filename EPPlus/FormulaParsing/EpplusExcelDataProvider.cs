@@ -320,17 +320,20 @@ namespace OfficeOpenXml.FormulaParsing
 
         public override string GetRangeFormula(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetFormula(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetFormula(row, column);
         }
 
         public override object GetRangeValue(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetValue(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetValue(row, column);
         }
 
         public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName]._formulaTokens.GetValue(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet._formulaTokens.GetValue(row, column);
         }
 
         public override bool IsRowHidden(string worksheetName, int row)

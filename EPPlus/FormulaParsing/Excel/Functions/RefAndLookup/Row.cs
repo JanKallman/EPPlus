@@ -15,14 +15,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             if (arguments == null || arguments.Count() == 0)
             {
-                return CreateResult(context.Scopes.Current.Address.FromRow + 1, DataType.Integer);
+                return CreateResult(context.Scopes.Current.Address.FromRow, DataType.Integer);
             }
             var rangeAddress = ArgToString(arguments, 0);
             if (ExcelAddressUtil.IsValidAddress(rangeAddress))
             {
                 var factory = new RangeAddressFactory(context.ExcelDataProvider);
                 var address = factory.Create(rangeAddress);
-                return CreateResult(address.FromRow + 1, DataType.Integer);
+                return CreateResult(address.FromRow, DataType.Integer);
             }
             throw new ArgumentException("An invalid argument was supplied");
         }

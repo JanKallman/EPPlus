@@ -93,8 +93,9 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                     col += currentNumericValue;
                 }
             }
-            col--;
-            row = GetIntPart(address) - 1 ?? GetRowIndexByBehaviour(behaviour);
+            //col--;
+            //row = GetIntPart(address) - 1 ?? GetRowIndexByBehaviour(behaviour);
+            row = GetIntPart(address) ?? GetRowIndexByBehaviour(behaviour);
 
         }
 
