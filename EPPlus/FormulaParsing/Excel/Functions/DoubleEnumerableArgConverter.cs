@@ -10,11 +10,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public virtual IEnumerable<double> ConvertArgs(IEnumerable<FunctionArgument> arguments)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
-            {
-                if (arg.Value is double || arg.Value is int)
                 {
-                    argList.Add(Convert.ToDouble(arg.Value));
-                }
+                    var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
+                    var value = cellInfo != null ? cellInfo.Value : arg.Value;
+                    if (value is double || value is int)
+                    {
+                        argList.Add(Convert.ToDouble(value));
+                    }
             });
         }
 
@@ -22,11 +24,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
             {
-                if (arg.Value is double || arg.Value is int || arg.Value is bool)
+                var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
+                var value = cellInfo != null ? cellInfo.Value : arg.Value;
+                if (value is double || value is int || value is bool)
                 {
-                    argList.Add(Convert.ToDouble(arg.Value));
+                    argList.Add(Convert.ToDouble(value));
                 }
-                else if (arg.Value is string)
+                else if (value is string)
                 {
                     argList.Add(0d);
                 }

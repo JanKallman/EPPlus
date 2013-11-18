@@ -44,11 +44,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return new CompileResult(obj, DataType.String);
             }
-            if (obj.GetType().Equals(typeof(int)) || obj is long)
+            if (obj.GetType().Equals(typeof(int)) || obj is long || obj is short)
             {
                 return new CompileResult(obj, DataType.Integer);
             }
-            if (obj.GetType().Equals(typeof(double)))
+            if (obj.GetType().Equals(typeof(double)) || obj is decimal)
             {
                 return new CompileResult(obj, DataType.Decimal);
             }

@@ -15,7 +15,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             if (arguments == null || arguments.Count() == 0)
             {
-                return CreateResult(context.Scopes.Current.Address.FromCol + 1, DataType.Integer);
+                return CreateResult(context.Scopes.Current.Address.FromCol, DataType.Integer);
             }
             var rangeAddress = ArgToString(arguments, 0);
             if (ExcelAddressUtil.IsValidAddress(rangeAddress))

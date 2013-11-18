@@ -90,7 +90,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             
             if (result == null || result.IsEmpty)
             {
-                return null;
+                return CompileResult.Empty;
             }
             //var rangeValueList = HandleRangeValues(result);
             //if (rangeValueList.Count > 1)

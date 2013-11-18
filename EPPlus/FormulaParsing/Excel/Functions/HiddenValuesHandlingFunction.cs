@@ -15,6 +15,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         protected override IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments)
         {
+            if (!arguments.Any())
+            {
+                return Enumerable.Empty<double>();
+            }
             if (IgnoreHiddenValues)
             {
                 var nonHidden = arguments.Where(x => !x.ExcelStateFlagIsSet(ExcelCellState.HiddenCell));
