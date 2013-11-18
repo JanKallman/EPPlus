@@ -31,7 +31,7 @@ namespace EPPlusTest
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(stream))
             {
-                var ws = pck.Workbook.Worksheets["Perf"];
+                var ws = pck.Workbook.Worksheets.Add("Perf");
                 pck.SaveAs(stream);
             }
             stream.Close();
@@ -234,6 +234,7 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadNameError()
         {

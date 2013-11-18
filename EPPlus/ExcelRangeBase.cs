@@ -359,7 +359,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		#region Public Properties
+		    #region Public Properties
 		/// <summary>
 		/// The styleobject for the range.
 		/// </summary>

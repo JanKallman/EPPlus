@@ -8,13 +8,16 @@ namespace EPPlusTest
     [TestClass]
     public class CellStoreTest : TestBase
     {
-        private static TestContext _testContext;
-        [ClassInitialize()]
-        public void ClassInit(TestContext testContext)
+        //private TestContext _testContext;
+        //[ClassInitialize()]
+        public CellStoreTest()
         {
             InitBase();
-            _testContext = testContext;
         }
+        //public void ClassInit(TestContext testContext)
+        //{
+        //    _testContext = testContext;
+        //}
         [TestMethod]
         public void Insert1()
         {
@@ -172,12 +175,12 @@ namespace EPPlusTest
                 r+=i+1;
             }
         }
-        [TestMethod]
-        public void FillInsertTest2()
-        {
-            var ws = _pck.Workbook.Worksheets.Add("Performance");
+        //[TestMethod]
+        //public void FillInsertTest2()
+        //{
+        //    var ws = _pck.Workbook.Worksheets.Add("Performance");
 
-            LoadData(ws, 1000000,30);
-        }
+        //    //LoadData(ws, 1000000,30);
+        //}
     }
 }

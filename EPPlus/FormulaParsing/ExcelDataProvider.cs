@@ -49,7 +49,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="address">An Excel address</param>
         /// <returns>values from the required cells</returns>
         public abstract ICellInfo GetRange(string worksheetName, int row, int column, string address);
-        internal abstract INameInfo GetName(string worksheet, string name);
+        public abstract INameInfo GetName(string worksheet, string name);
 
         public abstract IEnumerable<object> GetRangeValues(string address);
 

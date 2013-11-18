@@ -131,16 +131,20 @@ namespace OfficeOpenXml
         /// <param name="Name">The name</param>
         public void Remove(string Name)
         {
-            var ix = _dic[Name.ToLower()];
-
-            for (int i = ix+1; i < _list.Count; i++)
+            Name=Name.ToLower();
+            if(_dic.ContainsKey(Name))
             {
-                _dic.Remove(_list[i].Name.ToLower());
-                _list[i].Index--;
-                _dic.Add(_list[i].Name.ToLower(), _list[i].Index);
+                var ix = _dic[Name];
+
+                for (int i = ix+1; i < _list.Count; i++)
+                {
+                    _dic.Remove(_list[i].Name.ToLower());
+                    _list[i].Index--;
+                    _dic.Add(_list[i].Name.ToLower(), _list[i].Index);
+                }
+                _dic.Remove(Name);
+                _list.RemoveAt(ix);
             }
-            _dic.Remove(Name.ToLower());
-            _list.RemoveAt(ix);
         }
         /// <summary>
         /// Checks collection for the presence of a key

@@ -211,7 +211,7 @@ namespace OfficeOpenXml.FormulaParsing
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
             return new CellInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
         }
-        internal override INameInfo GetName(string worksheet, string name)
+        public override INameInfo GetName(string worksheet, string name)
         {
             ExcelNamedRange nameItem;
             ulong id;            

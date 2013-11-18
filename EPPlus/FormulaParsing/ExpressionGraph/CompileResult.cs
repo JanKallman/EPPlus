@@ -53,6 +53,28 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             get;
             private set;
         }
+        public double ResultNumeric
+        {
+            get
+            {
+                if (IsNumeric)
+                {
+                    return Result == null ? 0 :  Convert.ToDouble(Result);
+                }
+                else if(Result is DateTime)
+                {
+                    return ((DateTime)Result).ToOADate();
+                }
+                else if(Result is TimeSpan)
+                {
+                    return new DateTime(((TimeSpan)Result).Ticks).ToOADate();
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+        }
 
         public DataType DataType
         {
@@ -62,7 +84,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public bool IsNumeric
         {
-            get { return DataType == DataType.Decimal || DataType == DataType.Integer; }
+            get { return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty; }
         }
 
         public bool IsResultOfSubtotal { get; set; }

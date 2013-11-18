@@ -2369,8 +2369,15 @@ namespace OfficeOpenXml
                 if (tbl.ShowHeader || tbl.ShowTotal)
                 {
                     int colNum = tbl.Address._fromCol;
+                    var colVal = new HashSet<string>();
                     foreach (var col in tbl.Columns)
-                    {
+                    {                        
+                        var n=col.Name.ToLower();
+                        if(colVal.Contains(n))
+                        {
+                            throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
+                        }
+                        colVal.Add(n);
                         if (tbl.ShowHeader)
                         {
                             _values.SetValue(tbl.Address._fromRow, colNum, col.Name);

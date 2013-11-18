@@ -94,7 +94,19 @@ namespace OfficeOpenXml.Table
         {
             get
             {
-                return GetXmlNodeString("@name");
+                var n=GetXmlNodeString("@name");
+                if (string.IsNullOrEmpty(n))
+                {
+                    if (_tbl.ShowHeader)
+                    {
+                        n = _tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position);
+                    }
+                    else
+                    {
+                        n = "Column" + (this.Position+1).ToString();
+                    }
+                }
+                return n;
             }
             set
             {
