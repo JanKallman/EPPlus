@@ -252,7 +252,7 @@ namespace OfficeOpenXml.FormulaParsing
                 return ni;
             }
         }
-        internal override IEnumerable<object> GetRangeValues(string address)
+        public override IEnumerable<object> GetRangeValues(string address)
         {
             SetCurrentWorksheet(ExcelAddressInfo.Parse(address));
             var addr = new ExcelAddress(address);
