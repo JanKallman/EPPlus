@@ -198,7 +198,7 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return _package.Workbook.Names;
         }
-        internal override ICellInfo GetRange(string worksheet, int row, int column, string address)
+        public override ICellInfo GetRange(string worksheet, int row, int column, string address)
         {
             var addr = new ExcelAddress(worksheet, address);
             if (addr.Table != null)
