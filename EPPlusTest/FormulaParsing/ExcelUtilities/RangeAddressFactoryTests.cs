@@ -71,7 +71,7 @@ namespace EPPlusTest.ExcelUtilities
         [TestMethod]
         public void CreateShouldReturnAnInstanceWithStringAddressSet()
         {
-            var address = _factory.Create(0, 0);
+            var address = _factory.Create(1, 1);
             Assert.AreEqual("A1", address.ToString());
         }
 

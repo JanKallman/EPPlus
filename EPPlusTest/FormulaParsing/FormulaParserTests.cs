@@ -94,7 +94,7 @@ namespace EPPlusTest.FormulaParsing
         {
             var excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
             excelDataProvider
-                .Stub(x => x.GetRangeFormula(string.Empty, 0, 0))
+                .Stub(x => x.GetRangeFormula(string.Empty, 1, 1))
                 .Return("Sum(1,2)");
             var parser = new FormulaParser(excelDataProvider);
             var result = parser.ParseAt("A1");
