@@ -22,7 +22,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             {
                 var factory = new RangeAddressFactory(context.ExcelDataProvider);
                 var address = factory.Create(rangeAddress);
-                return CreateResult(address.FromCol + 1, DataType.Integer);
+                return CreateResult(address.FromCol, DataType.Integer);
             }
             throw new ArgumentException("An invalid argument was supplied");
         }

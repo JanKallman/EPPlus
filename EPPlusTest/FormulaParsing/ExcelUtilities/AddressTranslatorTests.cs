@@ -35,7 +35,7 @@ namespace EPPlusTest.ExcelUtilities
         {
             int col, row;
             _addressTranslator.ToColAndRow("A2", out col, out row);
-            Assert.AreEqual(1, row);
+            Assert.AreEqual(2, row);
         }
 
         [TestMethod]
@@ -43,11 +43,11 @@ namespace EPPlusTest.ExcelUtilities
         {
             int col, row;
             _addressTranslator.ToColAndRow("C1", out col, out row);
-            Assert.AreEqual(2, col);
+            Assert.AreEqual(3, col);
             _addressTranslator.ToColAndRow("AA2", out col, out row);
-            Assert.AreEqual(26, col);
+            Assert.AreEqual(27, col);
             _addressTranslator.ToColAndRow("BC1", out col, out row);
-            Assert.AreEqual(54, col);
+            Assert.AreEqual(55, col);
         }
 
         [TestMethod]
