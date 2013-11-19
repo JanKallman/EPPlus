@@ -50,23 +50,7 @@ namespace OfficeOpenXml.Calculation
             {
                 var item = dc.list[ix];
                 var v = parser.ParseCell(item.Tokens, item.ws==null ? "" : item.ws.Name, item.Row, item.Column);
-                if (item.Column == 0)
-                {
-                    if (item.SheetID == 0)
-                    {
-                        workbook.Names[item.Row].NameValue = v;
-                    }
-                    else
-                    {
-                        var sh = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                        sh.Names[item.Index].NameValue = v;
-                    }
-                }
-                else
-                {
-                    var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                    sheet._values.SetValue(item.Row, item.Column, v);
-                }
+                SetValue(workbook, item, v);
             }            
             workbook._isCalculated = true;
         }
@@ -79,22 +63,24 @@ namespace OfficeOpenXml.Calculation
             {
                 var item = dc.list[ix];
                 var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
-                var sheet = worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                sheet._values.SetValue(item.Row, item.Column, v);
+                SetValue(worksheet.Workbook, item, v);
+                //var sheet = worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                //sheet._values.SetValue(item.Row, item.Column, v);
             }
             worksheet.Workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelRangeBase range)
         {
             Init(range._workbook);
-            var parser = range.Worksheet.Workbook.FormulaParser;
+            var parser = range._workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(range);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
                 var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
-                var sheet = range.Worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                sheet._values.SetValue(item.Row, item.Column, v);
+                SetValue(range._workbook, item, v);
+                //var sheet = range.Worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                //sheet._values.SetValue(item.Row, item.Column, v);
             }
             range.Worksheet.Workbook._isCalculated = true;
         }
@@ -111,5 +97,25 @@ namespace OfficeOpenXml.Calculation
             }
         }
 
+        private static void SetValue(ExcelWorkbook workbook, FormulaCell item, object v)
+        {
+            if (item.Column == 0)
+            {
+                if (item.SheetID == 0)
+                {
+                    workbook.Names[item.Row].NameValue = v;
+                }
+                else
+                {
+                    var sh = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                    sh.Names[item.Index].NameValue = v;
+                }
+            }
+            else
+            {
+                var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                sheet._values.SetValue(item.Row, item.Column, v);
+            }
+        }
     }
 }

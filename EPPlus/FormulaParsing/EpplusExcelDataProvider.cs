@@ -53,7 +53,15 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 get { return _values.Value; }
             }
-
+            
+            public double ValueDouble
+            {
+                get { return ExcelWorksheet.GetValueDouble(_values.Value, true); }
+            }
+            public double ValueDoubleLogical
+            {
+                get { return ExcelWorksheet.GetValueDouble(_values.Value, false); }
+            }
             public bool IsHiddenRow
             {
                 get 
@@ -169,6 +177,7 @@ namespace OfficeOpenXml.FormulaParsing
                     return _ws._formulaTokens.GetValue(_values.Row, _values.Column);
                 }
             }
+
         }
         public class NameInfo : INameInfo
         {

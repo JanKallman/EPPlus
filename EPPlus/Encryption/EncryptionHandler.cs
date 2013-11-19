@@ -56,7 +56,6 @@ namespace OfficeOpenXml.Encryption
         {
             CompoundDocument doc = new CompoundDocument(fi);
             
-            WriteDoc(doc.Storage,@"c:\temp\xl\");
             MemoryStream ret = null;
             if (CompoundDocument.IsStorageFile(fi.FullName) == 0)
             {
@@ -69,19 +68,20 @@ namespace OfficeOpenXml.Encryption
             return ret;
         }
 
-        private void WriteDoc(CompoundDocument.StoragePart storagePart, string p)
-        {
-            foreach (var store in storagePart.SubStorage)
-            {
-                string sdir=p + store.Key.Replace((char)6,'x') + "\\";
-                Directory.CreateDirectory(sdir);
-                WriteDoc(store.Value, sdir);
-            }
-            foreach (var str in storagePart.DataStreams)
-            {
-                File.WriteAllBytes(p + str.Key.Replace((char)6, 'x') + ".bin", str.Value);
-            }
-        }
+        //Helpmethod to output the streams in the storage
+        //private void WriteDoc(CompoundDocument.StoragePart storagePart, string p)
+        //{
+        //    foreach (var store in storagePart.SubStorage)
+        //    {
+        //        string sdir=p + store.Key.Replace((char)6,'x') + "\\";
+        //        Directory.CreateDirectory(sdir);
+        //        WriteDoc(store.Value, sdir);
+        //    }
+        //    foreach (var str in storagePart.DataStreams)
+        //    {
+        //        File.WriteAllBytes(p + str.Key.Replace((char)6, 'x') + ".bin", str.Value);
+        //    }
+        //}
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -310,61 +310,21 @@ namespace OfficeOpenXml.Encryption
             //MemoryStream ret = null;
 
             var doc = new CompoundDocument();
-            //Create the document in-memory
-            //if (StgCreateDocfileOnILockBytes(lb,
-            //        STGM.CREATE | STGM.READWRITE | STGM.SHARE_EXCLUSIVE | STGM.TRANSACTED,
-            //        0,
-            //        out storage) == 0)
-            //{
-                //First create the dataspace storage
-                //CreateDataSpaces(storage);
-                CreateDataSpaces(doc);
+            CreateDataSpaces(doc);
 
-                //Create the Encryption info Stream
-                //comTypes.IStream stream;                
-                //storage.CreateStream("EncryptionInfo", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), (uint)0, (uint)0, out stream);
-                //byte[] ei = encryptionInfo.WriteBinary();
-                //stream.Write(ei, ei.Length, IntPtr.Zero);
-                //stream = null;
-                doc.Storage.DataStreams.Add("EncryptionInfo", encryptionInfo.WriteBinary());
-                //Encrypt the package
-                byte[] encryptedPackage = EncryptData(encryptionKey, package, false);
-                MemoryStream ms = new MemoryStream();
-                ms.Write(BitConverter.GetBytes((ulong)package.LongLength), 0, 8);
-                ms.Write(encryptedPackage, 0, encryptedPackage.Length);
-                doc.Storage.DataStreams.Add("EncryptedPackage", ms.ToArray());
-                //storage.CreateStream("EncryptedPackage", (uint)(STGM.CREATE | STGM.WRITE | STGM.DIRECT | STGM.SHARE_EXCLUSIVE), (uint)0, (uint)0, out stream);
+            doc.Storage.DataStreams.Add("EncryptionInfo", encryptionInfo.WriteBinary());
+            
+            //Encrypt the package
+            byte[] encryptedPackage = EncryptData(encryptionKey, package, false);
+            MemoryStream ms = new MemoryStream();
+            ms.Write(BitConverter.GetBytes((ulong)package.LongLength), 0, 8);
+            ms.Write(encryptedPackage, 0, encryptedPackage.Length);
+            doc.Storage.DataStreams.Add("EncryptedPackage", ms.ToArray());
 
-                //Write Size here
-                //MemoryStream ms = new MemoryStream();
-                //BinaryWriter bw = new BinaryWriter(ms);
-                //bw.Write((ulong)package.LongLength);
-                //bw.Flush();
-                //byte[] length = ms.ToArray();
-                ////Write Encrypted data length first as an unsigned long
-                //stream.Write(length, length.Length, IntPtr.Zero);
-                ////And now the Encrypted data
-                //stream.Write(encryptedPackage, encryptedPackage.Length, IntPtr.Zero);
-                //stream = null;
-                //storage.Commit(0);
-                //lb.Flush();
+            var ret = new MemoryStream();                
+            var buffer = doc.Save();
+            ret.Write(buffer, 0, buffer.Length);
 
-                //Now copy the unmanaged stream to a byte array --> memory stream
-                //var statstg = new comTypes.STATSTG();
-                //lb.Stat(out statstg, 0);
-                //int size = (int)statstg.cbSize;
-                //IntPtr buffer = Marshal.AllocHGlobal(size);
-                //UIntPtr readSize;
-                //byte[] pack = new byte[size];
-                //lb.ReadAt(0, buffer, size, out readSize);
-                //Marshal.Copy(buffer, pack, 0, size);
-                //Marshal.FreeHGlobal(buffer);
-                var ret = new MemoryStream();                
-                var buffer = doc.Save();
-                ret.Write(buffer, 0, buffer.Length);
-            //}
-            //Marshal.ReleaseComObject(storage);
-            //Marshal.ReleaseComObject(lb);
             return ret;
         }
         #region "Dataspaces Stream methods"
