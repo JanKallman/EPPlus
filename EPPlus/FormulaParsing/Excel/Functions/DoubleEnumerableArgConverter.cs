@@ -11,28 +11,46 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
-                    var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
-                    var value = cellInfo != null ? cellInfo.Value : arg.Value;
-                    if (value is double || value is int)
+                    if (arg.Value is ExcelDataProvider.ICellInfo)
                     {
-                        argList.Add(Convert.ToDouble(value));
+                        foreach (var cell in (ExcelDataProvider.ICellInfo)arg.Value)
+                        {
+                            argList.Add(cell.ValueDouble);
+                        }
                     }
-            });
+                    else
+                    {
+                        if (arg.Value is double || arg.Value is int)
+                        {
+                            argList.Add(Convert.ToDouble(arg.Value));
+                        }
+                    }
+                });
         }
 
         public virtual IEnumerable<double> ConvertArgsIncludingOtherTypes(IEnumerable<FunctionArgument> arguments)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
             {
-                var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
-                var value = cellInfo != null ? cellInfo.Value : arg.Value;
-                if (value is double || value is int || value is bool)
+                //var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
+                //var value = cellInfo != null ? cellInfo.Value : arg.Value;
+                if (arg.Value is ExcelDataProvider.ICellInfo)
                 {
-                    argList.Add(Convert.ToDouble(value));
+                    foreach (var cell in (ExcelDataProvider.ICellInfo)arg.Value)
+                    {
+                        argList.Add(cell.ValueDoubleLogical);
+                    }
                 }
-                else if (value is string)
+                else
                 {
-                    argList.Add(0d);
+                    if (arg.Value is double || arg.Value is int || arg.Value is bool)
+                    {
+                        argList.Add(Convert.ToDouble(arg.Value));
+                    }
+                    else if (arg.Value is string)
+                    {
+                        argList.Add(0d);
+                    }
                 }
             });
         }

@@ -19,6 +19,8 @@ namespace OfficeOpenXml.FormulaParsing
             int Column { get; }
             string Formula { get;  }
             object Value { get; }
+            double ValueDouble { get; }
+            double ValueDoubleLogical { get; }
             bool IsHiddenRow { get; }
             bool IsEmpty { get; }
             bool IsMulti { get; }

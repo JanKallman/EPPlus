@@ -73,6 +73,7 @@ namespace OfficeOpenXml
 		{
 			_worksheet = xlWorksheet;
 			_ws = _worksheet.Name;
+            _workbook = _worksheet.Workbook;
             this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);
 			SetDelegate();
 		}
@@ -89,6 +90,7 @@ namespace OfficeOpenXml
 			base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
 		{
 			_worksheet = xlWorksheet;
+            _workbook = _worksheet.Workbook;
             base.SetRCFromTable(_worksheet._package, null);
 			if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
             this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);

@@ -780,10 +780,10 @@ namespace OfficeOpenXml
                     return AddressType.Invalid;
                 }
 
-                if(string.IsNullOrEmpty(wb));
+                //if(string.IsNullOrEmpty(wb));
 
             }
-            ExcelAddress a = new ExcelAddress(Address);
+            //ExcelAddress a = new ExcelAddress(Address);
             //if (Address.IndexOf('!') > 0)
             //{                
             //    string[] split = Address.Split('!');
