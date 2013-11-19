@@ -103,9 +103,9 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         {
             if (behaviour == RangeCalculationBehaviour.FirstPart)
             {
-                return 0;
+                return 1;
             }
-            return _excelDataProvider.ExcelMaxRows - 1;
+            return _excelDataProvider.ExcelMaxRows;
         }
 
         private int GetNumericAlphaValue(char c)
