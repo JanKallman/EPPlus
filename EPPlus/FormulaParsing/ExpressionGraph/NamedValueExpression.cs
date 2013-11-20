@@ -55,9 +55,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return null;
             }
-            if (name.Value is ExcelDataProvider.ICellInfo)
+            if (name.Value is ExcelDataProvider.IRangeInfo)
             {
-                var range = (ExcelDataProvider.ICellInfo)name.Value;
+                var range = (ExcelDataProvider.IRangeInfo)name.Value;
                 if (range.IsMulti)
                 {
                     return new CompileResult(name.Value, DataType.Enumerable);
@@ -69,8 +69,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                         return null;
                     }
                     var factory = new CompileResultFactory();
-                    range.NextCell();
-                    return factory.Create(range.Value);
+                    return factory.Create(range.First().Value);
                 }
             }
             else

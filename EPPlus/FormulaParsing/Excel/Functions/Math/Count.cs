@@ -20,7 +20,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                var cs = item.Value as ExcelDataProvider.ICellInfo;
+                var cs = item.Value as ExcelDataProvider.IRangeInfo;
                 if (cs != null)
                 {
                     foreach (var c in cs)

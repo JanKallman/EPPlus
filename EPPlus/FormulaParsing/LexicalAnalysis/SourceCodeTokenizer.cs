@@ -140,7 +140,35 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 context.AddToken(CreateToken(context));
             }
+
+            FixUnrecogizedTokens(context);
+
             return context.Result;
+        }
+
+        private static void FixUnrecogizedTokens(TokenizerContext context)
+        {
+            for (int i = 0; i < context.Result.Count; i++)
+            {
+                if (context.Result[i].TokenType == TokenType.Unrecognized)
+                {
+                    if (i < context.Result.Count - 1)
+                    {
+                        if (context.Result[i+1].TokenType == TokenType.OpeningParenthesis)
+                        {
+                            context.Result[i].TokenType = TokenType.Function;
+                        }
+                        else
+                        {
+                            context.Result[i].TokenType = TokenType.NameValue;
+                        }
+                    }
+                    else
+                    {
+                        context.Result[i].TokenType = TokenType.NameValue;
+                    }
+                }
+            }
         }
 
         private static bool TokenIsNegator(TokenizerContext context)

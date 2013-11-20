@@ -11,7 +11,6 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using System.Diagnostics;
-using OfficeOpenXml.FormulaParsing;
 
 namespace OfficeOpenXml.FormulaParsing
 {

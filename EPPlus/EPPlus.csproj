@@ -581,6 +581,7 @@
     <Compile Include="RangeCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utils\ConvertUtil.cs" />
     <Compile Include="Utils\UriHelper.cs" />
     <Compile Include="Packaging\ZipPackage.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />

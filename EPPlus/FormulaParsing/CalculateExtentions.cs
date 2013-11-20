@@ -64,8 +64,6 @@ namespace OfficeOpenXml.Calculation
                 var item = dc.list[ix];
                 var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
                 SetValue(worksheet.Workbook, item, v);
-                //var sheet = worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                //sheet._values.SetValue(item.Row, item.Column, v);
             }
             worksheet.Workbook._isCalculated = true;
         }
@@ -79,8 +77,6 @@ namespace OfficeOpenXml.Calculation
                 var item = dc.list[ix];
                 var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
                 SetValue(range._workbook, item, v);
-                //var sheet = range.Worksheet.Workbook.Worksheets.GetBySheetID(item.ws.SheetID);
-                //sheet._values.SetValue(item.Row, item.Column, v);
             }
             range.Worksheet.Workbook._isCalculated = true;
         }

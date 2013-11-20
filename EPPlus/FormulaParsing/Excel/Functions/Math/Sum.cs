@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
@@ -35,19 +36,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     retVal += Calculate(item, context);
                 }
             }
-            else if (arg.Value is ExcelDataProvider.ICellInfo)
+            else if (arg.Value is ExcelDataProvider.IRangeInfo)
             {
-                foreach (var c in (ExcelDataProvider.ICellInfo)arg.Value)
+                foreach (var c in (ExcelDataProvider.IRangeInfo)arg.Value)
                 {
                     if (ShouldIgnore(c, context) == false)
                     {
-                        retVal += GetNumeric(c.Value);
+                        retVal += c.ValueDouble;
                     }
                 }
             }
             else
             {
-                retVal += GetNumeric(arg.Value);
+                retVal += retVal += ConvertUtil.GetValueDouble(arg.Value, true);
             }
             return retVal;
         }

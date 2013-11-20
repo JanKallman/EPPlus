@@ -6,18 +6,20 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing
 {
     public class EpplusExcelDataProvider : ExcelDataProvider
     {
-        public class CellInfo : ICellInfo
+        public class RangeInfo : IRangeInfo
         {
             internal ExcelWorksheet _ws;
-            CellsStoreEnumerator<object> _values=null;
+            CellsStoreEnumerator<object> _values = null;
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
-            public CellInfo(ExcelWorksheet ws,int fromRow, int fromCol, int toRow, int toCol)                
+            ICellInfo _cell;
+            public RangeInfo(ExcelWorksheet ws, int fromRow, int fromCol, int toRow, int toCol)                
             {
                 _ws = ws;
                 _fromRow=fromRow;
@@ -25,6 +27,108 @@ namespace OfficeOpenXml.FormulaParsing
                 _toRow=toRow;
                 _toCol=toCol;
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
+                _cell = new CellInfo(_ws, _values);
+            }
+            public bool IsEmpty
+            {
+                get
+                {
+                    if (_cellCount > 0)
+                    {
+                        return true;
+                    }
+                    else if (_values.Next())
+                    {
+                        _values.Previous();
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+            }
+            public bool IsMulti
+            {
+                get
+                {
+                    if (_cellCount == 0)
+                    {
+                        if (_values.Next() && _values.Next())
+                        {
+                            _values.Reset();
+                            return true;
+                        }
+                        else
+                        {
+                            _values.Reset();
+                            return false;
+                        }
+                    }
+                    else if (_cellCount > 1)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+
+            public ICellInfo Current
+            {
+                get { return _cell; }
+            }
+
+            public void Dispose()
+            {
+                _values = null;
+                _ws = null;
+                _cell = null;
+            }
+
+            object System.Collections.IEnumerator.Current
+            {
+                get
+                {
+                    return this;
+                }
+            }
+
+            public bool MoveNext()
+            {
+                _cellCount++;
+                return _values.MoveNext();
+            }
+
+            public void Reset()
+            {                
+                _values.Init();
+            }
+
+
+            public bool NextCell()
+            {
+                _cellCount++;
+                return _values.MoveNext();
+            }
+
+            public IEnumerator<ICellInfo> GetEnumerator()
+            {
+                return this;
+            }
+
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+            {
+                return this;
+            }
+        }
+        public class CellInfo : ICellInfo
+        {
+            ExcelWorksheet _ws;
+            CellsStoreEnumerator<object> _values;
+            internal CellInfo(ExcelWorksheet ws, CellsStoreEnumerator<object> values)
+            {
+                _ws = ws;
+                _values = values;
             }
             public string Address
             {
@@ -49,18 +153,18 @@ namespace OfficeOpenXml.FormulaParsing
                 }
             }
 
-            public new object Value
+            public object Value
             {
                 get { return _values.Value; }
             }
             
             public double ValueDouble
             {
-                get { return ExcelWorksheet.GetValueDouble(_values.Value, true); }
+                get { return ConvertUtil.GetValueDouble(_values.Value, true); }
             }
             public double ValueDoubleLogical
             {
-                get { return ExcelWorksheet.GetValueDouble(_values.Value, false); }
+                get { return ConvertUtil.GetValueDouble(_values.Value, false); }
             }
             public bool IsHiddenRow
             {
@@ -77,98 +181,6 @@ namespace OfficeOpenXml.FormulaParsing
                     }
                 }
             }
-            public bool IsEmpty
-            {
-                get 
-                {
-                    if (_cellCount > 0)
-                    {
-                        return true;
-                    }
-                    else if (_values.Next())
-                    {
-                        _values.Previous();
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            public bool IsMulti
-            {
-                get 
-                {
-                    if (_cellCount == 0)
-                    {
-                        if (_values.Next() && _values.Next())
-                        {
-                            _values.Reset();
-                            return true;
-                        }
-                        else
-                        {
-                            _values.Reset();
-                            return false;
-                        }
-                    }
-                    else if (_cellCount>1)
-                    {
-                        return true;
-                    }
-                    return false;
-                }
-            }
-        
-            public ICellInfo Current
-            {
-                get { return this; }
-            }
-
-            public void Dispose()
-            {
- 	            _values=null;
-                _ws=null;
-            }
-
-            object System.Collections.IEnumerator.Current
-            {
-	            get 
-                { 
-                    return this;
-                }
-            }
-
-            public bool MoveNext()
-            {
-                _cellCount++;
-                return _values.MoveNext();
-            }
-
-            public void Reset()
-            {
- 	            _values.Init();
-            }
-
-
-            public bool NextCell()
-            {
-                _cellCount++;
-                return _values.MoveNext();
-            }
-
-            public IEnumerator<ICellInfo> GetEnumerator()
-            {
-                return this;
-            }
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return this;
-            }
-
 
             public IList<Token> Tokens
             {
@@ -207,7 +219,7 @@ namespace OfficeOpenXml.FormulaParsing
         {
             return _package.Workbook.Names;
         }
-        public override ICellInfo GetRange(string worksheet, int row, int column, string address)
+        public override IRangeInfo GetRange(string worksheet, int row, int column, string address)
         {
             var addr = new ExcelAddress(worksheet, address);
             if (addr.Table != null)
@@ -218,7 +230,7 @@ namespace OfficeOpenXml.FormulaParsing
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
-            return new CellInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
+            return new RangeInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
         }
         public override INameInfo GetName(string worksheet, string name)
         {
@@ -251,7 +263,7 @@ namespace OfficeOpenXml.FormulaParsing
                 };
                 if (nameItem._fromRow > 0)
                 {
-                    ni.Value = new CellInfo(nameItem.Worksheet ?? ws, nameItem._fromRow, nameItem._fromCol, nameItem._toRow, nameItem._toCol);
+                    ni.Value = new RangeInfo(nameItem.Worksheet ?? ws, nameItem._fromRow, nameItem._fromCol, nameItem._toRow, nameItem._toCol);
                 }
                 else
                 {

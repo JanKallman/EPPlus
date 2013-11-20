@@ -45,13 +45,13 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public string Value { get; private set; }
 
-        public TokenType TokenType { get; private set; }
+        public TokenType TokenType { get; internal set; }
 
         public void Append(string stringToAppend)
         {
             Value += stringToAppend;
         }
-
+        
         public void Negate()
         {
 

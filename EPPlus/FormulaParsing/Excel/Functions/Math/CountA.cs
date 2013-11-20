@@ -20,9 +20,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                if (item.Value is ExcelDataProvider.ICellInfo)
+                if (item.Value is ExcelDataProvider.IRangeInfo)
                 {
-                    foreach (var c in (ExcelDataProvider.ICellInfo)item.Value)
+                    foreach (var c in (ExcelDataProvider.IRangeInfo)item.Value)
                     {
                         if (ShouldIgnore(c, context) == false && ShouldCount(c.Value))
                         {

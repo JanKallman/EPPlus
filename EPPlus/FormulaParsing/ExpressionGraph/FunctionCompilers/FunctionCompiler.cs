@@ -54,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 
         protected void BuildFunctionArguments(object result, List<FunctionArgument> args)
         {
-            if (result is IEnumerable<object> && !(result is ExcelDataProvider.ICellInfo))
+            if (result is IEnumerable<object> && !(result is ExcelDataProvider.IRangeInfo))
             {
                 var argList = new List<FunctionArgument>();
                 var objects = result as IEnumerable<object>;

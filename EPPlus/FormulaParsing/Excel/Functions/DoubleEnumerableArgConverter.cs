@@ -11,9 +11,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
-                    if (arg.Value is ExcelDataProvider.ICellInfo)
+                    if (arg.Value is ExcelDataProvider.IRangeInfo)
                     {
-                        foreach (var cell in (ExcelDataProvider.ICellInfo)arg.Value)
+                        foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
                         {
                             argList.Add(cell.ValueDouble);
                         }
@@ -34,9 +34,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             {
                 //var cellInfo = arg.Value as EpplusExcelDataProvider.CellInfo;
                 //var value = cellInfo != null ? cellInfo.Value : arg.Value;
-                if (arg.Value is ExcelDataProvider.ICellInfo)
+                if (arg.Value is ExcelDataProvider.IRangeInfo)
                 {
-                    foreach (var cell in (ExcelDataProvider.ICellInfo)arg.Value)
+                    foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
                     {
                         argList.Add(cell.ValueDoubleLogical);
                     }

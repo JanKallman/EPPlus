@@ -110,9 +110,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             else
             {
-                result.NextCell();
                 var factory = new CompileResultFactory();
-                return factory.Create(result.Value);
+                return factory.Create(result.First().Value);
             }
         }
 

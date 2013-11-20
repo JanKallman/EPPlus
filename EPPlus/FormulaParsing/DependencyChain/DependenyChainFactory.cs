@@ -144,7 +144,8 @@ namespace OfficeOpenXml.FormulaParsing
         /// Goto (!) is used internally to prevent stackoverflow on extremly larget dependency trees (that is, many recursive formulas).
         /// </summary>
         /// <param name="depChain">The dependency chain object</param>
-        /// <param name="sct">The formula tokenizer</param>
+        /// <param name="lexer">The formula tokenizer</param>
+        /// <param name="wb">The workbook where the formula comes from</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function object</param>
         private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f)
