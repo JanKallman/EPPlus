@@ -26,6 +26,12 @@ namespace OfficeOpenXml.FormulaParsing
                 _toCol=toCol;
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
             }
+
+            public int GetNCells()
+            {
+                return ((_toRow - _fromRow) + 1) * ((_toCol - _fromCol) + 1);
+            }
+
             public string Address
             {
                 get { return _values.CellAddress; }
@@ -344,12 +350,14 @@ namespace OfficeOpenXml.FormulaParsing
 
         public override string GetRangeFormula(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetFormula(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetFormula(row, column);
         }
 
         public override object GetRangeValue(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetValue(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetValue(row, column);
         }
 
         public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)

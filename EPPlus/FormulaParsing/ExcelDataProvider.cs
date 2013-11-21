@@ -26,6 +26,7 @@ namespace OfficeOpenXml.FormulaParsing
             bool IsMulti { get; }
             bool NextCell();
             IList<Token> Tokens { get; }
+            int GetNCells();
         }
         public interface INameInfo
         {
