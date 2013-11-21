@@ -49,7 +49,24 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength)
         {
             Require.That(arguments).Named("arguments").IsNotNull();
-            ThrowArgumentExceptionIf(() => arguments.Count() < minLength, "Expecting at least {0} arguments", minLength.ToString());
+            ThrowArgumentExceptionIf(() =>
+                {
+                    var nArgs = 0;
+                    if (arguments.Any())
+                    {
+                        foreach (var arg in arguments)
+                        {
+                            nArgs++;
+                            if (nArgs >= minLength) return false;
+                            if (arg.IsExcelRange)
+                            {
+                                nArgs += arg.ValueAsCellInfo.GetNCells();
+                                if (nArgs >= minLength) return false;
+                            }
+                        }
+                    }
+                    return true;
+                }, "Expecting at least {0} arguments", minLength.ToString());
         }
 
         protected int ArgToInt(IEnumerable<FunctionArgument> arguments, int index)
