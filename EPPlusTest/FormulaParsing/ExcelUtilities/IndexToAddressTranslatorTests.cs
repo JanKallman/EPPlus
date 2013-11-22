@@ -35,38 +35,38 @@ namespace EPPlusTest.ExcelUtilities
         }
 
         [TestMethod]
-        public void ShouldTranslate0And0ToA1()
+        public void ShouldTranslate1And1ToA1()
         {
-            var result = _indexToAddressTranslator.ToAddress(0, 0);
+            var result = _indexToAddressTranslator.ToAddress(1, 1);
             Assert.AreEqual("A1", result);
         }
 
         [TestMethod]
-        public void ShouldTranslate26And0ToAA1()
+        public void ShouldTranslate27And1ToAA1()
         {
-            var result = _indexToAddressTranslator.ToAddress(26, 0);
+            var result = _indexToAddressTranslator.ToAddress(27, 1);
             Assert.AreEqual("AA1", result);
         }
 
         [TestMethod]
-        public void ShouldTranslate26x26plus25And0ToZZ1()
+        public void ShouldTranslate702And1ToZZ1()
         {
-            var result = _indexToAddressTranslator.ToAddress(26*26+25, 0);
+            var result = _indexToAddressTranslator.ToAddress(702, 1);
             Assert.AreEqual("ZZ1", result);
         }
 
         [TestMethod]
-        public void ShouldTranslate26x26plus26And4ToAAA5()
+        public void ShouldTranslate703ToAAA4()
         {
-            var result = _indexToAddressTranslator.ToAddress(26 * 26 + 26, 4);
-            Assert.AreEqual("AAA5", result);
+            var result = _indexToAddressTranslator.ToAddress(703, 4);
+            Assert.AreEqual("AAA4", result);
         }
 
         [TestMethod]
         public void ShouldTranslateToEntireColumnWhenRowIsEqualToMaxRows()
         {
             _excelDataProvider.Stub(x => x.ExcelMaxRows).Return(123456);
-            var result = _indexToAddressTranslator.ToAddress(0, 123456);
+            var result = _indexToAddressTranslator.ToAddress(1, 123456);
             Assert.AreEqual("A", result);
         }
 
@@ -74,7 +74,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldTranslateToAbsoluteAddress()
         {
             SetupTranslator(123456, ExcelReferenceType.AbsoluteRowAndColumn);
-            var result = _indexToAddressTranslator.ToAddress(0, 0);
+            var result = _indexToAddressTranslator.ToAddress(1, 1);
             Assert.AreEqual("$A$1", result);
         }
 
@@ -82,7 +82,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldTranslateToAbsoluteRowAndRelativeCol()
         {
             SetupTranslator(123456, ExcelReferenceType.AbsoluteRowRelativeColumn);
-            var result = _indexToAddressTranslator.ToAddress(0, 0);
+            var result = _indexToAddressTranslator.ToAddress(1, 1);
             Assert.AreEqual("A$1", result);
         }
 
@@ -90,7 +90,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldTranslateToRelativeRowAndAbsoluteCol()
         {
             SetupTranslator(123456, ExcelReferenceType.RelativeRowAbsolutColumn);
-            var result = _indexToAddressTranslator.ToAddress(0, 0);
+            var result = _indexToAddressTranslator.ToAddress(1, 1);
             Assert.AreEqual("$A1", result);
         }
 
@@ -98,7 +98,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldTranslateToRelativeRowAndCol()
         {
             SetupTranslator(123456, ExcelReferenceType.RelativeRowAndColumn);
-            var result = _indexToAddressTranslator.ToAddress(0, 0);
+            var result = _indexToAddressTranslator.ToAddress(1, 1);
             Assert.AreEqual("A1", result);
         }
     }

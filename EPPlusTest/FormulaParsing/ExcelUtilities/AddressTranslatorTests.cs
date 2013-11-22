@@ -55,7 +55,7 @@ namespace EPPlusTest.ExcelUtilities
         {
             int col, row;
             _addressTranslator.ToColAndRow("A", out col, out row);
-            Assert.AreEqual(0, row);
+            Assert.AreEqual(1, row);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@ namespace EPPlusTest.ExcelUtilities
         {
             int col, row;
             _addressTranslator.ToColAndRow("A", out col, out row, AddressTranslator.RangeCalculationBehaviour.LastPart);
-            Assert.AreEqual(ExcelMaxRows - 1, row);
+            Assert.AreEqual(ExcelMaxRows, row);
         }
     }
 }
