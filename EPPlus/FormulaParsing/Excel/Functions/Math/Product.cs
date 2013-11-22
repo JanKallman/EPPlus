@@ -20,17 +20,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             result = CalculateCollection(arguments.Skip(index), result, (arg, current) =>
             {
                 if (ShouldIgnore(arg)) return current;
+                if (arg.IsExcelRange)
+                {
+                    foreach (var cell in arg.ValueAsCellInfo)
+                    {
+                        if(ShouldIgnore(cell, context)) return current;
+                        current *= cell.ValueDouble;
+                    }
+                    return current;
+                }
                 var obj = arg.Value;
                 if (obj != null)
                 {
-                    if (obj is double)
-                    {
-                        current *= (double)obj;
-                    }
-                    else if (obj is int)
-                    {
-                        current *= (int)obj;
-                    }
+                    var val = GetNumeric(obj);
+                    current *= val;
                 }
                 return current;
             });

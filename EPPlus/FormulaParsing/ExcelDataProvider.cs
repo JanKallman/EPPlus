@@ -34,6 +34,7 @@ namespace OfficeOpenXml.FormulaParsing
             double ValueDoubleLogical { get; }
             bool IsHiddenRow { get; }
             IList<Token> Tokens { get; }
+            int GetNCells();
         }
         public interface INameInfo
         {

@@ -24,7 +24,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     foreach (var c in (ExcelDataProvider.IRangeInfo)item.Value)
                     {
-                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value))
+                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
                         {
                             nItems++;
                         }
@@ -34,19 +34,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     Calculate((IEnumerable<FunctionArgument>)item.Value, context, ref nItems);
                 }
-                else if (ShouldCount(item.Value))
+                else if (ShouldCount(item.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
                 {
                     nItems++;
                 }
                 
             }
         }
-        private bool ShouldCount(object value)
+        private bool ShouldCount(object value, bool isHiddenCell)
         {
-            //if (ShouldIgnore(item))
-            //{
-            //    return false;
-            //}
+            if (isHiddenCell)
+            {
+                return false;
+            }
             if (value == null) return false;
             return (!string.IsNullOrEmpty(value.ToString()));
         }
