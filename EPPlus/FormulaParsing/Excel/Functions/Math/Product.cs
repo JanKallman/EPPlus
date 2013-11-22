@@ -22,7 +22,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 if (ShouldIgnore(arg)) return current;
                 if (arg.IsExcelRange)
                 {
-                    foreach (var cell in arg.ValueAsCellInfo)
+                    foreach (var cell in arg.ValueAsRangeInfo)
                     {
                         if(ShouldIgnore(cell, context)) return current;
                         current *= cell.ValueDouble;
@@ -30,9 +30,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     return current;
                 }
                 var obj = arg.Value;
-                if (obj != null)
+                if (obj != null && IsNumeric(obj))
                 {
-                    var val = GetNumeric(obj);
+                    var val = Convert.ToDouble(obj);
                     current *= val;
                 }
                 return current;

@@ -60,7 +60,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                             if (nArgs >= minLength) return false;
                             if (arg.IsExcelRange)
                             {
-                                nArgs += arg.ValueAsCellInfo.GetNCells();
+                                nArgs += arg.ValueAsRangeInfo.GetNCells();
                                 if (nArgs >= minLength) return false;
                             }
                         }
