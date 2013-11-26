@@ -65,7 +65,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             }
             else if (col <= (Math.Pow(NLettersInAlphabet, 2) + NLettersInAlphabet))
             {
-                var firstChar = col / NLettersInAlphabet;
+                var firstChar = col / NLettersInAlphabet - 1;
                 var secondChar = col - (NLettersInAlphabet * firstChar);
                 return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar)), GetRowNumber(row));
             }

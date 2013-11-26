@@ -10,8 +10,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 1);            
-            var values = ArgsToDoubleEnumerable(arguments);
+            ValidateArguments(arguments, 1);
+            var values = ArgsToDoubleEnumerable(arguments, context);
             return CreateResult(values.Max(), DataType.Decimal);
         }
     }
