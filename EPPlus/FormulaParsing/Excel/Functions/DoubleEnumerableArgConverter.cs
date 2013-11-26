@@ -7,7 +7,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
     public class DoubleEnumerableArgConverter : CollectionFlattener<double>
     {
-        public virtual IEnumerable<double> ConvertArgs(IEnumerable<FunctionArgument> arguments)
+        public virtual IEnumerable<double> ConvertArgs(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
@@ -15,7 +15,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     {
                         foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
                         {
-                            argList.Add(cell.ValueDouble);
+                            if (!CellStateHelper.ShouldIgnore(false, cell, context))
+                            {
+                                argList.Add(cell.ValueDouble);
+                            }       
                         }
                     }
                     else

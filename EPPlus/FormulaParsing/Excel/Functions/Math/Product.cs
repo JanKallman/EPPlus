@@ -15,7 +15,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var index = 0;
             while (result == 0d && index < arguments.Count())
             {
-                result = CalculateFirstItem(arguments, index++);
+                result = CalculateFirstItem(arguments, index++, context);
             }
             result = CalculateCollection(arguments.Skip(index), result, (arg, current) =>
             {
@@ -40,11 +40,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(result, DataType.Decimal);
         }
 
-        private double CalculateFirstItem(IEnumerable<FunctionArgument> arguments, int index)
+        private double CalculateFirstItem(IEnumerable<FunctionArgument> arguments, int index, ParsingContext context)
         {
             var element = arguments.ElementAt(index);
             var argList = new List<FunctionArgument> { element };
-            var valueList = ArgsToDoubleEnumerable(argList);
+            var valueList = ArgsToDoubleEnumerable(argList, context);
             var result = 0d;
             foreach (var value in valueList)
             {

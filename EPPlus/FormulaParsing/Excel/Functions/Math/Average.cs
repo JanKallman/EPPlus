@@ -47,7 +47,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             else if (IsNumeric(arg.Value))
             {
                 nValues++;
-                retVal += ConvertUtil.GetValueDouble(arg.Value, true);
+                retVal += ConvertUtil.GetValueDouble(arg.Value, false);
             }
             //else if (arg.Value is int)
             //{

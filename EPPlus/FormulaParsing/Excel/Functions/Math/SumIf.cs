@@ -35,7 +35,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             if (arguments.Count() > 2)
             {
                 var sumRange = arguments.ElementAt(2).Value as IEnumerable<FunctionArgument>;
-                retVal = CalculateWithSumRange(args, criteria.ToString(), sumRange);
+                retVal = CalculateWithSumRange(args, criteria.ToString(), sumRange, context);
             }
             else
             {
@@ -44,11 +44,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(retVal, DataType.Decimal);
         }
 
-        private double CalculateWithSumRange(IEnumerable<FunctionArgument> range, string criteria, IEnumerable<FunctionArgument> sumRange)
+        private double CalculateWithSumRange(IEnumerable<FunctionArgument> range, string criteria, IEnumerable<FunctionArgument> sumRange, ParsingContext context)
         {
             var retVal = 0d;
-            var flattenedRange = ArgsToDoubleEnumerable(range);
-            var flattenedSumRange = ArgsToDoubleEnumerable(sumRange);
+            var flattenedRange = ArgsToDoubleEnumerable(range, context);
+            var flattenedSumRange = ArgsToDoubleEnumerable(sumRange, context);
             for (var x = 0; x < flattenedRange.Count(); x++)
             {
                 var candidate = flattenedSumRange.ElementAt(x);
