@@ -106,7 +106,6 @@ namespace OfficeOpenXml
             }
         }
 		#endregion
-
 		#region ExcelWorksheets Public Properties
 		/// <summary>
 		/// Returns the number of worksheets in the workbook
@@ -857,6 +856,12 @@ namespace OfficeOpenXml
 
                 XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
                 elemWs.AppendChild(elemSheetViews);
+
+                XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
+                elemSheetView.SetAttribute("workbookViewId", "0");
+                elemSheetView.SetAttribute("zoomToFit", "1");
+
+                elemSheetViews.AppendChild(elemSheetView);
             }
             else
             {

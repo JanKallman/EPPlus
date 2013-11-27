@@ -2347,7 +2347,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		public void Clear()
 		{
-			Delete(this);
+			Delete(this, false);
 		}
 		/// <summary>
 		/// Creates an array-formula.
@@ -2361,37 +2361,28 @@ namespace OfficeOpenXml
 			}
 			Set_SharedFormula(ArrayFormula, this, true);
 		}
-		private void Delete(ExcelAddressBase Range)
+        //private void Delete(ExcelAddressBase Range)
+        //{
+        //    Delete(Range, true);
+        //}
+        internal void Delete(ExcelAddressBase Range, bool shift)
 		{
             DeleteCheckMergedCells(Range);
 			//First find the start cell
-            ulong startID = GetCellID(_worksheet.SheetID, Range._fromRow, Range._fromCol);
-            //int index = _worksheet._cells.IndexOf(startID);
-            //if (index < 0)
+            var rows=Range._toRow-Range._fromRow;
+            var cols=Range._toCol - Range._fromCol;
+            
+            _worksheet._values.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._types.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._styles.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._formulas.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._hyperLinks.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._flags.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._commentsStore.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+
+            //if(shift)
             //{
-            //    index = ~index;
-            //}
-            //ExcelCell cell;
-            ////int row=cell.Row, col=cell.Column;
-            ////Remove all cells in the range
-            //while (index < _worksheet._cells.Count)
-            //{
-            //    cell = _worksheet._cells[index] as ExcelCell;
-            //    if (cell.Row > Range._toRow || cell.Row == Range._toRow && cell.Column > Range._toCol)
-            //    {
-            //        break;
-            //    }
-            //    else
-            //    {
-            //        if (cell.Column >= Range._fromCol && cell.Column <= Range._toCol)
-            //        {
-            //            _worksheet._cells.Delete(cell.CellID);
-            //        }
-            //        else
-            //        {
-            //            index++;
-            //        }
-            //    }
+            //    _worksheet.AdjustFormulasRow(Range._fromRow, rows);
             //}
 
 			//Delete multi addresses as well
@@ -2399,7 +2390,7 @@ namespace OfficeOpenXml
 			{
 				foreach (var sub in Addresses)
 				{
-					Delete(sub);
+					Delete(sub, shift);
 				}
             }
         }
@@ -2418,7 +2409,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        throw (new InvalidOperationException("Can't remove/overwrite cells that are merged"));
+                        throw (new InvalidOperationException("Can't remove/overwrite a part of cells that are merged"));
                     }
                 }
             }
