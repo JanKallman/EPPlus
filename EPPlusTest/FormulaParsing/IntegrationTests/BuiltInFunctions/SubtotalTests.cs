@@ -32,18 +32,6 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
-        public void SubtotalShouldNotIncludeSubtotalChildren_Sum()
-        {
-            _worksheet.Cells["A1"].Formula = "SUBTOTAL(9, A2:A3)";
-            _worksheet.Cells["A2"].Formula = "SUBTOTAL(9, A5:A6)";
-            _worksheet.Cells["A3"].Value = 2d;
-            _worksheet.Cells["A5"].Value = 2d;
-            _worksheet.Calculate();
-            var result = _worksheet.Cells["A1"].Value;
-            Assert.AreEqual(2d, result);
-        }
-
-        [TestMethod]
         public void SubtotalShouldNotIncludeSubtotalChildren_Avg()
         {
             _worksheet.Cells["A1"].Formula = "SUBTOTAL(1, A2:A3)";
@@ -113,6 +101,75 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             _worksheet.Calculate();
             var result = _worksheet.Cells["A1"].Value;
             Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
+        public void SubtotalShouldNotIncludeSubtotalChildren_Stdev()
+        {
+            _worksheet.Cells["A1"].Formula = "SUBTOTAL(7, A2:A4)";
+            _worksheet.Cells["A2"].Formula = "SUBTOTAL(7, A5:A6)";
+            _worksheet.Cells["A3"].Value = 5d;
+            _worksheet.Cells["A4"].Value = 4d;
+            _worksheet.Cells["A5"].Value = 2d;
+            _worksheet.Cells["A6"].Value = 4d;
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A1"].Value;
+            result = Math.Round((double)result, 9);
+            Assert.AreEqual(0.707106781d, result);
+        }
+
+        [TestMethod]
+        public void SubtotalShouldNotIncludeSubtotalChildren_StdevP()
+        {
+            _worksheet.Cells["A1"].Formula = "SUBTOTAL(8, A2:A4)";
+            _worksheet.Cells["A2"].Formula = "SUBTOTAL(8, A5:A6)";
+            _worksheet.Cells["A3"].Value = 5d;
+            _worksheet.Cells["A4"].Value = 4d;
+            _worksheet.Cells["A5"].Value = 2d;
+            _worksheet.Cells["A6"].Value = 4d;
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A1"].Value;
+            Assert.AreEqual(0.5d, result);
+        }
+
+        [TestMethod]
+        public void SubtotalShouldNotIncludeSubtotalChildren_Sum()
+        {
+            _worksheet.Cells["A1"].Formula = "SUBTOTAL(9, A2:A3)";
+            _worksheet.Cells["A2"].Formula = "SUBTOTAL(9, A5:A6)";
+            _worksheet.Cells["A3"].Value = 2d;
+            _worksheet.Cells["A5"].Value = 2d;
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A1"].Value;
+            Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
+        public void SubtotalShouldNotIncludeSubtotalChildren_Var()
+        {
+            _worksheet.Cells["A1"].Formula = "SUBTOTAL(9, A2:A4)";
+            _worksheet.Cells["A2"].Formula = "SUBTOTAL(8, A5:A6)";
+            _worksheet.Cells["A3"].Value = 5d;
+            _worksheet.Cells["A4"].Value = 4d;
+            _worksheet.Cells["A5"].Value = 2d;
+            _worksheet.Cells["A6"].Value = 4d;
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A1"].Value;
+            Assert.AreEqual(9d, result);
+        }
+
+        [TestMethod]
+        public void SubtotalShouldNotIncludeSubtotalChildren_VarP()
+        {
+            _worksheet.Cells["A1"].Formula = "SUBTOTAL(10, A2:A4)";
+            _worksheet.Cells["A2"].Formula = "SUBTOTAL(8, A5:A6)";
+            _worksheet.Cells["A3"].Value = 5d;
+            _worksheet.Cells["A4"].Value = 4d;
+            _worksheet.Cells["A5"].Value = 2d;
+            _worksheet.Cells["A6"].Value = 4d;
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A1"].Value;
+            Assert.AreEqual(0.5d, result);
         }
     }
 }
