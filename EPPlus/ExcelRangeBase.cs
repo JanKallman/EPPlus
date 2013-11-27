@@ -751,11 +751,15 @@ namespace OfficeOpenXml
 	    /// <param name="MaximumWidth">Maximum column width</param>
 	    public void AutoFitColumns(double MinimumWidth, double MaximumWidth)
 		{
-			if (_fromCol < 1 || _fromRow < 1)
+            if (_worksheet.Dimension == null)
+            {
+                return;
+            }
+            if (_fromCol < 1 || _fromRow < 1)
 			{
 				SetToSelectedRange();
 			}
-			Dictionary<int, Font> fontCache = new Dictionary<int, Font>();
+            Dictionary<int, Font> fontCache = new Dictionary<int, Font>();
 			Font f;
 
 			bool doAdjust = _worksheet._package.DoAdjustDrawings;
@@ -1777,7 +1781,7 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
-            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + Table.Columns.Count];
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + Table.Columns.Count - 1];
 		}
 		#endregion
 		#region LoadFromArrays
@@ -1918,7 +1922,7 @@ namespace OfficeOpenXml
 				}
 			}
 
-			var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, col - 1];
+            var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, Members.Length==0 ? col : col - 1];
 
 			if (TableStyle != TableStyles.None)
 			{
@@ -1948,85 +1952,86 @@ namespace OfficeOpenXml
 		/// <returns>The range containing the data</returns>
 		public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
 		{
-			if (Format == null) Format = new ExcelTextFormat();
-			string[] lines = Regex.Split(Text, Format.EOL);
+            if (string.IsNullOrEmpty(Text))
+            {
+                var r = _worksheet.Cells[_fromRow, _fromCol];
+                r.Value = "";
+                return r;
+            }
+            
+            if (Format == null) Format = new ExcelTextFormat();
+
+            string[] lines = Regex.Split(Text, Format.EOL);
 			int row = _fromRow;
 			int col = _fromCol;
 			int maxCol = col;
 			int lineNo = 1;
-			if (Text == "")
+			foreach (string line in lines)
 			{
-				_worksheet.Cells[_fromRow, _fromCol].Value = "";
-			}
-			else
-			{
-				foreach (string line in lines)
+				if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
 				{
-					if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
+					col = _fromCol;
+					string v = "";
+					bool isText = false, isQualifier = false;
+					int QCount = 0;
+					foreach (char c in line)
 					{
-						col = _fromCol;
-						string v = "";
-						bool isText = false, isQualifier = false;
-						int QCount = 0;
-						foreach (char c in line)
+						if (Format.TextQualifier != 0 && c == Format.TextQualifier)
 						{
-							if (Format.TextQualifier != 0 && c == Format.TextQualifier)
+							if (!isText && v != "")
 							{
-								if (!isText && v != "")
-								{
-									throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
-								}
-								isQualifier = !isQualifier;
-								QCount += 1;
-								isText = true;
+								throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
+							}
+							isQualifier = !isQualifier;
+							QCount += 1;
+							isText = true;
+						}
+						else
+						{
+                            if (QCount > 1 && !string.IsNullOrEmpty(v))
+							{
+								v += new string(Format.TextQualifier, QCount / 2);
+							}
+                            else if(QCount>2 && string.IsNullOrEmpty(v))
+                            {
+                                v += new string(Format.TextQualifier, (QCount-1) / 2);
+                            }
+
+							if (isQualifier)
+							{
+								v += c;
 							}
 							else
 							{
-                                if (QCount > 1 && !string.IsNullOrEmpty(v))
+								if (c == Format.Delimiter)
 								{
-									v += new string(Format.TextQualifier, QCount / 2);
-								}
-                                else if(QCount>2 && string.IsNullOrEmpty(v))
-                                {
-                                    v += new string(Format.TextQualifier, (QCount-1) / 2);
-                                }
-
-								if (isQualifier)
-								{
-									v += c;
+										_worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+									v = "";
+									isText = false;
+									col++;
 								}
 								else
 								{
-									if (c == Format.Delimiter)
+									if (QCount % 2 == 1)
 									{
-										_worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-										v = "";
-										isText = false;
-										col++;
+										throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
 									}
-									else
-									{
-										if (QCount % 2 == 1)
-										{
-											throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
-										}
-										v += c;
-									}
+									v += c;
 								}
-								QCount = 0;
 							}
+							QCount = 0;
 						}
-						if (QCount > 1)
-						{
-							v += new string(Format.TextQualifier, QCount / 2);
-						}
+					}
+					if (QCount > 1)
+					{
+						v += new string(Format.TextQualifier, QCount / 2);
+					}
 
 						_worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-						if (col > maxCol) maxCol = col;
-						row++;
-					}
-					lineNo++;
+					if (col > maxCol) maxCol = col;
+					row++;
 				}
+				lineNo++;
 			}
 			return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
 		}

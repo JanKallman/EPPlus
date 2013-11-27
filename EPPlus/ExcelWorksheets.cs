@@ -258,7 +258,7 @@ namespace OfficeOpenXml
             CloneCells(Copy, added);
 
             _worksheets.Add(_worksheets.Count + 1, added);
-            
+
             //Remove any relation to printersettings.
             XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
             if (pageSetup != null)
@@ -915,7 +915,17 @@ namespace OfficeOpenXml
                 _pck.Workbook.VbaProject.Modules.Remove(worksheet.CodeModule);
             }
 			ReindexWorksheetDictionary();
-		}
+            //If the active sheet is deleted, set the first tab as active.
+            if (_pck.Workbook.View.ActiveTab >= _pck.Workbook.Worksheets.Count)
+            {
+                _pck.Workbook.View.ActiveTab = _pck.Workbook.View.ActiveTab-1;
+            }
+            if (_pck.Workbook.View.ActiveTab == worksheet.SheetID)
+            {
+                _pck.Workbook.Worksheets[0].View.TabSelected = true;
+            }
+            worksheet = null;
+        }
 
 		/// <summary>
 		/// Deletes a worksheet from the collection
@@ -930,7 +940,6 @@ namespace OfficeOpenXml
 			}
 			Delete(sheet.PositionID);
 		}
-
 		/// <summary>
         /// Delete a worksheet from the collection
         /// </summary>

@@ -160,19 +160,26 @@ namespace OfficeOpenXml.Table
 
             int cols=Address._toCol-Address._fromCol+1;
             xml += string.Format("<tableColumns count=\"{0}\">",cols);
+            var names = new Dictionary<string, string>();            
             for(int i=1;i<=cols;i++)
             {
                 var cell = WorkSheet.Cells[Address._fromRow, Address._fromCol+i-1];
                 string colName;
-                if (cell.Value == null)
+                if (cell.Value == null || names.ContainsKey(cell.Value.ToString()))
                 {
-                    colName = string.Format("Column{0}", i);
+                    //Get an unique name
+                    int a=i;
+                    do
+                    {
+                        colName = string.Format("Column{0}", a++);
+                    }
+                    while (names.ContainsKey(colName));
                 }
                 else
                 {
                     colName = System.Security.SecurityElement.Escape(cell.Value.ToString());
                 }
-                
+                names.Add(colName, colName);
                 xml += string.Format("<tableColumn id=\"{0}\" name=\"{1}\" />", i,colName);
             }
             xml += "</tableColumns>";
@@ -443,7 +450,7 @@ namespace OfficeOpenXml.Table
         {
             get
             {
-                return GetXmlNodeString(StyleName);
+                return GetXmlNodeString(STYLENAME_PATH);
             }
             set
             {

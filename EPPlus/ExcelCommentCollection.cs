@@ -224,5 +224,11 @@ namespace OfficeOpenXml
         #endregion
 
 
+
+        void IDisposable.Dispose()
+        {
+            if (_comments != null)
+                ((IDisposable)_comments).Dispose();
+        }
     }
 }
