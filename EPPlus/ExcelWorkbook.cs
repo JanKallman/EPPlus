@@ -669,7 +669,7 @@ namespace OfficeOpenXml
 
 			DeleteCalcChain();
             
-            if (VbaProject == null)
+            if (_vba == null && !_package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
                 {
@@ -723,12 +723,17 @@ namespace OfficeOpenXml
 			ValidateDataValidations();
 
             //VBA
-            if (_vba!=null)
+            if (_vba!=null) //VBA does not exist or is untouched, so ignore
             {
                 VbaProject.Save();
             }
 
 		}
+                else if (rel.RelationshipType.EndsWith("pivotCacheDefinition"))
+                {
+                    var sheetNode = (XmlElement)WorkbookXml.SelectSingleNode(string.Format("d:workbook/d:pivotCaches/d:pivotCache[@r:id='{0}']", rel.Id), NameSpaceManager);
+                    sheetNode.SetAttribute("id", ExcelPackage.schemaRelationships, newRel.Id);
+                }
 		private void DeleteCalcChain()
 		{
 			//Remove the calc chain if it exists.

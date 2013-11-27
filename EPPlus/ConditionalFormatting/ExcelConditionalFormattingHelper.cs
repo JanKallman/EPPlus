@@ -142,8 +142,15 @@ namespace OfficeOpenXml.ConditionalFormatting
     {
       try
       {
-        var value = node.Attributes[attribute].Value;
-        return int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+          if (node.Attributes[attribute] == null)
+          {
+              return null;
+          }
+          else
+          {
+              var value = node.Attributes[attribute].Value;
+              return int.Parse(value, NumberStyles.Integer, CultureInfo.InvariantCulture);
+          }
       }
       catch
       {
@@ -184,8 +191,15 @@ namespace OfficeOpenXml.ConditionalFormatting
     {
       try
       {
-        var value = node.Attributes[attribute].Value;
-        return (value == "1" || value == "-1" || value.ToUpper() == "TRUE");
+          if (node.Attributes[attribute] == null)
+          {
+              return null;
+          }
+          else
+          {
+              var value = node.Attributes[attribute].Value;
+              return (value == "1" || value == "-1" || value.ToUpper() == "TRUE");
+          }
       }
       catch
       {

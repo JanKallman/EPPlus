@@ -157,6 +157,11 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 15 created {0}", outputDir.Name);
                 Console.WriteLine();
 
+                //Sample 16 - Shows how to work with protected ranges
+                Console.WriteLine("Running sample 16");
+                Sample16.RunSample16(outputDir);
+                Console.WriteLine("Sample 16 created {0}", outputDir.Name);
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {

@@ -358,9 +358,33 @@ namespace OfficeOpenXml
                 if (value == _name) return;
                 value=_package.Workbook.Worksheets.ValidateFixSheetName(value);
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
-				_name = value;
+                ChangeChangeNames(value);
+
+                _name = value;
             }
 		}
+
+        private void ChangeChangeNames(string value)
+        {
+            //Renames name in this Worksheet;
+            foreach (var n in Workbook.Names)
+            {
+                if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                {
+                    n.ChangeWorksheet(_name, value);
+                }
+            }
+            foreach (var ws in Workbook.Worksheets)
+            {
+                foreach (var n in ws.Names)
+                {
+                    if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                    {
+                        n.ChangeWorksheet(_name, value);
+                    }
+                }
+            }
+        }
         internal ExcelNamedRangeCollection _names;
         /// <summary>
         /// Provides access to named ranges
@@ -677,10 +701,13 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "brk")
                 {
-                    int id;
-                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        Row(id).PageBreak = true;
+                        int id;
+                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        {
+                            Row(id).PageBreak = true;
+                        }
                     }
                 }
                 else
@@ -696,10 +723,13 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "brk")
                 {
-                    int id;
-                    if (int.TryParse(xr.GetAttribute("id"), out id))
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        Column(id).PageBreak = true;
+                        int id;
+                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        {
+                            Column(id).PageBreak = true;
+                        }
                     }
                 }
                 else
@@ -745,7 +775,7 @@ namespace OfficeOpenXml
             {
                 int size = stream.Length < BLOCKSIZE ? (int)stream.Length : BLOCKSIZE;
                 block = new char[size];
-                pos = sr.ReadBlock(block, 0, size);                
+                pos = sr.ReadBlock(block, 0, size);                  
                 sb.Append(block,0,pos);
                 length += size;
             }
@@ -788,7 +818,7 @@ namespace OfficeOpenXml
                 {
                     xml += sr.ReadToEnd();
                 }
-
+                
                 encoding = sr.CurrentEncoding;
                 return xml;
             }
@@ -839,19 +869,21 @@ namespace OfficeOpenXml
                 //var xr=new XmlTextReader(new StringReader(xml));
                 while(xr.Read())
                 {
-                    if(xr.LocalName!="col") break;
-                    int min = int.Parse(xr.GetAttribute("min"));
+                    if (xr.LocalName != "col") break;
+                    if (xr.NodeType == XmlNodeType.Element)
+                    {
+                        int min = int.Parse(xr.GetAttribute("min"));
 
                     //ColumnInternal col = new ColumnInternal();
-                    ExcelColumn col = new ExcelColumn(this, min);
+                        ExcelColumn col = new ExcelColumn(this, min);
 
                     col.ColumnMax = int.Parse(xr.GetAttribute("max"));
                     col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture);
-                    col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
-                    col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
-                    col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
+                        col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
+                        col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
+                        col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
                     col.OutlineLevel = (short)(xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture));
-                    col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
+                        col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
                     _values.SetValue(0, min, col);
                     
                     int style;
@@ -869,8 +901,8 @@ namespace OfficeOpenXml
                     //col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
                     //col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
                     //colList.Add(col);
+                    }
                 }
-            }
             //_columns = new RangeCollection(colList);
         }
         /// <summary>
@@ -901,37 +933,54 @@ namespace OfficeOpenXml
             {
                 if (xr.LocalName == "hyperlink")
                 {
-                    int fromRow, fromCol, toRow, toCol;
+                    if (xr.NodeType == XmlNodeType.Element)
+                    {
+                        int fromRow, fromCol, toRow, toCol;
                     ExcelCellBase.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
                     ExcelHyperLink hl=null;
-                    if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
-                    {
+                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
+                        {
                         var rId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
                         var uri = Part.GetRelationship(rId).TargetUri;
-                        if (uri.IsAbsoluteUri)
-                        {
+                            {
+                                try
+                                {
+                                    if (uri.IsAbsoluteUri)
+                                    {
                             hl = new ExcelHyperLink(uri.AbsoluteUri);
-                        }
-                        else
-                        {
+                                    }
+                                    else
+                                    {
                             hl = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
-                        }
+                                    }
+                                }
+                                catch
+                                {
+                                    //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
+                                    cell.Hyperlink = uri;
+                                }
                         hl.RId = rId;
                         Part.DeleteRelationship(rId); //Delete the relationship, it is recreated when we save the package.
-                    }
-                    else if (xr.GetAttribute("location") != null)
-                    {
+                            }
+                            catch
+                            {
+                                //Invalid URI, remove it.
+                            }
+                        }
+                        else if (xr.GetAttribute("location") != null)
+                        {
                         hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                        hl.RowSpann = toRow - fromRow;
-                        hl.ColSpann = toCol - fromCol;
-                    }
+                            hl.RowSpann = toRow - fromRow;
+                            hl.ColSpann = toCol - fromCol;
+                        }
 
-                    string tt = xr.GetAttribute("tooltip");
-                    if (!string.IsNullOrEmpty(tt))
-                    {
+                        string tt = xr.GetAttribute("tooltip");
+                        if (!string.IsNullOrEmpty(tt))
+                        {
                         hl.ToolTip = tt;
-                    }
+                        }
                     _hyperLinks.SetValue(fromRow, fromCol, hl);
+                    }
                 }
                 else
                 {
@@ -1091,21 +1140,22 @@ namespace OfficeOpenXml
             if(ReadUntil(xr, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
             {
                 while (xr.Read())
-                {
+                {                    
                     if (xr.LocalName != "mergeCell") break;
-
-                    string address = xr.GetAttribute("ref");
-                    int fromRow, fromCol, toRow, toCol;
-                    ExcelCellBase.GetRowColFromAddress(address, out fromRow, out fromCol, out toRow, out toCol);
-                    for (int row = fromRow; row <= toRow; row++)
+                    if (xr.NodeType == XmlNodeType.Element)
                     {
-                        for (int col = fromCol; col <= toCol; col++)
+                        string address = xr.GetAttribute("ref");
+                        int fromRow, fromCol, toRow, toCol;
+                        ExcelCellBase.GetRowColFromAddress(address, out fromRow, out fromCol, out toRow, out toCol);
+                        for (int row = fromRow; row <= toRow; row++)
                         {
+                            for (int col = fromCol; col <= toCol; col++)
+                            {
                             _flags.SetFlagValue(row, col, true,CellFlags.Merged);
+                            }
                         }
-                    }
-
                     _mergedCells.List.Add(address);
+                    }
                 }
             }
         }
@@ -2106,6 +2156,7 @@ namespace OfficeOpenXml
 
                     if (!(this is ExcelChartsheet))
                     {
+                }
                         // save the header & footer (if defined)
                         if (_headerFooter != null)
                             HeaderFooter.Save();
@@ -3052,6 +3103,18 @@ namespace OfficeOpenXml
                 return _protection;
             }
         }
+
+        private ExcelProtectedRangeCollection _protectedRanges;
+        public ExcelProtectedRangeCollection ProtectedRanges
+        {
+            get
+            {
+                if (_protectedRanges == null)
+                    _protectedRanges = new ExcelProtectedRangeCollection(NameSpaceManager, TopNode, this);
+                return _protectedRanges;
+            }
+        }
+
         #region Drawing
         ExcelDrawings _drawings = null;
         /// <summary>

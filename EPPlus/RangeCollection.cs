@@ -105,11 +105,12 @@ using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
                 _cellIndex[i] = new IndexItem(cells[i].RangeID, i);
             }
         }
-        ~RangeCollection()
+
+        static RangeCollection()
         {
-            _cells = null;
             _cellIndex = null;
         }
+
         /// <summary>
         /// Return the item with the RangeID
         /// </summary>
@@ -329,7 +330,7 @@ using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this;
+            return this.MemberwiseClone() as IEnumerator;
         }
 
         #endregion

@@ -274,6 +274,7 @@ namespace OfficeOpenXml
             base(nameSpaceManager, topNode)
 		{
             _ws = ws;
+            SchemaNodeOrder = new string[] { "headerFooter", "oddHeader", "oddFooter", "evenHeader", "evenFooter", "firstHeader", "firstFooter" };
 		}
 		#endregion
 
