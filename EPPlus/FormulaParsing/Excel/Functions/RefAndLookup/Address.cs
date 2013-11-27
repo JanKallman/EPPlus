@@ -13,8 +13,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
-            var row = ArgToInt(arguments, 0) - 1;
-            var col = ArgToInt(arguments, 1) - 1;
+            var row = ArgToInt(arguments, 0);
+            var col = ArgToInt(arguments, 1);
             ThrowExcelFunctionExceptionIf(() => row < 0 && col < 0, ExcelErrorCodes.Value);
             var referenceType = ExcelReferenceType.AbsoluteRowAndColumn;
             var worksheetSpec = string.Empty;

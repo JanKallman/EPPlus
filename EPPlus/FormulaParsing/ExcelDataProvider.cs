@@ -19,6 +19,7 @@ namespace OfficeOpenXml.FormulaParsing
         {
             bool IsEmpty { get; }
             bool IsMulti { get; }
+            int GetNCells();
         }
         /// <summary>
         /// Information and help methods about a cell
@@ -33,7 +34,7 @@ namespace OfficeOpenXml.FormulaParsing
             double ValueDouble { get; }
             double ValueDoubleLogical { get; }
             bool IsHiddenRow { get; }
-            IList<Token> Tokens { get; }
+            IList<Token> Tokens { get; }   
         }
         public interface INameInfo
         {

@@ -30,5 +30,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             get { return Value != null ? Value.GetType() : null; }
         }
+
+        public bool IsExcelRange
+        {
+            get { return Value != null && Value is EpplusExcelDataProvider.IRangeInfo; }
+        }
+
+        public EpplusExcelDataProvider.IRangeInfo ValueAsRangeInfo
+        {
+            get { return Value as EpplusExcelDataProvider.IRangeInfo; }
+        }
     }
 }

@@ -19,16 +19,23 @@ namespace OfficeOpenXml.FormulaParsing
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
             ICellInfo _cell;
-            public RangeInfo(ExcelWorksheet ws, int fromRow, int fromCol, int toRow, int toCol)                
+
+            public RangeInfo(ExcelWorksheet ws, int fromRow, int fromCol, int toRow, int toCol)
             {
                 _ws = ws;
-                _fromRow=fromRow;
-                _fromCol=fromCol;
-                _toRow=toRow;
-                _toCol=toCol;
+                _fromRow = fromRow;
+                _fromCol = fromCol;
+                _toRow = toRow;
+                _toCol = toCol;
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
                 _cell = new CellInfo(_ws, _values);
             }
+
+            public int GetNCells()
+            {
+                return ((_toRow - _fromRow) + 1) * ((_toCol - _fromCol) + 1);
+            }
+
             public bool IsEmpty
             {
                 get
@@ -191,7 +198,7 @@ namespace OfficeOpenXml.FormulaParsing
             }
 
         }
-        public class NameInfo : INameInfo
+        public class NameInfo : ExcelDataProvider.INameInfo
         {
             public ulong Id { get; set; }
             public string Name  { get; set; }
@@ -199,10 +206,12 @@ namespace OfficeOpenXml.FormulaParsing
             public IList<Token> Tokens { get; internal set; }
             public object Value { get; set; }
         }
+
         private readonly ExcelPackage _package;
         private ExcelWorksheet _currentWorksheet;
         private RangeAddressFactory _rangeAddressFactory;
         private Dictionary<ulong, INameInfo> _names=new Dictionary<ulong,INameInfo>();
+
         public EpplusExcelDataProvider(ExcelPackage package)
         {
             _package = package;
@@ -356,12 +365,14 @@ namespace OfficeOpenXml.FormulaParsing
 
         public override string GetRangeFormula(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetFormula(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetFormula(row, column);
         }
 
         public override object GetRangeValue(string worksheetName, int row, int column)
         {
-            return _package.Workbook.Worksheets[worksheetName].GetValue(row, column);
+            SetCurrentWorksheet(worksheetName);
+            return _currentWorksheet.GetValue(row, column);
         }
 
         public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)

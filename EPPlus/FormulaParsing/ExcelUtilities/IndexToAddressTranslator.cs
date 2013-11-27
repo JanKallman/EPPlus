@@ -61,22 +61,22 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         {
             if (col <= MaxAlphabetIndex)
             {
-                return string.Concat(GetColumn(IntToChar(col)), GetRowNumber(row + 1));
+                return string.Concat(GetColumn(IntToChar(col)), GetRowNumber(row));
             }
-            else if (col < (Math.Pow(NLettersInAlphabet, 2) + NLettersInAlphabet))
+            else if (col <= (Math.Pow(NLettersInAlphabet, 2) + NLettersInAlphabet))
             {
                 var firstChar = col / NLettersInAlphabet - 1;
-                var secondChar = col % NLettersInAlphabet;
-                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar)), GetRowNumber(row + 1));
+                var secondChar = col - (NLettersInAlphabet * firstChar);
+                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar)), GetRowNumber(row));
             }
             else if(col < (Math.Pow(NLettersInAlphabet, 3) + NLettersInAlphabet))
             {
                 var x = NLettersInAlphabet * NLettersInAlphabet;
                 var rest = col - x;
-                var firstChar = col / x - 1;
-                var secondChar = rest / NLettersInAlphabet - 1;
+                var firstChar = col / x;
+                var secondChar = rest / NLettersInAlphabet;
                 var thirdChar = rest % NLettersInAlphabet;
-                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar), IntToChar(thirdChar)), GetRowNumber(row + 1));
+                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar), IntToChar(thirdChar)), GetRowNumber(row));
             }
             throw new InvalidOperationException("ExcelFormulaParser does not the supplied number of columns " + col);
         }
@@ -96,12 +96,12 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
 
         private char IntToChar(int i)
         {
-            return (char)(i + 65);
+            return (char)(i + 64);
         }
 
         private string GetRowNumber(int rowNo)
         {
-            var retVal = rowNo < (_excelDataProvider.ExcelMaxRows + 1) ? rowNo.ToString() : string.Empty;
+            var retVal = rowNo < (_excelDataProvider.ExcelMaxRows) ? rowNo.ToString() : string.Empty;
             if (!string.IsNullOrEmpty(retVal))
             {
                 switch (_excelReferenceType)
