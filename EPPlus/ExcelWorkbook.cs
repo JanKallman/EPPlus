@@ -753,7 +753,10 @@ namespace OfficeOpenXml
 		{
 			foreach (var sheet in _package.Workbook.Worksheets)
 			{
-				sheet.DataValidations.ValidateAll();
+                if (!(sheet is ExcelChartsheet))
+                {
+                    sheet.DataValidations.ValidateAll();
+                }
 			}
 		}
 
@@ -888,7 +891,7 @@ namespace OfficeOpenXml
 		{
 			try
 			{
-				XmlNode top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
+                XmlNode top = WorkbookXml.SelectSingleNode("//d:definedNames", NameSpaceManager);
 				if (!ExistsNames())
 				{
 					if (top != null) TopNode.RemoveChild(top);
@@ -918,17 +921,19 @@ namespace OfficeOpenXml
 				}
 				foreach (ExcelWorksheet ws in _worksheets)
 				{
-					foreach (ExcelNamedRange name in ws.Names)
-					{
-
-						XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
-						top.AppendChild(elem);
-						elem.SetAttribute("name", name.Name);
-						elem.SetAttribute("localSheetId", name.LocalSheetId.ToString());
-						if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
-						if (!string.IsNullOrEmpty(name.NameComment)) elem.SetAttribute("comment", name.NameComment);
-						SetNameElement(name, elem);
-					}
+                    if (!(ws is ExcelChartsheet))
+                    {
+                        foreach (ExcelNamedRange name in ws.Names)
+                        {
+                            XmlElement elem = WorkbookXml.CreateElement("definedName", ExcelPackage.schemaMain);
+                            top.AppendChild(elem);
+                            elem.SetAttribute("name", name.Name);
+                            elem.SetAttribute("localSheetId", name.LocalSheetId.ToString());
+                            if (name.IsNameHidden) elem.SetAttribute("hidden", "1");
+                            if (!string.IsNullOrEmpty(name.NameComment)) elem.SetAttribute("comment", name.NameComment);
+                            SetNameElement(name, elem);
+                        }
+                    }
 				}
 			}
 			catch (Exception ex)
@@ -976,7 +981,8 @@ namespace OfficeOpenXml
 			{
 				foreach (ExcelWorksheet ws in Worksheets)
 				{
-					if(ws.Names.Count>0)
+                    if (ws is ExcelChartsheet) continue;
+                    if(ws.Names.Count>0)
 					{
 						return true;
 					}

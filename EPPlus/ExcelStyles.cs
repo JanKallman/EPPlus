@@ -674,6 +674,7 @@ namespace OfficeOpenXml
             XmlNode dxfsNode = _styleXml.SelectSingleNode(dxfsPath, _nameSpaceManager);
             foreach (var ws in _wb.Worksheets)
             {
+                if (ws is ExcelChartsheet) continue;
                 foreach (var cf in ws.ConditionalFormatting)
                 {
                     if (cf.Style.HasValue)
