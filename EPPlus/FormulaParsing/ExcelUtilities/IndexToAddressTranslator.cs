@@ -52,51 +52,34 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             _excelReferenceType = referenceType;
         }
 
-        const int MaxAlphabetIndex = 25;
-        const int NLettersInAlphabet = 26;
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ExcelReferenceType _excelReferenceType;
 
+        protected internal static string GetColumnLetter(int iColumnNumber, bool fixedCol)
+        {
+
+            if (iColumnNumber < 1)
+            {
+                //throw new Exception("Column number is out of range");
+                return "#REF!";
+            }
+
+            string sCol = "";
+            do
+            {
+                sCol = ((char)('A' + ((iColumnNumber - 1) % 26))) + sCol;
+                iColumnNumber = (iColumnNumber - ((iColumnNumber - 1) % 26)) / 26;
+            }
+            while (iColumnNumber > 0);
+            return fixedCol ? "$" + sCol : sCol;
+        }
+
         public string ToAddress(int col, int row)
         {
-            if (col <= MaxAlphabetIndex)
-            {
-                return string.Concat(GetColumn(IntToChar(col)), GetRowNumber(row));
-            }
-            else if (col <= (Math.Pow(NLettersInAlphabet, 2) + NLettersInAlphabet))
-            {
-                var firstChar = col / NLettersInAlphabet - 1;
-                var secondChar = col - (NLettersInAlphabet * firstChar);
-                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar)), GetRowNumber(row));
-            }
-            else if(col < (Math.Pow(NLettersInAlphabet, 3) + NLettersInAlphabet))
-            {
-                var x = NLettersInAlphabet * NLettersInAlphabet;
-                var rest = col - x;
-                var firstChar = col / x;
-                var secondChar = rest / NLettersInAlphabet;
-                var thirdChar = rest % NLettersInAlphabet;
-                return string.Concat(GetColumn(IntToChar(firstChar), IntToChar(secondChar), IntToChar(thirdChar)), GetRowNumber(row));
-            }
-            throw new InvalidOperationException("ExcelFormulaParser does not the supplied number of columns " + col);
-        }
-
-        private string GetColumn(params char[] chars)
-        {
-            var retVal = new StringBuilder().Append(chars).ToString();
-            switch (_excelReferenceType)
-            {
-                case ExcelReferenceType.AbsoluteRowAndColumn:
-                case ExcelReferenceType.RelativeRowAbsolutColumn:
-                    return "$" + retVal;
-                default:
-                    return retVal;
-            }
-        }
-
-        private char IntToChar(int i)
-        {
-            return (char)(i + 64);
+            var fixedCol = _excelReferenceType == ExcelReferenceType.AbsoluteRowAndColumn ||
+                           _excelReferenceType == ExcelReferenceType.RelativeRowAbsolutColumn;
+            var colString = GetColumnLetter(col, fixedCol);
+            return colString + GetRowNumber(row);
         }
 
         private string GetRowNumber(int rowNo)

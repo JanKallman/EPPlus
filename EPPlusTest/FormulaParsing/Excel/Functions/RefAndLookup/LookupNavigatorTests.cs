@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
 using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using EPPlusTest.FormulaParsing.TestHelpers;

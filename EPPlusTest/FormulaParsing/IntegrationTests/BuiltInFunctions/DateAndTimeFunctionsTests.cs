@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
+using OfficeOpenXml.Calculation;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using Rhino.Mocks;
@@ -24,6 +26,21 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         {
             var result = _parser.Parse("Date(2012, 2, 2)");
             Assert.AreEqual(new DateTime(2012, 2, 2).ToOADate(), result);
+        }
+
+        [TestMethod]
+        public void DateShouldHandleCellReference()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 2012d;
+                sheet.Cells["A2"].Formula = "Date(A1, 2, 2)";
+                sheet.Calculate();
+                var result = sheet.Cells["A2"].Value;
+                Assert.AreEqual(new DateTime(2012, 2, 2).ToOADate(), result);
+            }
+
         }
 
         [TestMethod]

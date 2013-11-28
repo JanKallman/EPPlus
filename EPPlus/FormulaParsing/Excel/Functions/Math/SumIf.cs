@@ -39,7 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             else
             {
-                retVal = CalculateSingleRange(args, criteria.ToString());
+                retVal = CalculateSingleRange(args, criteria.ToString(), context);
             }
             return CreateResult(retVal, DataType.Decimal);
         }
@@ -54,20 +54,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 var candidate = flattenedSumRange.ElementAt(x);
                 if (_evaluator.Evaluate(flattenedRange.ElementAt(x), criteria))
                 {
-                    retVal += Convert.ToDouble(candidate);
+                    retVal += candidate;
                 }
             }
             return retVal;
         }
 
-        private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression)
+        private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
         {
             var retVal = 0d;
-            if (args != null)
+            var flattendedRange = ArgsToDoubleEnumerable(args, context);
+            foreach (var candidate in flattendedRange)
             {
-                foreach (var arg in args)
+                if (_evaluator.Evaluate(candidate, expression))
                 {
-                    retVal += Calculate(arg, expression);
+                    retVal += candidate;
                 }
             }
             return retVal;
