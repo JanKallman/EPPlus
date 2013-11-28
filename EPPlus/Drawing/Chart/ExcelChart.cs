@@ -1275,7 +1275,7 @@ namespace OfficeOpenXml.Drawing.Chart
                         }
                         else if (HasPrimaryAxis() == false)
                         {
-                            throw (new Exception("Can's set to secondary axis when no serie uses the primary axis"));
+                            throw (new Exception("Can't set to secondary axis when no serie uses the primary axis"));
                         }
                         if (Axis.Length == 2)
                         {

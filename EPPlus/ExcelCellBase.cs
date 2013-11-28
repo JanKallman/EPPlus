@@ -616,11 +616,13 @@ namespace OfficeOpenXml
             {
                 if (FromRow == 1 && ToRow == ExcelPackage.MaxRows)
                 {
-                    return GetColumnLetter(FromColumn) + ":" + GetColumnLetter(ToColumn);
+                    var absChar = Absolute ? "$" : "";
+                    return absChar + GetColumnLetter(FromColumn) + ":" + absChar + GetColumnLetter(ToColumn);
                 }
                 else if(FromColumn==1 && ToColumn==ExcelPackage.MaxColumns)
                 {
-                    return FromRow.ToString() + ":" + ToRow.ToString();
+                    var absChar = Absolute ? "$" : "";
+                    return absChar + FromRow.ToString() + ":" + absChar + ToRow.ToString();
                 }
                 else
                 {

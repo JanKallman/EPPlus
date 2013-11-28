@@ -156,7 +156,6 @@ namespace EPPlusSamples
                 Sample15.VBASample(outputDir);
                 Console.WriteLine("Sample 15 created {0}", outputDir.Name);
                 Console.WriteLine();
-
             }
 			catch (Exception ex)
             {

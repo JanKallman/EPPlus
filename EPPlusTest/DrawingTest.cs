@@ -143,7 +143,7 @@ namespace EPPlusTest
         private static void AddTestSerie(ExcelWorksheet ws, ExcelChart chrt)
         {
             AddTestData(ws);
-            chrt.Series.Add("V19:V24", "U19:U24");
+            chrt.Series.Add("'" + ws.Name + "'!V19:V24", "'" + ws.Name + "'U19:U24");
         }
 
         private static void AddTestData(ExcelWorksheet ws)
@@ -784,6 +784,27 @@ namespace EPPlusTest
             serie5.Header = "Line 2";
 
             pck.SaveAs(new FileInfo("c:\\temp\\chartseriesnew.xlsx"));
+        }
+        [TestMethod]
+        public void ChartWorksheet()
+        {
+            _pck = new ExcelPackage();
+            var wsChart = _pck.Workbook.Worksheets.AddChart("chart", eChartType.Bubble3DEffect);
+            var ws = _pck.Workbook.Worksheets.Add("data");
+            AddTestSerie(ws, wsChart.Chart);
+            wsChart.Chart.Style = eChartStyle.Style23;
+            wsChart.Chart.Title.Text = "Chart worksheet";
+            wsChart.Chart.Series[0].Header = "Serie";
+            _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
+        }
+        [TestMethod]
+        public void ReadChartWorksheet()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"c:\temp\chart.xlsx"));
+            var chart = ((ExcelChartsheet)_pck.Workbook.Worksheets[1]).Chart;
+
+            _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
+
         }
     }
 }

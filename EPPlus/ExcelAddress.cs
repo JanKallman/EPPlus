@@ -295,6 +295,45 @@ namespace OfficeOpenXml
                 _ws = _ws.Substring(0, pos);
             }
         }
+        internal void ChangeWorksheet(string wsName, string newWs)
+        {
+            if (_ws == wsName) _ws = newWs;
+            var fullAddress = GetAddress();
+            
+            if (Addresses != null)
+            {
+                foreach (var a in Addresses)
+                {
+                    if (a._ws == wsName)
+                    {
+                        a._ws = newWs;
+                        fullAddress += "," + a.GetAddress();
+                    }
+                    else
+                    {
+                        fullAddress += "," + a._address;
+                    }
+                }
+            }
+            _address = fullAddress;
+        }
+
+        private string GetAddress()
+        {
+            var adr = "";
+            if (string.IsNullOrEmpty(_wb))
+            {
+                adr = "[" + _wb + "]";
+            }
+
+            if (string.IsNullOrEmpty(_ws))
+            {
+                adr += string.Format("'{0}'!", _ws);
+            }
+            adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+            return adr;
+        }
+
         ExcelCellAddress _start = null;
         #endregion
         /// <summary>
@@ -723,7 +762,7 @@ namespace OfficeOpenXml
             hasSheet = false;
             if (string.IsNullOrEmpty(_firstAddress))
             {
-                if(string.IsNullOrEmpty(_ws) || !string.IsNullOrEmpty(ws))_ws = ws;
+                if(string.IsNullOrEmpty(_ws) || !string.IsNullOrEmpty(ws)) _ws = ws;
                 _firstAddress = address;
                 GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
             }
