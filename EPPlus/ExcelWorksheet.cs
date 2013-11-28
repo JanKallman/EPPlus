@@ -358,13 +358,13 @@ namespace OfficeOpenXml
                 if (value == _name) return;
                 value=_package.Workbook.Worksheets.ValidateFixSheetName(value);
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
-                ChangeChangeNames(value);
+                ChangeNames(value);
 
                 _name = value;
             }
 		}
 
-        private void ChangeChangeNames(string value)
+        private void ChangeNames(string value)
         {
             //Renames name in this Worksheet;
             foreach (var n in Workbook.Names)
@@ -707,7 +707,7 @@ namespace OfficeOpenXml
                         if (int.TryParse(xr.GetAttribute("id"), out id))
                         {
                             Row(id).PageBreak = true;
-                        }
+                        }   
                     }
                 }
                 else
@@ -874,36 +874,25 @@ namespace OfficeOpenXml
                     {
                         int min = int.Parse(xr.GetAttribute("min"));
 
-                    //ColumnInternal col = new ColumnInternal();
                         ExcelColumn col = new ExcelColumn(this, min);
 
-                    col.ColumnMax = int.Parse(xr.GetAttribute("max"));
-                    col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture);
-                        col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
-                        col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
-                        col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
-                    col.OutlineLevel = (short)(xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture));
-                        col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
-                    _values.SetValue(0, min, col);
+                        col.ColumnMax = int.Parse(xr.GetAttribute("max"));
+                        col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture);
+                            col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
+                            col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
+                            col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
+                        col.OutlineLevel = (short)(xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture));
+                            col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
+                        _values.SetValue(0, min, col);
                     
-                    int style;
-                    if (!(xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style)))
-                    {
-                        _styles.SetValue(0, min, style);
-                    }
-
-                    //col._columnMax = int.Parse(xr.GetAttribute("max")); 
-                    //col.StyleID = style;
-                    //col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture); 
-                    //col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
-                    //col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
-                    //col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
-                    //col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
-                    //col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
-                    //colList.Add(col);
+                        int style;
+                        if (!(xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style)))
+                        {
+                            _styles.SetValue(0, min, style);
+                        }
                     }
                 }
-            //_columns = new RangeCollection(colList);
+            }
         }
         /// <summary>
         /// Read until the node is found. If not found the xmlreader is reseted.
@@ -928,59 +917,42 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadHyperLinks(XmlTextReader xr)
         {
-            if(!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
+            if (!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
             while (xr.Read())
             {
                 if (xr.LocalName == "hyperlink")
                 {
-                    if (xr.NodeType == XmlNodeType.Element)
-                    {
-                        int fromRow, fromCol, toRow, toCol;
+                    int fromRow, fromCol, toRow, toCol;
                     ExcelCellBase.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
-                    ExcelHyperLink hl=null;
-                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
-                        {
+                    ExcelHyperLink hl = null;
+                    if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
+                    {
                         var rId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
                         var uri = Part.GetRelationship(rId).TargetUri;
-                            {
-                                try
-                                {
-                                    if (uri.IsAbsoluteUri)
-                                    {
+                        if (uri.IsAbsoluteUri)
+                        {
                             hl = new ExcelHyperLink(uri.AbsoluteUri);
-                                    }
-                                    else
-                                    {
+                        }
+                        else
+                        {
                             hl = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
-                                    }
-                                }
-                                catch
-                                {
-                                    //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
-                                    cell.Hyperlink = uri;
-                                }
+                        }
                         hl.RId = rId;
                         Part.DeleteRelationship(rId); //Delete the relationship, it is recreated when we save the package.
-                            }
-                            catch
-                            {
-                                //Invalid URI, remove it.
-                            }
-                        }
-                        else if (xr.GetAttribute("location") != null)
-                        {
-                        hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                            hl.RowSpann = toRow - fromRow;
-                            hl.ColSpann = toCol - fromCol;
-                        }
-
-                        string tt = xr.GetAttribute("tooltip");
-                        if (!string.IsNullOrEmpty(tt))
-                        {
-                        hl.ToolTip = tt;
-                        }
-                    _hyperLinks.SetValue(fromRow, fromCol, hl);
                     }
+                    else if (xr.GetAttribute("location") != null)
+                    {
+                        hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
+                        hl.RowSpann = toRow - fromRow;
+                        hl.ColSpann = toCol - fromCol;
+                    }
+
+                    string tt = xr.GetAttribute("tooltip");
+                    if (!string.IsNullOrEmpty(tt))
+                    {
+                        hl.ToolTip = tt;
+                    }
+                    _hyperLinks.SetValue(fromRow, fromCol, hl);
                 }
                 else
                 {
@@ -2156,7 +2128,6 @@ namespace OfficeOpenXml
 
                     if (!(this is ExcelChartsheet))
                     {
-                }
                         // save the header & footer (if defined)
                         if (_headerFooter != null)
                             HeaderFooter.Save();

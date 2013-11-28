@@ -66,7 +66,7 @@ namespace EPPlusTest.Utils
             var result = SqRefUtility.FromSqRefAddress(address);
 
             // Assert
-            Assert.AreEqual("A1, A2", result);
+            Assert.AreEqual("A1,A2", result);
         }
     }
 }

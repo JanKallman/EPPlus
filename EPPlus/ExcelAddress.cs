@@ -230,27 +230,7 @@ namespace OfficeOpenXml
                 SetAddress(address);
             }
         }
-        protected internal string GetAddress(string wb, string ws, string address)
-        {
-            var a="";
-            if(!string.IsNullOrEmpty(wb))
-            {
-                a="["+wb+"]";
-            }
-            if(!string.IsNullOrEmpty(ws))
-            {
-                if(ws!="#REF")
-                {
-                    a+= ws + "!";
-                }
-                else
-                {
-                    a += "'" + ws + "'!";
-                }
-            }
-            a+=address;
-            return a;
-        }
+
         protected internal void SetAddress(string address)
         {
             if(address.StartsWith("'"))
@@ -283,7 +263,6 @@ namespace OfficeOpenXml
                 _addresses = null;
                 _start = null;
                 _end = null;
-                _firstAddress = _address;
             }
             _address = address;
             Validate();
@@ -318,32 +297,41 @@ namespace OfficeOpenXml
         }
         internal void ChangeWorksheet(string wsName, string newWs)
         {
-            if(_ws == wsName) _ws = newWs;
-            string wb, ws, address, fullAddress;            
-            ExtractAddress(FirstAddress, out wb, out ws, out address);
-            if (wsName == ws)
+            if (_ws == wsName) _ws = newWs;
+            var fullAddress = GetAddress();
+            
+            if (Addresses != null)
             {
-                fullAddress = GetAddress(wb, newWs, address);
-            }
-            else
-            {
-                fullAddress = FirstAddress;
-            }
-
-            if(Addresses!=null)
-            {
-                foreach(var a in Addresses)
+                foreach (var a in Addresses)
                 {
-                    ExtractAddress(a._address, out wb, out ws, out address);
-                    if (wsName == ws)
+                    if (a._ws == wsName)
                     {
-                        a._address = GetAddress(wb, newWs, address);
-                        if (_ws == wsName) _ws = newWs;
+                        a._ws = newWs;
+                        fullAddress += "," + a.GetAddress();
                     }
-                    fullAddress += "," + a._address;
+                    else
+                    {
+                        fullAddress += "," + a._address;
+                    }
                 }
             }
             _address = fullAddress;
+        }
+
+        private string GetAddress()
+        {
+            var adr = "";
+            if (string.IsNullOrEmpty(_wb))
+            {
+                adr = "[" + _wb + "]";
+            }
+
+            if (string.IsNullOrEmpty(_ws))
+            {
+                adr += string.Format("'{0}'!", _ws);
+            }
+            adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+            return adr;
         }
 
         ExcelCellAddress _start = null;
@@ -554,61 +542,6 @@ namespace OfficeOpenXml
                 if (Table == null)
                 {
                     SetAddress(ref first, ref second, ref hasSheet);
-        }
-        private void ExtractAddress(string fullAddress, out string wb, out string ws, out string address)
-        {
-            wb = "";
-            ws = "";
-            address = "";
-            if (string.IsNullOrEmpty(fullAddress))
-            {
-                return;
-            }
-            int ix = 0;
-            if (fullAddress[0] == '[')
-            {
-                ix=fullAddress.IndexOf(']',1);
-                if(ix>0)
-                {
-                    wb = fullAddress.Substring(1, ix);
-                }
-                ix++;
-            }
-            else
-            {
-                wb="";
-            }
-            if (fullAddress[ix] == '\'')
-            {
-                var wsIx=fullAddress.LastIndexOf('\'');
-                if(wsIx==ix)
-                {
-                    throw(new ArgumentException("Invalid address"));
-                }
-                ws=fullAddress.Substring(ix+1, wsIx-ix+1).Replace("'","''");
-                if(fullAddress[wsIx+1]=='!')
-                {
-                    address=fullAddress.Substring(wsIx+1);
-                }
-            }
-            else
-            {
-                var wsIx=fullAddress.LastIndexOf('!');
-                if(wsIx>0)
-                {
-                    ws=fullAddress.Substring(ix, wsIx-ix);
-                    address=fullAddress.Substring(wsIx+1);
-                }
-                else
-                {
-                    ws="";
-                    address=fullAddress;
-                }
-            }
-            if(address.IndexOf(";")>-1)
-            {
-                throw(new ArgumentException("Internal error: ExtractAddress can not handle address lists"));
-            }
                 }
                 return true;
             }
@@ -829,7 +762,7 @@ namespace OfficeOpenXml
             hasSheet = false;
             if (string.IsNullOrEmpty(_firstAddress))
             {
-                if(string.IsNullOrEmpty(_ws) || !string.IsNullOrEmpty(ws))_ws = ws;
+                if(string.IsNullOrEmpty(_ws) || !string.IsNullOrEmpty(ws)) _ws = ws;
                 _firstAddress = address;
                 GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol);
             }
