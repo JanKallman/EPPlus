@@ -105,12 +105,11 @@ using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
                 _cellIndex[i] = new IndexItem(cells[i].RangeID, i);
             }
         }
-
-        static RangeCollection()
+        ~RangeCollection()
         {
+            _cells = null;
             _cellIndex = null;
         }
-
         /// <summary>
         /// Return the item with the RangeID
         /// </summary>

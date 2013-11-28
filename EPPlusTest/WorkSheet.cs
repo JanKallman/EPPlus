@@ -355,7 +355,7 @@ namespace EPPlusTest
         [TestMethod]
         public void InsertDeleteTest()
         {
-            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("Insert Delete");
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDelete");
             //ws.Cells.Value = 0;
             ws.Cells["A1:C5"].Value = 1;
             Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
@@ -377,7 +377,7 @@ namespace EPPlusTest
 
             ws.PrinterSettings.PrintArea=null;
             ws.PrinterSettings.PrintArea=ws.Cells["B2:D99"];
-            //ws.PrinterSettings.PrintArea = null;
+            ws.PrinterSettings.PrintArea = null;
             ws.Row(15).PageBreak = true;
             ws.Column(3).PageBreak = true;
             ws.View.ShowHeaders = false;
@@ -400,8 +400,6 @@ namespace EPPlusTest
             Assert.AreEqual(addr.Start.Row, 1);
             Assert.AreEqual(addr.End.Column, 4);
             Assert.AreEqual(addr.End.Row, 3);
-
-            _pck.Workbook.Worksheets.Add("Print Area Copy", ws);
         }
         [Ignore]
         [TestMethod]
@@ -457,13 +455,7 @@ namespace EPPlusTest
             r1=ws.Cells["G3"].RichText.Add("Test");
             r1.Bold = true;
             ws.Cells["G3"].RichText.Add(" a new t");
-            ws.Cells["G3"].RichText[1].Bold = false;
-
-            var cell = ws.Cells["G4"];
-            cell.RichText.Add("toto: ");
-            cell.RichText[0].PreserveSpace = true;
-            cell.RichText[0].Bold = true;
-            cell.RichText.Add("tata");
+            ws.Cells["G3"].RichText[1].Bold = false; ;
         }
         [Ignore]
         [TestMethod]
@@ -1010,9 +1002,7 @@ namespace EPPlusTest
             //dr[3] = 3.125;
             //dt.Rows.Add(dr);
 
-            var rng = ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
-            ws.Tables[0].ShowTotal = true;
-            rng.AutoFitColumns();
+            ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
         }
         [Ignore]
         [TestMethod]
@@ -1023,7 +1013,6 @@ namespace EPPlusTest
             ws.Cells["A1"].LoadFromText("1.2");
             ws.Cells["A2"].LoadFromText("1,\"Test av data\",\"12,2\",\"\"Test\"\"");
             ws.Cells["A3"].LoadFromText("\"1,3\",\"Test av \"\"data\",\"12,2\",\"Test\"\"\"", new ExcelTextFormat() { TextQualifier = '"' });
-            ws.Cells["A1"].LoadFromText((string)null);
 
             ws = _pck.Workbook.Worksheets.Add("File1");
            // ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
@@ -1360,12 +1349,7 @@ namespace EPPlusTest
             pt.PageFields.Add(pt.Fields[1]);
             pt.RowFields.Add(pt.Fields[0]);
             pt.DataFields.Add(pt.Fields[3]);
-            var d1=pt.DataFields.Add(pt.Fields[2]);
-            //d1.Name="Stock %";
-            //d1.ShowDataAs=eShowDataAs.Percent;
-            //d1.BaseField=0;
-            //d1.BaseItem=0;
-
+            pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
             
             pt.Fields[0].SubTotalFunctions = eSubTotalFunctions.Sum | eSubTotalFunctions.Max;
@@ -1403,8 +1387,6 @@ namespace EPPlusTest
             pt.RowFields[0].AddNumericGrouping(-3.3, 5.5, 4.0);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = false;
-            pt.ShowDrill = false;
-            pt.EnableDrill = false;
             pt.TableStyle = OfficeOpenXml.Table.TableStyles.Medium14;
 
             pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["H3"], ws.Cells["K1:O11"], "Pivottable10");
@@ -1413,8 +1395,6 @@ namespace EPPlusTest
             pt.Fields[4].AddDateGrouping(7, new DateTime(2010, 01, 31), new DateTime(2010, 11, 30));
             pt.RowHeaderCaption = "Veckor";
             pt.GrandTotalCaption = "Totalt";
-            pt.ShowDrill = false;
-            pt.EnableDrill = false;
 
             pt = wsPivot8.PivotTables.Add(wsPivot8.Cells["A60"], ws.Cells["K1:O11"], "Pivottable11");
             pt.RowFields.Add(pt.Fields["Category"]);
@@ -1422,6 +1402,7 @@ namespace EPPlusTest
             pt.RowFields.Add(pt.Fields["Date for grouping"]);
 
             pt.DataFields.Add(pt.Fields[3]);
+            pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = true;
         }
         [Ignore]
@@ -1523,6 +1504,7 @@ namespace EPPlusTest
             Assert.AreEqual(img.Top, 0);
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
+
             img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"), PictureAlignment.Left);
             img.Title = "DiskFile";
 
@@ -1545,10 +1527,8 @@ namespace EPPlusTest
 
             s.Fill.PatternType = ExcelFillStyle.Solid;
             s.Fill.BackgroundColor.SetColor(Color.LightGreen);
-            s.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            s.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
             s.VerticalAlignment = ExcelVerticalAlignment.Center;
-            s.Font.Size = 15; 
-
 
             var secondNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("first", firstNamedStyle.Style).Style;
             secondNamedStyle.Font.Bold = true;
@@ -1571,10 +1551,6 @@ namespace EPPlusTest
            colStyle.Fill.BackgroundColor.SetColor(Color.CadetBlue);
 
            wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
-
-           var newNamedStyle = _pck.Workbook.Styles.CreateNamedStyle("testStyleinvalid"); 
-            newNamedStyle.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-           newNamedStyle.Style.Font.Size = 15;             
         }
         [Ignore]
         [TestMethod]
@@ -1627,31 +1603,20 @@ namespace EPPlusTest
             var n=pck.Workbook.Styles.NamedStyles[0];
             n.Style.Numberformat.Format = "yyyy";
             n.Style.Font.Name = "Arial";
-            n.Style.Font.Size = 15;
+            n.Style.Font.Size=15;
             n.Style.Border.Bottom.Style = ExcelBorderStyle.Dotted;
             n.Style.Border.Bottom.Color.SetColor(Color.Red);
-            n.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            n.Style.Fill.PatternType=ExcelFillStyle.Solid;
             n.Style.Fill.BackgroundColor.SetColor(Color.Blue);
             n.Style.Border.Bottom.Color.SetColor(Color.Red);
             n.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
             n.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
             n.Style.TextRotation = 90;
-            ws.Cells["a1:c3"].StyleName = "Normal";
-            n.CustomBuildin = true;
+            ws.Cells["a1:c3"].StyleName="Normal";
+            //  n.CustomBuildin = true;
             pck.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
         [Ignore]
-        [TestMethod]
-        public void MergeWrap()
-        {
-            ExcelPackage pck = new ExcelPackage();
-            var ws = pck.Workbook.Worksheets.Add("newWorkbook");
-            ws.Cells["A1"].Value = "Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap.Test of merge, wrap";
-            
-            ws.Cells["A1:F1"].Merge = true;
-            ws.Cells["A1:F1"].Style.WrapText = true;
-            pck.SaveAs(new FileInfo(@"c:\temp\merge.xlsx"));
-        }
         [TestMethod]
         public void AutoFitColumns()
         {
@@ -1692,18 +1657,6 @@ namespace EPPlusTest
                 }
             }
             ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
-            var r=ws.Cells["C1"].LoadFromDataTable(table, true, OfficeOpenXml.Table.TableStyles.Light10);
-            Assert.AreEqual(r.Address, "C1:D11");
-            ws.Save();
-        }
-        [TestMethod]
-        public void LoadCollection()
-        {
-            ExcelPackage p = new ExcelPackage();
-            ExcelWorksheet worksheet = p.Workbook.Worksheets.Add("Test");
-            var ints = new int[] { 1, 2 };
-            var r = worksheet.Cells[1, 1].LoadFromCollection(ints); // throws System.ArgumentException "Column out of range"
-            Assert.AreEqual(r.Address, "A1:A2");            
         }
     }
 }
