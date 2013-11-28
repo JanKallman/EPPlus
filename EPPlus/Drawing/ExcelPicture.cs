@@ -120,34 +120,25 @@ namespace OfficeOpenXml.Drawing
 
             node.InsertAfter(node.OwnerDocument.CreateElement("xdr", "clientData", ExcelPackage.schemaSheetDrawings), picNode);
 
+            //Changed to stream 2/4-13 (issue 14834). Thnx SClause
             var package = drawings.Worksheet._package.Package;
             ContentType = GetContentType(imageFile.Extension);
-            _image = Image.FromFile(imageFile.FullName);
+            var imagestream = new FileStream(imageFile.FullName, FileMode.Open, FileAccess.Read);
+            _image = Image.FromStream(imagestream);
             ImageConverter ic = new ImageConverter();
-            byte[] img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
-
+            var img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
+            imagestream.Close();
 
             UriPic = GetNewUri(package, "/xl/media/{0}" + imageFile.Name);
             var ii = _drawings._package.AddImage(img, UriPic, ContentType);
-            //string relID = GetPictureRelID(img);
-
-            //if (relID == "")
             string relID;
             if(!drawings._hashes.ContainsKey(ii.Hash))
             {
-                //UriPic = GetNewUri(package, "/xl/media/image{0}" + imageFile.Extension);
-                //Part =  package.CreatePart(UriPic, ContentType, CompressionOption.NotCompressed);
-
-                ////Save the picture to package.
-                //byte[] file = File.ReadAllBytes(imageFile.FullName);
-                //var strm = Part.GetStream(FileMode.Create, FileAccess.Write);
-                //strm.Write(file, 0, file.Length);
                 Part = ii.Part;
                 RelPic = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, ii.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                 relID = RelPic.Id;
                 _drawings._hashes.Add(ii.Hash, relID);
                 AddNewPicture(img, relID);
-
             }
             else
             {

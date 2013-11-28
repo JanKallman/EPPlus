@@ -173,7 +173,22 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eAxisTickMark)Enum.Parse( typeof( eAxisTickMark ), GetXmlNodeString( _majorTickMark ) );
+                var v=GetXmlNodeString(_majorTickMark);
+                if(string.IsNullOrEmpty(v))
+                {
+                    return eAxisTickMark.Cross;
+                }
+                else
+                {
+                    try
+                    {
+                        return (eAxisTickMark)Enum.Parse( typeof( eAxisTickMark ), v );
+                    }
+                    catch
+                    {
+                        return eAxisTickMark.Cross;
+                    }
+                }
             }
             set
             {
@@ -190,7 +205,22 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eAxisTickMark)Enum.Parse(typeof(eAxisTickMark), GetXmlNodeString( _minorTickMark ) );
+                var v=GetXmlNodeString(_minorTickMark);
+                if(string.IsNullOrEmpty(v))
+                {
+                    return eAxisTickMark.Cross;
+                }
+                else
+                {
+                    try
+                    {
+                        return (eAxisTickMark)Enum.Parse(typeof(eAxisTickMark), v );
+                    }
+                    catch
+                    {
+                        return eAxisTickMark.Cross;
+                    }
+                }
             }
             set
             {
@@ -247,7 +277,22 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eCrosses)Enum.Parse(typeof(eCrosses), GetXmlNodeString(_crossesPath), true);
+                var v=GetXmlNodeString(_crossesPath);
+                if (string.IsNullOrEmpty(v))
+                {
+                    return eCrosses.AutoZero;
+                }
+                else
+                {
+                    try
+                    {
+                        return (eCrosses)Enum.Parse(typeof(eCrosses), v, true);
+                    }
+                    catch
+                    {
+                        return eCrosses.AutoZero;
+                    }
+                }
             }
             set
             {
@@ -265,7 +310,22 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eCrossBetween)Enum.Parse(typeof(eCrossBetween), GetXmlNodeString(_crossBetweenPath), true);
+                var v=GetXmlNodeString(_crossBetweenPath);
+                if(string.IsNullOrEmpty(v))
+                {
+                    return eCrossBetween.Between;
+                }
+                else
+                {
+                    try
+                    {
+                        return (eCrossBetween)Enum.Parse(typeof(eCrossBetween), v, true);
+                    }
+                    catch
+                    {
+                        return eCrossBetween.Between;
+                    }
+                }
             }
             set
             {
@@ -322,7 +382,22 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return (eTickLabelPosition)Enum.Parse(typeof(eTickLabelPosition), GetXmlNodeString(_lblPos), true);
+                var v=GetXmlNodeString(_lblPos);
+                if (string.IsNullOrEmpty(v))
+                {
+                    return eTickLabelPosition.NextTo;
+                }
+                else
+                {
+                    try
+                    {
+                        return (eTickLabelPosition)Enum.Parse(typeof(eTickLabelPosition), v, true);
+                    }
+                    catch
+                    {
+                        return eTickLabelPosition.NextTo;
+                    }
+                }
             }
             set
             {

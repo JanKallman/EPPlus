@@ -222,7 +222,5 @@ namespace OfficeOpenXml
             return _comments;
         }
         #endregion
-
-
     }
 }

@@ -83,6 +83,48 @@ namespace OfficeOpenXml.Table.PivotTable
         Var,
         VarP
     }
+    /// <summary>
+    /// Defines the data formats for a field in the PivotTable
+    /// </summary>
+    public enum eShowDataAs
+    {
+        /// <summary>
+        /// Indicates the field is shown as the "difference from" a value.
+        /// </summary>
+        Difference,
+        /// <summary>
+        /// Indicates the field is shown as the "index.
+        /// </summary>
+        Index, 
+        /// <summary>
+        /// Indicates that the field is shown as its normal datatype.
+        /// </summary>
+        Normal, 
+        /// <summary>
+        /// /Indicates the field is show as the "percentage of" a value
+        /// </summary>
+        Percent, 
+        /// <summary>
+        /// Indicates the field is shown as the "percentage difference from" a value.
+        /// </summary>
+        PercentDiff, 
+        /// <summary>
+        /// Indicates the field is shown as the percentage of column.
+        /// </summary>
+        PercentOfCol,
+        /// <summary>
+        /// Indicates the field is shown as the percentage of row
+        /// </summary>
+        PercentOfRow, 
+        /// <summary>
+        /// Indicates the field is shown as percentage of total.
+        /// </summary>
+        PercentOfTotal, 
+        /// <summary>
+        /// Indicates the field is shown as running total in the table.
+        /// </summary>
+        RunTotal,        
+    }
       /// <summary>
      /// Built-in subtotal functions
      /// </summary>

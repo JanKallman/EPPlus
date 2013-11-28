@@ -512,7 +512,7 @@ namespace OfficeOpenXml
             int styleXfId = CloneStyle(styles, xfIdCopy, true);
             //Close cells style
             CellStyleXfs[styleXfId].XfId = CellStyleXfs.Count-1;
-            int xfid = CloneStyle(styles, xfIdCopy);
+            int xfid = CloneStyle(styles, xfIdCopy, false, true); //Always add a new style (We create a new named style here)
             CellXfs[xfid].XfId = styleXfId;
             style.Style = new ExcelStyle(this, NamedStylePropertyChange, positionID, name, styleXfId);
             style.StyleXfId = styleXfId;
@@ -549,7 +549,7 @@ namespace OfficeOpenXml
             }
             foreach (ExcelNumberFormatXml nf in NumberFormats)
             {
-                if(!nf.BuildIn && nf.newID<0) //Buildin formats are not updated.
+                if(!nf.BuildIn /*&& nf.newID<0*/) //Buildin formats are not updated.
                 {
                     nfNode.AppendChild(nf.CreateXmlNode(_styleXml.CreateElement("numFmt", ExcelPackage.schemaMain)));
                     nf.newID = count;
@@ -573,7 +573,7 @@ namespace OfficeOpenXml
 
             foreach (ExcelFontXml fnt in Fonts)
             {
-                if (fnt.useCnt > 0 && fnt.newID<0)
+                if (fnt.useCnt > 0/* && fnt.newID<0*/)
                 {
                     fntNode.AppendChild(fnt.CreateXmlNode(_styleXml.CreateElement("font", ExcelPackage.schemaMain)));
                     fnt.newID = count;
@@ -628,7 +628,7 @@ namespace OfficeOpenXml
                 styleXfsNode.RemoveAll();
             }
             //NamedStyles
-            count = 1;
+            count = normalIx > -1 ? 1 : 0;  //If we have a normal style, we make sure it's added first.
 
             XmlNode cellStyleNode = _styleXml.SelectSingleNode(CellStylesPath, _nameSpaceManager);
             if(cellStyleNode!=null)
@@ -659,14 +659,16 @@ namespace OfficeOpenXml
             if (styleXfsNode != null) (styleXfsNode as XmlElement).SetAttribute("count", count.ToString());
 
             //CellStyle
+            int xfix = 0;
             foreach (ExcelXfs xf in CellXfs)
             {
-                if (xf.useCnt > 0)
+                if (xf.useCnt > 0 && !(normalIx == xfix))
                 {
                     cellXfsNode.AppendChild(xf.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
                     xf.newID = count;
                     count++;
                 }
+                xfix++;
             }
             (cellXfsNode as XmlElement).SetAttribute("count", count.ToString());
 
@@ -674,6 +676,7 @@ namespace OfficeOpenXml
             XmlNode dxfsNode = _styleXml.SelectSingleNode(dxfsPath, _nameSpaceManager);
             foreach (var ws in _wb.Worksheets)
             {
+                if (ws is ExcelChartsheet) continue;
                 foreach (var cf in ws.ConditionalFormatting)
                 {
                     if (cf.Style.HasValue)
@@ -825,9 +828,13 @@ namespace OfficeOpenXml
 #endregion
         internal int CloneStyle(ExcelStyles style, int styleID)
         {
-            return CloneStyle(style, styleID, false);
+            return CloneStyle(style, styleID, false, false);
         }
         internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle)
+        {
+            return CloneStyle(style, styleID, isNamedStyle, false);
+        }
+        internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle, bool allwaysAdd)
         {
             ExcelXfs xfs;
             if (isNamedStyle)
@@ -920,10 +927,17 @@ namespace OfficeOpenXml
             }
             else
             {
-                index = CellXfs.FindIndexByID(newXfs.Id);
-                if (index < 0)
+                if (allwaysAdd)
                 {
                     index = CellXfs.Add(newXfs.Id, newXfs);
+                }
+                else
+                {
+                    index = CellXfs.FindIndexByID(newXfs.Id);
+                    if (index < 0)
+                    {
+                        index = CellXfs.Add(newXfs.Id, newXfs);
+                    }
                 }
             }
             return index;

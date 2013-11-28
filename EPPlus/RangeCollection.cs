@@ -329,7 +329,7 @@ using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return this;
+            return this.MemberwiseClone() as IEnumerator;
         }
 
         #endregion
