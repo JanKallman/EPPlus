@@ -1547,5 +1547,124 @@ namespace EPPlusTest
             var r = worksheet.Cells[1, 1].LoadFromCollection(ints); // throws System.ArgumentException "Column out of range"
             Assert.AreEqual(r.Address, "A1:A2");            
         }
+
+        #region Date1904 Test Cases
+        [TestMethod]
+        public void TestDate1904WithoutSetting()
+        {
+            string file = "test1904.xlsx";
+            DateTime dateTest1 = new DateTime(2008, 2, 29);
+            DateTime dateTest2 = new DateTime(1950, 11, 30);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("test");
+            w.Cells[1, 1, 2, 1].Style.Numberformat.Format = ExcelNumberFormat.GetFromBuildInFromID(14);
+            w.Cells[1, 1].Value = dateTest1;
+            w.Cells[2, 1].Value = dateTest2;
+            pack.Save();
+
+
+            ExcelPackage pack2 = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w2 = pack2.Workbook.Worksheets["test"];
+            
+            Assert.AreEqual(dateTest1, w2.Cells[1, 1].Value);
+            Assert.AreEqual(dateTest2, w2.Cells[2, 1].Value);
+        }
+        
+        [TestMethod]
+        public void TestDate1904WithSetting()
+        {
+            string file = "test1904.xlsx";
+            DateTime dateTest1 = new DateTime(2008, 2, 29);
+            DateTime dateTest2 = new DateTime(1950, 11, 30);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            pack.Workbook.Date1904 = true;
+
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("test");
+            w.Cells[1, 1, 2, 1].Style.Numberformat.Format = ExcelNumberFormat.GetFromBuildInFromID(14);
+            w.Cells[1, 1].Value = dateTest1;
+            w.Cells[2, 1].Value = dateTest2;
+            pack.Save();
+
+
+            ExcelPackage pack2 = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w2 = pack2.Workbook.Worksheets["test"];
+
+            Assert.AreEqual(dateTest1,w2.Cells[1, 1].Value);
+            Assert.AreEqual(dateTest2, w2.Cells[2, 1].Value);
+        }
+
+        [TestMethod]
+        public void TestDate1904SetAndRemoveSetting()
+        {
+            string file = "test1904.xlsx";
+            DateTime dateTest1 = new DateTime(2008, 2, 29);
+            DateTime dateTest2 = new DateTime(1950, 11, 30);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            pack.Workbook.Date1904 = true;
+
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("test");
+            w.Cells[1, 1, 2, 1].Style.Numberformat.Format = ExcelNumberFormat.GetFromBuildInFromID(14);
+            w.Cells[1, 1].Value = dateTest1;
+            w.Cells[2, 1].Value = dateTest2;
+            pack.Save();
+
+
+            ExcelPackage pack2 = new ExcelPackage(new FileInfo(file));
+            pack2.Workbook.Date1904 = false;
+            pack2.Save();
+
+
+            ExcelPackage pack3 = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w3 = pack3.Workbook.Worksheets["test"];
+
+            Assert.AreEqual(dateTest1.AddDays(365.5 * -4) ,w3.Cells[1, 1].Value);
+            Assert.AreEqual(dateTest2.AddDays(365.5 * -4), w3.Cells[2, 1].Value);
+        }
+
+        [TestMethod]
+        public void TestDate1904SetAndSetSetting()
+        {
+            string file = "test1904.xlsx";
+            DateTime dateTest1 = new DateTime(2008, 2, 29);
+            DateTime dateTest2 = new DateTime(1950, 11, 30);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            pack.Workbook.Date1904 = true;
+
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("test");
+            w.Cells[1, 1, 2, 1].Style.Numberformat.Format = ExcelNumberFormat.GetFromBuildInFromID(14);
+            w.Cells[1, 1].Value = dateTest1;
+            w.Cells[2, 1].Value = dateTest2;
+            pack.Save();
+
+
+            ExcelPackage pack2 = new ExcelPackage(new FileInfo(file));
+            pack2.Workbook.Date1904 = true;  // Only the cells must be updated when this change, if set the same nothing must change
+            pack2.Save();
+
+
+            ExcelPackage pack3 = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w3 = pack3.Workbook.Worksheets["test"];
+
+            Assert.AreEqual(dateTest1, w3.Cells[1, 1].Value);
+            Assert.AreEqual(dateTest2,w3.Cells[2, 1].Value);
+        }
+
+        #endregion
     }
 }

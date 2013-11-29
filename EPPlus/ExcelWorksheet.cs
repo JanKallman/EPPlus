@@ -1073,6 +1073,11 @@ namespace OfficeOpenXml
                     double res;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
                     {
+                        if (Workbook.Date1904)
+                        {
+                            res += ExcelWorkbook.date1904Offset;
+                        }
+
                         value = DateTime.FromOADate(res);
                     }
                     else
@@ -2483,7 +2488,14 @@ namespace OfficeOpenXml
                                 {
                                     if (cell._value is DateTime)
                                     {
-                                        s = ((DateTime)cell.Value).ToOADate().ToString(CultureInfo.InvariantCulture);
+                                        double sdv = ((DateTime)cell.Value).ToOADate();
+
+                                        if(Workbook.Date1904)
+                                        {
+                                            sdv -= ExcelWorkbook.date1904Offset;
+                                        }
+
+                                        s = sdv.ToString(CultureInfo.InvariantCulture);
                                     }
                                     else if (cell._value is TimeSpan)
                                     {
@@ -2885,6 +2897,31 @@ namespace OfficeOpenXml
             if (n != null)
             {
                 n.ParentNode.RemoveChild(n);
+            }
+        }
+
+        internal void UpdateCellsWithDate1904Setting()
+        {
+            foreach (IRangeID r in _cells)
+            {
+                if (r is ExcelCell)
+                {
+                    ExcelCell cell = (ExcelCell)r;
+                    if (cell._value is DateTime)
+                    {
+                        try
+                        {
+                            double sdv = ((DateTime)cell.Value).ToOADate();
+                            sdv += Workbook.Date1904 ? -ExcelWorkbook.date1904Offset : ExcelWorkbook.date1904Offset;
+
+                            cell._value = DateTime.FromOADate(sdv);
+                        }
+                        catch
+                        {
+                        }
+                    }
+
+                }
             }
         }
 
