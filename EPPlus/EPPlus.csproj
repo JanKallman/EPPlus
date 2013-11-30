@@ -349,6 +349,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Abs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan2.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
@@ -371,6 +372,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sqrt.cs" />

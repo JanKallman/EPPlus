@@ -29,6 +29,16 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AbsShouldReturnCorrectResult()
+        {
+            var expectedValue = 3d;
+            var func = new Abs();
+            var args = FunctionsHelper.CreateArgs(-3d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+
+        [TestMethod]
         public void CeilingShouldRoundUpAccordingToParamsSignificanceLowerThan0()
         {
             var expectedValue = 22.36d;
@@ -649,6 +659,24 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             var roundedResult = Math.Round((double)result.Result, 9);
             Assert.AreEqual(2.506628275d, roundedResult);
+        }
+
+        [TestMethod]
+        public void SignShouldReturnMinus1IfArgIsNegative()
+        {
+            var func = new Sign();
+            var args = FunctionsHelper.CreateArgs(-2);
+            var result = func.Execute(args, _parsingContext).Result;
+            Assert.AreEqual(-1d, result);
+        }
+
+        [TestMethod]
+        public void SignShouldReturn1IfArgIsPositive()
+        {
+            var func = new Sign();
+            var args = FunctionsHelper.CreateArgs(2);
+            var result = func.Execute(args, _parsingContext).Result;
+            Assert.AreEqual(1d, result);
         }
     }
 }
