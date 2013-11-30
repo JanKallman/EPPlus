@@ -29,6 +29,15 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         }
 
         [TestMethod]
+        public void AbsShouldReturn3()
+        {
+            _worksheet.Cells["A4"].Formula = "ABS(A2)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(3d, result);
+        }
+
+        [TestMethod]
         public void CountShouldReturn3()
         {
             _worksheet.Cells["A4"].Formula = "COUNT(A1:A3)";
@@ -111,6 +120,15 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             _worksheet.Calculate();
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(70d, result);
+        }
+
+        [TestMethod]
+        public void SignShouldReturn1WhenRefIsPositive()
+        {
+            _worksheet.Cells["A4"].Formula = "SIGN(A1)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(1d, result);
         }
     }
 }

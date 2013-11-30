@@ -30,9 +30,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             // Numbers
             Functions["int"] = new CInt();
             // Math
+            Functions["abs"] = new Abs();
             Functions["cos"] = new Cos();
             Functions["cosh"] = new Cosh();
             Functions["power"] = new Power();
+            Functions["sign"] = new Sign();
             Functions["sqrt"] = new Sqrt();
             Functions["sqrtpi"] = new SqrtPi();
             Functions["pi"] = new Pi();
