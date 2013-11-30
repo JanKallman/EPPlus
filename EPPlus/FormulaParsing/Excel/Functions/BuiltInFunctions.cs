@@ -45,6 +45,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["sinh"] = new Sinh();
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
+            Functions["sumproduct"] = new SumProduct();
             Functions["stdev"] = new Stdev();
             Functions["stdevp"] = new StdevP();
             Functions["subtotal"] = new Subtotal();
