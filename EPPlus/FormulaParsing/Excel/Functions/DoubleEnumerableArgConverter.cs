@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -23,9 +24,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     }
                     else
                     {
-                        if (arg.Value is double || arg.Value is int)
+                        if (arg.Value is double || arg.Value is int || arg.Value is System.DateTime || arg.Value.GetType().IsPrimitive)
                         {
-                            argList.Add(Convert.ToDouble(arg.Value));
+                            argList.Add(ConvertUtil.GetValueDouble(arg.Value));
                         }
                     }
                 });

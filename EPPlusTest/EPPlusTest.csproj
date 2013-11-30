@@ -137,6 +137,7 @@
     <Compile Include="FormulaParsing\FormulaParserTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BasicCalcTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DateAndTimeFunctionsTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\MathExcelRangeTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\InformationFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\LogicalFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\MathFunctionsTests.cs" />

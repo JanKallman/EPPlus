@@ -48,10 +48,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 
         private bool ShouldCount(object value)
         {
-            //if (ShouldIgnore(item))
-            //{
-            //    return false;
-            //}
             if (value == null) return false;
             if (value is int
                 ||
