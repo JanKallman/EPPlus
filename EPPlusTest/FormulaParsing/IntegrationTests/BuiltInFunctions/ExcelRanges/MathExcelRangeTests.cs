@@ -130,5 +130,15 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(1d, result);
         }
+
+        [TestMethod]
+        public void SubTotalShouldNotIncludeHiddenRow()
+        {
+            _worksheet.Cells["A2"].Style.Hidden = true;
+            _worksheet.Cells["A4"].Formula = "SUBTOTAL(109,A1:A3)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(7d, result);
+        }
     }
 }

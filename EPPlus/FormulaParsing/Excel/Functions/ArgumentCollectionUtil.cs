@@ -20,9 +20,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             _doubleEnumerableArgConverter = doubleEnumerableArgConverter;
         }
 
-        public virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        public virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHidden, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            return _doubleEnumerableArgConverter.ConvertArgs(arguments, context);
+            return _doubleEnumerableArgConverter.ConvertArgs(ignoreHidden, arguments, context);
         }
 
         public virtual double CalculateCollection(IEnumerable<FunctionArgument> collection, double result, Func<FunctionArgument, double, double> action)

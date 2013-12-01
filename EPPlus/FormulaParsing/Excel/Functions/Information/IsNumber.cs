@@ -12,7 +12,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
         {
             ValidateArguments(arguments, 1);
             var arg = arguments.ElementAt(0).Value;
-            if (arg is double || arg is int)
+            if (arg is System.DateTime || arg is double || arg is int || arg is decimal || arg is short || arg is long)
             {
                 return CreateResult(true, DataType.Boolean);
             }
