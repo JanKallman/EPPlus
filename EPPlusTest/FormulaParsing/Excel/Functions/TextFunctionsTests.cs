@@ -103,5 +103,53 @@ namespace EPPlusTest.Excel.Functions.Text
             var result = func.Execute(FunctionsHelper.CreateArgs("One", "Two", "Three"), _parsingContext);
             Assert.AreEqual("OneTwoThree", result.Result);
         }
+
+        [TestMethod]
+        public void ExactShouldReturnTrueWhenTwoEqualStrings()
+        {
+            var func = new Exact();
+            var result = func.Execute(FunctionsHelper.CreateArgs("abc", "abc"), _parsingContext);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void ExactShouldReturnTrueWhenEqualStringAndDouble()
+        {
+            var func = new Exact();
+            var result = func.Execute(FunctionsHelper.CreateArgs("1", 1d), _parsingContext);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void ExactShouldReturnFalseWhenStringAndNull()
+        {
+            var func = new Exact();
+            var result = func.Execute(FunctionsHelper.CreateArgs("1", null), _parsingContext);
+            Assert.IsFalse((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void ExactShouldReturnFalseWhenTwoEqualStringsWithDifferentCase()
+        {
+            var func = new Exact();
+            var result = func.Execute(FunctionsHelper.CreateArgs("abc", "Abc"), _parsingContext);
+            Assert.IsFalse((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void FindShouldReturnIndexOfFoundPhrase()
+        {
+            var func = new Find();
+            var result = func.Execute(FunctionsHelper.CreateArgs("hopp", "hej hopp"), _parsingContext);
+            Assert.AreEqual(5, result.Result);
+        }
+
+        [TestMethod]
+        public void FindShouldReturnIndexOfFoundPhraseBasedOnStartIndex()
+        {
+            var func = new Find();
+            var result = func.Execute(FunctionsHelper.CreateArgs("hopp", "hopp hopp", 2), _parsingContext);
+            Assert.AreEqual(6, result.Result);
+        }
     }
 }

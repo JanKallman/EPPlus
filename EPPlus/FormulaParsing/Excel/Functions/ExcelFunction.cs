@@ -181,9 +181,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         //    }
         //}
 
-        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
+                                                                     ParsingContext context)
         {
-            return _argumentCollectionUtil.ArgsToDoubleEnumerable(arguments, context);
+            return ArgsToDoubleEnumerable(false, arguments, context);
+        }
+
+        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        {
+            return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, arguments, context);
         }
 
         protected CompileResult CreateResult(object result, DataType dataType)

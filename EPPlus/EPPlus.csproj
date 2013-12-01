@@ -404,6 +404,8 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Concatenate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />

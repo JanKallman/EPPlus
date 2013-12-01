@@ -27,6 +27,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["replace"] = new Replace();
             Functions["substitute"] = new Substitute();
             Functions["concatenate"] = new Concatenate();
+            Functions["exact"] = new Exact();
+            Functions["find"] = new Find();
             // Numbers
             Functions["int"] = new CInt();
             // Math

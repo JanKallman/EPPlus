@@ -22,9 +22,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             if (IgnoreHiddenValues)
             {
                 var nonHidden = arguments.Where(x => !x.ExcelStateFlagIsSet(ExcelCellState.HiddenCell));
-                return base.ArgsToDoubleEnumerable(nonHidden, context);
+                return base.ArgsToDoubleEnumerable(IgnoreHiddenValues, nonHidden, context);
             }
-            return base.ArgsToDoubleEnumerable(arguments, context);
+            return base.ArgsToDoubleEnumerable(IgnoreHiddenValues, arguments, context);
         }
 
         protected bool ShouldIgnore(ExcelDataProvider.ICellInfo c, ParsingContext context)
