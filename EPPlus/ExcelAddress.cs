@@ -1037,6 +1037,110 @@ namespace OfficeOpenXml
         {
             return (_fromRow < _fromCol || _fromCol < _toCol);
         }
+        internal static String GetWorkbookPart(string address)
+        {
+            var ix = 0;
+            if (address[0] == '[')
+            {
+                ix = address.IndexOf(']') + 1;
+                if (ix > 0)
+                {
+                    return address.Substring(1, ix - 2);
+                }
+            }
+            return "";
+        }
+        internal static string GetWorksheetPart(string address, string defaultWorkSheet)
+        {
+            int ix=0;
+            return GetWorksheetPart(address, defaultWorkSheet, ref ix);
+        }
+        internal static string GetWorksheetPart(string address, string defaultWorkSheet, ref int endIx)
+        {
+            if(address=="") return defaultWorkSheet;
+            var ix = 0;
+            if (address[0] == '[')
+            {
+                ix = address.IndexOf(']')+1;
+            }
+            if (ix > 0 && ix < address.Length)
+            {
+                if (address[ix] == '\'')
+                {
+                    return GetString(address, ix, out endIx);
+                }
+                else
+                {
+                    var ixEnd = address.IndexOf('!',ix);
+                    if(ixEnd>ix)
+                    {
+                        return address.Substring(ix, ixEnd-ix);
+                    }
+                    else
+                    {
+                        return defaultWorkSheet;
+                    }
+                }
+            }
+            else
+            {
+                return defaultWorkSheet;
+            }
+        }
+        internal static string GetAddressPart(string address)
+        {
+            var ix=0;
+            GetWorksheetPart(address, "", ref ix);
+            if(ix<address.Length)
+            {
+                if (address[ix] == '!')
+                {
+                    return address.Substring(ix + 1);
+                }
+                else
+                {
+                    return "";
+                }
+            }
+            else
+            {
+                return "";
+            }
+
+        }
+        internal static void SplitAddress(string fullAddress, out string wb, out string ws, out string address, string defaultWorksheet="")
+        {
+            wb = GetWorkbookPart(fullAddress);
+            int ix=0;
+            ws = GetWorksheetPart(fullAddress, defaultWorksheet, ref ix);
+            if (ix < fullAddress.Length)
+            {
+                if (fullAddress[ix] == '!')
+                {
+                    address = fullAddress.Substring(ix + 1);
+                }
+                else
+                {
+                    address = fullAddress.Substring(ix);
+                }
+            }
+            else
+            {
+                address="";
+            }
+        }
+        private static string GetString(string address, int ix, out int endIx)
+        {
+            var strIx = address.IndexOf("''");
+            var prevStrIx = ix;
+            while(strIx > -1) 
+            {
+                prevStrIx = strIx;
+                strIx = address.IndexOf("''");
+            }
+            endIx = address.IndexOf("'");
+            return address.Substring(ix, endIx - ix).Replace("''","'");
+        }
     }
     /// <summary>
     /// Range address with the address property readonly

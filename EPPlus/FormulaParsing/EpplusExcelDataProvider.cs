@@ -248,15 +248,28 @@ namespace OfficeOpenXml.FormulaParsing
             ExcelWorksheet ws;
             if (string.IsNullOrEmpty(worksheet))
             {
-                nameItem = _package._workbook.Names[name];
+                if(_package._workbook.Names.ContainsKey(name))
+                {
+                    nameItem = _package._workbook.Names[name];
+                }
+                else
+                {
+                    return null;
+                }
                 ws = null;
             }
             else
             {
                 ws = _package._workbook.Worksheets[worksheet];
-                nameItem = _package._workbook.Names[name];
+                if (ws !=null && ws.Names.ContainsKey(name))
+                {
+                    nameItem = _package._workbook.Names[name];
+                }
+                else
+                {
+                    return null;
+                }
             }
-
             id = ExcelAddressBase.GetCellID(nameItem.LocalSheetId, nameItem.Index, 0);
 
             if (_names.ContainsKey(id))
@@ -265,10 +278,11 @@ namespace OfficeOpenXml.FormulaParsing
             }
             else
             {
-                var ni=new NameInfo(){
-                    Id=id,
-                    Name=name,
-                    Formula=nameItem.Formula
+                var ni = new NameInfo()
+                {
+                    Id = id,
+                    Name = name,
+                    Formula = nameItem.Formula
                 };
                 if (nameItem._fromRow > 0)
                 {
@@ -276,7 +290,7 @@ namespace OfficeOpenXml.FormulaParsing
                 }
                 else
                 {
-                    ni.Value= nameItem.Value;
+                    ni.Value = nameItem.Value;
                 }
                 _names.Add(id, ni);
                 return ni;

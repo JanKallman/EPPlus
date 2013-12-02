@@ -103,13 +103,13 @@ namespace OfficeOpenXml.Calculation
                 }
                 else
                 {
-                    var sh = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                    var sh = workbook.Worksheets.GetBySheetID(item.SheetID);
                     sh.Names[item.Index].NameValue = v;
                 }
             }
             else
             {
-                var sheet = workbook.Worksheets.GetBySheetID(item.ws.SheetID);
+                var sheet = workbook.Worksheets.GetBySheetID(item.SheetID);
                 sheet._values.SetValue(item.Row, item.Column, v);
             }
         }

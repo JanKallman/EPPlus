@@ -376,11 +376,14 @@ namespace OfficeOpenXml
             }
             foreach (var ws in Workbook.Worksheets)
             {
-                foreach (var n in ws.Names)
+                if (!(ws is ExcelChartsheet))
                 {
-                    if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                    foreach (var n in ws.Names)
                     {
-                        n.ChangeWorksheet(_name, value);
+                        if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue == null)
+                        {
+                            n.ChangeWorksheet(_name, value);
+                        }
                     }
                 }
             }

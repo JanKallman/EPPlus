@@ -138,6 +138,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Function);
             }
+            if (tokenList.Count > 0 && tokenList[tokenList.Count - 1].TokenType == TokenType.OpeningEnumerable)
+            {
+                return new Token(token, TokenType.Enumerable);
+            }
             if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token))
             {
                 return new Token(token, TokenType.NameValue);

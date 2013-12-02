@@ -40,5 +40,25 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
+        [TestMethod]
+        public void CalulationValidationExcel()
+        {
+            var pck = new ExcelPackage(new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\..\\..\\EPPlusTest\\workbooks\\FormulaTest.xlsx"));
+            var ws = pck.Workbook.Worksheets["ValidateFormulas"];
+            var fr = new Dictionary<string, object>();
+            foreach (var cell in ws.Cells)
+            {
+                if (!string.IsNullOrEmpty(cell.Formula))
+                {
+                    fr.Add(cell.Address, cell.Value);
+                }
+            }
+            pck.Workbook.Calculate();
+            foreach (var adr in fr.Keys)
+            {
+                Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+            }
+            
+        }
     }
 }
