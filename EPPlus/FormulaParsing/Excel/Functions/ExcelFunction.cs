@@ -181,6 +181,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         //    }
         //}
 
+        protected virtual bool IsNumber(object obj)
+        {
+            if (obj == null) return false;
+            return (obj is int || obj is double || obj is short || obj is decimal || obj is long);
+        }
+
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
                                                                      ParsingContext context)
         {
@@ -190,6 +196,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, arguments, context);
+        }
+
+        protected virtual IEnumerable<object> ArgsToObjectEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        {
+            return _argumentCollectionUtil.ArgsToObjectEnumerable(ignoreHiddenCells, arguments, context);
         }
 
         protected CompileResult CreateResult(object result, DataType dataType)
