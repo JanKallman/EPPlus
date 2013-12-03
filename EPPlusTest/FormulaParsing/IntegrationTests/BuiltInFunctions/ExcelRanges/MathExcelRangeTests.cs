@@ -93,6 +93,86 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         }
 
         [TestMethod]
+        public void AverageIfShouldHandleSingleRangeNumericExpressionMatch()
+        {
+            _worksheet.Cells["A4"].Value = "B";
+            _worksheet.Cells["A5"].Value = 3;
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>1')";
+            _worksheet.Calculate();
+            Assert.AreEqual(4d, _worksheet.Cells["A6"].Value);
+        }
+
+        [TestMethod]
+        public void AverageIfShouldHandleSingleRangeStringMatch()
+        {
+            _worksheet.Cells["A4"].Value = "ABC";
+            _worksheet.Cells["A5"].Value = "3";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>1')";
+            _worksheet.Calculate();
+            Assert.AreEqual(4.5d, _worksheet.Cells["A6"].Value);
+        }
+
+        [TestMethod]
+        public void AverageIfShouldHandleLookupRangeStringMatch()
+        {
+            _worksheet.Cells["A1"].Value = "abc";
+            _worksheet.Cells["A2"].Value = "abc";
+            _worksheet.Cells["A3"].Value = "def";
+            _worksheet.Cells["A4"].Value = "def";
+            _worksheet.Cells["A5"].Value = "abd";
+
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["B2"].Value = 3;
+            _worksheet.Cells["B3"].Value = 5;
+            _worksheet.Cells["B4"].Value = 6;
+            _worksheet.Cells["B5"].Value = 7;
+
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'abc',B1:B5)";
+            _worksheet.Calculate();
+            Assert.AreEqual(2d, _worksheet.Cells["A6"].Value);
+        }
+
+        [TestMethod]
+        public void AverageIfShouldHandleLookupRangeStringNumericMatch()
+        {
+            _worksheet.Cells["A1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 3;
+            _worksheet.Cells["A3"].Value = 3;
+            _worksheet.Cells["A4"].Value = 5;
+            _worksheet.Cells["A5"].Value = 2;
+
+            _worksheet.Cells["B1"].Value = 3;
+            _worksheet.Cells["B2"].Value = 3;
+            _worksheet.Cells["B3"].Value = 2;
+            _worksheet.Cells["B4"].Value = 1;
+            _worksheet.Cells["B5"].Value = 8;
+
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>2',B1:B5)";
+            _worksheet.Calculate();
+            Assert.AreEqual(2d, _worksheet.Cells["A6"].Value);
+        }
+
+        [TestMethod]
+        public void AverageIfShouldHandleLookupRangeStringWildCardMatch()
+        {
+            _worksheet.Cells["A1"].Value = "abc";
+            _worksheet.Cells["A2"].Value = "abc";
+            _worksheet.Cells["A3"].Value = "def";
+            _worksheet.Cells["A4"].Value = "def";
+            _worksheet.Cells["A5"].Value = "abd";
+
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["B2"].Value = 3;
+            _worksheet.Cells["B3"].Value = 5;
+            _worksheet.Cells["B4"].Value = 6;
+            _worksheet.Cells["B5"].Value = 8;
+
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'ab*',B1:B5)";
+            _worksheet.Calculate();
+            Assert.AreEqual(4d, _worksheet.Cells["A6"].Value);
+        }
+
+        [TestMethod]
         public void SumProductWithRange()
         {
             _worksheet.Cells["A1"].Value = 1;

@@ -48,18 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 nValues++;
                 retVal += ConvertUtil.GetValueDouble(arg.Value, false);
-            }
-            //else if (arg.Value is int)
-            //{
-            //    nValues++;
-            //    retVal += Convert.ToDouble((int)arg.Value);
-            //}
-            //else if(arg.Value is bool)
-            //{
-            //    nValues++;
-            //    retVal += (bool)arg.Value ? 1 : 0;
-            //}
-            
+            }  
         }
 
 

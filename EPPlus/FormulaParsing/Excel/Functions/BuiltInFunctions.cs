@@ -61,6 +61,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["min"] = new Min();
             Functions["mod"] = new Mod();
             Functions["average"] = new Average();
+            Functions["averageif"] = new AverageIf();
             Functions["round"] = new Round();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
