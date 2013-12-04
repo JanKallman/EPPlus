@@ -177,7 +177,7 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 get 
                 { 
-                    var row=_ws._values.GetValue(_values.Row, 0) as ExcelRow;
+                    var row=_ws._values.GetValue(_values.Row, 0) as RowInternal;
                     if(row != null)
                     {
                         return row.Hidden || row.Height==0;
