@@ -49,6 +49,13 @@ namespace EPPlusTest.ExcelUtilities
         }
 
         [TestMethod]
+        public void ShouldTranslate53And1ToBA1()
+        {
+            var result = _indexToAddressTranslator.ToAddress(53, 1);
+            Assert.AreEqual("BA1", result);
+        }
+
+        [TestMethod]
         public void ShouldTranslate702And1ToZZ1()
         {
             var result = _indexToAddressTranslator.ToAddress(702, 1);

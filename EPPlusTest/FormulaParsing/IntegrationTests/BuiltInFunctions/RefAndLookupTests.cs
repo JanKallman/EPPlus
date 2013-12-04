@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
+using OfficeOpenXml.Calculation;
 using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing;
 
@@ -13,23 +15,35 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
     {
         private ExcelDataProvider _excelDataProvider;
         const string WorksheetName = "";
+        private ExcelPackage _package;
+        private ExcelWorksheet _worksheet;
 
         [TestInitialize]
-        public void Setup()
+        public void Initialize()
         {
             _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
             _parser = new FormulaParser(_excelDataProvider);
+            _package = new ExcelPackage();
+            _worksheet = _package.Workbook.Worksheets.Add("Test");
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _package.Dispose();
         }
 
         [TestMethod]
         public void VLookupShouldReturnCorrespondingValue()
         {
             var lookupAddress = "A1:B2";
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(1);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(2);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(5);
-            var result = _parser.Parse("VLOOKUP(2, " + lookupAddress + ", 2)");
+            _worksheet.Cells["A1"].Value = 3;
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 2;
+            _worksheet.Cells["B2"].Value = 5;
+            _worksheet.Cells["A3"].Formula = "VLOOKUP(2, " + lookupAddress + ", 2)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A3"].Value;
             Assert.AreEqual(5, result);
         }
 
@@ -37,11 +51,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void VLookupShouldReturnClosestValueBelowIfLastArgIsTrue()
         {
             var lookupAddress = "A1:B2";
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(1);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(5);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(5);
-            var result = _parser.Parse("VLOOKUP(4, " + lookupAddress + ", 2, true)");
+            _worksheet.Cells["A1"].Value = 3;
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 5;
+            _worksheet.Cells["B2"].Value = 5;
+            _worksheet.Cells["A3"].Formula = "VLOOKUP(4, " + lookupAddress + ", 2, true)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A3"].Value;
             Assert.AreEqual(1, result);
         }
 
@@ -49,11 +65,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void HLookupShouldReturnCorrespondingValue()
         {
             var lookupAddress = "A1:B2";
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(1);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(2);
-            _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(5);
-            var result = _parser.Parse("HLOOKUP(1, " + lookupAddress + ", 2)");
+            _worksheet.Cells["A1"].Value = 3;
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 2;
+            _worksheet.Cells["B2"].Value = 5;
+            _worksheet.Cells["A3"].Formula = "HLOOKUP(1, " + lookupAddress + ", 2)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A3"].Value;
             Assert.AreEqual(5, result);
         }
 

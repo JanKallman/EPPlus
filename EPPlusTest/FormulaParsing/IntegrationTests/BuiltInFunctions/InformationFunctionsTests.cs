@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
+using OfficeOpenXml.Calculation;
 using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Exceptions;
@@ -42,13 +44,18 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             Assert.IsTrue((bool)result);
         }
 
-        //TODO:Fix Test /Janne
-        //[TestMethod]
-        //public void IsTextShouldReturnTrueWhenReferencedCellContainsText()
-        //{
-        //    _excelDataProvider.Stub(x => x.GetRangeValues(string.Empty, "A1")).Return(new List<object> { "abc" });
-        //    var result = _parser.Parse("ISTEXT(A1)");
-        //    Assert.IsTrue((bool)result);
-        //}
+        [TestMethod]
+        public void IsTextShouldReturnTrueWhenReferencedCellContainsText()
+        {
+            using(var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("Test");
+                sheet.Cells["A1"].Value = "Abc";
+                sheet.Cells["A2"].Formula = "ISTEXT(A1)";
+                sheet.Calculate();
+                var result = sheet.Cells["A2"].Value;
+                Assert.IsTrue((bool)result);
+            }
+        }
     }
 }
