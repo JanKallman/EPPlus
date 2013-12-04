@@ -261,7 +261,7 @@ namespace OfficeOpenXml
             }
         }
 
-        private RowInternal GetRowInternal()
+        private  RowInternal GetRowInternal()
         {
                         var r = (RowInternal)_worksheet._values.GetValue(Row, 0);
                         if (r == null)

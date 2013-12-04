@@ -109,9 +109,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     if (tokenSeparator.TokenType == TokenType.String)
                     {
-                        if (context.LastToken != null &&
+                        if (context.LastToken.TokenType == TokenType.OpeningEnumerable)
+                        {
+                            context.AppendToCurrentToken(c);
+                            context.ToggleIsInString();
+                            continue;
+                        }
+                        else if (context.LastToken != null &&
                             context.LastToken.TokenType == TokenType.String &&
-                            !context.CurrentTokenHasValue)
+                            !context.CurrentTokenHasValue) //Added check for enumartion 
                         {
                             // We are dealing with an empty string ('').
                             context.AddToken(new Token(string.Empty, TokenType.StringContent));

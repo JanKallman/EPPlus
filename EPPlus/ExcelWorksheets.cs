@@ -893,7 +893,7 @@ namespace OfficeOpenXml
 			ExcelWorksheet worksheet = _worksheets[Index];
             if (worksheet.Drawings.Count > 0)
             {
-                worksheet.Drawings.Clear();
+                worksheet.Drawings.ClearDrawings();
             }
             //Delete the worksheet part and relation from the package 
 			_pck.Package.DeletePart(worksheet.WorksheetUri);

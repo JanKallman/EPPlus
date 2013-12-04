@@ -54,6 +54,7 @@ namespace EPPlusTest
             //package.Workbook.VbaProject.Protection.SetPassword("");
             package.SaveAs(new FileInfo(@"c:\temp\vbaSaved.xlsm"));
         }
+        [Ignore]
         [TestMethod]
         public void WriteVBA()
         {
@@ -88,6 +89,7 @@ namespace EPPlusTest
             //package.Workbook.VbaProject.Signature.Certificate = store.Certificates[11];
             package.SaveAs(new FileInfo(@"c:\temp\vbaWrite2.xlsm"));
         }
+        [Ignore]
         [TestMethod]
         public void WriteLongVBAModule()
         {

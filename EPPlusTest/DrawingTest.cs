@@ -785,6 +785,7 @@ namespace EPPlusTest
 
             pck.SaveAs(new FileInfo("c:\\temp\\chartseriesnew.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ChartWorksheet()
         {
@@ -797,6 +798,7 @@ namespace EPPlusTest
             wsChart.Chart.Series[0].Header = "Serie";
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadChartWorksheet()
         {
