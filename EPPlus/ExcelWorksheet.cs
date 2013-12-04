@@ -88,20 +88,26 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelChartsheet : ExcelWorksheet
     {
-        ExcelDrawings draws;
+        //ExcelDrawings draws;
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            draws = new ExcelDrawings(pck, this);
-            Chart = this.Drawings.AddChart("Chart 1", chartType);
+            //draws = new ExcelDrawings(pck, this);
+            this.Drawings.AddChart("Chart 1", chartType);
         }
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            draws = new ExcelDrawings(_package, this);
-            Chart = (ExcelChart)draws[0];
+            //_ = new ExcelDrawings(_package, this);
+            //Chart = (ExcelChart)draws[0];
         }
-        public ExcelChart Chart { get; set; }
+        public ExcelChart Chart 
+        {
+            get
+            {
+                return (ExcelChart)Drawings[0];
+            }
+        }
     }
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
@@ -1431,13 +1437,20 @@ namespace OfficeOpenXml
             return newC;
        }
         /// <summary>
+        /// Make the current worksheet active.
+        /// </summary>
+        public void Select()
+        {
+            View.TabSelected = true;
+            //Select(Address, true);
+        }
+        /// <summary>
         /// Selects a range in the worksheet. The active cell is the topmost cell.
         /// Make the current worksheet active.
         /// </summary>
         /// <param name="Address">An address range</param>
         public void Select(string Address)
         {
-            CheckSheetType();
             Select(Address, true);
         }
         /// <summary>
@@ -2925,10 +2938,6 @@ namespace OfficeOpenXml
                     }
                 }
 
-                if (currRow.StyleID > 0)
-                {
-                    sw.Write("s=\"{0}\" customFormat=\"1\" ", cellXfs[currRow.StyleID].newID);
-                }
                 if (currRow.OutlineLevel > 0)
                 {
                     sw.Write("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
@@ -2936,11 +2945,11 @@ namespace OfficeOpenXml
                     {
                         if (currRow.Hidden)
                         {
-                            sw.Write(" collapsed=\"1\"");
+                            sw.Write(" collapsed=\"1\" ");
                         }
                         else
                         {
-                            sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                            sw.Write(" collapsed=\"1\" hidden=\"1\" "); //Always hidden
                         }
                     }
                 }
@@ -2948,6 +2957,11 @@ namespace OfficeOpenXml
                 {
                     sw.Write("ph=\"1\" ");
                 }
+            }
+            var s = _styles.GetValue(row, 0);
+            if (s > 0)
+            {
+                sw.Write("s=\"{0}\" customFormat=\"1\"", cellXfs[s].newID);
             }
             sw.Write(">");
         }
