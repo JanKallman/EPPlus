@@ -109,7 +109,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     if (tokenSeparator.TokenType == TokenType.String)
                     {
-                        if (context.LastToken.TokenType == TokenType.OpeningEnumerable)
+                        if (context.LastToken != null && context.LastToken.TokenType == TokenType.OpeningEnumerable)
                         {
                             context.AppendToCurrentToken(c);
                             context.ToggleIsInString();

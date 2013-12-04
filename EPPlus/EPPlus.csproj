@@ -412,6 +412,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Replace.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Right.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Substitute.cs" />

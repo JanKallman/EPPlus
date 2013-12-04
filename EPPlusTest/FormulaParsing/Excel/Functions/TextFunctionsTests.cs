@@ -151,5 +151,13 @@ namespace EPPlusTest.Excel.Functions.Text
             var result = func.Execute(FunctionsHelper.CreateArgs("hopp", "hopp hopp", 2), _parsingContext);
             Assert.AreEqual(6, result.Result);
         }
+
+        [TestMethod]
+        public void ProperShouldSetFirstLetterToUpperCase()
+        {
+            var func = new Proper();
+            var result = func.Execute(FunctionsHelper.CreateArgs("this IS A tEst.wi3th SOME w0rds östEr"), _parsingContext);
+            Assert.AreEqual("This Is A Test.Wi3Th Some W0Rds Öster", result.Result);
+        }
     }
 }
