@@ -457,6 +457,11 @@ namespace OfficeOpenXml.Drawing
             {
                 throw new InvalidOperationException("Can' remove charts from chart worksheets");
             }
+            RemoveDrawing(Index);
+        }
+
+        internal void RemoveDrawing(int Index)
+        {
             var draw = _drawings[Index];
             draw.DeleteMe();
             for (int i = Index + 1; i < _drawings.Count; i++)
@@ -487,9 +492,18 @@ namespace OfficeOpenXml.Drawing
         /// </summary>
         public void Clear()
         {
+            if (Worksheet is ExcelChartsheet && _drawings.Count > 0)
+            {
+                throw new InvalidOperationException("Can' remove charts from chart worksheets");
+            }
+            ClearDrawings();
+        }
+
+        internal void ClearDrawings()
+        {
             while (Count > 0)
             {
-                Remove(0);
+                RemoveDrawing(0);
             }
         }
         #endregion
