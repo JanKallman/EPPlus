@@ -349,9 +349,11 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Abs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan2.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Ceiling.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cos.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cosh.cs" />
@@ -371,6 +373,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sqrt.cs" />
@@ -386,6 +389,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\VarP.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ObjectEnumerableArgConverter.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Address.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Choose.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Column.cs" />
@@ -402,6 +406,8 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Concatenate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />

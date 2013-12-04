@@ -324,7 +324,8 @@ namespace OfficeOpenXml.FormulaParsing
 
         public override object GetCellValue(string sheetName, int row, int col)
         {
-            return _package.Workbook.Worksheets[sheetName]._values.GetValue(row, col);
+            SetCurrentWorksheet(sheetName);
+            return _currentWorksheet._values.GetValue(row, col);
         }
 
         private void SetCurrentWorksheet(ExcelAddressInfo addressInfo)
