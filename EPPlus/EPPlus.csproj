@@ -305,6 +305,7 @@
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressFactory.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ValueMatcher.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\WildCardValueMatcher.cs" />
+    <Compile Include="FormulaParsing\ExcelValues.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CellStateHelper.cs" />
     <Compile Include="FormulaParsing\Excel\ExcelCellState.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentCollectionUtil.cs" />
