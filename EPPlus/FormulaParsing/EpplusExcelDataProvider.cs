@@ -265,6 +265,10 @@ namespace OfficeOpenXml.FormulaParsing
                 {
                     nameItem = _package._workbook.Names[name];
                 }
+                else if (_package._workbook.Names.ContainsKey(name))
+                {
+                    nameItem = _package._workbook.Names[name];
+                }
                 else
                 {
                     return null;

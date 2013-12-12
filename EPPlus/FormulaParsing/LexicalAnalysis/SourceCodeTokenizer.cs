@@ -127,6 +127,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     if (context.CurrentTokenHasValue)
                     {
                         context.AddToken(CreateToken(context));
+                        //If the a next token is an opening parantheses and the previous token is interpeted as an address or name, then the currenct token is a function
+                        if(tokenSeparator.TokenType==TokenType.OpeningParenthesis && (context.LastToken.TokenType==TokenType.ExcelAddress || context.LastToken.TokenType==TokenType.NameValue)) 
+                        {
+                            context.LastToken.TokenType=TokenType.Function;
+                        }
                     }
                     if (tokenSeparator.Value == "-")
                     {
