@@ -118,7 +118,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Boolean);
             }
-            if (token.ToUpper() == "#REF!")
+            if (token.ToUpper().Contains("#REF!"))
             {
                 return new Token(token, TokenType.InvalidReference);
             }

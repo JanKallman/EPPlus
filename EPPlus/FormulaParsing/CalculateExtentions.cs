@@ -49,8 +49,16 @@ namespace OfficeOpenXml.Calculation
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseCell(item.Tokens, item.ws==null ? "" : item.ws.Name, item.Row, item.Column);
-                SetValue(workbook, item, v);
+                try
+                {
+                    var v = parser.ParseCell(item.Tokens, item.ws == null ? "" : item.ws.Name, item.Row, item.Column);
+                    SetValue(workbook, item, v);
+                }
+                catch (Exception e)
+                {
+                    // TODO: add errorhandling here...
+                }
+                
             }            
             workbook._isCalculated = true;
         }

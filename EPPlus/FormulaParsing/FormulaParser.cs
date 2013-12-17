@@ -11,6 +11,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using System.Diagnostics;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -98,7 +99,14 @@ namespace OfficeOpenXml.FormulaParsing
                 {
                     return null;
                 }
-                return _compiler.Compile(graph.Expressions).Result;
+                try
+                {
+                    return _compiler.Compile(graph.Expressions).Result;
+                }
+                catch(ExcelErrorValueException ex)
+                {
+                    return ex.ErrorValue;
+                }
             }
         }
 

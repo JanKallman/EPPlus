@@ -42,7 +42,7 @@ namespace OfficeOpenXml.FormulaParsing
                 {
                     if (_cellCount > 0)
                     {
-                        return true;
+                        return false;
                     }
                     else if (_values.Next())
                     {
@@ -87,9 +87,9 @@ namespace OfficeOpenXml.FormulaParsing
 
             public void Dispose()
             {
-                _values = null;
-                _ws = null;
-                _cell = null;
+                //_values = null;
+                //_ws = null;
+                //_cell = null;
             }
 
             object System.Collections.IEnumerator.Current
@@ -120,6 +120,7 @@ namespace OfficeOpenXml.FormulaParsing
 
             public IEnumerator<ICellInfo> GetEnumerator()
             {
+                Reset();
                 return this;
             }
 
@@ -201,7 +202,8 @@ namespace OfficeOpenXml.FormulaParsing
         public class NameInfo : ExcelDataProvider.INameInfo
         {
             public ulong Id { get; set; }
-            public string Name  { get; set; }
+            public string Worksheet { get; set; }
+            public string Name { get; set; }
             public string Formula { get; set; }
             public IList<Token> Tokens { get; internal set; }
             public object Value { get; set; }
@@ -265,6 +267,10 @@ namespace OfficeOpenXml.FormulaParsing
                 {
                     nameItem = _package._workbook.Names[name];
                 }
+                else if (_package._workbook.Names.ContainsKey(name))
+                {
+                    nameItem = _package._workbook.Names[name];
+                }
                 else
                 {
                     return null;
@@ -282,6 +288,7 @@ namespace OfficeOpenXml.FormulaParsing
                 {
                     Id = id,
                     Name = name,
+                    Worksheet = nameItem.Worksheet==null ? nameItem._ws : nameItem.Worksheet.Name, 
                     Formula = nameItem.Formula
                 };
                 if (nameItem._fromRow > 0)
