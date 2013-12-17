@@ -63,6 +63,14 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                     return new BooleanExpression(token.Value);
                 case TokenType.ExcelAddress:
                     return new ExcelAddressExpression(token.Value, _excelDataProvider, _parsingContext);
+                case TokenType.InvalidReference:
+                    return new ExcelErrorExpression(token.Value, new ExcelErrorValue(eErrorType.Ref));
+                case TokenType.NumericError:
+                    return new ExcelErrorExpression(token.Value, new ExcelErrorValue(eErrorType.Num));
+                case TokenType.ValueDataTypeError:
+                    return new ExcelErrorExpression(token.Value, new ExcelErrorValue(eErrorType.Value));
+                case TokenType.Null:
+                    return new ExcelErrorExpression(token.Value, new ExcelErrorValue(eErrorType.Null));
                 case TokenType.NameValue:
                     return new NamedValueExpression(token.Value, _parsingContext);
                 default:

@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
@@ -46,6 +47,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(retVal, DataType.Decimal);
         }
 
+        
         private double Calculate(FunctionArgument arg, ParsingContext context)
         {
             var retVal = 0d;
@@ -66,13 +68,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     if (ShouldIgnore(c, context) == false)
                     {
+                        if (c.Value is ExcelErrorValue)
+                        {
+                            throw (new ExcelErrorValueException((ExcelErrorValue)c.Value));
+                        }
                         retVal += c.ValueDouble;
                     }
                 }
             }
             else
             {
-                retVal += retVal += ConvertUtil.GetValueDouble(arg.Value, true);
+                if (arg.Value is ExcelErrorValue)
+                {
+                    throw (new ExcelErrorValueException((ExcelErrorValue)arg.Value));
+                }
+                retVal += ConvertUtil.GetValueDouble(arg.Value, true);
             }
             return retVal;
         }
