@@ -67,6 +67,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add("'", new Token("'", TokenType.String));
             _tokens.Add("\"", new Token("\"", TokenType.String));
             _tokens.Add(",", new Token(",", TokenType.Comma));
+            _tokens.Add(";", new Token(";", TokenType.SemiColon));
             _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
             _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
         }

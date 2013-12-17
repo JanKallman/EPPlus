@@ -34,6 +34,7 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
@@ -51,9 +52,17 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
-            var compiler = _functionCompilerFactory.Create(function);
-            return compiler.Compile(Children, _parsingContext);
+            try
+            {
+                var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
+                var compiler = _functionCompilerFactory.Create(function);
+                return compiler.Compile(Children, _parsingContext);
+            }
+            catch (ExcelErrorValueException e)
+            {
+                return new CompileResult(e.ErrorValue, DataType.ExcelError);
+            }
+            
         }
 
         public override void PrepareForNextChild()
@@ -63,7 +72,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override Expression AddChild(Expression child)
         {
-            if (Children.Count() == 0)
+            if (!Children.Any())
             {
                 var group = base.AddChild(new FunctionArgumentExpression());
                 group.AddChild(child);
