@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Operators
 {
@@ -144,7 +145,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     var right = r.ResultNumeric;
                     if (right == 0d)
                     {
-                        throw new DivideByZeroException(string.Format("left: {0}, right: {1}", left, right));
+                        //throw new DivideByZeroException(string.Format("left: {0}, right: {1}", left, right));
+                        throw(new ExcelErrorValueException(new ExcelErrorValue(eErrorType.Div0)));
                     }
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {

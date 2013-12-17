@@ -32,59 +32,37 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class NamedValueExpression : AtomicExpression
+    public class ExcelErrorExpression : Expression
     {
-        public NamedValueExpression(string expression, ParsingContext parsingContext)
+        ExcelErrorValue _error;
+        public ExcelErrorExpression(string expression, ExcelErrorValue error)
             : base(expression)
         {
-            _parsingContext = parsingContext;
+            _error = error;
         }
 
-        private readonly ParsingContext _parsingContext;
+        public override bool IsGroupedExpression
+        {
+            get { return false; }
+        }
 
         public override CompileResult Compile()
         {
-            var c = this._parsingContext.Scopes.Current;
-            var name = _parsingContext.ExcelDataProvider.GetName(c.Address.Worksheet, ExpressionString);
-            //var result = _parsingContext.Parser.Parse(value.ToString());
-
-            if (name == null)
-            {
-                throw(new Exceptions.ExcelErrorValueException(new ExcelErrorValue(eErrorType.Name)));
-            }
-            if (name.Value==null)
-            {
-                return null;
-            }
-            if (name.Value is ExcelDataProvider.IRangeInfo)
-            {
-                var range = (ExcelDataProvider.IRangeInfo)name.Value;
-                if (range.IsMulti)
-                {
-                    return new CompileResult(name.Value, DataType.Enumerable);
-                }
-                else
-                {
-                    if (range.IsEmpty)
-                    {
-                        return null;
-                    }
-                    var factory = new CompileResultFactory();
-                    return factory.Create(range.First().Value);
-                }
-            }
-            else
-            {                
-                var factory = new CompileResultFactory();
-                return factory.Create(name.Value);
-            }
-
-            
-            
-            //return new CompileResultFactory().Create(result);
+            return new CompileResult(_error, DataType.ExcelError);
+            //if (ParentIsLookupFunction)
+            //{
+            //    return new CompileResult(ExpressionString, DataType.ExcelError);
+            //}
+            //else
+            //{
+            //    return CompileRangeValues();
+            //}
         }
     }
 }

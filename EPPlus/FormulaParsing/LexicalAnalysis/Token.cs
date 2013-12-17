@@ -63,5 +63,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 Value = "-" + Value;
             }
         }
+        public override string ToString()
+        {
+            return TokenType.ToString() + ", " + Value;
+        }
     }
 }

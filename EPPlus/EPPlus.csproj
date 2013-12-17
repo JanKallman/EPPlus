@@ -423,6 +423,7 @@
     <Compile Include="FormulaParsing\Excel\Operators\OperatorsDict.cs" />
     <Compile Include="FormulaParsing\Exceptions\CircularReferenceException.cs" />
     <Compile Include="FormulaParsing\Exceptions\ExcelErrorCodes.cs" />
+    <Compile Include="FormulaParsing\Exceptions\ExcelErrorValueException.cs" />
     <Compile Include="FormulaParsing\Exceptions\ExcelFunctionException.cs" />
     <Compile Include="FormulaParsing\Exceptions\UnrecognizedTokenException.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\AtomicExpression.cs" />
@@ -434,6 +435,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\DefaultCompileStrategy.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\ICompileStrategyFactory.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\StringConcatStrategy.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExcelErrorExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\DataType.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\DateExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\DecimalExpression.cs" />
