@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace EPPlusTest.Excel
@@ -11,7 +12,7 @@ namespace EPPlusTest.Excel
     [TestClass]
     public class OperatorsTests
     {
-        [TestMethod, ExpectedException(typeof(DivideByZeroException))]
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void OperatorDivideShouldThrowDivideByZeroExceptionIfRightOperandIsZero()
         {
             Operator.Divide.Apply(new CompileResult(1d, DataType.Decimal), new CompileResult(0d, DataType.Decimal));

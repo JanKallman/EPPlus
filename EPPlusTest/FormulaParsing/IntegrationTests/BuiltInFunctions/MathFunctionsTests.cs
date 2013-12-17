@@ -73,21 +73,21 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void SumShouldReturnCorrectResultWithEnumerable()
         {
-            var result = _parser.Parse("sum({1,2,3}, 2.5)");
-            Assert.AreEqual(8.5d, result);
+            var result = _parser.Parse("sum({1;2;3;-1}, 2.5)");
+            Assert.AreEqual(7.5d, result);
         }
 
         [TestMethod]
         public void SumIfShouldReturnCorrectResult()
         {
-            var result = _parser.Parse("sumIf({1,2,3,2}, 2)");
+            var result = _parser.Parse("sumIf({1;2;3;2}, 2)");
             Assert.AreEqual(4d, result);
         }
 
         [TestMethod]
         public void StdevShouldReturnAResult()
         {
-            var result = _parser.Parse("stdev(1,2,3,4)");
+            var result = _parser.Parse("stdev(1;2;3;4)");
             Assert.IsInstanceOfType(result, typeof(double));
         }
 

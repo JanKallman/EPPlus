@@ -86,7 +86,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldCreateTokensForEnumerableCorrectly()
         {
-            var input = "Text({1,2})";
+            var input = "Text({1;2})";
             var tokens = _tokenizer.Tokenize(input);
 
             Assert.AreEqual(8, tokens.Count());

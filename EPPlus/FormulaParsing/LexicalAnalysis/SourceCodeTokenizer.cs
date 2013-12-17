@@ -192,6 +192,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                                         ||
                                         context.LastToken.TokenType == TokenType.Comma
                                         ||
+                                        context.LastToken.TokenType == TokenType.SemiColon
+                                        ||
                                         context.LastToken.TokenType == TokenType.OpeningEnumerable;
         }
 

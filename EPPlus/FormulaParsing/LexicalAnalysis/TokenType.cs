@@ -47,6 +47,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         ClosingBracket,        
         Enumerable,
         Comma,
+        SemiColon,
         String,
         StringContent,
         Integer,
