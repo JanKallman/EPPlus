@@ -46,6 +46,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         Enumerable,
         LookupArray,
         ExcelAddress,
+        ExcelError,
         Empty
     }
 }

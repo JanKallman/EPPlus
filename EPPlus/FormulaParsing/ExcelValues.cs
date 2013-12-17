@@ -44,5 +44,13 @@ namespace OfficeOpenXml
                     throw(new ArgumentException("Invalid errortype"));
             }
         }
+        public static ExcelErrorValue operator +(object v1, ExcelErrorValue v2)
+        {
+            return v2;
+        }
+        public static ExcelErrorValue operator +(ExcelErrorValue v1, ExcelErrorValue v2)
+        {
+            return v1;
+        }
     }
 }
