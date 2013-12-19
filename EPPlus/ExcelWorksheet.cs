@@ -1192,6 +1192,10 @@ namespace OfficeOpenXml
             {
                 _values.SetValue(row, col, (xr.ReadElementContentAsString()!="0"));
             }
+            else if (type == "e")
+            {
+                _values.SetValue(row, col, GetErrorType(xr.ReadElementContentAsString()));
+            }
             else
             {
                 string v = xr.ReadElementContentAsString();
@@ -1213,13 +1217,34 @@ namespace OfficeOpenXml
                     double d;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                     {
-                        _values.SetValue(row, col,  d);
+                        _values.SetValue(row, col, d);
                     }
                     else
                     {
                         _values.SetValue(row, col, double.NaN);
                     }
                 }
+            }
+        }
+
+        private object GetErrorType(string v)
+        {
+            switch(v.ToUpper())
+            {
+                case "#DIV/0!":
+                    return new ExcelErrorValue(eErrorType.Div0);
+                case "#REF!":
+                    return new ExcelErrorValue(eErrorType.Ref);
+                case "#N/A":
+                    return new ExcelErrorValue(eErrorType.NA);
+                case "#NAME?":
+                    return new ExcelErrorValue(eErrorType.Name);
+                case "#NULL!":
+                    return new ExcelErrorValue(eErrorType.Null);
+                case "#NUM!":
+                    return new ExcelErrorValue(eErrorType.Num);
+                default:
+                    return new ExcelErrorValue(eErrorType.Value);
             }
         }
         //private string GetSharedString(int stringID)
@@ -2798,7 +2823,7 @@ namespace OfficeOpenXml
                     }
                     else if (formula!=null && formula.ToString()!="")
                     {
-                        sw.Write("<c r=\"{0}\" s=\"{1}\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
+                        sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
                         sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(formula.ToString()), GetFormulaValue(v));
                     }
                     else
@@ -2870,7 +2895,7 @@ namespace OfficeOpenXml
             {
                 return " t=\"b\"";
             }
-            else if (v is double && double.IsInfinity((double)v))
+            else if ((v is double && double.IsInfinity((double)v)) || v is ExcelErrorValue)
             {
                 return " t=\"e\"";
             }
@@ -2893,7 +2918,7 @@ namespace OfficeOpenXml
                 {
                     s = new DateTime(((TimeSpan)v).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
                 }
-                else
+                else if(v.GetType().IsPrimitive || v is double || v is decimal)
                 {
                     if (v is double && double.IsNaN((double)v))
                     {
@@ -2907,6 +2932,10 @@ namespace OfficeOpenXml
                     {
                         s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
                     }
+                }
+                else
+                {
+                    s = v.ToString();
                 }
             }
 

@@ -58,7 +58,14 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             foreach (var adr in fr.Keys)
             {
-                Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                if (fr[adr] is ExcelErrorValue)
+                {
+                    Assert.AreEqual(fr[adr].ToString(), ws.Cells[adr].Value.ToString(), string.Format("Difference in cells {0} Actual {1} Calculated {2}", adr, fr[adr].ToString(), ws.Cells[adr].Value.ToString()));
+                }
+                else
+                {
+                    Assert.AreEqual(fr[adr], ws.Cells[adr].Value, string.Format("Difference in cells {0} Actual {1} Calculated {2}", adr, fr[adr], ws.Cells[adr].Value));
+                }
             }
             
         }
