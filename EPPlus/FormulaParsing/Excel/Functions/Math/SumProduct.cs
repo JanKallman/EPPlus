@@ -63,7 +63,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 if (list.Count != arrayLength)
                 {
-                    throw new ExcelFunctionException("All supplied arrays must have the same length", ExcelErrorCodes.Value);
+                    throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
+                    //throw new ExcelFunctionException("All supplied arrays must have the same length", ExcelErrorCodes.Value);
                 }
             }
             for (var rowIndex = 0; rowIndex < arrayLength; rowIndex++)

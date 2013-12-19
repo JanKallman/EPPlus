@@ -9,9 +9,17 @@ namespace OfficeOpenXml.FormulaParsing.Exceptions
     {
         
         public ExcelErrorValueException(ExcelErrorValue error)
+            : this(error.ToString(), error)
         {
             ErrorValue = error;
         }
+
+        public ExcelErrorValueException(string message, ExcelErrorValue error)
+            : base(message)
+        {
+            
+        }
+
         public ExcelErrorValue ErrorValue { get; private set; }
     }
 }

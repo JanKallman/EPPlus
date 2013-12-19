@@ -17,7 +17,22 @@ namespace OfficeOpenXml
     }
     public class ExcelErrorValue
     {
-        internal ExcelErrorValue(eErrorType type)
+        public static class Values
+        {
+            public const string Div0 = "#DIV/0!";
+            public const string NA = "#N/A";
+            public const string Name = "#NAME?";
+            public const string Null = "#NULL!";
+            public const string Num = "#NUM!";
+            public const string Ref = "#REF!";
+            public const string Value = "#VALUES!";
+        }
+        internal static ExcelErrorValue Create(eErrorType errorType)
+        {
+            return new ExcelErrorValue(errorType);
+        }
+
+        private ExcelErrorValue(eErrorType type)
         {
             Type=type; 
         }
@@ -27,19 +42,19 @@ namespace OfficeOpenXml
             switch(Type)
             {
                 case eErrorType.Div0:
-                    return "#DIV/0!";
+                    return Values.Div0;
                 case eErrorType.NA:
-                    return "#N/A";
+                    return Values.NA;
                 case eErrorType.Name:
-                    return "#NAME?";
+                    return Values.Name;
                 case eErrorType.Null:
-                    return "#NULL!";
+                    return Values.Null;
                 case eErrorType.Num:
-                    return "#NUM!";
+                    return Values.Num;
                 case eErrorType.Ref:
-                    return "#REF!";
+                    return Values.Ref;
                 case eErrorType.Value:
-                    return "#VALUE!";
+                    return Values.Value;
                 default:
                     throw(new ArgumentException("Invalid errortype"));
             }

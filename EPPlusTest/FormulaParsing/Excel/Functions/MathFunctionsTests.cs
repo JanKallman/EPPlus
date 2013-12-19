@@ -154,7 +154,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelFunctionException))]
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void SumIfShouldThrowIfCriteriaIsLargerThan255chars()
         {
             var longString = "a";

@@ -92,7 +92,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             while (navigator.MoveNext());
 
-            throw new ExcelFunctionException("Lookupfunction failed to lookup value", ExcelErrorCodes.NoValueAvaliable);
+            throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
         }
     }
 }

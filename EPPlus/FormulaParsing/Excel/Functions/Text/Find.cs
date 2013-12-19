@@ -47,7 +47,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             var result = searchIn.IndexOf(search, startIndex, System.StringComparison.Ordinal);
             if (result == -1)
             {
-                throw new ExcelFunctionException("Searched phrase was not found", ExcelErrorCodes.Value);
+                throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
             }
             // Adding 1 because Excel uses 1-based index
             return CreateResult(result + 1, DataType.Integer);

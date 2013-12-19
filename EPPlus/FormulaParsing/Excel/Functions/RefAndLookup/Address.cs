@@ -39,13 +39,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             ValidateArguments(arguments, 2);
             var row = ArgToInt(arguments, 0);
             var col = ArgToInt(arguments, 1);
-            ThrowExcelFunctionExceptionIf(() => row < 0 && col < 0, ExcelErrorCodes.Value);
+            ThrowExcelErrorValueExceptionIf(() => row < 0 && col < 0, eErrorType.Value);
             var referenceType = ExcelReferenceType.AbsoluteRowAndColumn;
             var worksheetSpec = string.Empty;
             if (arguments.Count() > 2)
             {
                 var arg3 = ArgToInt(arguments, 2);
-                ThrowExcelFunctionExceptionIf(() => arg3 < 1 || arg3 > 4, ExcelErrorCodes.Value);
+                ThrowExcelErrorValueExceptionIf(() => arg3 < 1 || arg3 > 4, eErrorType.Value);
                 referenceType = (ExcelReferenceType)ArgToInt(arguments, 2);
             }
             if (arguments.Count() > 3)

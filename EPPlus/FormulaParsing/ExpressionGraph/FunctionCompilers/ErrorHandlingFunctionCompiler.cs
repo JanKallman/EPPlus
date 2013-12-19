@@ -56,13 +56,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                     arg = child.Compile();
                     BuildFunctionArguments(arg != null ? arg.Result : null, args);
                 }
-                catch (ExcelFunctionException efe)
+                catch (ExcelErrorValueException efe)
                 {
-                    return ((ErrorHandlingFunction)Function).HandleError(efe.ErrorCode);
+                    return ((ErrorHandlingFunction)Function).HandleError(efe.ErrorValue.ToString());
                 }
                 catch (Exception)
                 {
-                    return ((ErrorHandlingFunction)Function).HandleError(ExcelErrorCodes.Value.Code);
+                    return ((ErrorHandlingFunction)Function).HandleError(ExcelErrorValue.Values.Value);
                 }
                 
             }

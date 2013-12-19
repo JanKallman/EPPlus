@@ -45,7 +45,8 @@ namespace EPPlusTest
         [TestMethod]
         public void CalulationValidationExcel()
         {
-            var pck = new ExcelPackage(new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\..\\..\\EPPlusTest\\workbooks\\FormulaTest.xlsx"));
+            //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
+            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx"));
             var ws = pck.Workbook.Worksheets["ValidateFormulas"];
             var fr = new Dictionary<string, object>();
             foreach (var cell in ws.Cells)

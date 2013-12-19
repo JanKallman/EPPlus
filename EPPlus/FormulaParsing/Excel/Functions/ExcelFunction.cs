@@ -143,16 +143,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             ThrowArgumentExceptionIf(condition, message);
         }
 
-        protected void ThrowExcelFunctionException(ExcelErrorCodes code)
+        protected void ThrowExcelErrorValueException(eErrorType errorType)
         {
-            throw new ExcelFunctionException("An excel function error occurred", code);
+            throw new ExcelErrorValueException("An excel function error occurred", ExcelErrorValue.Create(errorType));
         }
 
-        protected void ThrowExcelFunctionExceptionIf(Func<bool> condition, ExcelErrorCodes code)
+        protected void ThrowExcelErrorValueExceptionIf(Func<bool> condition, eErrorType errorType)
         {
             if (condition())
             {
-                throw new ExcelFunctionException("An excel function error occurred", code);
+                throw new ExcelErrorValueException("An excel function error occurred", ExcelErrorValue.Create(errorType));
             }
         }
 

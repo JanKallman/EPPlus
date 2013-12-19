@@ -140,7 +140,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(5, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelFunctionException))]
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void HLookupShouldThrowIfNoMatchingRecordIsFoundWhenRangeLookupIsFalse()
         {
             var func = new HLookup();
@@ -162,7 +162,7 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, parsingContext);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelFunctionException))]
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void HLookupShouldThrowIfNoMatchingRecordIsFoundWhenRangeLookupIsTrue()
         {
             var func = new HLookup();

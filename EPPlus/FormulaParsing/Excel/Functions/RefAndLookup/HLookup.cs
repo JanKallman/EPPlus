@@ -37,7 +37,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             ValidateArguments(arguments, 3);
             var lookupArgs = new LookupArguments(arguments);
-            ThrowExcelFunctionExceptionIf(() => lookupArgs.LookupIndex < 1, ExcelErrorCodes.Value);
+            ThrowExcelErrorValueExceptionIf(() => lookupArgs.LookupIndex < 1, eErrorType.Value);
             var navigator = new LookupNavigator(LookupDirection.Horizontal, lookupArgs, context);
             return Lookup(navigator, lookupArgs);
         }

@@ -146,7 +146,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     if (right == 0d)
                     {
                         //throw new DivideByZeroException(string.Format("left: {0}, right: {1}", left, right));
-                        throw(new ExcelErrorValueException(new ExcelErrorValue(eErrorType.Div0)));
+                        throw(new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Div0)));
                     }
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {
