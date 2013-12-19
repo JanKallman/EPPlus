@@ -135,8 +135,6 @@ namespace OfficeOpenXml
         }
 
         #endregion
-
-
 		#region Add Worksheet
 		/// <summary>
 		/// Adds a new blank worksheet.
@@ -882,7 +880,6 @@ namespace OfficeOpenXml
             return xmlDoc;
 		}
 		#endregion
-
 		#region Delete Worksheet
 		/// <summary>
 		/// Deletes a worksheet from the collection
@@ -895,6 +892,14 @@ namespace OfficeOpenXml
             {
                 worksheet.Drawings.ClearDrawings();
             }
+
+             /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
+             var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
+             if (_pck.Package.PartExists(_uriDrawing))
+             {
+                 _pck.Package.DeletePart(_uriDrawing);
+             }
+
             //Delete the worksheet part and relation from the package 
 			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
@@ -909,6 +914,7 @@ namespace OfficeOpenXml
 					sheetsNode.RemoveChild(sheetNode);
 				}
 			}
+
 			_worksheets.Remove(Index);
             if (_pck.Workbook.VbaProject != null)
             {
@@ -956,7 +962,6 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-
 		private void ReindexWorksheetDictionary()
 		{
 			var index = 1;
@@ -1010,7 +1015,6 @@ namespace OfficeOpenXml
             return added;
         }
 		#endregion
-
         internal ExcelWorksheet GetBySheetID(int localSheetID)
         {
             foreach (ExcelWorksheet ws in this)
