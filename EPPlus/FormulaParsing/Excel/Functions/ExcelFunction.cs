@@ -236,5 +236,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return _argumentCollectionUtil.CalculateCollection(collection, result, action);
         }
+
+        protected void CheckForAndHandleExcelError(FunctionArgument arg)
+        {
+            if (arg.ValueIsExcelError)
+            {
+                throw (new ExcelErrorValueException(arg.ValueAsExcelErrorValue));
+            }
+        }
+
+        protected void CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell)
+        {
+            if (cell.IsExcelError)
+            {
+                throw (new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString())));
+            }
+        }
     }
 }

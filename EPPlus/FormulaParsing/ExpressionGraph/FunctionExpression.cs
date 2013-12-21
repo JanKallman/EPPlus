@@ -60,7 +60,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             catch (ExcelErrorValueException e)
             {
-                return new CompileResult(e.ErrorValue, DataType.ExcelError);
+                return new CompileResult(e.ErrorValue.ToString(), DataType.ExcelError);
             }
             
         }

@@ -8,6 +8,11 @@ namespace OfficeOpenXml.Utils
 {
     internal static class ConvertUtil
     {
+        internal static bool IsNumeric(object candidate)
+        {
+            if (candidate == null) return false;
+            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan);
+        }
         /// <summary>
         /// Convert an object value to a double 
         /// </summary>
@@ -23,7 +28,7 @@ namespace OfficeOpenXml.Utils
                 {
                     return 0;
                 }
-                if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
+                if (IsNumeric(v))
                 {
                     if (v is DateTime)
                     {

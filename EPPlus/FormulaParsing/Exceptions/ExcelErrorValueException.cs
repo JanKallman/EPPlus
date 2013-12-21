@@ -20,6 +20,12 @@ namespace OfficeOpenXml.FormulaParsing.Exceptions
             
         }
 
+        public ExcelErrorValueException(eErrorType errorType)
+            : this(ExcelErrorValue.Create(errorType))
+        {
+            
+        }
+
         public ExcelErrorValue ErrorValue { get; private set; }
     }
 }

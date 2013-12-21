@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace OfficeOpenXml
@@ -15,6 +16,7 @@ namespace OfficeOpenXml
         Ref,
         Value
     }
+
     public class ExcelErrorValue
     {
         public static class Values
@@ -25,11 +27,49 @@ namespace OfficeOpenXml
             public const string Null = "#NULL!";
             public const string Num = "#NUM!";
             public const string Ref = "#REF!";
-            public const string Value = "#VALUES!";
+            public const string Value = "#VALUE!";
+
+            private static Dictionary<string, eErrorType> _values = new Dictionary<string, eErrorType>()
+                {
+                    {Div0, eErrorType.Div0},
+                    {NA, eErrorType.NA},
+                    {Name, eErrorType.Name},
+                    {Null, eErrorType.Null},
+                    {Num, eErrorType.Num},
+                    {Ref, eErrorType.Ref},
+                    {Value, eErrorType.Value}
+                };
+
+            public static bool IsErrorValue(object candidate)
+            {
+                if(candidate == null) return false;
+                var candidateString = candidate.ToString();
+                return (!string.IsNullOrEmpty(candidateString) && _values.ContainsKey(candidateString));
+            }
+
+            public static eErrorType ToErrorType(string val)
+            {
+                if (string.IsNullOrEmpty(val) || !_values.ContainsKey(val))
+                {
+                    throw new ArgumentException("Invalid error code " + (val ?? "<empty>"));
+                }
+                return _values[val];
+            }
         }
+
         internal static ExcelErrorValue Create(eErrorType errorType)
         {
             return new ExcelErrorValue(errorType);
+        }
+
+        internal static ExcelErrorValue Parse(string val)
+        {
+            if (Values.IsErrorValue(val))
+            {
+                return new ExcelErrorValue(Values.ToErrorType(val));
+            }
+            if(string.IsNullOrEmpty(val)) throw new ArgumentNullException("val");
+            throw new ArgumentException("Not a valid error value: " + val);
         }
 
         private ExcelErrorValue(eErrorType type)

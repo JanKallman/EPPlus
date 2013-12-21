@@ -190,6 +190,11 @@ namespace OfficeOpenXml.FormulaParsing
                 }
             }
 
+            public bool IsExcelError
+            {
+                get { return ExcelErrorValue.Values.IsErrorValue(_values.Value); }
+            }
+
             public IList<Token> Tokens
             {
                 get 

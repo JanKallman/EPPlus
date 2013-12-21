@@ -130,7 +130,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private void CreateAndAppendExpression(Expression parent, Token token)
         {
             if (IsWaste(token)) return;
-            if (parent != null && token.TokenType == TokenType.Comma)
+            if (parent != null && 
+                (token.TokenType == TokenType.Comma || token.TokenType == TokenType.SemiColon))
             {
                 parent.PrepareForNextChild();
                 return;
