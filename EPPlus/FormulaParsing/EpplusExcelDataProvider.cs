@@ -46,7 +46,7 @@ namespace OfficeOpenXml.FormulaParsing
                     }
                     else if (_values.Next())
                     {
-                        _values.Previous();
+                        _values.Reset();
                         return false;
                     }
                     else
