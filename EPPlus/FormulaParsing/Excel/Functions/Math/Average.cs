@@ -57,19 +57,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     Calculate(item, context, ref retVal, ref nValues);
                 }
             }
-            else if (arg.Value is ExcelDataProvider.IRangeInfo)
+            else if (arg.IsExcelRange)
             {
-                foreach (var c in (ExcelDataProvider.IRangeInfo)arg.Value)
+                foreach (var c in arg.ValueAsRangeInfo)
                 {
-                    if (!ShouldIgnore(c, context))
-                    {
-                        nValues++;
-                        retVal += (double)c.ValueDouble;
-                    }
+                    if (ShouldIgnore(c, context)) continue;
+                    CheckForAndHandleExcelError(c);
+                    if (!IsNumber(c.Value)) continue;
+                    nValues++;
+                    retVal += c.ValueDouble;
                 }
             } 
             else if (IsNumeric(arg.Value))
             {
+                CheckForAndHandleExcelError(arg);
                 nValues++;
                 retVal += ConvertUtil.GetValueDouble(arg.Value, false);
             }  

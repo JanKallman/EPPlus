@@ -145,10 +145,12 @@
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\StringFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\SumTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ExcelDataProviderTests\ExcelDataProviderIntegrationTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\FormulaParserTestBase.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\PrecedenceTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\CalcExtensionsTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\FormulaErrorHandlingTestBase.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\NegationTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzerTests.cs" />

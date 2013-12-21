@@ -36,11 +36,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
-                    if (arg.Value is ExcelDataProvider.IRangeInfo)
+                    if (arg.IsExcelRange)
                     {
-                        foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
+                        foreach (var cell in arg.ValueAsRangeInfo)
                         {
-                            if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context))
+                            if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context) && ConvertUtil.IsNumeric(cell.Value))
                             {
                                 argList.Add(cell.ValueDouble);
                             }       
@@ -48,7 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     }
                     else
                     {
-                        if (arg.Value is double || arg.Value is int || arg.Value is System.DateTime || arg.Value.GetType().IsPrimitive)
+                        if (ConvertUtil.IsNumeric(arg.Value))
                         {
                             argList.Add(ConvertUtil.GetValueDouble(arg.Value));
                         }

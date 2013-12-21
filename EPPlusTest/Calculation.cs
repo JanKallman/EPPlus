@@ -57,9 +57,20 @@ namespace EPPlusTest
                 }
             }
             pck.Workbook.Calculate();
+            var nErrors = 0;
+            var errors = new List<Tuple<string, object, object>>();
             foreach (var adr in fr.Keys)
             {
-                Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                try
+                {
+                    Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                }
+                catch (Exception e)
+                {
+                    errors.Add(new Tuple<string, object, object>(adr, fr[adr], ws.Cells[adr].Value));
+                    nErrors++;
+                }
+               
             }
             
         }

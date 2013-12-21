@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
             }
             foreach (var argument in arguments)
             {
-                if (ExcelErrorCodes.IsErrorCode(argument.Value))
+                if (ExcelErrorValue.Values.IsErrorValue(argument.Value))
                 {
                     return CreateResult(true, DataType.Boolean);
                 }

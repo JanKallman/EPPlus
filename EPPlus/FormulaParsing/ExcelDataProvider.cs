@@ -34,6 +34,7 @@ namespace OfficeOpenXml.FormulaParsing
             double ValueDouble { get; }
             double ValueDoubleLogical { get; }
             bool IsHiddenRow { get; }
+            bool IsExcelError { get; }
             IList<Token> Tokens { get; }   
         }
         public interface INameInfo
