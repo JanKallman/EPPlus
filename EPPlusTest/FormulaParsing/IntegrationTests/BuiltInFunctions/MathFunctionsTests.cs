@@ -183,6 +183,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void CountIfShouldReturnAResult()
+        {
+            var result = _parser.Parse("CountIf({1;2;2;''}, '2')");
+            Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
         public void VarShouldReturnAResult()
         {
             var result = _parser.Parse("Var(1,2,3)");

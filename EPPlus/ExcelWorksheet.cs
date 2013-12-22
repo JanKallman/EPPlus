@@ -1229,23 +1229,24 @@ namespace OfficeOpenXml
 
         private object GetErrorType(string v)
         {
-            switch(v.ToUpper())
-            {
-                case "#DIV/0!":
-                    return new ExcelErrorValue(eErrorType.Div0);
-                case "#REF!":
-                    return new ExcelErrorValue(eErrorType.Ref);
-                case "#N/A":
-                    return new ExcelErrorValue(eErrorType.NA);
-                case "#NAME?":
-                    return new ExcelErrorValue(eErrorType.Name);
-                case "#NULL!":
-                    return new ExcelErrorValue(eErrorType.Null);
-                case "#NUM!":
-                    return new ExcelErrorValue(eErrorType.Num);
-                default:
-                    return new ExcelErrorValue(eErrorType.Value);
-            }
+            return ExcelErrorValue.Parse(v.ToUpper());
+            //switch(v.ToUpper())
+            //{
+            //    case "#DIV/0!":
+            //        return new ExcelErrorValue.cre(eErrorType.Div0);
+            //    case "#REF!":
+            //        return new ExcelErrorValue(eErrorType.Ref);
+            //    case "#N/A":
+            //        return new ExcelErrorValue(eErrorType.NA);
+            //    case "#NAME?":
+            //        return new ExcelErrorValue(eErrorType.Name);
+            //    case "#NULL!":
+            //        return new ExcelErrorValue(eErrorType.Null);
+            //    case "#NUM!":
+            //        return new ExcelErrorValue(eErrorType.Num);
+            //    default:
+            //        return new ExcelErrorValue(eErrorType.Value);
+            //}
         }
         //private string GetSharedString(int stringID)
         //{
