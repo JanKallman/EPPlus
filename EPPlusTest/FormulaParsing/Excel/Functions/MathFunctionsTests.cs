@@ -456,6 +456,24 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void CountIfShouldReturnNbrOfNumericItemsThatMatch()
+        {
+            var func = new CountIf();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2d, 3d), ">1");
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod]
+        public void CountIfShouldReturnNbrOfAlphaNumItemsThatMatch()
+        {
+            var func = new CountIf();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs("Monday", "Tuesday", "Thursday"), "T*day");
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod]
         public void ProductShouldMultiplyArguments()
         {
             var func = new Product();

@@ -66,6 +66,15 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         }
 
         [TestMethod]
+        public void CountIfShouldReturnCorrectResult()
+        {
+            _worksheet.Cells["A4"].Formula = "COUNTIF(A1:A3, '>2')";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
         public void MaxShouldReturn6()
         {
             _worksheet.Cells["A4"].Formula = "Max(A1:A3)";
