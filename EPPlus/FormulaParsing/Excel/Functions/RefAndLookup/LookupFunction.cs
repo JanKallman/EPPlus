@@ -75,19 +75,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             do
             {
                 var matchResult = IsMatch(navigator.CurrentValue, lookupArgs.SearchedValue);
-                if (matchResult == 0)
+                if (matchResult != 0)
+                {
+                    if (lookupArgs.RangeLookup)
+                    {
+                        if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
+                        {
+                            return CreateResult(lastLookupValue, DataType.String);
+                        }
+                        lastMatchResult = matchResult;
+                        lastValue = navigator.CurrentValue;
+                        lastLookupValue = navigator.GetLookupValue();
+                    }
+                }
+                else
                 {
                     return CreateResult(navigator.GetLookupValue(), DataType.String);
-                }
-                if (lookupArgs.RangeLookup)
-                {
-                    if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
-                    {
-                        return CreateResult(lastLookupValue, DataType.String);
-                    }
-                    lastMatchResult = matchResult;
-                    lastValue = navigator.CurrentValue;
-                    lastLookupValue = navigator.GetLookupValue();
                 }
             }
             while (navigator.MoveNext());

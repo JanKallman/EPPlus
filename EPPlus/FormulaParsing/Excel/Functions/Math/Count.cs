@@ -49,6 +49,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     foreach (var c in cs)
                     {
+                        _CheckForAndHandleExcelError(c, context);
                         if (ShouldIgnore(c, context) == false && ShouldCount(c.Value))
                         {
                             nItems++;
@@ -62,11 +63,31 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     {
                         Calculate(value, ref nItems, context);
                     }
-                    else if (ShouldIgnore(item) == false && ShouldCount(item.Value))
+                    else
                     {
-                        nItems++;
+                        _CheckForAndHandleExcelError(item, context);
+                        if (ShouldIgnore(item) == false && ShouldCount(item.Value))
+                        {
+                            nItems++;
+                        }
                     }
                 }
+            }
+        }
+
+        private void _CheckForAndHandleExcelError(FunctionArgument arg, ParsingContext context)
+        {
+            if (context.Scopes.Current.IsSubtotal)
+            {
+                CheckForAndHandleExcelError(arg);
+            }
+        }
+
+        private void _CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell, ParsingContext context)
+        {
+            if (context.Scopes.Current.IsSubtotal)
+            {
+                CheckForAndHandleExcelError(cell);
             }
         }
 

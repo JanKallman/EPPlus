@@ -366,6 +366,13 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void HyperlinkShouldReturnUriIfNoNameIsSupplied()
+        {
+            var func = new Hyperlink();
+            var parsingContext = ParsingContext.Create();
+        }
+
+        [TestMethod]
         public void ColumnShouldReturnRowFromCurrentScopeIfNoAddressIsSupplied()
         {
             var func = new Column();

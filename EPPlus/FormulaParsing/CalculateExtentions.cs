@@ -75,6 +75,7 @@ namespace OfficeOpenXml.Calculation
             }
             worksheet.Workbook._isCalculated = true;
         }
+
         public static void Calculate(this ExcelRangeBase range)
         {
             Init(range._workbook);

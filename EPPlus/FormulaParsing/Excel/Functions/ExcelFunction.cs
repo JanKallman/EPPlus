@@ -217,9 +217,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return ArgsToDoubleEnumerable(false, arguments, context);
         }
 
+        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        {
+            return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, ignoreErrors, arguments, context);
+        }
+
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, arguments, context);
+            return ArgsToDoubleEnumerable(ignoreHiddenCells, true, arguments, context);
         }
 
         protected virtual IEnumerable<object> ArgsToObjectEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
