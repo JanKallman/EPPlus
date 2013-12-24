@@ -70,10 +70,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             } 
             else if (IsNumeric(arg.Value))
             {
-                CheckForAndHandleExcelError(arg);
                 nValues++;
                 retVal += ConvertUtil.GetValueDouble(arg.Value, false);
-            }  
+            }
+            CheckForAndHandleExcelError(arg);
         }
 
 

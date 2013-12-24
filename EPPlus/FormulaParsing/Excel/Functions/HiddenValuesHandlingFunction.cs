@@ -40,6 +40,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         protected override IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
+            return ArgsToDoubleEnumerable(arguments, context, true);
+        }
+
+        protected IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context, bool ignoreErrors)
+        {
             if (!arguments.Any())
             {
                 return Enumerable.Empty<double>();
@@ -49,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 var nonHidden = arguments.Where(x => !x.ExcelStateFlagIsSet(ExcelCellState.HiddenCell));
                 return base.ArgsToDoubleEnumerable(IgnoreHiddenValues, nonHidden, context);
             }
-            return base.ArgsToDoubleEnumerable(IgnoreHiddenValues, arguments, context);
+            return base.ArgsToDoubleEnumerable(IgnoreHiddenValues, ignoreErrors, arguments, context);
         }
 
         protected bool ShouldIgnore(ExcelDataProvider.ICellInfo c, ParsingContext context)

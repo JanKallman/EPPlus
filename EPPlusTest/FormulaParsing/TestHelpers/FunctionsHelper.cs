@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using Rhino.Mocks;
 
 namespace EPPlusTest.FormulaParsing.TestHelpers
 {

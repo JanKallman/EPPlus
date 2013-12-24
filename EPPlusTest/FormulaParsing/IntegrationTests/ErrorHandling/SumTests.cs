@@ -64,7 +64,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.ErrorHandling
         [TestMethod]
         public void ReferenceError()
         {
-            Assert.AreEqual("#REF!", Worksheet.Cells["H9"].Value);
+            Assert.AreEqual("#REF!", Worksheet.Cells["H9"].Value.ToString());
         }
 
         [TestMethod]

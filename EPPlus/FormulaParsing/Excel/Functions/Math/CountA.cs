@@ -44,9 +44,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                if (item.IsExcelRange)
+                if (item.Value is ExcelDataProvider.IRangeInfo)
                 {
-                    foreach (var c in item.ValueAsRangeInfo)
+                    foreach (var c in (ExcelDataProvider.IRangeInfo)item.Value)
                     {
                         if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
                         {

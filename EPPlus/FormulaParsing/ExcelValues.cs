@@ -107,5 +107,16 @@ namespace OfficeOpenXml
         {
             return v1;
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is ExcelErrorValue)) return false;
+            return ((ExcelErrorValue) obj).ToString() == this.ToString();
+        }
     }
 }

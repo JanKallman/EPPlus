@@ -397,6 +397,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Column.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Columns.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Lookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupArguments.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupDirection.cs" />

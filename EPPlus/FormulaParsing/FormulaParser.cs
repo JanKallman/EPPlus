@@ -105,7 +105,7 @@ namespace OfficeOpenXml.FormulaParsing
                 }
                 catch(ExcelErrorValueException ex)
                 {
-                    return ex.ErrorValue.ToString();
+                    return ex.ErrorValue;
                 }
             }
         }

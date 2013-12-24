@@ -26,13 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
     public class DoubleEnumerableArgConverter : CollectionFlattener<double>
     {
-        public virtual IEnumerable<double> ConvertArgs(bool ignoreHidden, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        public virtual IEnumerable<double> ConvertArgs(bool ignoreHidden, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
@@ -40,6 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     {
                         foreach (var cell in arg.ValueAsRangeInfo)
                         {
+                            if(!ignoreErrors && cell.IsExcelError) throw new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString()));
                             if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context) && ConvertUtil.IsNumeric(cell.Value))
                             {
                                 argList.Add(cell.ValueDouble);
@@ -48,6 +50,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     }
                     else
                     {
+                        if(!ignoreErrors && arg.ValueIsExcelError) throw new ExcelErrorValueException(arg.ValueAsExcelErrorValue);
                         if (ConvertUtil.IsNumeric(arg.Value))
                         {
                             argList.Add(ConvertUtil.GetValueDouble(arg.Value));
