@@ -306,6 +306,8 @@
     <Compile Include="FormulaParsing\ExcelUtilities\ValueMatcher.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\WildCardValueMatcher.cs" />
     <Compile Include="FormulaParsing\ExcelValues.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CompileResultValidator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CompileResultValidators.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CellStateHelper.cs" />
     <Compile Include="FormulaParsing\Excel\ExcelCellState.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentCollectionUtil.cs" />
@@ -329,6 +331,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Today.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weekday.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Year.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DecimalCompileResultValidator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DoubleArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DoubleEnumerableArgConverter.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ErrorHandlingFunction.cs" />

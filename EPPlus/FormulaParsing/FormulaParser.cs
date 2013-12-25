@@ -101,7 +101,25 @@ namespace OfficeOpenXml.FormulaParsing
                 }
                 try
                 {
-                    return _compiler.Compile(graph.Expressions).Result;
+                    var compileResult = _compiler.Compile(graph.Expressions);
+                    // quick solution for the fact that an excelrange can be returned.
+                    var rangeInfo = compileResult.Result as ExcelDataProvider.IRangeInfo;
+                    if (rangeInfo == null)
+                    {
+                        return compileResult.Result;
+                    }
+                    else
+                    {
+                        if (rangeInfo.IsEmpty)
+                        {
+                            return null;
+                        }
+                        if (!rangeInfo.IsMulti)
+                        {
+                            return rangeInfo.First().Value;
+                        }
+                        throw new ExcelErrorValueException(eErrorType.Value);
+                    }
                 }
                 catch(ExcelErrorValueException ex)
                 {

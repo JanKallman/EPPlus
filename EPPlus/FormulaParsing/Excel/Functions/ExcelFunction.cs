@@ -36,19 +36,24 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     public abstract class ExcelFunction
     {
         public ExcelFunction()
-            : this(new ArgumentCollectionUtil(), new ArgumentParsers())
+            : this(new ArgumentCollectionUtil(), new ArgumentParsers(), new CompileResultValidators())
         {
 
         }
 
-        public ExcelFunction(ArgumentCollectionUtil argumentCollectionUtil, ArgumentParsers argumentParsers)
+        public ExcelFunction(
+            ArgumentCollectionUtil argumentCollectionUtil, 
+            ArgumentParsers argumentParsers,
+            CompileResultValidators compileResultValidators)
         {
             _argumentCollectionUtil = argumentCollectionUtil;
             _argumentParsers = argumentParsers;
+            _compileResultValidators = compileResultValidators;
         }
 
         private readonly ArgumentCollectionUtil _argumentCollectionUtil;
         private readonly ArgumentParsers _argumentParsers;
+        private readonly CompileResultValidators _compileResultValidators;
 
         public abstract CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context);
 
@@ -234,6 +239,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         protected CompileResult CreateResult(object result, DataType dataType)
         {
+            var validator = _compileResultValidators.GetValidator(dataType);
+            validator.Validate(result);
             return new CompileResult(result, dataType);
         }
 
