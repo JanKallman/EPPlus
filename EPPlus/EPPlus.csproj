@@ -300,6 +300,7 @@
     <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependency.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependencyFactory.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\IndexToAddressTranslator.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\LookupValueMatcher.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\NumericExpressionEvaluator.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddress.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressFactory.cs" />

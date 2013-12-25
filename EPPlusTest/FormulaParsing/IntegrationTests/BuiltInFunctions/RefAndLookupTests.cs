@@ -14,7 +14,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
     public class RefAndLookupTests : FormulaParserTestBase
     {
         private ExcelDataProvider _excelDataProvider;
-        const string WorksheetName = "";
+        const string WorksheetName = null;
         private ExcelPackage _package;
         private ExcelWorksheet _worksheet;
 

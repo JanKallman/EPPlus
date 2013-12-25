@@ -88,11 +88,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric + r.ResultNumeric, DataType.Integer);
                     }
-                    else if (l.IsNumeric && r.IsNumeric)
+                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
                     {
                         return new CompileResult(l.ResultNumeric + r.ResultNumeric, DataType.Decimal);
                     }
-                    return new CompileResult(0, DataType.Integer);
+                    throw new ExcelErrorValueException(eErrorType.Value);
                 }); 
             }
         }

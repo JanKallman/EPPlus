@@ -8,6 +8,7 @@ using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
 namespace EPPlusTest.Excel.Functions.RefAndLookup
 {
@@ -24,6 +25,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         private ParsingContext GetContext(ExcelDataProvider provider)
         {
             var ctx = ParsingContext.Create();
+            ctx.Scopes.NewScope(new RangeAddress(){Worksheet = WorksheetName, FromCol = 1, FromRow = 1});
             ctx.ExcelDataProvider = provider;
             return ctx;
         }

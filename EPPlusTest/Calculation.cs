@@ -70,9 +70,7 @@ namespace EPPlusTest
                     errors.Add(new Tuple<string, object, object>(adr, fr[adr], ws.Cells[adr].Value));
                     nErrors++;
                 }
-               
             }
-            
         }
     }
 }

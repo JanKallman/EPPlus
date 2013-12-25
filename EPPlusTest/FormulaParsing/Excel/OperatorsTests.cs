@@ -73,5 +73,18 @@ namespace EPPlusTest.Excel
             var result = Operator.Exp.Apply(new CompileResult(2, DataType.Integer), new CompileResult(3, DataType.Integer));
             Assert.AreEqual(8d, result.Result);
         }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void OperatorPlusShouldThrowExceptionIfNonNumericOperand()
+        {
+            Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+        }
+
+        [TestMethod]
+        public void OperatorPlusShouldAddNumericStringAndNumber()
+        {
+            var result = Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("2", DataType.String));
+            Assert.AreEqual(3d, result.Result);
+        }
     }
 }

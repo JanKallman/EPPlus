@@ -54,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         private void Initialize()
         {
             var factory = new RangeAddressFactory(_parsingContext.ExcelDataProvider);
-            _rangeAddress = factory.Create(_arguments.RangeAddress);
+            _rangeAddress = factory.Create(_parsingContext.Scopes.Current.Address.Worksheet, _arguments.RangeAddress);
             _currentCol = _rangeAddress.FromCol;
             _currentRow = _rangeAddress.FromRow;
             SetCurrentValue();

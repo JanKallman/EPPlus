@@ -37,7 +37,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         private readonly ValueMatcher _valueMatcher;
 
         public LookupFunction()
-            : this(new ValueMatcher())
+            : this(new LookupValueMatcher())
         {
 
         }
