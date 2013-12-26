@@ -13,6 +13,32 @@ namespace EPPlusTest.Excel
     public class OperatorsTests
     {
         [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void OperatorPlusShouldThrowExceptionIfNonNumericOperand()
+        {
+            Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+        }
+
+        [TestMethod]
+        public void OperatorPlusShouldAddNumericStringAndNumber()
+        {
+            var result = Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("2", DataType.String));
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void OperatorMinusShouldThrowExceptionIfNonNumericOperand()
+        {
+            Operator.Minus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+        }
+
+        [TestMethod]
+        public void OperatorMinusShouldSubtractNumericStringAndNumber()
+        {
+            var result = Operator.Minus.Apply(new CompileResult(5, DataType.Integer), new CompileResult("2", DataType.String));
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void OperatorDivideShouldThrowDivideByZeroExceptionIfRightOperandIsZero()
         {
             Operator.Divide.Apply(new CompileResult(1d, DataType.Decimal), new CompileResult(0d, DataType.Decimal));
@@ -22,6 +48,32 @@ namespace EPPlusTest.Excel
         public void OperatorDivideShouldDivideCorrectly()
         {
             var result = Operator.Divide.Apply(new CompileResult(9d, DataType.Decimal), new CompileResult(3d, DataType.Decimal));
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void OperatorDivideShouldThrowExceptionIfNonNumericOperand()
+        {
+            Operator.Divide.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+        }
+
+        [TestMethod]
+        public void OperatorDivideShouldDivideNumericStringAndNumber()
+        {
+            var result = Operator.Divide.Apply(new CompileResult(9, DataType.Integer), new CompileResult("3", DataType.String));
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void OperatorMultiplyShouldThrowExceptionIfNonNumericOperand()
+        {
+            Operator.Multiply.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+        }
+
+        [TestMethod]
+        public void OperatoMultiplyShouldMultiplyNumericStringAndNumber()
+        {
+            var result = Operator.Multiply.Apply(new CompileResult(1, DataType.Integer), new CompileResult("3", DataType.String));
             Assert.AreEqual(3d, result.Result);
         }
 
@@ -72,19 +124,6 @@ namespace EPPlusTest.Excel
         {
             var result = Operator.Exp.Apply(new CompileResult(2, DataType.Integer), new CompileResult(3, DataType.Integer));
             Assert.AreEqual(8d, result.Result);
-        }
-
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void OperatorPlusShouldThrowExceptionIfNonNumericOperand()
-        {
-            Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
-        }
-
-        [TestMethod]
-        public void OperatorPlusShouldAddNumericStringAndNumber()
-        {
-            var result = Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("2", DataType.String));
-            Assert.AreEqual(3d, result.Result);
         }
     }
 }
