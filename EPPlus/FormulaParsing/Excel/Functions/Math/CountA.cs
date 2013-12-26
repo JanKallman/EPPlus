@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             ValidateArguments(arguments, 1);
             var nItems = 0d;
-            Calculate(arguments, context,  ref nItems);
+            Calculate(arguments, context, ref nItems);
             return CreateResult(nItems, DataType.Integer);
         }
 
@@ -44,12 +44,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                if (item.IsExcelRange)
+                var cs = item.Value as ExcelDataProvider.IRangeInfo;
+                if (cs != null)
                 {
-                    foreach (var c in item.ValueAsRangeInfo)
+                    foreach (var c in cs)
                     {
                         _CheckForAndHandleExcelError(c, context);
-                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, c.IsHiddenRow))
+                        if (!ShouldIgnore(c, context) == false && ShouldCount(c.Value))
                         {
                             nItems++;
                         }
@@ -62,12 +63,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 else
                 {
                     _CheckForAndHandleExcelError(item, context);
-                    if (!ShouldIgnore(item) && ShouldCount(item.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                    if (!ShouldIgnore(item) && ShouldCount(item.Value))
                     {
                         nItems++;
                     }
                 }
-                
+
             }
         }
 
@@ -87,12 +88,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
         }
 
-        private bool ShouldCount(object value, bool isHiddenCell)
+        private bool ShouldCount(object value)
         {
-            if (isHiddenCell)
-            {
-                return false;
-            }
             if (value == null) return false;
             return (!string.IsNullOrEmpty(value.ToString()));
         }
