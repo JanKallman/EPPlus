@@ -44,11 +44,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                if (item.Value is ExcelDataProvider.IRangeInfo)
+                if (item.IsExcelRange)
                 {
-                    foreach (var c in (ExcelDataProvider.IRangeInfo)item.Value)
+                    foreach (var c in item.ValueAsRangeInfo)
                     {
-                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                        _CheckForAndHandleExcelError(c, context);
+                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, c.IsHiddenRow))
                         {
                             nItems++;
                         }
@@ -58,13 +59,34 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     Calculate((IEnumerable<FunctionArgument>)item.Value, context, ref nItems);
                 }
-                else if (ShouldCount(item.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                else
                 {
-                    nItems++;
+                    _CheckForAndHandleExcelError(item, context);
+                    if (!ShouldIgnore(item) && ShouldCount(item.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                    {
+                        nItems++;
+                    }
                 }
                 
             }
         }
+
+        private void _CheckForAndHandleExcelError(FunctionArgument arg, ParsingContext context)
+        {
+            if (context.Scopes.Current.IsSubtotal)
+            {
+                CheckForAndHandleExcelError(arg);
+            }
+        }
+
+        private void _CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell, ParsingContext context)
+        {
+            if (context.Scopes.Current.IsSubtotal)
+            {
+                CheckForAndHandleExcelError(cell);
+            }
+        }
+
         private bool ShouldCount(object value, bool isHiddenCell)
         {
             if (isHiddenCell)

@@ -83,7 +83,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                 {
                     l = l ?? new CompileResult(0, DataType.Integer);
                     r = r ?? new CompileResult(0, DataType.Integer);
-                    //TODO: Check datatype handling /JK
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {
                         return new CompileResult(l.ResultNumeric + r.ResultNumeric, DataType.Integer);
@@ -107,11 +106,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric - r.ResultNumeric, DataType.Integer);
                     }
-                    else if (l.IsNumeric && r.IsNumeric)
+                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
                     {
                         return new CompileResult(l.ResultNumeric - r.ResultNumeric, DataType.Decimal);
                     }
-                    return new CompileResult(0, DataType.Integer);
+                    throw new ExcelErrorValueException(eErrorType.Value);
                 });
             }
         }
@@ -126,11 +125,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Integer);
                     }
-                    if (l.IsNumeric && r.IsNumeric)
+                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
                     {
                         return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Decimal);
                     }
-                    return new CompileResult(0, DataType.Integer);
+                    throw new ExcelErrorValueException(eErrorType.Value);
                 });
             }
         }
@@ -141,22 +140,25 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             {
                 return new Operator(Operators.Divide, PrecedenceMultiplyDevide, (l, r) =>
                 {
+                    if (!(l.IsNumeric || l.IsNumericString) || !(r.IsNumeric || r.IsNumericString))
+                    {
+                        throw new ExcelErrorValueException(eErrorType.Value);
+                    }
                     var left = l.ResultNumeric;
                     var right = r.ResultNumeric;
-                    if (right == 0d)
+                    if ((int)right == 0 || (int)left == 0)
                     {
-                        //throw new DivideByZeroException(string.Format("left: {0}, right: {1}", left, right));
-                        throw(new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Div0)));
+                        throw new ExcelErrorValueException(eErrorType.Div0);
                     }
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {
                         return new CompileResult(left / right, DataType.Integer);
                     }
-                    if (l.IsNumeric && r.IsNumeric)
+                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
                     {
                         return new CompileResult(left / right, DataType.Decimal);
                     }
-                    return new CompileResult(0, DataType.Integer);
+                    throw new ExcelErrorValueException(eErrorType.Value);
                 });
             }
         }
