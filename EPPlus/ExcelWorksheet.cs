@@ -1164,7 +1164,7 @@ namespace OfficeOpenXml
             return new RowInternal()
             {
                 Collapsed=(xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false),
-                Height = (xr.GetAttribute("ht") == null ? 0 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
+                Height = (xr.GetAttribute("ht") == null ? -1 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
                 Hidden = (xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false),
                 Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false,
                 CustomHeight = xr.GetAttribute("customHeight") == null ? false : xr.GetAttribute("customHeight")=="1"

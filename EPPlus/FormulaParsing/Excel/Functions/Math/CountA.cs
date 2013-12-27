@@ -50,7 +50,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     foreach (var c in cs)
                     {
                         _CheckForAndHandleExcelError(c, context);
-                        if (!ShouldIgnore(c, context) == false && ShouldCount(c.Value))
+                        if (!ShouldIgnore(c, context) && ShouldCount(c.Value))
                         {
                             nItems++;
                         }

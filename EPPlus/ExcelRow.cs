@@ -37,7 +37,7 @@ namespace OfficeOpenXml
 {
 	internal class RowInternal
     {
-        internal double Height;
+        internal double Height=-1;
         internal bool Hidden;
         internal bool Collapsed;        
         internal short OutlineLevel;
