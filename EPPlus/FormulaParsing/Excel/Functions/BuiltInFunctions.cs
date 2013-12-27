@@ -119,6 +119,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["column"] = new Column();
             Functions["columns"] = new Columns();
             Functions["choose"] = new Choose();
+            Functions["index"] = new Index();
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();

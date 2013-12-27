@@ -29,6 +29,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 }
                 return CreateResult(ConvertUtil.GetValueDouble(candidate.Value), DataType.Decimal);
             }
+            if (arg1.IsExcelRange)
+            {
+                var index = ArgToInt(arguments, 1);
+                if(index < arg1.ValueAsRangeInfo.Count())
+                {
+                    ThrowExcelErrorValueException(eErrorType.Ref);
+                }
+                var candidate = arg1.ValueAsRangeInfo.ElementAt(index - 1);
+                if (!IsNumber(candidate.Value))
+                {
+                    throw new ExcelErrorValueException(eErrorType.Value);
+                }
+                return CreateResult(ConvertUtil.GetValueDouble(candidate.Value), DataType.Decimal);
+            }
             throw new NotImplementedException();
         }
     }
