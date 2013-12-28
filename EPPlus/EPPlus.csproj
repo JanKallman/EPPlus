@@ -345,7 +345,10 @@
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionNameProvider.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsError.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsEven.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsLogical.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IntArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
@@ -397,9 +400,11 @@
     <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ObjectEnumerableArgConverter.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Address.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ArrayLookupNavigator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Choose.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Column.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Columns.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ExcelLookupNavigator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Index.cs" />
@@ -408,6 +413,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupDirection.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactory.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Match.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Row.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Rows.cs" />
