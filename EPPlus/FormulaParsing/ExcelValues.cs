@@ -42,9 +42,14 @@ namespace OfficeOpenXml
 
             public static bool IsErrorValue(object candidate)
             {
-                if(candidate == null) return false;
+                if(candidate == null || !(candidate is ExcelErrorValue)) return false;
                 var candidateString = candidate.ToString();
                 return (!string.IsNullOrEmpty(candidateString) && _values.ContainsKey(candidateString));
+            }
+
+            public static bool StringIsErrorValue(string candidate)
+            {
+                return (!string.IsNullOrEmpty(candidate) && _values.ContainsKey(candidate));
             }
 
             public static eErrorType ToErrorType(string val)
@@ -64,7 +69,7 @@ namespace OfficeOpenXml
 
         internal static ExcelErrorValue Parse(string val)
         {
-            if (Values.IsErrorValue(val))
+            if (Values.StringIsErrorValue(val))
             {
                 return new ExcelErrorValue(Values.ToErrorType(val));
             }
