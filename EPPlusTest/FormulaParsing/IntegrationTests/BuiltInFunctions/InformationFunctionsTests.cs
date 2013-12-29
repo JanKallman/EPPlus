@@ -57,5 +57,33 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.IsTrue((bool)result);
             }
         }
+
+        [TestMethod]
+        public void IsErrShouldReturnFalseIfErrorCodeIsNa()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("Test");
+                sheet.Cells["A1"].Value = ExcelErrorValue.Parse("#N/A");
+                sheet.Cells["A2"].Formula = "ISERR(A1)";
+                sheet.Calculate();
+                var result = sheet.Cells["A2"].Value;
+                Assert.IsFalse((bool)result);
+            }
+        }
+
+        [TestMethod]
+        public void IsNaShouldReturnTrueIfErrorCodeIsNa()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("Test");
+                sheet.Cells["A1"].Value = ExcelErrorValue.Parse("#N/A");
+                sheet.Cells["A2"].Formula = "ISNA(A1)";
+                sheet.Calculate();
+                var result = sheet.Cells["A2"].Value;
+                Assert.IsFalse((bool)result);
+            }
+        }
     }
 }
