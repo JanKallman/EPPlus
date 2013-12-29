@@ -344,9 +344,11 @@
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionModule.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionNameProvider.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsBlank.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsErr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsError.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsEven.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsLogical.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsNa.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />

@@ -98,7 +98,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             if (!_functions.ContainsKey(funcNum))
             {
-                throw new ArgumentException("Invalid funcNum " + funcNum + ", valid ranges are 1-11 and 101-111");
+                ThrowExcelErrorValueException(eErrorType.Value);
+                //throw new ArgumentException("Invalid funcNum " + funcNum + ", valid ranges are 1-11 and 101-111");
             }
             return _functions[funcNum];
         }

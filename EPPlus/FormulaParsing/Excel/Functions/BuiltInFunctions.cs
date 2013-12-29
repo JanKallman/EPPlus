@@ -102,9 +102,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["isnumber"] = new IsNumber();
             Functions["istext"] = new IsText();
             Functions["iserror"] = new IsError();
+            Functions["iserr"] = new IsErr();
             Functions["iseven"] = new IsEven();
             Functions["isodd"] = new IsOdd();
             Functions["islogical"] = new IsLogical();
+            Functions["isna"] = new IsNa();
             // Logical
             Functions["if"] = new If();
             Functions["not"] = new Not();
