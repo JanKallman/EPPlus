@@ -34,6 +34,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -97,11 +98,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             get
             {
-                if (DataType == DataType.String && Result != null)
-                {
-                    return Regex.IsMatch(Result.ToString(), @"^[\d]+(\,[\d])?");
-                }
-                return false;
+                return DataType == DataType.String && ConvertUtil.IsNumericString(Result);
             }
         }
 

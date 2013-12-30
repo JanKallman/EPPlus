@@ -43,5 +43,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return (ignoreHiddenValues && c.IsHiddenRow) || (context.Scopes.Current.IsSubtotal && IsSubTotal(c));
         }
+
+        internal static bool ShouldIgnore(bool ignoreHiddenValues, FunctionArgument arg, ParsingContext context)
+        {
+            return (ignoreHiddenValues && arg.ExcelStateFlagIsSet(ExcelCellState.HiddenCell));
+        }
     }
 }

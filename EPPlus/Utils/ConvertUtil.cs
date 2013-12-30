@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.Utils
 {
@@ -11,8 +13,18 @@ namespace OfficeOpenXml.Utils
         internal static bool IsNumeric(object candidate)
         {
             if (candidate == null) return false;
-            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan);
+            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
         }
+
+        internal static bool IsNumericString(object candidate)
+        {
+            if (candidate != null)
+            {
+                return Regex.IsMatch(candidate.ToString(), @"^[\d]+(\,[\d])?");
+            }
+            return false;
+        }
+
         /// <summary>
         /// Convert an object value to a double 
         /// </summary>

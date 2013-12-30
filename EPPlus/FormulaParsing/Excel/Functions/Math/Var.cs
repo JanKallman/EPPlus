@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var args = ArgsToDoubleEnumerable(arguments, context);
+            var args = ArgsToDoubleEnumerable(IgnoreHiddenValues, false, arguments, context);
             double avg = args.Average();
             double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
             var result = d / (args.Count() - 1);

@@ -93,18 +93,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 
         private bool ShouldCount(object value)
         {
-            if (value == null) return false;
-            if (value is int
-                ||
-                value is double
-                ||
-                value is decimal
-                ||
-                value is System.DateTime)
-            {
-                return true;
-            }
-            return false;
+            return IsNumeric(value);
         }
     }
 }
