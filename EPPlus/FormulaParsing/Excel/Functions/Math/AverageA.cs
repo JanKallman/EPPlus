@@ -21,7 +21,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(result / nValues, DataType.Decimal);
         }
 
-        private void Calculate(FunctionArgument arg, ParsingContext context, ref double retVal, ref double nValues)
+        private void Calculate(FunctionArgument arg, ParsingContext context, ref double retVal, ref double nValues, bool isInArray = false)
         {
             if (ShouldIgnore(arg))
             {
@@ -31,7 +31,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
                 {
-                    Calculate(item, context, ref retVal, ref nValues);
+                    Calculate(item, context, ref retVal, ref nValues, true);
                 }
             }
             else if (arg.IsExcelRange)
@@ -58,7 +58,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             else
             {
-                var numericValue = GetNumericValue(arg.Value);
+                var numericValue = GetNumericValue(arg.Value, isInArray);
                 if (numericValue.HasValue)
                 {
                     nValues++;
@@ -66,16 +66,28 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 }
                 else if((arg.Value is string) && !ConvertUtil.IsNumericString(arg.Value))
                 {
-                    ThrowExcelErrorValueException(eErrorType.Value);
+                    if (isInArray)
+                    {
+                        nValues++;
+                    }
+                    else
+                    {
+                        ThrowExcelErrorValueException(eErrorType.Value);   
+                    }
                 }
             }
             CheckForAndHandleExcelError(arg);
         }
 
-        private double? GetNumericValue(object obj)
+        private double? GetNumericValue(object obj, bool isInArray)
         {
-            if (IsNumber(obj) || (obj is bool))
+            if (IsNumber(obj))
             {
+                return ConvertUtil.GetValueDouble(obj);
+            }
+            else if (obj is bool)
+            {
+                if (isInArray) return default(double?);
                 return ConvertUtil.GetValueDouble(obj);
             }
             else if (ConvertUtil.IsNumericString(obj))

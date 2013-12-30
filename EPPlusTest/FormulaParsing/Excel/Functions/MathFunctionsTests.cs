@@ -377,6 +377,15 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AverageAShouldCountValueAs0IfNonNumericTextIsSuppliedInArray()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2d, 3d, "ABC"));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1.5d,result.Result);
+        }
+
+        [TestMethod]
         public void AverageAShouldCountNumericStringWithValue()
         {
             var func = new AverageA();

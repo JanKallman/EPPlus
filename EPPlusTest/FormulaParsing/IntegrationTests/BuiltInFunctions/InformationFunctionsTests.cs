@@ -82,7 +82,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 sheet.Cells["A2"].Formula = "ISNA(A1)";
                 sheet.Calculate();
                 var result = sheet.Cells["A2"].Value;
-                Assert.IsFalse((bool)result);
+                Assert.IsTrue((bool)result);
             }
         }
     }
