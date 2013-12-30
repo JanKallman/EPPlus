@@ -67,12 +67,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 
         public override object CurrentValue
         {
-            get { return _arrayData[_index]; }
+            get { return _arrayData[_index].Value; }
         }
 
         public override object GetLookupValue()
         {
-            return _arrayData[_index];
+            return _arrayData[_index].Value;
         }
     }
 }

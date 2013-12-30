@@ -51,7 +51,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     else
                     {
                         if(!ignoreErrors && arg.ValueIsExcelError) throw new ExcelErrorValueException(arg.ValueAsExcelErrorValue);
-                        if (ConvertUtil.IsNumeric(arg.Value))
+                        if (ConvertUtil.IsNumeric(arg.Value) && !CellStateHelper.ShouldIgnore(ignoreHidden, arg, context))
                         {
                             argList.Add(ConvertUtil.GetValueDouble(arg.Value));
                         }

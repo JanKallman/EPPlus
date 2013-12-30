@@ -56,7 +56,8 @@ namespace OfficeOpenXml.Calculation
                 }
                 catch (Exception e)
                 {
-                    // TODO: add errorhandling here...
+                    var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
+                    SetValue(workbook, item, error);
                 }
                 
             }            

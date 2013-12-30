@@ -11,6 +11,7 @@ using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using OfficeOpenXml;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -327,6 +328,61 @@ namespace EPPlusTest.Excel.Functions
             args.ElementAt(1).SetExcelStateFlag(ExcelCellState.HiddenCell);
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(expectedResult, result.Result);
+        }
+
+        [TestMethod]
+        public void AverageShouldThrowDivByZeroExcelErrorValueIfEmptyArgs()
+        {
+            eErrorType errorType = eErrorType.Value;
+
+            var func = new Average();
+            var args = new FunctionArgument[0];
+            try
+            {
+                func.Execute(args, _parsingContext);
+            }
+            catch (ExcelErrorValueException e)
+            {
+                errorType = e.ErrorValue.Type;
+            }
+            Assert.AreEqual(eErrorType.Div0, errorType);
+        }
+
+        [TestMethod]
+        public void AverageAShouldCalculateCorrectResult()
+        {
+            var expectedResult = (4d + 2d + 5d + 2d) / 4d;
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedResult, result.Result);
+        }
+
+        [TestMethod]
+        public void AverageAShouldIncludeTrueAs1()
+        {
+            var expectedResult = (4d + 2d + 5d + 2d + 1d) / 5d;
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d, true);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedResult, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void AverageAShouldThrowValueExceptionIfNonNumericTextIsSupplied()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d, "ABC");
+            var result = func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void AverageAShouldCountNumericStringWithValue()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, "9");
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(5d, result.Result);
         }
 
         [TestMethod]

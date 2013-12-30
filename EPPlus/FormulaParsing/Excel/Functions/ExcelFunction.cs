@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.Globalization;
 using OfficeOpenXml.FormulaParsing.Utilities;
@@ -75,6 +76,30 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
         }
 
+        protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength,
+                                         eErrorType errorTypeToThrow)
+        {
+            Require.That(arguments).Named("arguments").IsNotNull();
+            ThrowExcelErrorValueExceptionIf(() =>
+                {
+                    var nArgs = 0;
+                    if (arguments.Any())
+                    {
+                        foreach (var arg in arguments)
+                        {
+                            nArgs++;
+                            if (nArgs >= minLength) return false;
+                            if (arg.IsExcelRange)
+                            {
+                                nArgs += arg.ValueAsRangeInfo.GetNCells();
+                                if (nArgs >= minLength) return false;
+                            }
+                        }
+                    }
+                    return true;
+                }, errorTypeToThrow);
+        }
+
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength)
         {
             Require.That(arguments).Named("arguments").IsNotNull();
@@ -118,6 +143,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected double ArgToDecimal(IEnumerable<FunctionArgument> arguments, int index)
         {
             return ArgToDecimal(arguments.ElementAt(index).Value);
+        }
+
+        protected bool IsNumericString(object value)
+        {
+            if (value != null || string.IsNullOrEmpty(value.ToString())) return false;
+            return Regex.IsMatch(value.ToString(), @"^[\d]+(\,[\d])?");
         }
 
         /// <summary>
@@ -166,54 +197,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             if (val == null) return false;
             return (val.GetType().IsPrimitive || val is double || val is decimal || val is System.DateTime || val is TimeSpan);
         }
-        //protected double GetNumeric(object value)
-        //{
-        //    try
-        //    {
-        //        if ((value.GetType().IsPrimitive || value is double || value is decimal || value is System.DateTime || value is TimeSpan))
-        //        {
-        //            if (value is System.DateTime)
-        //            {
-        //                return ((System.DateTime)value).ToOADate();
-        //            }
-        //            else if (value is TimeSpan)
-        //            {
-        //                return new System.DateTime(((TimeSpan)value).Ticks).ToOADate();
-        //            }
-        //            else if (value is bool)
-        //            {
-        //                return 0;
-        //            }
-        //            else
-        //            {
-        //                //if (v is double && double.IsNaN((double)v))
-        //                //{
-        //                //    return 0;
-        //                //}
-        //                //else if (v is double && double.IsInfinity((double)v))
-        //                //{
-        //                //    return "#NUM!";
-        //                //}
-        //                //else
-        //                //{
-        //                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return 0;
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        return 0;
-        //    }
-        //}
 
         protected virtual bool IsNumber(object obj)
         {
             if (obj == null) return false;
             return (obj is int || obj is double || obj is short || obj is decimal || obj is long);
+        }
+
+        protected bool AreEqual(double d1, double d2)
+        {
+            return System.Math.Abs(d1 - d2) < double.Epsilon;
         }
 
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
