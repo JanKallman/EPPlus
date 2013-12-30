@@ -93,7 +93,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 
         private bool ShouldCount(object value)
         {
-            return IsNumeric(value);
+            return IsNumber(value);
         }
     }
 }
