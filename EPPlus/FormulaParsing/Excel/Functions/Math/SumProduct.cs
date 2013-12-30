@@ -49,6 +49,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                         AddValue(val.Value, currentResult);
                     }
                 }
+                else if (arg.Value is FunctionArgument)
+                {
+                    AddValue(arg.Value, currentResult);
+                }
                 else if (arg.IsExcelRange)
                 {
                     foreach (var val in arg.ValueAsRangeInfo)

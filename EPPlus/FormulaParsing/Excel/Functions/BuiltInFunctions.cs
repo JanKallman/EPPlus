@@ -108,6 +108,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["isodd"] = new IsOdd();
             Functions["islogical"] = new IsLogical();
             Functions["isna"] = new IsNa();
+            Functions["na"] = new Na();
             // Logical
             Functions["if"] = new If();
             Functions["not"] = new Not();
