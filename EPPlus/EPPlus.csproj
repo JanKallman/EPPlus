@@ -68,6 +68,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
@@ -321,7 +322,10 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Minute.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Month.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Now.cs" />
@@ -749,7 +753,6 @@
   <ItemGroup>
     <Compile Include="ConditionalFormatting\CF Implementation.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

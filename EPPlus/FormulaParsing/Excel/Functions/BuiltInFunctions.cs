@@ -138,6 +138,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["hour"] = new Hour();
             Functions["minute"] = new Minute();
             Functions["second"] = new Second();
+            Functions["weeknum"] = new Weeknum();
+            Functions["edate"] = new Edate();
         }
     }
 }
