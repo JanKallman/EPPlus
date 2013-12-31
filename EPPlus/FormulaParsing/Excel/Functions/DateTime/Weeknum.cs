@@ -11,7 +11,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
     {
         public override ExpressionGraph.CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 2, eErrorType.Value);
+            ValidateArguments(arguments, 1, eErrorType.Value);
             var dateSerial = ArgToDecimal(arguments, 0);
             var date = System.DateTime.FromOADate(dateSerial);
             var startDay = DayOfWeek.Sunday;
