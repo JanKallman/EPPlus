@@ -227,6 +227,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             {
                 return new Operator(Operators.Equals, PrecedenceComparison, (l, r) =>
                     {
+                        if (l.Result == null && r.Result == null)
+                        {
+                            return new CompileResult(true, DataType.Boolean);
+                        }
+                        if (l.Result == null || r.Result == null)
+                        {
+                            return new CompileResult(false, DataType.Boolean);
+                        }
+                        if (l.DataType == DataType.ExcelError)
+                        {
+                            throw new ExcelErrorValueException((ExcelErrorValue)l.Result);
+                        }
+                        if (r.DataType == DataType.ExcelError)
+                        {
+                            throw new ExcelErrorValueException((ExcelErrorValue)r.Result);
+                        }
                         return new CompileResult(l.Result.Equals(r.Result), DataType.Boolean);
                     });
             }
