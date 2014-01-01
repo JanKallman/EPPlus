@@ -51,7 +51,8 @@ namespace OfficeOpenXml.Calculation
                 var item = dc.list[ix];
                 try
                 {
-                    var v = parser.ParseCell(item.Tokens, item.ws == null ? "" : item.ws.Name, item.Row, item.Column);
+                    var ws = workbook.Worksheets.GetBySheetID(item.SheetID);
+                    var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
                     SetValue(workbook, item, v);
                 }
                 catch (Exception e)
