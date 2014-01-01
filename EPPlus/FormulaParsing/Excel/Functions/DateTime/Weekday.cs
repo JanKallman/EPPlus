@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
@@ -56,7 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
                 case 3:
                     return _zeroBasedStartOnSunday[dayIx];
                 default:
-                    throw new ArgumentException("invalid return type (should be 1-3) supplied to Weekday function: " + returnType);
+                    throw new ExcelErrorValueException(eErrorType.Num);
             }
         }
     }
