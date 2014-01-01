@@ -96,12 +96,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 if (Next != null)
                 {
                     Operator = Next.Operator;
+                    returnValue.Operator = Next.Operator;
                 }
                 else
                 {
                     Operator = null;
                 }
-                Next = Next.Next;
+                returnValue.Next = Next = Next.Next;
             }
             return returnValue;
         }
