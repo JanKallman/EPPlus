@@ -55,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 case DataType.String:
                     return new StringExpression(compileResult.Result.ToString());
                 case DataType.Decimal:
-                    return new DecimalExpression(((double)compileResult.Result).ToString(CultureInfo.InvariantCulture));
+                    return new DecimalExpression(((double)compileResult.Result).ToString("R",CultureInfo.InvariantCulture));
                 case DataType.Boolean:
                     return new BooleanExpression(compileResult.Result.ToString());
             }

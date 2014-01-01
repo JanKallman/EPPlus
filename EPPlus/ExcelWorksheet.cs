@@ -2931,7 +2931,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
+                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("R15", CultureInfo.InvariantCulture);
                     }
                 }
                 else
