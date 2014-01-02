@@ -92,14 +92,11 @@ namespace OfficeOpenXml
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            //draws = new ExcelDrawings(pck, this);
             this.Drawings.AddChart("Chart 1", chartType);
         }
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            //_ = new ExcelDrawings(_package, this);
-            //Chart = (ExcelChart)draws[0];
         }
         public ExcelChart Chart 
         {
