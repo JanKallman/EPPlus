@@ -136,6 +136,8 @@
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactoryTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraphBuilderTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpressionTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\DecimalExpressionTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\BooleanExpressionTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BasicCalcTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DateAndTimeFunctionsTests.cs" />

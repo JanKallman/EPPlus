@@ -70,6 +70,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add(";", new Token(";", TokenType.SemiColon));
             _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
             _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
+            _tokens.Add("%", new Token("%", TokenType.Percent));
         }
 
         private static Dictionary<string, Token> _tokens = new Dictionary<string, Token>();

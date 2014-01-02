@@ -37,7 +37,7 @@ namespace EPPlusTest
         public void Calulation4()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
-            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest2.xlsx"));
+            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx"));
             //var pck = new ExcelPackage(new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\..\\..\\EPPlusTest\\workbooks\\FormulaTest.xlsx"));
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
@@ -46,7 +46,7 @@ namespace EPPlusTest
         public void CalulationValidationExcel()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
-            var pck = new ExcelPackage(new FileInfo(@"C:\DevExternal\EPPlus\EPPlusTest\Workbooks\FormulaTest.xlsx"));
+            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx"));
             var ws = pck.Workbook.Worksheets["ValidateFormulas"];
             var fr = new Dictionary<string, object>();
             foreach (var cell in ws.Cells)

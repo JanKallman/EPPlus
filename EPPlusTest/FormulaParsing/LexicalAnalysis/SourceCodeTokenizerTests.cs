@@ -102,5 +102,13 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
 
             Assert.AreEqual(TokenType.ExcelAddress, tokens.ElementAt(2).TokenType);
         }
+
+        [TestMethod]
+        public void ShouldCreateTokenForPercentAfterDecimal()
+        {
+            var input = "1,23%";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.Percent, tokens.Last().TokenType);
+        }
     }
 }

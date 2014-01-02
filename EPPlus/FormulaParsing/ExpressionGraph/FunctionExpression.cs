@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel;
@@ -39,7 +40,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class FunctionExpression : AtomicExpression
+    public class FunctionExpression : PercentHandlingExpression
     {
         public FunctionExpression(string expression, ParsingContext parsingContext)
             : base(expression)
@@ -50,13 +51,31 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly ParsingContext _parsingContext;
         private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
 
+        private CompileResult HandlePercentage(CompileResult compileResult)
+        {
+            if (NumberOfPercentSigns > 0)
+            {
+                switch (compileResult.DataType)
+                {
+                    case DataType.Boolean:
+                    case DataType.Integer:
+                    case DataType.Decimal:
+                        return new CompileResult(ApplyPercent((double)compileResult.Result), DataType.Decimal);
+                    default:
+                        return compileResult;
+                }
+            }
+            return compileResult;
+        }
+
         public override CompileResult Compile()
         {
             try
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
                 var compiler = _functionCompilerFactory.Create(function);
-                return compiler.Compile(Children, _parsingContext);
+                var result = compiler.Compile(Children, _parsingContext);
+                return HandlePercentage(result);
             }
             catch (ExcelErrorValueException e)
             {
@@ -90,7 +109,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             if (Next != null && Operator != null)
             {
                 var result = Operator.Apply(Compile(), Next.Compile());
-                var expressionString = result.Result.ToString();
                 var converter = new ExpressionConverter();
                 returnValue = converter.FromCompileResult(result);
                 if (Next != null)

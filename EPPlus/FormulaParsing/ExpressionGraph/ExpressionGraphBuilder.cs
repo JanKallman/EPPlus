@@ -104,6 +104,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     _negateNextExpression = true;
                 }
+                else if(token.TokenType == TokenType.Percent)
+                {
+                    _graph.Current.SetPercentage();
+                }
                 else
                 {
                     CreateAndAppendExpression(parent, token);

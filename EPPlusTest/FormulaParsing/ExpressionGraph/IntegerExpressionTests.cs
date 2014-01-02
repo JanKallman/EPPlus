@@ -36,5 +36,15 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
 
             Assert.IsNull(result.Next);
         }
+
+        [TestMethod]
+        public void CompileShouldHandlePercent()
+        {
+            var exp1 = new IntegerExpression("1");
+            exp1.SetPercentage();
+            var result = exp1.Compile();
+            Assert.AreEqual(0.01, result.Result);
+            Assert.AreEqual(DataType.Decimal, result.DataType);
+        }
     }
 }

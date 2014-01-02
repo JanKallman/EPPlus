@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -78,6 +79,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             _children.Add(child);
             return child;
+        }
+
+        public virtual void SetPercentage()
+        {
+            throw new ExcelErrorValueException(eErrorType.Value);
         }
 
         public virtual Expression MergeWithNext()
