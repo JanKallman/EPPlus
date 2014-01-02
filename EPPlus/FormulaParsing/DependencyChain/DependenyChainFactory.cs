@@ -40,54 +40,54 @@ namespace OfficeOpenXml.FormulaParsing
 {
     internal static class DependencyChainFactory
     {
-        internal static DependencyChain Create(ExcelWorkbook wb)
+        internal static DependencyChain Create(ExcelWorkbook wb, ExcelCalculationOption options)
         {
             var depChain = new DependencyChain();
             foreach (var ws in wb.Worksheets)
             {
-                GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells);
-                GetWorksheetNames(ws, depChain);
+                GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells, options);
+                GetWorksheetNames(ws, depChain, options);
             }
             foreach (var name in wb.Names)
             {
                 if (name.NameValue==null)
                 {
-                    GetChain(depChain, wb.FormulaParser.Lexer, name);
+                    GetChain(depChain, wb.FormulaParser.Lexer, name, options);
                 }
             }
             return depChain;
         }
 
-        internal static DependencyChain Create(ExcelWorksheet ws)
+        internal static DependencyChain Create(ExcelWorksheet ws, ExcelCalculationOption options)
         {
             var depChain = new DependencyChain();
 
-            GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws.Cells);
+            GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws.Cells, options);
 
-            GetWorksheetNames(ws, depChain);
+            GetWorksheetNames(ws, depChain, options);
 
             return depChain;
         }
 
-        private static void GetWorksheetNames(ExcelWorksheet ws, DependencyChain depChain)
+        private static void GetWorksheetNames(ExcelWorksheet ws, DependencyChain depChain, ExcelCalculationOption options)
         {
             foreach (var name in ws.Names)
             {
                 if (!string.IsNullOrEmpty(name.NameFormula))
                 {
-                    GetChain(depChain, ws.Workbook.FormulaParser.Lexer, name);
+                    GetChain(depChain, ws.Workbook.FormulaParser.Lexer, name, options);
                 }
             }
         }
-        internal static DependencyChain Create(ExcelRangeBase range)
+        internal static DependencyChain Create(ExcelRangeBase range, ExcelCalculationOption options)
         {
             var depChain = new DependencyChain();
 
-            GetChain(depChain, range.Worksheet.Workbook.FormulaParser.Lexer, range);
+            GetChain(depChain, range.Worksheet.Workbook.FormulaParser.Lexer, range, options);
 
             return depChain;
         }
-        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelNamedRange name)
+        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelNamedRange name, ExcelCalculationOption options)
         {
             var ws = name.Worksheet;
             var id = ExcelCellBase.GetCellID(ws==null?0:ws.SheetID, name.Index, 0);
@@ -106,12 +106,12 @@ namespace OfficeOpenXml.FormulaParsing
                         ws._formulaTokens.SetValue(name.Index, 0, f.Tokens);
                     }
                     depChain.Add(f);
-                    FollowChain(depChain, lexer,name._workbook, ws, f);
+                    FollowChain(depChain, lexer,name._workbook, ws, f, options);
                 }
             }
         }
 
-        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelRangeBase Range)
+        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelRangeBase Range, ExcelCalculationOption options)
         {
             var ws = Range.Worksheet;
             var fs = new CellsStoreEnumerator<object>(ws._formulas, Range.Start.Row, Range.Start.Column, Range.End.Row, Range.End.Column);
@@ -134,7 +134,7 @@ namespace OfficeOpenXml.FormulaParsing
                         f.Tokens = lexer.Tokenize(f.Formula).ToList();
                         ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
                         depChain.Add(f);
-                        FollowChain(depChain, lexer, ws.Workbook, ws, f);
+                        FollowChain(depChain, lexer, ws.Workbook, ws, f, options);
                     }
                 }
             }
@@ -148,7 +148,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="wb">The workbook where the formula comes from</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function object</param>
-        private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f)
+        private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f, ExcelCalculationOption options)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();
         iterateToken:
@@ -235,7 +235,7 @@ namespace OfficeOpenXml.FormulaParsing
                             }
                             else
                             {
-                                if (stack.Count > 0)
+                                if (options.AllowCirculareReferences==false && stack.Count > 0)
                                 {
                                     //Check for circular references
                                     foreach (var par in stack)
@@ -284,14 +284,14 @@ namespace OfficeOpenXml.FormulaParsing
                 }
                 else
                 {
-                    if (stack.Count > 0)
+                    if (options.AllowCirculareReferences == false && stack.Count > 0)
                     {
                         //Check for circular references
                         foreach (var par in stack)
                         {
                             if (ExcelAddressBase.GetCellID(par.ws.SheetID, par.iterator.Row, par.iterator.Column) == id)
                             {
-                                throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
+                               // throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
                             }
                         }
                     }
