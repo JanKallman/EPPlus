@@ -64,7 +64,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
 
         protected override string GetValueAsString()
         {
-            return Value.HasValue ? Value.Value.ToString("g15", CultureInfo.InvariantCulture) : string.Empty;
+            return Value.HasValue ? Value.Value.ToString("R15", CultureInfo.InvariantCulture) : string.Empty;
         }
     }
 }

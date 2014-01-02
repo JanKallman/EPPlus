@@ -41,9 +41,13 @@ namespace OfficeOpenXml.Calculation
     {
         public static void Calculate(this ExcelWorkbook workbook)
         {
+            Calculate(workbook, new ExcelCalculationOption(){AllowCirculareReferences=false});
+        }
+        public static void Calculate(this ExcelWorkbook workbook, ExcelCalculationOption options)
+        {
             Init(workbook);
 
-            var dc = DependencyChainFactory.Create(workbook);
+            var dc = DependencyChainFactory.Create(workbook, options);
             var parser = workbook.FormulaParser;
             //TODO: Add calculation here
             foreach (var ix in dc.CalcOrder)
@@ -60,15 +64,19 @@ namespace OfficeOpenXml.Calculation
                     var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
                     SetValue(workbook, item, error);
                 }
-                
-            }            
+
+            }
             workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
+            Calculate(worksheet, new ExcelCalculationOption());
+        }
+        public static void Calculate(this ExcelWorksheet worksheet, ExcelCalculationOption options)
+        {
             Init(worksheet.Workbook);
             var parser = worksheet.Workbook.FormulaParser;
-            var dc = DependencyChainFactory.Create(worksheet);
+            var dc = DependencyChainFactory.Create(worksheet, options);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
@@ -80,9 +88,13 @@ namespace OfficeOpenXml.Calculation
 
         public static void Calculate(this ExcelRangeBase range)
         {
+            Calculate(range, new ExcelCalculationOption());
+        }
+        public static void Calculate(this ExcelRangeBase range, ExcelCalculationOption options)
+        {
             Init(range._workbook);
             var parser = range._workbook.FormulaParser;
-            var dc = DependencyChainFactory.Create(range);
+            var dc = DependencyChainFactory.Create(range, options);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
