@@ -24,6 +24,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
@@ -32,15 +33,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class Count : HiddenValuesHandlingFunction
     {
+        private enum ItemContext
+        {
+            InRange,
+            InArray,
+            SingleArg
+        }
+
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
             var nItems = 0d;
-            Calculate(arguments, ref nItems, context);
+            Calculate(arguments, ref nItems, context, ItemContext.SingleArg);
             return CreateResult(nItems, DataType.Integer);
         }
 
-        private void Calculate(IEnumerable<FunctionArgument> items, ref double nItems, ParsingContext context)
+        private void Calculate(IEnumerable<FunctionArgument> items, ref double nItems, ParsingContext context, ItemContext itemContext)
         {
             foreach (var item in items)
             {
@@ -50,7 +58,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     foreach (var c in cs)
                     {
                         _CheckForAndHandleExcelError(c, context);
-                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value))
+                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, ItemContext.InRange))
                         {
                             nItems++;
                         }
@@ -61,12 +69,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     var value = item.Value as IEnumerable<FunctionArgument>;
                     if (value != null)
                     {
-                        Calculate(value, ref nItems, context);
+                        Calculate(value, ref nItems, context, ItemContext.InArray);
                     }
                     else
                     {
                         _CheckForAndHandleExcelError(item, context);
-                        if (ShouldIgnore(item) == false && ShouldCount(item.Value))
+                        if (ShouldIgnore(item) == false && ShouldCount(item.Value, itemContext))
                         {
                             nItems++;
                         }
@@ -77,23 +85,33 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 
         private void _CheckForAndHandleExcelError(FunctionArgument arg, ParsingContext context)
         {
-            if (context.Scopes.Current.IsSubtotal)
-            {
-                CheckForAndHandleExcelError(arg);
-            }
+            //if (context.Scopes.Current.IsSubtotal)
+            //{
+            //    CheckForAndHandleExcelError(arg);
+            //}
         }
 
         private void _CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell, ParsingContext context)
         {
-            if (context.Scopes.Current.IsSubtotal)
-            {
-                CheckForAndHandleExcelError(cell);
-            }
+            //if (context.Scopes.Current.IsSubtotal)
+            //{
+            //    CheckForAndHandleExcelError(cell);
+            //}
         }
 
-        private bool ShouldCount(object value)
+        private bool ShouldCount(object value, ItemContext context)
         {
-            return IsNumber(value);
+            switch (context)
+            {
+                case ItemContext.SingleArg:
+                    return IsNumeric(value) || IsNumericString(value);
+                case ItemContext.InRange:
+                    return IsNumber(value);
+                case ItemContext.InArray:
+                    return IsNumber(value);
+                default:
+                    throw new ArgumentException("Unknown ItemContext:" + context.ToString(CultureInfo.InvariantCulture));
+            }
         }
     }
 }

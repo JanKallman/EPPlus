@@ -1,18 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
-
-namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
-{
-    public class DecimalExpression : AtomicExpression
-    {
-        public DecimalExpression(string expression)
-            : base(expression)
-        {
-            
-        }/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -42,6 +30,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
  * ******************************************************************************
  * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
  *******************************************************************************/
+using System.Linq;
+using System.Text;
+using System.Globalization;
+
+namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
+{
+    public class DecimalExpression : PercentHandlingExpression
+    {
+        public DecimalExpression(string expression)
+            : base(expression)
+        {
+            
+        }
 
         public override CompileResult Compile()
         {
@@ -53,7 +54,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 
             //    exp = ExpressionString.Replace('.', ',');
             //}
-            return new CompileResult(double.Parse(ExpressionString, CultureInfo.InvariantCulture), DataType.Decimal);
+            var result = double.Parse(ExpressionString, CultureInfo.InvariantCulture);
+            result = ApplyPercent(result);
+            return new CompileResult(result, DataType.Decimal);
         }
     }
 }

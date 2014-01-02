@@ -123,5 +123,26 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
             var result = _parser.Parse("2=2");
             Assert.IsTrue((bool)result);
         }
+
+        [TestMethod]
+        public void TenPercentShouldBe0Point1()
+        {
+            var result = _parser.Parse("10%");
+            Assert.AreEqual(0.1, result);
+        }
+
+        [TestMethod]
+        public void ShouldHandleMultiplePercentSigns()
+        {
+            var result = _parser.Parse("10%%");
+            Assert.AreEqual(0.001, result);
+        }
+
+        [TestMethod]
+        public void ShouldHandlePercentageOnFunctionResult()
+        {
+            var result = _parser.Parse("SUM(1;2;3)%");
+            Assert.AreEqual(0.06, result);
+        }
     }
 }

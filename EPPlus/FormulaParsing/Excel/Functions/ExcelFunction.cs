@@ -147,7 +147,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         protected bool IsNumericString(object value)
         {
-            if (value != null || string.IsNullOrEmpty(value.ToString())) return false;
+            if (value == null || string.IsNullOrEmpty(value.ToString())) return false;
             return Regex.IsMatch(value.ToString(), @"^[\d]+(\,[\d])?");
         }
 
@@ -195,7 +195,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected bool IsNumeric(object val)
         {
             if (val == null) return false;
-            return (val.GetType().IsPrimitive || val is double || val is decimal || val is System.DateTime || val is TimeSpan);
+            return (val.GetType().IsPrimitive || IsNumber(val) || val is System.DateTime || val is TimeSpan);
         }
 
         protected virtual bool IsNumber(object obj)

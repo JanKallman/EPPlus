@@ -120,6 +120,20 @@ namespace EPPlusTest.Excel
         }
 
         [TestMethod]
+        public void OperatorGreaterThanToShouldReturnTrueIfLeftIsSetAndRightIsNull()
+        {
+            var result = Operator.GreaterThan.Apply(new CompileResult(11, DataType.Integer), new CompileResult(null, DataType.Empty));
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void OperatorGreaterThanToShouldReturnTrueIfLeftIs11AndRightIs10()
+        {
+            var result = Operator.GreaterThan.Apply(new CompileResult(11, DataType.Integer), new CompileResult(10, DataType.Integer));
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
         public void OperatorExpShouldReturnCorrectResult()
         {
             var result = Operator.Exp.Apply(new CompileResult(2, DataType.Integer), new CompileResult(3, DataType.Integer));

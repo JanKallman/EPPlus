@@ -483,6 +483,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\IExpressionGraphBuilder.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\NamedValueExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\PercentHandlingExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />

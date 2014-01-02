@@ -51,10 +51,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             Add("<=", Operator.LessThanOrEqual);
             Add("<>", Operator.NotEqualsTo);
             Add("&", Operator.Concat);
-            Add("mod", Operator.Modulus);
         }
 
-        public static IDictionary<string, IOperator> _instance;
+        private static IDictionary<string, IOperator> _instance;
 
         public static IDictionary<string, IOperator> Instance
         {
