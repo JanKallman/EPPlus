@@ -144,5 +144,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
             var result = _parser.Parse("SUM(1;2;3)%");
             Assert.AreEqual(0.06, result);
         }
+
+        [TestMethod]
+        public void ShouldHandlePercentageOnParantethis()
+        {
+            var result = _parser.Parse("(1+2)%");
+            Assert.AreEqual(0.03, result);
+        }
     }
 }

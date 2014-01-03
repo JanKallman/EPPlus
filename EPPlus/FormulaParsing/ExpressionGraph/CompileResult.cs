@@ -103,5 +103,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         }
 
         public bool IsResultOfSubtotal { get; set; }
+
+        public bool IsHiddenCell { get; set; }
     }
 }

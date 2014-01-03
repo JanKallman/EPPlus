@@ -46,14 +46,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            //Remove JK 2013-03-11. Used CultureInfo.InvariantCulture as an alternative
-            //string exp = string.Empty;
-            //var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
-            //if (decimalSeparator == ",")
-            //{
-                
-            //    exp = ExpressionString.Replace('.', ',');
-            //}
             var result = double.Parse(ExpressionString, CultureInfo.InvariantCulture);
             result = ApplyPercent(result);
             return new CompileResult(result, DataType.Decimal);

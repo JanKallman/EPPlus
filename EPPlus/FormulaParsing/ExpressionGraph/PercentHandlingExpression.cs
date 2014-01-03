@@ -22,14 +22,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         protected double ApplyPercent(double val)
         {
-            double result = val;
-            var nPercentSigns = NumberOfPercentSigns;
-            while (nPercentSigns > 0)
-            {
-                result *= 0.01;
-                nPercentSigns--;
-            }
-            return result;
+            return PercentageHelper.ApplyPercent(NumberOfPercentSigns, val);
         }
     }
 }
