@@ -50,10 +50,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             Function.BeforeInvoke(context);
             foreach (var child in children)
             {
-                CompileResult arg = default(CompileResult);
                 try
                 {
-                    arg = child.Compile();
+                    var arg = child.Compile();
                     BuildFunctionArguments(arg != null ? arg.Result : null, args);
                 }
                 catch (ExcelErrorValueException efe)
