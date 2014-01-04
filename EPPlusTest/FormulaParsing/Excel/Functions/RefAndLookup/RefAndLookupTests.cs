@@ -43,11 +43,11 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
-        public void LookupArgumentsShouldSetRangeLookupToFalseAsDefaultValue()
+        public void LookupArgumentsShouldSetRangeLookupToTrueAsDefaultValue()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2);
             var lookupArgs = new LookupArguments(args);
-            Assert.IsFalse(lookupArgs.RangeLookup);
+            Assert.IsTrue(lookupArgs.RangeLookup);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace EPPlusTest.Excel.Functions
             parsingContext.Scopes.NewScope(RangeAddress.Empty);
             
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(1);
             provider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(1);
             provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(2);
             provider.Stub(x => x.GetCellValue(WorksheetName,2, 2)).Return(5);
@@ -124,7 +124,7 @@ namespace EPPlusTest.Excel.Functions
         public void HLookupShouldReturnResultFromMatchingRow()
         {
             var func = new HLookup();
-            var args = FunctionsHelper.CreateArgs(1, "A1:B2", 2);
+            var args = FunctionsHelper.CreateArgs(2, "A1:B2", 2);
             var parsingContext = ParsingContext.Create();
             parsingContext.Scopes.NewScope(RangeAddress.Empty);
 
@@ -134,7 +134,7 @@ namespace EPPlusTest.Excel.Functions
             //provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(2, null, 0, 0));
             //provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell(5, null, 0, 0));
 
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
+            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(1);
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(1);
             provider.Stub(x => x.GetCellValue(WorksheetName, 2, 1)).Return(2);
             provider.Stub(x => x.GetCellValue(WorksheetName, 2, 2)).Return(5);
@@ -153,10 +153,6 @@ namespace EPPlusTest.Excel.Functions
             parsingContext.Scopes.NewScope(RangeAddress.Empty);
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(3, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(1, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(2, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell(5, null, 0, 0));
 
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(1);
@@ -176,10 +172,6 @@ namespace EPPlusTest.Excel.Functions
             parsingContext.Scopes.NewScope(RangeAddress.Empty);
 
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 0)).Return(new ExcelCell(2, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,0, 1)).Return(new ExcelCell(3, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,1, 0)).Return(new ExcelCell(3, null, 0, 0));
-            //provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(new ExcelCell(5, null, 0, 0));
 
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(2);
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(3);

@@ -76,6 +76,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
         }
 
+        public bool SkipArgumentEvaluation { get; set; }
+
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength,
                                          eErrorType errorTypeToThrow)
         {

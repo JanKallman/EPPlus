@@ -122,9 +122,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["lookup"] = new Lookup();
             Functions["match"] = new Match();
             Functions["row"] = new Row();
-            Functions["rows"] = new Rows();
+            Functions["rows"] = new Rows(){SkipArgumentEvaluation = true};
             Functions["column"] = new Column();
-            Functions["columns"] = new Columns();
+            Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
             Functions["choose"] = new Choose();
             Functions["index"] = new Index();
             // Date

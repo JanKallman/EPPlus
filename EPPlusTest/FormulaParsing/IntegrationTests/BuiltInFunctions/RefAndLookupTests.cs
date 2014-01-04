@@ -37,7 +37,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void VLookupShouldReturnCorrespondingValue()
         {
             var lookupAddress = "A1:B2";
-            _worksheet.Cells["A1"].Value = 3;
+            _worksheet.Cells["A1"].Value = 1;
             _worksheet.Cells["B1"].Value = 1;
             _worksheet.Cells["A2"].Value = 2;
             _worksheet.Cells["B2"].Value = 5;
@@ -65,11 +65,11 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void HLookupShouldReturnCorrespondingValue()
         {
             var lookupAddress = "A1:B2";
-            _worksheet.Cells["A1"].Value = 3;
-            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["A1"].Value = 1;
+            _worksheet.Cells["B1"].Value = 2;
             _worksheet.Cells["A2"].Value = 2;
             _worksheet.Cells["B2"].Value = 5;
-            _worksheet.Cells["A3"].Formula = "HLOOKUP(1, " + lookupAddress + ", 2)";
+            _worksheet.Cells["A3"].Formula = "HLOOKUP(2, " + lookupAddress + ", 2)";
             _worksheet.Calculate();
             var result = _worksheet.Cells["A3"].Value;
             Assert.AreEqual(5, result);

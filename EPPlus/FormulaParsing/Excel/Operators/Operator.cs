@@ -151,7 +151,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     }
                     var left = l.ResultNumeric;
                     var right = r.ResultNumeric;
-                    if ((int)right == 0 || (int)left == 0)
+                    if (Math.Abs(right - 0d) < double.Epsilon)
                     {
                         throw new ExcelErrorValueException(eErrorType.Div0);
                     }

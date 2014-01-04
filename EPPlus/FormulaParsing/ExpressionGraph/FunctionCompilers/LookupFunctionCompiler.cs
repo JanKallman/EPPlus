@@ -48,9 +48,17 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
         {
             var args = new List<FunctionArgument>();
             Function.BeforeInvoke(context);
+            var firstChild = true;
             foreach (var child in children)
             {
-                child.ParentIsLookupFunction = Function.IsLookupFuction;
+                if (!firstChild || Function.SkipArgumentEvaluation)
+                {
+                    child.ParentIsLookupFunction = Function.IsLookupFuction;
+                }
+                else
+                {
+                    firstChild = false;
+                }
                 var arg = child.Compile();
                 BuildFunctionArguments(arg != null ? arg.Result : null, args);
             }
