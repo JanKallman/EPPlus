@@ -35,16 +35,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
     public abstract class LookupFunction : ExcelFunction
     {
         private readonly ValueMatcher _valueMatcher;
+        private readonly CompileResultFactory _compileResultFactory;
 
         public LookupFunction()
-            : this(new LookupValueMatcher())
+            : this(new LookupValueMatcher(), new CompileResultFactory())
         {
 
         }
 
-        public LookupFunction(ValueMatcher valueMatcher)
+        public LookupFunction(ValueMatcher valueMatcher, CompileResultFactory compileResultFactory)
         {
             _valueMatcher = valueMatcher;
+            _compileResultFactory = compileResultFactory;
         }
 
         public override bool IsLookupFuction
@@ -77,6 +79,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 var matchResult = IsMatch(navigator.CurrentValue, lookupArgs.SearchedValue);
                 if (matchResult != 0)
                 {
+                    if (lastValue != null && navigator.CurrentValue == null) break;
+                    if (lastValue == null && matchResult > 0)
+                    {
+                        ThrowExcelErrorValueException(eErrorType.NA);
+                    }
                     if (lookupArgs.RangeLookup)
                     {
                         if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
@@ -90,10 +97,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 }
                 else
                 {
-                    return CreateResult(navigator.GetLookupValue(), DataType.String);
+                    return _compileResultFactory.Create(navigator.GetLookupValue());
                 }
             }
             while (navigator.MoveNext());
+
+            if (lookupArgs.RangeLookup)
+            {
+                return _compileResultFactory.Create(lastLookupValue);
+            }
 
             throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
         }

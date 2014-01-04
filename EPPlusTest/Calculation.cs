@@ -46,8 +46,11 @@ namespace EPPlusTest
         public void CalulationValidationExcel()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
-            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx"));
-            var ws = pck.Workbook.Worksheets["ValidateFormulas"];
+            //C:\temp\EPPlus Testark\Test1.xslx
+            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
+            //var pck = new ExcelPackage(new FileInfo(@"C:\temp\Bok2.xlsx"));
+            //var ws = pck.Workbook.Worksheets["ValidateFormulas"];
+            var ws = pck.Workbook.Worksheets.First();
             var fr = new Dictionary<string, object>();
             foreach (var cell in ws.Cells)
             {
@@ -70,7 +73,6 @@ namespace EPPlusTest
                     errors.Add(new Tuple<string, object, object>(adr, fr[adr], ws.Cells[adr].Value));
                     nErrors++;
                 }
-               
             }
             
         }
