@@ -36,7 +36,7 @@ using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class IntegerExpression : PercentHandlingExpression
+    public class IntegerExpression : AtomicExpression
     {
         public IntegerExpression(string expression)
             : base(expression)
@@ -46,15 +46,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            var dataType = DataType.Integer;
             var result = double.Parse(ExpressionString, CultureInfo.InvariantCulture);
-            if (NumberOfPercentSigns > 0)
-            {
-                result = ApplyPercent(result);
-                dataType = DataType.Decimal;
-            }
-            
-            return new CompileResult(result, dataType);
+            return new CompileResult(result, DataType.Integer);
         }
     }
 }

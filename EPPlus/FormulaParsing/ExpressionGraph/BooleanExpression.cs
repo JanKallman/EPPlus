@@ -35,7 +35,7 @@ using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class BooleanExpression : PercentHandlingExpression
+    public class BooleanExpression : AtomicExpression
     {
         public BooleanExpression(string expression)
             : base(expression)
@@ -44,12 +44,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         }
         public override CompileResult Compile()
         {
-            var boolResult = bool.Parse(ExpressionString);
-            if (NumberOfPercentSigns > 0)
-            {
-                var result = ApplyPercent(boolResult ? 1 : 0);
-                return new CompileResult(result, DataType.Decimal);
-            }
             return new CompileResult(bool.Parse(ExpressionString), DataType.Boolean);
         }
     }

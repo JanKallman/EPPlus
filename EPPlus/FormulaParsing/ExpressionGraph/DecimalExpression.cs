@@ -36,18 +36,26 @@ using System.Globalization;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class DecimalExpression : PercentHandlingExpression
+    public class DecimalExpression : AtomicExpression
     {
+        private readonly double? _compiledValue;
+
         public DecimalExpression(string expression)
             : base(expression)
         {
             
         }
 
+        public DecimalExpression(double compiledValue)
+            : base(compiledValue.ToString(CultureInfo.InvariantCulture))
+        {
+            _compiledValue = compiledValue;
+        }
+
         public override CompileResult Compile()
         {
-            var result = double.Parse(ExpressionString, CultureInfo.InvariantCulture);
-            result = ApplyPercent(result);
+            double result;
+            result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
             return new CompileResult(result, DataType.Decimal);
         }
     }

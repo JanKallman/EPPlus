@@ -81,11 +81,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             return child;
         }
 
-        public virtual void SetPercentage()
-        {
-            throw new ExcelErrorValueException(eErrorType.Value);
-        }
-
         public virtual Expression MergeWithNext()
         {
             var expression = this;
