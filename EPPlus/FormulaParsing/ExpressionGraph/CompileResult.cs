@@ -74,7 +74,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if (IsNumericString)
                 {
-                    return double.Parse(Result.ToString(), CultureInfo.InvariantCulture);
+                    return double.Parse(Result.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture);
                 }
                 else
                 {

@@ -42,7 +42,7 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void CalulationValidationExcel()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
@@ -75,6 +75,15 @@ namespace EPPlusTest
                 }
             }
             
+        }
+
+        [TestMethod]
+        public void TestOneCell()
+        {
+            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
+            var ws = pck.Workbook.Worksheets.First(); 
+            pck.Workbook.Worksheets.First().Cells["I11"].Calculate();
+            Assert.AreEqual(0.42d, ws.Cells["I11"].Value);
         }
     }
 }

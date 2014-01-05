@@ -88,7 +88,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                     {
                         if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
                         {
-                            return CreateResult(lastLookupValue, DataType.String);
+                            return _compileResultFactory.Create(lastLookupValue);
                         }
                         lastMatchResult = matchResult;
                         lastValue = navigator.CurrentValue;
