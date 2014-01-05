@@ -466,6 +466,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\ExcelAddressExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\Expression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ConstantExpressions.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionConverter.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactory.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraph.cs" />
@@ -484,8 +485,6 @@
     <Compile Include="FormulaParsing\ExpressionGraph\IExpressionGraphBuilder.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\NamedValueExpression.cs" />
-    <Compile Include="FormulaParsing\ExpressionGraph\PercentageHelper.cs" />
-    <Compile Include="FormulaParsing\ExpressionGraph\PercentHandlingExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />

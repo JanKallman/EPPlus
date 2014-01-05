@@ -106,7 +106,17 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if(token.TokenType == TokenType.Percent)
                 {
-                    _graph.Current.SetPercentage();
+                    // TODO: Add Constant expression (0.01) and an muliplying operator
+                    // with lower precedence than multiply
+                    SetOperatorOnExpression(parent, Operator.Percent);
+                    if (parent == null)
+                    {
+                        _graph.Add(ConstantExpressions.Percent);
+                    }
+                    else
+                    {
+                        parent.AddChild(ConstantExpressions.Percent);
+                    }
                 }
                 else
                 {

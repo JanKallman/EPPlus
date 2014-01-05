@@ -49,25 +49,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         }
 
         private readonly IExpressionCompiler _expressionCompiler;
-        private int _numberOfPercentageSigns;
 
-        public override void SetPercentage()
-        {
-            _numberOfPercentageSigns++;
-        }
 
         public override CompileResult Compile()
         {
-            var result = _expressionCompiler.Compile(Children);
-            if (PercentageHelper.SupportsPercentage(result.DataType))
-            {
-                if (_numberOfPercentageSigns > 0)
-                {
-                    var percentageResult = PercentageHelper.ApplyPercent(_numberOfPercentageSigns, (double) result.Result);
-                    return new CompileResult(percentageResult, DataType.Decimal);
-                }
-            }
-            return result;
+            return _expressionCompiler.Compile(Children);
         }
 
         public override bool IsGroupedExpression

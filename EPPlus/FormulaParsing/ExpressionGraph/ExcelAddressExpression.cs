@@ -39,7 +39,7 @@ using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class ExcelAddressExpression : PercentHandlingExpression
+    public class ExcelAddressExpression : AtomicExpression
     {
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ParsingContext _parsingContext;
@@ -103,14 +103,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             var factory = new CompileResultFactory();
             var compileResult = factory.Create(cell.Value);
             compileResult.IsHiddenCell = cell.IsHiddenRow;
-            if (NumberOfPercentSigns > 0)
-            {
-                if (PercentageHelper.SupportsPercentage(compileResult.DataType))
-                {
-                    return new CompileResult(ApplyPercent(compileResult.ResultNumeric), DataType.Decimal);
-                }
-                throw new ExcelErrorValueException(eErrorType.Value);
-            }
             return compileResult;
         }
     }

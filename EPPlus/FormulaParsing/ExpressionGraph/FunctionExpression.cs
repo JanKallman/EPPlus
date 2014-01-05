@@ -40,7 +40,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class FunctionExpression : PercentHandlingExpression
+    public class FunctionExpression : AtomicExpression
     {
         public FunctionExpression(string expression, ParsingContext parsingContext)
             : base(expression)
@@ -51,22 +51,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly ParsingContext _parsingContext;
         private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
 
-        private CompileResult HandlePercentage(CompileResult compileResult)
-        {
-            if (NumberOfPercentSigns > 0)
-            {
-                switch (compileResult.DataType)
-                {
-                    case DataType.Boolean:
-                    case DataType.Integer:
-                    case DataType.Decimal:
-                        return new CompileResult(ApplyPercent((double)compileResult.Result), DataType.Decimal);
-                    default:
-                        return compileResult;
-                }
-            }
-            return compileResult;
-        }
 
         public override CompileResult Compile()
         {
@@ -74,8 +58,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
                 var compiler = _functionCompilerFactory.Create(function);
-                var result = compiler.Compile(Children, _parsingContext);
-                return HandlePercentage(result);
+                return compiler.Compile(Children, _parsingContext);
             }
             catch (ExcelErrorValueException e)
             {

@@ -39,11 +39,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
 {
     public class Operator : IOperator
     {
-        private const int PrecedenceExp = 2;
-        private const int PrecedenceMultiplyDevide = 3;
-        private const int PrecedenceIntegerDivision = 4;
-        private const int PrecedenceModulus = 5;
-        private const int PrecedenceAddSubtract = 10;
+        private const int PrecedencePercent = 2;
+        private const int PrecedenceExp = 4;
+        private const int PrecedenceMultiplyDevide = 6;
+        private const int PrecedenceIntegerDivision = 8;
+        private const int PrecedenceModulus = 10;
+        private const int PrecedenceAddSubtract = 12;
         private const int PrecedenceConcat = 15;
         private const int PrecedenceComparison = 25;
 
@@ -249,6 +250,32 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             get
             {
                 return new Operator(Operators.GreaterThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) <= 0, DataType.Boolean));
+            }
+        }
+
+        private static IOperator _percent;
+        public static IOperator Percent
+        {
+            get
+            {
+                if (_percent == null)
+                {
+                    _percent = new Operator(Operators.Percent, PrecedencePercent, (l, r) =>
+                        {
+                            l = l ?? new CompileResult(0, DataType.Integer);
+                            r = r ?? new CompileResult(0, DataType.Integer);
+                            if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
+                            {
+                                return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Integer);
+                            }
+                            else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                            {
+                                return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Decimal);
+                            }
+                            throw new ExcelErrorValueException(eErrorType.Value);
+                        });
+                }
+                return _percent;
             }
         }
 
