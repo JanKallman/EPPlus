@@ -54,8 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            double result;
-            result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
+            double result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
             return new CompileResult(result, DataType.Decimal);
         }
     }

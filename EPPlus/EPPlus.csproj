@@ -357,6 +357,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\N.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\Na.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IntArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
