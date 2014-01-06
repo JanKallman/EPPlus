@@ -778,5 +778,59 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext).Result;
             Assert.AreEqual(1d, result);
         }
+
+        [TestMethod]
+        public void RounddownShouldReturnCorrectResultWithPositiveNumber()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(9.999, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(9.99, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleNegativeNumber()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(-9.999, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(-9.99, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleNegativeNumDigits()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, -2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(900d, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldReturn0IfNegativeNumDigitsIsTooLarge()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, -4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(0d, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleZeroNumDigits()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, 0);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(999d, result.Result);
+        }
+
+        [TestMethod]
+        public void TruncShouldReturnCorrectResult()
+        {
+            var func = new Trunc();
+            var args = FunctionsHelper.CreateArgs(99.99);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(99d, result.Result);
+        }
     }
 }

@@ -90,6 +90,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["averagea"] = new AverageA();
             Functions["averageif"] = new AverageIf();
             Functions["round"] = new Round();
+            Functions["rounddown"] = new Rounddown();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
             Functions["tan"] = new Tan();
