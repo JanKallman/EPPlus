@@ -129,5 +129,28 @@ namespace EPPlusTest.Excel.Functions
             result = func.Execute(args, _context);
             Assert.IsTrue((bool)result.Result);
         }
+
+        [TestMethod]
+        public void NshouldReturnCorrectResult()
+        {
+            var func = new N();
+
+            var args = FunctionsHelper.CreateArgs(1.2);
+            var result = func.Execute(args, _context);
+            Assert.AreEqual(1.2, result.Result);
+
+            args = FunctionsHelper.CreateArgs("abc");
+            result = func.Execute(args, _context);
+            Assert.AreEqual(0d, result.Result);
+
+            args = FunctionsHelper.CreateArgs(true);
+            result = func.Execute(args, _context);
+            Assert.AreEqual(1d, result.Result);
+
+            var errorCode = ExcelErrorValue.Create(eErrorType.Value);
+            args = FunctionsHelper.CreateArgs(errorCode);
+            result = func.Execute(args, _context);
+            Assert.AreEqual(errorCode, result.Result);
+        }
     }
 }

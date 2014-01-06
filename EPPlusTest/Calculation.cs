@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Calculation;
 using System.IO;
+using System.Diagnostics;
 
 namespace EPPlusTest
 {
@@ -82,8 +84,8 @@ namespace EPPlusTest
         {
             var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
             var ws = pck.Workbook.Worksheets.First(); 
-            pck.Workbook.Worksheets.First().Cells["I11"].Calculate();
-            Assert.AreEqual(0.42d, ws.Cells["I11"].Value);
+            pck.Workbook.Worksheets.First().Cells["V63"].Calculate();
+            Assert.AreEqual(474378, ws.Cells["V63"].Value);  
         }
     }
 }

@@ -37,14 +37,24 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class BooleanExpression : AtomicExpression
     {
+        private bool? _precompiledValue;
+
         public BooleanExpression(string expression)
             : base(expression)
         {
 
         }
+
+        public BooleanExpression(bool value)
+            : base(value ? "true" : "false")
+        {
+            _precompiledValue = value;
+        }
+
         public override CompileResult Compile()
         {
-            return new CompileResult(bool.Parse(ExpressionString), DataType.Boolean);
+            var result = _precompiledValue ?? bool.Parse(ExpressionString);
+            return new CompileResult(result, DataType.Boolean);
         }
     }
 }

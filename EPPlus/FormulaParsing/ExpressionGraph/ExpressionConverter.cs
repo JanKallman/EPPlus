@@ -51,13 +51,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             switch (compileResult.DataType)
             {
                 case DataType.Integer:
-                    return new IntegerExpression(compileResult.Result.ToString());
+                    return new IntegerExpression((double)compileResult.Result);
                 case DataType.String:
                     return new StringExpression(compileResult.Result.ToString());
                 case DataType.Decimal:
                     return new DecimalExpression(((double)compileResult.Result));
                 case DataType.Boolean:
-                    return new BooleanExpression(compileResult.Result.ToString());
+                    return new BooleanExpression((bool)compileResult.Result);
             }
             return null;
         }
