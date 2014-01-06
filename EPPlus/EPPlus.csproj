@@ -392,6 +392,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Rounddown.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
@@ -405,6 +406,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Trunc.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\VarP.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />

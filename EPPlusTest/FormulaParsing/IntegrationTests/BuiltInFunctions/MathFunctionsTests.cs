@@ -141,6 +141,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void RounddownShouldReturnAResult()
+        {
+            var result = _parser.Parse("Rounddown(2.99, 1)");
+            Assert.AreEqual(2.9d, result);
+        }
+
+        [TestMethod]
         public void SqrtPiShouldReturnAResult()
         {
             var result = _parser.Parse("SqrtPi(2.2)");
