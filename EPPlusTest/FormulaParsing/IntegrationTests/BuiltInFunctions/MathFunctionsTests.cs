@@ -148,6 +148,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void RoundupShouldReturnAResult()
+        {
+            var result = _parser.Parse("Roundup(2.99, 1)");
+            Assert.AreEqual(3d, result);
+        }
+
+        [TestMethod]
         public void SqrtPiShouldReturnAResult()
         {
             var result = _parser.Parse("SqrtPi(2.2)");
@@ -221,6 +228,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void SubtotalShouldReturnAResult()
         {
             var result = _parser.Parse("Subtotal(1, 10, 20)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
+
+        [TestMethod]
+        public void TruncShouldReturnAResult()
+        {
+            var result = _parser.Parse("Trunc(1.2345)");
             Assert.IsInstanceOfType(result, typeof(double));
         }
 

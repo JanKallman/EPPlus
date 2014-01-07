@@ -323,6 +323,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
@@ -393,6 +394,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rounddown.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Roundup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
