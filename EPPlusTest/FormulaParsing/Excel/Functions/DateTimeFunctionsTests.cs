@@ -290,5 +290,70 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(exp2, dt2, "dt1 was not " + exp2.ToString("yyyy-MM-dd") + ", but " + dt2.ToString("yyyy-MM-dd"));
             Assert.AreEqual(exp3, dt3, "dt1 was not " + exp3.ToString("yyyy-MM-dd") + ", but " + dt3.ToString("yyyy-MM-dd"));
         }
+
+        [TestMethod]
+        public void Days360ShouldReturnCorrectResultWithNoMethodSpecified2()
+        {
+            var func = new Days360();
+
+            var dt1arg = new DateTime(2013, 1, 1).ToOADate();
+            var dt2arg = new DateTime(2013, 3, 31).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg), _parsingContext);
+
+            Assert.AreEqual(90, result.Result);
+        }
+
+        [TestMethod]
+        public void Days360ShouldReturnCorrectResultWithEuroMethodSpecified()
+        {
+            var func = new Days360();
+
+            var dt1arg = new DateTime(2013, 1, 1).ToOADate();
+            var dt2arg = new DateTime(2013, 3, 31).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg, true), _parsingContext);
+
+            Assert.AreEqual(89, result.Result);
+        }
+
+        [TestMethod]
+        public void Days360ShouldHandleFebWithEuroMethodSpecified()
+        {
+            var func = new Days360();
+
+            var dt1arg = new DateTime(2012, 2, 28).ToOADate();
+            var dt2arg = new DateTime(2013, 2, 28).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg, true), _parsingContext);
+
+            Assert.AreEqual(360, result.Result);
+        }
+
+        [TestMethod]
+        public void Days360ShouldHandleFebWithUsMethodSpecified()
+        {
+            var func = new Days360();
+
+            var dt1arg = new DateTime(2012, 2, 28).ToOADate();
+            var dt2arg = new DateTime(2013, 2, 28).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg, false), _parsingContext);
+
+            Assert.AreEqual(358, result.Result);
+        }
+
+        [TestMethod]
+        public void Days360ShouldHandleFebWithUsMethodSpecified2()
+        {
+            var func = new Days360();
+
+            var dt1arg = new DateTime(2013, 2, 28).ToOADate();
+            var dt2arg = new DateTime(2013, 3, 31).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg, false), _parsingContext);
+
+            Assert.AreEqual(30, result.Result);
+        }
     }
 }

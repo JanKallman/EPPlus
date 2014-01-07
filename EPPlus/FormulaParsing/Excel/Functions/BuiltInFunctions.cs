@@ -91,8 +91,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["averageif"] = new AverageIf();
             Functions["round"] = new Round();
             Functions["rounddown"] = new Rounddown();
+            Functions["roundup"] = new Roundup();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
+            Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
             Functions["tanh"] = new Tanh();
             Functions["atan"] = new Atan();
@@ -141,6 +143,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["minute"] = new Minute();
             Functions["second"] = new Second();
             Functions["weeknum"] = new Weeknum();
+            Functions["days360"] = new Days360();
             Functions["edate"] = new Edate();
         }
     }
