@@ -199,6 +199,12 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             else
             {
+                if (parent.IsGroupedExpression)
+                {
+                    var newGroupExpression = new GroupExpression();
+                    parent.AddChild(newGroupExpression);
+                    BuildUp(tokens, newGroupExpression);
+                }
                 BuildUp(tokens, parent);
             }
         }

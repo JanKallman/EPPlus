@@ -68,7 +68,23 @@ namespace EPPlusTest
             {
                 try
                 {
-                    Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                    if (fr[adr] is double && ws.Cells[adr].Value is double)
+                    {
+                        var d1 = Convert.ToDouble(fr[adr]);
+                        var d2 = Convert.ToDouble(ws.Cells[adr].Value);
+                        if ((int)d1 == (int)d2)
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                        }
+                    }
+                    else
+                    {
+                        Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -84,8 +100,17 @@ namespace EPPlusTest
         {
             var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
             var ws = pck.Workbook.Worksheets.First(); 
-            pck.Workbook.Worksheets.First().Cells["V63"].Calculate();
-            Assert.AreEqual(474378, ws.Cells["V63"].Value);  
+            pck.Workbook.Worksheets.First().Cells["Q6"].Calculate();
+            Assert.AreEqual(474378, ws.Cells["Q6"].Value);  
+        }
+
+        [TestMethod]
+        public void TestPrecedence()
+        {
+            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Precedence.xlsx"));
+            var ws = pck.Workbook.Worksheets.Last();
+            pck.Workbook.Calculate();
+            Assert.AreEqual(150d, ws.Cells["A1"].Value);
         }
     }
 }
