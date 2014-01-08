@@ -1238,6 +1238,7 @@ namespace OfficeOpenXml
 
         private void SetFixed()
         {
+            if (Address.IndexOf("[") >= 0) return;
             var address=FirstAddress;
             if(_fromRow==_toRow && _fromCol==_toCol)
             {
