@@ -29,36 +29,45 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
                 if(european) calcType = Days360Calctype.European;
             }
 
-            int nDaysInStartMonth = 0, nDaysInEndMonth = 0;
-            nDaysInStartMonth = (dt1.Day == 31) ? 1 : 30 - dt1.Day;
+            var startYear = dt1.Year;
+            var startMonth = dt1.Month;
+            var startDay = dt1.Day;
+            var endYear = dt2.Year;
+            var endMonth = dt2.Month;
+            var endDay = dt2.Day;
+
             if (calcType == Days360Calctype.European)
-            { 
-                nDaysInEndMonth = dt2.Day == 31 ? 30 : dt2.Day;
+            {
+                if (startDay == 31) startDay = 30;
+                if (endDay == 31) endDay = 30;
             }
             else
             {
-                nDaysInEndMonth = dt2.Day;
-                if (dt1.Day == 31 || dt1.Day == 30)
+                var calendar = new GregorianCalendar();
+                var nDaysInFeb = calendar.IsLeapYear(dt1.Year) ? 29 : 28;
+               
+                 // If the investment is EOM and (Date1 is the last day of February) and (Date2 is the last day of February), then change D2 to 30.
+                if (startMonth == 2 && startDay == nDaysInFeb && endMonth == 2 && endDay == nDaysInFeb)
                 {
-                    nDaysInEndMonth++;
+                    endDay = 30;
                 }
-                if (dt1.Month == 2 && dt1.Day > 27 && dt2.Month == 2 && dt2.Day > 27)
+                 // If the investment is EOM and (Date1 is the last day of February), then change D1 to 30.
+                if (startMonth == 2 && startDay == nDaysInFeb)
                 {
-                    nDaysInEndMonth -= (30 - dt2.Day);
+                    startDay = 30;
                 }
-                else if (dt1.Month == 2 && dt1.Day > 27)
+                 // If D2 is 31 and D1 is 30 or 31, then change D2 to 30.
+                if (endDay == 31 && (startDay == 30 || startDay == 31))
                 {
-                    var calendar = new GregorianCalendar();
-                    var nDaysInFeb = calendar.IsLeapYear(dt1.Year) ? 29 : 28;
-                    if (dt1.Day == nDaysInFeb)
-                    {
-                        nDaysInStartMonth -= (31 - dt1.Day);
-                    }
+                    endDay = 30;
+                }
+                 // If D1 is 31, then change D1 to 30.
+                if (startDay == 31)
+                {
+                    startDay = 30;
                 }
             }
-
-            var result = nDaysInStartMonth + GetNumWholeMonths(dt1, dt2) * 30 + nDaysInEndMonth;
-
+            var result = (endYear*12*30 + endMonth*30 + endDay) - (startYear*12*30 + startMonth*30 + startDay);
             return CreateResult(result, DataType.Integer);
         }
 

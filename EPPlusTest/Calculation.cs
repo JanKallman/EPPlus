@@ -44,7 +44,7 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CalulationValidationExcel()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
@@ -72,7 +72,7 @@ namespace EPPlusTest
                     {
                         var d1 = Convert.ToDouble(fr[adr]);
                         var d2 = Convert.ToDouble(ws.Cells[adr].Value);
-                        if ((int)d1 == (int)d2)
+                        if (Math.Abs(d1 - d2) < 0.0001)
                         {
                             continue;
                         }
