@@ -383,5 +383,19 @@ namespace EPPlusTest.Excel.Functions
 
             Assert.IsTrue(Math.Abs(0.0889 - roundedResult) < double.Epsilon);
         }
+
+        [TestMethod]
+        public void YearFracActualActual()
+        {
+            var func = new Yearfrac();
+            var dt1arg = new DateTime(2012, 2, 28).ToOADate();
+            var dt2arg = new DateTime(2013, 3, 31).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(dt1arg, dt2arg, 1), _parsingContext);
+
+            var roundedResult = Math.Round((double)result.Result, 4);
+
+            Assert.IsTrue(Math.Abs(1.0862 - roundedResult) < double.Epsilon);
+        }
     }
 }
