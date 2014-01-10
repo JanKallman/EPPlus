@@ -134,5 +134,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Days360(Date(2012, 4, 2), Date(2012, 5, 2))");
             Assert.AreEqual(30, result);
         }
+
+        [TestMethod]
+        public void YearfracShouldReturnAResult()
+        {
+            var result = _parser.Parse("Yearfrac(Date(2012, 4, 2), Date(2012, 5, 2))");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
     }
 }

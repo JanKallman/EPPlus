@@ -144,6 +144,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["second"] = new Second();
             Functions["weeknum"] = new Weeknum();
             Functions["days360"] = new Days360();
+            Functions["yearfrac"] = new Yearfrac();
             Functions["edate"] = new Edate();
         }
     }
