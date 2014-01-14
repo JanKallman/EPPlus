@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <TestSettings name="Local Test Run" id="dde59f2c-80d4-48ea-b6ff-2cf6055f3162" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
   <Description>This is a default test run configuration for a local test run.</Description>
-  <Deployment>
+  <Deployment enabled="false">
     <DeploymentItem filename="EPPlusTest\Deploy\" />
   </Deployment>
   <Execution>
