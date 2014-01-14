@@ -110,5 +110,15 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(TokenType.Percent, tokens.Last().TokenType);
         }
+
+        [TestMethod]
+        public void ShouldHandleEmptyString()
+        {
+            var input = "IF(I10>=0;IF(O10>I10;((O10-I10)*$B10)/$C$27;IF(O10<0;(O10*$B10)/$C$27;\"\"));IF(O10<0;((O10-I10)*$B10)/$C$27;IF(O10>0;(O10*$B10)/$C$27;)))";
+            //var input = "2<=3";
+            var tokens = _tokenizer.Tokenize(input);
+            //var factory = new OfficeOpenXml.FormulaParsing.ExpressionGraph.ExpressionGraphBuilder()
+            Assert.Fail();
+        }
     }
 }
