@@ -60,6 +60,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return new CompileResult(obj, DataType.ExcelError);
             }
+            if (obj.GetType().Equals(typeof(System.DateTime)))
+            {
+                return new CompileResult(((System.DateTime)obj).ToOADate(), DataType.Date);
+            }
             throw new ArgumentException("Non supported type " + obj.GetType().FullName);
         }
     }

@@ -120,7 +120,7 @@ namespace EPPlusTest
             string path = @"C:\temp\EPPlusTestark\";
             if(!Directory.Exists(path)) return;
 
-            foreach (var file in Directory.GetFiles(workbookPath, "*.xls*"))
+            foreach (var file in Directory.GetFiles(path, "*.xls*"))
             {
                 sb.Append(GetOutput(file));
             }
