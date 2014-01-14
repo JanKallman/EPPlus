@@ -44,12 +44,12 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
-        [TestMethod, Ignore]
+        [TestMethod]
         public void CalulationValidationExcel()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
             //C:\temp\EPPlus Testark\Test1.xslx
-            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
+            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test5.xlsx"));
             //var pck = new ExcelPackage(new FileInfo(@"C:\temp\Bok2.xlsx"));
             //var ws = pck.Workbook.Worksheets["ValidateFormulas"];
             var ws = pck.Workbook.Worksheets.First();

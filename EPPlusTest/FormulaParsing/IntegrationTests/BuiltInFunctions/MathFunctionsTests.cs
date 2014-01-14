@@ -78,6 +78,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void SumsqShouldReturnCorrectResultWithEnumerable()
+        {
+            var result = _parser.Parse("sumsq({2;3})");
+            Assert.AreEqual(13d, result);
+        }
+
+        [TestMethod]
         public void SumIfShouldReturnCorrectResult()
         {
             var result = _parser.Parse("sumIf({1;2;3;2}, 2)");

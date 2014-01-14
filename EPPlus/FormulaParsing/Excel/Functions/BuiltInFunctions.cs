@@ -54,6 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["exact"] = new Exact();
             Functions["find"] = new Find();
             Functions["proper"] = new Proper();
+            Functions["t"] = new T();
             // Numbers
             Functions["int"] = new CInt();
             // Math
@@ -76,6 +77,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
             Functions["sumproduct"] = new SumProduct();
+            Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
             Functions["stdevp"] = new StdevP();
             Functions["subtotal"] = new Subtotal();

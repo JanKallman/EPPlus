@@ -164,7 +164,7 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void SumIfShouldThrowIfCriteriaIsLargerThan255chars()
+        public void SumIfShouldThrowIfCriteriaIsLargerThan255Chars()
         {
             var longString = "a";
             for (var x = 0; x < 256; x++) { longString = string.Concat(longString, "a"); }
@@ -180,6 +180,33 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), 3, (FunctionsHelper.CreateArgs(4, 2, 1)));
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(4d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldCalculateArray()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(2, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(20d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldIncludeTrueAsOne()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(2, 4, true);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(21d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldNoCountTrueTrueInArray()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(2, 4, true));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(20d, result.Result);
         }
 
         [TestMethod]

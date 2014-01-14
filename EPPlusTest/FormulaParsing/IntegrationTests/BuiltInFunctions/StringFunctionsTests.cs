@@ -94,5 +94,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("CONCATENATE('One', 'Two', 'Three')");
             Assert.AreEqual("OneTwoThree", result);
         }
+
+        [TestMethod]
+        public void TShouldReturnText()
+        {
+            var result = _parser.Parse("T('One')");
+            Assert.AreEqual("One", result);
+        }
     }
 }
