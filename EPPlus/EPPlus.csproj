@@ -1,0 +1,780 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7B288026-5502-4A39-BF41-77E086F3E4A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OfficeOpenXml</RootNamespace>
+    <AssemblyName>EPPlus</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>OpenOfficeXml.snk</AssemblyOriginatorKeyFile>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\EPPlus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\EPPlus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CellStore.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBeginsWith.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBetween.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingColorScaleGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingDataBarGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingDuplicateValues.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingEndsWith.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingExpression.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingGreaterThan.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingGreaterThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingThreeIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingFourIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingIconSetGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingLessThan.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingLessThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotBetween.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingStdDevGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTimePeriodGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTopBottomGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTwoColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingUniqueValues.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithFormula.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithFormula2.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithRank.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithReverse.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithShowValue.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithText.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingIconDataBarValue.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDataBar.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFourIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveOrEqualAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAverageGroup.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveAverage.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingOperatorType.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingRuleFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingConstants.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingTimePeriodType.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingColorScaleValue.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingEnums.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingValueObjectType.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBeginsWith.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowOrEqualAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBetween.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBottom.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBottomPercent.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDuplicateValues.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingEndsWith.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingExpression.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingGreaterThan.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingGreaterThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLast7Days.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLastMonth.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLastWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLessThan.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLessThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNextMonth.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNextWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotBetween.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingRule.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingRuleType.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisMonth.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTimePeriodGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingToday.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTomorrow.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTop.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTopPercent.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTwoColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingRule.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingHelper.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IRangeConditionalFormatting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\RangeConditionalFormatting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCustom.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationFactory.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\ExcelTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaCustom.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaWithValue.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaInt.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaValue.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaInt.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWarningStyle.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\IRangeDataValidation.cs" />
+    <Compile Include="DataValidation\RangeDataValidation.cs" />
+    <Compile Include="Drawing\Chart\ExcelSurfaceChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelSurfaceChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelRadarChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelBubbleChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelLineChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTrendline.cs" />
+    <Compile Include="Drawing\Chart\ExcelBubbleChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSurface.cs" />
+    <Compile Include="Drawing\ExcelDrawingBase.cs" />
+    <Compile Include="Drawing\ExcelPicture.cs" />
+    <Compile Include="Drawing\Chart\ExcelRadarChartSerie.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPictureCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingCommentCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPicture.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBase.cs" />
+    <Compile Include="Encryption\EncryptionHandler.cs" />
+    <Compile Include="Encryption\EncryptionHeader.cs" />
+    <Compile Include="Encryption\EncryptionInfo.cs" />
+    <Compile Include="Encryption\EncryptionVerifier.cs" />
+    <Compile Include="ExcelBackgroundImage.cs" />
+    <Compile Include="DataValidation\ExcelDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationType.cs" />
+    <Compile Include="ExcelEncryption.cs" />
+    <Compile Include="ExcelProtectedRange.cs" />
+    <Compile Include="ExcelProtectedRangeCollection.cs" />
+    <Compile Include="ExcelStyleCollection.cs" />
+    <Compile Include="ExcelColumn.cs" />
+    <Compile Include="Drawing\ExcelDrawings.cs" />
+    <Compile Include="ExcelHeaderFooter.cs" />
+    <Compile Include="ExcelPackage.cs" />
+    <Compile Include="ExcelRange.cs" />
+    <Compile Include="ExcelRow.cs" />
+    <Compile Include="Drawing\ExcelShape.cs" />
+    <Compile Include="ExcelStyles.cs" />
+    <Compile Include="ExcelProtection.cs" />
+    <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="FormulaParsing\CalculateExtentions.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\DependenyChainFactory.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\DependencyChain.cs" />
+    <Compile Include="FormulaParsing\DependencyChain\FormulaCell.cs" />
+    <Compile Include="FormulaParsing\EpplusExcelDataProvider.cs" />
+    <Compile Include="FormulaParsing\ExcelCalculationOption.cs" />
+    <Compile Include="FormulaParsing\ExcelCell.cs" />
+    <Compile Include="FormulaParsing\ExcelDataProvider.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslator.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\CellReferenceProvider.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressInfo.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressUtil.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ExcelReferenceType.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependencies.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependency.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependencyFactory.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\IndexToAddressTranslator.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\LookupValueMatcher.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\NumericExpressionEvaluator.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\RangeAddress.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressFactory.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ValueMatcher.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\WildCardValueMatcher.cs" />
+    <Compile Include="FormulaParsing\ExcelValues.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CompileResultValidator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CompileResultValidators.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CellStateHelper.cs" />
+    <Compile Include="FormulaParsing\Excel\ExcelCellState.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ArgumentCollectionUtil.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ArgumentParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ArgumentParserFactory.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsers.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\BoolArgumentParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\BuiltInFunctions.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CollectionFlattener.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Minute.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Month.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Now.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Second.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Time.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeBaseFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeStringParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Today.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weekday.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Year.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Yearfrac.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DecimalCompileResultValidator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DoubleArgumentParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DoubleEnumerableArgConverter.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ErrorHandlingFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ExcelFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FunctionArgument.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FunctionRepository.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FunctionsModule.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\HiddenValuesHandlingFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\IFunctionModule.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\IFunctionNameProvider.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsBlank.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsErr.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsError.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsEven.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsLogical.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsNa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\N.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\Na.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\IntArgumentParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\False.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\If.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Abs.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Atan.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Atan2.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageA.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Ceiling.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Cos.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Cosh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Count.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountA.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Log.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Max.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Maxa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Min.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Mod.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Rounddown.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Roundup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sqrt.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SqrtPi.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Stdev.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\StdevP.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Subtotal.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sumsq.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Trunc.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\VarP.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ObjectEnumerableArgConverter.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Address.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ArrayLookupNavigator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Choose.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Column.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Columns.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ExcelLookupNavigator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Index.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Lookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupArguments.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupDirection.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigator.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactory.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Match.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Row.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Rows.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Concatenate.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Replace.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Right.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Substitute.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\T.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Upper.cs" />
+    <Compile Include="FormulaParsing\Excel\Operators\IOperator.cs" />
+    <Compile Include="FormulaParsing\Excel\Operators\Operator.cs" />
+    <Compile Include="FormulaParsing\Excel\Operators\Operators.cs" />
+    <Compile Include="FormulaParsing\Excel\Operators\OperatorsDict.cs" />
+    <Compile Include="FormulaParsing\Exceptions\CircularReferenceException.cs" />
+    <Compile Include="FormulaParsing\Exceptions\ExcelErrorCodes.cs" />
+    <Compile Include="FormulaParsing\Exceptions\ExcelErrorValueException.cs" />
+    <Compile Include="FormulaParsing\Exceptions\ExcelFunctionException.cs" />
+    <Compile Include="FormulaParsing\Exceptions\UnrecognizedTokenException.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\AtomicExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\BooleanExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileResult.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileResultFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\CompileStrategy.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\CompileStrategyFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\DefaultCompileStrategy.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\ICompileStrategyFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileStrategy\StringConcatStrategy.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExcelErrorExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\DataType.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\DateExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\DecimalExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\EnumerableExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExcelAddressExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\Expression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ConstantExpressions.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionConverter.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraph.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraphBuilder.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionArgumentExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\DefaultCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\ErrorHandlingFunctionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\LookupFunctionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\GroupExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\IExpressionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\IExpressionConverter.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\IExpressionFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\IExpressionGraphBuilder.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\NamedValueExpression.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
+    <Compile Include="FormulaParsing\FormulaParser.cs" />
+    <Compile Include="FormulaParsing\INameValueProvider.cs" />
+    <Compile Include="FormulaParsing\IParsingLifetimeEventHandler.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FunctionNameProvider.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ILexer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ISourceCodeTokenizer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ISyntacticAnalyzer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ITokenFactory.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ITokenSeparatorProvider.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\Lexer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzer.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\Token.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenFactory.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenizerContext.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorProvider.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenType.cs" />
+    <Compile Include="FormulaParsing\EpplusNameValueProvider.cs" />
+    <Compile Include="FormulaParsing\NameValueProvider.cs" />
+    <Compile Include="FormulaParsing\ParsedValue.cs" />
+    <Compile Include="FormulaParsing\ParsingConfiguration.cs" />
+    <Compile Include="FormulaParsing\ParsingContext.cs" />
+    <Compile Include="FormulaParsing\ParsingScope.cs" />
+    <Compile Include="FormulaParsing\ParsingScopes.cs" />
+    <Compile Include="FormulaParsing\Utilities\ArgumentInfo.cs" />
+    <Compile Include="FormulaParsing\Utilities\ExtensionMethods.cs" />
+    <Compile Include="FormulaParsing\Utilities\IdProvider.cs" />
+    <Compile Include="FormulaParsing\Utilities\IntegerIdProvider.cs" />
+    <Compile Include="FormulaParsing\Utilities\RegexConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FormulaParsing\Utilities\Require.cs" />
+    <Compile Include="Packaging\DotNetZip\ComHelper.cs" />
+    <Compile Include="Packaging\DotNetZip\CRC32.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\EncryptionAlgorithm.cs" />
+    <Compile Include="Packaging\DotNetZip\Events.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Exceptions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ExtractExistingFileAction.cs" />
+    <Compile Include="Packaging\DotNetZip\FileSelector.cs" />
+    <Compile Include="Packaging\DotNetZip\OffsetStream.cs" />
+    <Compile Include="Packaging\DotNetZip\Shared.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\WinZipAes.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipCrypto.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipDirEntry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipEntry.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipEntry.Extract.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipEntry.Read.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipEntry.Write.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipEntrySource.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipErrorAction.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipFile.AddUpdate.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Check.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Events.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Extract.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Read.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Save.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.SaveSelfExtractor.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.Selector.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipFile.x-IEnumerable.cs" />
+    <Compile Include="Packaging\DotNetZip\ZipInputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipOutputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\ZipSegmentedStream.cs" />
+    <Compile Include="Packaging\DotNetZip\Zlib\Deflate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\DeflateStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\GZipStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\Inflate.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\InfTree.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\ParallelDeflateOutputStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\Tree.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\Zlib.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\ZlibBaseStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\ZlibCodec.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\ZlibConstants.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Packaging\DotNetZip\Zlib\ZlibStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="RangeCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Utils\ConvertUtil.cs" />
+    <Compile Include="Utils\UriHelper.cs" />
+    <Compile Include="Packaging\ZipPackage.cs" />
+    <Compile Include="VBA\ExcelVbaModule.cs" />
+    <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
+    <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
+    <Compile Include="VBA\ExcelVbaProject.cs" />
+    <Compile Include="ExcelWorkbookView.cs" />
+    <Compile Include="ExcelWorksheetView.cs" />
+    <Compile Include="Style\Dxf\DxfStyleBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorder.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorderItem.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfColor.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFill.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFontBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfNumberFormat.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfStyle.cs" />
+    <Compile Include="Style\ExcelGradientFill.cs" />
+    <Compile Include="Style\XmlAccess\ExcelGradientFillXml.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldItem.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTablePageFieldSettings.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableDataField.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldCollection.cs" />
+    <Compile Include="Style\IStyle.cs" />
+    <Compile Include="OfficeProperties.cs" />
+    <Compile Include="ExcelWorkbook.cs" />
+    <Compile Include="ExcelWorksheet.cs" />
+    <Compile Include="ExcelWorksheets.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderItemXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelXfsXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNamedStyleXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelColorXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFillXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFontXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNumberFormatXml.cs" />
+    <Compile Include="Style\StyleChangeEventArgs.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotCacheDefinition.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableField.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableCollection.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTable.cs" />
+    <Compile Include="Table\ExcelTableColumnCollection.cs" />
+    <Compile Include="Table\ExcelTable.cs" />
+    <Compile Include="Table\ExcelTableCollection.cs" />
+    <Compile Include="Table\ExcelTableColumn.cs" />
+    <Compile Include="Utils\AddressUtility.cs" />
+    <Compile Include="Utils\Argument.cs" />
+    <Compile Include="Utils\ArgumentExtensions.cs" />
+    <Compile Include="Utils\CompoundDocument.cs" />
+    <Compile Include="Utils\IArgument.cs" />
+    <Compile Include="Utils\Require.cs" />
+    <Compile Include="Utils\SqRefUtility.cs" />
+    <Compile Include="VBA\ExcelVbaProtection.cs" />
+    <Compile Include="VBA\ExcelVbaReference.cs" />
+    <Compile Include="VBA\ExcelVbaSignature.cs" />
+    <Compile Include="XmlHelper.cs" />
+    <Compile Include="XmlHelperFactory.cs" />
+    <Compile Include="Packaging\ZipPackagePart.cs" />
+    <Compile Include="Packaging\ZipPackageRelationship.cs" />
+    <Compile Include="Packaging\ZipPackageRelationshipCollection.cs" />
+    <Compile Include="Packaging\ZipPackageRelationshipBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\Chart\ExcelLineChart.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingComment.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPosition.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBaseCollection.cs" />
+    <Compile Include="ExcelAddress.cs" />
+    <Compile Include="ExcelCellAddress.cs" />
+    <Compile Include="ExcelComment.cs" />
+    <Compile Include="ExcelCommentCollection.cs" />
+    <Compile Include="ExcelSheetProtection.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartPlotArea.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerieDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTitle.cs" />
+    <Compile Include="Drawing\ExcelDrawingBorder.cs" />
+    <Compile Include="Drawing\Chart\ExcelOfPieChart.cs" />
+    <Compile Include="Drawing\ExcelDrawingFill.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChartSerie.cs" />
+    <Compile Include="Drawing\ExcelView3D.cs" />
+    <Compile Include="Drawing\Chart\ExcelBarChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartAxis.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSeries.cs" />
+    <Compile Include="Drawing\Chart\ExcelDoughnutChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChart.cs" />
+    <Compile Include="ExcelCellBase.cs" />
+    <Compile Include="ExcelHyperLink.cs" />
+    <Compile Include="ExcelNamedRange.cs" />
+    <Compile Include="ExcelNamedRangeCollection.cs" />
+    <Compile Include="ExcelPrinterSettings.cs" />
+    <Compile Include="ExcelRangeBase.cs" />
+    <Compile Include="IRangeID.cs" />
+    <Compile Include="Style\ExcelParagraph.cs" />
+    <Compile Include="Style\ExcelParagraphCollection.cs" />
+    <Compile Include="Style\ExcelBorder.cs" />
+    <Compile Include="Style\ExcelBorderItem.cs" />
+    <Compile Include="Style\ExcelColor.cs" />
+    <Compile Include="Style\ExcelFill.cs" />
+    <Compile Include="Style\ExcelRichText.cs" />
+    <Compile Include="Style\ExcelRichTextCollection.cs" />
+    <Compile Include="Utils\IExcelCell.cs" />
+    <Compile Include="Style\ExcelStyle.cs" />
+    <Compile Include="Style\ExcelFont.cs" />
+    <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />
+    <Compile Include="Style\ExcelNumberFormat.cs" />
+    <Compile Include="Style\StyleBase.cs" />
+    <Compile Include="Style\ExcelTextFont.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OpenOfficeXml.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConditionalFormatting\CF Implementation.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
