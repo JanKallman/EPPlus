@@ -41,8 +41,6 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.ErrorHandling
                 testContextInstance = value;
             }
         }
-
-
         [TestMethod]
         public void SingleCell()
         {
