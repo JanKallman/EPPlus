@@ -49,6 +49,23 @@ namespace OfficeOpenXml.Calculation
 
             var dc = DependencyChainFactory.Create(workbook, options);
             var parser = workbook.FormulaParser;
+
+            //TODO: Remove when tests are done. Outputs the dc to a text file. 
+            //var fileDc = new System.IO.StreamWriter("c:\\temp\\dc.txt");
+                        
+            //for (int i = 0; i < dc.list.Count; i++)
+            //{
+            //    fileDc.WriteLine(i.ToString() + "," + dc.list[i].Column.ToString() + "," + dc.list[i].Row.ToString() + "," + (dc.list[i].ws==null ? "" : dc.list[i].ws.Name) + "," + dc.list[i].Formula);
+            //}
+            //fileDc.Close();
+            //fileDc = new System.IO.StreamWriter("c:\\temp\\dcorder.txt");
+            //for (int i = 0; i < dc.CalcOrder.Count; i++)
+            //{
+            //    fileDc.WriteLine(dc.CalcOrder[i].ToString());
+            //}
+            //fileDc.Close();
+            //fileDc = null;
+
             //TODO: Add calculation here
             foreach (var ix in dc.CalcOrder)
             {

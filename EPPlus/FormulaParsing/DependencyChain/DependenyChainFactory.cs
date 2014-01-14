@@ -163,28 +163,38 @@ namespace OfficeOpenXml.FormulaParsing
                         adr.SetRCFromTable(ws._package, new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column));
                     }
 
-                    if (string.IsNullOrEmpty(adr.WorkSheet))
+                    if (adr._fromRow > 0 && adr._fromCol > 0)
                     {
-                        f.ws = ws;
-                    }
-                    else
-                    {
-                        f.ws = wb.Worksheets[adr.WorkSheet];
-                    }
-                    if (f.ws != null)
-                    {
-                        f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, adr.Start.Row, adr.Start.Column, adr.End.Row, adr.End.Column);
-                        goto iterateCells;
+                        if (string.IsNullOrEmpty(adr.WorkSheet))
+                        {
+                            if (f.ws == null)
+                            {
+                                f.ws = ws;
+                            }
+                        }
+                        else
+                        {
+                            f.ws = wb.Worksheets[adr.WorkSheet];
+                        }
+
+                        if (f.ws != null)
+                        {
+                            f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, adr.Start.Row, adr.Start.Column, adr.End.Row, adr.End.Column);
+                            goto iterateCells;
+                        }
                     }
                 }
                 else if (t.TokenType == TokenType.NameValue)
                 {
                     string adrWb, adrWs, adrName;
                     ExcelNamedRange name;
-                    ExcelAddressBase.SplitAddress(t.Value, out adrWb, out adrWs, out adrName, ws==null ? "" : ws.Name);
+                    ExcelAddressBase.SplitAddress(t.Value, out adrWb, out adrWs, out adrName, f.ws==null ? "" : f.ws.Name);
                     if (!string.IsNullOrEmpty(adrWs))
                     {
-                        f.ws=wb.Worksheets[adrWs];
+                        if (f.ws == null)
+                        {
+                            f.ws = wb.Worksheets[adrWs];
+                        }
                         if(f.ws.Names.ContainsKey(t.Value))
                         {
                             name = f.ws.Names[adrName];
@@ -197,7 +207,7 @@ namespace OfficeOpenXml.FormulaParsing
                         {
                             name = null;
                         }
-                        
+                        if(name != null) f.ws = name.Worksheet;                        
                     }
                     else if (wb.Names.ContainsKey(adrName))
                     {
@@ -235,7 +245,7 @@ namespace OfficeOpenXml.FormulaParsing
                             }
                             else
                             {
-                                if (options.AllowCirculareReferences==false && stack.Count > 0)
+                                if (stack.Count > 0)
                                 {
                                     //Check for circular references
                                     foreach (var par in stack)
@@ -275,6 +285,7 @@ namespace OfficeOpenXml.FormulaParsing
                     {
                         rf.Formula = f.iterator.Value.ToString();
                     }
+                    rf.ws = f.ws;
                     rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
                     ws._formulaTokens.SetValue(rf.Row, rf.Column, rf.Tokens);
                     depChain.Add(rf);
@@ -284,14 +295,23 @@ namespace OfficeOpenXml.FormulaParsing
                 }
                 else
                 {
-                    if (options.AllowCirculareReferences == false && stack.Count > 0)
+                    if (stack.Count > 0)
                     {
                         //Check for circular references
                         foreach (var par in stack)
                         {
                             if (ExcelAddressBase.GetCellID(par.ws.SheetID, par.iterator.Row, par.iterator.Column) == id)
                             {
-                               // throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
+                                if (options.AllowCirculareReferences == false)
+                                {
+                                    throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}!{1}", par.ws.Name, ExcelAddress.GetAddress(f.Row, f.Column))));
+                                }
+                                else
+                                {
+                                    depChain.CircularReferences.Add(id, f.Index);
+                                    f = stack.Pop();
+                                    goto iterateCells;
+                                }
                             }
                         }
                     }

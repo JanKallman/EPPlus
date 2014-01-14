@@ -8,9 +8,11 @@ using OfficeOpenXml;
 using OfficeOpenXml.Calculation;
 using System.IO;
 using System.Diagnostics;
+using OfficeOpenXml.FormulaParsing;
 
 namespace EPPlusTest
 {
+    [DeploymentItem("Workbooks", "targetFolder")]
     [TestClass]
     public class Calculation
     {
@@ -47,12 +49,10 @@ namespace EPPlusTest
         [TestMethod]
         public void CalulationValidationExcel()
         {
-            //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
-            //C:\temp\EPPlus Testark\Test1.xslx
-            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test5.xlsx"));
-            //var pck = new ExcelPackage(new FileInfo(@"C:\temp\Bok2.xlsx"));
-            //var ws = pck.Workbook.Worksheets["ValidateFormulas"];
-            var ws = pck.Workbook.Worksheets.First();
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+            var pck = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "FormulaTest.xlsx")));
+
+            var ws = pck.Workbook.Worksheets["ValidateFormulas"];
             var fr = new Dictionary<string, object>();
             foreach (var cell in ws.Cells)
             {
@@ -100,8 +100,8 @@ namespace EPPlusTest
         {
             var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
             var ws = pck.Workbook.Worksheets.First(); 
-            pck.Workbook.Worksheets.First().Cells["Q6"].Calculate();
-            Assert.AreEqual(474378, ws.Cells["Q6"].Value);  
+            pck.Workbook.Worksheets.First().Cells["J966"].Calculate();
+            Assert.AreEqual(15.928239987316594, ws.Cells["J966"].Value);  
         }
 
         [TestMethod]
@@ -111,6 +111,86 @@ namespace EPPlusTest
             var ws = pck.Workbook.Worksheets.Last();
             pck.Workbook.Calculate();
             Assert.AreEqual(150d, ws.Cells["A1"].Value);
+        }
+        [TestMethod]
+        public void TestAllWorkbooks()
+        {
+            StringBuilder sb=new StringBuilder();
+            //Add sheets to test in this directory or change it to your testpath.
+            string path = @"C:\temp\EPPlusTestark\";
+            if(!Directory.Exists(path)) return;
+
+            foreach (var file in Directory.GetFiles(workbookPath, "*.xls*"))
+            {
+                sb.Append(GetOutput(file));
+            }
+
+            if (sb.Length > 0)
+            {
+                File.WriteAllText(string.Format("TestAllWorkooks{0}.txt", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortDateString()), sb.ToString());
+                throw(new Exception("Test failed with\r\n\r\n" + sb.ToString()));
+
+            }
+        }
+        private string GetOutput(string file)
+        {
+            using (var pck = new ExcelPackage(new FileInfo(file)))
+            {
+                var fr = new Dictionary<string, object>();
+                foreach (var ws in pck.Workbook.Worksheets)
+                {
+                    foreach (var cell in ws.Cells)
+                    {
+                        if (!string.IsNullOrEmpty(cell.Formula))
+                        {
+                            fr.Add(ws.PositionID.ToString()+","+cell.Address, cell.Value);
+                            ws._values.SetValue(cell.Start.Row, cell.Start.Column, null);
+                        }
+                    }
+                }
+                pck.Workbook.Calculate();
+                var nErrors = 0;
+                var errors = new List<Tuple<string, object, object>>();
+                ExcelWorksheet sheet=null;
+                string adr="";
+                var fileErr = new System.IO.StreamWriter("c:\\temp\\err.txt");
+                foreach (var cell in fr.Keys)
+                {
+                    try
+                    {
+                        var spl = cell.Split(',');
+                        var ix = int.Parse(spl[0]);
+                        sheet = pck.Workbook.Worksheets[ix];
+                        adr = spl[1];
+                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || sheet.Cells[adr].Value.GetType().IsPrimitive))
+                        {
+                            var d1 = Convert.ToDouble(fr[cell]);
+                            var d2 = Convert.ToDouble(sheet.Cells[adr].Value);
+                            //if (Math.Abs(d1 - d2) < double.Epsilon)
+                            if(double.Equals(d1,d2))
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                //errors.Add(new Tuple<string, object, object>(adr, fr[cell], sheet.Cells[adr].Value));
+                                fileErr.WriteLine("Diff " + "\t" + d1.ToString("R15") + "\t" + d2.ToString("R15"));
+                            }
+                        }
+                        else
+                        {
+                            fileErr.WriteLine("String?" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value.ToString());
+                            //errors.Add(new Tuple<string, object, object>(adr, fr[cell], sheet.Cells[adr].Value));
+                        }
+                    }
+                    catch (Exception e)
+                    {                        
+                        fileErr.WriteLine("Exception" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
+                        nErrors++;
+                    }
+                }
+                return nErrors.ToString();
+            }
         }
     }
 }

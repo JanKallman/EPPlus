@@ -197,7 +197,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Resources\Test1.jpg" />
-    <None Include="Workbooks\FormulaTest.xlsx" />
+    <None Include="Workbooks\FormulaTest.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

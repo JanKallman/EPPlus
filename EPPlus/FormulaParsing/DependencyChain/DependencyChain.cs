@@ -7,6 +7,7 @@ namespace OfficeOpenXml.FormulaParsing
         internal List<FormulaCell> list = new List<FormulaCell>();
         internal Dictionary<ulong, int> index = new Dictionary<ulong, int>();
         internal List<int> CalcOrder = new List<int>();
+        internal Dictionary<ulong, int> CircularReferences = new Dictionary<ulong, int>();
         internal void Add(FormulaCell f)
         {
             list.Add(f);
