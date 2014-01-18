@@ -67,24 +67,24 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             
         }
 
-        public override void PrepareForNextChild()
+        public override Expression PrepareForNextChild()
         {
-            base.AddChild(new FunctionArgumentExpression());
+            return base.AddChild(new FunctionArgumentExpression(this));
         }
 
-        public override Expression AddChild(Expression child)
-        {
-            if (!Children.Any())
-            {
-                var group = base.AddChild(new FunctionArgumentExpression());
-                group.AddChild(child);
-            }
-            else
-            {
-                Children.Last().AddChild(child);
-            }
-            return child;
-        }
+        //public override Expression AddChild(Expression child)
+        //{
+        //    if (!Children.Any())
+        //    {
+        //        var group = base.AddChild(new FunctionArgumentExpression(this));
+        //        group.AddChild(child);
+        //    }
+        //    else
+        //    {
+        //        Children.Last().AddChild(child);
+        //    }
+        //    return child;
+        //}
 
         public override Expression MergeWithNext()
         {

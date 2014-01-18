@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
@@ -103,7 +104,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     // two operators in sequence could be "<=" or ">="
                     if (IsPartOfMultipleCharSeparator(context, c))
                     {
-                        context.AppendToLastToken(c.ToString());
+                        var sOp = context.LastToken.Value + c.ToString(CultureInfo.InvariantCulture);
+                        var op = _tokenProvider.Tokens[sOp];
+                        context.ReplaceLastToken(op);
                         context.NewToken();
                         continue;
                     }
@@ -201,7 +204,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         {
             var lastToken = context.LastToken != null ? context.LastToken.Value : string.Empty;
             return _tokenProvider.IsOperator(lastToken) 
-                && _tokenProvider.IsPossibleLastPartOfMultipleCharOperator(c.ToString()) 
+                && _tokenProvider.IsPossibleLastPartOfMultipleCharOperator(c.ToString(CultureInfo.InvariantCulture)) 
                 && !context.CurrentTokenHasValue;
         }
 

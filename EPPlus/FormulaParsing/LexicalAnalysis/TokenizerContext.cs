@@ -108,6 +108,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _result.Last().Append(stringToAppend);
         }
 
+        public void ReplaceLastToken(Token newToken)
+        {
+            if (_result.Count > 0)
+            {
+                _result.RemoveAt(_result.Count - 1);   
+            }
+            _result.Add(newToken);
+        }
+
         public Token LastToken
         {
             get { return _result.Count > 0 ? _result.Last() : null; }
