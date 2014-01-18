@@ -407,6 +407,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Sumsq.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Trunc.cs" />
@@ -446,6 +447,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Replace.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Right.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Substitute.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\T.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Upper.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\IOperator.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\Operator.cs" />

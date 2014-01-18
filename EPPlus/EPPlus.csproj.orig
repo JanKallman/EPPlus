@@ -290,6 +290,7 @@
     <Compile Include="FormulaParsing\DependencyChain\DependencyChain.cs" />
     <Compile Include="FormulaParsing\DependencyChain\FormulaCell.cs" />
     <Compile Include="FormulaParsing\EpplusExcelDataProvider.cs" />
+    <Compile Include="FormulaParsing\ExcelCalculationOption.cs" />
     <Compile Include="FormulaParsing\ExcelCell.cs" />
     <Compile Include="FormulaParsing\ExcelDataProvider.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslator.cs" />
@@ -322,6 +323,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
@@ -336,6 +338,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Today.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weekday.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Year.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Yearfrac.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DecimalCompileResultValidator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DoubleArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DoubleEnumerableArgConverter.cs" />
@@ -356,6 +359,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\N.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\Na.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IntArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
@@ -390,6 +394,8 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Rounddown.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Roundup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
@@ -403,6 +409,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Trunc.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\VarP.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />
@@ -433,6 +440,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Text.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Replace.cs" />
@@ -465,6 +473,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\ExcelAddressExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\Expression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ConstantExpressions.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionConverter.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactory.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraph.cs" />
@@ -483,7 +492,6 @@
     <Compile Include="FormulaParsing\ExpressionGraph\IExpressionGraphBuilder.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\NamedValueExpression.cs" />
-    <Compile Include="FormulaParsing\ExpressionGraph\PercentHandlingExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />
