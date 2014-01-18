@@ -308,7 +308,6 @@ namespace OfficeOpenXml.FormulaParsing
                                 }
                                 else
                                 {
-                                    depChain.CircularReferences.Add(id, f.Index);
                                     f = stack.Pop();
                                     goto iterateCells;
                                 }

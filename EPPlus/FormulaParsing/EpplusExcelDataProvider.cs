@@ -7,6 +7,7 @@ using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -401,7 +402,24 @@ namespace OfficeOpenXml.FormulaParsing
             SetCurrentWorksheet(worksheetName);
             return _currentWorksheet.GetValue(row, column);
         }
-
+        public override string GetFormat(object value, string format)
+        {
+            var styles = _package.Workbook.Styles;
+            ExcelNumberFormatXml.ExcelFormatTranslator ft=null;
+            foreach(var f in styles.NumberFormats)
+            {
+                if(f.Format==format)
+                {
+                    ft=f.FormatTranslator;
+                    break;
+                }
+            }
+            if(ft==null)
+            {
+                ft=new ExcelNumberFormatXml.ExcelFormatTranslator(format, -1);
+            }
+            return ExcelRangeBase.FormatValue(value, ft,format, ft.NetFormat);
+        }
         public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)
         {
             return _package.Workbook.Worksheets[worksheetName]._formulaTokens.GetValue(row, column);

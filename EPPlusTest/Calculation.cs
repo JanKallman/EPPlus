@@ -120,7 +120,7 @@ namespace EPPlusTest
             string path = @"C:\temp\EPPlusTestark\";
             if(!Directory.Exists(path)) return;
 
-            foreach (var file in Directory.GetFiles(workbookPath, "*.xls*"))
+            foreach (var file in Directory.GetFiles(path, "*.xls*"))
             {
                 sb.Append(GetOutput(file));
             }
@@ -188,6 +188,7 @@ namespace EPPlusTest
                         fileErr.WriteLine("Exception" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
                         nErrors++;
                     }
+                    fileErr.Close();
                 }
                 return nErrors.ToString();
             }

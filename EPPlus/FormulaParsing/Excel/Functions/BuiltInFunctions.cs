@@ -54,6 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["exact"] = new Exact();
             Functions["find"] = new Find();
             Functions["proper"] = new Proper();
+            Functions["text"] = new Text.Text();
             // Numbers
             Functions["int"] = new CInt();
             // Math
