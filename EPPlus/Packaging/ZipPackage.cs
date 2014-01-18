@@ -213,7 +213,7 @@ namespace OfficeOpenXml.Packaging
 
         internal string GetUriKey(string uri)
         {
-            string ret = uri.ToLower();
+            string ret = uri;
             if (ret[0] != '/')
             {
                 ret = "/" + ret;

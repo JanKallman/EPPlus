@@ -51,6 +51,7 @@ using System.Security;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using System.ComponentModel;
 
 namespace OfficeOpenXml
 {
@@ -915,6 +916,11 @@ namespace OfficeOpenXml
 				textFormat = nf.NetTextFormat;
 			}
 
+            return FormatValue(v, nf, format, textFormat);
+		}
+
+        internal static string FormatValue(object v, ExcelNumberFormatXml.ExcelFormatTranslator nf, string format, string textFormat)
+        {
 			if (v is decimal || v.GetType().IsPrimitive)
 			{
 				double d;
@@ -994,7 +1000,7 @@ namespace OfficeOpenXml
 				}
 			}
 			return v.ToString();
-		}
+}
 		/// <summary>
 		/// Gets or sets a formula for a range.
 		/// </summary>
@@ -1879,7 +1885,8 @@ namespace OfficeOpenXml
 			{
 				foreach (var t in Members)
 				{
-					_worksheet.SetValue(row, col++, t.Name.Replace('_', ' '));
+                    var descriptionAttribute = t.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
+                    _worksheet._values.SetValue(row, col++, descriptionAttribute == null ? t.Name.Replace('_', ' ') : descriptionAttribute.Description);
 				}
 				row++;
 			}

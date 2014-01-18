@@ -882,7 +882,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeString(StyleName);
+                return GetXmlNodeString(STYLENAME_PATH);
             }
             set
             {
