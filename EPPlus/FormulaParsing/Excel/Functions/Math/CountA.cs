@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             ValidateArguments(arguments, 1);
             var nItems = 0d;
-            Calculate(arguments, context,  ref nItems);
+            Calculate(arguments, context, ref nItems);
             return CreateResult(nItems, DataType.Integer);
         }
 
@@ -44,11 +44,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             foreach (var item in items)
             {
-                if (item.Value is ExcelDataProvider.IRangeInfo)
+                var cs = item.Value as ExcelDataProvider.IRangeInfo;
+                if (cs != null)
                 {
-                    foreach (var c in (ExcelDataProvider.IRangeInfo)item.Value)
+                    foreach (var c in cs)
                     {
-                        if (ShouldIgnore(c, context) == false && ShouldCount(c.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                        _CheckForAndHandleExcelError(c, context);
+                        if (!ShouldIgnore(c, context) && ShouldCount(c.Value))
                         {
                             nItems++;
                         }
@@ -58,19 +60,36 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     Calculate((IEnumerable<FunctionArgument>)item.Value, context, ref nItems);
                 }
-                else if (ShouldCount(item.Value, item.ExcelStateFlagIsSet(ExcelCellState.HiddenCell)))
+                else
                 {
-                    nItems++;
+                    _CheckForAndHandleExcelError(item, context);
+                    if (!ShouldIgnore(item) && ShouldCount(item.Value))
+                    {
+                        nItems++;
+                    }
                 }
-                
+
             }
         }
-        private bool ShouldCount(object value, bool isHiddenCell)
+
+        private void _CheckForAndHandleExcelError(FunctionArgument arg, ParsingContext context)
         {
-            if (isHiddenCell)
+            if (context.Scopes.Current.IsSubtotal)
             {
-                return false;
+                CheckForAndHandleExcelError(arg);
             }
+        }
+
+        private void _CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell, ParsingContext context)
+        {
+            if (context.Scopes.Current.IsSubtotal)
+            {
+                CheckForAndHandleExcelError(cell);
+            }
+        }
+
+        private bool ShouldCount(object value)
+        {
             if (value == null) return false;
             return (!string.IsNullOrEmpty(value.ToString()));
         }

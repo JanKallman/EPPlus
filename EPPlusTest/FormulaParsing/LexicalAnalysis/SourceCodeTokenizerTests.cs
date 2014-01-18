@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing;
 
@@ -101,6 +102,24 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
 
             Assert.AreEqual(TokenType.ExcelAddress, tokens.ElementAt(2).TokenType);
+        }
+
+        [TestMethod]
+        public void ShouldCreateTokenForPercentAfterDecimal()
+        {
+            var input = "1,23%";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.Percent, tokens.Last().TokenType);
+        }
+
+        [TestMethod]
+        public void ShouldHandleEmptyString()
+        {
+            var input = "IF(I10>=0;IF(O10>I10;((O10-I10)*$B10)/$C$27;IF(O10<0;(O10*$B10)/$C$27;\"\"));IF(O10<0;((O10-I10)*$B10)/$C$27;IF(O10>0;(O10*$B10)/$C$27;)))";
+            //var input = "2<=3";
+            var tokens = _tokenizer.Tokenize(input);
+            //var factory = new ExpressionGraphBuilder()
+            Assert.Fail();
         }
     }
 }

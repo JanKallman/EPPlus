@@ -51,7 +51,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
             catch (Exception e)
             {
-                throw new ExcelFunctionException(str ?? "<null>" + " could not be parsed to a double", e, ExcelErrorCodes.Value);
+                throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
             }
         }
     }

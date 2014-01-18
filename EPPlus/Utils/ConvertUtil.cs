@@ -3,11 +3,28 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.Utils
 {
     internal static class ConvertUtil
     {
+        internal static bool IsNumeric(object candidate)
+        {
+            if (candidate == null) return false;
+            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
+        }
+
+        internal static bool IsNumericString(object candidate)
+        {
+            if (candidate != null)
+            {
+                return Regex.IsMatch(candidate.ToString(), @"^[\d]+(\,[\d])?");
+            }
+            return false;
+        }
+
         /// <summary>
         /// Convert an object value to a double 
         /// </summary>
@@ -23,7 +40,7 @@ namespace OfficeOpenXml.Utils
                 {
                     return 0;
                 }
-                if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
+                if (IsNumeric(v))
                 {
                     if (v is DateTime)
                     {

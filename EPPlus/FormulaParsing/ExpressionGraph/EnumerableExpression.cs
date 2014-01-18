@@ -55,9 +55,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             get { return false; }
         }
 
-        public override void PrepareForNextChild()
+        public override Expression PrepareForNextChild()
         {
-
+            return this;
         }
 
         public override CompileResult Compile()

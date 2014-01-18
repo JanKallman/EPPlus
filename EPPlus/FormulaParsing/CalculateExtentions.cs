@@ -41,32 +41,59 @@ namespace OfficeOpenXml.Calculation
     {
         public static void Calculate(this ExcelWorkbook workbook)
         {
+            Calculate(workbook, new ExcelCalculationOption(){AllowCirculareReferences=false});
+        }
+        public static void Calculate(this ExcelWorkbook workbook, ExcelCalculationOption options)
+        {
             Init(workbook);
 
-            var dc = DependencyChainFactory.Create(workbook);
+            var dc = DependencyChainFactory.Create(workbook, options);
             var parser = workbook.FormulaParser;
+
+            //TODO: Remove when tests are done. Outputs the dc to a text file. 
+            //var fileDc = new System.IO.StreamWriter("c:\\temp\\dc.txt");
+                        
+            //for (int i = 0; i < dc.list.Count; i++)
+            //{
+            //    fileDc.WriteLine(i.ToString() + "," + dc.list[i].Column.ToString() + "," + dc.list[i].Row.ToString() + "," + (dc.list[i].ws==null ? "" : dc.list[i].ws.Name) + "," + dc.list[i].Formula);
+            //}
+            //fileDc.Close();
+            //fileDc = new System.IO.StreamWriter("c:\\temp\\dcorder.txt");
+            //for (int i = 0; i < dc.CalcOrder.Count; i++)
+            //{
+            //    fileDc.WriteLine(dc.CalcOrder[i].ToString());
+            //}
+            //fileDc.Close();
+            //fileDc = null;
+
             //TODO: Add calculation here
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
                 try
                 {
-                    var v = parser.ParseCell(item.Tokens, item.ws == null ? "" : item.ws.Name, item.Row, item.Column);
+                    var ws = workbook.Worksheets.GetBySheetID(item.SheetID);
+                    var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
                     SetValue(workbook, item, v);
                 }
                 catch (Exception e)
                 {
-                    // TODO: add errorhandling here...
+                    var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
+                    SetValue(workbook, item, error);
                 }
-                
-            }            
+
+            }
             workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
+            Calculate(worksheet, new ExcelCalculationOption());
+        }
+        public static void Calculate(this ExcelWorksheet worksheet, ExcelCalculationOption options)
+        {
             Init(worksheet.Workbook);
             var parser = worksheet.Workbook.FormulaParser;
-            var dc = DependencyChainFactory.Create(worksheet);
+            var dc = DependencyChainFactory.Create(worksheet, options);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
@@ -75,11 +102,16 @@ namespace OfficeOpenXml.Calculation
             }
             worksheet.Workbook._isCalculated = true;
         }
+
         public static void Calculate(this ExcelRangeBase range)
+        {
+            Calculate(range, new ExcelCalculationOption());
+        }
+        public static void Calculate(this ExcelRangeBase range, ExcelCalculationOption options)
         {
             Init(range._workbook);
             var parser = range._workbook.FormulaParser;
-            var dc = DependencyChainFactory.Create(range);
+            var dc = DependencyChainFactory.Create(range, options);
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];

@@ -26,21 +26,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
     public class DoubleEnumerableArgConverter : CollectionFlattener<double>
     {
-        public virtual IEnumerable<double> ConvertArgs(bool ignoreHidden, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        public virtual IEnumerable<double> ConvertArgs(bool ignoreHidden, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
-                    if (arg.Value is ExcelDataProvider.IRangeInfo)
+                    if (arg.IsExcelRange)
                     {
-                        foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
+                        foreach (var cell in arg.ValueAsRangeInfo)
                         {
-                            if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context))
+                            if(!ignoreErrors && cell.IsExcelError) throw new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString()));
+                            if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context) && ConvertUtil.IsNumeric(cell.Value))
                             {
                                 argList.Add(cell.ValueDouble);
                             }       
@@ -48,7 +50,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     }
                     else
                     {
-                        if (arg.Value is double || arg.Value is int || arg.Value is System.DateTime || arg.Value.GetType().IsPrimitive)
+                        if(!ignoreErrors && arg.ValueIsExcelError) throw new ExcelErrorValueException(arg.ValueAsExcelErrorValue);
+                        if (ConvertUtil.IsNumeric(arg.Value) && !CellStateHelper.ShouldIgnore(ignoreHidden, arg, context))
                         {
                             argList.Add(ConvertUtil.GetValueDouble(arg.Value));
                         }

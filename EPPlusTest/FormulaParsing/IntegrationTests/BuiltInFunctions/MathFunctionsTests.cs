@@ -78,6 +78,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void SumsqShouldReturnCorrectResultWithEnumerable()
+        {
+            var result = _parser.Parse("sumsq({2;3})");
+            Assert.AreEqual(13d, result);
+        }
+
+        [TestMethod]
         public void SumIfShouldReturnCorrectResult()
         {
             var result = _parser.Parse("sumIf({1;2;3;2}, 2)");
@@ -141,6 +148,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void RounddownShouldReturnAResult()
+        {
+            var result = _parser.Parse("Rounddown(2.99, 1)");
+            Assert.AreEqual(2.9d, result);
+        }
+
+        [TestMethod]
+        public void RoundupShouldReturnAResult()
+        {
+            var result = _parser.Parse("Roundup(2.99, 1)");
+            Assert.AreEqual(3d, result);
+        }
+
+        [TestMethod]
         public void SqrtPiShouldReturnAResult()
         {
             var result = _parser.Parse("SqrtPi(2.2)");
@@ -172,7 +193,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void CountShouldReturnAResult()
         {
             var result = _parser.Parse("Count(1,2,2,'4')");
-            Assert.AreEqual(3d, result);
+            Assert.AreEqual(4d, result);
         }
 
         [TestMethod]
@@ -180,6 +201,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         {
             var result = _parser.Parse("CountA(1,2,2,'', 'a')");
             Assert.AreEqual(4d, result);
+        }
+
+        [TestMethod]
+        public void CountIfShouldReturnAResult()
+        {
+            var result = _parser.Parse("CountIf({1;2;2;''}, '2')");
+            Assert.AreEqual(2d, result);
         }
 
         [TestMethod]
@@ -207,6 +235,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void SubtotalShouldReturnAResult()
         {
             var result = _parser.Parse("Subtotal(1, 10, 20)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
+
+        [TestMethod]
+        public void TruncShouldReturnAResult()
+        {
+            var result = _parser.Parse("Trunc(1.2345)");
             Assert.IsInstanceOfType(result, typeof(double));
         }
 

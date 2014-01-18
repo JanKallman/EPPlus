@@ -44,6 +44,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         Multiply,
         Divide,
         Modulus,
+        Percent,
         Equals,
         GreaterThan,
         GreaterThanOrEqual,

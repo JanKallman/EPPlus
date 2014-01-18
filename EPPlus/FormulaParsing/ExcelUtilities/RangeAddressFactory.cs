@@ -78,6 +78,34 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             };
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="worksheetName">will be used if no worksheet name is specified in <paramref name="address"/></param>
+        /// <param name="address">address of a range</param>
+        /// <returns></returns>
+        public RangeAddress Create(string worksheetName, string address)
+        {
+            Require.That(address).Named("range").IsNotNullOrEmpty();
+            var addressInfo = ExcelAddressInfo.Parse(address);
+            var sheet = addressInfo.WorksheetIsSpecified ? addressInfo.Worksheet : worksheetName;
+            var rangeAddress = new RangeAddress()
+            {
+                Address = address,
+                Worksheet = sheet
+            };
+
+            if (addressInfo.IsMultipleCells)
+            {
+                HandleMultipleCellAddress(rangeAddress, addressInfo);
+            }
+            else
+            {
+                HandleSingleCellAddress(rangeAddress, addressInfo);
+            }
+            return rangeAddress;
+        }
+
         public RangeAddress Create(string range)
         {
             Require.That(range).Named("range").IsNotNullOrEmpty();

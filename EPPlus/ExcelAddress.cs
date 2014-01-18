@@ -1209,7 +1209,6 @@ namespace OfficeOpenXml
         internal ExcelFormulaAddress()
             : base()
         {
-
         }
 
         public ExcelFormulaAddress(int fromRow, int fromCol, int toRow, int toColumn)
@@ -1220,17 +1219,60 @@ namespace OfficeOpenXml
         public ExcelFormulaAddress(string address)
             : base(address)
         {
+            SetFixed();
         }
         
         internal ExcelFormulaAddress(string ws, string address)
             : base(address)
         {
             if (string.IsNullOrEmpty(_ws)) _ws = ws;
+            SetFixed();
         }
         internal ExcelFormulaAddress(string ws, string address, bool isName)
             : base(address, isName)
         {
             if (string.IsNullOrEmpty(_ws)) _ws = ws;
+            if(!isName)
+                SetFixed();
+        }
+
+        private void SetFixed()
+        {
+            if (Address.IndexOf("[") >= 0) return;
+            var address=FirstAddress;
+            if(_fromRow==_toRow && _fromCol==_toCol)
+            {
+                GetFixed(address, out _fromRowFixed, out _fromColFixed);
+            }
+            else
+            {
+                var cells = address.Split(':');
+                GetFixed(cells[0], out _fromRowFixed, out _fromColFixed);
+                GetFixed(cells[1], out _toRowFixed, out _toColFixed);
+            }
+        }
+
+        private void GetFixed(string address, out bool rowFixed, out bool colFixed)
+        {            
+            rowFixed=colFixed=false;
+            var ix=address.IndexOf('$');
+            while(ix>-1)
+            {
+                ix++;
+                if(ix < address.Length)
+                {
+                    if(address[ix]>='0' && address[ix]<='9')
+                    {
+                        rowFixed=true;
+                        break;
+                    }
+                    else
+                    {
+                        colFixed=true;
+                    }
+                }
+                ix = address.IndexOf('$', ix);
+            }
         }
         /// <summary>
         /// The address for the range
@@ -1250,6 +1292,7 @@ namespace OfficeOpenXml
             {                
                 SetAddress(value);
                 base.ChangeAddress();
+                SetFixed();
             }
         }
         internal new List<ExcelFormulaAddress> _addresses;
@@ -1276,13 +1319,16 @@ namespace OfficeOpenXml
             {
                 fromCol += column;
             }
-            if (!_toRowFixed)
+            if (fromRow != toRow || fromCol != tocol)
             {
-                toRow += row;
-            }
-            if (!_toColFixed)
-            {
-                tocol += column;
+                if (!_toRowFixed)
+                {
+                    toRow += row;
+                }
+                if (!_toColFixed)
+                {
+                    tocol += column;
+                }
             }
             string a = GetAddress(fromRow, fromCol, toRow, tocol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             if (Addresses != null)

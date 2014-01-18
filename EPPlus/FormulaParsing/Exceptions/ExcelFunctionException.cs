@@ -35,24 +35,24 @@ using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.Exceptions
 {
-    public class ExcelFunctionException : Exception
-    {
-        public ExcelFunctionException(string message, ExcelErrorCodes errorCode)
-            : base(message)
-        {
-            ErrorCode = errorCode.Code;
-        }
+    //public class ExcelFunctionException : Exception
+    //{
+    //    public ExcelFunctionException(string message, ExcelErrorCodes errorCode)
+    //        : base(message)
+    //    {
+    //        ErrorCode = errorCode.Code;
+    //    }
 
-        public ExcelFunctionException(string message, Exception innerException, ExcelErrorCodes errorCode)
-            : base(message, innerException)
-        {
-            ErrorCode = errorCode.Code;
-        }
+    //    public ExcelFunctionException(string message, Exception innerException, ExcelErrorCodes errorCode)
+    //        : base(message, innerException)
+    //    {
+    //        ErrorCode = errorCode.Code;
+    //    }
 
-        public string ErrorCode
-        {
-            get;
-            private set;
-        }
-    }
+    //    public string ErrorCode
+    //    {
+    //        get;
+    //        private set;
+    //    }
+    //}
 }

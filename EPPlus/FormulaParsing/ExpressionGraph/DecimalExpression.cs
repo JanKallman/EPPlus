@@ -1,18 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Globalization;
-
-namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
-{
-    public class DecimalExpression : AtomicExpression
-    {
-        public DecimalExpression(string expression)
-            : base(expression)
-        {
-            
-        }/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -42,18 +30,32 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
  * ******************************************************************************
  * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
  *******************************************************************************/
+using System.Linq;
+using System.Text;
+using System.Globalization;
+
+namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
+{
+    public class DecimalExpression : AtomicExpression
+    {
+        private readonly double? _compiledValue;
+
+        public DecimalExpression(string expression)
+            : base(expression)
+        {
+            
+        }
+
+        public DecimalExpression(double compiledValue)
+            : base(compiledValue.ToString(CultureInfo.InvariantCulture))
+        {
+            _compiledValue = compiledValue;
+        }
 
         public override CompileResult Compile()
         {
-            //Remove JK 2013-03-11. Used CultureInfo.InvariantCulture as an alternative
-            //string exp = string.Empty;
-            //var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
-            //if (decimalSeparator == ",")
-            //{
-                
-            //    exp = ExpressionString.Replace('.', ',');
-            //}
-            return new CompileResult(double.Parse(ExpressionString, CultureInfo.InvariantCulture), DataType.Decimal);
+            double result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
+            return new CompileResult(result, DataType.Decimal);
         }
     }
 }

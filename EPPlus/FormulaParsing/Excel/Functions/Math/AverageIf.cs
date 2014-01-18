@@ -30,6 +30,8 @@ using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.Utils;
+using Require = OfficeOpenXml.FormulaParsing.Utilities.Require;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
@@ -57,20 +59,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             double? candidate = default(double?);
             if (IsNumber(obj))
             {
-                candidate = Convert.ToDouble(obj);
-            }
-            else if (obj is System.DateTime)
-            {
-                candidate = ((System.DateTime) obj).ToOADate();
+                candidate = ConvertUtil.GetValueDouble(obj);
             }
             if (candidate.HasValue)
             {
                 return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            else
-            {
-                return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
-            }
+            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -83,7 +78,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 args = new List<FunctionArgument>(){ firstArg };
             }
             var criteria = arguments.ElementAt(1).Value;
-            ThrowExcelFunctionExceptionIf(() => criteria == null || criteria.ToString().Length > 255, ExcelErrorCodes.Value);
+            ThrowExcelErrorValueExceptionIf(() => criteria == null || criteria.ToString().Length > 255, eErrorType.Value);
             var retVal = 0d;
             if (arguments.Count() > 2)
             {

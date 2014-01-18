@@ -53,7 +53,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
             if (name == null)
             {
-                throw(new Exceptions.ExcelErrorValueException(new ExcelErrorValue(eErrorType.Name)));
+                throw (new Exceptions.ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Name)));
             }
             if (name.Value==null)
             {

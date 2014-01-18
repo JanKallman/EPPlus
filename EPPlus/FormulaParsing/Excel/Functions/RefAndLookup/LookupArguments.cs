@@ -32,6 +32,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 {
     public class LookupArguments
     {
+        public enum LookupArgumentDataType
+        {
+            ExcelRange,
+            DataArray
+        }
+
         public LookupArguments(IEnumerable<FunctionArgument> arguments)
             : this(arguments, new ArgumentParsers())
         {
@@ -42,11 +48,26 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             _argumentParsers = argumentParsers;
             SearchedValue = arguments.ElementAt(0).Value;
-            RangeAddress = arguments.ElementAt(1).Value.ToString();
+            var arg1 = arguments.ElementAt(1).Value;
+            var dataArray = arg1 as IEnumerable<FunctionArgument>;
+            if (dataArray != null)
+            {
+                DataArray = dataArray;
+                ArgumentDataType = LookupArgumentDataType.DataArray;
+            }
+            else
+            {
+                RangeAddress = arg1.ToString();
+                ArgumentDataType = LookupArgumentDataType.ExcelRange;
+            }
             LookupIndex = (int)_argumentParsers.GetParser(DataType.Integer).Parse(arguments.ElementAt(2).Value);
             if (arguments.Count() > 3)
             {
                 RangeLookup = (bool)_argumentParsers.GetParser(DataType.Boolean).Parse(arguments.ElementAt(3).Value);
+            }
+            else
+            {
+                RangeLookup = true;
             }
         }
 
@@ -70,5 +91,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         public int LookupOffset { get; private set; }
 
         public bool RangeLookup { get; private set; }
+
+        public IEnumerable<FunctionArgument> DataArray { get; private set; }
+
+        public LookupArgumentDataType ArgumentDataType { get; private set; } 
     }
 }

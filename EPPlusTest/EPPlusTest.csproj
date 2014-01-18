@@ -123,10 +123,13 @@
     <Compile Include="FormulaParsing\Excel\Functions\NumberFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\RefAndLookupTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\IndexTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TextFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TimeStringParserTests.cs" />
     <Compile Include="FormulaParsing\Excel\OperatorsTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\EnumerableExpressionTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExcelAddressExpressionTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionCompilerTests.cs" />
@@ -134,6 +137,8 @@
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactoryTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraphBuilderTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\IntegerExpressionTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\DecimalExpressionTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\BooleanExpressionTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BasicCalcTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DateAndTimeFunctionsTests.cs" />
@@ -145,10 +150,12 @@
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\StringFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\SumTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ExcelDataProviderTests\ExcelDataProviderIntegrationTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\FormulaParserTestBase.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\PrecedenceTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\CalcExtensionsTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\FormulaErrorHandlingTestBase.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\NegationTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzerTests.cs" />
@@ -190,7 +197,9 @@
       <SubType>Designer</SubType>
     </None>
     <None Include="Resources\Test1.jpg" />
-    <None Include="Workbooks\FormulaTest.xlsx" />
+    <None Include="Workbooks\FormulaTest.xlsx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">

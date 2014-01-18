@@ -92,14 +92,11 @@ namespace OfficeOpenXml
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            //draws = new ExcelDrawings(pck, this);
             this.Drawings.AddChart("Chart 1", chartType);
         }
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            //_ = new ExcelDrawings(_package, this);
-            //Chart = (ExcelChart)draws[0];
         }
         public ExcelChart Chart 
         {
@@ -1164,7 +1161,7 @@ namespace OfficeOpenXml
             return new RowInternal()
             {
                 Collapsed=(xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false),
-                Height = (xr.GetAttribute("ht") == null ? 0 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
+                Height = (xr.GetAttribute("ht") == null ? -1 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
                 Hidden = (xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false),
                 Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false,
                 CustomHeight = xr.GetAttribute("customHeight") == null ? false : xr.GetAttribute("customHeight")=="1"
@@ -1229,23 +1226,24 @@ namespace OfficeOpenXml
 
         private object GetErrorType(string v)
         {
-            switch(v.ToUpper())
-            {
-                case "#DIV/0!":
-                    return new ExcelErrorValue(eErrorType.Div0);
-                case "#REF!":
-                    return new ExcelErrorValue(eErrorType.Ref);
-                case "#N/A":
-                    return new ExcelErrorValue(eErrorType.NA);
-                case "#NAME?":
-                    return new ExcelErrorValue(eErrorType.Name);
-                case "#NULL!":
-                    return new ExcelErrorValue(eErrorType.Null);
-                case "#NUM!":
-                    return new ExcelErrorValue(eErrorType.Num);
-                default:
-                    return new ExcelErrorValue(eErrorType.Value);
-            }
+            return ExcelErrorValue.Parse(v.ToUpper());
+            //switch(v.ToUpper())
+            //{
+            //    case "#DIV/0!":
+            //        return new ExcelErrorValue.cre(eErrorType.Div0);
+            //    case "#REF!":
+            //        return new ExcelErrorValue(eErrorType.Ref);
+            //    case "#N/A":
+            //        return new ExcelErrorValue(eErrorType.NA);
+            //    case "#NAME?":
+            //        return new ExcelErrorValue(eErrorType.Name);
+            //    case "#NULL!":
+            //        return new ExcelErrorValue(eErrorType.Null);
+            //    case "#NUM!":
+            //        return new ExcelErrorValue(eErrorType.Num);
+            //    default:
+            //        return new ExcelErrorValue(eErrorType.Value);
+            //}
         }
         //private string GetSharedString(int stringID)
         //{
@@ -2930,7 +2928,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
+                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("R15", CultureInfo.InvariantCulture);
                     }
                 }
                 else

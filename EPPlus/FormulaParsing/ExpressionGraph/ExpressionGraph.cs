@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         public IEnumerable<Expression> Expressions { get { return _expressions; } }
         public Expression Current { get; private set; }
 
-        public void Add(Expression expression)
+        public Expression Add(Expression expression)
         {
             _expressions.Add(expression);
             if (Current != null)
@@ -50,6 +50,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 expression.Prev = Current;
             }
             Current = expression;
+            return expression;
         }
 
         public void Reset()

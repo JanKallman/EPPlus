@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -63,9 +64,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             set;
         }
 
-        public virtual void  PrepareForNextChild()
+        public virtual Expression  PrepareForNextChild()
         {
-            AddChild(new GroupExpression());
+            return AddChild(new GroupExpression());
         }
 
         public virtual Expression AddChild(Expression child)
@@ -87,7 +88,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var result = Operator.Apply(Compile(), Next.Compile());
                 expression = ExpressionConverter.Instance.FromCompileResult(result);
-                if (Next != null)
+                if (Next != null)   
                 {
                     expression.Operator = Next.Operator;
                 }

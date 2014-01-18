@@ -950,7 +950,7 @@ namespace OfficeOpenXml
 				{
 					if ((name.NameValue.GetType().IsPrimitive || name.NameValue is double || name.NameValue is decimal))
 					{
-						elem.InnerText = Convert.ToDouble(name.NameValue, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture); 
+						elem.InnerText = Convert.ToDouble(name.NameValue, CultureInfo.InvariantCulture).ToString("R15", CultureInfo.InvariantCulture); 
 					}
 					else if (name.NameValue is DateTime)
 					{

@@ -35,16 +35,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
     public abstract class LookupFunction : ExcelFunction
     {
         private readonly ValueMatcher _valueMatcher;
+        private readonly CompileResultFactory _compileResultFactory;
 
         public LookupFunction()
-            : this(new ValueMatcher())
+            : this(new LookupValueMatcher(), new CompileResultFactory())
         {
 
         }
 
-        public LookupFunction(ValueMatcher valueMatcher)
+        public LookupFunction(ValueMatcher valueMatcher, CompileResultFactory compileResultFactory)
         {
             _valueMatcher = valueMatcher;
+            _compileResultFactory = compileResultFactory;
         }
 
         public override bool IsLookupFuction
@@ -75,24 +77,37 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             do
             {
                 var matchResult = IsMatch(navigator.CurrentValue, lookupArgs.SearchedValue);
-                if (matchResult == 0)
+                if (matchResult != 0)
                 {
-                    return CreateResult(navigator.GetLookupValue(), DataType.String);
-                }
-                if (lookupArgs.RangeLookup)
-                {
-                    if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
+                    if (lastValue != null && navigator.CurrentValue == null) break;
+                    if (lastValue == null && matchResult > 0)
                     {
-                        return CreateResult(lastLookupValue, DataType.String);
+                        ThrowExcelErrorValueException(eErrorType.NA);
                     }
-                    lastMatchResult = matchResult;
-                    lastValue = navigator.CurrentValue;
-                    lastLookupValue = navigator.GetLookupValue();
+                    if (lookupArgs.RangeLookup)
+                    {
+                        if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
+                        {
+                            return _compileResultFactory.Create(lastLookupValue);
+                        }
+                        lastMatchResult = matchResult;
+                        lastValue = navigator.CurrentValue;
+                        lastLookupValue = navigator.GetLookupValue();
+                    }
+                }
+                else
+                {
+                    return _compileResultFactory.Create(navigator.GetLookupValue());
                 }
             }
             while (navigator.MoveNext());
 
-            throw new ExcelFunctionException("Lookupfunction failed to lookup value", ExcelErrorCodes.NoValueAvaliable);
+            if (lookupArgs.RangeLookup)
+            {
+                return _compileResultFactory.Create(lastLookupValue);
+            }
+
+            throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
         }
     }
 }

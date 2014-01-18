@@ -54,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             ValidateArguments(arguments, 2);
             var args = arguments.ElementAt(0).Value as IEnumerable<FunctionArgument>;
             var criteria = arguments.ElementAt(1).Value;
-            ThrowExcelFunctionExceptionIf(() => criteria == null || criteria.ToString().Length > 255, ExcelErrorCodes.Value);
+            ThrowExcelErrorValueExceptionIf(() => criteria == null || criteria.ToString().Length > 255, eErrorType.Value);
             var retVal = 0d;
             if (arguments.Count() > 2)
             {

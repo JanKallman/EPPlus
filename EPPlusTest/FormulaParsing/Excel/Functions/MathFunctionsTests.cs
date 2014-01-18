@@ -10,13 +10,22 @@ using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using OfficeOpenXml;
 
 namespace EPPlusTest.Excel.Functions
 {
     [TestClass]
     public class MathFunctionsTests
     {
-        private ParsingContext _parsingContext = ParsingContext.Create();
+        private ParsingContext _parsingContext;
+
+        [TestInitialize]
+        public void Initialize()
+        {
+            _parsingContext = ParsingContext.Create();
+            _parsingContext.Scopes.NewScope(RangeAddress.Empty);
+        }
 
         [TestMethod]
         public void PiShouldReturnPIConstant()
@@ -154,8 +163,8 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelFunctionException))]
-        public void SumIfShouldThrowIfCriteriaIsLargerThan255chars()
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void SumIfShouldThrowIfCriteriaIsLargerThan255Chars()
         {
             var longString = "a";
             for (var x = 0; x < 256; x++) { longString = string.Concat(longString, "a"); }
@@ -171,6 +180,33 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), 3, (FunctionsHelper.CreateArgs(4, 2, 1)));
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(4d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldCalculateArray()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(2, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(20d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldIncludeTrueAsOne()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(2, 4, true);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(21d, result.Result);
+        }
+
+        [TestMethod]
+        public void SumSqShouldNoCountTrueTrueInArray()
+        {
+            var func = new Sumsq();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(2, 4, true));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(20d, result.Result);
         }
 
         [TestMethod]
@@ -322,6 +358,70 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AverageShouldThrowDivByZeroExcelErrorValueIfEmptyArgs()
+        {
+            eErrorType errorType = eErrorType.Value;
+
+            var func = new Average();
+            var args = new FunctionArgument[0];
+            try
+            {
+                func.Execute(args, _parsingContext);
+            }
+            catch (ExcelErrorValueException e)
+            {
+                errorType = e.ErrorValue.Type;
+            }
+            Assert.AreEqual(eErrorType.Div0, errorType);
+        }
+
+        [TestMethod]
+        public void AverageAShouldCalculateCorrectResult()
+        {
+            var expectedResult = (4d + 2d + 5d + 2d) / 4d;
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedResult, result.Result);
+        }
+
+        [TestMethod]
+        public void AverageAShouldIncludeTrueAs1()
+        {
+            var expectedResult = (4d + 2d + 5d + 2d + 1d) / 5d;
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d, true);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedResult, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void AverageAShouldThrowValueExceptionIfNonNumericTextIsSupplied()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, 5d, 2d, "ABC");
+            var result = func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void AverageAShouldCountValueAs0IfNonNumericTextIsSuppliedInArray()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2d, 3d, "ABC"));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1.5d,result.Result);
+        }
+
+        [TestMethod]
+        public void AverageAShouldCountNumericStringWithValue()
+        {
+            var func = new AverageA();
+            var args = FunctionsHelper.CreateArgs(4d, 2d, "9");
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(5d, result.Result);
+        }
+
+        [TestMethod]
         public void RoundShouldReturnCorrectResult()
         {
             var func = new Round();
@@ -402,7 +502,16 @@ namespace EPPlusTest.Excel.Functions
             var func = new Count();
             var args = FunctionsHelper.CreateArgs(1d, 2m, 3, new DateTime(2012, 4, 1), "4");
             var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(4d, result.Result);
+            Assert.AreEqual(5d, result.Result);
+        }
+
+        [TestMethod]
+        public void CountShouldIgnoreNumericStringsAndDatesInArray()
+        {
+            var func = new Count();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2m, 3, new DateTime(2012, 4, 1), "4"));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
         }
 
 
@@ -415,7 +524,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void CountShouldIgnoreHiddenValuesIfIgnoreHiddenValuesIsTrue()
         {
             var func = new Count();
@@ -451,6 +560,24 @@ namespace EPPlusTest.Excel.Functions
             func.IgnoreHiddenValues = true;
             var args = FunctionsHelper.CreateArgs(1d, FunctionsHelper.CreateArgs(12, 13));
             args.ElementAt(0).SetExcelStateFlag(ExcelCellState.HiddenCell);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod]
+        public void CountIfShouldReturnNbrOfNumericItemsThatMatch()
+        {
+            var func = new CountIf();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2d, 3d), ">1");
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod]
+        public void CountIfShouldReturnNbrOfAlphaNumItemsThatMatch()
+        {
+            var func = new CountIf();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs("Monday", "Tuesday", "Thursday"), "T*day");
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(2d, result.Result);
         }
@@ -677,6 +804,87 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(2);
             var result = func.Execute(args, _parsingContext).Result;
             Assert.AreEqual(1d, result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldReturnCorrectResultWithPositiveNumber()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(9.999, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(9.99, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleNegativeNumber()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(-9.999, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(-9.99, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleNegativeNumDigits()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, -2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(900d, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldReturn0IfNegativeNumDigitsIsTooLarge()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, -4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(0d, result.Result);
+        }
+
+        [TestMethod]
+        public void RounddownShouldHandleZeroNumDigits()
+        {
+            var func = new Rounddown();
+            var args = FunctionsHelper.CreateArgs(999.999, 0);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(999d, result.Result);
+        }
+
+        [TestMethod]
+        public void RoundupShouldReturnCorrectResultWithPositiveNumber()
+        {
+            var func = new Roundup();
+            var args = FunctionsHelper.CreateArgs(9.9911, 3);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(9.992, result.Result);
+        }
+
+        [TestMethod]
+        public void RoundupShouldHandleNegativeNumDigits()
+        {
+            var func = new Roundup();
+            var args = FunctionsHelper.CreateArgs(99123, -2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(99200d, result.Result);
+        }
+
+        [TestMethod]
+        public void RoundupShouldHandleZeroNumDigits()
+        {
+            var func = new Roundup();
+            var args = FunctionsHelper.CreateArgs(999.999, 0);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1000d, result.Result);
+        }
+
+        [TestMethod]
+        public void TruncShouldReturnCorrectResult()
+        {
+            var func = new Trunc();
+            var args = FunctionsHelper.CreateArgs(99.99);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(99d, result.Result);
         }
     }
 }

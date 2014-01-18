@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.Globalization;
 using OfficeOpenXml.FormulaParsing.Utilities;
@@ -36,19 +37,24 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     public abstract class ExcelFunction
     {
         public ExcelFunction()
-            : this(new ArgumentCollectionUtil(), new ArgumentParsers())
+            : this(new ArgumentCollectionUtil(), new ArgumentParsers(), new CompileResultValidators())
         {
 
         }
 
-        public ExcelFunction(ArgumentCollectionUtil argumentCollectionUtil, ArgumentParsers argumentParsers)
+        public ExcelFunction(
+            ArgumentCollectionUtil argumentCollectionUtil, 
+            ArgumentParsers argumentParsers,
+            CompileResultValidators compileResultValidators)
         {
             _argumentCollectionUtil = argumentCollectionUtil;
             _argumentParsers = argumentParsers;
+            _compileResultValidators = compileResultValidators;
         }
 
         private readonly ArgumentCollectionUtil _argumentCollectionUtil;
         private readonly ArgumentParsers _argumentParsers;
+        private readonly CompileResultValidators _compileResultValidators;
 
         public abstract CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context);
 
@@ -68,6 +74,32 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             {
                 return false;
             }
+        }
+
+        public bool SkipArgumentEvaluation { get; set; }
+
+        protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength,
+                                         eErrorType errorTypeToThrow)
+        {
+            Require.That(arguments).Named("arguments").IsNotNull();
+            ThrowExcelErrorValueExceptionIf(() =>
+                {
+                    var nArgs = 0;
+                    if (arguments.Any())
+                    {
+                        foreach (var arg in arguments)
+                        {
+                            nArgs++;
+                            if (nArgs >= minLength) return false;
+                            if (arg.IsExcelRange)
+                            {
+                                nArgs += arg.ValueAsRangeInfo.GetNCells();
+                                if (nArgs >= minLength) return false;
+                            }
+                        }
+                    }
+                    return true;
+                }, errorTypeToThrow);
         }
 
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength)
@@ -115,6 +147,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return ArgToDecimal(arguments.ElementAt(index).Value);
         }
 
+        protected bool IsNumericString(object value)
+        {
+            if (value == null || string.IsNullOrEmpty(value.ToString())) return false;
+            return Regex.IsMatch(value.ToString(), @"^[\d]+(\,[\d])?");
+        }
+
         /// <summary>
         /// If the argument is a boolean value its value will be returned.
         /// If the argument is an integer value, true will be returned if its
@@ -143,72 +181,34 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             ThrowArgumentExceptionIf(condition, message);
         }
 
-        protected void ThrowExcelFunctionException(ExcelErrorCodes code)
+        protected void ThrowExcelErrorValueException(eErrorType errorType)
         {
-            throw new ExcelFunctionException("An excel function error occurred", code);
+            throw new ExcelErrorValueException("An excel function error occurred", ExcelErrorValue.Create(errorType));
         }
 
-        protected void ThrowExcelFunctionExceptionIf(Func<bool> condition, ExcelErrorCodes code)
+        protected void ThrowExcelErrorValueExceptionIf(Func<bool> condition, eErrorType errorType)
         {
             if (condition())
             {
-                throw new ExcelFunctionException("An excel function error occurred", code);
+                throw new ExcelErrorValueException("An excel function error occurred", ExcelErrorValue.Create(errorType));
             }
         }
 
         protected bool IsNumeric(object val)
         {
             if (val == null) return false;
-            return (val.GetType().IsPrimitive || val is double || val is decimal || val is System.DateTime || val is TimeSpan);
+            return (val.GetType().IsPrimitive || IsNumber(val) || val is System.DateTime || val is TimeSpan);
         }
-        //protected double GetNumeric(object value)
-        //{
-        //    try
-        //    {
-        //        if ((value.GetType().IsPrimitive || value is double || value is decimal || value is System.DateTime || value is TimeSpan))
-        //        {
-        //            if (value is System.DateTime)
-        //            {
-        //                return ((System.DateTime)value).ToOADate();
-        //            }
-        //            else if (value is TimeSpan)
-        //            {
-        //                return new System.DateTime(((TimeSpan)value).Ticks).ToOADate();
-        //            }
-        //            else if (value is bool)
-        //            {
-        //                return 0;
-        //            }
-        //            else
-        //            {
-        //                //if (v is double && double.IsNaN((double)v))
-        //                //{
-        //                //    return 0;
-        //                //}
-        //                //else if (v is double && double.IsInfinity((double)v))
-        //                //{
-        //                //    return "#NUM!";
-        //                //}
-        //                //else
-        //                //{
-        //                return Convert.ToDouble(value, CultureInfo.InvariantCulture);
-        //            }
-        //        }
-        //        else
-        //        {
-        //            return 0;
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        return 0;
-        //    }
-        //}
 
         protected virtual bool IsNumber(object obj)
         {
             if (obj == null) return false;
             return (obj is int || obj is double || obj is short || obj is decimal || obj is long);
+        }
+
+        protected bool AreEqual(double d1, double d2)
+        {
+            return System.Math.Abs(d1 - d2) < double.Epsilon;
         }
 
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
@@ -217,9 +217,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return ArgsToDoubleEnumerable(false, arguments, context);
         }
 
+        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        {
+            return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, ignoreErrors, arguments, context);
+        }
+
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, arguments, context);
+            return ArgsToDoubleEnumerable(ignoreHiddenCells, true, arguments, context);
         }
 
         protected virtual IEnumerable<object> ArgsToObjectEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -229,12 +234,30 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         protected CompileResult CreateResult(object result, DataType dataType)
         {
+            var validator = _compileResultValidators.GetValidator(dataType);
+            validator.Validate(result);
             return new CompileResult(result, dataType);
         }
 
         protected virtual double CalculateCollection(IEnumerable<FunctionArgument> collection, double result, Func<FunctionArgument,double,double> action)
         {
             return _argumentCollectionUtil.CalculateCollection(collection, result, action);
+        }
+
+        protected void CheckForAndHandleExcelError(FunctionArgument arg)
+        {
+            if (arg.ValueIsExcelError)
+            {
+                throw (new ExcelErrorValueException(arg.ValueAsExcelErrorValue));
+            }
+        }
+
+        protected void CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell)
+        {
+            if (cell.IsExcelError)
+            {
+                throw (new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString())));
+            }
         }
     }
 }

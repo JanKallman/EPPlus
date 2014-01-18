@@ -54,6 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["exact"] = new Exact();
             Functions["find"] = new Find();
             Functions["proper"] = new Proper();
+            Functions["t"] = new T();
             // Numbers
             Functions["int"] = new CInt();
             // Math
@@ -69,12 +70,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ceiling"] = new Ceiling();
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
+            Functions["countif"] = new CountIf();
             Functions["floor"] = new Floor();
             Functions["sin"] = new Sin();
             Functions["sinh"] = new Sinh();
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
             Functions["sumproduct"] = new SumProduct();
+            Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
             Functions["stdevp"] = new StdevP();
             Functions["subtotal"] = new Subtotal();
@@ -86,10 +89,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["min"] = new Min();
             Functions["mod"] = new Mod();
             Functions["average"] = new Average();
+            Functions["averagea"] = new AverageA();
             Functions["averageif"] = new AverageIf();
             Functions["round"] = new Round();
+            Functions["rounddown"] = new Rounddown();
+            Functions["roundup"] = new Roundup();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
+            Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
             Functions["tanh"] = new Tanh();
             Functions["atan"] = new Atan();
@@ -101,6 +108,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["isnumber"] = new IsNumber();
             Functions["istext"] = new IsText();
             Functions["iserror"] = new IsError();
+            Functions["iserr"] = new IsErr();
+            Functions["iseven"] = new IsEven();
+            Functions["isodd"] = new IsOdd();
+            Functions["islogical"] = new IsLogical();
+            Functions["isna"] = new IsNa();
+            Functions["na"] = new Na();
+            Functions["n"] = new N();
             // Logical
             Functions["if"] = new If();
             Functions["not"] = new Not();
@@ -114,10 +128,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["lookup"] = new Lookup();
             Functions["match"] = new Match();
             Functions["row"] = new Row();
-            Functions["rows"] = new Rows();
+            Functions["rows"] = new Rows(){SkipArgumentEvaluation = true};
             Functions["column"] = new Column();
-            Functions["columns"] = new Columns();
+            Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
             Functions["choose"] = new Choose();
+            Functions["index"] = new Index();
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();
@@ -129,6 +144,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["hour"] = new Hour();
             Functions["minute"] = new Minute();
             Functions["second"] = new Second();
+            Functions["weeknum"] = new Weeknum();
+            Functions["days360"] = new Days360();
+            Functions["yearfrac"] = new Yearfrac();
+            Functions["edate"] = new Edate();
         }
     }
 }

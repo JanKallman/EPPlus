@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         }
 
         public Match()
-            : base(new WildCardValueMatcher())
+            : base(new WildCardValueMatcher(), new CompileResultFactory())
         {
 
         }
@@ -57,7 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var matchType = GetMatchType(arguments);
             var args = new LookupArguments(searchedValue, address, 0, 0, false);
             var lookupDirection = GetLookupDirection(rangeAddress);
-            var navigator = new LookupNavigator(lookupDirection, args, context);
+            var navigator = LookupNavigatorFactory.Create(lookupDirection, args, context);
             int? lastMatchResult = default(int?);
             do
             {

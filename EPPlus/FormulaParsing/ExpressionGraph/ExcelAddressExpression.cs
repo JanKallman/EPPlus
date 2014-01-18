@@ -34,11 +34,12 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
-    public class ExcelAddressExpression : Expression
+    public class ExcelAddressExpression : AtomicExpression
     {
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ParsingContext _parsingContext;
@@ -79,12 +80,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private CompileResult CompileRangeValues()
         {
-            //var rangeAddress = _rangeAddressFactory.Create(ExpressionString);
-            //ExcelAddressBase adr = new ExcelAddressBase(ExpressionString);          
-            //if(adr.Table!=null)
-            //{
-            // //   adr.SetRCFromTable(
-            //}
             var c = this._parsingContext.Scopes.Current;
             var result = _excelDataProvider.GetRange(c.Address.Worksheet, c.Address.FromRow, c.Address.FromCol, ExpressionString);
             
@@ -92,46 +87,23 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return CompileResult.Empty;
             }
-            //var rangeValueList = HandleRangeValues(result);
-            //if (rangeValueList.Count > 1)
-            //{
-            //    return new CompileResult(rangeValueList, DataType.Enumerable);
-            //}
-            //else
-            //{
-            //    var factory = new CompileResultFactory();
-            //    return factory.Create(rangeValueList.First());
-            //}
-
-            //if (ExcelAddressInfo.Parse(ExpressionString).IsMultipleCells)
             if(result.IsMulti)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
             else
             {
-                var factory = new CompileResultFactory();
-                return factory.Create(result.First().Value);
+                return CompileSingleCell(result);
             }
         }
 
-        private List<object> HandleRangeValues(IEnumerable<ExcelCell> result)
+        private CompileResult CompileSingleCell(ExcelDataProvider.IRangeInfo result)
         {
-            var rangeValueList = new List<object>();
-            for (int x = 0; x < result.Count(); x++)
-            {
-                var dataItem = result.ElementAt(x);
-                if (dataItem.Value != null)
-                {
-                    rangeValueList.Add(dataItem.Value);
-                }
-                else if (!string.IsNullOrEmpty(dataItem.Formula))
-                {
-                    var address = _rangeAddressFactory.Create(dataItem.ColIndex - 1, dataItem.RowIndex);
-                    rangeValueList.Add(_parsingContext.Parser.Parse(dataItem.Formula, address));
-                }
-            }
-            return rangeValueList;
+            var cell = result.First();
+            var factory = new CompileResultFactory();
+            var compileResult = factory.Create(cell.Value);
+            compileResult.IsHiddenCell = cell.IsHiddenRow;
+            return compileResult;
         }
     }
 }

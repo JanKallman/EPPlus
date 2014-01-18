@@ -30,8 +30,11 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -69,6 +72,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     return new DateTime(((TimeSpan)Result).Ticks).ToOADate();
                 }
+                else if (IsNumericString)
+                {
+                    return double.Parse(Result.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture);
+                }
                 else
                 {
                     return 0;
@@ -87,6 +94,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             get { return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty; }
         }
 
+        public bool IsNumericString
+        {
+            get
+            {
+                return DataType == DataType.String && ConvertUtil.IsNumericString(Result);
+            }
+        }
+
         public bool IsResultOfSubtotal { get; set; }
+
+        public bool IsHiddenCell { get; set; }
     }
 }

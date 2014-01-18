@@ -50,19 +50,18 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             Function.BeforeInvoke(context);
             foreach (var child in children)
             {
-                CompileResult arg = default(CompileResult);
                 try
                 {
-                    arg = child.Compile();
+                    var arg = child.Compile();
                     BuildFunctionArguments(arg != null ? arg.Result : null, args);
                 }
-                catch (ExcelFunctionException efe)
+                catch (ExcelErrorValueException efe)
                 {
-                    return ((ErrorHandlingFunction)Function).HandleError(efe.ErrorCode);
+                    return ((ErrorHandlingFunction)Function).HandleError(efe.ErrorValue.ToString());
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    return ((ErrorHandlingFunction)Function).HandleError(ExcelErrorCodes.Value.Code);
+                    return ((ErrorHandlingFunction)Function).HandleError(ExcelErrorValue.Values.Value);
                 }
                 
             }
