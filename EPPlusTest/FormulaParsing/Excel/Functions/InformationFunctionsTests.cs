@@ -7,6 +7,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using OfficeOpenXml;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -60,7 +61,7 @@ namespace EPPlusTest.Excel.Functions
         [TestMethod]
         public void IsErrorShouldReturnTrueIfArgIsAnErrorCode()
         {
-            var args = FunctionsHelper.CreateArgs(ExcelErrorCodes.Value.Code);
+            var args = FunctionsHelper.CreateArgs(ExcelErrorValue.Parse("#DIV/0!"));
             var func = new IsError();
             var result = func.Execute(args, _context);
             Assert.IsTrue((bool)result.Result);
@@ -91,6 +92,65 @@ namespace EPPlusTest.Excel.Functions
             var func = new IsText();
             var result = func.Execute(args, _context);
             Assert.IsFalse((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void IsOddShouldReturnCorrectResult()
+        {
+            var args = FunctionsHelper.CreateArgs(3.123);
+            var func = new IsOdd();
+            var result = func.Execute(args, _context);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void IsEvenShouldReturnCorrectResult()
+        {
+            var args = FunctionsHelper.CreateArgs(4.123);
+            var func = new IsEven();
+            var result = func.Execute(args, _context);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void IsLogicalShouldReturnCorrectResult()
+        {
+            var func = new IsLogical();
+
+            var args = FunctionsHelper.CreateArgs(1);
+            var result = func.Execute(args, _context);
+            Assert.IsFalse((bool)result.Result);
+
+            args = FunctionsHelper.CreateArgs("true");
+            result = func.Execute(args, _context);
+            Assert.IsFalse((bool)result.Result);
+
+            args = FunctionsHelper.CreateArgs(false);
+            result = func.Execute(args, _context);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void NshouldReturnCorrectResult()
+        {
+            var func = new N();
+
+            var args = FunctionsHelper.CreateArgs(1.2);
+            var result = func.Execute(args, _context);
+            Assert.AreEqual(1.2, result.Result);
+
+            args = FunctionsHelper.CreateArgs("abc");
+            result = func.Execute(args, _context);
+            Assert.AreEqual(0d, result.Result);
+
+            args = FunctionsHelper.CreateArgs(true);
+            result = func.Execute(args, _context);
+            Assert.AreEqual(1d, result.Result);
+
+            var errorCode = ExcelErrorValue.Create(eErrorType.Value);
+            args = FunctionsHelper.CreateArgs(errorCode);
+            result = func.Execute(args, _context);
+            Assert.AreEqual(errorCode, result.Result);
         }
     }
 }

@@ -50,6 +50,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private readonly IExpressionCompiler _expressionCompiler;
 
+
         public override CompileResult Compile()
         {
             return _expressionCompiler.Compile(Children);

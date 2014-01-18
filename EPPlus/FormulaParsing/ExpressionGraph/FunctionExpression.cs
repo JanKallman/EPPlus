@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel;
@@ -50,6 +51,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly ParsingContext _parsingContext;
         private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
 
+
         public override CompileResult Compile()
         {
             try
@@ -65,24 +67,24 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             
         }
 
-        public override void PrepareForNextChild()
+        public override Expression PrepareForNextChild()
         {
-            base.AddChild(new FunctionArgumentExpression());
+            return base.AddChild(new FunctionArgumentExpression(this));
         }
 
-        public override Expression AddChild(Expression child)
-        {
-            if (!Children.Any())
-            {
-                var group = base.AddChild(new FunctionArgumentExpression());
-                group.AddChild(child);
-            }
-            else
-            {
-                Children.Last().AddChild(child);
-            }
-            return child;
-        }
+        //public override Expression AddChild(Expression child)
+        //{
+        //    if (!Children.Any())
+        //    {
+        //        var group = base.AddChild(new FunctionArgumentExpression(this));
+        //        group.AddChild(child);
+        //    }
+        //    else
+        //    {
+        //        Children.Last().AddChild(child);
+        //    }
+        //    return child;
+        //}
 
         public override Expression MergeWithNext()
         {
@@ -90,18 +92,18 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             if (Next != null && Operator != null)
             {
                 var result = Operator.Apply(Compile(), Next.Compile());
-                var expressionString = result.Result.ToString();
                 var converter = new ExpressionConverter();
                 returnValue = converter.FromCompileResult(result);
                 if (Next != null)
                 {
                     Operator = Next.Operator;
+                    returnValue.Operator = Next.Operator;
                 }
                 else
                 {
                     Operator = null;
                 }
-                Next = Next.Next;
+                returnValue.Next = Next = Next.Next;
             }
             return returnValue;
         }

@@ -60,6 +60,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             get { return Value != null && Value is EpplusExcelDataProvider.IRangeInfo; }
         }
 
+        public bool ValueIsExcelError
+        {
+            get { return ExcelErrorValue.Values.IsErrorValue(Value); }
+        }
+
+        public ExcelErrorValue ValueAsExcelErrorValue
+        {
+            get { return ExcelErrorValue.Parse(Value.ToString()); }
+        }
+
         public EpplusExcelDataProvider.IRangeInfo ValueAsRangeInfo
         {
             get { return Value as EpplusExcelDataProvider.IRangeInfo; }

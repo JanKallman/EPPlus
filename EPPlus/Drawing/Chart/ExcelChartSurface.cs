@@ -38,8 +38,7 @@ using OfficeOpenXml.Style;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// Datalabel on chart level. 
-    /// This class is inherited by ExcelChartSerieDataLabel
+    /// Chart surface settings
     /// </summary>
     public class ExcelChartSurface : XmlHelper
     {

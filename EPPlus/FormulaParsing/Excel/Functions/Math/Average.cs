@@ -24,6 +24,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
@@ -35,16 +36,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 1);
+            ValidateArguments(arguments, 1, eErrorType.Div0);
             double nValues = 0d, result = 0d;
             foreach (var arg in arguments)
             {
                 Calculate(arg, context, ref result, ref nValues);
             }
-            return CreateResult(result/nValues, DataType.Decimal);
+            return CreateResult(result / nValues, DataType.Decimal);
         }
 
-        private void Calculate(FunctionArgument arg, ParsingContext context, ref double retVal, ref double nValues)
+        private void Calculate(FunctionArgument arg, ParsingContext context, ref double retVal, ref double nValues, bool isInArray = false)
         {
             if (ShouldIgnore(arg))
             {
@@ -54,27 +55,54 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
                 {
-                    Calculate(item, context, ref retVal, ref nValues);
+                    Calculate(item, context, ref retVal, ref nValues, true);
                 }
             }
-            else if (arg.Value is ExcelDataProvider.IRangeInfo)
+            else if (arg.IsExcelRange)
             {
-                foreach (var c in (ExcelDataProvider.IRangeInfo)arg.Value)
+                foreach (var c in arg.ValueAsRangeInfo)
                 {
-                    if (!ShouldIgnore(c, context))
+                    if (ShouldIgnore(c, context)) continue;
+                    CheckForAndHandleExcelError(c);
+                    if (!IsNumber(c.Value)) continue;
+                    nValues++;
+                    retVal += c.ValueDouble;
+                }
+            }
+            else
+            {
+                var numericValue = GetNumericValue(arg.Value, isInArray);
+                if (numericValue.HasValue)
+                {
+                    nValues++;
+                    retVal += numericValue.Value;
+                }
+                else if ((arg.Value is string) && !ConvertUtil.IsNumericString(arg.Value))
+                {
+                    if (!isInArray)
                     {
-                        nValues++;
-                        retVal += (double)c.ValueDouble;
+                        ThrowExcelErrorValueException(eErrorType.Value);
                     }
                 }
-            } 
-            else if (IsNumeric(arg.Value))
-            {
-                nValues++;
-                retVal += ConvertUtil.GetValueDouble(arg.Value, false);
-            }  
+            }
+            CheckForAndHandleExcelError(arg);
         }
 
-
+        private double? GetNumericValue(object obj, bool isInArray)
+        {
+            if (IsNumber(obj))
+            {
+                return ConvertUtil.GetValueDouble(obj);
+            }
+            else if ((obj is bool) && !isInArray)
+            {
+                return ConvertUtil.GetValueDouble(obj);
+            }
+            else if (ConvertUtil.IsNumericString(obj))
+            {
+                return double.Parse(obj.ToString(), CultureInfo.InvariantCulture);
+            }
+            return default(double?);
+        }
     }
 }

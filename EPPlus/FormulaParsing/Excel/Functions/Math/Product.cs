@@ -34,16 +34,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 2);
+            ValidateArguments(arguments, 1);
             var result = 0d;
             var index = 0;
-            while (result == 0d && index < arguments.Count())
+            while (AreEqual(result, 0d) && index < arguments.Count())
             {
                 result = CalculateFirstItem(arguments, index++, context);
             }
             result = CalculateCollection(arguments.Skip(index), result, (arg, current) =>
             {
                 if (ShouldIgnore(arg)) return current;
+                if (arg.ValueIsExcelError)
+                {
+                    ThrowExcelErrorValueException(arg.ValueAsExcelErrorValue.Type);
+                }
                 if (arg.IsExcelRange)
                 {
                     foreach (var cell in arg.ValueAsRangeInfo)
@@ -68,7 +72,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             var element = arguments.ElementAt(index);
             var argList = new List<FunctionArgument> { element };
-            var valueList = ArgsToDoubleEnumerable(argList, context);
+            var valueList = ArgsToDoubleEnumerable(false, false, argList, context);
             var result = 0d;
             foreach (var value in valueList)
             {

@@ -38,7 +38,7 @@ using OfficeOpenXml.Table.PivotTable;
 namespace OfficeOpenXml.Drawing.Chart
 {
     /// <summary>
-    /// Bar chart
+    /// A Surface chart
     /// </summary>
     public sealed class ExcelSurfaceChart : ExcelChart
     {

@@ -68,20 +68,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     if (ShouldIgnore(c, context) == false)
                     {
-                        if (c.Value is ExcelErrorValue)
-                        {
-                            throw (new ExcelErrorValueException((ExcelErrorValue)c.Value));
-                        }
+                        CheckForAndHandleExcelError(c);
                         retVal += c.ValueDouble;
                     }
                 }
             }
             else
             {
-                if (arg.Value is ExcelErrorValue)
-                {
-                    throw (new ExcelErrorValueException((ExcelErrorValue)arg.Value));
-                }
+                CheckForAndHandleExcelError(arg);
                 retVal += ConvertUtil.GetValueDouble(arg.Value, true);
             }
             return retVal;

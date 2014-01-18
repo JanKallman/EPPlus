@@ -8,6 +8,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Excel;
+using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -23,7 +25,7 @@ namespace EPPlusTest.Excel.Functions
             _context.Scopes.NewScope(RangeAddress.Empty);
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentException))]
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void ShouldThrowIfInvalidFuncNumber()
         {
             var func = new Subtotal();

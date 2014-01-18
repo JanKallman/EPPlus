@@ -190,6 +190,11 @@ namespace OfficeOpenXml.FormulaParsing
                 }
             }
 
+            public bool IsExcelError
+            {
+                get { return ExcelErrorValue.Values.IsErrorValue(_values.Value); }
+            }
+
             public IList<Token> Tokens
             {
                 get 
@@ -237,7 +242,7 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 addr.SetRCFromTable(_package, new ExcelAddressBase(row, column, row, column));
             }
-            SetCurrentWorksheet(addr.WorkSheet); 
+            //SetCurrentWorksheet(addr.WorkSheet); 
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);

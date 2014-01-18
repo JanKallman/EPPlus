@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using MathObj = System.Math;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
@@ -36,7 +37,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var values = ArgsToDoubleEnumerable(arguments, context);
+            var values = ArgsToDoubleEnumerable(arguments, context, false);
             return CreateResult(StandardDeviation(values), DataType.Decimal);
         }
 
@@ -45,6 +46,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             double ret = 0;
             if (values.Count() > 0)
             {
+                var nValues = values.Count();
+                if(nValues == 1) throw new ExcelErrorValueException(eErrorType.Div0);
                 //Compute the Average       
                 double avg = values.Average();
                 //Perform the Sum of (value-avg)_2_2       

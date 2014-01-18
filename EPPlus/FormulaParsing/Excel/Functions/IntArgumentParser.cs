@@ -48,7 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
             if (!int.TryParse(obj.ToString(), out result))
             {
-                throw new ExcelFunctionException("Could not parse " + obj.ToString() + " to int", ExcelErrorCodes.Value);
+                throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
             }
             return result;
         }

@@ -53,6 +53,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         Integer,
         Boolean,
         Decimal,
+        Percent,
         Function,
         ExcelAddress,
         NameValue,

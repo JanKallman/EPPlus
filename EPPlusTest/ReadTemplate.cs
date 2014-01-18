@@ -9,7 +9,7 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
-
+using OfficeOpenXml.Calculation;
 namespace EPPlusTest
 {
     [TestClass]
@@ -250,6 +250,14 @@ namespace EPPlusTest
             var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\grid.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug13()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\FTA_beräkning_131211_FINAL.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            package.Workbook.Calculate(new OfficeOpenXml.FormulaParsing.ExcelCalculationOption() { AllowCirculareReferences = true });
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
     }

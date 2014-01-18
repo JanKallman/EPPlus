@@ -38,15 +38,24 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class IntegerExpression : AtomicExpression
     {
+        private readonly double? _compiledValue;
+
         public IntegerExpression(string expression)
             : base(expression)
         {
 
         }
 
+        public IntegerExpression(double val)
+            : base(val.ToString(CultureInfo.InvariantCulture))
+        {
+            _compiledValue = Math.Floor(val);
+        }
+
         public override CompileResult Compile()
         {
-            return new CompileResult(double.Parse(ExpressionString, CultureInfo.InvariantCulture), DataType.Integer);
+            double result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
+            return new CompileResult(result, DataType.Integer);
         }
     }
 }

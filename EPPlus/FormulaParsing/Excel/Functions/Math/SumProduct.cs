@@ -49,6 +49,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                         AddValue(val.Value, currentResult);
                     }
                 }
+                else if (arg.Value is FunctionArgument)
+                {
+                    AddValue(arg.Value, currentResult);
+                }
                 else if (arg.IsExcelRange)
                 {
                     foreach (var val in arg.ValueAsRangeInfo)
@@ -63,7 +67,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 if (list.Count != arrayLength)
                 {
-                    throw new ExcelFunctionException("All supplied arrays must have the same length", ExcelErrorCodes.Value);
+                    throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
+                    //throw new ExcelFunctionException("All supplied arrays must have the same length", ExcelErrorCodes.Value);
                 }
             }
             for (var rowIndex = 0; rowIndex < arrayLength; rowIndex++)
