@@ -76,6 +76,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             return _implementation(left, right);
         }
 
+        public override string ToString()
+        {
+            return "Operator: " + _operator;
+        }
+
         public static IOperator Plus
         {
             get
@@ -225,7 +230,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                return new Operator(Operators.Equals, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) != 0, DataType.Boolean));
+                return new Operator(Operators.NotEqualTo, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) != 0, DataType.Boolean));
             }
         }
 
@@ -233,7 +238,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                return new Operator(Operators.GreaterThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) >= 0, DataType.Boolean));
+                return new Operator(Operators.GreaterThanOrEqual, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) >= 0, DataType.Boolean));
             }
         }
 
@@ -241,7 +246,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                return new Operator(Operators.GreaterThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) < 0, DataType.Boolean));
+                return new Operator(Operators.LessThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) < 0, DataType.Boolean));
             }
         }
 
@@ -249,7 +254,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                return new Operator(Operators.GreaterThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) <= 0, DataType.Boolean));
+                return new Operator(Operators.LessThanOrEqual, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) <= 0, DataType.Boolean));
             }
         }
 

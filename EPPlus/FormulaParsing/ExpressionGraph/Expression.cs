@@ -64,9 +64,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             set;
         }
 
-        public virtual void  PrepareForNextChild()
+        public virtual Expression  PrepareForNextChild()
         {
-            AddChild(new GroupExpression());
+            return AddChild(new GroupExpression());
         }
 
         public virtual Expression AddChild(Expression child)
