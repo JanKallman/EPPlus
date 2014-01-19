@@ -37,6 +37,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class FunctionArgumentExpression : GroupExpression
     {
+        private readonly Expression _function;
+
+        public FunctionArgumentExpression(Expression function)
+        {
+            _function = function;
+        }
+
         public override bool ParentIsLookupFunction
         {
             get
@@ -53,9 +60,14 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
         }
 
-        public override Expression AddChild(Expression child)
+        public override bool IsGroupedExpression
         {
-            return base.AddChild(child);
+            get { return false; }
+        }
+
+        public override Expression PrepareForNextChild()
+        {
+            return _function.PrepareForNextChild();
         }
     }
 }

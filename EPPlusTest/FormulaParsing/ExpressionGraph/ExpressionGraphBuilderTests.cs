@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph.CompileStrategy;
 using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
@@ -15,13 +16,14 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
     public class ExpressionGraphBuilderTests
     {
         private IExpressionGraphBuilder _graphBuilder;
+        private ExcelDataProvider _excelDataProvider;
 
         [TestInitialize]
         public void Setup()
         {
-            var excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
+            _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
             var parsingContext = ParsingContext.Create();
-            _graphBuilder = new ExpressionGraphBuilder(excelDataProvider, parsingContext);
+            _graphBuilder = new ExpressionGraphBuilder(_excelDataProvider, parsingContext);
         }
 
         [TestCleanup]
@@ -228,6 +230,34 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
 
             Assert.IsInstanceOfType(enumerableExpression, typeof(EnumerableExpression));
             Assert.AreEqual(2, enumerableExpression.Children.Count(), "Enumerable.Count was not 2");
+        }
+
+        [TestMethod]
+        public void ShouldHandleInnerFunctionCall2()
+        {
+            var ctx = ParsingContext.Create();
+            const string formula = "IF(3>2;\"Yes\";\"No\")";
+            var tokenizer = new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
+            var tokens = tokenizer.Tokenize(formula);
+            var expression = _graphBuilder.Build(tokens);
+            Assert.AreEqual(1, expression.Expressions.Count());
+
+            var compiler = new ExpressionCompiler(new ExpressionConverter(), new CompileStrategyFactory());
+            var result = compiler.Compile(expression.Expressions);
+            Assert.AreEqual("Yes", result.Result);
+        }
+
+        [TestMethod]
+        public void ShouldHandleInnerFunctionCall3()
+        {
+            var ctx = ParsingContext.Create();
+            const string formula = "IF(I10>=0;IF(O10>I10;((O10-I10)*$B10)/$C$27;IF(O10<0;(O10*$B10)/$C$27;\"\"));IF(O10<0;((O10-I10)*$B10)/$C$27;IF(O10>0;(O10*$B10)/$C$27;)))";
+            var tokenizer = new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
+            var tokens = tokenizer.Tokenize(formula);
+            var expression = _graphBuilder.Build(tokens);
+            Assert.AreEqual(1, expression.Expressions.Count());
+            var exp1 = expression.Expressions.First();
+            Assert.AreEqual(3, exp1.Children.Count());
         }
     }
 }
