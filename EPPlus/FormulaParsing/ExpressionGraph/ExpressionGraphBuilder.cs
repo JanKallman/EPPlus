@@ -64,15 +64,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             _tokenIndex = 0;
             _graph.Reset();
-            BuildUp(tokens, null);
+            var tokensArr = tokens != null ? tokens.ToArray() : new Token[0];
+            BuildUp(tokensArr, null);
             return _graph;
         }
 
-        private void BuildUp(IEnumerable<Token> tokens, Expression parent)
+        private void BuildUp(Token[] tokens, Expression parent)
         {
-            while (_tokenIndex < tokens.Count())
+            while (_tokenIndex < tokens.Length)
             {
-                var token = tokens.ElementAt(_tokenIndex);
+                var token = tokens[_tokenIndex];
                 IOperator op = null;
                 if (token.TokenType == TokenType.Operator && OperatorsDict.Instance.TryGetValue(token.Value, out op))
                 {
@@ -124,7 +125,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
         }
 
-        private void BuildEnumerableExpression(IEnumerable<Token> tokens, Expression parent)
+        private void BuildEnumerableExpression(Token[] tokens, Expression parent)
         {
             if (parent == null)
             {
@@ -173,7 +174,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             return false;
         }
 
-        private void BuildFunctionExpression(IEnumerable<Token> tokens, Expression parent, string funcName)
+        private void BuildFunctionExpression(Token[] tokens, Expression parent, string funcName)
         {
             if (parent == null)
             {
@@ -188,7 +189,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
         }
 
-        private void HandleFunctionArguments(IEnumerable<Token> tokens, Expression function)
+        private void HandleFunctionArguments(Token[] tokens, Expression function)
         {
             _tokenIndex++;
             var token = tokens.ElementAt(_tokenIndex);
@@ -196,12 +197,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 throw new ExcelErrorValueException(eErrorType.Value);
             }
-            var argExpression = function.AddChild(new FunctionArgumentExpression(function));
             _tokenIndex++;
-            BuildUp(tokens, argExpression);
+            BuildUp(tokens, function.Children.First());
         }
 
-        private void BuildGroupExpression(IEnumerable<Token> tokens, Expression parent)
+        private void BuildGroupExpression(Token[] tokens, Expression parent)
         {
             if (parent == null)
             {

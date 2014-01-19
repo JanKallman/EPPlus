@@ -64,7 +64,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 }
                 args.Add(new FunctionArgument(argList));
             }
-            else if(result != null)
+            else
             {
                 args.Add(new FunctionArgument(result));
             }

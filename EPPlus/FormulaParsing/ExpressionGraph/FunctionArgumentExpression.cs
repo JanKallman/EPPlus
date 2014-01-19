@@ -60,6 +60,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
         }
 
+        public override bool IsGroupedExpression
+        {
+            get { return false; }
+        }
+
         public override Expression PrepareForNextChild()
         {
             return _function.PrepareForNextChild();
