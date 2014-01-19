@@ -480,6 +480,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionFactory.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraph.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraphBuilder.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\ExpressionGraphBuilder2.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionArgumentExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\DefaultCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\ErrorHandlingFunctionCompiler.cs" />

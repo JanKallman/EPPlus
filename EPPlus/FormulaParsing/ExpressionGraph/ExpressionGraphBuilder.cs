@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing;
@@ -63,15 +64,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             _tokenIndex = 0;
             _graph.Reset();
-            BuildUp(tokens, null);
+            var tokensArr = tokens != null ? tokens.ToArray() : new Token[0];
+            BuildUp(tokensArr, null);
             return _graph;
         }
 
-        private void BuildUp(IEnumerable<Token> tokens, Expression parent)
+        private void BuildUp(Token[] tokens, Expression parent)
         {
-            while (_tokenIndex < tokens.Count())
+            while (_tokenIndex < tokens.Length)
             {
-                var token = tokens.ElementAt(_tokenIndex);
+                var token = tokens[_tokenIndex];
                 IOperator op = null;
                 if (token.TokenType == TokenType.Operator && OperatorsDict.Instance.TryGetValue(token.Value, out op))
                 {
@@ -79,7 +81,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if (token.TokenType == TokenType.Function)
                 {
-                    _tokenIndex++;
                     BuildFunctionExpression(tokens, parent, token.Value);
                 }
                 else if (token.TokenType == TokenType.OpeningEnumerable)
@@ -106,8 +107,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if(token.TokenType == TokenType.Percent)
                 {
-                    // TODO: Add Constant expression (0.01) and an muliplying operator
-                    // with lower precedence than multiply
                     SetOperatorOnExpression(parent, Operator.Percent);
                     if (parent == null)
                     {
@@ -120,13 +119,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else
                 {
-                    CreateAndAppendExpression(parent, token);
+                    CreateAndAppendExpression(ref parent, token);
                 }
                 _tokenIndex++;
             }
         }
 
-        private void BuildEnumerableExpression(IEnumerable<Token> tokens, Expression parent)
+        private void BuildEnumerableExpression(Token[] tokens, Expression parent)
         {
             if (parent == null)
             {
@@ -141,13 +140,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
         }
 
-        private void CreateAndAppendExpression(Expression parent, Token token)
+        private void CreateAndAppendExpression(ref Expression parent, Token token)
         {
             if (IsWaste(token)) return;
             if (parent != null && 
                 (token.TokenType == TokenType.Comma || token.TokenType == TokenType.SemiColon))
             {
-                parent.PrepareForNextChild();
+                parent = parent.PrepareForNextChild();
                 return;
             }
             if (_negateNextExpression)
@@ -175,22 +174,34 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             return false;
         }
 
-        private void BuildFunctionExpression(IEnumerable<Token> tokens, Expression parent, string funcName)
+        private void BuildFunctionExpression(Token[] tokens, Expression parent, string funcName)
         {
             if (parent == null)
             {
                 _graph.Add(new FunctionExpression(funcName, _parsingContext));
-                BuildUp(tokens, _graph.Current);
+                HandleFunctionArguments(tokens, _graph.Current);
             }
             else
             {
                 var func = new FunctionExpression(funcName, _parsingContext);
                 parent.AddChild(func);
-                BuildUp(tokens, func);
+                HandleFunctionArguments(tokens, func);
             }
         }
 
-        private void BuildGroupExpression(IEnumerable<Token> tokens, Expression parent)
+        private void HandleFunctionArguments(Token[] tokens, Expression function)
+        {
+            _tokenIndex++;
+            var token = tokens.ElementAt(_tokenIndex);
+            if (token.TokenType != TokenType.OpeningParenthesis)
+            {
+                throw new ExcelErrorValueException(eErrorType.Value);
+            }
+            _tokenIndex++;
+            BuildUp(tokens, function.Children.First());
+        }
+
+        private void BuildGroupExpression(Token[] tokens, Expression parent)
         {
             if (parent == null)
             {
@@ -205,7 +216,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                     parent.AddChild(newGroupExpression);
                     BuildUp(tokens, newGroupExpression);
                 }
-                BuildUp(tokens, parent);
+                 BuildUp(tokens, parent);
             }
         }
 
@@ -217,10 +228,18 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             else
             {
-                var candidate = parent.Children.Last();
-                if (candidate is FunctionArgumentExpression)
+                Expression candidate;
+                if (parent is FunctionArgumentExpression)
                 {
-                    candidate = candidate.Children.Last();
+                    candidate = parent.Children.Last();
+                }
+                else
+                {
+                    candidate = parent.Children.Last();
+                    if (candidate is FunctionArgumentExpression)
+                    {
+                        candidate = candidate.Children.Last();
+                    }
                 }
                 candidate.Operator = op;
             }
