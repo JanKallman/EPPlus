@@ -46,6 +46,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             : base(expression)
         {
             _parsingContext = parsingContext;
+            base.AddChild(new FunctionArgumentExpression(this));
         }
 
         private readonly ParsingContext _parsingContext;
@@ -58,7 +59,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
                 var compiler = _functionCompilerFactory.Create(function);
-                return compiler.Compile(Children, _parsingContext);
+                return compiler.Compile(HasChildren ? Children : Enumerable.Empty<Expression>(), _parsingContext);
             }
             catch (ExcelErrorValueException e)
             {
@@ -72,19 +73,21 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             return base.AddChild(new FunctionArgumentExpression(this));
         }
 
-        //public override Expression AddChild(Expression child)
-        //{
-        //    if (!Children.Any())
-        //    {
-        //        var group = base.AddChild(new FunctionArgumentExpression(this));
-        //        group.AddChild(child);
-        //    }
-        //    else
-        //    {
-        //        Children.Last().AddChild(child);
-        //    }
-        //    return child;
-        //}
+        private bool _childAdded;
+
+        public override bool HasChildren
+        {
+            get
+            {
+                return (Children.Any() && Children.First().Children.Any());
+            }
+        }
+
+        public override Expression AddChild(Expression child)
+        {
+            Children.Last().AddChild(child);
+            return child;
+        }
 
         public override Expression MergeWithNext()
         {
