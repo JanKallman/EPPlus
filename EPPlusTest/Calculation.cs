@@ -102,6 +102,7 @@ namespace EPPlusTest
             var ws = pck.Workbook.Worksheets.First(); 
             pck.Workbook.Worksheets.First().Cells["J966"].Calculate();
             Assert.AreEqual(15.928239987316594, ws.Cells["J966"].Value);  
+
         }
 
         [TestMethod]
