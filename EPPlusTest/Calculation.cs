@@ -188,8 +188,8 @@ namespace EPPlusTest
                         fileErr.WriteLine("Exception" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
                         nErrors++;
                     }
-                    fileErr.Close();
                 }
+                fileErr.Close();
                 return nErrors.ToString();
             }
         }

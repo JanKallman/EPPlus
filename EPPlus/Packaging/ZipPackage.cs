@@ -116,7 +116,7 @@ namespace OfficeOpenXml.Packaging
                             {
                                 if (e.FileName.ToLower().EndsWith(".rels"))
                                 {
-                                    rels.Add(GetUriKey(e.FileName.ToLower()), Encoding.UTF8.GetString(b));
+                                    rels.Add(GetUriKey(e.FileName), Encoding.UTF8.GetString(b));
                                 }
                                 else
                                 {
