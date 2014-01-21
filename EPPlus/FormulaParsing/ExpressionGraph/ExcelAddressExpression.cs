@@ -44,13 +44,20 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ParsingContext _parsingContext;
         private readonly RangeAddressFactory _rangeAddressFactory;
+        private readonly bool _negate;
+
         public ExcelAddressExpression(string expression, ExcelDataProvider excelDataProvider, ParsingContext parsingContext)
-            : this(expression, excelDataProvider, parsingContext, new RangeAddressFactory(excelDataProvider))
+            : this(expression, excelDataProvider, parsingContext, new RangeAddressFactory(excelDataProvider), false)
+        {
+
+        }
+        public ExcelAddressExpression(string expression, ExcelDataProvider excelDataProvider, ParsingContext parsingContext, bool negate)
+            : this(expression, excelDataProvider, parsingContext, new RangeAddressFactory(excelDataProvider), negate)
         {
 
         }
 
-        public ExcelAddressExpression(string expression, ExcelDataProvider excelDataProvider, ParsingContext parsingContext, RangeAddressFactory rangeAddressFactory)
+        public ExcelAddressExpression(string expression, ExcelDataProvider excelDataProvider, ParsingContext parsingContext, RangeAddressFactory rangeAddressFactory, bool negate)
             : base(expression)
         {
             Require.That(excelDataProvider).Named("excelDataProvider").IsNotNull();
@@ -59,6 +66,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             _excelDataProvider = excelDataProvider;
             _parsingContext = parsingContext;
             _rangeAddressFactory = rangeAddressFactory;
+            _negate = negate;
         }
 
         public override bool IsGroupedExpression
@@ -102,6 +110,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             var cell = result.First();
             var factory = new CompileResultFactory();
             var compileResult = factory.Create(cell.Value);
+            if (_negate && compileResult.IsNumeric)
+            {
+                compileResult = new CompileResult(compileResult.ResultNumeric * -1, compileResult.DataType);
+            }
             compileResult.IsHiddenCell = cell.IsHiddenRow;
             return compileResult;
         }

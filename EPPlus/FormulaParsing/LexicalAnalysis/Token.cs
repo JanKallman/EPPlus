@@ -51,6 +51,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         {
             Value += stringToAppend;
         }
+
+        public bool IsNegated { get; private set; }
         
         public void Negate()
         {
@@ -58,9 +60,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             if (
                 TokenType == TokenType.Decimal 
                 || 
-                TokenType == TokenType.Integer)
+                TokenType == TokenType.Integer
+                ||
+                TokenType == TokenType.ExcelAddress)
             {
-                Value = "-" + Value;
+                IsNegated = true;
             }
         }
         public override string ToString()

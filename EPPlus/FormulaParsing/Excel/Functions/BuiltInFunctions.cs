@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public BuiltInFunctions()
         {
             // Text
-            Functions["text"] = new CStr();
+            //Functions["text"] = new CStr();
             Functions["len"] = new Len();
             Functions["lower"] = new Lower();
             Functions["upper"] = new Upper();
@@ -55,6 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["find"] = new Find();
             Functions["proper"] = new Proper();
             Functions["text"] = new Text.Text();
+            Functions["t"] = new T();
             // Numbers
             Functions["int"] = new CInt();
             // Math

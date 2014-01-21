@@ -75,5 +75,14 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(TokenType.Negator, tokens.ElementAt(1).TokenType);
         }
+
+        [TestMethod]
+        public void ShouldSetNegatorOnExcelAddress()
+        {
+            var input = "-A1";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.Negator, tokens.ElementAt(0).TokenType);
+            Assert.AreEqual(TokenType.ExcelAddress, tokens.ElementAt(1).TokenType);
+        }
     }
 }

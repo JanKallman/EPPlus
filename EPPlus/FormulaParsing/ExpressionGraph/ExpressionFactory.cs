@@ -54,15 +54,15 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             switch (token.TokenType)
             {
                 case TokenType.Integer:
-                    return new IntegerExpression(token.Value);
+                    return new IntegerExpression(token.Value, token.IsNegated);
                 case TokenType.String:
                     return new StringExpression(token.Value);
                 case TokenType.Decimal:
-                    return new DecimalExpression(token.Value);
+                    return new DecimalExpression(token.Value, token.IsNegated);
                 case TokenType.Boolean:
                     return new BooleanExpression(token.Value);
                 case TokenType.ExcelAddress:
-                    return new ExcelAddressExpression(token.Value, _excelDataProvider, _parsingContext);
+                    return new ExcelAddressExpression(token.Value, _excelDataProvider, _parsingContext, token.IsNegated);
                 case TokenType.InvalidReference:
                     return new ExcelErrorExpression(token.Value, ExcelErrorValue.Create(eErrorType.Ref));
                 case TokenType.NumericError:

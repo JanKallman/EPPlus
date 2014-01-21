@@ -39,11 +39,18 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
     public class IntegerExpression : AtomicExpression
     {
         private readonly double? _compiledValue;
+        private readonly bool _negate;
 
         public IntegerExpression(string expression)
-            : base(expression)
+            : this(expression, false)
         {
 
+        }
+
+        public IntegerExpression(string expression, bool negate)
+            : base(expression)
+        {
+            _negate = negate;
         }
 
         public IntegerExpression(double val)
@@ -55,6 +62,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         public override CompileResult Compile()
         {
             double result = _compiledValue.HasValue ? _compiledValue.Value : double.Parse(ExpressionString, CultureInfo.InvariantCulture);
+            result = _negate ? result*-1 : result;
             return new CompileResult(result, DataType.Integer);
         }
     }
