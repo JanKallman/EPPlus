@@ -67,22 +67,9 @@ namespace OfficeOpenXml.Calculation
             //fileDc = null;
 
             //TODO: Add calculation here
-            foreach (var ix in dc.CalcOrder)
-            {
-                var item = dc.list[ix];
-                try
-                {
-                    var ws = workbook.Worksheets.GetBySheetID(item.SheetID);
-                    var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
-                    SetValue(workbook, item, v);
-                }
-                catch (Exception e)
-                {
-                    var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
-                    SetValue(workbook, item, error);
-                }
 
-            }
+            CalcChain(workbook, parser, dc);
+
             workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
@@ -94,15 +81,8 @@ namespace OfficeOpenXml.Calculation
             Init(worksheet.Workbook);
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet, options);
-            foreach (var ix in dc.CalcOrder)
-            {
-                var item = dc.list[ix];
-                var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
-                SetValue(worksheet.Workbook, item, v);
-            }
-            worksheet.Workbook._isCalculated = true;
+            CalcChain(worksheet.Workbook, parser, dc);
         }
-
         public static void Calculate(this ExcelRangeBase range)
         {
             Calculate(range, new ExcelCalculationOption());
@@ -112,14 +92,27 @@ namespace OfficeOpenXml.Calculation
             Init(range._workbook);
             var parser = range._workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(range, options);
+            CalcChain(range._workbook, parser, dc);
+        }
+        private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
+        {
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
-                var v = parser.ParseCell(item.Tokens, item.ws.Name, item.Row, item.Column);
-                SetValue(range._workbook, item, v);
+                try
+                {
+                    var ws = wb.Worksheets.GetBySheetID(item.SheetID);
+                    var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
+                    SetValue(wb, item, v);
+                }
+                catch (Exception e)
+                {
+                    var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
+                    SetValue(wb, item, error);
+                }
             }
-            range.Worksheet.Workbook._isCalculated = true;
         }
+
         private static void Init(ExcelWorkbook workbook)
         {
             workbook._formulaTokens = new CellStore<List<Token>>();;
