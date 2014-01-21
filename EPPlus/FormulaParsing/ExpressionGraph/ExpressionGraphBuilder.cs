@@ -92,10 +92,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     _tokenIndex++;
                     BuildGroupExpression(tokens, parent);
-                    if (parent is FunctionExpression)
-                    {
-                        return;
-                    }
+                    //if (parent is FunctionExpression)
+                    //{
+                    //    return;
+                    //}
                 }
                 else if (token.TokenType == TokenType.ClosingParenthesis || token.TokenType == TokenType.ClosingEnumerable)
                 {
@@ -210,7 +210,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             }
             else
             {
-                if (parent.IsGroupedExpression)
+                if (parent.IsGroupedExpression || parent is FunctionArgumentExpression)
                 {
                     var newGroupExpression = new GroupExpression();
                     parent.AddChild(newGroupExpression);
