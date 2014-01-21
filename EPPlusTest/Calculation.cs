@@ -175,18 +175,18 @@ namespace EPPlusTest
                             else
                             {
                                 //errors.Add(new Tuple<string, object, object>(adr, fr[cell], sheet.Cells[adr].Value));
-                                fileErr.WriteLine("Diff " + "\t" + d1.ToString("R15") + "\t" + d2.ToString("R15"));
+                                fileErr.WriteLine("Diff cell " + sheet.Name + "!" + adr +"\t" + d1.ToString("R15") + "\t" + d2.ToString("R15"));
                             }
                         }
                         else
                         {
-                            fileErr.WriteLine("String?" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value.ToString());
+                            fileErr.WriteLine("String?  cell " + sheet.Name + "!" + adr +"\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value.ToString());
                             //errors.Add(new Tuple<string, object, object>(adr, fr[cell], sheet.Cells[adr].Value));
                         }
                     }
                     catch (Exception e)
                     {                        
-                        fileErr.WriteLine("Exception" + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
+                        fileErr.WriteLine("Exception cell " + sheet.Name + "!" + adr + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
                         nErrors++;
                     }
                 }
