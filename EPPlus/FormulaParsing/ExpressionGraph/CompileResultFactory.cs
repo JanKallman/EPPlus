@@ -39,7 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
     {
         public virtual CompileResult Create(object obj)
         {
-            if (obj == null) return new CompileResult(null, DataType.String);
+            if (obj == null) return new CompileResult(null, DataType.Empty);
             if (obj.GetType().Equals(typeof(string)))
             {
                 return new CompileResult(obj, DataType.String);

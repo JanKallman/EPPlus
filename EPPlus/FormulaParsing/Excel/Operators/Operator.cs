@@ -87,8 +87,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             {
                 return new Operator(Operators.Plus, PrecedenceAddSubtract, (l, r) =>
                 {
-                    l = l ?? new CompileResult(0, DataType.Integer);
-                    r = r ?? new CompileResult(0, DataType.Integer);
+                    l = l == null || l.Result == null ? new CompileResult(0, DataType.Integer) : l;
+                    r = r == null || r.Result == null ? new CompileResult(0, DataType.Integer) : r;
                     CheckForErrors(l, r);
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {
@@ -109,8 +109,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             {
                 return new Operator(Operators.Minus, PrecedenceAddSubtract, (l, r) =>
                 {
-                    l = l ?? new CompileResult(0, DataType.Integer);
-                    r = r ?? new CompileResult(0, DataType.Integer);
+                    l = l == null || l.Result == null ? new CompileResult(0, DataType.Integer) : l;
+                    r = r == null || r.Result == null ? new CompileResult(0, DataType.Integer) : r;
                     if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
                     {
                         return new CompileResult(l.ResultNumeric - r.ResultNumeric, DataType.Integer);
