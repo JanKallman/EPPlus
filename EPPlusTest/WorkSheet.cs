@@ -25,6 +25,7 @@ namespace EPPlusTest
 
             InsertDeleteTest();
             LoadData();
+            DefColWidthRowHeight();
             StyleFill();
             Performance();
             RichTextCells();
@@ -772,7 +773,6 @@ namespace EPPlusTest
             ws.PivotTables.Add(ws.Cells["G1"], ws.Cells["A1:D4"], "PivotTable");
             Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable"].StyleName);
         }
-
         [Ignore]
         [TestMethod]
         public void TableTest()
@@ -805,8 +805,6 @@ namespace EPPlusTest
             ws.Cells["B10"].Value = 9;
             ws.Cells["B11"].Value = 10;
             ws.Cells["B12"].Value = 11;
-
-
             ws.Cells["C7"].Value = "Table test";
             ws.Cells["C8"].Style.Fill.PatternType = ExcelFillStyle.Solid;
             ws.Cells["C8"].Style.Fill.BackgroundColor.SetColor(Color.Red);

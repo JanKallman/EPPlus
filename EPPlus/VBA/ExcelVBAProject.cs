@@ -1036,12 +1036,28 @@ namespace OfficeOpenXml.VBA
             Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes=GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
             foreach (var sheet in _wb.Worksheets)
             {
-                if (!Modules.Exists(sheet.Name))
+                var name = GetModuleNameFromWorksheet(sheet);
+                if (!Modules.Exists(name))
                 {
-                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 }
             }
             _protection = new ExcelVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
+        }
+
+        internal string GetModuleNameFromWorksheet(ExcelWorksheet sheet)
+        {
+            var name = sheet.Name;
+            if (name.Any(c => c > 255))
+            {
+                int i = sheet.PositionID;
+                name = "Sheet" + i.ToString();
+                while (this.Modules[name] != null)
+                {
+                    name = "Sheet" + (++i).ToString(); ;
+                }
+            }
+            return name;
         }
         internal ExcelVbaModuleAttributesCollection GetDocumentAttributes(string name, string clsid)
         {

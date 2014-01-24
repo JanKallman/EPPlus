@@ -979,6 +979,8 @@ namespace OfficeOpenXml
             ExcelAddressBase address=null;
             string type="";
             int style=0;
+            int row = 0;
+            int col = 0;
             xr.Read();
             
             while (!xr.EOF)
@@ -989,11 +991,18 @@ namespace OfficeOpenXml
                 }                
                 if (xr.LocalName == "row")
                 {
-                    int row = Convert.ToInt32(xr.GetAttribute("r"));
-
-                    if (xr.AttributeCount > 2 || (xr.AttributeCount == 2 && xr.GetAttribute("spans") != null))
+                    var r = xr.GetAttribute("r");
+                    if (r == null)
                     {
-                        //rowList.Add(AddRow(xr, row));
+                        row++;
+                    }
+                    else
+                    {
+                        row = Convert.ToInt32(r);
+                    }
+
+                    if (DoAddRow(xr))
+                    {
                         _values.SetValue(row, 0, AddRow(xr, row));
                         if(xr.GetAttribute("s") != null)
                         {
@@ -1006,7 +1015,19 @@ namespace OfficeOpenXml
                 {
                     //if (cell != null) cellList.Add(cell);
                     //cell = new ExcelCell(this, xr.GetAttribute("r"));
-                    address=new ExcelAddressBase(xr.GetAttribute("r"));                    
+                    var r = xr.GetAttribute("r");
+                    if (r == null)
+                    {
+                        //Handle cells with no reference
+                        col++;
+                        address = new ExcelAddressBase(row, col, row, col);
+                    }
+                    else
+                    {
+                        address = new ExcelAddressBase(r);
+                        col = address._fromCol;
+                    }
+
                     
                     //Datetype
                     if (xr.GetAttribute("t") != null)
@@ -1109,6 +1130,16 @@ namespace OfficeOpenXml
             //_rows = new RangeCollection(rowList);
             //_formulaCells = new RangeCollection(formulaList);
         }
+
+        private bool DoAddRow(XmlTextReader xr)
+        {
+            var c = xr.GetAttribute("r")==null ? 0:1;
+            if (xr.GetAttribute("spans") != null)
+            {
+                c++;
+            }
+            return xr.AttributeCount > c;
+        }
         /// <summary>
         /// Load merged cells
         /// </summary>
@@ -1161,6 +1192,7 @@ namespace OfficeOpenXml
             return new RowInternal()
             {
                 Collapsed=(xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false),
+                OutlineLevel = (xr.GetAttribute("outlineLevel") != null ? (short)0 : short.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture)),
                 Height = (xr.GetAttribute("ht") == null ? -1 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
                 Hidden = (xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false),
                 Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false,
@@ -1374,6 +1406,10 @@ namespace OfficeOpenXml
                 //_rows.Add(r);
             //}
             CheckSheetType();
+            if (row < 1 || row > ExcelPackage.MaxRows)
+            {
+                throw (new ArgumentException("Row number out of bounds"));
+            }
             return new ExcelRow(this, row);
             //return r;
 		}
@@ -1383,8 +1419,12 @@ namespace OfficeOpenXml
 		/// <param name="col">The column number in the worksheet</param>
 		/// <returns></returns>
 		public ExcelColumn Column(int col)
-		{
+		{            
             CheckSheetType();
+            if (col < 1 || col > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentException("Column number out of bounds"));
+            }
             ExcelColumn column = _values.GetValue(0, col) as ExcelColumn;
             // id=ExcelColumn.GetColumnID(_sheetID, col);
             if (column!=null)

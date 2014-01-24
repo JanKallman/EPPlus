@@ -180,7 +180,10 @@ namespace EPPlusTest
                         }
                         else
                         {
-                            fileErr.WriteLine("String?  cell " + sheet.Name + "!" + adr +"\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value.ToString());
+                            if ((fr[cell]??"").ToString() != (sheet.Cells[adr].Value??"").ToString())
+                            {
+                                fileErr.WriteLine("String?  cell " + sheet.Name + "!" + adr + "\t" + (fr[cell] ?? "").ToString() + "\t" + (sheet.Cells[adr].Value??"").ToString());
+                            }
                             //errors.Add(new Tuple<string, object, object>(adr, fr[cell], sheet.Cells[adr].Value));
                         }
                     }

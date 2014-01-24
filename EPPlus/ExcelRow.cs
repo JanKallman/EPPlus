@@ -263,13 +263,13 @@ namespace OfficeOpenXml
 
         private  RowInternal GetRowInternal()
         {
-                        var r = (RowInternal)_worksheet._values.GetValue(Row, 0);
-                        if (r == null)
-                        {
-                            r = new RowInternal();
-                            _worksheet._values.SetValue(Row, 0, r);
-                        }
-        return r;
+            var r = (RowInternal)_worksheet._values.GetValue(Row, 0);
+            if (r == null)
+            {
+                r = new RowInternal();
+                _worksheet._values.SetValue(Row, 0, r);
+            }
+            return r;
         }        
         /// <summary>
         /// Show phonetic Information

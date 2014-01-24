@@ -243,13 +243,14 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
         }
-        [Ignore]
+        
         [TestMethod]
         public void ReadBug12()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\grid.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\Velocity v3.1 Catalog Template.xlsm"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
+            ws.Column(0).Style.Font.Bold = true;
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
         [TestMethod]
@@ -259,6 +260,15 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             package.Workbook.Calculate(new OfficeOpenXml.FormulaParsing.ExcelCalculationOption() { AllowCirculareReferences = true });
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
+        }
+        [TestMethod]
+        public void ReadBug14()
+        {
+            var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("Comment");
+            ws.Cells["A1"].AddComment("Test av kommentar", "J");
+            ws.Comments.RemoveAt(0);
+            package.SaveAs(new FileInfo(@"c:\temp\bug\CommentTest.xlsx"));
         }
     }
 }

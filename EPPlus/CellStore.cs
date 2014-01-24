@@ -1614,7 +1614,12 @@ using OfficeOpenXml;
                     {
                         return false;
                     }
-                    col = maxColPos;
+                    if (row == minRow)
+                    {
+                        return false;
+                    }
+                    row--;
+                    col = maxColPos;                    
                     return PrevCell(ref row, ref col, minRow, minColPos, maxRow, maxColPos);
                 }
                 else
