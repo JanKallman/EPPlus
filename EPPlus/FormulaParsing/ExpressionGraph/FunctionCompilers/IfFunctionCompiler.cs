@@ -26,7 +26,7 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ * Mats Alm   		                Added       		        2014-01-27
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -34,17 +34,47 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml.FormulaParsing.Exceptions;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 {
-    public class FunctionCompilerFactory
+    /// <summary>
+    /// Why do the If function require a compiler of its own you might ask;)
+    /// 
+    /// It is because it only needs to evaluate one of the two last expressions. This
+    /// compiler handles this - it ignores the irrelevant expression.
+    /// </summary>
+    public class IfFunctionCompiler : FunctionCompiler
     {
-        public virtual FunctionCompiler Create(ExcelFunction function)
+        public IfFunctionCompiler(ExcelFunction function)
+            : base(function)
         {
-            if (function.IsLookupFuction) return new LookupFunctionCompiler(function);
-            if (function.IsErrorHandlingFunction) return new ErrorHandlingFunctionCompiler(function);
-            if(function is If) return new IfFunctionCompiler(function);
-            return new DefaultCompiler(function);
+            Require.That(function).Named("function").IsNotNull();
+            if (!(function is If)) throw new ArgumentException("function must be of type If");
+        }
+
+        public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
+        {
+            if(children.Count() < 3) throw new ExcelErrorValueException(eErrorType.Value);
+            var args = new List<FunctionArgument>();
+            Function.BeforeInvoke(context);
+            var firstChild = children.ElementAt(0);
+            var boolVal = (bool)firstChild.Compile().Result;
+            args.Add(new FunctionArgument(boolVal));
+            if (boolVal)
+            {
+                var val = children.ElementAt(1).Compile().Result;
+                args.Add(new FunctionArgument(val));
+                args.Add(new FunctionArgument(null));
+            }
+            else
+            {
+                var val = children.ElementAt(2).Compile().Result;
+                args.Add(new FunctionArgument(null));
+                args.Add(new FunctionArgument(val));
+            }
+            return Function.Execute(args, context);
         }
     }
 }

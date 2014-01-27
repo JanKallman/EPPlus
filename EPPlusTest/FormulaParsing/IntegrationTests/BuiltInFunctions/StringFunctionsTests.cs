@@ -11,25 +11,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
     [TestClass]
     public class StringFunctionsTests : FormulaParserTestBase
     {
+        private ExcelDataProvider _provider;
         [TestInitialize]
         public void Setup()
         {
-            var excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
-            _parser = new FormulaParser(excelDataProvider);
-        }
-
-        [TestMethod]
-        public void TextShouldReturnString()
-        {
-            var result = _parser.Parse("Text(2)");
-            Assert.AreEqual("2", result);
+            _provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            _parser = new FormulaParser(_provider);
         }
 
         [TestMethod]
         public void TextShouldConcatenateWithNextExpression()
         {
-            var result = _parser.Parse("Text(2) & 'a'");
-            Assert.AreEqual("2a", result);
+            _provider.Stub(x => x.GetFormat(23.5, "$0.00")).Return("$23.50");
+            var result = _parser.Parse("TEXT(23.5,\"$0.00\") & \" per hour\"");
+            Assert.AreEqual("$23.50 per hour", result);
         }
 
         [TestMethod]
