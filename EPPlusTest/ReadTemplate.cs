@@ -256,7 +256,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug13()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\FTA_beräkning_131211_FINAL.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\original.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             package.Workbook.Calculate(new OfficeOpenXml.FormulaParsing.ExcelCalculationOption() { AllowCirculareReferences = true });
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
