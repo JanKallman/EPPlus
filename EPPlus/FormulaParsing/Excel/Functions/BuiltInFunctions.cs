@@ -149,6 +149,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["days360"] = new Days360();
             Functions["yearfrac"] = new Yearfrac();
             Functions["edate"] = new Edate();
+            Functions["eomonth"] = new Eomonth();
+            Functions["isoweeknum"] = new IsoWeekNum();
         }
     }
 }

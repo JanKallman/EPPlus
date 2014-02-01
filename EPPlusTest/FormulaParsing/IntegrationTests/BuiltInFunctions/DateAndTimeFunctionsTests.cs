@@ -141,5 +141,19 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Yearfrac(Date(2012, 4, 2), Date(2012, 5, 2))");
             Assert.IsInstanceOfType(result, typeof(double));
         }
+
+        [TestMethod]
+        public void IsoWeekNumShouldReturnAResult()
+        {
+            var result = _parser.Parse("IsoWeekNum(Date(2012, 4, 2))");
+            Assert.IsInstanceOfType(result, typeof(int));
+        }
+
+        [TestMethod]
+        public void EomonthShouldReturnAResult()
+        {
+            var result = _parser.Parse("Eomonth(Date(2013, 2, 2), 3)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
     }
 }

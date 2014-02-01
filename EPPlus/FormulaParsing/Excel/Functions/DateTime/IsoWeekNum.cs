@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
     public class IsoWeekNum : ExcelFunction
     {
-        public override ExpressionGraph.CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            throw new NotImplementedException();
+            ValidateArguments(arguments, 1);
+            var dateInt = ArgToInt(arguments, 0);
+            var date = System.DateTime.FromOADate(dateInt);
+            return CreateResult(WeekNumber(date), DataType.Integer);
         }
 
         /// <summary>
