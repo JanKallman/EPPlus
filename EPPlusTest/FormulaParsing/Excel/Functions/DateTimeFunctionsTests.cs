@@ -397,5 +397,38 @@ namespace EPPlusTest.Excel.Functions
 
             Assert.IsTrue(Math.Abs(1.0862 - roundedResult) < double.Epsilon);
         }
+
+        [TestMethod]
+        public void IsoWeekShouldReturn1When1StJan()
+        {
+            var func = new IsoWeekNum();
+            var arg = new DateTime(2013, 1, 1).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg), _parsingContext);
+
+            Assert.AreEqual(1, result.Result);
+        }
+
+        [TestMethod]
+        public void EomonthShouldReturnCorrectResultWithPositiveArg()
+        {
+            var func = new Eomonth();
+            var arg = new DateTime(2013, 2, 2).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg, 3), _parsingContext);
+
+            Assert.AreEqual(41425d, result.Result);
+        }
+
+        [TestMethod]
+        public void EomonthShouldReturnCorrectResultWithNegativeArg()
+        {
+            var func = new Eomonth();
+            var arg = new DateTime(2013, 2, 2).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg, -3), _parsingContext);
+
+            Assert.AreEqual(41243d, result.Result);
+        }
     }
 }
