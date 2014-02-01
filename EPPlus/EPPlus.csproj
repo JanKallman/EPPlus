@@ -325,6 +325,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Eomonth.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
