@@ -430,5 +430,29 @@ namespace EPPlusTest.Excel.Functions
 
             Assert.AreEqual(41243d, result.Result);
         }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectResultIfNoHolidayIsSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 29).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 20);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectResultWithFourDaysSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 7).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
     }
 }
