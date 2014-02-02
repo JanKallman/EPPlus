@@ -454,5 +454,19 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(expectedDate, result.Result);
         }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectWhenArrayOfHolidayDatesIsSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var holidayDate1 = new DateTime(2014, 1, 2).ToOADate();
+            var holidayDate2 = new DateTime(2014, 1, 3).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 9).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 4, FunctionsHelper.CreateArgs(holidayDate1, holidayDate2));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
     }
 }
