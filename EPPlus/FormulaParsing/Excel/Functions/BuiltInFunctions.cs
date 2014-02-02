@@ -98,6 +98,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["roundup"] = new Roundup();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
+            Functions["quotient"] = new Quotient();
             Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
             Functions["tanh"] = new Tanh();

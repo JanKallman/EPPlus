@@ -335,5 +335,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Fact(0)");
             Assert.AreEqual(1d, result);
         }
+
+        [TestMethod]
+        public void QuotientShouldReturnAResult()
+        {
+            var result = _parser.Parse("Quotient(5;2)");
+            Assert.AreEqual(2, result);
+        }
     }
 }

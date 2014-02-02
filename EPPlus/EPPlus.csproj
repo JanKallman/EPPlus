@@ -395,6 +395,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Quotient.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />

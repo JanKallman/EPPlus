@@ -913,5 +913,22 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(-1);
             func.Execute(args, _parsingContext);
         }
+
+        [TestMethod]
+        public void QuotientShouldReturnCorrectResult()
+        {
+            var func = new Quotient();
+            var args = FunctionsHelper.CreateArgs(5, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void QuotientShouldThrowWhenDenomIs0()
+        {
+            var func = new Quotient();
+            var args = FunctionsHelper.CreateArgs(1, 0);
+            func.Execute(args, _parsingContext);
+        }
     }
 }
