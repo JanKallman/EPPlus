@@ -779,6 +779,16 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void LnShouldReturnCorrectResult()
+        {
+            var func = new Ln();
+            var args = FunctionsHelper.CreateArgs(5);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double)result.Result, 5);
+            Assert.AreEqual(1.60944d, roundedResult);
+        }
+
+        [TestMethod]
         public void SqrtPiShouldReturnCorrectResult()
         {
             var func = new SqrtPi();
@@ -885,6 +895,23 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(99.99);
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(99d, result.Result);
+        }
+
+        [TestMethod]
+        public void FactShouldRoundDownAndReturnCorrectResult()
+        {
+            var func = new Fact();
+            var args = FunctionsHelper.CreateArgs(5.99);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(120d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof (ExcelErrorValueException))]
+        public void FactShouldThrowWhenNegativeNumber()
+        {
+            var func = new Fact();
+            var args = FunctionsHelper.CreateArgs(-1);
+            func.Execute(args, _parsingContext);
         }
     }
 }

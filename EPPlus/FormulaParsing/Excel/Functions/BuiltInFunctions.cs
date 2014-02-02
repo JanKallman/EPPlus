@@ -72,6 +72,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
             Functions["countif"] = new CountIf();
+            Functions["fact"] = new Fact();
             Functions["floor"] = new Floor();
             Functions["sin"] = new Sin();
             Functions["sinh"] = new Sinh();
@@ -85,6 +86,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["exp"] = new Exp();
             Functions["log"] = new Log();
             Functions["log10"] = new Log10();
+            Functions["ln"] = new Ln();
             Functions["max"] = new Max();
             Functions["maxa"] = new Maxa();
             Functions["min"] = new Min();
