@@ -152,6 +152,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["edate"] = new Edate();
             Functions["eomonth"] = new Eomonth();
             Functions["isoweeknum"] = new IsoWeekNum();
+            Functions["workday"] = new Workday();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -33,8 +34,50 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
                 tmpDate = tmpDate.AddDays(1);
                 if (!IsHoliday(tmpDate)) workdaysCounted++;
             }
-            resultDate = tmpDate;
+            resultDate = AdjustResultWithHolidays(tmpDate, arguments);
             return CreateResult(resultDate.ToOADate(), DataType.Date);
+        }
+
+        private System.DateTime AdjustResultWithHolidays(System.DateTime resultDate,
+                                                         IEnumerable<FunctionArgument> arguments)
+        {
+            if (arguments.Count() == 2) return resultDate;
+            var holidays = arguments.ElementAt(2).Value as IEnumerable<FunctionArgument>;
+            if (holidays != null)
+            {
+                foreach (var arg in holidays)
+                {
+                    if (ConvertUtil.IsNumeric(arg.Value))
+                    {
+                        var dateSerial = ConvertUtil.GetValueDouble(arg.Value);
+                        var holidayDate = System.DateTime.FromOADate(dateSerial);
+                        if (!IsHoliday(holidayDate))
+                        {
+                            resultDate = resultDate.AddDays(1);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                var range = arguments.ElementAt(2).Value as ExcelDataProvider.IRangeInfo;
+                if (range != null)
+                {
+                    foreach (var cell in range)
+                    {
+                        if (ConvertUtil.IsNumeric(cell.Value))
+                        {
+                            var dateSerial = ConvertUtil.GetValueDouble(cell.Value);
+                            var holidayDate = System.DateTime.FromOADate(dateSerial);
+                            if (!IsHoliday(holidayDate))
+                            {
+                                resultDate = resultDate.AddDays(1);
+                            }
+                        }
+                    }
+                }
+            }
+            return resultDate;
         }
 
         private bool IsHoliday(System.DateTime date)
