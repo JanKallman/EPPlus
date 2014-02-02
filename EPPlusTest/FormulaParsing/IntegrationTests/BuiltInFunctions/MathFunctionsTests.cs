@@ -321,5 +321,19 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Log10(2)");
             Assert.IsInstanceOfType(result, typeof(double));
         }
+
+        [TestMethod]
+        public void LnShouldReturnAResult()
+        {
+            var result = _parser.Parse("Ln(2)");
+            Assert.IsInstanceOfType(result, typeof(double));
+        }
+
+        [TestMethod]
+        public void FactShouldReturnAResult()
+        {
+            var result = _parser.Parse("Fact(0)");
+            Assert.AreEqual(1d, result);
+        }
     }
 }
