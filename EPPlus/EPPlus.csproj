@@ -338,6 +338,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Today.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weekday.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Workday.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Year.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Yearfrac.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DecimalCompileResultValidator.cs" />

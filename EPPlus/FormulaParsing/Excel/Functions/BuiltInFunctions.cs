@@ -41,7 +41,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public BuiltInFunctions()
         {
             // Text
-            //Functions["text"] = new CStr();
             Functions["len"] = new Len();
             Functions["lower"] = new Lower();
             Functions["upper"] = new Upper();
