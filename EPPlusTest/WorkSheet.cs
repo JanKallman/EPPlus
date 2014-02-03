@@ -25,7 +25,6 @@ namespace EPPlusTest
 
             InsertDeleteTest();
             LoadData();
-            DefColWidthRowHeight();
             StyleFill();
             Performance();
             RichTextCells();

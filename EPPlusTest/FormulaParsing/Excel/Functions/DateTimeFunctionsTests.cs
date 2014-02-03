@@ -397,5 +397,76 @@ namespace EPPlusTest.Excel.Functions
 
             Assert.IsTrue(Math.Abs(1.0862 - roundedResult) < double.Epsilon);
         }
+
+        [TestMethod]
+        public void IsoWeekShouldReturn1When1StJan()
+        {
+            var func = new IsoWeekNum();
+            var arg = new DateTime(2013, 1, 1).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg), _parsingContext);
+
+            Assert.AreEqual(1, result.Result);
+        }
+
+        [TestMethod]
+        public void EomonthShouldReturnCorrectResultWithPositiveArg()
+        {
+            var func = new Eomonth();
+            var arg = new DateTime(2013, 2, 2).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg, 3), _parsingContext);
+
+            Assert.AreEqual(41425d, result.Result);
+        }
+
+        [TestMethod]
+        public void EomonthShouldReturnCorrectResultWithNegativeArg()
+        {
+            var func = new Eomonth();
+            var arg = new DateTime(2013, 2, 2).ToOADate();
+
+            var result = func.Execute(FunctionsHelper.CreateArgs(arg, -3), _parsingContext);
+
+            Assert.AreEqual(41243d, result.Result);
+        }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectResultIfNoHolidayIsSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 29).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 20);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectResultWithFourDaysSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 7).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
+
+        [TestMethod]
+        public void WorkdayShouldReturnCorrectWhenArrayOfHolidayDatesIsSupplied()
+        {
+            var inputDate = new DateTime(2014, 1, 1).ToOADate();
+            var holidayDate1 = new DateTime(2014, 1, 2).ToOADate();
+            var holidayDate2 = new DateTime(2014, 1, 3).ToOADate();
+            var expectedDate = new DateTime(2014, 1, 9).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, 4, FunctionsHelper.CreateArgs(holidayDate1, holidayDate2));
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedDate, result.Result);
+        }
     }
 }

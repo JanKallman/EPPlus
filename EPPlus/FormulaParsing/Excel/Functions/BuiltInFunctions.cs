@@ -41,7 +41,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public BuiltInFunctions()
         {
             // Text
-            //Functions["text"] = new CStr();
             Functions["len"] = new Len();
             Functions["lower"] = new Lower();
             Functions["upper"] = new Upper();
@@ -72,6 +71,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
             Functions["countif"] = new CountIf();
+            Functions["fact"] = new Fact();
             Functions["floor"] = new Floor();
             Functions["sin"] = new Sin();
             Functions["sinh"] = new Sinh();
@@ -85,6 +85,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["exp"] = new Exp();
             Functions["log"] = new Log();
             Functions["log10"] = new Log10();
+            Functions["ln"] = new Ln();
             Functions["max"] = new Max();
             Functions["maxa"] = new Maxa();
             Functions["min"] = new Min();
@@ -97,6 +98,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["roundup"] = new Roundup();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
+            Functions["quotient"] = new Quotient();
             Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
             Functions["tanh"] = new Tanh();
@@ -149,6 +151,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["days360"] = new Days360();
             Functions["yearfrac"] = new Yearfrac();
             Functions["edate"] = new Edate();
+            Functions["eomonth"] = new Eomonth();
+            Functions["isoweeknum"] = new IsoWeekNum();
+            Functions["workday"] = new Workday();
         }
     }
 }

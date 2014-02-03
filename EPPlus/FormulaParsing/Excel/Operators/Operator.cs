@@ -34,6 +34,7 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Operators
 {
@@ -284,25 +285,26 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             }
         }
 
+        private static object GetObjFromOther(CompileResult obj, CompileResult other)
+        {
+            if (obj.Result == null)
+            {
+                if (other.DataType == DataType.String) return string.Empty;
+                else return 0d;
+            }
+            return obj.Result;
+        }
+
         private static int Compare(CompileResult l, CompileResult r)
         {
             CheckForErrors(l, r);
-            if (l.Result == null && r.Result == null)
+            object left, right;
+            left = GetObjFromOther(l, r);
+            right = GetObjFromOther(r, l);
+            if (ConvertUtil.IsNumeric(left) && ConvertUtil.IsNumeric(right))
             {
-                return 0;
-            }
-            if (l.Result == null && r.Result != null)
-            {
-                return -1;
-            }
-            if (l.Result != null && r.Result == null)
-            {
-                return 1;
-            }
-            if (l.IsNumeric && r.IsNumeric)
-            {
-                var lnum = l.ResultNumeric;
-                var rnum = r.ResultNumeric;
+                var lnum = ConvertUtil.GetValueDouble(left);
+                var rnum = ConvertUtil.GetValueDouble(right);
                 if (Math.Abs(lnum - rnum) < double.Epsilon) return 0;
                 return lnum.CompareTo(rnum);
             }

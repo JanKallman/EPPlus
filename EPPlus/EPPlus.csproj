@@ -325,6 +325,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Eomonth.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
@@ -337,6 +338,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Today.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weekday.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\Workday.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Year.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Yearfrac.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DecimalCompileResultValidator.cs" />
@@ -381,7 +383,9 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Ln.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Max.cs" />
@@ -391,6 +395,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Quotient.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
@@ -485,6 +490,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\ErrorHandlingFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\LookupFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\GroupExpression.cs" />
