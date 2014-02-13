@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
-using OfficeOpenXml.Calculation;
 using System.IO;
 using System.Diagnostics;
 using OfficeOpenXml.FormulaParsing;
@@ -149,7 +148,7 @@ namespace EPPlusTest
                         }
                     }
                 }
-                pck.Workbook.Calculate();
+                pck.Workbook.Calculate();                
                 var nErrors = 0;
                 var errors = new List<Tuple<string, object, object>>();
                 ExcelWorksheet sheet=null;

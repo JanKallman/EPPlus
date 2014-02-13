@@ -34,17 +34,6 @@ using System.Xml;
 using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
-    public class ColumnInternal
-    {
-            internal int ColumnMax;
-            internal bool BestFit;
-            internal bool Collapsed;
-            internal bool Hidden;
-            internal short OutlineLevel;
-            internal bool PageBreak;
-            internal bool Phonetic;
-            internal double Width;        
-    }
     /// <summary>
 	/// Represents one or more columns within the worksheet
 	/// </summary>
@@ -218,7 +207,7 @@ namespace OfficeOpenXml
             {
                 string letter = ExcelCellBase.GetColumnLetter(ColumnMin);
                 string endLetter = ExcelCellBase.GetColumnLetter(ColumnMax);
-                return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, letter + ":" + endLetter);
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID, _worksheet.PositionID, letter + ":" + endLetter);
             }
         }
         internal string _styleName="";
@@ -237,7 +226,7 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
 		}
-        internal int _styleID = 0;
+        //internal int _styleID = 0;
         /// <summary>
         /// Sets the style for the entire column using the style ID.  
         /// </summary>
@@ -352,7 +341,7 @@ namespace OfficeOpenXml
                 newCol.OutlineLevel = OutlineLevel;
                 newCol.PageBreak = PageBreak;
                 newCol.Phonetic = Phonetic;
-                newCol.StyleName = StyleName;
+                newCol._styleName = _styleName;
                 newCol.StyleID = StyleID;
                 newCol.Width = Width;
                 return newCol;

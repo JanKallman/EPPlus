@@ -29,13 +29,12 @@
  * Jan Källman                      Added                       2012-03-04  
  *******************************************************************************/
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using OfficeOpenXml.Calculation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
-namespace OfficeOpenXml.Calculation
+namespace OfficeOpenXml
 {
     public static class CalculationExtension
     {
@@ -94,6 +93,17 @@ namespace OfficeOpenXml.Calculation
             var dc = DependencyChainFactory.Create(range, options);
             CalcChain(range._workbook, parser, dc);
         }
+        public static void Calculate(this ExcelWorksheet worksheet, string Formula)
+        {
+            Calculate(worksheet, Formula, new ExcelCalculationOption());
+        }
+        public static void Calculate(this ExcelWorksheet worksheet, string Formula, ExcelCalculationOption options)
+        {
+            Init(worksheet.Workbook);
+            var parser = worksheet.Workbook.FormulaParser;
+            var dc = DependencyChainFactory.Create(worksheet, Formula, options);
+            CalcChain(worksheet.Workbook, parser, dc);
+        }
         private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
         {
             foreach (var ix in dc.CalcOrder)
@@ -112,7 +122,6 @@ namespace OfficeOpenXml.Calculation
                 }
             }
         }
-
         private static void Init(ExcelWorkbook workbook)
         {
             workbook._formulaTokens = new CellStore<List<Token>>();;
@@ -125,7 +134,6 @@ namespace OfficeOpenXml.Calculation
                 ws._formulaTokens = new CellStore<List<Token>>();
             }
         }
-
         private static void SetValue(ExcelWorkbook workbook, FormulaCell item, object v)
         {
             if (item.Column == 0)

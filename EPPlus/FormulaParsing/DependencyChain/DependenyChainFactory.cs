@@ -68,6 +68,14 @@ namespace OfficeOpenXml.FormulaParsing
 
             return depChain;
         }
+        internal static DependencyChain Create(ExcelWorksheet ws, string Formula, ExcelCalculationOption options)
+        {
+            var depChain = new DependencyChain();
+
+            GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws, Formula, options);
+
+            return depChain;
+        }
 
         private static void GetWorksheetNames(ExcelWorksheet ws, DependencyChain depChain, ExcelCalculationOption options)
         {
@@ -108,6 +116,17 @@ namespace OfficeOpenXml.FormulaParsing
                     depChain.Add(f);
                     FollowChain(depChain, lexer,name._workbook, ws, f, options);
                 }
+            }
+        }
+        private static void GetChain(DependencyChain depChain, ILexer lexer, ExcelWorksheet ws, string formula, ExcelCalculationOption options)
+        {
+            var f = new FormulaCell() { SheetID = ws.SheetID, Row = -1, Column = -1 };
+            f.Formula = formula;
+            if (!string.IsNullOrEmpty(f.Formula))
+            {
+                f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                depChain.Add(f);
+                FollowChain(depChain, lexer, ws.Workbook, ws, f, options);
             }
         }
 

@@ -38,7 +38,6 @@ using System.IO;
 using OfficeOpenXml.Table;
 using OfficeOpenXml.Drawing.Chart;
 using System.Globalization;
-using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
     /// <summary>
@@ -110,7 +109,7 @@ namespace EPPlusSamples
             tbl.Columns[5].DataCellStyleName = "TableNumber";
             tbl.Columns[6].TotalsRowFunction = RowFunctions.Sum;
             tbl.Columns[6].DataCellStyleName = "TableNumber";
-
+            
             Console.WriteLine("Create the chart...");
             //Now add a stacked areachart...
             var chart = sheet.Drawings.AddChart("chart1", eChartType.AreaStacked);

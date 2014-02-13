@@ -7,8 +7,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml;
-using OfficeOpenXml.Calculation;
-
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
 {
     [TestClass]
