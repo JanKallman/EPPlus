@@ -691,4 +691,94 @@ namespace OfficeOpenXml.ConditionalFormatting
     /// </summary>
     Rating
   }
+  /// <summary>
+  /// 18.18.42 ST_IconSetType (Icon Set Type)
+  /// </summary>
+  public enum eExcelconditionalFormattingIconsSetType
+  {
+      /// <summary>
+      /// (3 Arrows) 3 arrows icon set.
+      /// </summary>
+      ThreeArrows,
+
+      /// <summary>
+      /// (3 Arrows (Gray)) 3 gray arrows icon set.
+      /// </summary>
+      ThreeArrowsGray,
+
+      /// <summary>
+      /// (3 Flags) 3 flags icon set. 
+      /// </summary>
+      ThreeFlags,
+
+      /// <summary>
+      /// (3 Signs) 3 signs icon set.
+      /// </summary>
+      ThreeSigns,
+
+      /// <summary>
+      /// (3 Symbols Circled) 3 symbols icon set.
+      /// </summary>
+      ThreeSymbols,
+
+      /// <summary>
+      /// (3 Symbols) 3 Symbols icon set.
+      /// </summary>
+      ThreeSymbols2,
+
+      /// <summary>
+      /// (3 Traffic Lights) 3 traffic lights icon set (#1).
+      /// </summary>
+      ThreeTrafficLights1,
+
+      /// <summary>
+      /// (3 Traffic Lights Black) 3 traffic lights icon set with thick black border.
+      /// </summary>
+      ThreeTrafficLights2,
+ 
+    /// <summary>
+    /// (4 Arrows) 4 arrows icon set.
+    /// </summary>
+    FourArrows,
+
+    /// <summary>
+    /// (4 Arrows (Gray)) 4 gray arrows icon set.
+    /// </summary>
+    FourArrowsGray,
+
+    /// <summary>
+    /// (4 Ratings) 4 ratings icon set.
+    /// </summary>
+    FourRating,
+
+    /// <summary>
+    /// (4 Red To Black) 4 'red to black' icon set.
+    /// </summary>
+    FourRedToBlack,
+
+    /// <summary>
+    /// (4 Traffic Lights) 4 traffic lights icon set.
+    /// </summary>
+    FourTrafficLights,
+
+      /// <summary>
+    /// (5 Arrows) 5 arrows icon set.
+    /// </summary>
+    FiveArrows,
+
+    /// <summary>
+    /// (5 Arrows (Gray)) 5 gray arrows icon set.
+    /// </summary>
+    FiveArrowsGray,
+
+    /// <summary>
+    /// (5 Quarters) 5 quarters icon set.
+    /// </summary>
+    FiveQuarters,
+
+    /// <summary>
+    /// (5 Ratings Icon Set) 5 rating icon set.
+    /// </summary>
+    FiveRating
+}
 }

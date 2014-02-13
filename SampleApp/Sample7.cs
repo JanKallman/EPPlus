@@ -5,7 +5,6 @@ using System.IO;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Drawing;
-using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
     class Sample7

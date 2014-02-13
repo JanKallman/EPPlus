@@ -37,7 +37,6 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
-using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
 	class Sample1

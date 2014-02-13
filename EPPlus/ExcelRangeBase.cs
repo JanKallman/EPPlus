@@ -371,7 +371,15 @@ namespace OfficeOpenXml
 			get
 			{
 				IsRangeValid("styling");
-				return _worksheet.Workbook.Styles.GetStyleObject(_worksheet._styles.GetValue(_fromRow, _fromCol), _worksheet.PositionID, Address);
+                int s=0;
+                if(!_worksheet._styles.Exists(_fromRow,_fromCol, ref s)) //Cell exists
+                {
+                    if(!_worksheet._styles.Exists(_fromRow,0, ref s)) //No, check Row style
+                    {
+                        s = Worksheet.Column(_fromCol).StyleID;
+                    }
+                }
+				return _worksheet.Workbook.Styles.GetStyleObject(s, _worksheet.PositionID, Address);
 			}
 		}
 		/// <summary>
@@ -467,7 +475,7 @@ namespace OfficeOpenXml
                             }
 
                             column._styleName = value;
-                            column._styleID = _styleID;
+                            column.StyleID = _styleID;
 
 
                             if (cols.Value == null)
@@ -501,7 +509,7 @@ namespace OfficeOpenXml
                         {
                             var r = rows.Value as ExcelRow;
                             r._styleName = value;
-                            r._styleId = _styleID;
+                            r.StyleID = StyleID;
                             if (!rows.Next())
                             {
                                 break;
@@ -514,7 +522,7 @@ namespace OfficeOpenXml
                     for (int r = _fromRow; r <= _toRow; r++)
                     {
                         _worksheet.Row(r)._styleName = value;
-                        _worksheet.Row(r)._styleId = _styleID;
+                        _worksheet.Row(r).StyleID = StyleID;
                     }
                 }
 

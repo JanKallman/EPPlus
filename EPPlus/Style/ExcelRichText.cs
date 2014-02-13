@@ -50,6 +50,7 @@ namespace OfficeOpenXml.Style
         {
             SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
             PreserveSpace = false;
+
         }
         internal delegate void CallbackDelegate();
         CallbackDelegate _callback;

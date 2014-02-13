@@ -484,7 +484,7 @@ using OfficeOpenXml;
             }
             else
             {
-                return default(T);
+                return default(T);                
             }
             //var col = GetPosition(Column);
             //if (col >= 0)  
@@ -733,47 +733,50 @@ using OfficeOpenXml;
                 for (int c = 0; c < ColumnCount; c++)
                 {
                     var column = _columnIndex[c];
-                    if (column.Index > toCol) break;
-                    var pagePos = column.GetPosition(fromRow);
-                    if (pagePos < 0) pagePos = ~pagePos;
-                    if (pagePos < column.PageCount)
+                    if (column.Index >= fromCol)
                     {
-                        var page = column._pages[pagePos];
-                        if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
+                        if (column.Index > toCol) break;
+                        var pagePos = column.GetPosition(fromRow);
+                        if (pagePos < 0) pagePos = ~pagePos;
+                        if (pagePos < column.PageCount)
                         {
-                            rows -= page.MinIndex - fromRow;
-                            fromRow = page.MinIndex;
-                        }
-                        if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
-                        {
-                            var endRow = fromRow + rows;
-                            var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
-                            if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
-                            if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
+                            var page = column._pages[pagePos];
+                            if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
                             {
-                                pagePos = (delEndRow == fromRow ? pagePos : pagePos + 1);
-                                var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
-                                //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
-                                if (rowsLeft > 0)
+                                rows -= page.MinIndex - fromRow;
+                                fromRow = page.MinIndex;
+                            }
+                            if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
+                            {
+                                var endRow = fromRow + rows;
+                                var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
+                                if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
+                                if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
                                 {
-                                    pagePos = column.GetPosition(fromRow);
-                                    delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft);
-                                    if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
+                                    pagePos = (delEndRow == fromRow ? pagePos : pagePos + 1);
+                                    var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
+                                    //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
+                                    if (rowsLeft > 0)
+                                    {
+                                        pagePos = column.GetPosition(fromRow);
+                                        delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft);
+                                        if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
+                                    }
                                 }
                             }
-                        }
-                        else if (pagePos > 0 && column._pages[pagePos].IndexOffset > fromRow) //The row is on the page before.
-                        {
-                            int offset = fromRow + rows - 1 - ((pageFromRow - 1) << pageBits);
-                            var rowPos = column._pages[pagePos - 1].GetPosition(offset);
-                            if (rowPos > 0 && pagePos > 0)
+                            else if (pagePos > 0 && column._pages[pagePos].IndexOffset > fromRow) //The row is on the page before.
                             {
-                                if (shift) UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow + rows - 1, -rows);
+                                int offset = fromRow + rows - 1 - ((pageFromRow - 1) << pageBits);
+                                var rowPos = column._pages[pagePos - 1].GetPosition(offset);
+                                if (rowPos > 0 && pagePos > 0)
+                                {
+                                    if (shift) UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow + rows - 1, -rows);
+                                }
                             }
-                        }
-                        else
-                        {
-                            if (shift && pagePos + 1 < column.PageCount) UpdateIndexOffset(column, pagePos + 1, 0, column._pages[pagePos + 1].MinIndex, -rows);
+                            else
+                            {
+                                if (shift && pagePos + 1 < column.PageCount) UpdateIndexOffset(column, pagePos + 1, 0, column._pages[pagePos + 1].MinIndex, -rows);
+                            }
                         }
                     }
                 }

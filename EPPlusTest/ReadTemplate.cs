@@ -9,7 +9,6 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
-using OfficeOpenXml.Calculation;
 namespace EPPlusTest
 {
     [TestClass]

@@ -44,6 +44,19 @@ namespace OfficeOpenXml
         internal bool PageBreak;
         internal bool Phonetic;
         internal bool CustomHeight;
+        internal RowInternal Clone()
+        {
+            return new RowInternal()
+            {
+                Height=Height,
+                Hidden=Hidden,
+                Collapsed=Collapsed,
+                OutlineLevel=OutlineLevel,
+                PageBreak=PageBreak,
+                Phonetic=Phonetic,
+                CustomHeight=CustomHeight
+            };
+        }
     }
     /// <summary>
 	/// Represents an individual row in the spreadsheet.
@@ -186,11 +199,10 @@ namespace OfficeOpenXml
             }
             set
             {
-                _styleId = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
+                StyleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
         }
-        internal int _styleId = 0;
         /// <summary>
         /// Sets the style for the entire row using the style ID.  
         /// </summary>
@@ -362,7 +374,7 @@ namespace OfficeOpenXml
             newRow.OutlineLevel = OutlineLevel;
             newRow.PageBreak = PageBreak;
             newRow.Phonetic = Phonetic;
-            newRow.StyleName = StyleName;
+            newRow._styleName = _styleName;
             newRow.StyleID = StyleID;
         }
     }

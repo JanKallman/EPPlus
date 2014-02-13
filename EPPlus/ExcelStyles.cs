@@ -302,15 +302,25 @@ namespace OfficeOpenXml
                     var s = ws._styles.GetValue(rowNum, 0);
                     if (s == 0)
                     {
-                        //TODO: We should loop all columns here and change each cell. But for now we take style of column A.
-                        var cse = new CellsStoreEnumerator<int>(ws._styles, address._fromRow, 0 , address._toRow, 0);
+                        //iteratte all columns and set the row to the style of the last column
+                        var cse = new CellsStoreEnumerator<int>(ws._styles, 0, 1, 0, ExcelPackage.MaxColumns);
                         while(cse.Next())
                         {
-                            ws.SetStyle(rowNum, 0, cse.Value);
-                            //row.StyleID = cse.Value;
-                            break;  //Get the first one and break. 
+                            s = cse.Value; 
+                            var c = ws._values.GetValue(cse.Row, cse.Column) as ExcelColumn;
+                            if(c!=null && c.ColumnMax<ExcelPackage.MaxColumns)
+                            {
+                                for(int col=c.ColumnMin;col<c.ColumnMax;col++)
+                                {
+                                   if(!ws._styles.Exists(rowNum, col))
+                                   {
+                                       ws._styles.SetValue(rowNum, col, s);
+                                   }
+                                }
+                            }
                         }
-
+                        ws.SetStyle(rowNum, 0, s);
+                        cse.Dispose();
                     }
                     if (styleCashe.ContainsKey(s))
                     {

@@ -39,6 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             var format = ArgToString(arguments, 1);
             format = format.Replace(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator, ".");
             format = format.Replace(System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator.Replace((char)160,' '), ","); //Special handling for No-Break Space
+
             var result = context.ExcelDataProvider.GetFormat(value, format);
 
             return CreateResult(result, DataType.String);

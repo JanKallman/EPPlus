@@ -500,22 +500,26 @@ namespace OfficeOpenXml
                 row = val.Row;
                 col = val.Column;
                 //added._cells.Add(cell.Clone(added));
-                var styleID=CopyValues(Copy, added, row, col);
+                int styleID=0;
                 if (row == 0) //Column
                 {
                     var c = Copy._values.GetValue(row, col) as ExcelColumn;
                     if (c != null)
                     {
                         added._values.SetValue(row, col, c.Clone(added, c.ColumnMin));
+                        styleID = c.StyleID;
                     }
                 }
                 else if (col == 0) //Row
                 {
-                    var r = Copy._values.GetValue(row, col) as ExcelRow;
+                    var r=Copy.Row(row);
                     if (r != null)
                     {
                         r.Clone(added);
+                        styleID = r.StyleID;
+                        //added._values.SetValue(row, col, r.Clone(added));                                                
                     }
+                    
                 }
                 else
                 {

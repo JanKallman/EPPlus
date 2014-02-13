@@ -42,7 +42,6 @@ using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Table;
-using OfficeOpenXml.Calculation;
 namespace EPPlusSamples
 {
     /// <summary>
