@@ -151,5 +151,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
             var result = _parser.Parse("(1+2)%");
             Assert.AreEqual(0.03, result);
         }
+
+        [TestMethod]
+        public void ShouldIgnoreLeadingPlus()
+        {
+            var result = _parser.Parse("+(1-2)");
+            Assert.AreEqual(-1d, result);
+        }
     }
 }
