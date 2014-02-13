@@ -63,6 +63,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return Enumerable.Empty<Token>();
             }
+            // MA 1401: Ignore leading plus in formula.
+            input = input.TrimStart('+');
             var context = new TokenizerContext(input);
             for (int i = 0; i<context.FormulaChars.Length;i++)
             {
