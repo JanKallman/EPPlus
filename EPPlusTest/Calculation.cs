@@ -98,9 +98,9 @@ namespace EPPlusTest
         [TestMethod]
         public void TestOneCell()
         {
-            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test1.xlsx"));
+            var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test4.xlsm"));
             var ws = pck.Workbook.Worksheets.First(); 
-            pck.Workbook.Worksheets.First().Cells["J966"].Calculate();
+            pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Calculate();
             Assert.AreEqual(15.928239987316594, ws.Cells["J966"].Value);  
 
         }
@@ -190,6 +190,8 @@ namespace EPPlusTest
                     catch (Exception e)
                     {                        
                         fileErr.WriteLine("Exception cell " + sheet.Name + "!" + adr + "\t" + fr[cell].ToString() + "\t" + sheet.Cells[adr].Value +  "\t" + e.Message);
+                        fileErr.WriteLine("***************************");
+                        fileErr.WriteLine(e.ToString());
                         nErrors++;
                     }
                 }
