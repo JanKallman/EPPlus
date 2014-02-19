@@ -80,12 +80,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 if (matchResult != 0)
                 {
                     if (lastValue != null && navigator.CurrentValue == null) break;
-                    if (lastValue == null && matchResult > 0)
-                    {
-                        ThrowExcelErrorValueException(eErrorType.NA);
-                    }
+                    
                     if (lookupArgs.RangeLookup)
                     {
+                        if (lastValue == null && matchResult > 0)
+                        {
+                            ThrowExcelErrorValueException(eErrorType.NA);
+                        }
                         if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
                         {
                             return _compileResultFactory.Create(lastLookupValue);
