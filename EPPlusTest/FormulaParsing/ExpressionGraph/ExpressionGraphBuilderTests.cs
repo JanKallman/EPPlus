@@ -259,5 +259,28 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var exp1 = expression.Expressions.First();
             Assert.AreEqual(3, exp1.Children.Count());
         }
+        [TestMethod]
+        public void RemoveDuplicateOperators1()
+        {
+            var ctx = ParsingContext.Create();
+            const string formula = "++1--2++-3+-1----3-+2";
+            var tokenizer = new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
+            var tokens = tokenizer.Tokenize(formula).ToList();
+            var expression = _graphBuilder.Build(tokens);
+            Assert.AreEqual(11, tokens.Count());
+            Assert.AreEqual("+", tokens[1].Value);
+            Assert.AreEqual("-", tokens[3].Value);
+            Assert.AreEqual("-", tokens[5].Value);
+            Assert.AreEqual("+", tokens[7].Value);
+            Assert.AreEqual("-", tokens[9].Value);
+        }
+        [TestMethod]
+        public void RemoveDuplicateOperators2()
+        {
+            var ctx = ParsingContext.Create();
+            const string formula = "++-1--(---2)++-3+-1----3-+2";
+            var tokenizer = new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
+            var tokens = tokenizer.Tokenize(formula).ToList();
+        }
     }
 }

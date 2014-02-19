@@ -157,49 +157,113 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 context.AddToken(CreateToken(context));
             }
 
-            FixUnrecogizedTokens(context);
+            CleanupTokens(context);
 
             return context.Result;
         }
 
-        private static void FixUnrecogizedTokens(TokenizerContext context)
+        private void FixOperators(TokenizerContext context)
+        {
+            
+        }
+
+        private static void CleanupTokens(TokenizerContext context)
         {
             for (int i = 0; i < context.Result.Count; i++)
             {
-                if (context.Result[i].TokenType == TokenType.Unrecognized)
+                var token=context.Result[i];
+                if (token.TokenType == TokenType.Unrecognized)
                 {
                     if (i < context.Result.Count - 1)
                     {
                         if (context.Result[i+1].TokenType == TokenType.OpeningParenthesis)
                         {
-                            context.Result[i].TokenType = TokenType.Function;
+                            token.TokenType = TokenType.Function;
                         }
                         else
                         {
-                            context.Result[i].TokenType = TokenType.NameValue;
+                            token.TokenType = TokenType.NameValue;
                         }
                     }
                     else
                     {
-                        context.Result[i].TokenType = TokenType.NameValue;
+                        token.TokenType = TokenType.NameValue;
                     }
+                }
+                else if ((token.TokenType == TokenType.Operator || token.TokenType == TokenType.Negator) && i < context.Result.Count - 1 &&
+                         (token.Value=="+" || token.Value=="-"))
+                {
+                    var nextToken=context.Result[i+1];
+                    if (nextToken.TokenType == TokenType.Operator || nextToken.TokenType == TokenType.Negator)
+                    {
+                        if (token.Value == "+" && (nextToken.Value=="+" || nextToken.Value == "-"))
+                        {
+                            //Remove first
+                            context.Result.RemoveAt(i);
+                            SetNegatorOperator(context, i);
+                            i--;
+                        }
+                        else if (token.Value == "-" && nextToken.Value == "+")
+                        {
+                            //Remove second
+                            context.Result.RemoveAt(i+1);
+                            SetNegatorOperator(context, i);
+                            i--;
+                        }
+                        else if (token.Value == "-" && nextToken.Value == "-")
+                        {
+                            //Remove first and set operator to +
+                            context.Result.RemoveAt(i);
+                            if (i == 0)
+                            {
+                                context.Result.RemoveAt(i+1);
+                                i += 2;
+                            }
+                            else
+                            {
+                                context.Result[i].TokenType = TokenType.Operator;
+                                context.Result[i].Value = "+";
+                                SetNegatorOperator(context, i);
+                                i--;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void SetNegatorOperator(TokenizerContext context, int i)
+        {
+            if (context.Result[i].Value == "-" && i > 0 && (context.Result[i].TokenType == TokenType.Operator || context.Result[i].TokenType == TokenType.Negator))
+            {
+                if (TokenIsNegator(context.Result[i - 1]))
+                {
+                    context.Result[i].TokenType = TokenType.Negator;
+                }
+                else
+                {
+                    context.Result[i].TokenType = TokenType.Operator;
                 }
             }
         }
 
         private static bool TokenIsNegator(TokenizerContext context)
         {
-            return context.LastToken == null
-                                        ||
-                                        context.LastToken.TokenType == TokenType.Operator
-                                        ||
-                                        context.LastToken.TokenType == TokenType.OpeningParenthesis
-                                        ||
-                                        context.LastToken.TokenType == TokenType.Comma
-                                        ||
-                                        context.LastToken.TokenType == TokenType.SemiColon
-                                        ||
-                                        context.LastToken.TokenType == TokenType.OpeningEnumerable;
+            return TokenIsNegator(context.LastToken);
+        }
+        private static bool TokenIsNegator(Token t)
+        {
+            return t == null
+                        ||
+                        t.TokenType == TokenType.Operator
+                        ||
+                        t.TokenType == TokenType.OpeningParenthesis
+                        ||
+                        t.TokenType == TokenType.Comma
+                        ||
+                        t.TokenType == TokenType.SemiColon
+                        ||
+                        t.TokenType == TokenType.OpeningEnumerable;
         }
 
         private bool IsPartOfMultipleCharSeparator(TokenizerContext context, char c)

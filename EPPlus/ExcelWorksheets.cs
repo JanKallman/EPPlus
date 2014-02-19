@@ -827,7 +827,7 @@ namespace OfficeOpenXml
             {
                 throw new ArgumentException("The worksheet can not have an empty name");
             }
-            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's
+            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's            
             return Name;
         }
         /// <summary>
