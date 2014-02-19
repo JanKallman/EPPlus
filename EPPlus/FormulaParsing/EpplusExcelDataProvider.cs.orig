@@ -7,6 +7,7 @@ using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -18,6 +19,7 @@ namespace OfficeOpenXml.FormulaParsing
             CellsStoreEnumerator<object> _values = null;
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
+            ExcelAddressBase _address;
             ICellInfo _cell;
 
             public RangeInfo(ExcelWorksheet ws, int fromRow, int fromCol, int toRow, int toCol)
@@ -27,6 +29,7 @@ namespace OfficeOpenXml.FormulaParsing
                 _fromCol = fromCol;
                 _toRow = toRow;
                 _toCol = toCol;
+                _address = new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol);
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
                 _cell = new CellInfo(_ws, _values);
             }
@@ -46,7 +49,7 @@ namespace OfficeOpenXml.FormulaParsing
                     }
                     else if (_values.Next())
                     {
-                        _values.Previous();
+                        _values.Reset();
                         return false;
                     }
                     else
@@ -127,6 +130,29 @@ namespace OfficeOpenXml.FormulaParsing
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
                 return this;
+            }
+
+
+            public ExcelAddressBase Address
+            {
+                get { return _address; }
+            }
+
+            public object GetValue(int row, int col)
+            {
+                return _ws.GetValue(row, col);
+            }
+
+            public object GetOffset(int rowOffset, int colOffset)
+            {
+                if (_values.Row < _fromRow || _values.Column < _fromCol)
+                {
+                    return _ws.GetValue(_fromCol + rowOffset, _fromCol + colOffset);
+                }
+                else
+                {
+                    return _ws.GetValue(_values.Row + rowOffset, _values.Column + colOffset);
+                }
             }
         }
         public class CellInfo : ICellInfo
@@ -242,7 +268,7 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 addr.SetRCFromTable(_package, new ExcelAddressBase(row, column, row, column));
             }
-            SetCurrentWorksheet(addr.WorkSheet); 
+            //SetCurrentWorksheet(addr.WorkSheet); 
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
@@ -401,7 +427,24 @@ namespace OfficeOpenXml.FormulaParsing
             SetCurrentWorksheet(worksheetName);
             return _currentWorksheet.GetValue(row, column);
         }
-
+        public override string GetFormat(object value, string format)
+        {
+            var styles = _package.Workbook.Styles;
+            ExcelNumberFormatXml.ExcelFormatTranslator ft=null;
+            foreach(var f in styles.NumberFormats)
+            {
+                if(f.Format==format)
+                {
+                    ft=f.FormatTranslator;
+                    break;
+                }
+            }
+            if(ft==null)
+            {
+                ft=new ExcelNumberFormatXml.ExcelFormatTranslator(format, -1);
+            }
+            return ExcelRangeBase.FormatValue(value, ft,format, ft.NetFormat);
+        }
         public override List<LexicalAnalysis.Token> GetRangeFormulaTokens(string worksheetName, int row, int column)
         {
             return _package.Workbook.Worksheets[worksheetName]._formulaTokens.GetValue(row, column);

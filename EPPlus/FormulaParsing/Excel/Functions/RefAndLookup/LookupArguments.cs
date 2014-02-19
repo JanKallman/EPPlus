@@ -57,8 +57,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             else
             {
-                RangeAddress = arg1.ToString();
-                ArgumentDataType = LookupArgumentDataType.ExcelRange;
+                var rangeInfo = arg1 as ExcelDataProvider.IRangeInfo;
+                if (rangeInfo != null)
+                {
+                    RangeAddress = rangeInfo.Address.Address;
+                    ArgumentDataType = LookupArgumentDataType.ExcelRange;
+                }
+                else
+                {
+                    RangeAddress = arg1.ToString();
+                    ArgumentDataType = LookupArgumentDataType.ExcelRange;
+                }  
             }
             LookupIndex = (int)_argumentParsers.GetParser(DataType.Integer).Parse(arguments.ElementAt(2).Value);
             if (arguments.Count() > 3)
@@ -93,6 +102,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         public bool RangeLookup { get; private set; }
 
         public IEnumerable<FunctionArgument> DataArray { get; private set; }
+
+        public ExcelDataProvider.IRangeInfo RangeInfo { get; private set; }
 
         public LookupArgumentDataType ArgumentDataType { get; private set; } 
     }
