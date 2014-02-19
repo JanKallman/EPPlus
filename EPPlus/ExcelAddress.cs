@@ -997,7 +997,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (address.Substring(i, 1).IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=', '^', '&', '%', '\"' }) > -1)
+                    if (isText==false  && address.Substring(i, 1).IndexOfAny(new char[] { '(', ')', '+', '-', '*', '/', '.', '=', '^', '&', '%', '\"' }) > -1)
                     {
                         return true;
                     }

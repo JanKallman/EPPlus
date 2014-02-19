@@ -43,7 +43,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             TokenType = tokenType;
         }
 
-        public string Value { get; private set; }
+        public string Value { get; internal set; }
 
         public TokenType TokenType { get; internal set; }
 
