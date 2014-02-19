@@ -154,29 +154,6 @@ namespace OfficeOpenXml.FormulaParsing
                     return _ws.GetValue(_values.Row + rowOffset, _values.Column + colOffset);
                 }
             }
-
-
-            public ExcelAddressBase Address
-            {
-                get { return _address; }
-            }
-
-            public object GetValue(int row, int col)
-            {
-                return _ws.GetValue(row, col);
-            }
-
-            public object GetOffset(int rowOffset, int colOffset)
-            {
-                if (_values.Row < _fromRow || _values.Column < _fromCol)
-                {
-                    return _ws.GetValue(_fromCol + rowOffset, _fromCol + colOffset);
-                }
-                else
-                {
-                    return _ws.GetValue(_values.Row + rowOffset, _values.Column + colOffset);
-                }
-            }
         }
 
         public class CellInfo : ICellInfo
