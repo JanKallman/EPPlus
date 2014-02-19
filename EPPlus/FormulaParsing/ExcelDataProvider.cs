@@ -20,6 +20,9 @@ namespace OfficeOpenXml.FormulaParsing
             bool IsEmpty { get; }
             bool IsMulti { get; }
             int GetNCells();
+            ExcelAddressBase Address { get; }
+            object GetValue(int row, int col);
+            object GetOffset(int rowOffset, int colOffset);
         }
         /// <summary>
         /// Information and help methods about a cell

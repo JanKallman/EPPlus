@@ -828,7 +828,7 @@ namespace OfficeOpenXml
 		/// <param name="sw"></param>
 		/// <param name="t"></param>
 		/// <returns></returns>
-		private void ExcelEncodeString(StreamWriter sw, string t)
+		internal static void ExcelEncodeString(StreamWriter sw, string t)
 		{
 			if(Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
 			{
@@ -854,7 +854,7 @@ namespace OfficeOpenXml
 			}
 
 		}
-		private string ExcelDecodeString(string t)
+        internal static string ExcelDecodeString(string t)
 		{
 			var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
 			if(!match.Success) return t;

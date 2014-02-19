@@ -360,6 +360,13 @@ namespace OfficeOpenXml
 			{
                 if (value == _name) return;
                 value=_package.Workbook.Worksheets.ValidateFixSheetName(value);
+                foreach(var ws in Workbook.Worksheets)
+                {
+                    if(ws.PositionID!=PositionID && ws.Name.Equals(value,StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        throw (new ArgumentException("Worksheet name must be unique"));
+                    }
+                }
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
                 ChangeNames(value);
 
@@ -2586,7 +2593,7 @@ namespace OfficeOpenXml
         private void SaveXml(Stream stream)
         {
             //Create the nodes if they do not exist.
-            StreamWriter sw = new StreamWriter(stream, System.Text.Encoding.Default, 65536);
+            StreamWriter sw = new StreamWriter(stream, System.Text.Encoding.UTF8, 65536);
             if (this is ExcelChartsheet)
             {
                 sw.Write(_worksheetXml.OuterXml);
