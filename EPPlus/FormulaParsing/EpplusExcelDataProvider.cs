@@ -19,6 +19,7 @@ namespace OfficeOpenXml.FormulaParsing
             CellsStoreEnumerator<object> _values = null;
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
+            ExcelAddressBase _address;
             ICellInfo _cell;
 
             public RangeInfo(ExcelWorksheet ws, int fromRow, int fromCol, int toRow, int toCol)
@@ -28,6 +29,7 @@ namespace OfficeOpenXml.FormulaParsing
                 _fromCol = fromCol;
                 _toRow = toRow;
                 _toCol = toCol;
+                _address = new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol);
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
                 _cell = new CellInfo(_ws, _values);
             }
@@ -108,7 +110,7 @@ namespace OfficeOpenXml.FormulaParsing
             }
 
             public void Reset()
-            {                
+            {
                 _values.Init();
             }
 
@@ -129,7 +131,31 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 return this;
             }
+
+
+            public ExcelAddressBase Address
+            {
+                get { return _address; }
+            }
+
+            public object GetValue(int row, int col)
+            {
+                return _ws.GetValue(row, col);
+            }
+
+            public object GetOffset(int rowOffset, int colOffset)
+            {
+                if (_values.Row < _fromRow || _values.Column < _fromCol)
+                {
+                    return _ws.GetValue(_fromCol + rowOffset, _fromCol + colOffset);
+                }
+                else
+                {
+                    return _ws.GetValue(_values.Row + rowOffset, _values.Column + colOffset);
+                }
+            }
         }
+
         public class CellInfo : ICellInfo
         {
             ExcelWorksheet _ws;
