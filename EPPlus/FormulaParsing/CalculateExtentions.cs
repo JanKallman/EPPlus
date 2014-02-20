@@ -138,7 +138,7 @@ namespace OfficeOpenXml
         {
             if (item.Column == 0)
             {
-                if (item.SheetID == -1)
+                if (item.SheetID <= 0)
                 {
                     workbook.Names[item.Row].NameValue = v;
                 }

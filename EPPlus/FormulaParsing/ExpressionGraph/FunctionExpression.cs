@@ -65,6 +65,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return new CompileResult(e.ErrorValue, DataType.ExcelError);
             }
+            catch (InvalidOperationException ioe)
+            {
+                throw;
+            }
             
         }
 
