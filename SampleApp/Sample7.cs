@@ -85,9 +85,9 @@ namespace EPPlusSamples
                     rng.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
                 }
 
-                //Calculate
-                Console.WriteLine("{0:HH.mm.ss}\tCalculate formulas...", DateTime.Now);
-                ws.Calculate();
+                //Calculate (Commented away thisk, it was a bit time consuming... /MA)
+                // Console.WriteLine("{0:HH.mm.ss}\tCalculate formulas...", DateTime.Now);
+                // ws.Calculate();
 
                 Console.WriteLine("{0:HH.mm.ss}\tAutofit columns and lock and format cells...", DateTime.Now);
                 ws.Cells[Rows - 100, 1, Rows, 5].AutoFitColumns(5);   //Auto fit using the last 100 rows with minimum width 5
