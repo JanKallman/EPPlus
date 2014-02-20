@@ -156,6 +156,11 @@ namespace EPPlusSamples
                 Sample15.VBASample(outputDir);
                 Console.WriteLine("Sample 15 created {0}", outputDir.Name);
                 Console.WriteLine();
+
+                //Sample FormulaCalc - Shows how to calculate formulas in the workbook.
+                Console.WriteLine("Running Sample_FormulaCalc");
+                Sample_FormulaCalc.RunSampleFormulaCalc();
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {
