@@ -161,6 +161,11 @@ namespace EPPlusSamples
                 Console.WriteLine("Running Sample_FormulaCalc");
                 Sample_FormulaCalc.RunSampleFormulaCalc();
                 Console.WriteLine();
+
+                //Sample AddFormulaFunction - Shows how to add your own implementations of excel functions to EPPlus.
+                Console.WriteLine("Running Sample_AddFormulaFunction");
+                Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {

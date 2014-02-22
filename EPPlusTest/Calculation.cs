@@ -100,7 +100,7 @@ namespace EPPlusTest
             var pck = new ExcelPackage(new FileInfo(@"C:\temp\EPPlusTestark\Test4.xlsm"));
             var ws = pck.Workbook.Worksheets.First(); 
             pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Calculate();
-            Assert.AreEqual(15.928239987316594, ws.Cells["J966"].Value);  
+            Assert.AreEqual(0d, pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Value);  
 
         }
 
