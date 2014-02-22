@@ -97,7 +97,7 @@ namespace OfficeOpenXml.FormulaParsing
                 var graph = _graphBuilder.Build(tokens);
                 if (graph.Expressions.Count() == 0)
                 {
-                    return null;
+                    return 0d;
                 }
                 try
                 {
@@ -106,17 +106,17 @@ namespace OfficeOpenXml.FormulaParsing
                     var rangeInfo = compileResult.Result as ExcelDataProvider.IRangeInfo;
                     if (rangeInfo == null)
                     {
-                        return compileResult.Result;
+                        return compileResult.Result ?? 0d;
                     }
                     else
                     {
                         if (rangeInfo.IsEmpty)
                         {
-                            return null;
+                            return 0d;
                         }
                         if (!rangeInfo.IsMulti)
                         {
-                            return rangeInfo.First().Value;
+                            return rangeInfo.First().Value ?? 0d;
                         }
                         throw new ExcelErrorValueException(eErrorType.Value);
                     }

@@ -109,18 +109,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private CompileResult CompileSingleCell(ExcelDataProvider.IRangeInfo result)
         {
             var cell = result.First();
-            // If the value of the referenced cell is null and the current cell
-            // (pointing to the cell) is an ExcelExpression, return 0 instead of null.
-            if (cell.Value == null)
-            {
-                var c = this._parsingContext.Scopes.Current;
-                var callingCell = _excelDataProvider.GetRange(c.Address.Worksheet, c.Address.FromRow, c.Address.FromCol, c.Address.Address).First();
-                if (callingCell.Tokens != null && callingCell.Tokens.First().TokenType == TokenType.ExcelAddress)
-                {
-                    return new CompileResult(0, DataType.Integer);
-                }
-            }
-
             var factory = new CompileResultFactory();
             var compileResult = factory.Create(cell.Value);
             if (_negate && compileResult.IsNumeric)

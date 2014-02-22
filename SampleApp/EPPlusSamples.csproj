@@ -76,6 +76,7 @@
     <Compile Include="Sample6.cs" />
     <Compile Include="Sample7.cs" />
     <Compile Include="Sample9.cs" />
+    <Compile Include="Sample_AddFormulaFunction.cs" />
     <Compile Include="Sample_FormulaCalc.cs" />
     <Compile Include="Sample_Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
