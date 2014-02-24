@@ -44,7 +44,12 @@ namespace EPPlusSamples
                 // Print the calculated value
                 Console.WriteLine("IF(TODAY()<DATE(2014;6;1);\"BEFORE\" &\" FIRST\";CONCATENATE(\"FIRST\";\" OF\";\" JUNE OR LATER\")) evaluated to {0}", ws1.Cells["B1"].Value);
 
+                // evaluate a formula string
+                const string formula = "(2+4)*ws1!A2";
+                var result = package.Workbook.FormulaParserManager.Parse(formula);
 
+                // print the calculated value
+                Console.WriteLine("(2+4)*ws1!A2 evaluated to {0}", result);
             }
         }
     }

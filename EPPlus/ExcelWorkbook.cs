@@ -122,6 +122,7 @@ namespace OfficeOpenXml
 		internal int _nextPivotTableID = 1;
 		internal XmlNamespaceManager _namespaceManager;
         internal FormulaParser _formulaParser = null;
+	    internal FormulaParserManager _parserManager;
         internal CellStore<List<Token>> _formulaTokens;
 		/// <summary>
 		/// Read shared strings to list
@@ -302,10 +303,17 @@ namespace OfficeOpenXml
             }
         }
 
-        public void LoadFunctionModule(IFunctionModule module)
-        {
-            FormulaParser.Configure(x => x.FunctionRepository.LoadModule(module));
-        }
+	    public FormulaParserManager FormulaParserManager
+	    {
+	        get
+	        {
+	            if (_parserManager == null)
+	            {
+	                _parserManager = new FormulaParserManager(FormulaParser);
+	            }
+	            return _parserManager;
+	        }
+	    }
 
         /// <summary>
 		/// Max font width for the workbook
