@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -87,6 +88,31 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public bool IsFunctionName(string name)
         {
             return _functions.ContainsKey(name.ToLower());
+        }
+
+        /// <summary>
+        /// Returns the names of all implemented functions.
+        /// </summary>
+        public IEnumerable<string> FunctionNames
+        {
+            get { return _functions.Keys; }
+        }
+
+        /// <summary>
+        /// Adds or replaces a function.
+        /// </summary>
+        /// <param name="functionName"> Case-insensitive name of the function that should be added or replaced.</param>
+        /// <param name="functionImpl">An implementation of an <see cref="ExcelFunction"/>.</param>
+        public void AddOrReplaceFunction(string functionName, ExcelFunction functionImpl)
+        {
+            Require.That(functionName).Named("functionName").IsNotNullOrEmpty();
+            Require.That(functionImpl).Named("functionImpl").IsNotNull();
+            var fName = functionName.ToLower();
+            if (_functions.ContainsKey(fName))
+            {
+                _functions.Remove(fName);
+            }
+            _functions[fName] = functionImpl;
         }
     }
 }

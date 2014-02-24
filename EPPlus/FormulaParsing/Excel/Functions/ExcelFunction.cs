@@ -34,6 +34,9 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
+    /// <summary>
+    /// Base class for Excel function implementations.
+    /// </summary>
     public abstract class ExcelFunction
     {
         public ExcelFunction()
@@ -102,6 +105,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 }, errorTypeToThrow);
         }
 
+        /// <summary>
+        /// This functions validates that the supplied <paramref name="arguments"/> contains at least
+        /// (the value of) <paramref name="minLength"/> elements. If one of the arguments is an
+        /// <see cref="ExcelDataProvider.IRangeInfo">Excel range</see> the number of cells in
+        /// that range will be counted as well.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="minLength"></param>
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength)
         {
             Require.That(arguments).Named("arguments").IsNotNull();
@@ -125,12 +136,26 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 }, "Expecting at least {0} arguments", minLength.ToString());
         }
 
+        /// <summary>
+        /// Returns the value of the argument att the position of the 0-based
+        /// <paramref name="index"/> as an integer.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         protected int ArgToInt(IEnumerable<FunctionArgument> arguments, int index)
         {
             var val = arguments.ElementAt(index).Value;
             return (int)_argumentParsers.GetParser(DataType.Integer).Parse(val);
         }
 
+        /// <summary>
+        /// Returns the value of the argument att the position of the 0-based
+        /// <paramref name="index"/> as a string.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         protected string ArgToString(IEnumerable<FunctionArgument> arguments, int index)
         {
             var obj = arguments.ElementAt(index).Value;
@@ -142,6 +167,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return (double)_argumentParsers.GetParser(DataType.Decimal).Parse(obj);
         }
 
+        /// <summary>
+        /// Returns the value of the argument att the position of the 0-based
+        /// <paramref name="index"/> as a <see cref="System.Double"/>.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         protected double ArgToDecimal(IEnumerable<FunctionArgument> arguments, int index)
         {
             return ArgToDecimal(arguments.ElementAt(index).Value);
@@ -206,17 +238,37 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return (obj is int || obj is double || obj is short || obj is decimal || obj is long);
         }
 
+        /// <summary>
+        /// Helper method for comparison of two doubles.
+        /// </summary>
+        /// <param name="d1"></param>
+        /// <param name="d2"></param>
+        /// <returns></returns>
         protected bool AreEqual(double d1, double d2)
         {
             return System.Math.Abs(d1 - d2) < double.Epsilon;
         }
 
+        /// <summary>
+        /// Will return the arguments as an enumerable of doubles.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
                                                                      ParsingContext context)
         {
             return ArgsToDoubleEnumerable(false, arguments, context);
         }
 
+        /// <summary>
+        /// Will return the arguments as an enumerable of doubles.
+        /// </summary>
+        /// <param name="ignoreHiddenCells">If a cell is hidden and this value is true the value of that cell will be ignored</param>
+        /// <param name="ignoreErrors">If a cell contains an error, that error will be ignored if this method is set to true</param>
+        /// <param name="arguments"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, ignoreErrors, arguments, context);
@@ -227,11 +279,24 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return ArgsToDoubleEnumerable(ignoreHiddenCells, true, arguments, context);
         }
 
+        /// <summary>
+        /// Will return the arguments as an enumerable of objects.
+        /// </summary>
+        /// <param name="ignoreHiddenCells">If a cell is hidden and this value is true the value of that cell will be ignored</param>
+        /// <param name="arguments"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<object> ArgsToObjectEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return _argumentCollectionUtil.ArgsToObjectEnumerable(ignoreHiddenCells, arguments, context);
         }
 
+        /// <summary>
+        /// Use this method to create a result to return from Excel functions. 
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="dataType"></param>
+        /// <returns></returns>
         protected CompileResult CreateResult(object result, DataType dataType)
         {
             var validator = _compileResultValidators.GetValidator(dataType);
@@ -239,6 +304,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return new CompileResult(result, dataType);
         }
 
+        /// <summary>
+        /// Use this method to apply a function on a collection of arguments. The <paramref name="result"/>
+        /// should be modifyed in the supplied <paramref name="action"/> and will contain the result
+        /// after this operation has been performed.
+        /// </summary>
+        /// <param name="collection"></param>
+        /// <param name="result"></param>
+        /// <param name="action"></param>
+        /// <returns></returns>
         protected virtual double CalculateCollection(IEnumerable<FunctionArgument> collection, double result, Func<FunctionArgument,double,double> action)
         {
             return _argumentCollectionUtil.CalculateCollection(collection, result, action);

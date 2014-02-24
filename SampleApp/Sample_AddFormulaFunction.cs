@@ -22,7 +22,12 @@ namespace EPPlusSamples
             using (var package = new ExcelPackage(new MemoryStream()))
             {
                 // add your function module to the parser
-                package.Workbook.LoadFunctionModule(new MyFunctionModule());
+                package.Workbook.FormulaParserManager.LoadFunctionModule(new MyFunctionModule());
+
+                // Note that if you dont want to write a module, you can also
+                // add new functions to the parser this way:
+                // package.Workbook.FormulaParserManager.AddOrReplaceFunction("sum.addtwo", new SumAddTwo());
+                // package.Workbook.FormulaParserManager.AddOrReplaceFunction("seanconneryfy", new SeanConneryfy());
 
                 // add a worksheet with some dummy data
                 var ws = package.Workbook.Worksheets.Add("Test");
