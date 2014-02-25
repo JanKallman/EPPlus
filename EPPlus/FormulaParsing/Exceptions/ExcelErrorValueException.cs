@@ -5,6 +5,12 @@ using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.Exceptions
 {
+    /// <summary>
+    /// This Exception represents an Excel error. When this exception is thrown
+    /// from an Excel function, the ErrorValue code will be set as the value of the
+    /// parsed cell.
+    /// </summary>
+    /// <seealso cref="ExcelErrorValue"/>
     public class ExcelErrorValueException : Exception
     {
         
@@ -26,6 +32,9 @@ namespace OfficeOpenXml.FormulaParsing.Exceptions
             
         }
 
+        /// <summary>
+        /// The error value
+        /// </summary>
         public ExcelErrorValue ErrorValue { get; private set; }
     }
 }
