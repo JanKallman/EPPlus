@@ -29,6 +29,9 @@ using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
+    /// <summary>
+    /// Base class 
+    /// </summary>
     public abstract class FunctionsModule : IFunctionModule
     {
         private readonly Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>();

@@ -94,7 +94,6 @@ namespace OfficeOpenXml.FormulaParsing
         {
             using (var scope = _parsingContext.Scopes.NewScope(rangeAddress))
             {
-                _parsingContext.Dependencies.AddFormulaScope(scope);
                 var tokens = _lexer.Tokenize(formula);
                 var graph = _graphBuilder.Build(tokens);
                 if (graph.Expressions.Count() == 0)
@@ -110,7 +109,6 @@ namespace OfficeOpenXml.FormulaParsing
             var rangeAddress = _parsingContext.RangeAddressFactory.Create(address);
             using (var scope = _parsingContext.Scopes.NewScope(rangeAddress))
             {
-                _parsingContext.Dependencies.AddFormulaScope(scope);
                 var graph = _graphBuilder.Build(tokens);
                 if (graph.Expressions.Count() == 0)
                 {

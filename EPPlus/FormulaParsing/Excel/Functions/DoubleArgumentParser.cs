@@ -40,11 +40,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             if (obj is double) return obj;
             if (obj.IsNumeric()) return Convert.ToDouble(obj);
             var str = obj != null ? obj.ToString() : string.Empty;
-            //var decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator;
-            //if (decimalSeparator == ",")
-            //{
-            //    str = str.Replace('.', ',');
-            //}
             try
             {
                 return double.Parse(str,CultureInfo.InvariantCulture);
