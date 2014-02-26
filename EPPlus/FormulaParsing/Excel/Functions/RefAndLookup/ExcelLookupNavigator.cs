@@ -49,7 +49,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             _index = 0;
             var factory = new RangeAddressFactory(ParsingContext.ExcelDataProvider);
-            _rangeAddress = factory.Create(ParsingContext.Scopes.Current.Address.Worksheet, Arguments.RangeAddress);
+            if (Arguments.RangeInfo == null)
+            {
+                _rangeAddress = factory.Create(ParsingContext.Scopes.Current.Address.Worksheet, Arguments.RangeAddress);
+            }
+            else
+            {
+                _rangeAddress = factory.Create(Arguments.RangeInfo.Address.WorkSheet, Arguments.RangeInfo.Address.Address);
+            }
             _currentCol = _rangeAddress.FromCol;
             _currentRow = _rangeAddress.FromRow;
             SetCurrentValue();

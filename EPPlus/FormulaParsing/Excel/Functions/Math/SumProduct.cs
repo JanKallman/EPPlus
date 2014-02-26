@@ -55,9 +55,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 }
                 else if (arg.IsExcelRange)
                 {
-                    foreach (var val in arg.ValueAsRangeInfo)
+                    var r=arg.ValueAsRangeInfo;
+                    for (int col = r.Address._fromCol; col <= r.Address._toCol; col++)
                     {
-                        AddValue(val.Value, currentResult);
+                        for (int row = r.Address._fromRow; row <= r.Address._toRow; row++)
+                        {
+                            AddValue(r.GetValue(row,col), currentResult);
+                        }
                     }
                 }
             }
@@ -88,6 +92,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             if (IsNumeric(convertVal))
             {
                 currentResult.Add(Convert.ToDouble(convertVal));
+            }
+            else if (convertVal is ExcelErrorValue)
+            {
+                throw (new ExcelErrorValueException((ExcelErrorValue)convertVal));
             }
             else
             {

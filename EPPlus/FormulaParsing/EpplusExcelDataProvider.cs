@@ -30,6 +30,7 @@ namespace OfficeOpenXml.FormulaParsing
                 _toRow = toRow;
                 _toCol = toCol;
                 _address = new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol);
+                _address._ws = ws.Name;
                 _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
                 _cell = new CellInfo(_ws, _values);
             }
@@ -147,7 +148,7 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 if (_values.Row < _fromRow || _values.Column < _fromCol)
                 {
-                    return _ws.GetValue(_fromCol + rowOffset, _fromCol + colOffset);
+                    return _ws.GetValue(_fromRow + rowOffset, _fromCol + colOffset);
                 }
                 else
                 {

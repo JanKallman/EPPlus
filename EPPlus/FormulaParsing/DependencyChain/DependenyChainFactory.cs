@@ -183,12 +183,16 @@ namespace OfficeOpenXml.FormulaParsing
                     }
 
                     if (adr._fromRow > 0 && adr._fromCol > 0)
-                    {
+                    {                        
                         if (string.IsNullOrEmpty(adr.WorkSheet))
                         {
                             if (f.ws == null)
                             {
                                 f.ws = ws;
+                            }
+                            else if (f.ws.SheetID != f.SheetID)
+                            {
+                                f.ws = wb.Worksheets.GetBySheetID(f.SheetID);
                             }
                         }
                         else

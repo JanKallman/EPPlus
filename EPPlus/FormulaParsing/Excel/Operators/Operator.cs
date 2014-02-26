@@ -74,6 +74,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
 
         public CompileResult Apply(CompileResult left, CompileResult right)
         {
+            if (left.Result is ExcelErrorValue)
+            {
+                throw(new ExcelErrorValueException((ExcelErrorValue)left.Result));
+            }
+            else if (right.Result is ExcelErrorValue)
+            {
+                throw(new ExcelErrorValueException((ExcelErrorValue)right.Result));
+            }
             return _implementation(left, right);
         }
 

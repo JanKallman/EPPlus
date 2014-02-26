@@ -16,8 +16,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             ValidateArguments(functionArguments, 2);
             var date1Num = ArgToDecimal(functionArguments, 0);
             var date2Num = ArgToDecimal(functionArguments, 1);
+            if (date1Num > date2Num) //Switch to make date1 the lowest date
+            {
+                var t = date1Num;
+                date1Num = date2Num;
+                date2Num = t;
+                var fa = functionArguments[1];
+                functionArguments[1] = functionArguments[0];
+                functionArguments[0] = fa;
+            }
             var date1 = System.DateTime.FromOADate(date1Num);
             var date2 = System.DateTime.FromOADate(date2Num);
+
             var basis = 0;
             if (functionArguments.Count() > 2)
             {
@@ -29,24 +39,24 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             switch (basis)
             {
                 case 0:
-                    var d360Result = func.Execute(functionArguments, context).ResultNumeric;
+                    var d360Result = System.Math.Abs(func.Execute(functionArguments, context).ResultNumeric);
                     // reproducing excels behaviour
-                    if (date1.Month == 2)
-                    {
-                        var daysInFeb = calendar.IsLeapYear(date1.Year) ? 29 : 28;
-                        if (date1.Day == daysInFeb) d360Result++;  
-                    }
+                    //if (date1.Month == 2)
+                    //{
+                    //    var daysInFeb = calendar.IsLeapYear(date1.Year) ? 29 : 28;
+                    //    if (date1.Day == daysInFeb) d360Result++;  
+                    //}
                     return CreateResult(d360Result / 360d, DataType.Decimal);
                 case 1:
-                    return CreateResult((date2 - date1).TotalDays/CalculateAcutalYear(date1, date2), DataType.Decimal);
+                    return CreateResult(System.Math.Abs((date2 - date1).TotalDays / CalculateAcutalYear(date1, date2)), DataType.Decimal);
                 case 2:
-                    return CreateResult((date2 - date1).TotalDays / 360d, DataType.Decimal);
+                    return CreateResult(System.Math.Abs((date2 - date1).TotalDays / 360d), DataType.Decimal);
                 case 3:
-                    return CreateResult((date2 - date1).TotalDays / 365d, DataType.Decimal);
+                    return CreateResult(System.Math.Abs((date2 - date1).TotalDays / 365d), DataType.Decimal);
                 case 4:
                     var args = functionArguments.ToList();
                     args.Add(new FunctionArgument(true));
-                    double? result = func.Execute(args, context).ResultNumeric/360d;
+                    double? result = System.Math.Abs(func.Execute(args, context).ResultNumeric / 360d);
                     return CreateResult(result.Value, DataType.Decimal);
                 default:
                     return null;

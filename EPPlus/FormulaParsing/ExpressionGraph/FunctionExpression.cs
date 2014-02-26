@@ -97,7 +97,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             Expression returnValue = null;
             if (Next != null && Operator != null)
-            {
+            {                
                 var result = Operator.Apply(Compile(), Next.Compile());
                 var converter = new ExpressionConverter();
                 returnValue = converter.FromCompileResult(result);

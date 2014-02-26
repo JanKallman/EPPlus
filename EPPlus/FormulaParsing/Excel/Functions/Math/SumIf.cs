@@ -30,6 +30,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using Util=OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
@@ -52,13 +53,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
-            var args = arguments.ElementAt(0).Value as IEnumerable<FunctionArgument>;
+            var args = arguments.ElementAt(0).Value as ExcelDataProvider.IRangeInfo; //IEnumerable<FunctionArgument>;
             var criteria = arguments.ElementAt(1).Value;
             ThrowExcelErrorValueExceptionIf(() => criteria == null || criteria.ToString().Length > 255, eErrorType.Value);
             var retVal = 0d;
             if (arguments.Count() > 2)
             {
-                var sumRange = arguments.ElementAt(2).Value as IEnumerable<FunctionArgument>;
+                var sumRange = arguments.ElementAt(2).Value as ExcelDataProvider.IRangeInfo;//IEnumerable<FunctionArgument>;
                 retVal = CalculateWithSumRange(args, criteria.ToString(), sumRange, context);
             }
             else
@@ -68,59 +69,70 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(retVal, DataType.Decimal);
         }
 
-        private double CalculateWithSumRange(IEnumerable<FunctionArgument> range, string criteria, IEnumerable<FunctionArgument> sumRange, ParsingContext context)
+        private double CalculateWithSumRange(ExcelDataProvider.IRangeInfo range, string criteria, ExcelDataProvider.IRangeInfo sumRange, ParsingContext context)
         {
             var retVal = 0d;
-            var flattenedRange = ArgsToDoubleEnumerable(range, context);
-            var flattenedSumRange = ArgsToDoubleEnumerable(sumRange, context);
-            for (var x = 0; x < flattenedRange.Count(); x++)
+            foreach(var cell in range)
             {
-                var candidate = flattenedSumRange.ElementAt(x);
-                if (_evaluator.Evaluate(flattenedRange.ElementAt(x), criteria))
+                if (_evaluator.Evaluate(cell.Value, criteria))
                 {
-                    retVal += candidate;
+                    var or = cell.Row-range.Address._fromRow;
+                    var oc = cell.Column - range.Address._fromCol;
+                    if(sumRange.Address._fromRow+or <= sumRange.Address._toRow && 
+                       sumRange.Address._fromCol+oc <= sumRange.Address._toCol)
+                    {
+                        var v = sumRange.GetOffset(or, oc);
+                        if (v is ExcelErrorValue)
+                        {
+                            throw (new ExcelErrorValueException((ExcelErrorValue)v));
+                        }
+                        retVal += Util.ConvertUtil.GetValueDouble(v, true);
+                    }
                 }
             }
             return retVal;
         }
 
-        private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
+        private double CalculateSingleRange(ExcelDataProvider.IRangeInfo range, string expression, ParsingContext context)
         {
             var retVal = 0d;
-            var flattendedRange = ArgsToDoubleEnumerable(args, context);
-            foreach (var candidate in flattendedRange)
+            foreach (var candidate in range)
             {
-                if (_evaluator.Evaluate(candidate, expression))
+                if (_evaluator.Evaluate(candidate.Value, expression))
                 {
-                    retVal += candidate;
+                    if (candidate.IsExcelError)
+                    {
+                        throw (new ExcelErrorValueException((ExcelErrorValue)candidate.Value));
+                    }
+                    retVal += candidate.ValueDouble;
                 }
             }
             return retVal;
         }
 
-        private double Calculate(FunctionArgument arg, string expression)
-        {
-            var retVal = 0d;
-            if (ShouldIgnore(arg) || !_evaluator.Evaluate(arg.Value, expression))
-            {
-                return retVal;
-            }
-            if (arg.Value is double || arg.Value is int)
-            {
-                retVal += Convert.ToDouble(arg.Value);
-            }
-            else if (arg.Value is System.DateTime)
-            {
-                retVal += Convert.ToDateTime(arg.Value).ToOADate();
-            }
-            else if (arg.Value is IEnumerable<FunctionArgument>)
-            {
-                foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
-                {
-                    retVal += Calculate(item, expression);
-                }
-            }
-            return retVal;
-        }
+        //private double Calculate(FunctionArgument arg, string expression)
+        //{
+        //    var retVal = 0d;
+        //    if (ShouldIgnore(arg) || !_evaluator.Evaluate(arg.Value, expression))
+        //    {
+        //        return retVal;
+        //    }
+        //    if (arg.Value is double || arg.Value is int)
+        //    {
+        //        retVal += Convert.ToDouble(arg.Value);
+        //    }
+        //    else if (arg.Value is System.DateTime)
+        //    {
+        //        retVal += Convert.ToDateTime(arg.Value).ToOADate();
+        //    }
+        //    else if (arg.Value is IEnumerable<FunctionArgument>)
+        //    {
+        //        foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
+        //        {
+        //            retVal += Calculate(item, expression);
+        //        }
+        //    }
+        //    return retVal;
+        //}
     }
 }

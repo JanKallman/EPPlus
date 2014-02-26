@@ -28,6 +28,7 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -67,7 +68,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             if(!_functions.ContainsKey(name.ToLower()))
             {
-                throw new InvalidOperationException("Non supported function: " + name);
+                //throw new InvalidOperationException("Non supported function: " + name);
+                throw new ExcelErrorValueException("Non supported function: " + name, ExcelErrorValue.Create(eErrorType.Name));
             }
             return _functions[name.ToLower()];
         }

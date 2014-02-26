@@ -74,6 +74,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             object lastValue = null;
             object lastLookupValue = null;
             int? lastMatchResult = null;
+            if (lookupArgs.SearchedValue == null)
+            {
+                throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
+            }
             do
             {
                 var matchResult = IsMatch(navigator.CurrentValue, lookupArgs.SearchedValue);

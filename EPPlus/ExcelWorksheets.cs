@@ -1227,4 +1227,3 @@ namespace OfficeOpenXml
         }
     } // end class Worksheets
 }
-

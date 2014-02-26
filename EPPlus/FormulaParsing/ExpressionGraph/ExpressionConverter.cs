@@ -64,6 +64,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                     return compileResult.Result is string
                                ? new BooleanExpression(compileResult.Result.ToString())
                                : new BooleanExpression((bool) compileResult.Result);
+                case DataType.ExcelError:
+                    throw (new OfficeOpenXml.FormulaParsing.Exceptions.ExcelErrorValueException((ExcelErrorValue)compileResult.Result)); //Added JK
+                case DataType.Empty:
+                   return new IntegerExpression(0); //Added JK
+
             }
             return null;
         }
