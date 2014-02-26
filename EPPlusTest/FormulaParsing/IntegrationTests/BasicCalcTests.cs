@@ -158,5 +158,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
             var result = _parser.Parse("+(1-2)");
             Assert.AreEqual(-1d, result);
         }
+
+        [TestMethod]
+        public void ShouldHandleDecimalNumberWhenDividingIntegers()
+        {
+            var result = _parser.Parse("224567455/400000000*500000");
+            Assert.AreEqual(280709.31875, result);
+        }
     }
 }
