@@ -30,8 +30,14 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
+    /// <summary>
+    /// Base class for functions that needs to handle cells that is not visible.
+    /// </summary>
     public abstract class HiddenValuesHandlingFunction : ExcelFunction
     {
+        /// <summary>
+        /// Set to true or false to indicate whether the function should ignore hidden values.
+        /// </summary>
         public bool IgnoreHiddenValues
         {
             get;
