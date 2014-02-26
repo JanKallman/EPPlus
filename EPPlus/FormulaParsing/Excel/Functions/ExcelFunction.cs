@@ -59,8 +59,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         private readonly ArgumentParsers _argumentParsers;
         private readonly CompileResultValidators _compileResultValidators;
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="arguments">Arguments to the function, each argument can contain primitive types, lists or <see cref="ExcelDataProvider.IRangeInfo">Excel ranges</see></param>
+        /// <param name="context">The <see cref="ParsingContext"/> contains various data that can be useful in functions.</param>
+        /// <returns>A <see cref="CompileResult"/> containing the calculated value</returns>
         public abstract CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context);
 
+        /// <summary>
+        /// If overridden, this method is called before Execute is called.
+        /// </summary>
+        /// <param name="context"></param>
         public virtual void BeforeInvoke(ParsingContext context) { }
 
         public virtual bool IsLookupFuction 
@@ -79,8 +89,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
         }
 
+        /// <summary>
+        /// Used for some Lookupfunctions to indicate that function arguments should
+        /// not be compiled before the function is called.
+        /// </summary>
         public bool SkipArgumentEvaluation { get; set; }
 
+        /// <summary>
+        /// This functions validates that the supplied <paramref name="arguments"/> contains at least
+        /// (the value of) <paramref name="minLength"/> elements. If one of the arguments is an
+        /// <see cref="ExcelDataProvider.IRangeInfo">Excel range</see> the number of cells in
+        /// that range will be counted as well.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="minLength"></param>
+        /// <param name="errorTypeToThrow">The <see cref="eErrorType"/> of the <see cref="ExcelErrorValueException"/> that will be thrown if <paramref name="minLength"/> is not met.</param>
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength,
                                          eErrorType errorTypeToThrow)
         {
@@ -113,6 +136,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// </summary>
         /// <param name="arguments"></param>
         /// <param name="minLength"></param>
+        /// <exception cref="ArgumentException"></exception>
         protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength)
         {
             Require.That(arguments).Named("arguments").IsNotNull();
@@ -142,7 +166,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// </summary>
         /// <param name="arguments"></param>
         /// <param name="index"></param>
-        /// <returns></returns>
+        /// <returns>Value of the argument as an integer.</returns>
+        /// <exception cref="ExcelErrorValueException"></exception>
         protected int ArgToInt(IEnumerable<FunctionArgument> arguments, int index)
         {
             var val = arguments.ElementAt(index).Value;
@@ -155,13 +180,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// </summary>
         /// <param name="arguments"></param>
         /// <param name="index"></param>
-        /// <returns></returns>
+        /// <returns>Value of the argument as a string.</returns>
         protected string ArgToString(IEnumerable<FunctionArgument> arguments, int index)
         {
             var obj = arguments.ElementAt(index).Value;
             return obj != null ? obj.ToString() : string.Empty;
         }
 
+        /// <summary>
+        /// Returns the value of the argument att the position of the 0-based
+        /// <paramref name="index"/> as a bool
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns>Value of the argument as a double.</returns>
+        /// <exception cref="ExcelErrorValueException"></exception>
         protected double ArgToDecimal(object obj)
         {
             return (double)_argumentParsers.GetParser(DataType.Decimal).Parse(obj);
@@ -173,7 +205,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// </summary>
         /// <param name="arguments"></param>
         /// <param name="index"></param>
-        /// <returns></returns>
+        /// <returns>Value of the argument as an integer.</returns>
+        /// <exception cref="ExcelErrorValueException"></exception>
         protected double ArgToDecimal(IEnumerable<FunctionArgument> arguments, int index)
         {
             return ArgToDecimal(arguments.ElementAt(index).Value);
@@ -199,6 +232,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return (bool)_argumentParsers.GetParser(DataType.Boolean).Parse(obj);
         }
 
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if <paramref name="condition"/> evaluates to true.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="message"></param>
+        /// <exception cref="ArgumentException"></exception>
         protected void ThrowArgumentExceptionIf(Func<bool> condition, string message)
         {
             if (condition())
@@ -207,17 +246,33 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
         }
 
-        protected void ThrowArgumentExceptionIf(Func<bool> condition, string message, params string[] formats)
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if <paramref name="condition"/> evaluates to true.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="message"></param>
+        /// <param name="formats">Formats to the message string.</param>
+        protected void ThrowArgumentExceptionIf(Func<bool> condition, string message, params object[] formats)
         {
             message = string.Format(message, formats);
             ThrowArgumentExceptionIf(condition, message);
         }
 
+        /// <summary>
+        /// Throws an <see cref="ExcelErrorValueException"/> with the given <paramref name="errorType"/> set.
+        /// </summary>
+        /// <param name="errorType"></param>
         protected void ThrowExcelErrorValueException(eErrorType errorType)
         {
             throw new ExcelErrorValueException("An excel function error occurred", ExcelErrorValue.Create(errorType));
         }
 
+        /// <summary>
+        /// Throws an <see cref="ArgumentException"/> if <paramref name="condition"/> evaluates to true.
+        /// </summary>
+        /// <param name="condition"></param>
+        /// <param name="errorType"></param>
+        /// <exception cref="ExcelErrorValueException"></exception>
         protected void ThrowExcelErrorValueExceptionIf(Func<bool> condition, eErrorType errorType)
         {
             if (condition())
@@ -274,6 +329,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, ignoreErrors, arguments, context);
         }
 
+        /// <summary>
+        /// Will return the arguments as an enumerable of doubles.
+        /// </summary>
+        /// <param name="ignoreHiddenCells">If a cell is hidden and this value is true the value of that cell will be ignored</param>
+        /// <param name="arguments"></param>
+        /// <param name="context"></param>
+        /// <returns></returns>
         protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return ArgsToDoubleEnumerable(ignoreHiddenCells, true, arguments, context);
@@ -318,6 +380,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return _argumentCollectionUtil.CalculateCollection(collection, result, action);
         }
 
+        /// <summary>
+        /// if the supplied <paramref name="arg">argument</paramref> contains an Excel error
+        /// an <see cref="ExcelErrorValueException"/> with that errorcode will be thrown
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <exception cref="ExcelErrorValueException"></exception>
         protected void CheckForAndHandleExcelError(FunctionArgument arg)
         {
             if (arg.ValueIsExcelError)
@@ -326,6 +394,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
         }
 
+        /// <summary>
+        /// If the supplied <paramref name="cell"/> contains an Excel error
+        /// an <see cref="ExcelErrorValueException"/> with that errorcode will be thrown
+        /// </summary>
+        /// <param name="cell"></param>
         protected void CheckForAndHandleExcelError(ExcelDataProvider.ICellInfo cell)
         {
             if (cell.IsExcelError)

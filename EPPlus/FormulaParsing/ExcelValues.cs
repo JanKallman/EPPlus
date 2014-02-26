@@ -6,19 +6,51 @@ using System.Text;
 
 namespace OfficeOpenXml
 {
+    /// <summary>
+    /// Represents the errortypes in excel
+    /// </summary>
     public enum eErrorType
     {
+        /// <summary>
+        /// Division by zero
+        /// </summary>
         Div0,
+        /// <summary>
+        /// Not applicable
+        /// </summary>
         NA,
+        /// <summary>
+        /// Name error
+        /// </summary>
         Name,
+        /// <summary>
+        /// Null error
+        /// </summary>
         Null,
+        /// <summary>
+        /// Num error
+        /// </summary>
         Num,
+        /// <summary>
+        /// Reference error
+        /// </summary>
         Ref,
+        /// <summary>
+        /// Value error
+        /// </summary>
         Value
     }
 
+    /// <summary>
+    /// Represents an Excel error.
+    /// </summary>
+    /// <seealso cref="eErrorType"/>
     public class ExcelErrorValue
     {
+        /// <summary>
+        /// Handles the convertion between <see cref="eErrorType"/> and the string values
+        /// used by Excel.
+        /// </summary>
         public static class Values
         {
             public const string Div0 = "#DIV/0!";
@@ -40,6 +72,11 @@ namespace OfficeOpenXml
                     {Value, eErrorType.Value}
                 };
 
+            /// <summary>
+            /// Returns true if the supplied <paramref name="candidate"/> is an excel error.
+            /// </summary>
+            /// <param name="candidate"></param>
+            /// <returns></returns>
             public static bool IsErrorValue(object candidate)
             {
                 if(candidate == null || !(candidate is ExcelErrorValue)) return false;
@@ -47,11 +84,22 @@ namespace OfficeOpenXml
                 return (!string.IsNullOrEmpty(candidateString) && _values.ContainsKey(candidateString));
             }
 
+            /// <summary>
+            /// Returns true if the supplied <paramref name="candidate"/> is an excel error.
+            /// </summary>
+            /// <param name="candidate"></param>
+            /// <returns></returns>
             public static bool StringIsErrorValue(string candidate)
             {
                 return (!string.IsNullOrEmpty(candidate) && _values.ContainsKey(candidate));
             }
 
+            /// <summary>
+            /// Converts a string to an <see cref="eErrorType"/>
+            /// </summary>
+            /// <param name="val"></param>
+            /// <returns></returns>
+            /// <exception cref="ArgumentException">Thrown if the supplied value is not an Excel error</exception>
             public static eErrorType ToErrorType(string val)
             {
                 if (string.IsNullOrEmpty(val) || !_values.ContainsKey(val))
@@ -81,7 +129,16 @@ namespace OfficeOpenXml
         {
             Type=type; 
         }
+
+        /// <summary>
+        /// The error type
+        /// </summary>
         public eErrorType Type { get; private set; }
+
+        /// <summary>
+        /// Returns the string representation of the error type
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             switch(Type)
