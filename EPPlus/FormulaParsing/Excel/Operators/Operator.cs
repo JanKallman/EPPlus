@@ -162,11 +162,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         throw new ExcelErrorValueException(eErrorType.Div0);
                     }
-                    if (l.DataType == DataType.Integer && r.DataType == DataType.Integer)
-                    {
-                        return new CompileResult(left / right, DataType.Integer);
-                    }
-                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                    if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
                     {
                         return new CompileResult(left / right, DataType.Decimal);
                     }
