@@ -110,16 +110,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             var first = _expressions.First();
             var expressionsToHandle = _expressions.Where(x => x.Operator != null && x.Operator.Precedence == precedence);
-            foreach (var expression in expressionsToHandle)
+            var last = expressionsToHandle.Last();
+            var expression = expressionsToHandle.First();
+            do
             {
-                var isFirst = (expression == first);
                 var strategy = _compileStrategyFactory.Create(expression);
                 var compiledExpression = strategy.Compile();
                 if (expression == first)
                 {
                     first = compiledExpression;
                 }
+                expression = compiledExpression;
             }
+            while (expression != null && expression.Operator != null && expression.Operator.Precedence == precedence);
             return RefreshList(first);
         }
 
