@@ -37,6 +37,37 @@ namespace EPPlusTest
         //    //Assert.AreEqual(1124999960382D, pck.Workbook.Worksheets[1].Cells["C1"].Value);
         //}
         [TestMethod]
+        public void CalulationTestDatatypes()
+        {
+            var pck = new ExcelPackage();
+            var ws=pck.Workbook.Worksheets.Add("Calc1");
+            ws.SetValue("A1", (short)1);
+            ws.SetValue("A2", (long)2);
+            ws.SetValue("A3", (Single)3);
+            ws.SetValue("A4", (double)4);
+            ws.SetValue("A5", (Decimal)5);
+            ws.SetValue("A6", (byte)6);
+            ws.SetValue("A7", null);
+            ws.Cells["A10"].Formula = "Sum(A1:A8)";
+            ws.Cells["A11"].Formula = "SubTotal(9,A1:A8)";
+            ws.Cells["A12"].Formula = "Average(A1:A8)";
+
+            ws.Calculate();
+            Assert.AreEqual(21D, ws.Cells["a10"].Value);
+            Assert.AreEqual(21D, ws.Cells["a11"].Value);
+            Assert.AreEqual(21D/6, ws.Cells["a12"].Value);
+        }
+        [TestMethod]
+        public void CalculateTest()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+
+            ws.SetValue("A1", (short)1);
+            var v=ws.Calculate("2.5-A1+abs(3.0)-SIN(3)");
+            Assert.AreEqual(4.358879992, Math.Round((double)v,9));
+        }
+        [TestMethod]
         public void Calulation4()
         {
             //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
@@ -45,6 +76,7 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
+
         [TestMethod]
         public void CalulationValidationExcel()
         {
@@ -139,16 +171,20 @@ namespace EPPlusTest
                 var fr = new Dictionary<string, object>();
                 foreach (var ws in pck.Workbook.Worksheets)
                 {
-                    foreach (var cell in ws.Cells)
+                    if (!(ws is ExcelChartsheet))
                     {
-                        if (!string.IsNullOrEmpty(cell.Formula))
+                        foreach (var cell in ws.Cells)
                         {
-                            fr.Add(ws.PositionID.ToString()+","+cell.Address, cell.Value);
-                            ws._values.SetValue(cell.Start.Row, cell.Start.Column, null);
+                            if (!string.IsNullOrEmpty(cell.Formula))
+                            {
+                                fr.Add(ws.PositionID.ToString() + "," + cell.Address, cell.Value);
+                                ws._values.SetValue(cell.Start.Row, cell.Start.Column, null);
+                            }
                         }
                     }
                 }
-                pck.Workbook.Calculate();                
+
+                pck.Workbook.Calculate();
                 var nErrors = 0;
                 var errors = new List<Tuple<string, object, object>>();
                 ExcelWorksheet sheet=null;

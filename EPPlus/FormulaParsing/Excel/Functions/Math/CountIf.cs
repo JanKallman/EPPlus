@@ -32,7 +32,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         private bool Evaluate(object obj, string expression)
         {
             double? candidate = default(double?);
-            if (IsNumber(obj))
+            if (IsNumeric(obj))
             {
                 candidate = ConvertUtil.GetValueDouble(obj);
             }

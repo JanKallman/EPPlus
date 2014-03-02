@@ -27,7 +27,7 @@ namespace OfficeOpenXml.FormulaParsing.Utilities
         public static bool IsNumeric(this object obj)
         {
             if (obj == null) return false;
-            return (obj is int) || (obj is double) || (obj is decimal) || (obj is short) || (obj is long);
+            return (obj.GetType().IsPrimitive || obj is double || obj is decimal || obj is System.DateTime || obj is TimeSpan);
         }
     }
 }

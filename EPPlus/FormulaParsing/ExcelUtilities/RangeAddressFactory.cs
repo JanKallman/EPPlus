@@ -87,43 +87,54 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         public RangeAddress Create(string worksheetName, string address)
         {
             Require.That(address).Named("range").IsNotNullOrEmpty();
-            var addressInfo = ExcelAddressInfo.Parse(address);
-            var sheet = addressInfo.WorksheetIsSpecified ? addressInfo.Worksheet : worksheetName;
+            //var addressInfo = ExcelAddressInfo.Parse(address);
+            var adr = new ExcelAddressBase(address);
+
+            var sheet = string.IsNullOrEmpty(adr.WorkSheet) ? worksheetName : adr.WorkSheet;
             var rangeAddress = new RangeAddress()
             {
-                Address = address,
-                Worksheet = sheet
+                Address = adr.Address,
+                Worksheet = sheet,
+                FromRow = adr._fromRow,
+                FromCol = adr._fromCol,
+                ToRow = adr._toRow,
+                ToCol = adr._toCol
             };
 
-            if (addressInfo.IsMultipleCells)
-            {
-                HandleMultipleCellAddress(rangeAddress, addressInfo);
-            }
-            else
-            {
-                HandleSingleCellAddress(rangeAddress, addressInfo);
-            }
+            //if (addressInfo.IsMultipleCells)
+            //{
+            //    HandleMultipleCellAddress(rangeAddress, addressInfo);
+            //}
+            //else
+            //{
+            //    HandleSingleCellAddress(rangeAddress, addressInfo);
+            //}
             return rangeAddress;
         }
 
         public RangeAddress Create(string range)
         {
             Require.That(range).Named("range").IsNotNullOrEmpty();
-            var addressInfo = ExcelAddressInfo.Parse(range);
+            //var addressInfo = ExcelAddressInfo.Parse(range);
+            var adr = new ExcelAddressBase(range);
             var rangeAddress = new RangeAddress()
             {
-                Address = range,
-                Worksheet = addressInfo.Worksheet
+                Address = adr.Address,
+                Worksheet = adr.WorkSheet,
+                FromRow = adr._fromRow,
+                FromCol = adr._fromCol,
+                ToRow = adr._toRow,
+                ToCol = adr._toCol
             };
            
-            if (addressInfo.IsMultipleCells)
-            {
-                HandleMultipleCellAddress(rangeAddress, addressInfo);
-            }
-            else
-            {
-                HandleSingleCellAddress(rangeAddress, addressInfo);
-            }
+            //if (addressInfo.IsMultipleCells)
+            //{
+            //    HandleMultipleCellAddress(rangeAddress, addressInfo);
+            //}
+            //else
+            //{
+            //    HandleSingleCellAddress(rangeAddress, addressInfo);
+            //}
             return rangeAddress;
         }
 

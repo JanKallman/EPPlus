@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
 {
@@ -13,19 +14,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
         {
             ValidateArguments(arguments, 1);
             var arg = arguments.ElementAt(0);
-            if (IsNumber(arg.Value))
-            {
-                var val = Convert.ToDouble(arg.Value);
-                return CreateResult(val, DataType.Decimal);
-            }
-            else if (arg.Value is System.DateTime)
-            {
-                var val = ((System.DateTime) arg.Value).ToOADate();
-                return CreateResult(val, DataType.Decimal);
-            }
-            else if (arg.Value is bool)
+            
+            if (arg.Value is bool)
             {
                 var val = (bool) arg.Value ? 1d : 0d;
+                return CreateResult(val, DataType.Decimal);
+            }
+            else if (IsNumeric(arg.Value))
+            {
+                var val = ConvertUtil.GetValueDouble(arg.Value);
                 return CreateResult(val, DataType.Decimal);
             }
             else if (arg.Value is string)

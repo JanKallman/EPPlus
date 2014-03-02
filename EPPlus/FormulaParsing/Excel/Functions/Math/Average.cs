@@ -64,7 +64,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     if (ShouldIgnore(c, context)) continue;
                     CheckForAndHandleExcelError(c);
-                    if (!IsNumber(c.Value)) continue;
+                    if (!IsNumeric(c.Value)) continue;
                     nValues++;
                     retVal += c.ValueDouble;
                 }
@@ -90,7 +90,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 
         private double? GetNumericValue(object obj, bool isInArray)
         {
-            if (IsNumber(obj))
+            if (IsNumeric(obj))
             {
                 return ConvertUtil.GetValueDouble(obj);
             }

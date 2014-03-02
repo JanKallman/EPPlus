@@ -57,7 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         private bool Evaluate(object obj, string expression)
         {
             double? candidate = default(double?);
-            if (IsNumber(obj))
+            if (IsNumeric(obj))
             {
                 candidate = ConvertUtil.GetValueDouble(obj);
             }
@@ -139,14 +139,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 return retVal;
             }
-            if (IsNumber(arg.Value))
+            if (IsNumeric(arg.Value))
             {
-                retVal += Convert.ToDouble(arg.Value);
+                retVal += ConvertUtil.GetValueDouble(arg.Value);
             }
-            else if (arg.Value is System.DateTime)
-            {
-                retVal += Convert.ToDateTime(arg.Value).ToOADate();
-            }
+            //else if (arg.Value is System.DateTime)
+            //{
+            //    retVal += Convert.ToDateTime(arg.Value).ToOADate();
+            //}
             else if (arg.Value is IEnumerable<FunctionArgument>)
             {
                 foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
