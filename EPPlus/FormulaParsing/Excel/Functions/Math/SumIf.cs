@@ -64,9 +64,33 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             else
             {
-                retVal = CalculateSingleRange(args, criteria.ToString(), context);
+                if (args != null)
+                {
+                    retVal = CalculateSingleRange(args, criteria.ToString(), context);   
+                }
+                else
+                {
+                    retVal = CalculateSingleRange((arguments.ElementAt(0).Value as IEnumerable<FunctionArgument>),
+                                                  criteria.ToString(), context);
+                }
             }
             return CreateResult(retVal, DataType.Decimal);
+        }
+
+        private double CalculateWithSumRange(IEnumerable<FunctionArgument> range, string criteria, IEnumerable<FunctionArgument> sumRange, ParsingContext context)
+        {
+            var retVal = 0d;
+            var flattenedRange = ArgsToDoubleEnumerable(range, context);
+            var flattenedSumRange = ArgsToDoubleEnumerable(sumRange, context);
+            for (var x = 0; x < flattenedRange.Count(); x++)
+            {
+                var candidate = flattenedSumRange.ElementAt(x);
+                if (_evaluator.Evaluate(flattenedRange.ElementAt(x), criteria))
+                {
+                    retVal += candidate;
+                }
+            }
+            return retVal;
         }
 
         private double CalculateWithSumRange(ExcelDataProvider.IRangeInfo range, string criteria, ExcelDataProvider.IRangeInfo sumRange, ParsingContext context)
@@ -88,6 +112,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                         }
                         retVal += Util.ConvertUtil.GetValueDouble(v, true);
                     }
+                }
+            }
+            return retVal;
+        }
+
+        private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
+        {
+            var retVal = 0d;
+            var flattendedRange = ArgsToDoubleEnumerable(args, context);
+            foreach (var candidate in flattendedRange)
+            {
+                if (_evaluator.Evaluate(candidate, expression))
+                {
+                    retVal += candidate;
                 }
             }
             return retVal;

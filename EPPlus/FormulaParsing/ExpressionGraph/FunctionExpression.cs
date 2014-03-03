@@ -92,27 +92,5 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Children.Last().AddChild(child);
             return child;
         }
-
-        public override Expression MergeWithNext()
-        {
-            Expression returnValue = null;
-            if (Next != null && Operator != null)
-            {                
-                var result = Operator.Apply(Compile(), Next.Compile());
-                var converter = new ExpressionConverter();
-                returnValue = converter.FromCompileResult(result);
-                if (Next != null)
-                {
-                    Operator = Next.Operator;
-                    returnValue.Operator = Next.Operator;
-                }
-                else
-                {
-                    Operator = null;
-                }
-                returnValue.Next = Next = Next.Next;
-            }
-            return returnValue;
-        }
     }
 }
