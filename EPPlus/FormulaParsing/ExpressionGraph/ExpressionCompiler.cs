@@ -116,10 +116,12 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var strategy = _compileStrategyFactory.Create(expression);
                 var compiledExpression = strategy.Compile();
+
                 if (expression == first)
                 {
                     first = compiledExpression;
                 }
+
                 expression = compiledExpression;
             }
             while (expression != null && expression.Operator != null && expression.Operator.Precedence == precedence);
