@@ -134,6 +134,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Null);
             }
+            if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token))
+            {
+                return new Token(token, TokenType.NameValue);
+            }
             if (_functionNameProvider.IsFunctionName(token))
             {
                 return new Token(token, TokenType.Function);
@@ -141,10 +145,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             if (tokenList.Count > 0 && tokenList[tokenList.Count - 1].TokenType == TokenType.OpeningEnumerable)
             {
                 return new Token(token, TokenType.Enumerable);
-            }
-            if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token))
-            {
-                return new Token(token, TokenType.NameValue);
             }
             var at = OfficeOpenXml.ExcelAddressBase.IsValid(token);
             if (at==ExcelAddressBase.AddressType.InternalAddress)

@@ -45,8 +45,11 @@ namespace OfficeOpenXml.FormulaParsing
             var depChain = new DependencyChain();
             foreach (var ws in wb.Worksheets)
             {
-                GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells, options);
-                GetWorksheetNames(ws, depChain, options);
+                if (!(ws is ExcelChartsheet))
+                {
+                    GetChain(depChain, wb.FormulaParser.Lexer, ws.Cells, options);
+                    GetWorksheetNames(ws, depChain, options);
+                }
             }
             foreach (var name in wb.Names)
             {
@@ -60,6 +63,7 @@ namespace OfficeOpenXml.FormulaParsing
 
         internal static DependencyChain Create(ExcelWorksheet ws, ExcelCalculationOption options)
         {
+            ws.CheckSheetType();
             var depChain = new DependencyChain();
 
             GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws.Cells, options);
@@ -70,10 +74,11 @@ namespace OfficeOpenXml.FormulaParsing
         }
         internal static DependencyChain Create(ExcelWorksheet ws, string Formula, ExcelCalculationOption options)
         {
+            ws.CheckSheetType();
             var depChain = new DependencyChain();
 
             GetChain(depChain, ws.Workbook.FormulaParser.Lexer, ws, Formula, options);
-
+            
             return depChain;
         }
 

@@ -15,6 +15,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             ValidateArguments(arguments, 2);
             var arg1 = arguments.ElementAt(0);
             var args = arg1.Value as IEnumerable<FunctionArgument>;
+            var crf = new CompileResultFactory();
             if (args != null)
             {
                 var index = ArgToInt(arguments, 1);
@@ -23,25 +24,31 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                     throw new ExcelErrorValueException(eErrorType.Ref);
                 }
                 var candidate = args.ElementAt(index - 1);
-                if (!IsNumber(candidate.Value))
-                {
-                    throw new ExcelErrorValueException(eErrorType.Value);
-                }
-                return CreateResult(ConvertUtil.GetValueDouble(candidate.Value), DataType.Decimal);
+                //Commented JK-Can be any data type
+                //if (!IsNumber(candidate.Value))
+                //{
+                //    throw new ExcelErrorValueException(eErrorType.Value);
+                //}
+                //return CreateResult(ConvertUtil.GetValueDouble(candidate.Value), DataType.Decimal);
+                return crf.Create(candidate.Value);
             }
             if (arg1.IsExcelRange)
             {
-                var index = ArgToInt(arguments, 1);
-                if(index < arg1.ValueAsRangeInfo.Count())
+                var row = ArgToInt(arguments, 1);                 
+                var col = arguments.Count()>2 ? ArgToInt(arguments, 2) : 1;
+                var ri=arg1.ValueAsRangeInfo;
+                if (row > ri.Address._toRow - ri.Address._fromRow + 1 ||
+                    col > ri.Address._toCol - ri.Address._fromCol + 1)
                 {
                     ThrowExcelErrorValueException(eErrorType.Ref);
                 }
-                var candidate = arg1.ValueAsRangeInfo.ElementAt(index - 1);
-                if (!IsNumber(candidate.Value))
-                {
-                    throw new ExcelErrorValueException(eErrorType.Value);
-                }
-                return CreateResult(ConvertUtil.GetValueDouble(candidate.Value), DataType.Decimal);
+                var candidate = ri.GetOffset(row-1, col-1);
+                //Commented JK-Can be any data type
+                //if (!IsNumber(candidate.Value))   
+                //{
+                //    throw new ExcelErrorValueException(eErrorType.Value);
+                //}
+                return crf.Create(candidate);
             }
             throw new NotImplementedException();
         }

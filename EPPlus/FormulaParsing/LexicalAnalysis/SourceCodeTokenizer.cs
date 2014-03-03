@@ -193,7 +193,18 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 else if ((token.TokenType == TokenType.Operator || token.TokenType == TokenType.Negator) && i < context.Result.Count - 1 &&
                          (token.Value=="+" || token.Value=="-"))
                 {
-                    var nextToken=context.Result[i+1];
+                    if (i > 0 && token.Value == "+")    //Remove any + with an opening parenthesis before.
+                    {
+                        if (context.Result[i - 1].TokenType  == TokenType.OpeningParenthesis)
+                        {
+                            context.Result.RemoveAt(i);
+                            SetNegatorOperator(context, i);
+                            i--;
+                            continue;
+                        }
+                    }
+
+                    var nextToken = context.Result[i + 1];
                     if (nextToken.TokenType == TokenType.Operator || nextToken.TokenType == TokenType.Negator)
                     {
                         if (token.Value == "+" && (nextToken.Value=="+" || nextToken.Value == "-"))

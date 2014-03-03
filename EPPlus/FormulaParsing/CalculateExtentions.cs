@@ -93,16 +93,22 @@ namespace OfficeOpenXml
             var dc = DependencyChainFactory.Create(range, options);
             CalcChain(range._workbook, parser, dc);
         }
-        public static void Calculate(this ExcelWorksheet worksheet, string Formula)
+        public static object Calculate(this ExcelWorksheet worksheet, string Formula)
         {
-            Calculate(worksheet, Formula, new ExcelCalculationOption());
+            return Calculate(worksheet, Formula, new ExcelCalculationOption());
         }
-        public static void Calculate(this ExcelWorksheet worksheet, string Formula, ExcelCalculationOption options)
+        public static object Calculate(this ExcelWorksheet worksheet, string Formula, ExcelCalculationOption options)
         {
+            worksheet.CheckSheetType();
             Init(worksheet.Workbook);
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet, Formula, options);
+            var f = dc.list[0];
+            dc.CalcOrder.RemoveAt(dc.CalcOrder.Count - 1);
+
             CalcChain(worksheet.Workbook, parser, dc);
+
+            return parser.ParseCell(f.Tokens, worksheet.Name, -1, -1);
         }
         private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
         {
@@ -127,11 +133,14 @@ namespace OfficeOpenXml
             workbook._formulaTokens = new CellStore<List<Token>>();;
             foreach (var ws in workbook.Worksheets)
             {
-                if (ws._formulaTokens != null)
+                if (!(ws is ExcelChartsheet))
                 {
-                    ws._formulaTokens.Dispose();
+                    if (ws._formulaTokens != null)
+                    {
+                        ws._formulaTokens.Dispose();
+                    }
+                    ws._formulaTokens = new CellStore<List<Token>>();
                 }
-                ws._formulaTokens = new CellStore<List<Token>>();
             }
         }
         private static void SetValue(ExcelWorkbook workbook, FormulaCell item, object v)
