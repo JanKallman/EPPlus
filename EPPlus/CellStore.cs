@@ -1829,6 +1829,8 @@ using OfficeOpenXml;
         {
             get
             {
+                if (colPos == -1) MoveNext();
+                if (colPos == -1) return 0;
                 return _cellStore._columnIndex[colPos].Index;
             }
         }

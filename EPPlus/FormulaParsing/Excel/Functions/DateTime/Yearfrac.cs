@@ -41,11 +41,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
                 case 0:
                     var d360Result = System.Math.Abs(func.Execute(functionArguments, context).ResultNumeric);
                     // reproducing excels behaviour
-                    //if (date1.Month == 2)
-                    //{
-                    //    var daysInFeb = calendar.IsLeapYear(date1.Year) ? 29 : 28;
-                    //    if (date1.Day == daysInFeb) d360Result++;  
-                    //}
+                    if (date1.Month == 2 && date2.Day==31)
+                    {
+                        var daysInFeb = calendar.IsLeapYear(date1.Year) ? 29 : 28;
+                        if (date1.Day == daysInFeb) d360Result++;  
+                    }
                     return CreateResult(d360Result / 360d, DataType.Decimal);
                 case 1:
                     return CreateResult(System.Math.Abs((date2 - date1).TotalDays / CalculateAcutalYear(date1, date2)), DataType.Decimal);
