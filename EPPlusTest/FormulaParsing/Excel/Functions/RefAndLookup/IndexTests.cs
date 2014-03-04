@@ -39,7 +39,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.RefAndLookup
                     FunctionsHelper.CreateArgs(1, 2, 5),
                     3
                     ),_parsingContext);
-            Assert.AreEqual(5d, result.Result);
+            Assert.AreEqual(5, result.Result);
         }
 
         [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
