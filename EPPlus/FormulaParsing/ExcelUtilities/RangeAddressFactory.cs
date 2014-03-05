@@ -120,7 +120,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             var rangeAddress = new RangeAddress()
             {
                 Address = adr.Address,
-                Worksheet = adr.WorkSheet,
+                Worksheet = adr.WorkSheet ?? "",
                 FromRow = adr._fromRow,
                 FromCol = adr._fromCol,
                 ToRow = adr._toRow,
