@@ -111,7 +111,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void RowShouldReturnRowNumber()
         {
-            _excelDataProvider.Stub(x => x.GetRangeFormula("", 4, 1)).Return("Row()");
+            _excelDataProvider.Stub(x => x.GetRangeFormula(null, 4, 1)).Return("Row()");
             var result = _parser.ParseAt("A4");
             Assert.AreEqual(4, result);
         }
@@ -120,7 +120,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void ColumnShouldReturnRowNumber()
         {
             //_excelDataProvider.Stub(x => x.GetRangeValues("B4")).Return(new List<ExcelCell> { new ExcelCell(null, "Column()", 0, 0) });
-            _excelDataProvider.Stub(x => x.GetRangeFormula("", 4, 2)).Return("Column()");
+            _excelDataProvider.Stub(x => x.GetRangeFormula(null, 4, 2)).Return("Column()");
             var result = _parser.ParseAt("B4");
             Assert.AreEqual(2, result);
         }
@@ -128,7 +128,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void RowsShouldReturnNbrOfRows()
         {
-            _excelDataProvider.Stub(x => x.GetRangeFormula("", 4, 1)).Return("Rows(A5:B7)");
+            _excelDataProvider.Stub(x => x.GetRangeFormula(null, 4, 1)).Return("Rows(A5:B7)");
             var result = _parser.ParseAt("A4");
             Assert.AreEqual(3, result);
         }
@@ -136,7 +136,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void ColumnsShouldReturnNbrOfCols()
         {
-            _excelDataProvider.Stub(x => x.GetRangeFormula("", 4, 1)).Return("Columns(A5:B7)");
+            _excelDataProvider.Stub(x => x.GetRangeFormula(null, 4, 1)).Return("Columns(A5:B7)");
             var result = _parser.ParseAt("A4");
             Assert.AreEqual(2, result);
         }
