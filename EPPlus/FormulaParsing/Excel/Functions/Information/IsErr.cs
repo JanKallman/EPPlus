@@ -14,9 +14,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
             var result = isError.Execute(arguments, context);
             if ((bool) result.Result)
             {
-                if (arguments.ElementAt(0).Value.ToString() == ExcelErrorValue.Values.NA)
+                var arg = GetFirstValue(arguments);
+                if (arg is ExcelDataProvider.IRangeInfo)
                 {
-                    return CreateResult(false, DataType.Boolean);
+                    var r = (ExcelDataProvider.IRangeInfo)arg;
+                    var e=r.GetValue(r.Address._fromRow, r.Address._fromCol) as ExcelErrorValue;
+                    if (e !=null && e.Type==eErrorType.NA)
+                    {
+                        return CreateResult(false, DataType.Boolean);
+                    }
+                }
+                else
+                {
+                    if (arg is ExcelErrorValue && ((ExcelErrorValue)arg).Type==eErrorType.NA)
+                    {
+                        return CreateResult(false, DataType.Boolean);
+                    }
                 }
             }
             return result;

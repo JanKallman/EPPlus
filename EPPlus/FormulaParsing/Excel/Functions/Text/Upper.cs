@@ -35,7 +35,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            return CreateResult(arguments.First().Value.ToString().ToUpper(), DataType.String);
+            return CreateResult(arguments.First().ValueFirst.ToString().ToUpper(), DataType.String);
         }
     }
 }

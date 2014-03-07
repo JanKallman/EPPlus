@@ -39,7 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var items = new List<string>();
             for (int x = 0; x < arguments.Count(); x++)
             {
-                items.Add(arguments.ElementAt(x).Value.ToString());
+                items.Add(arguments.ElementAt(x).ValueFirst.ToString());
             }
             return CreateResult(items[index], DataType.String);
         }

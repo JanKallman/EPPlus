@@ -35,7 +35,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var dateObj = arguments.ElementAt(0).Value;
+            var dateObj = GetFirstValue(arguments);            
             System.DateTime date = System.DateTime.MinValue;
             if (dateObj is double)
             {

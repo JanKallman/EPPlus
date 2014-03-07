@@ -35,8 +35,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
-            var val1 = arguments.ElementAt(0).Value;
-            var val2 = arguments.ElementAt(1).Value;
+            var val1 = arguments.ElementAt(0).ValueFirst;
+            var val2 = arguments.ElementAt(1).ValueFirst;
 
             if (val1 == null && val2 == null)
             {

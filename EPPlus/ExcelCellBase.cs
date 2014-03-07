@@ -474,6 +474,7 @@ namespace OfficeOpenXml
                 address = address.Substring(sheetMarkerIndex + 1);
             }
 
+            address = address.ToUpper();
             for (int i = 0; i < address.Length; i++)
             {
                 if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)

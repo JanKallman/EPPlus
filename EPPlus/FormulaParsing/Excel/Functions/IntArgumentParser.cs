@@ -37,6 +37,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             Require.That(obj).Named("argument").IsNotNull();
             int result;
+            if (obj is ExcelDataProvider.IRangeInfo)
+            {
+                var r = ((ExcelDataProvider.IRangeInfo)obj).FirstOrDefault();
+                return r == null ? 0 : Convert.ToInt32(r.ValueDouble);
+            }
             var objType = obj.GetType();
             if (objType == typeof(int))
             {

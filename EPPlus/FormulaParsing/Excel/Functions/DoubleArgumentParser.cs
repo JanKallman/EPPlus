@@ -38,6 +38,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public override object Parse(object obj)
         {
             Require.That(obj).Named("argument").IsNotNull();
+            if (obj is ExcelDataProvider.IRangeInfo)
+            {
+                var r=((ExcelDataProvider.IRangeInfo)obj).FirstOrDefault();
+                return r == null ? 0 : r.ValueDouble;
+            }
             if (obj is double) return obj;
             if (obj.IsNumeric()) return util.ConvertUtil.GetValueDouble(obj);
             var str = obj != null ? obj.ToString() : string.Empty;

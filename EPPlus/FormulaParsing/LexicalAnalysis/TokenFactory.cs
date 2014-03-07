@@ -149,7 +149,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             var at = OfficeOpenXml.ExcelAddressBase.IsValid(token);
             if (at==ExcelAddressBase.AddressType.InternalAddress)
             {
-                return new Token(token, TokenType.ExcelAddress);
+                return new Token(token.ToUpper(), TokenType.ExcelAddress);
             } 
             return new Token(token, TokenType.Unrecognized);
 

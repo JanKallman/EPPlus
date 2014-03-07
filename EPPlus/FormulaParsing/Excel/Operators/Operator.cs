@@ -103,7 +103,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric + r.ResultNumeric, DataType.Integer);
                     }
-                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                    else if ((l.IsNumeric || l.IsNumericString || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.IsNumericString || r.Result is ExcelDataProvider.IRangeInfo))
                     {
                         return new CompileResult(l.ResultNumeric + r.ResultNumeric, DataType.Decimal);
                     }
@@ -124,10 +124,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric - r.ResultNumeric, DataType.Integer);
                     }
-                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                    else if ((l.IsNumeric || l.IsNumericString || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.IsNumericString || r.Result is ExcelDataProvider.IRangeInfo))
                     {
                         return new CompileResult(l.ResultNumeric - r.ResultNumeric, DataType.Decimal);
                     }
+                    
                     throw new ExcelErrorValueException(eErrorType.Value);
                 });
             }
@@ -145,7 +146,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Integer);
                     }
-                    else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                    else if ((l.IsNumeric || l.IsNumericString || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.IsNumericString || r.Result is ExcelDataProvider.IRangeInfo))
                     {
                         return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Decimal);
                     }
@@ -160,7 +161,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             {
                 return new Operator(Operators.Divide, PrecedenceMultiplyDevide, (l, r) =>
                 {
-                    if (!(l.IsNumeric || l.IsNumericString) || !(r.IsNumeric || r.IsNumericString))
+                    if (!(l.IsNumeric || l.IsNumericString || l.Result is ExcelDataProvider.IRangeInfo) || !(r.IsNumeric || r.IsNumericString || r.Result is ExcelDataProvider.IRangeInfo))
                     {
                         throw new ExcelErrorValueException(eErrorType.Value);
                     }
@@ -170,7 +171,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         throw new ExcelErrorValueException(eErrorType.Div0);
                     }
-                    if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                    else if ((l.IsNumeric || l.IsNumericString || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.IsNumericString || r.Result is ExcelDataProvider.IRangeInfo))
                     {
                         return new CompileResult(left / right, DataType.Decimal);
                     }
@@ -191,7 +192,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                         }
                         l = l ?? new CompileResult(0, DataType.Integer);
                         r = r ?? new CompileResult(0, DataType.Integer);
-                        if (l.IsNumeric && r.IsNumeric)
+                        if ((l.IsNumeric || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.Result is ExcelDataProvider.IRangeInfo))
                         {
                             return new CompileResult(Math.Pow(l.ResultNumeric, r.ResultNumeric), DataType.Decimal);
                         }
@@ -208,8 +209,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                     {
                         l = l ?? new CompileResult(string.Empty, DataType.String);
                         r = r ?? new CompileResult(string.Empty, DataType.String);
-                        var lStr = l.Result != null ? l.Result.ToString() : string.Empty;
-                        var rStr = r.Result != null ? r.Result.ToString() : string.Empty;
+                        var lStr = l.Result != null ? l.ResultValue.ToString() : string.Empty;
+                        var rStr = r.Result != null ? r.ResultValue.ToString() : string.Empty;
                         return new CompileResult(string.Concat(lStr, rStr), DataType.String);
                     });
             }
@@ -278,7 +279,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                             {
                                 return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Integer);
                             }
-                            else if ((l.IsNumeric || l.IsNumericString) && (r.IsNumeric || r.IsNumericString))
+                            else if ((l.IsNumeric || l.Result is ExcelDataProvider.IRangeInfo) && (r.IsNumeric || r.Result is ExcelDataProvider.IRangeInfo))
                             {
                                 return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Decimal);
                             }
@@ -296,7 +297,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                 if (other.DataType == DataType.String) return string.Empty;
                 else return 0d;
             }
-            return obj.Result;
+            return obj.ResultValue;
         }
 
         private static int Compare(CompileResult l, CompileResult r)

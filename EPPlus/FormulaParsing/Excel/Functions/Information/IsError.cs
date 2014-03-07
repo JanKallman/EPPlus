@@ -41,10 +41,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
             }
             foreach (var argument in arguments)
             {
-                if (ExcelErrorValue.Values.IsErrorValue(argument.Value))
+                if (argument.Value is ExcelDataProvider.IRangeInfo)
                 {
-                    return CreateResult(true, DataType.Boolean);
+                    var r = (ExcelDataProvider.IRangeInfo)argument.Value;
+                    if (ExcelErrorValue.Values.IsErrorValue(r.GetValue(r.Address._fromRow, r.Address._fromCol)))
+                    {
+                        return CreateResult(true, DataType.Boolean);
+                    }
                 }
+                else
+                {
+                    if (ExcelErrorValue.Values.IsErrorValue(argument.Value))
+                    {
+                        return CreateResult(true, DataType.Boolean);
+                    }
+                }                
             }
             return CreateResult(false, DataType.Boolean);
         }

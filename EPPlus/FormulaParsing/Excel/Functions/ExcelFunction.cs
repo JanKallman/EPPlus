@@ -31,6 +31,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.Globalization;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using System.Collections;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -88,13 +89,25 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 return false;
             }
         }
-
+        
         /// <summary>
         /// Used for some Lookupfunctions to indicate that function arguments should
         /// not be compiled before the function is called.
         /// </summary>
         public bool SkipArgumentEvaluation { get; set; }
-
+        protected object GetFirstValue(IEnumerable<FunctionArgument> val)
+        {
+            var arg = ((IEnumerable<FunctionArgument>)val).FirstOrDefault();
+            if(arg.Value is ExcelDataProvider.IRangeInfo)
+            {
+                var r=((ExcelDataProvider.IRangeInfo)arg);
+                return r.GetValue(r.Address._fromRow, r.Address._fromCol);
+            }
+            else
+            {
+                return arg==null?null:arg.Value;
+            }
+        }
         /// <summary>
         /// This functions validates that the supplied <paramref name="arguments"/> contains at least
         /// (the value of) <paramref name="minLength"/> elements. If one of the arguments is an
@@ -170,7 +183,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <exception cref="ExcelErrorValueException"></exception>
         protected int ArgToInt(IEnumerable<FunctionArgument> arguments, int index)
         {
-            var val = arguments.ElementAt(index).Value;
+            var val = arguments.ElementAt(index).ValueFirst;
             return (int)_argumentParsers.GetParser(DataType.Integer).Parse(val);
         }
 
@@ -183,7 +196,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <returns>Value of the argument as a string.</returns>
         protected string ArgToString(IEnumerable<FunctionArgument> arguments, int index)
         {
-            var obj = arguments.ElementAt(index).Value;
+            var obj = arguments.ElementAt(index).ValueFirst;
             return obj != null ? obj.ToString() : string.Empty;
         }
 

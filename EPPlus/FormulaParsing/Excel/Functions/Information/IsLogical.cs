@@ -12,7 +12,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 1);
-            return CreateResult(functionArguments.ElementAt(0).Value.GetType() == typeof (bool), DataType.Boolean);
+            var v = GetFirstValue(arguments);
+            return CreateResult(v is bool, DataType.Boolean);
         }
     }
 }

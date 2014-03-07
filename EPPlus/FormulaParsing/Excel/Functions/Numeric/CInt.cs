@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var obj = arguments.ElementAt(0).Value;
+            var obj = arguments.ElementAt(0).ValueFirst;
             return CreateResult(ToInteger(obj), DataType.Integer);
         }
 

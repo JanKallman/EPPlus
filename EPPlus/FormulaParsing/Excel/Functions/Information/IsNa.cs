@@ -10,14 +10,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            var isError = new IsError();
-            var result = isError.Execute(arguments, context);
-            if ((bool)result.Result)
+            if (arguments == null || arguments.Count() == 0)
             {
-                if (arguments.ElementAt(0).Value.ToString() == ExcelErrorValue.Values.NA)
-                {
-                    return CreateResult(true, DataType.Boolean);
-                }
+                return CreateResult(false, DataType.Boolean);
+            }
+
+            var v = GetFirstValue(arguments);
+
+            if (v is ExcelErrorValue && ((ExcelErrorValue)v).Type==eErrorType.NA)
+            {
+                return CreateResult(true, DataType.Boolean);
             }
             return CreateResult(false, DataType.Boolean);
         }

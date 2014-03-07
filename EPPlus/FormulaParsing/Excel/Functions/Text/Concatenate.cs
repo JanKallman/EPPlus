@@ -41,7 +41,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             var sb = new StringBuilder();
             foreach (var arg in arguments)
             {
-                sb.Append(arg.Value.ToString());
+                var v = arg.ValueFirst;
+                if (v != null)
+                {
+                    sb.Append(v.ToString());
+                }
             }
             return CreateResult(sb.ToString(), DataType.String);
         }

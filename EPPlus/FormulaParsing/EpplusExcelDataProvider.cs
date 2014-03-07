@@ -132,8 +132,7 @@ namespace OfficeOpenXml.FormulaParsing
             {
                 return this;
             }
-
-
+            
             public ExcelAddressBase Address
             {
                 get { return _address; }

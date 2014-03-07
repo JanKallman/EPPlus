@@ -34,6 +34,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     {
         public override object Parse(object obj)
         {
+            if (obj is ExcelDataProvider.IRangeInfo)
+            {
+                var r = ((ExcelDataProvider.IRangeInfo)obj).FirstOrDefault();
+                obj = (r == null ? null : r.Value);
+            }
             if (obj == null) return false;
             if (obj is bool) return (bool)obj;
             if (obj.IsNumeric()) return Convert.ToBoolean(obj);

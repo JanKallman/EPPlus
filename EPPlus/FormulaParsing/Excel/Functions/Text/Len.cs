@@ -35,7 +35,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var length = arguments.First().Value.ToString().Length;
+            var length = arguments.First().ValueFirst.ToString().Length;
             return CreateResult(Convert.ToDouble(length), DataType.Integer);
         }
     }

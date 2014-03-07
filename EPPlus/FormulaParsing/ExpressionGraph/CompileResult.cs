@@ -51,10 +51,26 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Result = result;
             DataType = dataType;
         }
+        object _result;
         public object Result
         {
             get;
             private set;
+        }
+        public object ResultValue
+        {
+            get
+            {
+                var r = Result as ExcelDataProvider.IRangeInfo;
+                if (r == null)
+                {
+                    return Result;
+                }
+                else
+                {
+                    return r.GetValue(r.Address._fromRow, r.Address._fromCol);
+                }
+            }
         }
         public double ResultNumeric
         {
@@ -76,6 +92,18 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     return double.Parse(Result.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture);
                 }
+                else if (Result is ExcelDataProvider.IRangeInfo)
+                {
+                    var c = ((ExcelDataProvider.IRangeInfo)Result).FirstOrDefault();
+                    if (c == null)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return c.ValueDoubleLogical;
+                    }
+                }
                 else
                 {
                     return 0;
@@ -88,10 +116,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             get;
             private set;
         }
-
+        
         public bool IsNumeric
         {
-            get { return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty; }
+            get 
+            { 
+                return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty; 
+            }
         }
 
         public bool IsNumericString

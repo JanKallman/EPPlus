@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 namespace OfficeOpenXml
 {
     public static class CalculationExtension
@@ -99,16 +100,25 @@ namespace OfficeOpenXml
         }
         public static object Calculate(this ExcelWorksheet worksheet, string Formula, ExcelCalculationOption options)
         {
-            worksheet.CheckSheetType();
-            Init(worksheet.Workbook);
-            var parser = worksheet.Workbook.FormulaParser;
-            var dc = DependencyChainFactory.Create(worksheet, Formula, options);
-            var f = dc.list[0];
-            dc.CalcOrder.RemoveAt(dc.CalcOrder.Count - 1);
+            try
+            {
+                worksheet.CheckSheetType();
+                if(string.IsNullOrEmpty(Formula.Trim())) return null;
+                Init(worksheet.Workbook);
+                var parser = worksheet.Workbook.FormulaParser;
+                if (Formula[0] == '=') Formula = Formula.Substring(1); //Remove any starting equal sign
+                var dc = DependencyChainFactory.Create(worksheet, Formula, options);
+                var f = dc.list[0];
+                dc.CalcOrder.RemoveAt(dc.CalcOrder.Count - 1);
 
-            CalcChain(worksheet.Workbook, parser, dc);
+                CalcChain(worksheet.Workbook, parser, dc);
 
-            return parser.ParseCell(f.Tokens, worksheet.Name, -1, -1);
+                return parser.ParseCell(f.Tokens, worksheet.Name, -1, -1);
+            }
+            catch (Exception ex)
+            {
+                return new ExcelErrorValueException(ex.Message, ExcelErrorValue.Create(eErrorType.Value));
+            }
         }
         private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
         {

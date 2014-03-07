@@ -64,8 +64,28 @@ namespace EPPlusTest
             var ws = pck.Workbook.Worksheets.Add("Calc1");
 
             ws.SetValue("A1",( short)1);
-            var v=ws.Calculate("2.5-A1+ABS(-3.0)-SIN(3)*abs(5)");
-            //Assert.AreEqual(4.358879992, Math.Round((double)v,9));
+            var v=ws.Calculate("2.5-A1+ABS(-3.0)-SIN(3)");
+            Assert.AreEqual(4.3589, Math.Round((double)v, 4));
+                        
+            ws.Row(1).Hidden = true;
+            v = ws.Calculate("subtotal(109,a1:a10)");
+            Assert.AreEqual(0, v);
+
+            v = ws.Calculate("-subtotal(9,a1:a3)");
+            Assert.AreEqual(1, v);
+        }
+        [TestMethod]
+        public void CalculateTestIsFunctions()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+
+            ws.SetValue(1, 1, 1.0D);
+            ws.SetFormula(1, 2, "isblank(A1:A5)");
+            ws.SetFormula(1, 3, "concatenate(a1,a2,a3)");
+            ws.SetFormula(1, 4, "Row()");
+            ws.SetFormula(1, 5, "Row(a3)");
+            ws.Calculate();
         }
         [TestMethod]
         public void Calulation4()

@@ -74,5 +74,21 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             get { return Value as EpplusExcelDataProvider.IRangeInfo; }
         }
+        public object ValueFirst
+        {
+            get
+            {
+                var v = Value as ExcelDataProvider.IRangeInfo;
+                if (v==null)
+                {
+                    return Value;
+                }
+                else
+                {
+                    return v.GetValue(v.Address._fromRow, v.Address._fromCol);
+                }
+            }
+        }
+
     }
 }
