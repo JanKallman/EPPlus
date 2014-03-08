@@ -153,7 +153,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var input = "ws!A1:B15";
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
             Assert.AreEqual(TokenType.ExcelAddress, token.TokenType);
-            Assert.AreEqual("ws!A1:B15", token.Value);
+            Assert.AreEqual("WS!A1:B15", token.Value);
         }
 
         [TestMethod]

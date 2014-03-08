@@ -37,20 +37,23 @@ using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class FunctionExpression : AtomicExpression
     {
-        public FunctionExpression(string expression, ParsingContext parsingContext)
+        public FunctionExpression(string expression, ParsingContext parsingContext, bool isNegated)
             : base(expression)
         {
             _parsingContext = parsingContext;
+            _isNegated = isNegated;
             base.AddChild(new FunctionArgumentExpression(this));
         }
 
         private readonly ParsingContext _parsingContext;
         private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
+        private readonly bool _isNegated ;
 
 
         public override CompileResult Compile()
@@ -59,15 +62,23 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
                 var compiler = _functionCompilerFactory.Create(function);
-                return compiler.Compile(HasChildren ? Children : Enumerable.Empty<Expression>(), _parsingContext);
+                var result = compiler.Compile(HasChildren ? Children : Enumerable.Empty<Expression>(), _parsingContext);
+                if (_isNegated)
+                {
+                    if (!result.IsNumeric)
+                    {
+                        throw new ExcelErrorValueException(eErrorType.Value);
+                    }
+                    else
+                    {
+                        return new CompileResult(result.ResultNumeric * -1, result.DataType);
+                    }
+                }
+                return result;
             }
             catch (ExcelErrorValueException e)
             {
                 return new CompileResult(e.ErrorValue, DataType.ExcelError);
-            }
-            catch (InvalidOperationException ioe)
-            {
-                throw;
             }
             
         }

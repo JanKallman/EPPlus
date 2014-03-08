@@ -108,7 +108,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 case ItemContext.InRange:
                     return IsNumeric(value);
                 case ItemContext.InArray:
-                    return IsNumeric(value);
+                    return IsNumeric(value) || IsNumericString(value);
                 default:
                     throw new ArgumentException("Unknown ItemContext:" + context.ToString(CultureInfo.InvariantCulture));
             }

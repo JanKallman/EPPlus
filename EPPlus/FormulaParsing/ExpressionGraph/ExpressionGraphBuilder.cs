@@ -178,12 +178,14 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             if (parent == null)
             {
-                _graph.Add(new FunctionExpression(funcName, _parsingContext));
+                _graph.Add(new FunctionExpression(funcName, _parsingContext, _negateNextExpression));
+                _negateNextExpression = false;
                 HandleFunctionArguments(tokens, _graph.Current);
             }
             else
             {
-                var func = new FunctionExpression(funcName, _parsingContext);
+                var func = new FunctionExpression(funcName, _parsingContext, _negateNextExpression);
+                _negateNextExpression = false;
                 parent.AddChild(func);
                 HandleFunctionArguments(tokens, func);
             }
