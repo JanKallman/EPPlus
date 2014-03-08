@@ -42,18 +42,6 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.RefAndLookup
             Assert.AreEqual(5, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void Index_Should_Throw_Exception_When_NonNumeric_Result()
-        {
-            var func = new Index();
-            var result = func.Execute(
-                FunctionsHelper.CreateArgs(
-                    FunctionsHelper.CreateArgs(1, 2, "a"),
-                    3
-                    ), _parsingContext);
-            Assert.AreEqual(5d, result.Result);
-        }
-
         [TestMethod]
         public void Index_Should_Handle_SingleRange()
         {

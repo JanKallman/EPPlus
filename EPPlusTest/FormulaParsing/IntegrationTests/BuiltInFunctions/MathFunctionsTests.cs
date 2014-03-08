@@ -92,6 +92,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void SubtotalShouldNegateExpression()
+        {
+            var result = _parser.Parse("-subtotal(2;{1;2})");
+            Assert.AreEqual(-2d, result);
+        }
+
+        [TestMethod]
         public void StdevShouldReturnAResult()
         {
             var result = _parser.Parse("stdev(1;2;3;4)");

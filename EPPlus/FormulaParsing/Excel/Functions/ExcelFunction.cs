@@ -100,7 +100,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             var arg = ((IEnumerable<FunctionArgument>)val).FirstOrDefault();
             if(arg.Value is ExcelDataProvider.IRangeInfo)
             {
-                var r=((ExcelDataProvider.IRangeInfo)arg);
+                //var r=((ExcelDataProvider.IRangeInfo)arg);
+                var r = arg.ValueAsRangeInfo;
                 return r.GetValue(r.Address._fromRow, r.Address._fromCol);
             }
             else

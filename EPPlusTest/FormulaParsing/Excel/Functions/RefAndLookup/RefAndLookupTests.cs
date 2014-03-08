@@ -416,9 +416,8 @@ namespace EPPlusTest.Excel.Functions
             var func = new Rows();
             var parsingContext = ParsingContext.Create();
             parsingContext.ExcelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
-            parsingContext.ExcelDataProvider.Stub(x => x.ExcelMaxRows).Return(1000);
             var result = func.Execute(FunctionsHelper.CreateArgs("A:B"), parsingContext);
-            Assert.AreEqual(1000, result.Result);
+            Assert.AreEqual(1048576, result.Result);
         }
 
         [TestMethod]

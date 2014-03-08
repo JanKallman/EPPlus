@@ -13,7 +13,7 @@ namespace EPPlusTest.ExcelUtilities
     public class RangeAddressFactoryTests
     {
         private RangeAddressFactory _factory;
-        private const int ExcelMaxRows = 123456;
+        private const int ExcelMaxRows = 1048576;
 
         [TestInitialize]
         public void Setup()

@@ -506,12 +506,12 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
-        public void CountShouldIgnoreNumericStringsAndDatesInArray()
+        public void CountShouldIncludeNumericStringsAndDatesInArray()
         {
             var func = new Count();
             var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2m, 3, new DateTime(2012, 4, 1), "4"));
             var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(3d, result.Result);
+            Assert.AreEqual(5d, result.Result);
         }
 
 

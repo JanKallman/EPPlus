@@ -38,13 +38,14 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         }
 
         [TestMethod]
-        public void ShouldSetNegatorOnTokenIfPreviousTokenIsAnOperator()
+        public void ShouldChangePlusToMinusIfNegatorIsPresent()
         {
             var input = "1 + -1";
             var tokens = _tokenizer.Tokenize(input);
 
-            Assert.AreEqual(4, tokens.Count());
-            Assert.AreEqual(TokenType.Negator, tokens.ElementAt(2).TokenType);
+            Assert.AreEqual(3, tokens.Count());
+            Assert.AreEqual(TokenType.Operator, tokens.ElementAt(1).TokenType);
+            Assert.AreEqual("-", tokens.ElementAt(1).Value);
         }
 
         [TestMethod]
