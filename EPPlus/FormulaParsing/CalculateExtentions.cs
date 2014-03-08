@@ -143,6 +143,7 @@ namespace OfficeOpenXml
                 }
             }
         }
+
         private static void SetValue(ExcelWorkbook workbook, FormulaCell item, object v)
         {
             if (item.Column == 0)
