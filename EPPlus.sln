@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTest", "EPPlusTest\EP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusWebSample", "EPPlusWebSample\EPPlusWebSample.csproj", "{1BF30A52-6149-432D-82F6-725250E5C662}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusExcelFormDemo", "EPPlusExcelFormDemo\EPPlusExcelFormDemo.csproj", "{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}"
+EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = ExcelPackage.vsmdi
@@ -68,6 +70,16 @@ Global
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|x86.ActiveCfg = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

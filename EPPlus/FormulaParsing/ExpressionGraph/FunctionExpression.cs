@@ -41,8 +41,17 @@ using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
+    /// <summary>
+    /// Expression that handles execution of a function.
+    /// </summary>
     public class FunctionExpression : AtomicExpression
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="expression">should be the of the function</param>
+        /// <param name="parsingContext"></param>
+        /// <param name="isNegated">True if the numeric result of the function should be negated.</param>
         public FunctionExpression(string expression, ParsingContext parsingContext, bool isNegated)
             : base(expression)
         {
@@ -53,7 +62,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private readonly ParsingContext _parsingContext;
         private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
-        private readonly bool _isNegated ;
+        private readonly bool _isNegated;
 
 
         public override CompileResult Compile()
@@ -87,8 +96,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             return base.AddChild(new FunctionArgumentExpression(this));
         }
-
-        private bool _childAdded;
 
         public override bool HasChildren
         {
