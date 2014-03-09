@@ -19,6 +19,7 @@ namespace EPPlusExcelFormDemo
         private DataGridViewCell _currentCell;
         private Font _inactiveCellFont;
         private Font _activeCellFont;
+        private const int NumberOfColumns = 5;
 
         public ExcelForm()
         {
@@ -32,7 +33,7 @@ namespace EPPlusExcelFormDemo
         {
             _package = new ExcelPackage(new MemoryStream());
             var ws1 = _package.Workbook.Worksheets.Add("Worksheet1");
-            for (var col = 2; col < 5; col++)
+            for (var col = 2; col < NumberOfColumns; col++)
             {
                 for (var row = 1; row < 9; row++)
                 {
@@ -79,7 +80,7 @@ namespace EPPlusExcelFormDemo
             for (var row = 0; row < ws.Dimension.Rows; row++)
             {
                 var gridRow = new DataGridViewRow {HeaderCell = {Value = (row + 1).ToString()}};
-                for (var col = 0; col < 5; col++)
+                for (var col = 0; col < NumberOfColumns; col++)
                 {
                     var cell = ws.Cells[row + 1, col + 1];
                     using (var uiCell = new DataGridViewTextBoxCell())
@@ -96,9 +97,9 @@ namespace EPPlusExcelFormDemo
         private void BindPackageToUI()
         {
             var dataGrid1 = GetGrid();
-            for (var row = 1; row < _package.Workbook.Worksheets.First().Dimension.Rows; row++)
+            for (var row = 1; row < _package.Workbook.Worksheets.First().Dimension.Rows + 1; row++)
             {
-                for (var col = 1; col < 5; col++)
+                for (var col = 1; col <= NumberOfColumns; col++)
                 {
                     var excelCell = _package.Workbook.Worksheets.First().Cells[row, col];
                     var gridViewCell = dataGrid1.Rows[row - 1].Cells[col - 1];
@@ -142,8 +143,8 @@ namespace EPPlusExcelFormDemo
                 excelCell.Value = CellValueToObject(result);
             }
             _package.Workbook.Calculate();
-            BindPackageToUI();
-            dataGrid1.Refresh();
+            //BindPackageToUI();
+            //dataGrid1.Refresh();
         }
 
 
@@ -158,6 +159,7 @@ namespace EPPlusExcelFormDemo
         {
             var dataGrid1 = GetGrid();
             dataGrid1.Refresh();
+            BindPackageToUI();
             var cell = dataGrid1.Rows[e.RowIndex].Cells[e.ColumnIndex];
             var excelCell = _package.Workbook.Worksheets.First().Cells[e.RowIndex + 1, e.ColumnIndex + 1];
             if (!string.IsNullOrEmpty(excelCell.Formula))
@@ -176,6 +178,7 @@ namespace EPPlusExcelFormDemo
 
         private void button_Save_Click(object sender, EventArgs e)
         {
+            saveFileDialog_SaveExcel.Filter = "Excel files (*.xlsx)|*.xlsx";
             var dialogResult = saveFileDialog_SaveExcel.ShowDialog();
             if (dialogResult == DialogResult.OK)
             {
@@ -194,6 +197,7 @@ namespace EPPlusExcelFormDemo
             }
             else
             {
+                _package.Workbook.Worksheets.First().Cells[row + 1, col + 1].Formula = null;
                 _package.Workbook.Worksheets.First().Cells[row + 1, col + 1].Value = CellValueToObject(txt);
             }
             _package.Workbook.Calculate();
