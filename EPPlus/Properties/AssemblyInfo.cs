@@ -37,11 +37,11 @@ using System.Security;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EPPlus")]
+[assembly: AssemblyTitle("EPPlus 4.0 Beta")]
 [assembly: AssemblyDescription("Allows Excel files(xlsx;xlsm) to be created on the server. See epplus.codeplex.com")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("EPPlus")]
-[assembly: AssemblyProduct("EPPlus")]
+[assembly: AssemblyProduct("EPPlus 4.0 Beta")]
 [assembly: AssemblyCopyright("Copyright 2009- ©Jan Källman. Parts of the Interface comes from ExcelPackage-project")]
 [assembly: AssemblyTrademark("The GNU Lesser General Public License (LGPL)")]
 [assembly: AssemblyCulture("")]
