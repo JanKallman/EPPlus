@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTest", "EPPlusTest\EP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusWebSample", "EPPlusWebSample\EPPlusWebSample.csproj", "{1BF30A52-6149-432D-82F6-725250E5C662}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusExcelFormDemo", "EPPlusExcelFormDemo\EPPlusExcelFormDemo.csproj", "{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusExcelCalculationSample", "EPPlusExcelCalculationSample\EPPlusExcelCalculationDemo.csproj", "{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution

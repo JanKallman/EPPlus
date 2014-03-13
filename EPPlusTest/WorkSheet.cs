@@ -760,6 +760,7 @@ namespace EPPlusTest
         [TestMethod]
         public void PivotTableTest()
         {
+            _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("PivotTable");
             ws.Cells["A1"].LoadFromArrays(new object[][] {new [] {"A", "B", "C", "D"}});
             ws.Cells["A2"].LoadFromArrays(new object[][]

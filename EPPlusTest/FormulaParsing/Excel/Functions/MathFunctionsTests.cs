@@ -154,14 +154,6 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(9d, result.Result);
         }
 
-        [TestMethod]
-        public void SumIfShouldCalculateWithExpressionFromSumRange()
-        {
-            var func = new SumIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), ">3", (FunctionsHelper.CreateArgs(3, 2, 1)));
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(3d, result.Result);
-        }
 
         [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
         public void SumIfShouldThrowIfCriteriaIsLargerThan255Chars()
@@ -171,15 +163,6 @@ namespace EPPlusTest.Excel.Functions
             var func = new SumIf();
             var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), longString, (FunctionsHelper.CreateArgs(3, 2, 1)));
             var result = func.Execute(args, _parsingContext);
-        }
-
-        [TestMethod]
-        public void SumIfShouldCalculateWithExpressionFromSumRangeWithNumericCriteria()
-        {
-            var func = new SumIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), 3, (FunctionsHelper.CreateArgs(4, 2, 1)));
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(4d, result.Result);
         }
 
         [TestMethod]

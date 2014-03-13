@@ -120,8 +120,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         public bool IsNumeric
         {
             get 
-            { 
-                return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty; 
+            {
+                return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty || DataType == DataType.Boolean; 
             }
         }
 

@@ -81,6 +81,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
             Functions["stdevp"] = new StdevP();
+            Functions["stdev.s"] = new Stdev();
+            Functions["stdev.p"] = new StdevP();
             Functions["subtotal"] = new Subtotal();
             Functions["exp"] = new Exp();
             Functions["log"] = new Log();

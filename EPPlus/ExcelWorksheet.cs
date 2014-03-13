@@ -2967,7 +2967,7 @@ namespace OfficeOpenXml
                 {
                     if (v is double && double.IsNaN((double)v))
                     {
-                        s = "0";
+                        s = "";
                     }
                     else if (v is double && double.IsInfinity((double)v))
                     {

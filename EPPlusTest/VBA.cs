@@ -138,6 +138,7 @@ namespace EPPlusTest
             myPackage.SaveAs(f2);
             myPackage.Dispose();
         }
+        [Ignore]
         [TestMethod]
         public void ReadVBAUnicodeWsName()
         {
