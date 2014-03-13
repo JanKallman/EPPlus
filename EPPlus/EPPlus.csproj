@@ -1,0 +1,421 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{7B288026-5502-4A39-BF41-77E086F3E4A3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>OfficeOpenXml</RootNamespace>
+    <AssemblyName>EPPlus</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>OpenOfficeXml.snk</AssemblyOriginatorKeyFile>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\EPPlus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\EPPlus.XML</DocumentationFile>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Security" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBeginsWith.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBetween.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingColorScaleGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingDataBarGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingDuplicateValues.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingEndsWith.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingExpression.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingGreaterThan.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingGreaterThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingThreeIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingFourIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingIconSetGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingLessThan.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingLessThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotBetween.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingNotEqual.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingStdDevGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTimePeriodGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTopBottomGroup.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingTwoColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingUniqueValues.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithFormula.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithFormula2.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithRank.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithReverse.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithShowValue.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingWithText.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingIconDataBarValue.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDataBar.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFiveIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingFourIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveOrEqualAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAverageGroup.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingAboveAverage.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingCollection.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingOperatorType.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingRuleFactory.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingConstants.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingTimePeriodType.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingColorScaleValue.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingEnums.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingValueObjectType.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBeginsWith.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowOrEqualAverage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBelowStdDev.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBetween.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBottom.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingBottomPercent.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingDuplicateValues.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingEndsWith.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingExpression.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingGreaterThan.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingGreaterThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLast7Days.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLastMonth.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLastWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLessThan.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingLessThanOrEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNextMonth.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNextWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotBetween.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsBlanks.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsErrors.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotContainsText.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingNotEqual.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingRule.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingRuleType.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisMonth.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThisWeek.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingThreeIconSet.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTimePeriodGroup.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingToday.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTomorrow.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTop.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTopPercent.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingTwoColorScale.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingRule.cs" />
+    <Compile Include="ConditionalFormatting\ExcelConditionalFormattingHelper.cs" />
+    <Compile Include="ConditionalFormatting\Contracts\IRangeConditionalFormatting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\RangeConditionalFormatting.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
+    <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationWithOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCustom.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationDateTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationFactory.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationTime.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWithFormula2.cs" />
+    <Compile Include="DataValidation\ExcelTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormula.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaCustom.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDateTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaList.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaWithValue.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\Contracts\IExcelDataValidationFormulaInt.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaTime.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaValue.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaDecimal.cs" />
+    <Compile Include="DataValidation\Formulas\ExcelDataValidationFormulaInt.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationWarningStyle.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationDecimal.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationList.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
+    <Compile Include="DataValidation\IRangeDataValidation.cs" />
+    <Compile Include="DataValidation\RangeDataValidation.cs" />
+    <Compile Include="Drawing\Chart\ExcelLineChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartCollection.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTrendline.cs" />
+    <Compile Include="Drawing\ExcelDrawingBase.cs" />
+    <Compile Include="Drawing\ExcelPicture.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPictureCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingCommentCollection.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPicture.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBase.cs" />
+    <Compile Include="ExcelBackgroundImage.cs" />
+    <Compile Include="ExcelCell.cs" />
+    <Compile Include="DataValidation\ExcelDataValidation.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationCollection.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationType.cs" />
+    <Compile Include="ExcelEncryption.cs" />
+    <Compile Include="ExcelProtectedRange.cs" />
+    <Compile Include="ExcelProtectedRangeCollection.cs" />
+    <Compile Include="ExcelStyleCollection.cs" />
+    <Compile Include="ExcelColumn.cs" />
+    <Compile Include="Drawing\ExcelDrawings.cs" />
+    <Compile Include="ExcelHeaderFooter.cs" />
+    <Compile Include="ExcelPackage.cs" />
+    <Compile Include="ExcelRange.cs" />
+    <Compile Include="ExcelRow.cs" />
+    <Compile Include="Drawing\ExcelShape.cs" />
+    <Compile Include="ExcelStyles.cs" />
+    <Compile Include="ExcelProtection.cs" />
+    <Compile Include="ExcelTextFormat.cs" />
+    <Compile Include="VBA\ExcelVbaModule.cs" />
+    <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
+    <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
+    <Compile Include="VBA\ExcelVbaProject.cs" />
+    <Compile Include="ExcelWorkbookView.cs" />
+    <Compile Include="ExcelWorksheetView.cs" />
+    <Compile Include="Utils\EncryptedPackageHandler.cs" />
+    <Compile Include="Style\Dxf\DxfStyleBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorder.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfBorderItem.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfColor.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFill.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfFontBase.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfNumberFormat.cs" />
+    <Compile Include="Style\Dxf\ExcelDxfStyle.cs" />
+    <Compile Include="Style\ExcelGradientFill.cs" />
+    <Compile Include="Style\XmlAccess\ExcelGradientFillXml.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldGroup.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldItem.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTablePageFieldSettings.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableDataField.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableFieldCollection.cs" />
+    <Compile Include="Style\IStyle.cs" />
+    <Compile Include="OfficeProperties.cs" />
+    <Compile Include="ExcelWorkbook.cs" />
+    <Compile Include="ExcelWorksheet.cs" />
+    <Compile Include="ExcelWorksheets.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelBorderItemXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelXfsXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNamedStyleXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelColorXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFillXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelFontXml.cs" />
+    <Compile Include="Style\XmlAccess\ExcelNumberFormatXml.cs" />
+    <Compile Include="Style\StyleChangeEventArgs.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotCacheDefinition.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableField.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTableCollection.cs" />
+    <Compile Include="Table\PivotTable\ExcelPivotTable.cs" />
+    <Compile Include="Table\ExcelTableColumnCollection.cs" />
+    <Compile Include="Table\ExcelTable.cs" />
+    <Compile Include="Table\ExcelTableCollection.cs" />
+    <Compile Include="Table\ExcelTableColumn.cs" />
+    <Compile Include="Utils\AddressUtility.cs" />
+    <Compile Include="Utils\Argument.cs" />
+    <Compile Include="Utils\ArgumentExtensions.cs" />
+    <Compile Include="Utils\CompoundDocument.cs" />
+    <Compile Include="Utils\IArgument.cs" />
+    <Compile Include="Utils\Require.cs" />
+    <Compile Include="Utils\SqRefUtility.cs" />
+    <Compile Include="VBA\ExcelVbaProtection.cs" />
+    <Compile Include="VBA\ExcelVbaReference.cs" />
+    <Compile Include="VBA\ExcelVbaSignature.cs" />
+    <Compile Include="XmlHelper.cs" />
+    <Compile Include="XmlHelperFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Drawing\Chart\ExcelLineChart.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingComment.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingPosition.cs" />
+    <Compile Include="Drawing\Vml\ExcelVmlDrawingBaseCollection.cs" />
+    <Compile Include="ExcelAddress.cs" />
+    <Compile Include="ExcelCellAddress.cs" />
+    <Compile Include="ExcelComment.cs" />
+    <Compile Include="ExcelCommentCollection.cs" />
+    <Compile Include="ExcelSheetProtection.cs" />
+    <Compile Include="RangeCollection.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartLegend.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartPlotArea.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerieDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartTitle.cs" />
+    <Compile Include="Drawing\ExcelDrawingBorder.cs" />
+    <Compile Include="Drawing\Chart\ExcelOfPieChart.cs" />
+    <Compile Include="Drawing\ExcelDrawingFill.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChartSerie.cs" />
+    <Compile Include="Drawing\ExcelView3D.cs" />
+    <Compile Include="Drawing\Chart\ExcelBarChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartAxis.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartDataLabel.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSerie.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartSeries.cs" />
+    <Compile Include="Drawing\Chart\ExcelDoughnutChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelPieChart.cs" />
+    <Compile Include="Drawing\Chart\ExcelScatterChart.cs" />
+    <Compile Include="ExcelCellBase.cs" />
+    <Compile Include="ExcelHyperLink.cs" />
+    <Compile Include="ExcelNamedRange.cs" />
+    <Compile Include="ExcelNamedRangeCollection.cs" />
+    <Compile Include="ExcelPrinterSettings.cs" />
+    <Compile Include="ExcelRangeBase.cs" />
+    <Compile Include="IRangeID.cs" />
+    <Compile Include="Style\ExcelParagraph.cs" />
+    <Compile Include="Style\ExcelParagraphCollection.cs" />
+    <Compile Include="Style\ExcelBorder.cs" />
+    <Compile Include="Style\ExcelBorderItem.cs" />
+    <Compile Include="Style\ExcelColor.cs" />
+    <Compile Include="Style\ExcelFill.cs" />
+    <Compile Include="Style\ExcelRichText.cs" />
+    <Compile Include="Style\ExcelRichTextCollection.cs" />
+    <Compile Include="Utils\IExcelCell.cs" />
+    <Compile Include="Style\ExcelStyle.cs" />
+    <Compile Include="Style\ExcelFont.cs" />
+    <Compile Include="Style\XmlAccess\StyleXmlHelper.cs" />
+    <Compile Include="Style\ExcelNumberFormat.cs" />
+    <Compile Include="Style\StyleBase.cs" />
+    <Compile Include="Style\ExcelTextFont.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="OpenOfficeXml.snk" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ConditionalFormatting\CF Implementation.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>
