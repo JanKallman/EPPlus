@@ -32,6 +32,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Data;
 using OfficeOpenXml.Style;
@@ -1736,7 +1737,15 @@ namespace OfficeOpenXml
 			{
 				foreach (var t in Members)
 				{
-					_worksheet.Cell(row, col++).Value = t.Name.Replace('_', ' ');
+				    var attributes = t.GetCustomAttributes(typeof (DisplayNameAttribute), true);
+				    if (attributes.Length == 1)
+				    {
+                        _worksheet.Cell(row, col++).Value = ((DisplayNameAttribute)t.GetCustomAttributes(typeof(DisplayNameAttribute), true)[0]).DisplayName;
+				    }
+				    else
+				    {
+				        _worksheet.Cell(row, col++).Value = t.Name.Replace('_', ' ');
+				    }
 				}
 				row++;
 			}
