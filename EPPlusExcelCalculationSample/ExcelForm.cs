@@ -234,5 +234,12 @@ namespace EPPlusExcelFormDemo
             BindPackageToUI();
             this.Refresh();
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            var frm = new frmFunctions(_package.Workbook.FormulaParserManager.GetImplementedFunctionNames().ToList());
+            frm.ShowDialog(this);
+            
+        }
     }
 }
