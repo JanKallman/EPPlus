@@ -141,6 +141,7 @@ namespace OfficeOpenXml.FormulaParsing
             var fs = new CellsStoreEnumerator<object>(ws._formulas, Range.Start.Row, Range.Start.Column, Range.End.Row, Range.End.Column);
             while (fs.Next())
             {
+                if (fs.Value == null || fs.Value.ToString().Trim() == "") continue;
                 var id = ExcelCellBase.GetCellID(ws.SheetID, fs.Row, fs.Column);
                 if (!depChain.index.ContainsKey(id))
                 {
@@ -185,6 +186,11 @@ namespace OfficeOpenXml.FormulaParsing
                     if (adr.Table != null)
                     {
                         adr.SetRCFromTable(ws._package, new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column));
+                    }
+
+                    if (adr.WorkSheet == null && adr.Collide(new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column))!=ExcelAddressBase.eAddressCollition.No)
+                    {
+                        throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}", ExcelAddressBase.GetAddress(f.Row, f.Column))));
                     }
 
                     if (adr._fromRow > 0 && adr._fromCol > 0)
@@ -301,17 +307,19 @@ namespace OfficeOpenXml.FormulaParsing
 
             while (f.iterator.Next())
             {
+                var v = f.iterator.Value;
+                if (v == null || v.ToString().Trim() == "") continue;
                 var id = ExcelAddressBase.GetCellID(f.ws.SheetID, f.iterator.Row, f.iterator.Column);
                 if (!depChain.index.ContainsKey(id))
                 {
                     var rf = new FormulaCell() { SheetID = f.ws.SheetID, Row = f.iterator.Row, Column = f.iterator.Column };
                     if (f.iterator.Value is int)
                     {
-                        rf.Formula = f.ws._sharedFormulas[(int)f.iterator.Value].GetFormula(f.iterator.Row, f.iterator.Column);
+                        rf.Formula = f.ws._sharedFormulas[(int)v].GetFormula(f.iterator.Row, f.iterator.Column);
                     }
                     else
                     {
-                        rf.Formula = f.iterator.Value.ToString();
+                        rf.Formula = v.ToString();
                     }
                     rf.ws = f.ws;
                     rf.Tokens = lexer.Tokenize(rf.Formula).ToList();

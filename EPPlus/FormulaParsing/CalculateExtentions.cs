@@ -131,6 +131,10 @@ namespace OfficeOpenXml
                     var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
                     SetValue(wb, item, v);
                 }
+                catch (FormatException fe)
+                {
+                    throw (fe);
+                }
                 catch (Exception e)
                 {
                     var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);

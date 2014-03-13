@@ -242,7 +242,8 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
         }
-        
+
+        [Ignore]
         [TestMethod]
         public void ReadBug12()
         {
@@ -252,6 +253,7 @@ namespace EPPlusTest
             ws.Column(0).Style.Font.Bold = true;
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug13()
         {
@@ -260,6 +262,7 @@ namespace EPPlusTest
             package.Workbook.Calculate(new OfficeOpenXml.FormulaParsing.ExcelCalculationOption() { AllowCirculareReferences = true });
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug14()
         {

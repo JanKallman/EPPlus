@@ -297,7 +297,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 var v = value.ToString();
-                v = v.Substring(1).ToLower() + v.Substring(1, v.Length - 1);
+                v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
                 SetXmlNodeString(_crossesPath, v);
             }
 
@@ -330,10 +330,9 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 var v = value.ToString();
-                v = v.Substring(0,1).ToLower() + v.Substring(1);
+                v = v.Substring(0, 1).ToLower() + v.Substring(1);
                 SetXmlNodeString(_crossBetweenPath, v);
             }
-
         }
         const string _crossesAtPath = "c:crossesAt/@val";
         /// <summary>

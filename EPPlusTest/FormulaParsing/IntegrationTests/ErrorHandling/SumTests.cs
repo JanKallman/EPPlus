@@ -9,7 +9,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.ErrorHandling
     /// <summary>
     /// Summary description for SumTests
     /// </summary>
-    [TestClass]
+    [TestClass, Ignore]
     public class SumTests : FormulaErrorHandlingTestBase
     {
         [TestInitialize]
