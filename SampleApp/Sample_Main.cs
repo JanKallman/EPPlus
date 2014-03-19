@@ -47,7 +47,6 @@ namespace EPPlusSamples
 
                 // change this line to contain the path to the output folder
                 DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
-
                 if (!outputDir.Exists) throw new Exception("outputDir does not exist!");
 
                 // Sample 1 - simply creates a new workbook from scratch
@@ -158,10 +157,14 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 15 created {0}", outputDir.Name);
                 Console.WriteLine();
 
-                //Sample 16 - Shows how to work with protected ranges
-                Console.WriteLine("Running sample 16");
-                Sample16.RunSample16(outputDir);
-                Console.WriteLine("Sample 16 created {0}", outputDir.Name);
+                //Sample FormulaCalc - Shows how to calculate formulas in the workbook.
+                Console.WriteLine("Running Sample_FormulaCalc");
+                Sample_FormulaCalc.RunSampleFormulaCalc();
+                Console.WriteLine();
+
+                //Sample AddFormulaFunction - Shows how to add your own implementations of excel functions to EPPlus.
+                Console.WriteLine("Running Sample_AddFormulaFunction");
+                Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
                 Console.WriteLine();
             }
 			catch (Exception ex)

@@ -37,7 +37,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
-using System.IO.Packaging;
 using System.Globalization;
 using System.IO;
 namespace OfficeOpenXml
@@ -767,11 +766,11 @@ namespace OfficeOpenXml
 		{
             return GetXmlNodeString(TopNode, path);
 		}
-		internal static Uri GetNewUri(Package package, string sUri)
+		internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
 		{
 			return GetNewUri(package, sUri, 1);
 		}
-		internal static Uri GetNewUri(Package package, string sUri, int id)
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, int id)
 		{
 			Uri uri;
 			do
@@ -806,9 +805,9 @@ namespace OfficeOpenXml
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
-            settings.ProhibitDtd = true;
-
+            settings.ProhibitDtd = true;            
             XmlReader reader = XmlReader.Create(stream, settings);            
+            
             xmlDoc.Load(reader);
         }
         internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml, Encoding encoding)

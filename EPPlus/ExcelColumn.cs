@@ -34,7 +34,7 @@ using System.Xml;
 using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
-	/// <summary>
+    /// <summary>
 	/// Represents one or more columns within the worksheet
 	/// </summary>
 	public class ExcelColumn : IRangeID
@@ -81,11 +81,13 @@ namespace OfficeOpenXml
                     throw new Exception("ColumnMax out of range");
                 }
 
-                foreach (ExcelColumn c in _worksheet._columns)
+                var cse = new CellsStoreEnumerator<object>(_worksheet._values, 0, 0, 0, ExcelPackage.MaxColumns);
+                while(cse.Next())
                 {
-                    if (c.ColumnMin > _columnMin && c.ColumnMax <= value && c.ColumnMin!=_columnMin)
+                    var c = cse.Value as ExcelColumn;
+                    if (cse.Column > _columnMin && c.ColumnMax <= value && cse.Column!=_columnMin)
                     {
-                        throw new Exception(string.Format("ColumnMax can not spann over existing column {0}.",c.ColumnMin));
+                        throw new Exception(string.Format("ColumnMax can not span over existing column {0}.",c.ColumnMin));
                     }
                 }
                 _columnMax = value; 
@@ -203,9 +205,9 @@ namespace OfficeOpenXml
         {
             get
             {
-                string letter = ExcelCell.GetColumnLetter(ColumnMin);
-                string endLetter = ExcelCell.GetColumnLetter(ColumnMax);
-                return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, letter + ":" + endLetter);
+                string letter = ExcelCellBase.GetColumnLetter(ColumnMin);
+                string endLetter = ExcelCellBase.GetColumnLetter(ColumnMax);
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID, _worksheet.PositionID, letter + ":" + endLetter);
             }
         }
         internal string _styleName="";
@@ -220,25 +222,25 @@ namespace OfficeOpenXml
             }
             set
             {
-                _styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
+                StyleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
 		}
-        internal int _styleID = 0;
+        //internal int _styleID = 0;
         /// <summary>
-		/// Sets the style for the entire column using the style ID.  
-		/// </summary>
+        /// Sets the style for the entire column using the style ID.  
+        /// </summary>
         public int StyleID
-		{
+        {
             get
             {
-                return _styleID;
+                return _worksheet._styles.GetValue(0, ColumnMin);
             }
             set
             {
-                _styleID = value;
+                _worksheet._styles.SetValue(0, ColumnMin, value);
             }
-		}
+        }
         /// <summary>
         /// Adds a manual page break after the column.
         /// </summary>
@@ -325,19 +327,24 @@ namespace OfficeOpenXml
         /// Copies the current column to a new worksheet
         /// </summary>
         /// <param name="added">The worksheet where the copy will be created</param>
-        internal void Clone(ExcelWorksheet added)
+        internal ExcelColumn Clone(ExcelWorksheet added)
         {
-            ExcelColumn newCol = added.Column(ColumnMin);
-            newCol.ColumnMax = ColumnMax;
-            newCol.BestFit = BestFit;
-            newCol.Collapsed = Collapsed;
-            newCol.Hidden = Hidden;
-            newCol.OutlineLevel = OutlineLevel;
-            newCol.PageBreak = PageBreak;
-            newCol.Phonetic = Phonetic;
-            newCol.StyleName = StyleName;
-            newCol.StyleID = StyleID;
-            newCol.Width = Width;
+            return Clone(added, ColumnMin);
+        }
+        internal ExcelColumn Clone(ExcelWorksheet added, int col)
+        {
+            ExcelColumn newCol = added.Column(col);
+                newCol.ColumnMax = ColumnMax;
+                newCol.BestFit = BestFit;
+                newCol.Collapsed = Collapsed;
+                newCol.Hidden = Hidden;
+                newCol.OutlineLevel = OutlineLevel;
+                newCol.PageBreak = PageBreak;
+                newCol.Phonetic = Phonetic;
+                newCol._styleName = _styleName;
+                newCol.StyleID = StyleID;
+                newCol.Width = Width;
+                return newCol;
         }
     }
 }

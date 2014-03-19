@@ -42,7 +42,6 @@ using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Table;
-
 namespace EPPlusSamples
 {
     /// <summary>
@@ -173,6 +172,7 @@ namespace EPPlusSamples
             shape.TextAnchoring = eTextAnchoringType.Top;
             shape.TextVertical = eTextVerticalType.Horizontal;
             shape.TextAnchoringControl=false;
+            ws.Calculate();
             ws.Cells[1,2,row,5].AutoFitColumns();
 
             //Add the graph sheet
@@ -191,6 +191,7 @@ namespace EPPlusSamples
             ws.PrinterSettings.FitToHeight = 0;
             ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1"); //Print titles
             ws.PrinterSettings.PrintArea = ws.Cells[1, 1, row - 1, 5];
+            pck.Workbook.Calculate();
 
             //Done! save the sheet
             pck.Save();
@@ -247,9 +248,6 @@ namespace EPPlusSamples
         {
             var ws = pck.Workbook.Worksheets.Add("Statistics");
             ws.View.ShowGridLines = false;
-
-            //ws.Column(1).Width = 40;
-            //ws.Column(2).Width = 20;
 
             //Set first the header and format it
             ws.Cells["A1"].Value = "Statistics for ";
@@ -370,7 +368,6 @@ namespace EPPlusSamples
             using (ExcelRange r = ws.Cells[row, 1, row, 2])
             {
                 r.Style.Font.SetFromFont(new Font("Arial", 12, FontStyle.Bold));
-                //AlterColor(ws, row);
             }
 
             row++;
@@ -389,7 +386,6 @@ namespace EPPlusSamples
                         ws.Cells[row, 2].Value = lst[lst.Count - i - 1].Count;
                     }
 
-                    //AlterColor(ws, row);
                     row++;
                 }
             }
@@ -414,7 +410,6 @@ namespace EPPlusSamples
                 ws.Cells[row, 2].Value = rest;
                 ws.Cells[row, 1, row, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 ws.Cells[row, 1, row, 2].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                //AlterColor(ws, row);
                 row++;
             }
 

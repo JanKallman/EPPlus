@@ -40,7 +40,7 @@ using System.IO;
 namespace OfficeOpenXml.Utils
 {
     internal class CompoundDocument
-    {
+    {        
         internal class StoragePart
         {
             public StoragePart()
@@ -53,8 +53,26 @@ namespace OfficeOpenXml.Utils
         internal StoragePart Storage = null;
         internal CompoundDocument()
         {
+            Storage = new CompoundDocument.StoragePart();
+        }
+        internal CompoundDocument(FileInfo fi)
+        {
+            Read(fi);
+        }
+        internal CompoundDocument(ILockBytes lb)
+        {
+            Read(lb);
         }
         internal CompoundDocument(byte[] doc)
+        {
+            Read(doc);
+        }
+        internal void Read(FileInfo fi)
+        {
+            var b = File.ReadAllBytes(fi.FullName);
+            Read(b);
+        }
+        internal void Read(byte[] doc)
         {
             ILockBytes lb;
             var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
@@ -65,6 +83,11 @@ namespace OfficeOpenXml.Utils
             lb.WriteAt(0, buffer, doc.Length, out readSize);
             Marshal.FreeHGlobal(buffer);
 
+            Read(lb);
+        }
+
+        internal void Read(ILockBytes lb)
+        {
             if (StgIsStorageILockBytes(lb) == 0)
             {
                 IStorage storage = null;
@@ -540,17 +563,19 @@ namespace OfficeOpenXml.Utils
         internal static int IsStorageILockBytes(ILockBytes lb)
         {
             return StgIsStorageILockBytes(lb);
-        }
-        internal ILockBytes GetLockbyte(MemoryStream stream)
+        }        
+        internal static ILockBytes GetLockbyte(MemoryStream stream)
         {
             ILockBytes lb;
             var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
             byte[] docArray = stream.GetBuffer();
+
             IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
             Marshal.Copy(docArray, 0, buffer, docArray.Length);
             UIntPtr readSize;
             lb.WriteAt(0, buffer, docArray.Length, out readSize);
             Marshal.FreeHGlobal(buffer);
+
             return lb;
         }
         private MemoryStream ReadParts(IStorage storage, StoragePart storagePart)
@@ -711,6 +736,5 @@ namespace OfficeOpenXml.Utils
             }
             subStorage.Commit(0);
         }
-
     }
 }

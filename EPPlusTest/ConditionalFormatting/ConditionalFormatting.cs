@@ -54,7 +54,6 @@ namespace EPPlusTest
     [ClassCleanup()]
     public static void MyClassCleanup()
     {
-        _pck.Save();
         _pck = null;
     }
 
@@ -90,6 +89,7 @@ namespace EPPlusTest
     /// 
     /// </summary>
     [TestMethod]
+    [Ignore]
     public void ReadConditionalFormatting()
     {
       var pck = new ExcelPackage(new FileInfo(@"c:\temp\cf.xlsx"));
@@ -108,6 +108,7 @@ namespace EPPlusTest
     /// 
     /// </summary>
     [TestMethod]
+    [Ignore]
     public void ReadConditionalFormattingError()
     {
       var pck = new ExcelPackage(new FileInfo(@"c:\temp\CofCTemplate.xlsx"));
