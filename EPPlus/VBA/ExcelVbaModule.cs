@@ -86,11 +86,18 @@ namespace OfficeOpenXml.VBA
             }
             set
             {
-                _name = value;
-                streamName = value;
-                if (_nameChangeCallback != null)
+                if (value.Any(c => c > 255))
                 {
-                    _nameChangeCallback(value);
+                    throw (new InvalidOperationException("Vba module names can't contain unicode characters"));
+                }
+                if (value != _name)
+                {
+                    _name = value;
+                    streamName = value;
+                    if (_nameChangeCallback != null)
+                    {
+                        _nameChangeCallback(value);
+                    }
                 }
             }
         }

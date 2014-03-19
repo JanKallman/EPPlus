@@ -89,7 +89,7 @@ namespace EPPlusTest.DataValidation.IntegrationTests
             _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeTime.xlsx")));
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void DataValidations_ReadExistingWorkbookWithDataValidations()
         {
             using (var package = new ExcelPackage(new FileInfo(GetTestOutputPath("DVTest.xlsx"))))

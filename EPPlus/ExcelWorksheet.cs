@@ -34,7 +34,6 @@ using System;
 using System.Xml;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Packaging;
 using System.Configuration;
 using OfficeOpenXml.Drawing;
 using System.Diagnostics;
@@ -52,7 +51,10 @@ using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
-using System.Web;
+using OfficeOpenXml.Utils;
+using Ionic.Zip;
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -73,19 +75,86 @@ namespace OfficeOpenXml
         /// </summary>
         VeryHidden
     }
+    [Flags]
+    internal enum CellFlags
+    {
+        Merged = 0x1,
+        RichText = 0x2,
+        SharedFormula = 0x4,
+        ArrayFormula = 0x8
+    }
+    /// <summary>
+    /// Represents an Excel Chartsheet and provides access to its properties and methods
+    /// </summary>
+    public class ExcelChartsheet : ExcelWorksheet
+    {
+        //ExcelDrawings draws;
+        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
+            base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
+        {
+            this.Drawings.AddChart("Chart 1", chartType);
+        }
+        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
+            base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
+        {
+        }
+        public ExcelChart Chart 
+        {
+            get
+            {
+                return (ExcelChart)Drawings[0];
+            }
+        }
+    }
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public sealed class ExcelWorksheet : XmlHelper, IDisposable
+    public class ExcelWorksheet : XmlHelper, IDisposable
 	{
         internal class Formulas
         {
+            public Formulas(ISourceCodeTokenizer tokenizer)
+            {
+                _tokenizer = tokenizer;
+            }
+
+            private ISourceCodeTokenizer _tokenizer;
             internal int Index { get; set; }
             internal string Address { get; set; }
             internal bool IsArray { get; set; }
             public string Formula { get; set; }
             public int StartRow { get; set; }
             public int StartCol { get; set; }
+
+            private IEnumerable<Token> Tokens {get; set;}
+
+            internal string GetFormula(int row, int column)
+            {
+                if (StartRow == row && StartCol == column)
+                {
+                    return Formula;
+                }
+
+                if (Tokens == null)
+                {
+                    Tokens = _tokenizer.Tokenize(Formula);
+                }
+                
+                string f = "";
+                foreach (var token in Tokens)
+                {
+                    if (token.TokenType == TokenType.ExcelAddress)
+                    {
+                        var a = new ExcelFormulaAddress(token.Value);
+                        f += a.GetOffset(row - StartRow, column - StartCol);
+                    }
+                    else
+                    {
+                        f += token.Value;
+                    }
+                }
+                return f;
+            }
         }
         /// <summary>
         /// Collection containing merged cell addresses
@@ -135,16 +204,20 @@ namespace OfficeOpenXml
 
             #endregion
         }
-        internal RangeCollection _cells;
-        internal RangeCollection _columns;
-        internal RangeCollection _rows;
+
+        internal CellStore<object> _values;
+        internal CellStore<string> _types;
+        internal CellStore<int> _styles;
+        internal CellStore<object> _formulas;
+        internal FlagCellStore _flags;
+        internal CellStore<List<Token>> _formulaTokens;
+
+        internal CellStore<Uri> _hyperLinks;
+        internal CellStore<ExcelComment> _commentsStore;
 
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
-        internal Dictionary<int, Formulas> _arrayFormulas = new Dictionary<int, Formulas>();
-        internal RangeCollection _formulaCells;
         internal int _minCol = ExcelPackage.MaxColumns;
         internal int _maxCol = 0;
-        internal List<ulong> _hyperLinkCells;   //Used when saving the sheet
         #region Worksheet Private Properties
         internal ExcelPackage _package;
 		private Uri _worksheetUri;
@@ -181,6 +254,16 @@ namespace OfficeOpenXml
             _sheetID = sheetID;
             _positionID = positionID;
             Hidden = hide;
+           
+            /**** Cellstore ****/
+            _values=new CellStore<object>();
+            _types = new CellStore<string>();
+            _styles = new CellStore<int>();
+            _formulas = new CellStore<object>();
+            _flags = new FlagCellStore();
+            _commentsStore = new CellStore<ExcelComment>();
+            _hyperLinks = new CellStore<Uri>();
+            
             _names = new ExcelNamedRangeCollection(Workbook,this);
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
@@ -192,9 +275,9 @@ namespace OfficeOpenXml
         /// </summary>
         internal Uri WorksheetUri { get { return (_worksheetUri); } }
         /// <summary>
-        /// The PackagePart for the worksheet within the package
+        /// The Zip.ZipPackagePart for the worksheet within the package
         /// </summary>
-        internal PackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
+        internal Packaging.ZipPackagePart Part { get { return (_package.Package.GetPart(WorksheetUri)); } }
         /// <summary>
         /// The ID for the worksheet's relationship with the workbook in the package
         /// </summary>
@@ -220,6 +303,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 string address = GetXmlNodeString("d:autoFilter/@ref");
                 if (address == "")
                 {
@@ -232,7 +316,16 @@ namespace OfficeOpenXml
             }
             internal set
             {
+                CheckSheetType();
                 SetXmlNodeString("d:autoFilter/@ref", value.Address);
+            }
+        }
+
+        internal void CheckSheetType()
+        {
+            if (this is ExcelChartsheet)
+            {
+                throw (new NotSupportedException("This property or method is not supported for a Chartsheet"));
             }
         }
 
@@ -266,15 +359,22 @@ namespace OfficeOpenXml
 			set
 			{
                 if (value == _name) return;
-                Name=_package.Workbook.Worksheets.ValidateFixSheetName(Name);
+                value=_package.Workbook.Worksheets.ValidateFixSheetName(value);
+                foreach(var ws in Workbook.Worksheets)
+                {
+                    if(ws.PositionID!=PositionID && ws.Name.Equals(value,StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        throw (new ArgumentException("Worksheet name must be unique"));
+                    }
+                }
                 _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@name", _sheetID), value);
-                ChangeChangeNames(value);
+                ChangeNames(value);
 
                 _name = value;
             }
 		}
 
-        private void ChangeChangeNames(string value)
+        private void ChangeNames(string value)
         {
             //Renames name in this Worksheet;
             foreach (var n in Workbook.Names)
@@ -286,11 +386,14 @@ namespace OfficeOpenXml
             }
             foreach (var ws in Workbook.Worksheets)
             {
-                foreach (var n in ws.Names)
+                if (!(ws is ExcelChartsheet))
                 {
-                    if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue==null)
+                    foreach (var n in ws.Names)
                     {
-                        n.ChangeWorksheet(_name, value);
+                        if (string.IsNullOrEmpty(n.NameFormula) && n.NameValue == null)
+                        {
+                            n.ChangeWorksheet(_name, value);
+                        }
                     }
                 }
             }
@@ -303,6 +406,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return _names;
             }
         }
@@ -347,7 +451,8 @@ namespace OfficeOpenXml
 		{
 			get 
 			{
-				if(double.IsNaN(_defaultRowHeight))
+                CheckSheetType();
+                if (double.IsNaN(_defaultRowHeight))
                 {
                     _defaultRowHeight = GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight");
                     if(double.IsNaN(_defaultRowHeight))
@@ -359,6 +464,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
+                CheckSheetType();
                 _defaultRowHeight = value;
                 SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
                 SetXmlNodeBool("d:sheetFormatPr/@customHeight", value != 15);
@@ -376,6 +482,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 double ret = GetXmlNodeDouble("d:sheetFormatPr/@defaultColWidth");
                 if (double.IsNaN(ret))
                 {
@@ -385,6 +492,7 @@ namespace OfficeOpenXml
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString("d:sheetFormatPr/@defaultColWidth", value.ToString(CultureInfo.InvariantCulture));
 
                 if (double.IsNaN(GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight")))
@@ -402,10 +510,12 @@ namespace OfficeOpenXml
         { 
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineSummaryBelowPath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineSummaryBelowPath, value ? "1" : "0");
             }
         }
@@ -417,10 +527,12 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineSummaryRightPath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineSummaryRightPath, value ? "1" : "0");
             }
         }
@@ -432,10 +544,12 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return GetXmlNodeBool(outLineApplyStylePath);
             }
             set
             {
+                CheckSheetType();
                 SetXmlNodeString(outLineApplyStylePath, value ? "1" : "0");
             }
         }
@@ -527,6 +641,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_comments == null)
                 {
                     CreateVmlCollection();
@@ -547,7 +662,7 @@ namespace OfficeOpenXml
                 if (Part.RelationshipExists(vmlNode.Value))
                 {
                     var rel = Part.GetRelationship(vmlNode.Value);
-                    var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                    var vmlUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
 
                     _vmlDrawings = new ExcelVmlDrawingCommentCollection(_package, this, vmlUri);
                     _vmlDrawings.RelId = rel.Id;
@@ -559,7 +674,7 @@ namespace OfficeOpenXml
         {
             _worksheetXml = new XmlDocument();
             _worksheetXml.PreserveWhitespace = ExcelPackage.preserveWhitespace;
-            PackagePart packPart = _package.Package.GetPart(WorksheetUri);
+            Packaging.ZipPackagePart packPart = _package.Package.GetPart(WorksheetUri);
             string xml = "";
 
             // First Columns, rows, cells, mergecells, hyperlinks and pagebreakes are loaded from a xmlstream to optimize speed...
@@ -605,7 +720,7 @@ namespace OfficeOpenXml
                         if (int.TryParse(xr.GetAttribute("id"), out id))
                         {
                             Row(id).PageBreak = true;
-                        }
+                        }   
                     }
                 }
                 else
@@ -667,7 +782,7 @@ namespace OfficeOpenXml
             int length = 0;
             char[] block;
             int pos;
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new StringBuilder();            
             Match startmMatch, endMatch;
             do
             {
@@ -772,26 +887,25 @@ namespace OfficeOpenXml
                     {
                         int min = int.Parse(xr.GetAttribute("min"));
 
-                        int style;
-                        if (xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style))
-                        {
-                            style = 0;
-                        }
                         ExcelColumn col = new ExcelColumn(this, min);
 
-                        col._columnMax = int.Parse(xr.GetAttribute("max"));
-                        col.StyleID = style;
+                        col.ColumnMax = int.Parse(xr.GetAttribute("max"));
                         col.Width = xr.GetAttribute("width") == null ? 0 : double.Parse(xr.GetAttribute("width"), CultureInfo.InvariantCulture);
-                        col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
-                        col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
-                        col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
-                        col.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture);
-                        col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
-                        colList.Add(col);
+                            col.BestFit = xr.GetAttribute("bestFit") != null && xr.GetAttribute("bestFit") == "1" ? true : false;
+                            col.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed") == "1" ? true : false;
+                            col.Phonetic = xr.GetAttribute("phonetic") != null && xr.GetAttribute("phonetic") == "1" ? true : false;
+                        col.OutlineLevel = (short)(xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture));
+                            col.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false;
+                        _values.SetValue(0, min, col);
+                    
+                        int style;
+                        if (!(xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style)))
+                        {
+                            _styles.SetValue(0, min, style);
+                        }
                     }
                 }
             }
-            _columns = new RangeCollection(colList);
         }
         /// <summary>
         /// Read until the node is found. If not found the xmlreader is reseted.
@@ -816,59 +930,42 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadHyperLinks(XmlTextReader xr)
         {
-            if(!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
+            if (!ReadUntil(xr, "hyperlinks", "rowBreaks", "colBreaks")) return;
             while (xr.Read())
             {
                 if (xr.LocalName == "hyperlink")
                 {
-                    if (xr.NodeType == XmlNodeType.Element)
+                    int fromRow, fromCol, toRow, toCol;
+                    ExcelCellBase.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
+                    ExcelHyperLink hl = null;
+                    if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
                     {
-                        int fromRow, fromCol, toRow, toCol;
-                        ExcelCell.GetRowColFromAddress(xr.GetAttribute("ref"), out fromRow, out fromCol, out toRow, out toCol);
-                        ulong id = ExcelCell.GetCellID(_sheetID, fromRow, fromCol);
-                        ExcelCell cell = _cells[id] as ExcelCell;
-                        if (xr.GetAttribute("id", ExcelPackage.schemaRelationships) != null)
+                        var rId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
+                        var uri = Part.GetRelationship(rId).TargetUri;
+                        if (uri.IsAbsoluteUri)
                         {
-                            cell.HyperLinkRId = xr.GetAttribute("id", ExcelPackage.schemaRelationships);
-                            try
-                            {
-                                var uri = Part.GetRelationship(cell.HyperLinkRId).TargetUri;
-                                try
-                                {
-                                    if (uri.IsAbsoluteUri)
-                                    {
-                                        cell.Hyperlink = new ExcelHyperLink(Uri.UnescapeDataString(uri.OriginalString));
-                                    }
-                                    else
-                                    {
-                                        cell.Hyperlink = new ExcelHyperLink(Uri.UnescapeDataString(uri.OriginalString), UriKind.Relative);
-                                    }
-                                }
-                                catch
-                                {
-                                    //We should never end up here, but to aviod unhandled exceptions we just set the uri here. JK
-                                    cell.Hyperlink = uri;
-                                }
-                                Part.DeleteRelationship(cell.HyperLinkRId); //Delete the relationship, it is recreated when we save the package.
-                            }
-                            catch
-                            {
-                                //Invalid URI, remove it.
-                            }
+                            hl = new ExcelHyperLink(uri.AbsoluteUri);
                         }
-                        else if (xr.GetAttribute("location") != null)
+                        else
                         {
-                            ExcelHyperLink hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                            hl.RowSpann = toRow - fromRow;
-                            hl.ColSpann = toCol - fromCol;
-                            cell.Hyperlink = hl;
+                            hl = new ExcelHyperLink(uri.OriginalString, UriKind.Relative);
                         }
-                        string tt = xr.GetAttribute("tooltip");
-                        if (!string.IsNullOrEmpty(tt))
-                        {
-                            ((ExcelHyperLink)cell.Hyperlink).ToolTip = tt;
-                        }
+                        hl.RId = rId;
+                        Part.DeleteRelationship(rId); //Delete the relationship, it is recreated when we save the package.
                     }
+                    else if (xr.GetAttribute("location") != null)
+                    {
+                        hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
+                        hl.RowSpann = toRow - fromRow;
+                        hl.ColSpann = toCol - fromCol;
+                    }
+
+                    string tt = xr.GetAttribute("tooltip");
+                    if (!string.IsNullOrEmpty(tt))
+                    {
+                        hl.ToolTip = tt;
+                    }
+                    _hyperLinks.SetValue(fromRow, fromCol, hl);
                 }
                 else
                 {
@@ -882,11 +979,15 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadCells(XmlTextReader xr)
         {
-            var cellList=new List<IRangeID>();
-            var rowList = new List<IRangeID>();
-            var formulaList = new List<IRangeID>();
+            //var cellList=new List<IRangeID>();
+            //var rowList = new List<IRangeID>();
+            //var formulaList = new List<IRangeID>();
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
-            ExcelCell cell = null;
+            ExcelAddressBase address=null;
+            string type="";
+            int style=0;
+            int row = 0;
+            int col = 0;
             xr.Read();
             
             while (!xr.EOF)
@@ -897,25 +998,71 @@ namespace OfficeOpenXml
                 }                
                 if (xr.LocalName == "row")
                 {
-                    int row = Convert.ToInt32(xr.GetAttribute("r"));
-
-                    if (xr.AttributeCount > 2 || (xr.AttributeCount == 2 && xr.GetAttribute("spans") != null))
+                    var r = xr.GetAttribute("r");
+                    if (r == null)
                     {
-                        rowList.Add(AddRow(xr, row));
+                        row++;
+                    }
+                    else
+                    {
+                        row = Convert.ToInt32(r);
+                    }
+
+                    if (DoAddRow(xr))
+                    {
+                        _values.SetValue(row, 0, AddRow(xr, row));
+                        if(xr.GetAttribute("s") != null)
+                        {
+                            _styles.SetValue(row, 0, int.Parse(xr.GetAttribute("s"), CultureInfo.InvariantCulture));
+                        }
                     }
                     xr.Read();
                 }
                 else if (xr.LocalName == "c")
                 {
-                    if (cell != null) cellList.Add(cell);
-                    cell = new ExcelCell(this, xr.GetAttribute("r"));
-                    if (xr.GetAttribute("t") != null) cell.DataType = xr.GetAttribute("t");
-                    cell.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"));
+                    //if (cell != null) cellList.Add(cell);
+                    //cell = new ExcelCell(this, xr.GetAttribute("r"));
+                    var r = xr.GetAttribute("r");
+                    if (r == null)
+                    {
+                        //Handle cells with no reference
+                        col++;
+                        address = new ExcelAddressBase(row, col, row, col);
+                    }
+                    else
+                    {
+                        address = new ExcelAddressBase(r);
+                        col = address._fromCol;
+                    }
+
+                    
+                    //Datetype
+                    if (xr.GetAttribute("t") != null)
+                    {
+                        type=xr.GetAttribute("t");
+                        _types.SetValue(address._fromRow, address._fromCol, type); 
+                    }
+                    else
+                    {
+                        type="";
+                    }
+                    //Style
+                    if(xr.GetAttribute("s") != null)
+                    {
+                        style=int.Parse(xr.GetAttribute("s"));
+                        _styles.SetValue(address._fromRow, address._fromCol, style);
+                        _values.SetValue(address._fromRow, address._fromCol, null); //TODO:Better Performance ??
+                    }
+                    else
+                    {
+                        style = 0;
+                    }
                     xr.Read();
                 }
                 else if (xr.LocalName == "v")
                 {
-                    cell._value = GetValueFromXml(cell, xr);
+                    SetValueFromXml(xr, type, style, address._fromRow, address._fromCol);
+                    
                     xr.Read();
                 }
                 else if (xr.LocalName == "f")
@@ -923,8 +1070,9 @@ namespace OfficeOpenXml
                     string t = xr.GetAttribute("t");
                     if (t == null)
                     {
-                        cell._formula = xr.ReadElementContentAsString();
-                        formulaList.Add(cell);
+                        _formulas.SetValue(address._fromRow, address._fromCol, xr.ReadElementContentAsString());
+                        _values.SetValue(address._fromRow, address._fromCol, null);
+                        //formulaList.Add(cell);
                     }
                     else if (t == "shared")
                     {
@@ -932,12 +1080,14 @@ namespace OfficeOpenXml
                         string si = xr.GetAttribute("si");
                         if (si != null)
                         {
-                            cell._sharedFormulaID = int.Parse(si);
-                            string address = xr.GetAttribute("ref");
+                            var sfIndex = int.Parse(si);
+                            _formulas.SetValue(address._fromRow, address._fromCol, sfIndex);
+                            _values.SetValue(address._fromRow, address._fromCol, null);
+                            string fAddress = xr.GetAttribute("ref");
                             string formula = xr.ReadElementContentAsString();
                             if (formula != "")
                             {
-                                _sharedFormulas.Add(cell.SharedFormulaID, new Formulas() { Index = cell.SharedFormulaID, Formula = formula, Address = address, StartRow = cell.Row, StartCol = cell.Column });
+                                _sharedFormulas.Add(sfIndex, new Formulas(SourceCodeTokenizer.Default) { Index = sfIndex, Formula = formula, Address = fAddress, StartRow = address._fromRow, StartCol = address._fromCol });
                             }
                         }
                         else
@@ -947,10 +1097,12 @@ namespace OfficeOpenXml
                     }
                     else if (t == "array") //TODO: Array functions are not support yet. Read the formula for the start cell only.
                     {
-                        string address = xr.GetAttribute("ref");
-                        cell._formula = xr.ReadElementContentAsString();
-                        cell._sharedFormulaID = GetMaxShareFunctionIndex(true); //We use the shared formula id here, just so we can use the same dictionary for both Array and Shared forulas.
-                        _sharedFormulas.Add(cell._sharedFormulaID, new Formulas() { Index = cell._sharedFormulaID, Formula = cell._formula, Address = address, StartRow = cell.Row, StartCol = cell.Column, IsArray = true });
+                        string aAddress = xr.GetAttribute("ref");
+                        string formula = xr.ReadElementContentAsString();
+                        var afIndex = GetMaxShareFunctionIndex(true);
+                        _formulas.SetValue(address._fromRow, address._fromCol, afIndex.ToString());
+                        _values.SetValue(address._fromRow, address._fromCol, null);
+                        _sharedFormulas.Add(afIndex, new Formulas(SourceCodeTokenizer.Default) { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
                     }
                     else // ??? some other type
                     {
@@ -963,12 +1115,15 @@ namespace OfficeOpenXml
                     xr.Read();
                     if (xr.LocalName == "t")
                     {
-                        cell._value = xr.ReadInnerXml();
+                        _values.SetValue(address._fromRow, address._fromCol, xr.ReadInnerXml());
+                        //cell._value = xr.ReadInnerXml();
                     }
                     else
                     {
-                        cell._value = xr.ReadOuterXml();
-                        cell.IsRichText = true;
+                        _values.SetValue(address._fromRow, address._fromCol, xr.ReadOuterXml());
+                        _types.SetValue(address._fromRow, address._fromCol, "rt");
+                        _flags.SetFlagValue(address._fromRow, address._fromCol, true, CellFlags.RichText);
+                        //cell.IsRichText = true;
                     }
                 }
                 else
@@ -976,11 +1131,21 @@ namespace OfficeOpenXml
                     break;
                 }
             }
-            if (cell != null) cellList.Add(cell);
+            //if (cell != null) cellList.Add(cell);
 
-            _cells = new RangeCollection(cellList);
-            _rows = new RangeCollection(rowList);
-            _formulaCells = new RangeCollection(formulaList);
+            //_cells = new RangeCollection(cellList);
+            //_rows = new RangeCollection(rowList);
+            //_formulaCells = new RangeCollection(formulaList);
+        }
+
+        private bool DoAddRow(XmlTextReader xr)
+        {
+            var c = xr.GetAttribute("r")==null ? 0:1;
+            if (xr.GetAttribute("spans") != null)
+            {
+                c++;
+            }
+            return xr.AttributeCount > c;
         }
         /// <summary>
         /// Load merged cells
@@ -1002,7 +1167,7 @@ namespace OfficeOpenXml
                         {
                             for (int col = fromCol; col <= toCol; col++)
                             {
-                                Cell(row, col).Merge = true;
+                            _flags.SetFlagValue(row, col, true,CellFlags.Merged);
                             }
                         }
                     _mergedCells.List.Add(address);
@@ -1029,46 +1194,49 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         /// <param name="row">The row number</param>
         /// <returns></returns>
-        private ExcelRow AddRow(XmlTextReader xr, int row)
+        private RowInternal AddRow(XmlTextReader xr, int row)
         {
-            ExcelRow r = new ExcelRow(this, row);
-
-            r.Collapsed = xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false;
-            if (xr.GetAttribute("ht") != null) r.Height = double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture);
-            r.Hidden = xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false; ;
-            r.OutlineLevel = xr.GetAttribute("outlineLevel") == null ? 0 : int.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture); ;
-            r.Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false; ;
-            r.StyleID = xr.GetAttribute("s") == null ? 0 : int.Parse(xr.GetAttribute("s"), CultureInfo.InvariantCulture);
-            r.CustomHeight = xr.GetAttribute("customHeight") == null ? false : xr.GetAttribute("customHeight")=="1";
-            return r;
+            return new RowInternal()
+            {
+                Collapsed=(xr.GetAttribute("collapsed") != null && xr.GetAttribute("collapsed")== "1" ? true : false),
+                OutlineLevel = (xr.GetAttribute("outlineLevel") == null ? (short)0 : short.Parse(xr.GetAttribute("outlineLevel"), CultureInfo.InvariantCulture)),
+                Height = (xr.GetAttribute("ht") == null ? -1 : double.Parse(xr.GetAttribute("ht"), CultureInfo.InvariantCulture)),
+                Hidden = (xr.GetAttribute("hidden") != null && xr.GetAttribute("hidden") == "1" ? true : false),
+                Phonetic = xr.GetAttribute("ph") != null && xr.GetAttribute("ph") == "1" ? true : false,
+                CustomHeight = xr.GetAttribute("customHeight") == null ? false : xr.GetAttribute("customHeight")=="1"
+            };
         }
 
-        private object GetValueFromXml(ExcelCell cell, XmlTextReader xr)
+        private void SetValueFromXml(XmlTextReader xr, string type, int styleID, int row, int col)
         {
-            object value;
             //XmlNode vnode = colNode.SelectSingleNode("d:v", NameSpaceManager);
             //if (vnode == null) return null;
-
-            if (cell.DataType == "s")
+            if (type == "s")
             {
                 int ix = xr.ReadElementContentAsInt();
-                value = _package.Workbook._sharedStringsList[ix].Text;
-                cell.IsRichText = _package.Workbook._sharedStringsList[ix].isRichText;
+                _values.SetValue(row, col, _package.Workbook._sharedStringsList[ix].Text);
+                if (_package.Workbook._sharedStringsList[ix].isRichText)
+                {
+                    _flags.SetFlagValue(row, col, true, CellFlags.RichText);
+                }                
             }
-            else if (cell.DataType == "str")
+            else if (type == "str")
             {
-                value = xr.ReadElementContentAsString();
+                _values.SetValue(row, col, xr.ReadElementContentAsString());
             }
-            else if (cell.DataType == "b")
+            else if (type == "b")
             {
-                value = (xr.ReadElementContentAsString()!="0");
+                _values.SetValue(row, col, (xr.ReadElementContentAsString()!="0"));
+            }
+            else if (type == "e")
+            {
+                _values.SetValue(row, col, GetErrorType(xr.ReadElementContentAsString()));
             }
             else
             {
-                int n = cell.Style.Numberformat.NumFmtID;
                 string v = xr.ReadElementContentAsString();
-
-                if ((n >= 14 && n <= 22) || (n >= 45 && n <= 47))
+                var nf = Workbook.Styles.CellXfs[styleID].NumberFormatId;
+                if ((nf >= 14 && nf <= 22) || (nf >= 45 && nf <= 47))
                 {
                     double res;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
@@ -1077,12 +1245,11 @@ namespace OfficeOpenXml
                         {
                             res += ExcelWorkbook.date1904Offset;
                         }
-
-                        value = DateTime.FromOADate(res);
+                        _values.SetValue(row, col, DateTime.FromOADate(res));
                     }
                     else
                     {
-                        value = "";
+                        _values.SetValue(row, col, "");
                     }
                 }
                 else
@@ -1090,15 +1257,36 @@ namespace OfficeOpenXml
                     double d;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                     {
-                        value = d;
+                        _values.SetValue(row, col, d);
                     }
                     else
                     {
-                        value = double.NaN;
+                        _values.SetValue(row, col, double.NaN);
                     }
                 }
             }
-            return value;
+        }
+
+        private object GetErrorType(string v)
+        {
+            return ExcelErrorValue.Parse(v.ToUpper());
+            //switch(v.ToUpper())
+            //{
+            //    case "#DIV/0!":
+            //        return new ExcelErrorValue.cre(eErrorType.Div0);
+            //    case "#REF!":
+            //        return new ExcelErrorValue(eErrorType.Ref);
+            //    case "#N/A":
+            //        return new ExcelErrorValue(eErrorType.NA);
+            //    case "#NAME?":
+            //        return new ExcelErrorValue(eErrorType.Name);
+            //    case "#NULL!":
+            //        return new ExcelErrorValue(eErrorType.Null);
+            //    case "#NUM!":
+            //        return new ExcelErrorValue(eErrorType.Num);
+            //    default:
+            //        return new ExcelErrorValue(eErrorType.Value);
+            //}
         }
         //private string GetSharedString(int stringID)
         //{
@@ -1162,28 +1350,24 @@ namespace OfficeOpenXml
 
 		#region Worksheet Public Methods
         
-        /// <summary>
-		/// Provides access to an individual cell within the worksheet.
-		/// </summary>
-		/// <param name="row">The row number in the worksheet</param>
-		/// <param name="col">The column number in the worksheet</param>
-		/// <returns></returns>		
-        internal ExcelCell Cell(int row, int col)
-        {
-            ulong cellID=ExcelCell.GetCellID(SheetID, row, col);
-            if (!_cells.ContainsKey(cellID))
-            {
-                _cells.Add(new ExcelCell(this, row, col));
-            }
-            return _cells[cellID] as ExcelCell;
-        }
-        /// <summary>
-        /// Provides access to a range of cells
+        ///// <summary>
+        ///// Provides access to an individual cell within the worksheet.
+        ///// </summary>
+        ///// <param name="row">The row number in the worksheet</param>
+        ///// <param name="col">The column number in the worksheet</param>
+        ///// <returns></returns>		
+        //internal ExcelCell Cell(int row, int col)
+        //{
+        //    return new ExcelCell(_values, row, col);
+        //}
+         /// <summary>
+         /// Provides access to a range of cells
         /// </summary>  
         public ExcelRange Cells
         {
             get
             {
+                CheckSheetType();
                 return new ExcelRange(this, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             }
         }
@@ -1194,6 +1378,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return new ExcelRange(this, View.SelectedRange);
             }
         }
@@ -1205,6 +1390,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 return _mergedCells;
             }
         }
@@ -1215,18 +1401,28 @@ namespace OfficeOpenXml
 		/// <returns></returns>
 		public ExcelRow Row(int row)
 		{
-            ExcelRow r;
-            ulong id = ExcelRow.GetRowID(_sheetID, row);
-            if (_rows.ContainsKey(id))
+            //ExcelRow r;
+            //ulong id = ExcelRow.GetRowID(_sheetID, row);
+            //TODO: Fixa.
+            //var v = _values.GetValue(row, 0);
+            //if (v!=null)
+            //{
+            //    var ri=(RowInternal)v;
+            //    r = new ExcelRow(this, row)
+            //}
+            //else
+            //{
+                //r = new ExcelRow(this, row);
+                //_values.SetValue(row, 0, r);
+                //_rows.Add(r);
+            //}
+            CheckSheetType();
+            if (row < 1 || row > ExcelPackage.MaxRows)
             {
-                r = _rows[id] as ExcelRow;
+                throw (new ArgumentException("Row number out of bounds"));
             }
-            else
-            {
-                r = new ExcelRow(this, row);
-                _rows.Add(r);
-            }
-            return r;
+            return new ExcelRow(this, row);
+            //return r;
 		}
 		/// <summary>
 		/// Provides access to an individual column within the worksheet so you can set its properties.
@@ -1234,12 +1430,17 @@ namespace OfficeOpenXml
 		/// <param name="col">The column number in the worksheet</param>
 		/// <returns></returns>
 		public ExcelColumn Column(int col)
-		{
-            ExcelColumn column;
-            ulong id=ExcelColumn.GetColumnID(_sheetID, col);
-            if (_columns.ContainsKey(id))
+		{            
+            CheckSheetType();
+            if (col < 1 || col > ExcelPackage.MaxColumns)
             {
-                column = _columns[id] as ExcelColumn;
+                throw (new ArgumentException("Column number out of bounds"));
+            }
+            ExcelColumn column = _values.GetValue(0, col) as ExcelColumn;
+            // id=ExcelColumn.GetColumnID(_sheetID, col);
+            if (column!=null)
+            {
+                //column = _columns[id] as ExcelColumn;
                 if (column.ColumnMin != column.ColumnMax)
                 {
                     int maxCol = column.ColumnMax;
@@ -1249,21 +1450,37 @@ namespace OfficeOpenXml
             }
             else
             {
-                foreach (ExcelColumn checkColumn in _columns)
+                int r=0, c=col;
+                if (_values.PrevCell(ref r, ref c))
                 {
-                    if (col > checkColumn.ColumnMin && col <= checkColumn.ColumnMax)
+                    column = _values.GetValue(0, c) as ExcelColumn;
+                    int maxCol = column.ColumnMax;
+                    if (maxCol >= col)
                     {
-                        int maxCol = checkColumn.ColumnMax;
-                        checkColumn.ColumnMax = col - 1;
+                        column.ColumnMax = col-1;
                         if (maxCol > col)
                         {
-                            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
+                            ExcelColumn newC = CopyColumn(column, col + 1, maxCol);
                         }
-                        return CopyColumn(checkColumn, col,col);                        
+                        return CopyColumn(column, col, col);
                     }
                 }
+                //foreach (ExcelColumn checkColumn in _columns)
+                //{
+                //    if (col > checkColumn.ColumnMin && col <= checkColumn.ColumnMax)
+                //    {
+                //        int maxCol = checkColumn.ColumnMax;
+                //        checkColumn.ColumnMax = col - 1;
+                //        if (maxCol > col)
+                //        {
+                //            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
+                //        }
+                //        return CopyColumn(checkColumn, col,col);                        
+                //    }
+                //}
                 column = new ExcelColumn(this, col);
-                _columns.Add(column);
+                _values.SetValue(0, col, column);
+                //_columns.Add(column);
              }
             return column;
 		}
@@ -1284,14 +1501,23 @@ namespace OfficeOpenXml
             else
                 newC.StyleID = c.StyleID;
 
-            newC._width = c._width;
             newC._hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
             newC.Phonetic = c.Phonetic;
             newC.BestFit = c.BestFit;
-            _columns.Add(newC);
+            //_columns.Add(newC);
+            _values.SetValue(0, col, newC);
+            newC.Width = c._width;
             return newC;
        }
+        /// <summary>
+        /// Make the current worksheet active.
+        /// </summary>
+        public void Select()
+        {
+            View.TabSelected = true;
+            //Select(Address, true);
+        }
         /// <summary>
         /// Selects a range in the worksheet. The active cell is the topmost cell.
         /// Make the current worksheet active.
@@ -1308,16 +1534,17 @@ namespace OfficeOpenXml
         /// <param name="SelectSheet">Make the sheet active</param>
         public void Select(string Address, bool SelectSheet)
         {
+            CheckSheetType();
             int fromCol, fromRow, toCol, toRow;
             //Get rows and columns and validate as well
-            ExcelCell.GetRowColFromAddress(Address, out fromRow, out fromCol, out toRow, out toCol);
+            ExcelCellBase.GetRowColFromAddress(Address, out fromRow, out fromCol, out toRow, out toCol);
 
             if (SelectSheet)
             {
                 View.TabSelected = true;
             }
             View.SelectedRange = Address;
-            View.ActiveCell = ExcelCell.GetAddress(fromRow, fromCol);            
+            View.ActiveCell = ExcelCellBase.GetAddress(fromRow, fromCol);            
         }
         /// <summary>
         /// Selects a range in the worksheet. The active cell is the topmost cell of the first address.
@@ -1326,6 +1553,7 @@ namespace OfficeOpenXml
         /// <param name="Address">An address range</param>
         public void Select(ExcelAddress Address)
         {
+            CheckSheetType();
             Select(Address, true);
         }
         /// <summary>
@@ -1336,6 +1564,7 @@ namespace OfficeOpenXml
         public void Select(ExcelAddress Address, bool SelectSheet)
         {
 
+            CheckSheetType();
             if (SelectSheet)
             {
                 View.TabSelected = true;
@@ -1349,7 +1578,7 @@ namespace OfficeOpenXml
                 }
             }
             View.SelectedRange = selAddress;
-            View.ActiveCell = ExcelCell.GetAddress(Address.Start.Row, Address.Start.Column);
+            View.ActiveCell = ExcelCellBase.GetAddress(Address.Start.Row, Address.Start.Column);
         }
 
 		#region InsertRow
@@ -1370,65 +1599,67 @@ namespace OfficeOpenXml
         /// <param name="rowFrom">The position of the new row</param>
         /// <param name="rows">Number of rows to insert.</param>
         /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
-		public void InsertRow(int rowFrom, int rows, int copyStylesFromRow)
+		public void  InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{
-            //Insert the new row into the collection
-            ulong copyRowID=ExcelRow.GetRowID(SheetID, copyStylesFromRow);
-            List<ExcelCell> copyStylesCells=new List<ExcelCell>();
-            if (copyStylesFromRow > 0)
+            CheckSheetType();
+            var d = Dimension;
+            //Check that cells aren't shifted outside the boundries
+            if (d != null && d.End.Row > rowFrom && d.End.Row + rows > ExcelPackage.MaxRows)
             {
-                int startIndex = _cells.IndexOf(copyRowID);
-                startIndex = ~startIndex;
-                while(startIndex < _cells.Count && (_cells[startIndex] as ExcelCell).Row==copyStylesFromRow)
-                {
-                    copyStylesCells.Add(_cells[startIndex++] as ExcelCell);
-                }
-            }
-            ulong rowID=ExcelRow.GetRowID(SheetID, rowFrom);
-
-            _cells.InsertRows(rowID, rows);
-            _rows.InsertRows(rowID, rows);
-            _formulaCells.InsertRowsUpdateIndex(rowID, rows);
-            if (_comments != null) _comments._comments.InsertRowsUpdateIndex(rowID, rows);
-            if (_vmlDrawings != null) _vmlDrawings._drawings.InsertRowsUpdateIndex(rowID, rows);
-
-            foreach (ExcelCell cell in _formulaCells)
-            {
-                if (cell.SharedFormulaID < 0)
-                {
-                    cell.Formula = ExcelCell.UpdateFormulaReferences(cell.Formula, rows, 0, rowFrom, 0);
-                }
-                else
-                {
-                    throw new Exception("Shared formula error");
-                }
+                throw (new ArgumentOutOfRangeException("Can't insert. Rows will be shifted outside the boundries of the worksheet."));
             }
 
-            FixSharedFormulasRows(rowFrom, rows);
+            _values.Insert(rowFrom, 0, rows, 0);
+            _formulas.Insert(rowFrom, 0, rows, 0);
+            _styles.Insert(rowFrom, 0, rows, 0);
+            _types.Insert(rowFrom, 0, rows, 0);
+            _commentsStore.Insert(rowFrom, 0, rows, 0);
+            _hyperLinks.Insert(rowFrom, 0, rows, 0);
+            _flags.Insert(rowFrom, 0, rows, 0);
+
+            foreach (var f in _sharedFormulas.Values)
+            {
+                if (f.StartRow >= rowFrom) f.StartRow += rows;
+                var a = new ExcelAddressBase(f.Address);
+                if (a._fromRow >= rowFrom)
+                {
+                    a._fromRow += rows;
+                    a._toRow += rows;
+                }
+                else if (a._toRow >= rowFrom)
+                {
+                    a._toRow += rows;
+                }
+                f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
+                f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, 0, rowFrom, 0);
+            }
+
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+                if (cse.Value is string)
+                {
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, 0, rowFrom, 0);
+                }
+            }
             
             FixMergedCells(rowFrom, rows,false);
-
-            //Copy the styles
-            foreach (ExcelCell cell in copyStylesCells)
-            {
-                Cells[rowFrom, cell.Column, rowFrom + rows - 1, cell.Column].StyleID = cell.StyleID;
-            }
         }
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="row"></param>
         /// <param name="rows"></param>
         /// <param name="delete"></param>
-        private void FixMergedCells(int position, int rows, bool delete)
+        private void FixMergedCells(int row, int rows, bool delete)
         {
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
             {
-                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr ;
+                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
                 if (delete)
                 {
-                    newAddr=addr.DeleteRow(position, rows);
+                    newAddr = addr.DeleteRow(row, rows);
                     if (newAddr == null)
                     {
                         removeIndex.Add(i);
@@ -1437,18 +1668,18 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    newAddr = addr.AddRow(position, rows);
+                    newAddr = addr.AddRow(row, rows);
                 }
-                
+
                 //The address has changed.
                 if (newAddr._address != addr._address)
                 {
                     //Set merged prop for cells
-                    for (int row = newAddr._fromRow; row <= newAddr._toRow; row++)
+                    for (int r = newAddr._fromRow; r <= newAddr._toRow; r++)
                     {
-                        for (int col = newAddr._fromCol; col <= newAddr._toCol; col++)
+                        for (int c = newAddr._fromCol; c <= newAddr._toCol; c++)
                         {
-                            Cell(row, col).Merge = true;
+                            _flags.SetFlagValue(r, c, true, CellFlags.Merged);
                         }
                     }
                 }
@@ -1470,19 +1701,19 @@ namespace OfficeOpenXml
                 var f = _sharedFormulas[id];
                 int fromCol, fromRow, toCol, toRow;
 
-                ExcelCell.GetRowColFromAddress(f.Address, out fromRow, out fromCol, out toRow, out toCol);
+                ExcelCellBase.GetRowColFromAddress(f.Address, out fromRow, out fromCol, out toRow, out toCol);
                 if (position >= fromRow && position+(Math.Abs(rows)) <= toRow) //Insert/delete is whithin the share formula address
                 {
                     if (rows > 0) //Insert
                     {
-                        f.Address = ExcelCell.GetAddress(fromRow, fromCol) + ":" + ExcelCell.GetAddress(position - 1, toCol);
+                        f.Address = ExcelCellBase.GetAddress(fromRow, fromCol) + ":" + ExcelCellBase.GetAddress(position - 1, toCol);
                         if (toRow != fromRow)
                         {
-                            Formulas newF = new Formulas();
+                            Formulas newF = new Formulas(SourceCodeTokenizer.Default);
                             newF.StartCol = f.StartCol;
                             newF.StartRow = position + rows;
-                            newF.Address = ExcelCell.GetAddress(position + rows, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
-                            newF.Formula = ExcelCell.TranslateFromR1C1(ExcelCell.TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), position, f.StartCol);
+                            newF.Address = ExcelCellBase.GetAddress(position + rows, fromCol) + ":" + ExcelCellBase.GetAddress(toRow + rows, toCol);
+                            newF.Formula = ExcelCellBase.TranslateFromR1C1(ExcelCellBase.TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), position, f.StartCol);
                             added.Add(newF);
                         }
                     }
@@ -1490,11 +1721,11 @@ namespace OfficeOpenXml
                     {
                         if (fromRow - rows < toRow)
                         {
-                            f.Address = ExcelCell.GetAddress(fromRow, fromCol, toRow+rows, toCol);
+                            f.Address = ExcelCellBase.GetAddress(fromRow, fromCol, toRow+rows, toCol);
                         }
                         else
                         {
-                            f.Address = ExcelCell.GetAddress(fromRow, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
+                            f.Address = ExcelCellBase.GetAddress(fromRow, fromCol) + ":" + ExcelCellBase.GetAddress(toRow + rows, toCol);
                         }
                     }
                 }
@@ -1504,7 +1735,7 @@ namespace OfficeOpenXml
                     {
                         f.StartRow += rows;
                         //f.Formula = ExcelCell.UpdateFormulaReferences(f.Formula, rows, 0, position, 0); //Recalc the cells positions
-                        f.Address = ExcelCell.GetAddress(fromRow + rows, fromCol) + ":" + ExcelCell.GetAddress(toRow + rows, toCol);
+                        f.Address = ExcelCellBase.GetAddress(fromRow + rows, fromCol) + ":" + ExcelCellBase.GetAddress(toRow + rows, toCol);
                     }
                     else
                     {
@@ -1521,7 +1752,7 @@ namespace OfficeOpenXml
                                 fromRow = fromRow + rows < position ? position : fromRow + rows;
                             }
 
-                            f.Address = ExcelCell.GetAddress(fromRow, fromCol, toRow, toCol);
+                            f.Address = ExcelCellBase.GetAddress(fromRow, fromCol, toRow, toCol);
                             Cells[f.Address].SetSharedFormulaID(f.Index);
                             //f.StartRow = fromRow;
 
@@ -1589,12 +1820,12 @@ namespace OfficeOpenXml
                     string currentFormulaR1C1;
                     if (rows > 0 || row < startRow)
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     else
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCell.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     if (currentFormulaR1C1 != prevFormualR1C1) //newFormula.Contains("#REF!"))
@@ -1616,7 +1847,7 @@ namespace OfficeOpenXml
                             {
                                 newFormulas[newFormulas.Count - 1].Address = ExcelCellBase.GetAddress(newFormulas[newFormulas.Count - 1].StartRow, newFormulas[newFormulas.Count - 1].StartCol, row - 1, col);
                             }
-                            var refFormula = new Formulas();
+                            var refFormula = new Formulas(SourceCodeTokenizer.Default);
                             refFormula.Formula = newFormula;
                             refFormula.StartRow = row;
                             refFormula.StartCol = col;
@@ -1681,21 +1912,52 @@ namespace OfficeOpenXml
         /// <param name="rows">Number of rows to delete</param>
         public void DeleteRow(int rowFrom, int rows)
         {
-            ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
+            CheckSheetType();
 
-            _cells.DeleteRows(rowID, rows, true);
-            _rows.DeleteRows(rowID, rows, true);
-            _formulaCells.DeleteRows(rowID, rows, false);
-            if (_comments != null) _comments._comments.DeleteRows(rowID, rows, false);
-            if (_vmlDrawings != null) _vmlDrawings._drawings.DeleteRows(rowID, rows, false);
+            _values.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _types.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _formulas.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _styles.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _flags.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _commentsStore.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+            _hyperLinks.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
 
-            foreach (ExcelCell cell in _formulaCells)
-            {
-                cell._formula = ExcelCell.UpdateFormulaReferences(cell.Formula, -rows, 0, rowFrom, 0);
-                cell._formulaR1C1 = "";
-            }
-            FixSharedFormulasRows(rowFrom, -rows);
+            AdjustFormulasRow(rowFrom, rows);
             FixMergedCells(rowFrom, rows,true);
+        }
+        internal void AdjustFormulasRow(int rowFrom, int rows)
+        {
+            var delSF = new List<int>();
+            foreach (var sf in _sharedFormulas.Values)
+            {
+                var a = new ExcelAddress(sf.Address).DeleteRow(rowFrom, rows);
+                if (a==null)
+                {
+                    delSF.Add(sf.Index);
+                }
+                else
+                {
+                    sf.Address = a.Address;
+                    sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -rows, 0, rowFrom, 0);
+                    if (sf.StartRow >= rowFrom)
+                    {
+                        sf.StartRow -= sf.StartRow;
+                    }
+                }
+            }
+            foreach (var ix in delSF)
+            {
+                _sharedFormulas.Remove(ix);
+            }
+            delSF = null;
+            var cse = new CellsStoreEnumerator<object>(_formulas, rowFrom, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            while (cse.Next())
+            {
+                if (cse.Value is string)
+                {
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), -rows, 0, rowFrom, 0);
+                }
+            }
         }
         /// <summary>
         /// Deletes the specified row from the worksheet.
@@ -1705,19 +1967,7 @@ namespace OfficeOpenXml
         /// <param name="shiftOtherRowsUp">Not used. Rows are always shifted</param>
         public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
 		{
-            if (shiftOtherRowsUp)
-            {
-                DeleteRow(rowFrom, rows);
-            }
-            else
-            {
-                ulong rowID = ExcelRow.GetRowID(SheetID, rowFrom);
-                _cells.DeleteRows(rowID, rows, true);
-                _rows.DeleteRows(rowID, rows, true);
-                _formulaCells.DeleteRows(rowID, rows, false);
-                if (_comments != null) _comments._comments.DeleteRows(rowID, rows, false);
-                if (_vmlDrawings != null) _vmlDrawings._drawings.DeleteRows(rowID, rows, false);
-            }
+            DeleteRow(rowFrom, rows);
         }
 		#endregion
 
@@ -1729,18 +1979,19 @@ namespace OfficeOpenXml
         /// <returns>The value</returns>
         public object GetValue(int Row, int Column)
         {
-            ulong cellID = ExcelCell.GetCellID(SheetID, Row, Column);
-
-            if (_cells.ContainsKey(cellID))
+            CheckSheetType();
+            //ulong cellID = ExcelCellBase.GetCellID(SheetID, Row, Column);
+            var v = _values.GetValue(Row, Column);
+            if (v!=null)
             {
-                var cell = ((ExcelCell)_cells[cellID]);
-                if (cell.IsRichText)
+                //var cell = ((ExcelCell)_cells[cellID]);
+                if (_flags.GetFlagValue(Row, Column, CellFlags.RichText))
                 {
                     return (object)Cells[Row, Column].RichText.Text;
                 }
                 else
                 {
-                    return cell.Value;
+                    return v;
                 }
             }
             else
@@ -1758,21 +2009,22 @@ namespace OfficeOpenXml
         /// <returns>The value. If the value can't be converted to the specified type, the default value will be returned</returns>
         public T GetValue<T>(int Row, int Column)
         {
-             ulong cellID=ExcelCell.GetCellID(SheetID, Row, Column);
-                        
-            if (!_cells.ContainsKey(cellID))
+            CheckSheetType();
+            //ulong cellID=ExcelCellBase.GetCellID(SheetID, Row, Column);
+            var v = _values.GetValue(Row, Column);           
+            if (v==null)
             {
                 return default(T);
             }
 
-            var cell=((ExcelCell)_cells[cellID]);
-            if (cell.IsRichText)
+            //var cell=((ExcelCell)_cells[cellID]);
+            if (_flags.GetFlagValue(Row, Column, CellFlags.RichText))
             {
                 return (T)(object)Cells[Row, Column].RichText.Text;
             }
             else
             {
-                return GetTypedValue<T>(cell.Value);
+                return GetTypedValue<T>(v);
             }
         }
         //Thanks to Michael Tran for parts of this method
@@ -1902,7 +2154,12 @@ namespace OfficeOpenXml
         /// <param name="Value">The value</param>
         public void SetValue(int Row, int Column, object Value)
         {
-            Cell(Row, Column).Value = Value;
+            CheckSheetType();
+            if (Row < 1 || Column < 1 || Row > ExcelPackage.MaxRows && Column > ExcelPackage.MaxColumns)
+            {
+                throw new ArgumentOutOfRangeException("Row or Column out of range");
+            }            
+            _values.SetValue(Row, Column, Value);
         }
         /// <summary>
         /// Set the value of a cell
@@ -1911,13 +2168,14 @@ namespace OfficeOpenXml
         /// <param name="Value">The value</param>
         public void SetValue(string Address, object Value)
         {
+            CheckSheetType();
             int row, col;
             ExcelAddressBase.GetRowCol(Address, out row, out col, true);
             if (row < 1 || col < 1 || row > ExcelPackage.MaxRows && col > ExcelPackage.MaxColumns)
             {
                 throw new ArgumentOutOfRangeException("Address is invalid or out of range");
             }
-            Cell(row, col).Value = Value;
+            _values.SetValue(row, col, Value);           
         }
 
         #region MergeCellId
@@ -1951,63 +2209,138 @@ namespace OfficeOpenXml
 		#region Worksheet Private Methods
 
 		#region Worksheet Save
-		/// <summary>
-		/// Saves the worksheet to the package.
-		/// </summary>
-		internal void Save()  // Worksheet Save
-		{
-            DeletePrinterSettings();
+        internal void Save()
+        {
+                DeletePrinterSettings();
 
-			if (_worksheetXml != null)
-			{
-                if (TopNode.Name == "chartsheet")
+                if (_worksheetXml != null)
                 {
-                    return;
-                }
-				// save the header & footer (if defined)
-				if (_headerFooter != null)
-					HeaderFooter.Save();
 
-                if (_cells.Count > 0)
-                {
-                    this.SetXmlNodeString("d:dimension/@ref", Dimension.Address);
-                }
-
-                if (_drawings != null && _drawings.Count == 0)
-                {
-                    //Remove node if no drawings exists.
-                    DeleteNode("d:drawing");
-                }
-
-                SaveComments();
-                HeaderFooter.SaveHeaderFooterImages();
-                SaveTables();
-                SavePivotTables();
-                SaveXml();
-			}
-            
-            if (Drawings.UriDrawing!=null)
-            {
-                if (Drawings.Count == 0)
-                {                    
-                    Part.DeleteRelationship(Drawings._drawingRelation.Id);
-                    _package.Package.DeletePart(Drawings.UriDrawing);                    
-                }
-                else
-                {
-                    PackagePart partPack = Drawings.Part;
-                    Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
-                    foreach (ExcelDrawing d in Drawings)
+                    if (!(this is ExcelChartsheet))
                     {
-                        if (d is ExcelChart)
+                        // save the header & footer (if defined)
+                        if (_headerFooter != null)
+                            HeaderFooter.Save();
+
+                        var d = Dimension;
+                        if (d == null)
                         {
-                            ExcelChart c = (ExcelChart)d;
-                            c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                            this.DeleteAllNode("d:dimension/@ref");
+                        }
+                        else
+                        {
+                            this.SetXmlNodeString("d:dimension/@ref", d.Address);
+                        }
+
+
+                        if (Drawings.Count != null && _drawings.Count == 0)
+                        {
+                            //Remove node if no drawings exists.
+                            DeleteNode("d:drawing");
+                        }
+
+                        SaveComments();
+                        HeaderFooter.SaveHeaderFooterImages();
+                        SaveTables();
+                        SavePivotTables();
+                    }
+                }
+
+                if (Drawings.UriDrawing!=null)
+                {
+                    if (Drawings.Count == 0)
+                    {                                            
+                        Part.DeleteRelationship(Drawings._drawingRelation.Id);
+                        _package.Package.DeletePart(Drawings.UriDrawing);                    
+                    }
+                    else
+                    {
+                        Packaging.ZipPackagePart partPack = Drawings.Part;
+                        Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+                        foreach (ExcelDrawing d in Drawings)
+                        {
+                            if (d is ExcelChart)
+                            {
+                                ExcelChart c = (ExcelChart)d;
+                                c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+                            }
                         }
                     }
                 }
-            }
-		}
+        }
+        internal void SaveHandler(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName)
+        {
+                    //Init Zip
+                    stream.CodecBufferSize = 8096;
+                    stream.CompressionLevel = compressionLevel;
+                    stream.PutNextEntry(fileName);
+
+                    
+                    SaveXml(stream);
+        }
+
+        
+
+        ///// <summary>
+        ///// Saves the worksheet to the package.
+        ///// </summary>
+        //internal void Save()  // Worksheet Save
+        //{
+        //    DeletePrinterSettings();
+
+        //    if (_worksheetXml != null)
+        //    {
+                
+        //        // save the header & footer (if defined)
+        //        if (_headerFooter != null)
+        //            HeaderFooter.Save();
+
+        //        var d = Dimension;
+        //        if (d == null)
+        //        {
+        //            this.DeleteAllNode("d:dimension/@ref");
+        //        }
+        //        else
+        //        {
+        //            this.SetXmlNodeString("d:dimension/@ref", d.Address);
+        //        }
+                
+
+        //        if (_drawings != null && _drawings.Count == 0)
+        //        {
+        //            //Remove node if no drawings exists.
+        //            DeleteNode("d:drawing");
+        //        }
+
+        //        SaveComments();
+        //        HeaderFooter.SaveHeaderFooterImages();
+        //        SaveTables();
+        //        SavePivotTables();
+        //        SaveXml();
+        //    }
+            
+        //    if (Drawings.UriDrawing!=null)
+        //    {
+        //        if (Drawings.Count == 0)
+        //        {                    
+        //            Part.DeleteRelationship(Drawings._drawingRelation.Id);
+        //            _package.Package.DeletePart(Drawings.UriDrawing);                    
+        //        }
+        //        else
+        //        {
+        //            Packaging.ZipPackagePart partPack = Drawings.Part;
+        //            Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
+        //            foreach (ExcelDrawing d in Drawings)
+        //            {
+        //                if (d is ExcelChart)
+        //                {
+        //                    ExcelChart c = (ExcelChart)d;
+        //                    c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Delete the printersettings relationship and part.
@@ -2023,8 +2356,8 @@ namespace OfficeOpenXml
                 attr.OwnerElement.Attributes.Remove(attr);
                 if(Part.RelationshipExists(relID))
                 {
-                    PackageRelationship rel = Part.GetRelationship(relID);
-                    Uri printerSettingsUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                    var rel = Part.GetRelationship(relID);
+                    Uri printerSettingsUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                     Part.DeleteRelationship(rel.Id);
 
                     //Delete the part from the package
@@ -2057,7 +2390,7 @@ namespace OfficeOpenXml
                     if(_comments.Part==null)
                     {
                         _comments.Part = _package.Package.CreatePart(_comments.Uri, "application/vnd.openxmlformats-officedocument.spreadsheetml.comments+xml", _package.Compression);
-                        var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _comments.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships+"/comments");
                     }
                     _comments.CommentXml.Save(_comments.Part.GetStream());
                 }
@@ -2082,7 +2415,7 @@ namespace OfficeOpenXml
                     if (_vmlDrawings.Part == null)
                     {
                         _vmlDrawings.Part = _package.Package.CreatePart(_vmlDrawings.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _package.Compression);
-                        var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                        var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, _vmlDrawings.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
                         SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
@@ -2100,54 +2433,22 @@ namespace OfficeOpenXml
                 if (tbl.ShowHeader || tbl.ShowTotal)
                 {
                     int colNum = tbl.Address._fromCol;
+                    var colVal = new HashSet<string>();
                     foreach (var col in tbl.Columns)
-                    {
+                    {                        
+                        var n=col.Name.ToLower();
+                        if(colVal.Contains(n))
+                        {
+                            throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
+                        }
+                        colVal.Add(n);
                         if (tbl.ShowHeader)
                         {
-                            Cell(tbl.Address._fromRow, colNum).Value = col.Name;
+                            _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
                         }
                         if (tbl.ShowTotal)
                         {
-                            if (col.TotalsRowFunction == RowFunctions.Custom)
-                            {
-                                Cell(tbl.Address._toRow, colNum).Formula = col.TotalsRowFormula;
-                            }
-                            else if (col.TotalsRowFunction != RowFunctions.None)
-                            {
-                                switch (col.TotalsRowFunction)
-                                {
-                                    case RowFunctions.Average:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "101");
-                                        break;
-                                    case RowFunctions.Count:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "102");
-                                        break;
-                                    case RowFunctions.CountNums:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "103");
-                                        break;
-                                    case RowFunctions.Max:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "104");
-                                        break;
-                                    case RowFunctions.Min:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "105");
-                                        break;
-                                    case RowFunctions.StdDev:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "107");
-                                        break;
-                                    case RowFunctions.Var:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "110");
-                                        break;
-                                    case RowFunctions.Sum:
-                                        Cell(tbl.Address._toRow, colNum).Formula = GetTotalFunction(col, "109");
-                                        break;
-                                    default:
-                                        throw (new Exception("Unknown RowFunction enum"));
-                                }
-                            }
-                            else
-                            {
-                                Cell(tbl.Address._toRow, colNum).Value = col.TotalsRowLabel;
-                            }
+                            SetTableTotalFunction(tbl, col, colNum);
                         }
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
@@ -2155,7 +2456,8 @@ namespace OfficeOpenXml
                             int toRow = tbl.ShowTotal ? tbl.Address._toRow - 1 : tbl.Address._toRow;
                             for (int row = fromRow; row <= toRow; row++)
                             {
-                                Cell(row, colNum).Formula = col.CalculatedColumnFormula;
+                                //Cell(row, colNum).Formula = col.CalculatedColumnFormula;
+                                SetFormula(row, colNum, col.CalculatedColumnFormula);
                             }                            
                         }
                         colNum++;
@@ -2167,7 +2469,7 @@ namespace OfficeOpenXml
                     tbl.Part = _package.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
-                    var rel = Part.CreateRelationship(PackUriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                    var rel = Part.CreateRelationship(UriHelper.GetRelativeUri(WorksheetUri, tbl.TableUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
                     tbl.RelationshipID = rel.Id;
 
                     CreateNode("d:tableParts");
@@ -2184,6 +2486,73 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        internal void SetTableTotalFunction(ExcelTable tbl, ExcelTableColumn col, int colNum=-1)
+        {
+            if (colNum == -1)
+            {
+                for (int i = 0; i < tbl.Columns.Count; i++)
+                {
+                    if (tbl.Columns[i].Name == col.Name)
+                    {
+                        colNum = tbl.Address._fromCol + i;
+                    }
+                }
+            }
+            if (col.TotalsRowFunction == RowFunctions.Custom)
+            {
+                SetFormula(tbl.Address._toRow, colNum, col.TotalsRowFormula);
+            }
+            else if (col.TotalsRowFunction != RowFunctions.None)
+            {
+                switch (col.TotalsRowFunction)
+                {
+                    case RowFunctions.Average:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "101"));
+                        break;
+                    case RowFunctions.Count:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "102"));
+                        break;
+                    case RowFunctions.CountNums:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "103"));
+                        break;
+                    case RowFunctions.Max:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "104"));
+                        break;
+                    case RowFunctions.Min:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "105"));
+                        break;
+                    case RowFunctions.StdDev:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "107"));
+                        break;
+                    case RowFunctions.Var:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "110"));
+                        break;
+                    case RowFunctions.Sum:
+                        SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "109"));
+                        break;
+                    default:
+                        throw (new Exception("Unknown RowFunction enum"));
+                }
+            }
+            else
+            {
+                _values.SetValue(tbl.Address._toRow, colNum, col.TotalsRowLabel);
+
+            }
+        }
+
+        internal void SetFormula(int row, int col, object value)
+        {
+            _formulas.SetValue(row, col, value);
+            if (!_values.Exists(row, col)) _values.SetValue(row, col, null);
+        }
+        internal void SetStyle(int row, int col, int value)
+        {
+            _styles.SetValue(row, col, value);
+            if(!_values.Exists(row,col)) _values.SetValue(row, col, null);
+        }
+        
         private void SavePivotTables()
         {
             foreach (var pt in PivotTables)
@@ -2223,84 +2592,94 @@ namespace OfficeOpenXml
         }
         private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
         {
-            return string.Format("SUBTOTAL({0},[{1}])", FunctionNum, col.Name);
+            return string.Format("SUBTOTAL({0},{1}[{2}])", FunctionNum, col._tbl.Name, col.Name);
         }
-        private void SaveXml()
+        private void SaveXml(Stream stream)
         {
             //Create the nodes if they do not exist.
-            CreateNode("d:cols");
-            CreateNode("d:sheetData");
-            CreateNode("d:mergeCells");
-            CreateNode("d:hyperlinks");
-            CreateNode("d:rowBreaks");
-            CreateNode("d:colBreaks");
-
-            string xml = _worksheetXml.OuterXml;
-            StreamWriter sw=new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
-            int colStart = 0, colEnd = 0;
-            GetBlockPos(xml, "cols", ref colStart, ref colEnd);
-
-            sw.Write(xml.Substring(0, colStart));
-            var colBreaks = new List<int>();
-            if (_columns.Count > 0)
+            StreamWriter sw = new StreamWriter(stream, System.Text.Encoding.UTF8, 65536);
+            if (this is ExcelChartsheet)
             {
+                sw.Write(_worksheetXml.OuterXml);
+            }
+            else
+            {
+                CreateNode("d:cols");
+                CreateNode("d:sheetData");
+                CreateNode("d:mergeCells");
+                CreateNode("d:hyperlinks");
+                CreateNode("d:rowBreaks");
+                CreateNode("d:colBreaks");
+
+                //StreamWriter sw=new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
+                var xml = _worksheetXml.OuterXml;
+                int colStart = 0, colEnd = 0;
+                GetBlockPos(xml, "cols", ref colStart, ref colEnd);
+
+                sw.Write(xml.Substring(0, colStart));
+                var colBreaks = new List<int>();
+                //if (_columns.Count > 0)
+                //{
                 UpdateColumnData(sw);
-            }
+                //}
 
-            int cellStart = colEnd, cellEnd = colEnd;
-            GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
+                int cellStart = colEnd, cellEnd = colEnd;
+                GetBlockPos(xml, "sheetData", ref cellStart, ref cellEnd);
 
-            sw.Write(xml.Substring(colEnd, cellStart - colEnd));
-            var rowBreaks = new List<int>();
-            UpdateRowCellData(sw);
+                sw.Write(xml.Substring(colEnd, cellStart - colEnd));
+                var rowBreaks = new List<int>();
+                UpdateRowCellData(sw);
 
-            int mergeStart = cellEnd, mergeEnd = cellEnd;
+                int mergeStart = cellEnd, mergeEnd = cellEnd;
 
-            GetBlockPos(xml, "mergeCells", ref mergeStart, ref mergeEnd);
-            sw.Write(xml.Substring(cellEnd, mergeStart - cellEnd));
+                GetBlockPos(xml, "mergeCells", ref mergeStart, ref mergeEnd);
+                sw.Write(xml.Substring(cellEnd, mergeStart - cellEnd));
 
-            if (_mergedCells.Count > 0)
-            {
-                UpdateMergedCells(sw);
-            }
+                if (_mergedCells.Count > 0)
+                {
+                    UpdateMergedCells(sw);
+                }
 
-            int hyperStart = mergeEnd, hyperEnd = mergeEnd;
-            GetBlockPos(xml, "hyperlinks", ref hyperStart, ref hyperEnd);
-            sw.Write(xml.Substring(mergeEnd, hyperStart - mergeEnd));
-            if (_hyperLinkCells.Count > 0)
-            {
+                int hyperStart = mergeEnd, hyperEnd = mergeEnd;
+                GetBlockPos(xml, "hyperlinks", ref hyperStart, ref hyperEnd);
+                sw.Write(xml.Substring(mergeEnd, hyperStart - mergeEnd));
+                //if (_hyperLinkCells.Count > 0)
+                //{
                 UpdateHyperLinks(sw);
+                // }
+
+                int rowBreakStart = hyperEnd, rowBreakEnd = hyperEnd;
+                GetBlockPos(xml, "rowBreaks", ref rowBreakStart, ref rowBreakEnd);
+                sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
+                //if (rowBreaks.Count > 0)
+                //{
+                UpdateRowBreaks(sw);
+                //}
+
+                int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
+                GetBlockPos(xml, "colBreaks", ref colBreakStart, ref colBreakEnd);
+                sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
+                //if (colBreaks.Count > 0)
+                //{
+                UpdateColBreaks(sw);
+                //}
+                sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             }
-
-            int rowBreakStart = hyperEnd, rowBreakEnd = hyperEnd;
-            GetBlockPos(xml, "rowBreaks", ref rowBreakStart, ref rowBreakEnd);
-            sw.Write(xml.Substring(hyperEnd, rowBreakStart - hyperEnd));
-            //if (rowBreaks.Count > 0)
-            //{
-            UpdateRowBreaks(sw);
-            //}
-
-            int colBreakStart = rowBreakEnd, colBreakEnd = rowBreakEnd;
-            GetBlockPos(xml, "colBreaks", ref colBreakStart, ref colBreakEnd);
-            sw.Write(xml.Substring(rowBreakEnd, colBreakStart - rowBreakEnd));
-            //if (colBreaks.Count > 0)
-            //{
-            UpdateColBreaks(sw);
-            //}
-
-            sw.Write(xml.Substring(colBreakEnd, xml.Length - colBreakEnd));
             sw.Flush();
-            sw.Close();
+            //sw.Close();
         }
         private void UpdateColBreaks(StreamWriter sw)
         {
             StringBuilder breaks = new StringBuilder();
             int count = 0;
-            foreach (ExcelColumn col in _columns)
+            var cse = new CellsStoreEnumerator<object>(_values, 0, 0, 0, ExcelPackage.MaxColumns);
+            //foreach (ExcelColumn col in _columns)
+            while(cse.Next())
             {
-                if (col.PageBreak)
+                var col=cse.Value as ExcelColumn;
+                if (col != null && col.PageBreak)
                 {
-                    breaks.AppendFormat("<brk id=\"{0}\" max=\"16383\" man=\"1\" />", col.ColumnMin);
+                    breaks.AppendFormat("<brk id=\"{0}\" max=\"16383\" man=\"1\" />", cse.Column);
                     count++;
                 }
             }
@@ -2314,11 +2693,14 @@ namespace OfficeOpenXml
         {
             StringBuilder breaks=new StringBuilder();
             int count = 0;
-            foreach(ExcelRow row in _rows)            
+            var cse = new CellsStoreEnumerator<object>(_values, 0, 0, ExcelPackage.MaxRows, 0);
+            //foreach(ExcelRow row in _rows)            
+            while(cse.Next())
             {
-                if (row.PageBreak)
+                var row=cse.Value as ExcelRow;
+                if (row != null && row.PageBreak)
                 {
-                    breaks.AppendFormat("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", row.Row);
+                    breaks.AppendFormat("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", cse.Row);
                     count++;
                 }
             }
@@ -2344,9 +2726,18 @@ namespace OfficeOpenXml
             //    }
             //    prevCol = col;
             //}
-            sw.Write("<cols>");
-            foreach (ExcelColumn col in _columns)
+            var cse = new CellsStoreEnumerator<object>(_values, 0, 1, 0, ExcelPackage.MaxColumns);
+            //sw.Write("<cols>");
+            //foreach (ExcelColumn col in _columns)
+            bool first = true;
+            while(cse.Next())
             {
+                if (first)
+                {
+                    sw.Write("<cols>");
+                    first = false;
+                }
+                var col = cse.Value as ExcelColumn;
                 ExcelStyleCollection<ExcelXfs> cellXfs = _package.Workbook.Styles.CellXfs;
 
                 sw.Write("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
@@ -2379,7 +2770,8 @@ namespace OfficeOpenXml
                 {
                     sw.Write(" phonetic=\"1\"");
                 }
-                long styleID = col.StyleID >= 0 ? cellXfs[col.StyleID].newID : col.StyleID;
+
+                var styleID = col.StyleID >= 0 ? cellXfs[col.StyleID].newID : col.StyleID;
                 if (styleID > 0)
                 {
                     sw.Write(" style=\"{0}\"", styleID);
@@ -2391,7 +2783,10 @@ namespace OfficeOpenXml
                 //    colBreaks.Add(col.ColumnMin);
                 //}
             }
-            sw.Write("</cols>");
+            if (!first)
+            {
+                sw.Write("</cols>");
+            }
         }
         /// <summary>
         /// Insert row and cells into the XML document
@@ -2400,58 +2795,65 @@ namespace OfficeOpenXml
         {
             ExcelStyleCollection<ExcelXfs> cellXfs = _package.Workbook.Styles.CellXfs;
             
-            _hyperLinkCells = new List<ulong>();
+            //_hyperLinkCells = new List<ulong>();
             int row = -1;
 
-            foreach (ExcelRow r in _rows)
-            {
-                int nextCell = ~_cells.IndexOf(r.RowID);
-                if (nextCell >= 0 && (nextCell >= _cells.Count || ((ExcelCell)_cells[nextCell]).Row != r.Row))
-                {
-                    _cells.Add(r);
-                }
-            }
+            //foreach (ExcelRow r in _rows)
+            //{
+            //    int nextCell = ~_cells.IndexOf(r.RowID);
+            //    if (nextCell >= 0 && (nextCell >= _cells.Count || ((ExcelCell)_cells[nextCell]).Row != r.Row))
+            //    {
+            //        _cells.Add(r);
+            //    }
+            //}
 
             StringBuilder sbXml = new StringBuilder();
             var ss = _package.Workbook._sharedStrings;
+            var styles = _package.Workbook.Styles;
             sw.Write("<sheetData>");
-            foreach (IRangeID r in _cells)
+            var cse = new CellsStoreEnumerator<object>(_values, 1, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            //foreach (IRangeID r in _cells)
+            while(cse.Next())
             {
-                if (r is ExcelCell)
+                if (cse.Column>0)
                 {
-                    ExcelCell cell = (ExcelCell)r;
-                    long styleID = cell.StyleID >= 0 ? cellXfs[cell.StyleID].newID : cell.StyleID;
-
+                    //ExcelCell cell = (ExcelCell)r;
+                    //long styleID = cell.StyleID >= 0 ? cellXfs[cell.StyleID].newID : cell.StyleID;
+                    int styleID = cellXfs[styles.GetStyleId(this, cse.Row, cse.Column)].newID;
+                    //styleID = styleID >= 0 ? cellXfs[styleID].newID : styleID;
                     //Add the row element if it's a new row
-                    if (row != cell.Row)
+                    if (cse.Row != row)
                     {
-                        WriteRow(sw, cellXfs, row, cell.Row);
-                        row = cell.Row;
+                        WriteRow(sw, cellXfs, row, cse.Row);
+                        row = cse.Row;
                     }
-                    if (cell.SharedFormulaID >= 0)
+                    object v = cse.Value;
+                    object formula = _formulas.GetValue(cse.Row, cse.Column);
+                    if (formula is int)
                     {
-                        var f = _sharedFormulas[cell.SharedFormulaID];
+                        int sfId = (int)formula;
+                        var f = _sharedFormulas[(int)sfId];
                         if (f.Address.IndexOf(':') > 0)
                         {
-                            if (f.StartCol == cell.Column && f.StartRow == cell.Row)
+                            if (f.StartCol == cse.Column && f.StartRow == cse.Row)
                             {
                                 if (f.IsArray)
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula));
+                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
                                 else
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, f.Address, cell.SharedFormulaID, SecurityElement.Escape(f.Formula));
+                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
 
                             }
                             else if (f.IsArray)
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
                             }
                             else
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" /></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, cell.SharedFormulaID);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" />{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v));
                             }
                         }
                         else
@@ -2459,111 +2861,62 @@ namespace OfficeOpenXml
                             // We can also have a single cell array formula
                             if(f.IsArray)
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f></c>", cell.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula));
+                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                             else
                             {
                                 sw.Write("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
-                                sw.Write("<f>{0}</f></c>", SecurityElement.Escape(f.Formula));
+                                sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                         }
                     }
-                    else if (cell.Formula != "")
+                    else if (formula!=null && formula.ToString()!="")
                     {
-                        sw.Write("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                        sw.Write("<f>{0}</f></c>", SecurityElement.Escape(cell.Formula));
+                        sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
+                        sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(formula.ToString()), GetFormulaValue(v));
                     }
                     else
                     {
-                        if (cell._value == null)
+                        if (v == null)
                         {
-                            sw.Write("<c r=\"{0}\" s=\"{1}\" />", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                            sw.Write("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
                         }
                         else
                         {
-                            if ((cell._value.GetType().IsPrimitive || cell._value is double || cell._value is decimal || cell._value is DateTime || cell._value is TimeSpan) && cell.DataType != "s")
+                            if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan) && _types.GetValue(cse.Row,cse.Column) != "s")
                             {
-                                string s;
-                                try
-                                {
-                                    if (cell._value is DateTime)
-                                    {
-                                        double sdv = ((DateTime)cell.Value).ToOADate();
-
-                                        if(Workbook.Date1904)
-                                        {
-                                            sdv -= ExcelWorkbook.date1904Offset;
-                                        }
-
-                                        s = sdv.ToString(CultureInfo.InvariantCulture);
-                                    }
-                                    else if (cell._value is TimeSpan)
-                                    {
-                                        s = new DateTime(((TimeSpan)cell.Value).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
-                                    }
-                                    else
-                                    {
-                                        if (cell._value is double && double.IsNaN((double)cell._value))
-                                        {
-                                            s = "0";
-                                        }
-                                        else if (cell._value is double && double.IsInfinity((double)cell._value))
-                                        {
-                                            s="#NUM!";
-                                        }
-                                        else
-                                        {
-                                            s = Convert.ToDouble(cell._value, CultureInfo.InvariantCulture).ToString("g15", CultureInfo.InvariantCulture);
-                                        }
-                                    }
-                                }
-
-                                catch
-                                {
-                                    s = "0";
-                                }
-                                if (cell._value is bool)
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"b\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                else if (cell._value is double && double.IsInfinity((double)cell._value))
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"e\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                else
-                                {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
-                                }
-                                sw.Write("<v>{0}</v></c>", s);
+                                string sv = GetValueForXml(v);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
+                                sw.Write("<v>{0}</v></c>", sv);
                             }
                             else
                             {
                                 int ix;
-                                if (!ss.ContainsKey(cell._value.ToString()))
+                                if (!ss.ContainsKey(v.ToString()))
                                 {
                                     ix = ss.Count;
-                                    ss.Add(cell._value.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = cell.IsRichText, pos = ix });
+                                    ss.Add(v.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
                                 }
                                 else
                                 {
-                                    ix = ss[cell.Value.ToString()].pos;
+                                    ix = ss[v.ToString()].pos;
                                 }
-                                sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cell.CellAddress, styleID < 0 ? 0 : styleID);
+                                sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
                                 sw.Write("<v>{0}</v></c>", ix);
                             }
                         }
                     }
-                    //Update hyperlinks.
-                    if (cell.Hyperlink != null)
-                    {
-                        _hyperLinkCells.Add(cell.CellID);
-                    }
+                    ////Update hyperlinks.
+                   //if (cell.Hyperlink != null)
+                    //{
+                    //    _hyperLinkCells.Add(cell.CellID);
+                    //}
                 }
                 else  //ExcelRow
                 {
-                    int newRow=((ExcelRow)r).Row;
-                    WriteRow(sw, cellXfs, row, newRow);
-                    row = newRow;
+                    //int newRow=((ExcelRow)cse.Value).Row;
+                    WriteRow(sw, cellXfs, row, cse.Row);
+                    row = cse.Row;
                 }
             }
 
@@ -2573,14 +2926,83 @@ namespace OfficeOpenXml
             
         }
 
+        private object GetFormulaValue(object v)
+        {
+            if (_package.Workbook._isCalculated)
+            {
+                return "<v>" + GetValueForXml(v) + "</v>";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        private string GetCellType(object v)
+        {
+            if (v is bool)
+            {
+                return " t=\"b\"";
+            }
+            else if ((v is double && double.IsInfinity((double)v)) || v is ExcelErrorValue)
+            {
+                return " t=\"e\"";
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+        private static string GetValueForXml(object v)
+        {
+            string s;
+            try
+            {
+                if (v is DateTime)
+                {
+                    s = ((DateTime)v).ToOADate().ToString(CultureInfo.InvariantCulture);
+                }
+                else if (v is TimeSpan)
+                {
+                    s = new DateTime(((TimeSpan)v).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
+                }
+                else if(v.GetType().IsPrimitive || v is double || v is decimal)
+                {
+                    if (v is double && double.IsNaN((double)v))
+                    {
+                        s = "";
+                    }
+                    else if (v is double && double.IsInfinity((double)v))
+                    {
+                        s = "#NUM!";
+                    }
+                    else
+                    {
+                        s = Convert.ToDouble(v, CultureInfo.InvariantCulture).ToString("R15", CultureInfo.InvariantCulture);
+                    }
+                }
+                else
+                {
+                    s = v.ToString();
+                }
+            }
+
+            catch
+            {
+                s = "0";
+            }
+            return s;
+        }
         private void WriteRow(StreamWriter sw, ExcelStyleCollection<ExcelXfs> cellXfs, int prevRow, int row)
         {
             if (prevRow != -1) sw.Write("</row>");
-            ulong rowID = ExcelRow.GetRowID(SheetID, row);
+            //ulong rowID = ExcelRow.GetRowID(SheetID, row);
             sw.Write("<row r=\"{0}\" ", row);
-            if (_rows.ContainsKey(rowID))
+            RowInternal currRow = _values.GetValue(row, 0) as RowInternal;
+            if (currRow!=null)
             {
-                ExcelRow currRow = _rows[rowID] as ExcelRow;
+                
                 if (currRow.Hidden == true)
                 {
                     sw.Write("ht=\"0\" hidden=\"1\" ");
@@ -2594,10 +3016,6 @@ namespace OfficeOpenXml
                     }
                 }
 
-                if (currRow.StyleID > 0)
-                {
-                    sw.Write("s=\"{0}\" customFormat=\"1\" ", cellXfs[currRow.StyleID].newID);
-                }
                 if (currRow.OutlineLevel > 0)
                 {
                     sw.Write("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
@@ -2605,11 +3023,11 @@ namespace OfficeOpenXml
                     {
                         if (currRow.Hidden)
                         {
-                            sw.Write(" collapsed=\"1\"");
+                            sw.Write(" collapsed=\"1\" ");
                         }
                         else
                         {
-                            sw.Write(" collapsed=\"1\" hidden=\"1\""); //Always hidden
+                            sw.Write(" collapsed=\"1\" hidden=\"1\" "); //Always hidden
                         }
                     }
                 }
@@ -2617,6 +3035,11 @@ namespace OfficeOpenXml
                 {
                     sw.Write("ph=\"1\" ");
                 }
+            }
+            var s = _styles.GetValue(row, 0);
+            if (s > 0)
+            {
+                sw.Write("s=\"{0}\" customFormat=\"1\"", cellXfs[s].newID);
             }
             sw.Write(">");
         }
@@ -2627,31 +3050,40 @@ namespace OfficeOpenXml
         /// <param name="sw">The stream</param>
         private void UpdateHyperLinks(StreamWriter sw)
         {
-                sw.Write("<hyperlinks>");
                 Dictionary<string, string> hyps = new Dictionary<string, string>();
-                foreach (ulong cellId in _hyperLinkCells)
+                var cse = new CellsStoreEnumerator<Uri>(_hyperLinks);
+                bool first = true;
+                //foreach (ulong cell in _hyperLinks)
+                while(cse.Next())
                 {
-                    ExcelCell cell = _cells[cellId] as ExcelCell;
-                    if (cell.Hyperlink is ExcelHyperLink && !string.IsNullOrEmpty((cell.Hyperlink as ExcelHyperLink).ReferenceAddress))
+                    if (first)
                     {
-                        ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
-                        sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" {2}{3}/>", 
-                                Cells[cell.Row, cell.Column, cell.Row+hl.RowSpann, cell.Column+hl.ColSpann].Address, 
-                                ExcelCell.GetFullAddress(Name, hl.ReferenceAddress),
+                        sw.Write("<hyperlinks>");
+                        first = false;
+                    }
+                    //int row, col;
+                    var uri = _hyperLinks.GetValue(cse.Row, cse.Column);
+                    //ExcelCell cell = _cells[cellId] as ExcelCell;
+                    if (uri is ExcelHyperLink && !string.IsNullOrEmpty((uri as ExcelHyperLink).ReferenceAddress))
+                    {
+                        ExcelHyperLink hl = uri as ExcelHyperLink;
+                        sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" {2}{3}/>",
+                                Cells[cse.Row, cse.Column, cse.Row + hl.RowSpann, cse.Column + hl.ColSpann].Address, 
+                                ExcelCellBase.GetFullAddress(Name, hl.ReferenceAddress),
                                     string.IsNullOrEmpty(hl.Display) ? "" : "display=\"" + SecurityElement.Escape(hl.Display) + "\" ",
                                     string.IsNullOrEmpty(hl.ToolTip) ? "" : "tooltip=\"" + SecurityElement.Escape(hl.ToolTip) + "\" ");
                     }
-                    else
+                    else if( uri!=null)
                     {
                         string id;
                         Uri hyp;
-                        if (cell.Hyperlink is ExcelHyperLink)
+                        if (uri is ExcelHyperLink)
                         {
-                            hyp = ((ExcelHyperLink)cell.Hyperlink).OriginalUri;
+                            hyp = ((ExcelHyperLink)uri).OriginalUri;
                         }
                         else
                         {
-                            hyp = cell.Hyperlink;
+                            hyp = uri;
                         }
                         if (hyps.ContainsKey(hyp.OriginalString))
                         {
@@ -2659,24 +3091,27 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            PackageRelationship relationship = Part.CreateRelationship(hyp, TargetMode.External, ExcelPackage.schemaHyperlink);
-                            if (cell.Hyperlink is ExcelHyperLink)
+                            var relationship = Part.CreateRelationship(hyp, Packaging.TargetMode.External, ExcelPackage.schemaHyperlink);
+                            if (uri is ExcelHyperLink)
                             {
-                                ExcelHyperLink hl = cell.Hyperlink as ExcelHyperLink;
-                                sw.Write("<hyperlink ref=\"{0}\" {2}{3}r:id=\"{1}\" />", cell.CellAddress, relationship.Id,                                
+                                ExcelHyperLink hl = uri as ExcelHyperLink;
+                                sw.Write("<hyperlink ref=\"{0}\" {2}{3}r:id=\"{1}\" />", ExcelCellBase.GetAddress(cse.Row, cse.Column), relationship.Id,                                
                                     string.IsNullOrEmpty(hl.Display) ? "" : "display=\"" + SecurityElement.Escape(hl.Display) + "\" ",
                                     string.IsNullOrEmpty(hl.ToolTip) ? "" : "tooltip=\"" + SecurityElement.Escape(hl.ToolTip) + "\" ");
                             }
                             else
                             {
-                                sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" />",cell.CellAddress, relationship.Id);
+                                sw.Write("<hyperlink ref=\"{0}\" r:id=\"{1}\" />", ExcelCellBase.GetAddress(cse.Row, cse.Column), relationship.Id);
                             }
                             id = relationship.Id;
                         }
-                        cell.HyperLinkRId = id;
+                        //cell.HyperLinkRId = id;
                     }
                 }
-                sw.Write("</hyperlinks>");
+                if (!first)
+                {
+                    sw.Write("</hyperlinks>");
+                }
         }
         /// <summary>
         /// Create the hyperlinks node in the XML
@@ -2705,9 +3140,11 @@ namespace OfficeOpenXml
         {
             get
             {
-                if (_cells.Count > 0)
+                CheckSheetType();
+                int fromRow, fromCol, toRow, toCol;
+                if (_values.GetDimension(out fromRow, out fromCol, out toRow, out toCol))
                 {
-                    ExcelAddressBase addr = new ExcelAddressBase((_cells[0] as ExcelCell).Row, _minCol, (_cells[_cells.Count - 1] as ExcelCell).Row, _maxCol);
+                    ExcelAddressBase addr = new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
                     addr._ws = Name;
                     return addr;
                 }
@@ -2769,6 +3206,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_tables == null)
                 {
                     _tables = new ExcelTableCollection(this);
@@ -2784,6 +3222,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_pivotTables == null)
                 {
                     _pivotTables = new ExcelPivotTableCollection(this);
@@ -2801,6 +3240,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_conditionalFormatting == null)
                 {
                     _conditionalFormatting = new ExcelConditionalFormattingCollection(this);
@@ -2818,6 +3258,7 @@ namespace OfficeOpenXml
         {
             get
             {
+                CheckSheetType();
                 if (_dataValidation == null)
                 {
                     _dataValidation = new ExcelDataValidationCollection(this);
@@ -2924,15 +3365,73 @@ namespace OfficeOpenXml
                 }
             }
         }
-
-        void IDisposable.Dispose()
+        internal string GetFormula(int row, int col)
         {
-            ((IDisposable)_cells).Dispose();
-            ((IDisposable)_rows).Dispose();
-            ((IDisposable)_columns).Dispose();
-            ((IDisposable)_formulaCells).Dispose();
-            if (_comments != null)
-                ((IDisposable)_comments).Dispose();
+            var v = _formulas.GetValue(row, col);
+            if (v is int)
+            {
+                return _sharedFormulas[(int)v].GetFormula(row,col);
+            }
+            else if (v != null)
+            {
+                return v.ToString();
+            }
+            else
+            {
+                return "";
+            }
+        }
+        internal string GetFormulaR1C1(int row, int col)
+        {
+            var v = _formulas.GetValue(row, col);
+            if (v is int)
+            {
+                var sf = _sharedFormulas[(int)v];
+                return ExcelCellBase.TranslateToR1C1(sf.Formula, sf.StartRow, sf.StartCol);
+            }
+            else if (v != null)
+            {
+                return ExcelCellBase.TranslateToR1C1(v.ToString(), row, col);
+            }
+            else
+            {
+                return "";
+            }
+        }
+
+
+
+        public void Dispose()
+        {
+            _values.Dispose();
+            _formulas.Dispose();
+            _flags.Dispose();
+            _hyperLinks.Dispose();
+            _styles.Dispose();
+            _types.Dispose();
+            _commentsStore.Dispose();
+
+            if (_formulaTokens != null) _commentsStore.Dispose();
+            _values = null;
+            _formulas = null;
+            _flags = null;
+            _hyperLinks = null;
+            _styles = null;
+            _types = null;
+            _commentsStore = null;
+            _formulaTokens = null;
+
+            _package = null;
+            _pivotTables = null;
+            _protection = null;
+            _sharedFormulas.Clear();
+            _sharedFormulas = null;
+            _sheetView = null;
+            _tables = null;
+            _vmlDrawings = null;
+            _conditionalFormatting = null;
+            _dataValidation = null;
+            _drawings = null;
         }
     }  // END class Worksheet
 }

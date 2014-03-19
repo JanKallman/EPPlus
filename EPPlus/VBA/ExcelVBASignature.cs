@@ -35,7 +35,6 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using OfficeOpenXml.Utils;
-using System.IO.Packaging;
 using System.IO;
 
 namespace OfficeOpenXml.VBA
@@ -46,8 +45,8 @@ namespace OfficeOpenXml.VBA
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
-        PackagePart _vbaPart = null;
-        internal ExcelVbaSignature(PackagePart vbaPart)
+        Packaging.ZipPackagePart _vbaPart = null;
+        internal ExcelVbaSignature(Packaging.ZipPackagePart vbaPart)
         {
             _vbaPart = vbaPart;
             GetSignature();
@@ -58,7 +57,7 @@ namespace OfficeOpenXml.VBA
             var rel = _vbaPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
             if (rel != null)
             {
-                Uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _vbaPart.Package.GetPart(Uri);
 
                 var stream = Part.GetStream();
@@ -209,7 +208,7 @@ namespace OfficeOpenXml.VBA
             }
             if (rel == null)
             {
-                proj.Part.CreateRelationship(PackUriHelper.ResolvePartUri(proj.Uri, Uri), TargetMode.Internal, schemaRelVbaSignature);                
+                proj.Part.CreateRelationship(UriHelper.ResolvePartUri(proj.Uri, Uri), Packaging.TargetMode.Internal, schemaRelVbaSignature);                
             }
             var b = ms.ToArray();
             Part.GetStream(FileMode.Create).Write(b, 0, b.Length);            
@@ -377,7 +376,7 @@ namespace OfficeOpenXml.VBA
         /// </summary>
         public SignedCms Verifier { get; internal set; }
         internal CompoundDocument Signature { get; set; }
-        internal PackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }
 }

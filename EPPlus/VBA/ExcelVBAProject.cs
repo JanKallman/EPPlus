@@ -22,7 +22,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO.Packaging;
 using System.IO;
 using OfficeOpenXml.Utils;
 using System.Security.Cryptography.Pkcs;
@@ -61,7 +60,7 @@ namespace OfficeOpenXml.VBA
             var rel = _wb.Part.GetRelationshipsByType(schemaRelVba).FirstOrDefault();
             if (rel != null)
             {
-                Uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _pck.GetPart(Uri);
                 GetProject();                
             }
@@ -72,7 +71,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         internal ExcelWorkbook _wb;
-        internal Package _pck;
+        internal Packaging.ZipPackage _pck;
         #region Dir Stream Properties
         /// <summary>
         /// System kind. Default Win32.
@@ -594,13 +593,12 @@ namespace OfficeOpenXml.VBA
                 {
                     Uri = new Uri(PartUri, UriKind.Relative);
                     Part = _pck.CreatePart(Uri, ExcelPackage.schemaVBA);
-                    var rel = _wb.Part.CreateRelationship(Uri, TargetMode.Internal, schemaRelVba);
+                    var rel = _wb.Part.CreateRelationship(Uri, Packaging.TargetMode.Internal, schemaRelVba);
                 }
                 var vbaBuffer=doc.Save();
                 var st = Part.GetStream(FileMode.Create);
                 st.Write(vbaBuffer, 0, vbaBuffer.Length);
                 st.Flush();
-                st.Close();
                 //Save the digital signture
                 Signature.Save(this);
             }
@@ -1015,7 +1013,7 @@ namespace OfficeOpenXml.VBA
             return sUC.Length == 0 ? s : sUC;
         }
         internal CompoundDocument Document { get; set; }
-        internal PackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
         /// <summary>
         /// Create a new VBA Project
@@ -1038,12 +1036,28 @@ namespace OfficeOpenXml.VBA
             Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes=GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
             foreach (var sheet in _wb.Worksheets)
             {
-                if (!Modules.Exists(sheet.Name))
+                var name = GetModuleNameFromWorksheet(sheet);
+                if (!Modules.Exists(name))
                 {
-                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 }
             }
             _protection = new ExcelVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
+        }
+
+        internal string GetModuleNameFromWorksheet(ExcelWorksheet sheet)
+        {
+            var name = sheet.Name;
+            if (name.Any(c => c > 255) || this.Modules[name] != null)
+            {
+                int i = sheet.PositionID;
+                name = "Sheet" + i.ToString();
+                while (this.Modules[name] != null)
+                {
+                    name = "Sheet" + (++i).ToString(); ;
+                }
+            }            
+            return name;
         }
         internal ExcelVbaModuleAttributesCollection GetDocumentAttributes(string name, string clsid)
         {

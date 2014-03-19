@@ -38,7 +38,7 @@ using System.Collections.Generic;
 using OfficeOpenXml.Drawing.Vml;
 using System.IO;
 using OfficeOpenXml.Drawing;
-using System.IO.Packaging;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml
 {    
     /// <summary>
@@ -444,7 +444,7 @@ namespace OfficeOpenXml
                         if (_ws.Part.RelationshipExists(vmlNode.Value))
                         {
                             var rel = _ws.Part.GetRelationship(vmlNode.Value);
-                            var vmlUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                            var vmlUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
 
                             _vmlDrawingsHF = new ExcelVmlDrawingPictureCollection(_ws._package, _ws, vmlUri);
                             _vmlDrawingsHF.RelId = rel.Id;
@@ -517,12 +517,12 @@ namespace OfficeOpenXml
                     if (_vmlDrawingsHF.Part == null)
                     {
                         _vmlDrawingsHF.Part = _ws._package.Package.CreatePart(_vmlDrawingsHF.Uri, "application/vnd.openxmlformats-officedocument.vmlDrawing", _ws._package.Compression);
-                        var rel = _ws.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_ws.WorksheetUri, _vmlDrawingsHF.Uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                        var rel = _ws.Part.CreateRelationship(UriHelper.GetRelativeUri(_ws.WorksheetUri, _vmlDrawingsHF.Uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
                         _ws.SetHFLegacyDrawingRel(rel.Id);
                         _vmlDrawingsHF.RelId = rel.Id;
                         foreach (ExcelVmlDrawingPicture draw in _vmlDrawingsHF)
                         {
-                            rel = _vmlDrawingsHF.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_vmlDrawingsHF.Uri, draw.ImageUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                            rel = _vmlDrawingsHF.Part.CreateRelationship(UriHelper.GetRelativeUri(_vmlDrawingsHF.Uri, draw.ImageUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                             draw.RelId = rel.Id;
                         }
                     }

@@ -158,5 +158,10 @@ namespace OfficeOpenXml
             get;
             internal set;
         }
+        internal string RId
+        {
+            get;
+            set;
+        }
     }
 }

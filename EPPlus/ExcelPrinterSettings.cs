@@ -579,7 +579,7 @@ namespace OfficeOpenXml
                 //Must span entire columns
                 if (!(value.Start.Column == 1 && value.End.Column == ExcelPackage.MaxColumns))
                 {
-                    throw new InvalidOperationException("Address must spann full columns only (for ex. Address=\"A:A\" for the first column).");
+                    throw new InvalidOperationException("Address must span full columns only (for ex. Address=\"A:A\" for the first column).");
                 }
 
                 var vertAddr = RepeatColumns;
@@ -634,7 +634,7 @@ namespace OfficeOpenXml
                 //Must span entire rows
                 if (!(value.Start.Row == 1 && value.End.Row== ExcelPackage.MaxRows))
                 {
-                    throw new InvalidOperationException("Address must spann rows only (for ex. Address=\"1:1\" for the first row).");
+                    throw new InvalidOperationException("Address must span rows only (for ex. Address=\"1:1\" for the first row).");
                 }
 
                 var horAddr = RepeatRows;

@@ -34,8 +34,8 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Collections;
-using System.IO.Packaging;
 using System.Globalization;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Drawing.Vml
 {
@@ -68,7 +68,7 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 var img = new ExcelVmlDrawingPicture(node, NameSpaceManager, _ws);
                 var rel = Part.GetRelationship(img.RelId);
-                img.ImageUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                img.ImageUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 _images.Add(img);
             }
         }

@@ -88,10 +88,10 @@ namespace OfficeOpenXml.Drawing
         TwoCell
     }
     /// <summary>
-    /// Base class for drawings. 
+    /// Base class for twoanchored drawings. 
     /// Drawings are Charts, shapes and Pictures.
     /// </summary>
-    public class ExcelDrawing : XmlHelper 
+    public class ExcelDrawing : XmlHelper, IDisposable 
     {
         /// <summary>
         /// Position of the a drawing.
@@ -192,12 +192,12 @@ namespace OfficeOpenXml.Drawing
             {
                 To = new ExcelPosition(drawings.NameSpaceManager, posNode);
             }
+            else
+            {
+                To = null;
+            }
             _nameXPath = nameXPath;
             SchemaNodeOrder = new string[] { "from", "to", "graphicFrame", "sp", "clientData"  };
-        }
-        internal ExcelDrawing(XmlNamespaceManager nameSpaceManager, XmlNode node) :
-            base(nameSpaceManager, node)
-        {
         }
         /// <summary>
         /// The name of the drawing object
@@ -296,7 +296,11 @@ namespace OfficeOpenXml.Drawing
         /// <summary>
         /// Bottom right position
         /// </summary>
-        public ExcelPosition To { get; set; }
+        public ExcelPosition To
+        {
+            get;
+            set;
+        }
         /// <summary>
         /// Add new Drawing types here
         /// </summary>
@@ -326,16 +330,88 @@ namespace OfficeOpenXml.Drawing
         {
             get { return _id.ToString(); }
         }
+        internal static string GetTextAchoringText(eTextAnchoringType value)
+        {
+            switch (value)
+            {
+                case eTextAnchoringType.Bottom:
+                    return "b";
+                case eTextAnchoringType.Center:
+                    return "ctr";
+                case eTextAnchoringType.Distributed:
+                    return "dist";
+                case eTextAnchoringType.Justify:
+                    return "just";
+                default:
+                    return "t";
+            }
+        }
+        internal static eTextAnchoringType GetTextAchoringEnum(string text)
+        {
+            switch (text)
+            {
+                case "b":
+                    return eTextAnchoringType.Bottom;
+                case "ctr":
+                    return eTextAnchoringType.Center;
+                case "dist":
+                    return eTextAnchoringType.Distributed;
+                case "just":
+                    return eTextAnchoringType.Justify;
+                default:
+                    return eTextAnchoringType.Top;
+            }
+        }
+        internal static string GetTextVerticalText(eTextVerticalType value)
+        {
+            switch (value)
+            {
+                case eTextVerticalType.EastAsianVertical:
+                    return "eaVert";
+                case eTextVerticalType.MongolianVertical:
+                    return "mongolianVert";
+                case eTextVerticalType.Vertical:
+                    return "vert";
+                case eTextVerticalType.Vertical270:
+                    return "vert270";
+                case eTextVerticalType.WordArtVertical:
+                    return "wordArtVert";
+                case eTextVerticalType.WordArtVerticalRightToLeft:
+                    return "wordArtVertRtl";
+                default:
+                    return "horz";
+            }
+        }
+        internal static eTextVerticalType GetTextVerticalEnum(string text)
+        {
+            switch (text)
+            {
+                case "eaVert":
+                    return eTextVerticalType.EastAsianVertical;
+                case "mongolianVert":
+                    return eTextVerticalType.MongolianVertical;
+                case "vert":
+                    return eTextVerticalType.Vertical;
+                case "vert270":
+                    return eTextVerticalType.Vertical270;
+                case "wordArtVert":
+                    return eTextVerticalType.WordArtVertical;
+                case "wordArtVertRtl":
+                    return eTextVerticalType.WordArtVerticalRightToLeft;
+                default:
+                    return eTextVerticalType.Horizontal;
+            }
+        }
         #region "Internal sizing functions"
         internal int GetPixelLeft()
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            decimal mdw=ws.Workbook.MaxFontWidth;
+            decimal mdw = ws.Workbook.MaxFontWidth;
 
             int pix = 0;
             for (int col = 0; col < From.Column; col++)
             {
-                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col+1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
+                pix += (int)decimal.Truncate(((256 * GetColumnWidth(col + 1) + decimal.Truncate(128 / (decimal)mdw)) / 256) * mdw);
             }
             pix += From.ColumnOff / EMU_PER_PIXEL;
             return pix;
@@ -346,7 +422,7 @@ namespace OfficeOpenXml.Drawing
             int pix = 0;
             for (int row = 0; row < From.Row; row++)
             {
-                pix += (int)(GetRowWidth(row+1) / 0.75);
+                pix += (int)(GetRowWidth(row + 1) / 0.75);
             }
             pix += From.RowOff / EMU_PER_PIXEL;
             return pix;
@@ -380,21 +456,23 @@ namespace OfficeOpenXml.Drawing
         private decimal GetColumnWidth(int col)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            if (ws._columns.ContainsKey(ExcelColumn.GetColumnID(ws.SheetID, col)))   //Check that the column exists
+            var column = ws._values.GetValue(0, col) as ExcelColumn;
+            if (column == null)   //Check that the column exists
             {
-                return (decimal)ws.Column(col).VisualWidth;
+                return (decimal)ws.DefaultColWidth;
             }
             else
             {
-                return (decimal)ws.DefaultColWidth;
+                return (decimal)ws.Column(col).VisualWidth;
             }
         }
         private double GetRowWidth(int row)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            if (ws._rows.ContainsKey(ExcelRow.GetRowID(ws.SheetID, row)))   //Check that the row exists
+            object o = null;
+            if (ws._values.Exists(row, 0, ref o) && o != null)   //Check that the row exists
             {
-                return (double)ws.Row(row).Height;
+                return ((RowInternal)o).Height;
             }
             else
             {
@@ -419,7 +497,7 @@ namespace OfficeOpenXml.Drawing
             {
                 From.Row = row - 1;
                 From.RowOff = 0;
-            }   
+            }
             else
             {
                 From.Row = row - 2;
@@ -461,7 +539,7 @@ namespace OfficeOpenXml.Drawing
             pixels = (int)(pixels / (dpi / STANDARD_DPI) + .5);
             int pixOff = pixels - ((int)(ws.Row(From.Row + 1).Height / 0.75) - (int)(From.RowOff / EMU_PER_PIXEL));
             int prevPixOff = pixels;
-            int row = From.Row+1;
+            int row = From.Row + 1;
 
             while (pixOff >= 0)
             {
@@ -569,82 +647,14 @@ namespace OfficeOpenXml.Drawing
             SetPixelHeight(PixelHeight);
         }
         #endregion
-
-        internal static string GetTextAchoringText(eTextAnchoringType value)
-        {
-            switch (value)
-            {
-                case eTextAnchoringType.Bottom:
-                    return "b";
-                case eTextAnchoringType.Center:
-                    return "ctr";
-                case eTextAnchoringType.Distributed:
-                    return "dist";
-                case eTextAnchoringType.Justify:
-                    return "just";
-                default:
-                    return "t";
-            }
-        }
-        internal static eTextAnchoringType GetTextAchoringEnum(string text)
-        {
-            switch (text)
-            {
-                case "b":
-                    return eTextAnchoringType.Bottom;
-                case "ctr":
-                    return eTextAnchoringType.Center;
-                case "dist":
-                    return eTextAnchoringType.Distributed;
-                case "just":
-                    return eTextAnchoringType.Justify;
-                default:
-                    return eTextAnchoringType.Top;
-            }
-        }
-        internal static string GetTextVerticalText(eTextVerticalType value)
-        {
-            switch (value)
-            {
-                case eTextVerticalType.EastAsianVertical:
-                    return "eaVert";
-                case eTextVerticalType.MongolianVertical:
-                    return "mongolianVert";
-                case eTextVerticalType.Vertical:
-                    return "vert";
-                case eTextVerticalType.Vertical270:
-                    return "vert270";
-                case eTextVerticalType.WordArtVertical:
-                    return "wordArtVert";
-                case eTextVerticalType.WordArtVerticalRightToLeft:
-                    return "wordArtVertRtl";
-                default:
-                    return "horz";
-            }
-        }
-        internal static eTextVerticalType GetTextVerticalEnum(string text)
-        {
-            switch (text)
-            {
-                case "eaVert":
-                    return eTextVerticalType.EastAsianVertical;
-                case "mongolianVert":
-                    return eTextVerticalType.MongolianVertical;
-                case "vert":
-                    return eTextVerticalType.Vertical;
-                case "vert270":
-                    return eTextVerticalType.Vertical270;
-                case "wordArtVert":
-                    return eTextVerticalType.WordArtVertical;
-                case "wordArtVertRtl":
-                    return eTextVerticalType.WordArtVerticalRightToLeft;
-                default:
-                    return eTextVerticalType.Horizontal;
-            }
-        }
         internal virtual void DeleteMe()
         {
             TopNode.ParentNode.RemoveChild(TopNode);
+        }
+
+        public virtual void Dispose()
+        {
+            _topNode = null;
         }
     }
 }
