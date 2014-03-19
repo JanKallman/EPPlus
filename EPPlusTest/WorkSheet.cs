@@ -39,6 +39,7 @@ namespace EPPlusTest
             Merge();
             Encoding();
             LoadText();
+            LoadDataReader();
             LoadDataTable();
             LoadFromCollectionTest();
             LoadArray();
@@ -984,6 +985,48 @@ namespace EPPlusTest
             }
             p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
         }
+
+        [Ignore]
+        [TestMethod]
+        public void LoadDataReader()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Loaded DataDeader");
+            ExcelRangeBase range;
+            using (var dt = new DataTable())
+            {
+                var dr = dt.NewRow();
+	                 dr[0] = "Row1";
+	                 dr[1] = 1;
+	                 dr[2] = true;
+	                 dr[3] = 1.5;
+	                 dt.Rows.Add(dr);
+	  
+	                 dr = dt.NewRow();
+	                 dr[0] = "Row2";
+	                 dr[1] = 2;
+	                 dr[2] = false;
+	                 dr[3] = 2.25;
+	                 dt.Rows.Add(dr);
+	  
+	                 //dr = dt.NewRow();
+	                 //dr[0] = "Row3";
+	                 //dr[1] = 3;
+	                 //dr[2] = true;
+	                 //dr[3] = 3.125;
+	                 //dt.Rows.Add(dr);
+
+                using (var reader = dt.CreateDataReader())
+                {
+                    range = ws.Cells["A1"].LoadFromDataReader(reader, true, "My Table",
+                                                              OfficeOpenXml.Table.TableStyles.Medium5);
+                }
+            }
+            Assert.AreEqual(1, range.Start.Column);
+            Assert.AreEqual(4, range.End.Column);
+            Assert.AreEqual(1, range.Start.Row);
+            Assert.AreEqual(3, range.End.Row);
+        }
+
         [Ignore]
         [TestMethod]
         public void LoadDataTable()
