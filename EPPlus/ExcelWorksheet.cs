@@ -2954,14 +2954,21 @@ namespace OfficeOpenXml
             }
         }
 
-        private static string GetValueForXml(object v)
+        private string GetValueForXml(object v)
         {
             string s;
             try
             {
                 if (v is DateTime)
                 {
-                    s = ((DateTime)v).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    double sdv = ((DateTime)v).ToOADate();
+
+                    if (Workbook.Date1904)
+                    {
+                        sdv -= ExcelWorkbook.date1904Offset;
+                    }
+
+                    s = sdv.ToString(CultureInfo.InvariantCulture);
                 }
                 else if (v is TimeSpan)
                 {
@@ -3343,25 +3350,22 @@ namespace OfficeOpenXml
 
         internal void UpdateCellsWithDate1904Setting()
         {
-            foreach (IRangeID r in _cells)
+            var cse = new CellsStoreEnumerator<object>(_values);
+            var offset = Workbook.Date1904 ? -ExcelWorkbook.date1904Offset : ExcelWorkbook.date1904Offset;
+            while(cse.MoveNext())
             {
-                if (r is ExcelCell)
+                if (cse.Value is DateTime)
                 {
-                    ExcelCell cell = (ExcelCell)r;
-                    if (cell._value is DateTime)
+                    try
                     {
-                        try
-                        {
-                            double sdv = ((DateTime)cell.Value).ToOADate();
-                            sdv += Workbook.Date1904 ? -ExcelWorkbook.date1904Offset : ExcelWorkbook.date1904Offset;
+                        double sdv = ((DateTime)cse.Value).ToOADate();
+                        sdv += offset;
 
-                            cell._value = DateTime.FromOADate(sdv);
-                        }
-                        catch
-                        {
-                        }
+                        cse.Value = DateTime.FromOADate(sdv);
                     }
-
+                    catch
+                    {
+                    }
                 }
             }
         }

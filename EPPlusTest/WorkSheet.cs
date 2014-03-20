@@ -23,7 +23,7 @@ namespace EPPlusTest
         {
             InitBase();
 
-            InsertDeleteTest();
+            InsertDeleteTestRows();
             LoadData();
             StyleFill();
             Performance();
@@ -353,7 +353,7 @@ namespace EPPlusTest
         }
         [Ignore]
         [TestMethod]
-        public void InsertDeleteTest()
+        public void InsertDeleteTestRows()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDelete");
             //ws.Cells.Value = 0;
