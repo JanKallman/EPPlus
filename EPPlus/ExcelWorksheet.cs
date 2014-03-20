@@ -1639,7 +1639,89 @@ namespace OfficeOpenXml
                 }
             }
             
-            FixMergedCells(rowFrom, rows,false);
+            FixMergedCellsRow(rowFrom, rows,false);
+            if (copyStylesFromRow > 0)
+            {
+                for (var r = 0; r < rows; r++)
+                {
+                    var row=this.Row(rowFrom + r);
+                    row.StyleID = this.Row(copyStylesFromRow).StyleID;
+                }
+            }
+        }
+        /// <summary>
+        /// Inserts a new column into the spreadsheet.  Existing columns below the position are 
+        /// shifted down.  All formula are updated to take account of the new column.
+        /// </summary>
+        /// <param name="rowFrom">The position of the new column</param>
+        /// <param name="rows">Number of columns to insert</param>
+        /// <summary>
+        public void InsertColumn(int columnFrom, int columns)
+        {
+            InsertColumn(columnFrom, columns, 0);
+        }
+        /// Inserts a new column into the spreadsheet.  Existing column to the left are 
+        /// shifted.  All formula are updated to take account of the new column.
+        /// </summary>
+        /// <param name="rowFrom">The position of the new column</param>
+        /// <param name="rows">Number of columns to insert.</param>
+        /// <param name="copyStylesFromRow">Copy Styles from this column. Applied to all inserted columns</param>
+        public void InsertColumn(int columnFrom, int columns, int copyStylesFromColumn)
+        {
+            CheckSheetType();
+            var d = Dimension;
+            
+            //Check that cells aren't shifted outside the boundries
+            if (d != null && d.End.Column > columnFrom && d.End.Column + columns > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentOutOfRangeException("Can't insert. Columns will be shifted outside the boundries of the worksheet."));
+            }
+
+            _values.Insert(0, columnFrom, 0, columns);
+            _formulas.Insert(0, columnFrom, 0, columns);
+            _styles.Insert(0, columnFrom, 0, columns);
+            _types.Insert(0, columnFrom, 0, columns);
+            _commentsStore.Insert(0, columnFrom, 0, columns);
+            _hyperLinks.Insert(0, columnFrom, 0, columns);
+            _flags.Insert(0, columnFrom, 0, columns);
+
+            foreach (var f in _sharedFormulas.Values)
+            {
+                if (f.StartCol >= columnFrom) f.StartCol += columns;
+                var a = new ExcelAddressBase(f.Address);
+                if (a._fromCol >= columnFrom)
+                {
+                    a._fromCol += columns;
+                    a._toCol += columns;
+                }
+                else if (a._toCol >= columnFrom)
+                {
+                    a._toCol += columns;
+                }
+                f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
+                f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, 0, columns,0, columnFrom);
+            }
+
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+                if (cse.Value is string)
+                {
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, columns, 0, columnFrom);
+                }
+            }
+
+            FixMergedCellsColumn(columnFrom, columns, false);
+
+            if (copyStylesFromColumn > 0)
+            {
+                for (var c = 0; c < columns; c++)
+                {
+                    var col = this.Column(columnFrom + c);
+                    col.StyleID = this.Column(copyStylesFromColumn).StyleID;
+                }
+            }
+
         }
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
@@ -1647,7 +1729,7 @@ namespace OfficeOpenXml
         /// <param name="row"></param>
         /// <param name="rows"></param>
         /// <param name="delete"></param>
-        private void FixMergedCells(int row, int rows, bool delete)
+        private void FixMergedCellsRow(int row, int rows, bool delete)
         {
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
@@ -1665,6 +1747,52 @@ namespace OfficeOpenXml
                 else
                 {
                     newAddr = addr.AddRow(row, rows);
+                }
+
+                //The address has changed.
+                if (newAddr._address != addr._address)
+                {
+                    //Set merged prop for cells
+                    for (int r = newAddr._fromRow; r <= newAddr._toRow; r++)
+                    {
+                        for (int c = newAddr._fromCol; c <= newAddr._toCol; c++)
+                        {
+                            _flags.SetFlagValue(r, c, true, CellFlags.Merged);
+                        }
+                    }
+                }
+
+                _mergedCells.List[i] = newAddr._address;
+            }
+            for (int i = removeIndex.Count - 1; i >= 0; i--)
+            {
+                _mergedCells.List.RemoveAt(removeIndex[i]);
+            }
+        }
+        /// <summary>
+        /// Adds a value to the row of merged cells to fix for inserts or deletes
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="rows"></param>
+        /// <param name="delete"></param>
+        private void FixMergedCellsColumn(int column, int columns, bool delete)
+        {
+            List<int> removeIndex = new List<int>();
+            for (int i = 0; i < _mergedCells.Count; i++)
+            {
+                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
+                if (delete)
+                {
+                    newAddr = addr.DeleteColumn(column, columns);
+                    if (newAddr == null)
+                    {
+                        removeIndex.Add(i);
+                        continue;
+                    }
+                }
+                else
+                {
+                    newAddr = addr.AddColumn(column, columns);
                 }
 
                 //The address has changed.
@@ -1902,9 +2030,17 @@ namespace OfficeOpenXml
 
         #region DeleteRow
         /// <summary>
-        /// Deletes the specified row from the worksheet.
+        /// Delete the specified row from the worksheet.
         /// </summary>
-        /// <param name="rowFrom">The number of the start row to be deleted</param>
+        /// <param name="rowFrom">A row to be deleted</param>
+        public void DeleteRow(int row)
+        {
+            DeleteRow(row, 1);
+        }
+        /// <summary>
+        /// Delete the specified row from the worksheet.
+        /// </summary>
+        /// <param name="rowFrom">The start row</param>
         /// <param name="rows">Number of rows to delete</param>
         public void DeleteRow(int rowFrom, int rows)
         {
@@ -1919,7 +2055,33 @@ namespace OfficeOpenXml
             _hyperLinks.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
 
             AdjustFormulasRow(rowFrom, rows);
-            FixMergedCells(rowFrom, rows,true);
+            FixMergedCellsRow(rowFrom, rows,true);
+        }
+        /// <summary>
+        /// Delete the specified column from the worksheet.
+        /// </summary>
+        /// <param name="rowFrom">The column to be deleted</param>
+        public void DeleteColumn(int column)
+        {
+            DeleteColumn(column,1);
+        }
+        /// <summary>
+        /// Delete the specified coumn from the worksheet.
+        /// </summary>
+        /// <param name="rowFrom">The start column</param>
+        /// <param name="rows">Number of columns to delete</param>
+        public void DeleteColumn(int columnFrom, int columns)
+        {
+            _values.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _types.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _formulas.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _styles.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _flags.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _commentsStore.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+            _hyperLinks.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+
+            AdjustFormulasColumn(columnFrom, columns);
+            FixMergedCellsColumn(columnFrom, columns,true);
         }
         internal void AdjustFormulasRow(int rowFrom, int rows)
         {
@@ -1955,6 +2117,40 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal void AdjustFormulasColumn(int columnFrom, int columns)
+        {
+            var delSF = new List<int>();
+            foreach (var sf in _sharedFormulas.Values)
+            {
+                var a = new ExcelAddress(sf.Address).DeleteColumn(columnFrom, columns);
+                if (a == null)
+                {
+                    delSF.Add(sf.Index);
+                }
+                else
+                {
+                    sf.Address = a.Address;
+                    sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0,-columns,0, columnFrom);
+                    if (sf.StartCol >= columnFrom)
+                    {
+                        sf.StartCol -= sf.StartCol;
+                    }
+                }
+            }
+            foreach (var ix in delSF)
+            {
+                _sharedFormulas.Remove(ix);
+            }
+            delSF = null;
+            var cse = new CellsStoreEnumerator<object>(_formulas, 1, columnFrom,  ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            while (cse.Next())
+            {
+                if (cse.Value is string)
+                {
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, -columns, 0, columnFrom);
+                }
+            }
+        }
         /// <summary>
         /// Deletes the specified row from the worksheet.
         /// </summary>
@@ -1966,7 +2162,6 @@ namespace OfficeOpenXml
             DeleteRow(rowFrom, rows);
         }
 		#endregion
-
         /// <summary>
         /// Get the cell value from thw worksheet
         /// </summary>
@@ -3382,7 +3577,7 @@ namespace OfficeOpenXml
             _types.Dispose();
             _commentsStore.Dispose();
 
-            if (_formulaTokens != null) _commentsStore.Dispose();
+            if (_formulaTokens != null) _formulaTokens.Dispose();
             _values = null;
             _formulas = null;
             _flags = null;
