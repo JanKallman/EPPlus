@@ -1741,6 +1741,67 @@ namespace OfficeOpenXml
 			}
 		}
 		#endregion
+        #region LoadFromDataReader
+	    /// <summary>
+	    /// Load the data from the datareader starting from the top left cell of the range
+	    /// </summary>
+	    /// <param name="Reader">The datareader to loadfrom</param>
+	    /// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
+	    /// <param name="TableName">The name of the table</param>
+	    /// <param name="TableStyle">The table style to apply to the data</param>
+	    /// <returns>The filled range</returns>
+	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders, string TableName, TableStyles TableStyle = TableStyles.None)
+	    {
+	        var r = LoadFromDataReader(Reader, PrintHeaders);
+	  
+	        int rows = r.Rows;
+	        if (rows >= 0 && r.Columns > 0)
+	        {
+	            var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows == 0 ? 1 : rows), _fromCol + r.Columns - 1), TableName);
+	            tbl.ShowHeader = PrintHeaders;
+	            tbl.TableStyle = TableStyle;
+	        }
+	        return r;
+	    }
+
+	    /// <summary>
+	    /// Load the data from the datareader starting from the top left cell of the range
+	    /// </summary>
+	    /// <param name="Reader">The datareader to load< from/param>
+	    /// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
+	    /// <returns>The filled range</returns>
+	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders)
+	    {
+	        if (Reader == null)
+	        {
+	            throw (new ArgumentNullException("Reader", "Reader can't be null"));
+	        }
+	        int fieldCount = Reader.FieldCount;
+	  
+	        int col = _fromCol, row = _fromRow;
+	        if (PrintHeaders)
+	        {
+	            for (int i = 0; i < fieldCount; i++)
+	            {
+	                // If no caption is set, the ColumnName property is called implicitly.
+	                _worksheet._values.SetValue(row, col++, Reader.GetName(i));
+	            }
+	            row++;
+	            col = _fromCol;
+	        }
+	        while(Reader.Read())
+	        {
+	            for (int i = 0; i < fieldCount; i++)
+	            {
+	                _worksheet._values.SetValue(row, col++, Reader.GetValue(i));
+	            }
+	            row++;
+	            col = _fromCol;
+	        }
+	        return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
+	    }
+	    #endregion
+
 		#region LoadFromDataTable
 		/// <summary>
 		/// Load the data from the datatable starting from the top left cell of the range
