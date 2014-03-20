@@ -498,6 +498,37 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        const string date1904Path = "d:workbookPr/@date1904";
+        internal const double date1904Offset = 365.5 * 4;  // offset to fix 1900 and 1904 differences, 4 OLE years
+        /// <summary>
+        /// The date systems used by Microsoft Excel can be based on one of two different dates. By default, a serial number of 1 in Microsoft Excel represents January 1, 1900.
+        /// The default for the serial number 1 can be changed to represent January 2, 1904.
+        /// This option was included in Microsoft Excel for Windows to make it compatible with Excel for the Macintosh, which defaults to January 2, 1904.
+        /// </summary>
+        public bool Date1904
+        {
+            get
+            {
+                return GetXmlNodeBool(date1904Path, false);
+               
+            }
+            set
+            {
+                if (Date1904 != value)
+                {
+                    // Like Excel when the option it's changed update it all cells with Date format
+                    foreach (var item in Worksheets)
+                    {
+                        item.UpdateCellsWithDate1904Setting();
+                    }
+                }
+
+                SetXmlNodeBool(date1904Path, value, false);
+            }
+        }
+     
+       
 		/// <summary>
 		/// Create or read the XML for the workbook.
 		/// </summary>
