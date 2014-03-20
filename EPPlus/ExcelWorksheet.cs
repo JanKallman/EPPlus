@@ -1241,6 +1241,10 @@ namespace OfficeOpenXml
                     double res;
                     if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
                     {
+                        if (Workbook.Date1904)
+                        {
+                            res += ExcelWorkbook.date1904Offset;
+                        }
                         _values.SetValue(row, col, DateTime.FromOADate(res));
                     }
                     else
@@ -2950,14 +2954,21 @@ namespace OfficeOpenXml
             }
         }
 
-        private static string GetValueForXml(object v)
+        private string GetValueForXml(object v)
         {
             string s;
             try
             {
                 if (v is DateTime)
                 {
-                    s = ((DateTime)v).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    double sdv = ((DateTime)v).ToOADate();
+
+                    if (Workbook.Date1904)
+                    {
+                        sdv -= ExcelWorkbook.date1904Offset;
+                    }
+
+                    s = sdv.ToString(CultureInfo.InvariantCulture);
                 }
                 else if (v is TimeSpan)
                 {
@@ -3334,6 +3345,28 @@ namespace OfficeOpenXml
             if (n != null)
             {
                 n.ParentNode.RemoveChild(n);
+            }
+        }
+
+        internal void UpdateCellsWithDate1904Setting()
+        {
+            var cse = new CellsStoreEnumerator<object>(_values);
+            var offset = Workbook.Date1904 ? -ExcelWorkbook.date1904Offset : ExcelWorkbook.date1904Offset;
+            while(cse.MoveNext())
+            {
+                if (cse.Value is DateTime)
+                {
+                    try
+                    {
+                        double sdv = ((DateTime)cse.Value).ToOADate();
+                        sdv += offset;
+
+                        cse.Value = DateTime.FromOADate(sdv);
+                    }
+                    catch
+                    {
+                    }
+                }
             }
         }
         internal string GetFormula(int row, int col)
