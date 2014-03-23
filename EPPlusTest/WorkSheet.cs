@@ -24,6 +24,7 @@ namespace EPPlusTest
             InitBase();
 
             InsertDeleteTestRows();
+            InsertDeleteTestColumns();
             LoadData();
             StyleFill();
             Performance();
@@ -100,8 +101,6 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
                 Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
                 Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
-
-                //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
             }
             instream.Close();
         }
@@ -401,6 +400,56 @@ namespace EPPlusTest
             Assert.AreEqual(addr.Start.Row, 1);
             Assert.AreEqual(addr.End.Column, 4);
             Assert.AreEqual(addr.End.Row, 3);
+        }
+        [Ignore]
+        [TestMethod]
+        public void InsertDeleteTestColumns()
+        {
+            ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDeleteColumns");
+            //ws.Cells.Value = 0;
+            ws.Cells["A1:C5"].Value = 1;
+            Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
+            ws.Cells["A1:B3"].Merge = true;
+            ws.Cells["D3"].Formula = "A2+C5";
+            ws.InsertColumn(2, 1);
+
+            ws.Cells["K10:M15"].Value = 1;
+            ws.Cells["K11:L13"].Merge = true;
+            ws.DeleteColumn(12, 1);
+
+            ws.Cells["X1:Y100"].Style.Locked = false;
+            ws.Cells["C1:Y12"].Style.Hidden = true;
+            ws.Protection.IsProtected = true;
+            ws.Protection.SetPassword("Password");
+
+
+            var range = ws.Cells["X2:Z100"];
+
+            ws.PrinterSettings.PrintArea = null;
+            ws.PrinterSettings.PrintArea = ws.Cells["X2:Z99"];
+            ws.PrinterSettings.PrintArea = null;
+            ws.Row(15).PageBreak = true;
+            ws.Column(3).PageBreak = true;
+            ws.View.ShowHeaders = false;
+            ws.View.PageBreakView = true;
+
+            ws.Row(200).Height = 50;
+            ws.Workbook.CalcMode = ExcelCalcMode.Automatic;
+
+            //Assert.AreEqual(range.Start.Column, 2);
+            //Assert.AreEqual(range.Start.Row, 2);
+            //Assert.AreEqual(range.Start.Address, "B2");
+
+            //Assert.AreEqual(range.End.Column, 4);
+            //Assert.AreEqual(range.End.Row, 100);
+            //Assert.AreEqual(range.End.Address, "D100");
+
+            //ExcelAddress addr = new ExcelAddress("B1:D3");
+
+            //Assert.AreEqual(addr.Start.Column, 2);
+            //Assert.AreEqual(addr.Start.Row, 1);
+            //Assert.AreEqual(addr.End.Column, 4);
+            //Assert.AreEqual(addr.End.Row, 3);
         }
         [Ignore]
         [TestMethod]
@@ -984,16 +1033,19 @@ namespace EPPlusTest
 
             }
             p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
-        }
-
-        [Ignore]
+        }        
         [TestMethod]
         public void LoadDataReader()
         {
-            var ws = _pck.Workbook.Worksheets.Add("Loaded DataDeader");
+            var ws = _pck.Workbook.Worksheets.Add("Loaded DataReader");
             ExcelRangeBase range;
             using (var dt = new DataTable())
             {
+                dt.Columns.Add("String", typeof(string));
+                dt.Columns.Add("Int", typeof(int));
+                dt.Columns.Add("Bool", typeof(bool));
+                dt.Columns.Add("Double", typeof(double));
+
                 var dr = dt.NewRow();
 	                 dr[0] = "Row1";
 	                 dr[1] = 1;
@@ -1020,11 +1072,21 @@ namespace EPPlusTest
                     range = ws.Cells["A1"].LoadFromDataReader(reader, true, "My Table",
                                                               OfficeOpenXml.Table.TableStyles.Medium5);
                 }
+                Assert.AreEqual(1, range.Start.Column);
+                Assert.AreEqual(4, range.End.Column);
+                Assert.AreEqual(1, range.Start.Row);
+                Assert.AreEqual(3, range.End.Row);
+
+                using (var reader = dt.CreateDataReader())
+                {
+                    range = ws.Cells["A5"].LoadFromDataReader(reader, false, "My Table2",
+                                                              OfficeOpenXml.Table.TableStyles.Medium5);
+                }
+                Assert.AreEqual(1, range.Start.Column);
+                Assert.AreEqual(4, range.End.Column);
+                Assert.AreEqual(5, range.Start.Row);
+                Assert.AreEqual(6, range.End.Row);
             }
-            Assert.AreEqual(1, range.Start.Column);
-            Assert.AreEqual(4, range.End.Column);
-            Assert.AreEqual(1, range.Start.Row);
-            Assert.AreEqual(3, range.End.Row);
         }
 
         [Ignore]
