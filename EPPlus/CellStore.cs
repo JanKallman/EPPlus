@@ -998,6 +998,11 @@ using OfficeOpenXml;
                 tPos = c;
             }
 
+            if (Count <= fPos)
+            {
+                return;
+            }
+
             if (_columnIndex[fPos].Index >= fromCol && _columnIndex[fPos].Index <= fromCol + columns)
             {
                 if (_columnIndex[fPos].Index > ColumnCount)

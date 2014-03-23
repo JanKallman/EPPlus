@@ -1753,11 +1753,11 @@ namespace OfficeOpenXml
 	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders, string TableName, TableStyles TableStyle = TableStyles.None)
 	    {
 	        var r = LoadFromDataReader(Reader, PrintHeaders);
-	  
-	        int rows = r.Rows;
+
+            int rows = r.Rows - 1;
 	        if (rows >= 0 && r.Columns > 0)
 	        {
-	            var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows == 0 ? 1 : rows), _fromCol + r.Columns - 1), TableName);
+	            var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows <= 0 ? 1 : rows), _fromCol + r.Columns - 1), TableName);
 	            tbl.ShowHeader = PrintHeaders;
 	            tbl.TableStyle = TableStyle;
 	        }
@@ -1801,7 +1801,6 @@ namespace OfficeOpenXml
 	        return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
 	    }
 	    #endregion
-
 		#region LoadFromDataTable
 		/// <summary>
 		/// Load the data from the datatable starting from the top left cell of the range
