@@ -3005,7 +3005,8 @@ namespace OfficeOpenXml
             StringBuilder sbXml = new StringBuilder();
             var ss = _package.Workbook._sharedStrings;
             var styles = _package.Workbook.Styles;
-            sw.Write("<sheetData>");
+            var cache = new StringBuilder();
+            cache.Append("<sheetData>");
             var cse = new CellsStoreEnumerator<object>(_values, 1, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             //foreach (IRangeID r in _cells)
             while(cse.Next())
@@ -3019,7 +3020,7 @@ namespace OfficeOpenXml
                     //Add the row element if it's a new row
                     if (cse.Row != row)
                     {
-                        WriteRow(sw, cellXfs, row, cse.Row);
+                        WriteRow(cache, cellXfs, row, cse.Row);
                         row = cse.Row;
                     }
                     object v = cse.Value;
@@ -3034,21 +3035,21 @@ namespace OfficeOpenXml
                             {
                                 if (f.IsArray)
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
+                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
                                 else
                                 {
-                                    sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
+                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"shared\"  si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                                 }
 
                             }
                             else if (f.IsArray)
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
                             }
                             else
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" />{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v));
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f t=\"shared\" si=\"{2}\" />{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v));
                             }
                         }
                         else
@@ -3056,33 +3057,33 @@ namespace OfficeOpenXml
                             // We can also have a single cell array formula
                             if(f.IsArray)
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula), GetFormulaValue(v));
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                             else
                             {
-                                sw.Write("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
-                                sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(f.Formula), GetFormulaValue(v));
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
+                                cache.AppendFormat("<f>{0}</f>{1}</c>", SecurityElement.Escape(f.Formula), GetFormulaValue(v));
                             }
                         }
                     }
                     else if (formula!=null && formula.ToString()!="")
                     {
-                        sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
-                        sw.Write("<f>{0}</f>{1}</c>", SecurityElement.Escape(formula.ToString()), GetFormulaValue(v));
+                        cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
+                        cache.AppendFormat("<f>{0}</f>{1}</c>", SecurityElement.Escape(formula.ToString()), GetFormulaValue(v));
                     }
                     else
                     {
                         if (v == null)
                         {
-                            sw.Write("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
+                            cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
                         }
                         else
                         {
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan) && _types.GetValue(cse.Row,cse.Column) != "s")
                             {
                                 string sv = GetValueForXml(v);
-                                sw.Write("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
-                                sw.Write("<v>{0}</v></c>", sv);
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
+                                cache.AppendFormat("<v>{0}</v></c>", sv);
                             }
                             else
                             {
@@ -3096,8 +3097,8 @@ namespace OfficeOpenXml
                                 {
                                     ix = ss[v.ToString()].pos;
                                 }
-                                sw.Write("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
-                                sw.Write("<v>{0}</v></c>", ix);
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
+                                cache.AppendFormat("<v>{0}</v></c>", ix);
                             }
                         }
                     }
@@ -3110,15 +3111,20 @@ namespace OfficeOpenXml
                 else  //ExcelRow
                 {
                     //int newRow=((ExcelRow)cse.Value).Row;
-                    WriteRow(sw, cellXfs, row, cse.Row);
+                    WriteRow(cache, cellXfs, row, cse.Row);
                     row = cse.Row;
+                }
+                if (cache.Length > 0x600000)
+                {
+                    sw.Write(cache.ToString());
+                    cache = new StringBuilder();
                 }
             }
 
-            if (row != -1) sw.Write("</row>");
-            sw.Write("</sheetData>");
-
-            
+            if (row != -1) cache.Append("</row>");
+            cache.Append("</sheetData>");
+            sw.Write(cache.ToString());
+            sw.Flush();
         }
 
         private object GetFormulaValue(object v)
@@ -3195,6 +3201,55 @@ namespace OfficeOpenXml
                 s = "0";
             }
             return s;
+        }
+        private void WriteRow(StringBuilder cache, ExcelStyleCollection<ExcelXfs> cellXfs, int prevRow, int row)
+        {
+            if (prevRow != -1) cache.Append("</row>");
+            //ulong rowID = ExcelRow.GetRowID(SheetID, row);
+            cache.AppendFormat("<row r=\"{0}\" ", row);
+            RowInternal currRow = _values.GetValue(row, 0) as RowInternal;
+            if (currRow != null)
+            {
+
+                if (currRow.Hidden == true)
+                {
+                    cache.Append("ht=\"0\" hidden=\"1\" ");
+                }
+                else if (currRow.Height != DefaultRowHeight)
+                {
+                    cache.AppendFormat(string.Format(CultureInfo.InvariantCulture, "ht=\"{0}\" ", currRow.Height));
+                    if (currRow.CustomHeight)
+                    {
+                        cache.Append("customHeight=\"1\" ");
+                    }
+                }
+
+                if (currRow.OutlineLevel > 0)
+                {
+                    cache.AppendFormat("outlineLevel =\"{0}\" ", currRow.OutlineLevel);
+                    if (currRow.Collapsed)
+                    {
+                        if (currRow.Hidden)
+                        {
+                            cache.Append(" collapsed=\"1\" ");
+                        }
+                        else
+                        {
+                            cache.Append(" collapsed=\"1\" hidden=\"1\" "); //Always hidden
+                        }
+                    }
+                }
+                if (currRow.Phonetic)
+                {
+                    cache.Append("ph=\"1\" ");
+                }
+            }
+            var s = _styles.GetValue(row, 0);
+            if (s > 0)
+            {
+                cache.AppendFormat("s=\"{0}\" customFormat=\"1\"", cellXfs[s].newID);
+            }
+            cache.Append(">");
         }
         private void WriteRow(StreamWriter sw, ExcelStyleCollection<ExcelXfs> cellXfs, int prevRow, int row)
         {
