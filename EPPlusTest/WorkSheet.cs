@@ -1037,6 +1037,7 @@ namespace EPPlusTest
         [TestMethod]
         public void LoadDataReader()
         {
+            if (_pck == null) _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("Loaded DataReader");
             ExcelRangeBase range;
             using (var dt = new DataTable())

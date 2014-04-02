@@ -54,8 +54,8 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System.ComponentModel;
 
 namespace OfficeOpenXml
-{
-	/// <summary>
+{	
+    /// <summary>
 	/// A range of cells 
 	/// </summary>
 	public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
@@ -69,7 +69,24 @@ namespace OfficeOpenXml
 		private delegate void _setValue(object value, int row, int col);
 		private _changeProp _changePropMethod;
 		private int _styleID;
-		#region Constructors
+        private class CopiedCell
+        {
+            internal int Row { get; set; }
+            internal int Column { get; set; }
+            internal object Value { get; set; }
+            internal string Type { get; set; }
+            internal object Formula { get; set; }
+            internal int? StyleID { get; set; }
+            internal Uri HyperLink { get; set; }
+            internal ExcelComment Comment { get; set; }
+        }
+        private class CopiedFlag
+        {
+            internal int Row { get; set; }
+            internal int Column { get; set; }
+            internal Byte Flag { get; set; }
+        }
+        #region Constructors
 		internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
 		{
 			_worksheet = xlWorksheet;
@@ -2243,47 +2260,55 @@ namespace OfficeOpenXml
             //Delete all existing cells; 
             int toRow = Destination._toRow - Destination._fromRow + 1,
                 toCol = Destination._toCol - Destination._fromCol + 1;
-            Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
 
             string s = "";
             int i=0;
             object o = null;
+            byte flag=0;
             Uri hl = null;
+            ExcelComment comment=null;
 
             var cse = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
+            var copiedValue = new List<CopiedCell>();
             while (cse.Next())
             {
-                int row = Destination._fromRow+(cse.Row - _fromRow);
-                int col = Destination._fromCol + (cse.Row - _fromRow);
+                var row=Destination._fromRow + (cse.Row - _fromRow);
+                var col=Destination._fromCol + (cse.Column - _fromCol);
+                var cell = new CopiedCell
+                {
+                    Row = row,
+                    Column = col,
+                    Value=cse.Value
+                    
+                };
 
-                Destination._worksheet._values.SetValue(row, col, cse.Value);
+                //Destination._worksheet._values.SetValue(row, col, cse.Value);
 
                 if (_worksheet._types.Exists(row, col, ref s))
                 {
-                    Destination._worksheet._types.SetValue(row, col,s);
+                    //Destination._worksheet._types.SetValue(row, col,s);
+                    cell.Type=s;
                 }
 
                 if (_worksheet._formulas.Exists(row, col, ref o))
                 {
                     if (o is int)
                     {
-                        Destination._worksheet._formulas.SetValue(row, col, _worksheet.GetFormula(cse.Row, cse.Column));    //Shared formulas, set the formula per cell to simplify
+                       // Destination._worksheet._formulas.SetValue(row, col, _worksheet.GetFormula(cse.Row, cse.Column));    //Shared formulas, set the formula per cell to simplify
+                        cell.Formula=_worksheet.GetFormula(cse.Row, cse.Column);
                     }
                     else
                     {
-                        Destination._worksheet._formulas.SetValue(row, col, o);
+                        //Destination._worksheet._formulas.SetValue(row, col, o);
+                        cell.Formula=o;
                     }
                 }
                 if(_worksheet._styles.Exists(row,col, ref i))
                 {
                     if (sameWorkbook)
                     {
-                        Destination._worksheet._styles.SetValue(row, col, i);
+                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        cell.StyleID=i;
                     }
                     else
                     {
@@ -2297,25 +2322,78 @@ namespace OfficeOpenXml
                             i = styles.CloneStyle(sourceStyles, styleID);
                             styleCashe.Add(styleID, i);
                         }
-                        Destination._worksheet._styles.SetValue(row, col, i);
+                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        cell.StyleID=i;
                     }
                 }
                 
-                if (Destination._worksheet._hyperLinks.Exists(row, col, ref hl))
+                if (_worksheet._hyperLinks.Exists(row, col, ref hl))
                 {
-                    Destination._worksheet._hyperLinks.SetValue(row, col, hl);
+                    //Destination._worksheet._hyperLinks.SetValue(row, col, hl);
+                    cell.HyperLink=hl;
                 }
+
+                if(_worksheet._commentsStore.Exists(row, col, ref comment))
+                {
+                    cell.Comment=comment;
+                }
+            
+                copiedValue.Add(cell);
             }
 
-            //Flags don't always have a value so we use an specific enumeration for them.
+            var copiedFlag = new List<CopiedFlag>();
+            //Flags don't always have a value in _values, so we use an specific enumeration for them. (For merged cells)
             var csef = new CellsStoreEnumerator<byte>(_worksheet._flags, _fromRow, _fromCol, _toRow, _toCol);
             while (csef.Next())
             {
-                int row = Destination._fromRow + (csef.Row - _fromRow);
-                int col = Destination._fromCol + (csef.Column - _fromCol);
+                copiedFlag.Add(new CopiedFlag()
+                {
+                    Row = Destination._fromRow + (csef.Row - _fromRow),
+                    Column = Destination._fromCol + (csef.Column - _fromCol),
+                    Flag=csef.Value
+                });
+            }
 
-                Destination._worksheet._flags.SetValue(row, col,
-                _worksheet._flags.GetValue(csef.Row, csef.Column));
+            Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            Destination._worksheet._commentsStore.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            
+            foreach(var cell in copiedValue)
+            {
+                Destination._worksheet._values.SetValue(cell.Row, cell.Column, cell.Value);
+
+                if(cell.Type!=null)
+                {
+                    Destination._worksheet._types.SetValue(cell.Row, cell.Column, cell.Type);
+                }
+
+                if(cell.StyleID!=null)
+                {
+                    Destination._worksheet._styles.SetValue(cell.Row, cell.Column, cell.StyleID.Value);
+                }
+
+                if(cell.Formula!=null)
+                {
+                    Destination._worksheet._formulas.SetValue(cell.Row, cell.Column, cell.Formula);
+                }
+                if(cell.HyperLink!=null)
+                {
+                    Destination._worksheet._hyperLinks.SetValue(cell.Row, cell.Column, cell.HyperLink);
+                }
+
+                if (cell.Comment != null)
+                {
+                    //Destination._worksheet._commentsStore.SetValue(cell.Row, cell.Column, cell.Comment);
+                }
+            }
+
+            foreach(var f in copiedFlag)
+            {
+                Destination._worksheet._flags.SetValue(f.Row, f.Column, f.Flag);
             }
 
 

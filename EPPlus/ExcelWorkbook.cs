@@ -817,34 +817,41 @@ namespace OfficeOpenXml
             stream.CompressionLevel = compressionLevel;
             stream.PutNextEntry(fileName);
 
+            var cache = new StringBuilder();            
             StreamWriter sw = new StreamWriter(stream);
-			sw.Write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
+            cache.AppendFormat("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
 			foreach (string t in _sharedStrings.Keys)
 			{
 
 				SharedStringItem ssi = _sharedStrings[t];
 				if (ssi.isRichText)
 				{
-					sw.Write("<si>");
-					ExcelEncodeString(sw, t);
-					sw.Write("</si>");
+                    cache.Append("<si>");
+                    ExcelEncodeString(cache, t);
+                    cache.Append("</si>");
 				}
 				else
 				{
 					if (t.Length>0 && (t[0] == ' ' || t[t.Length-1] == ' ' || t.Contains("  ") || t.Contains("\t")))
 					{
-						sw.Write("<si><t xml:space=\"preserve\">");
+                        cache.Append("<si><t xml:space=\"preserve\">");
 					}
 					else
 					{
-						sw.Write("<si><t>");
+                        cache.Append("<si><t>");
 					}
-					ExcelEncodeString(sw, ExcelEscapeString(t));
-					sw.Write("</t></si>");
+					ExcelEncodeString(cache, ExcelEscapeString(t));
+                    cache.Append("</t></si>");
 				}
+                if (cache.Length > 0x600000)
+                {
+                    sw.Write(cache.ToString());
+                    cache = new StringBuilder();            
+                }
 			}
-			sw.Write("</sst>");
-			sw.Flush();
+            cache.Append("</sst>");
+            sw.Write(cache.ToString());
+            sw.Flush();
             Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 		}
 
@@ -893,6 +900,38 @@ namespace OfficeOpenXml
 			}
 
 		}
+        /// <summary>
+        /// Return true if preserve space attribute is set.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        internal static void ExcelEncodeString(StringBuilder sb, string t)
+        {
+            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
+            {
+                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+                int indexAdd = 0;
+                while (match.Success)
+                {
+                    t = t.Insert(match.Index + indexAdd, "_x005F");
+                    indexAdd += 6;
+                    match = match.NextMatch();
+                }
+            }
+            for (int i = 0; i < t.Length; i++)
+            {
+                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
+                {
+                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                }
+                else
+                {
+                    sb.Append(t[i]);
+                }
+            }
+
+        }
         internal static string ExcelDecodeString(string t)
 		{
 			var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
