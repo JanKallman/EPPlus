@@ -321,7 +321,7 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                if (Address._toRow - Address._fromRow < 1 && value ||
+                if (Address._toRow - Address._fromRow < 0 && value ||
                     Address._toRow - Address._fromRow == 1 && value && ShowTotal)
                 {
                     throw (new Exception("Cant set ShowHeader-property. Table has too few rows"));
