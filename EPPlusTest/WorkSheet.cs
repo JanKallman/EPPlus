@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
@@ -59,8 +58,8 @@ namespace EPPlusTest
             TableTest();
             DefinedName();
             CreatePivotTable();
-            //SetBackground();
-            //SetHeaderFooterImage();            
+            SetBackground();
+            SetHeaderFooterImage();            
 
             SaveWorksheet("Worksheet.xlsx");
 
@@ -94,7 +93,7 @@ namespace EPPlusTest
 
                 ws = pck.Workbook.Worksheets["HeaderImage"];
 
-                //Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
 
                 ws = pck.Workbook.Worksheets["newsheet"];
                 Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine, true);
