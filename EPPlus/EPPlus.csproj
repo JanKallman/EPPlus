@@ -429,6 +429,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Index.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Indirect.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Lookup.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupArguments.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupDirection.cs" />
