@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -154,6 +155,23 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             _excelDataProvider.Stub(x => x.ExcelMaxRows).Return(12345);
             var result = _parser.Parse("Address(1, 1)");
             Assert.AreEqual("$A$1", result);
+        }
+
+        [TestMethod]
+        public void IndirectShouldReturnARange()
+        {
+            using (var package = new ExcelPackage(new MemoryStream()))
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["A1:A2"].Value = 2;
+                s1.Cells["A3"].Formula = "SUM(Indirect(\"A1:A2\"))";
+                s1.Calculate();
+                Assert.AreEqual(4d, s1.Cells["A3"].Value);
+
+                s1.Cells["A4"].Formula = "SUM(Indirect(\"A1:A\" & \"2\"))";
+                s1.Calculate();
+                Assert.AreEqual(4d, s1.Cells["A4"].Value);
+            }
         }
     }
 }
