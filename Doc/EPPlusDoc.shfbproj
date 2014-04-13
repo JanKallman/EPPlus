@@ -8,7 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{9b3cf930-a2ba-4d8e-ab20-997503b8024b}</ProjectGuid>
-    <SHFBSchemaVersion>1.9.3.0</SHFBSchemaVersion>
+    <SHFBSchemaVersion>1.9.9.0</SHFBSchemaVersion>
     <!-- AssemblyName, Name, and RootNamespace are not used by SHFB but Visual
          Studio adds them anyway -->
     <AssemblyName>Documentation</AssemblyName>
@@ -16,8 +16,8 @@
     <Name>Documentation</Name>
     <!-- SHFB properties -->
     <OutputPath>.\Help\</OutputPath>
-    <HtmlHelpName>EPPlus 3.1</HtmlHelpName>
-    <FrameworkVersion>.NET 3.5</FrameworkVersion>
+    <HtmlHelpName>EPPlus 4.0</HtmlHelpName>
+    <FrameworkVersion>.NET Framework 3.5</FrameworkVersion>
     <DocumentationSources>
       <DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.dll" />
       <DocumentationSource sourceFile="..\EPPlus\bin\Release\EPPlus.XML" />
@@ -41,14 +41,28 @@ EPPlus started with the source from the ExcelPackage project hosted on CodePlex.
 <NamespaceSummaryItem name="OfficeOpenXml.VBA" isDocumented="True">Contains classes for Excel VBA support</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.ConditionalFormatting.Contracts" isDocumented="True">Contains interfaces for Conditional formatting</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Contracts" isDocumented="True">Contains interfaces for data validation</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Formulas.Contracts" isDocumented="True">Contains interfaces for data validation formulas</NamespaceSummaryItem></NamespaceSummaries>
-    <HelpTitle>EPPlus 3.1</HelpTitle>
+<NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Formulas.Contracts" isDocumented="True">Contains interfaces for data validation formulas</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Ionic.Zip" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Ionic.Zlib" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing" isDocumented="True">Top namesspace for formula parsing</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging" isDocumented="True">Contains classes too handle OOXML packaging</NamespaceSummaryItem></NamespaceSummaries>
+    <HelpTitle>EPPlus 4.0</HelpTitle>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers</VisibleItems>
     <BuildLogFile />
     <HtmlHelp1xCompilerPath />
     <HtmlHelp2xCompilerPath />
     <SandcastlePath />
     <WorkingPath />
+    <MaximumGroupParts>2</MaximumGroupParts>
+    <NamespaceGrouping>False</NamespaceGrouping>
+    <SyntaxFilters>Standard</SyntaxFilters>
+    <SdkLinkTarget>Blank</SdkLinkTarget>
+    <RootNamespaceContainer>False</RootNamespaceContainer>
+    <PresentationStyle>VS2010</PresentationStyle>
+    <Preliminary>False</Preliminary>
+    <NamingMethod>Guid</NamingMethod>
+    <Language>en-US</Language>
+    <ContentPlacement>AboveNamespaces</ContentPlacement>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional

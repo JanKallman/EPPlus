@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84BB37E9-CE27-48E0-88F6-A741A46D5883}"
 	ProjectSection(SolutionItems) = preProject
 		ExcelPackage.vsmdi = ExcelPackage.vsmdi
@@ -15,9 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusTest", "EPPlusTest\EP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusWebSample", "EPPlusWebSample\EPPlusWebSample.csproj", "{1BF30A52-6149-432D-82F6-725250E5C662}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Profiling", "Profiling", "{09979041-6DAC-444C-B1B3-354F8AA1016C}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneratePackage", "Profiling\GeneratePackage\GeneratePackage.csproj", "{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EPPlusExcelCalculationDemo", "EPPlusExcelCalculationSample\EPPlusExcelCalculationDemo.csproj", "{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}"
 EndProject
 Global
 	GlobalSection(TestCaseManagementSettings) = postSolution
@@ -72,22 +70,19 @@ Global
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|x86.ActiveCfg = Release|Any CPU
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Debug|x86.ActiveCfg = Debug|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Debug|x86.Build.0 = Debug|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Release|Any CPU.ActiveCfg = Release|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Release|Mixed Platforms.Build.0 = Release|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Release|x86.ActiveCfg = Release|x86
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116}.Release|x86.Build.0 = Release|x86
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{5B83F4CF-AF0D-4F04-B992-740CE4F9C116} = {09979041-6DAC-444C-B1B3-354F8AA1016C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .

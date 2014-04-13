@@ -37,7 +37,6 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
-
 namespace EPPlusSamples
 {
 	class Sample1
@@ -104,6 +103,12 @@ namespace EPPlusSamples
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
+
+                //There is actually no need to calculate, Excel will do it for you, but in some cases it might be useful. 
+                //For example if you link to the this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
+                //you want to use the result of a formula in your program.
+                worksheet.Calculate(); 
+
                 worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
                 // lets set the header text 

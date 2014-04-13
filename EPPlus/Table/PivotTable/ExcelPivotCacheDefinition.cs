@@ -33,8 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Linq;
+using OfficeOpenXml.Utils;
 namespace OfficeOpenXml.Table.PivotTable
 {
     public enum eSourceType
@@ -68,7 +68,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 Relationship = r;
             }
-            CacheDefinitionUri = PackUriHelper.ResolvePartUri(Relationship.SourceUri, Relationship.TargetUri);
+            CacheDefinitionUri = UriHelper.ResolvePartUri(Relationship.SourceUri, Relationship.TargetUri);
 
             var pck = pivotTable.WorkSheet._package.Package;
             Part = pck.GetPart(CacheDefinitionUri);
@@ -107,7 +107,7 @@ namespace OfficeOpenXml.Table.PivotTable
             var recPart = pck.CreatePart(CacheRecordUri, ExcelPackage.schemaPivotCacheRecords);
             cacheRecord.Save(recPart.GetStream());
 
-            RecordRelationship = Part.CreateRelationship(PackUriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
+            RecordRelationship = Part.CreateRelationship(UriHelper.ResolvePartUri(CacheDefinitionUri, CacheRecordUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
             RecordRelationshipID = RecordRelationship.Id;
 
             CacheDefinitionXml.Save(Part.GetStream());
@@ -115,7 +115,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// Reference to the internal package part
         /// </summary>
-        internal PackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -137,12 +137,12 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        internal PackageRelationship Relationship
+        internal Packaging.ZipPackageRelationship Relationship
         {
             get;
             set;
         }
-        internal PackageRelationship RecordRelationship
+        internal Packaging.ZipPackageRelationship RecordRelationship
         {
             get;
             set;
@@ -243,13 +243,13 @@ namespace OfficeOpenXml.Table.PivotTable
             var sourceWorksheet = PivotTable.WorkSheet.Workbook.Worksheets[sourceAddress.WorkSheet];
             for (int col = sourceAddress._fromCol; col <= sourceAddress._toCol; col++)
             {
-                if (sourceWorksheet == null || sourceWorksheet.Cell(sourceAddress._fromRow, col).Value == null || sourceWorksheet.Cell(sourceAddress._fromRow, col).Value.ToString().Trim() == "")
+                if (sourceWorksheet == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col) == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col).ToString().Trim() == "")
                 {
                     xml += string.Format("<cacheField name=\"Column{0}\" numFmtId=\"0\">", col - sourceAddress._fromCol + 1);
                 }
                 else
                 {
-                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet.Cell(sourceAddress._fromRow, col).Value);
+                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet._values.GetValue(sourceAddress._fromRow, col));
                 }
                 //xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
                 xml += "<sharedItems containsBlank=\"1\" /> ";

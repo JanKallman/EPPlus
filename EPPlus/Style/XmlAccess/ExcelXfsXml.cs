@@ -146,6 +146,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             set
             {
                 _numFmtId = value;
+                ApplyNumberFormat = (value>0);
             }
         }
         int _fontId;
@@ -189,72 +190,36 @@ namespace OfficeOpenXml.Style.XmlAccess
             get;
             set;
         }
-        //internal bool ApplyNumberFormat
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyNumberFormat") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyNumberFormat", value ? "1" : "0");
-        //    }
-        //}
-        //internal bool ApplyFont
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyFont") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyFont", value ? "1" : "0");
-        //    }
-        //}
-        //internal bool ApplyFill
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyFill") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyFill", value ? "1" : "0");
-        //    }
-        //}
-        //internal bool ApplyBorder
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyBorder") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyBorder", value ? "1" : "0");
-        //    }
-        //}
-        //internal bool ApplyAlignment
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyAlignment") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyAlignment", value ? "1" : "0");
-        //    }
-        //}
-        //internal bool ApplyProtection
-        //{
-        //    get
-        //    {
-        //        return GetXmlNode("@applyProtection") == "1" ? true : false;
-        //    }
-        //    set
-        //    {
-        //        SetXmlNode("@applyProtection", value ? "1" : "0");
-        //    }
-        //}
+        internal bool ApplyNumberFormat
+        {
+            get;
+            set;
+        }
+        internal bool ApplyFont
+        {
+            get;
+            set;
+        }
+        internal bool ApplyFill
+        {
+            get;
+            set;
+        }
+        internal bool ApplyBorder
+        {
+            get;
+            set;
+        }
+        internal bool ApplyAlignment
+        {
+            get;
+            set;
+        }
+        internal bool ApplyProtection
+        {
+            get;
+            set;
+        }
         #endregion
         #region Public Properties
         public ExcelStyles Styles { get; private set; }
@@ -848,10 +813,26 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal XmlNode CreateXmlNode(XmlNode topNode, bool isCellStyleXsf)
         {
             TopNode = topNode;
-            if(_numFmtId>=0) SetXmlNodeString("@numFmtId", _numFmtId.ToString());
-            if(_fontId >= 0) SetXmlNodeString("@fontId", _styles.Fonts[_fontId].newID.ToString());
-            if (_fillId >= 0) SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
-            if(_borderId >= 0) SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
+            if (_numFmtId >= 0)
+            {
+                SetXmlNodeString("@numFmtId", _numFmtId.ToString());
+                SetXmlNodeString("@applyNumberFormat", "1");
+            }
+            if (_fontId >= 0)
+            {
+                SetXmlNodeString("@fontId", _styles.Fonts[_fontId].newID.ToString());
+                SetXmlNodeString("@applyFont", "1");
+            }
+            if (_fillId >= 0)
+            {
+                SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
+                SetXmlNodeString("@applyFill", "1");
+            }
+            if (_borderId >= 0)
+            {
+                SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
+                SetXmlNodeString("@applyBorder", "1");
+            }
             if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
             if (!isCellStyleXsf && _xfID > int.MinValue && _styles.CellStyleXfs.Count>0)
                 SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());

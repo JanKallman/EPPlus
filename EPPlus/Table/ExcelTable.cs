@@ -33,8 +33,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
 {
@@ -111,11 +111,11 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public class ExcelTable : XmlHelper
     {
-        internal ExcelTable(PackageRelationship rel, ExcelWorksheet sheet) : 
+        internal ExcelTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
-            TableUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+            TableUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             RelationshipID = rel.Id;
             var pck = sheet._package.Package;
             Part=pck.GetPart(TableUri);
@@ -192,7 +192,7 @@ namespace OfficeOpenXml.Table
         {
             return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
-        internal PackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -321,7 +321,7 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                if (Address._toRow - Address._fromRow < 1 && value ||
+                if (Address._toRow - Address._fromRow < 0 && value ||
                     Address._toRow - Address._fromRow == 1 && value && ShowTotal)
                 {
                     throw (new Exception("Cant set ShowHeader-property. Table has too few rows"));
@@ -331,6 +331,14 @@ namespace OfficeOpenXml.Table
                 {
                     DeleteNode(HEADERROWCOUNT_PATH);
                     WriteAutoFilter(ShowTotal);
+                    //for (int i = 0; i < Columns.Count; i++)
+                    //{
+                    //    var v = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol + i);
+                    //    if (!string.IsNullOrEmpty(v) || v != _cols[i].Name)
+                    //    {
+                    //        _cols[i].Name = v;
+                    //    }
+                    //}
                 }
                 else
                 {

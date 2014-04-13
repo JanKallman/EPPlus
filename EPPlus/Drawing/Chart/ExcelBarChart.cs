@@ -63,7 +63,7 @@ namespace OfficeOpenXml.Drawing.Chart
             SetTypeProperties(drawings, type);
         }
 
-        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, System.IO.Packaging.PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelBarChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
            base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             SetChartNodeText(chartNode.Name);

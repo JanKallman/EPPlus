@@ -35,12 +35,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO;
-using System.IO.Packaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing.Vml;
+using Ionic.Zlib;
+using OfficeOpenXml.Utils;
 using OfficeOpenXml.VBA;
 namespace OfficeOpenXml
 {
@@ -76,11 +77,18 @@ namespace OfficeOpenXml
 				if (attr != null)
 					hidden = TranslateHidden(attr.Value);
 
-				PackageRelationship sheetRelation = pck.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = PackUriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
+				var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
 				
 				//add the worksheet
-                _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                if(sheetRelation.RelationshipType.EndsWith("chartsheet"))
+                {
+                    _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                }
+                else
+                {
+                    _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                }
 				positionID++;
 			}
 		}
@@ -98,7 +106,6 @@ namespace OfficeOpenXml
             }
         }
 		#endregion
-
 		#region ExcelWorksheets Public Properties
 		/// <summary>
 		/// Returns the number of worksheets in the workbook
@@ -110,6 +117,7 @@ namespace OfficeOpenXml
 		#endregion
         private const string ERR_DUP_WORKSHEET = "A worksheet with this name already exists in the workbook";
         internal const string WORKSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml";
+        internal const string CHARTSHEET_CONTENTTYPE = @"application/vnd.openxmlformats-officedocument.spreadsheetml.chartsheet+xml";
 		#region ExcelWorksheets Public Methods
 		/// <summary>
         /// Foreach support
@@ -127,8 +135,6 @@ namespace OfficeOpenXml
         }
 
         #endregion
-
-
 		#region Add Worksheet
 		/// <summary>
 		/// Adds a new blank worksheet.
@@ -136,36 +142,51 @@ namespace OfficeOpenXml
 		/// <param name="Name">The name of the workbook</param>
 		public ExcelWorksheet Add(string Name)
 		{
+            ExcelWorksheet worksheet = AddSheet(Name,false, null);
+			return worksheet;
+		}
+
+        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType)
+        {
             int sheetID;
             Uri uriWorksheet;
             if (GetByName(Name) != null)
             {
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet);
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
+            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
 
-			//Create the new, empty worksheet and save it to the package
-			StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
-			XmlDocument worksheetXml = CreateNewWorksheet();
-			worksheetXml.Save(streamWorksheet);
-			streamWorksheet.Close();
-			_pck.Package.Flush();
+            //Create the new, empty worksheet and save it to the package
+            StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
+            XmlDocument worksheetXml = CreateNewWorksheet(isChart);
+            worksheetXml.Save(streamWorksheet);
+            //streamWorksheet.Close();
+            _pck.Package.Flush();
 
-            string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet);
+            string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
 
             int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+            ExcelWorksheet worksheet;
+            if (isChart)
+            {
+                worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType);
+            }
+            else
+            {
+                worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+            }
 
-			_worksheets.Add(positionID, worksheet);
+            _worksheets.Add(positionID, worksheet);
             if (_pck.Workbook.VbaProject != null)
             {
-                _pck.Workbook.VbaProject.Modules.Add(new VBA.ExcelVBAModule(worksheet.CodeNameChange) { Name = Name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
+                _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 worksheet.CodeModuleName = Name;
 
             }
-			return worksheet;
-		}
+            return worksheet;
+        }
         /// <summary>
         /// Adds a copy of a worksheet
         /// </summary>
@@ -175,26 +196,29 @@ namespace OfficeOpenXml
         {
             int sheetID;
             Uri uriWorksheet;
-
+            if (Copy is ExcelChartsheet)
+            {
+                throw (new ArgumentException("Can not copy a chartsheet"));
+            }
             if (GetByName(Name) != null)
             {
                 throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
             }
 
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet);
+            GetSheetURI(ref Name, out sheetID, out uriWorksheet, false);
 
             //Create a copy of the worksheet XML
-            PackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
             StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
             XmlDocument worksheetXml = new XmlDocument();
             worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
             worksheetXml.Save(streamWorksheet);
-            streamWorksheet.Close();
+            //streamWorksheet.Close();
             _pck.Package.Flush();
 
 
             //Create a relation to the workbook
-            string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet);
+            string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet, false);
             ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
 
             //Copy comments
@@ -249,7 +273,10 @@ namespace OfficeOpenXml
 
             return added;
         }
-
+        public ExcelChartsheet AddChart(string Name, eChartType chartType)
+        {
+            return (ExcelChartsheet)AddSheet(Name, true, chartType);
+        }
         private void CopySheetNames(ExcelWorksheet Copy, ExcelWorksheet added)
         {
             foreach (var name in Copy.Names)
@@ -312,10 +339,11 @@ namespace OfficeOpenXml
                 var part = _pck.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
-                streamTbl.Close();
+                //streamTbl.Close();
+                streamTbl.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                var rel = added.Part.CreateRelationship(PackUriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
+                var rel = added.Part.CreateRelationship(UriHelper.GetRelativeUri(added.WorksheetUri,uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/table");
 
                 if (tbl.RelationshipID == null)
                 {
@@ -361,21 +389,47 @@ namespace OfficeOpenXml
                 }
                 prevName=name;
                 XmlDocument xmlDoc = new XmlDocument();
-                Copy.Save();    //Save the worksheet first
+                //TODO: Fix save pivottable here
+                //Copy.Save();    //Save the worksheet first
                 xmlDoc.LoadXml(xml);
                 //xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
                 var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
-                var part = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
-                StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
+                var partTbl = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
+                StreamWriter streamTbl = new StreamWriter(partTbl.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
-                streamTbl.Close();
+                //streamTbl.Close();
+                streamTbl.Flush();
+
+                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;                
+                var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
+                while (_pck.Package.PartExists(uriCd))
+                {
+                    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
+                }
+
+                var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotCacheDefinition, _pck.Compression);
+                StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
+                streamCd.Write(xml);
+                streamCd.Flush();
+
+                xml = "<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />";
+                var uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", Id), UriKind.Relative);
+                while (_pck.Package.PartExists(uriRec))
+                {
+                    uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", ++Id), UriKind.Relative);
+                }
+                var partRec = _pck.Package.CreatePart(uriRec, ExcelPackage.schemaPivotCacheRecords, _pck.Compression);
+                StreamWriter streamRec = new StreamWriter(partRec.GetStream(FileMode.Create, FileAccess.Write));
+                streamRec.Write(xml);
+                streamRec.Flush();
 
                 //create the relationship and add the ID to the worksheet xml.
-                added.Part.CreateRelationship(PackUriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
-                part.CreateRelationship(PackUriHelper.ResolvePartUri(tbl.Relationship.SourceUri, tbl.CacheDefinition.Relationship.TargetUri), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
+                added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+                partTbl.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, uriCd), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
+                partCd.CreateRelationship(UriHelper.ResolvePartUri(uriCd, uriRec), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
             }
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
@@ -395,7 +449,7 @@ namespace OfficeOpenXml
                 Uri source = Copy.HeaderFooter.Pictures.Uri;
                 Uri dest = XmlHelper.GetNewUri(_pck.Package, @"/xl/drawings/vmlDrawing{0}.vml");
                 
-                var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
+                //var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
                 foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
                 {
                     var item = added.HeaderFooter.Pictures.Add(pic.Id, pic.ImageUri, pic.Title, pic.Width, pic.Height);
@@ -423,10 +477,10 @@ namespace OfficeOpenXml
             _pck.DoAdjustDrawings = false;
             added.MergedCells.List.AddRange(Copy.MergedCells.List);
             //Formulas
-            foreach (IRangeID f in Copy._formulaCells)
-            {
-                added._formulaCells.Add(f);
-            }
+            //foreach (IRangeID f in Copy._formulaCells)
+            //{
+            //    added._formulaCells.Add(f);
+            //}
             //Shared Formulas
             foreach (int key in Copy._sharedFormulas.Keys)
             {
@@ -435,94 +489,151 @@ namespace OfficeOpenXml
             
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
             //Cells
-            foreach (ExcelCell cell in Copy._cells)
+            int row,col;
+            var val = new CellsStoreEnumerator<object>(Copy._values);
+            //object f=null;
+            //foreach (var addr in val)
+            while(val.Next())
             {                
-                if (sameWorkbook)   //Same workbook == same styles
+                //row=(int)addr>>32;
+                //col=(int)addr&32;
+                row = val.Row;
+                col = val.Column;
+                //added._cells.Add(cell.Clone(added));
+                int styleID=0;
+                if (row == 0) //Column
                 {
-                    added._cells.Add(cell.Clone(added));
+                    var c = Copy._values.GetValue(row, col) as ExcelColumn;
+                    if (c != null)
+                    {
+                        added._values.SetValue(row, col, c.Clone(added, c.ColumnMin));
+                        styleID = c.StyleID;
+                    }
+                }
+                else if (col == 0) //Row
+                {
+                    var r=Copy.Row(row);
+                    if (r != null)
+                    {
+                        r.Clone(added);
+                        styleID = r.StyleID;
+                        //added._values.SetValue(row, col, r.Clone(added));                                                
+                    }
+                    
                 }
                 else
                 {
-                    ExcelCell addedCell=cell.Clone(added);
-                    if (styleCashe.ContainsKey(cell.StyleID))
-                    {
-                        addedCell.StyleID = styleCashe[cell.StyleID];
-                    }
-                    else
-                    {
-                        addedCell.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles,  cell.StyleID);
-                        if (cell.StyleName != "") //Named styles
-                        {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(cell.StyleName))
-                            {
-                               var ns=Copy.Workbook.Styles.CreateNamedStyle(cell.StyleName);
-                               ns.StyleXfId  = addedCell.StyleID;
-                            }
-                            
-                        }
-                        styleCashe.Add(cell.StyleID, addedCell.StyleID);
-                    }
-                    added._cells.Add(addedCell);
+                   styleID = CopyValues(Copy, added, row, col);
                 }
-            }
-            //Rows
-            foreach (ExcelRow row in Copy._rows)
-            {
-                row.Clone(added);
-                if (!sameWorkbook)   //Same workbook == same styles
+                if (!sameWorkbook)
                 {
-                    ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
-                    if (styleCashe.ContainsKey(row.StyleID))
+                    if (styleCashe.ContainsKey(styleID))
                     {
-                        addedRow.StyleID = styleCashe[row.StyleID];
+                        added._styles.SetValue(row, col, styleCashe[styleID]);
                     }
                     else
                     {
-                        addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
-                        if (row.StyleName != "") //Named styles
+                        var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
+                        styleCashe.Add(styleID, s);
+                        added._styles.SetValue(row, col, s);
+                        if (Copy.Workbook.Styles.CellXfs[styleID].XfId > 0) //Named styles
                         {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
+                            var styleName = Copy.Workbook.Styles.NamedStyles[Copy.Workbook.Styles.CellXfs[styleID].XfId].Name;
+                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(styleName))
                             {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
-                                ns.StyleXfId = addedRow.StyleID;
+                                var ns = Copy.Workbook.Styles.CreateNamedStyle(styleName);
+                                ns.StyleXfId = s;
                             }
 
                         }
-                        styleCashe.Add(row.StyleID, addedRow.StyleID);
-                    }
-                }                
-            }
-            //Columns
-            foreach (ExcelColumn col in Copy._columns)
-            {
-                col.Clone(added);
-                if (!sameWorkbook)   //Same workbook == same styles
-                {
-                    ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
-                    if (styleCashe.ContainsKey(col.StyleID))
-                    {
-                        addedCol.StyleID = styleCashe[col.StyleID];
-                    }
-                    else
-                    {
-                        addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
-                        if (col.StyleName != "") //Named styles
-                        {
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
-                            {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
-                                ns.StyleXfId = addedCol.StyleID;
-                            }
-
-                        }
-                        styleCashe.Add(col.StyleID, addedCol.StyleID);
                     }
                 }
             }
+            ////Rows
+            //foreach (ExcelRow row in Copy._rows)
+            //{
+            //    row.Clone(added);
+            //    if (!sameWorkbook)   //Same workbook == same styles
+            //    {
+            //        ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
+            //        if (styleCashe.ContainsKey(row.StyleID))
+            //        {
+            //            addedRow.StyleID = styleCashe[row.StyleID];
+            //        }
+            //        else
+            //        {
+            //            addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
+            //            if (row.StyleName != "") //Named styles
+            //            {
+            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
+            //                {
+            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
+            //                    ns.StyleXfId = addedRow.StyleID;
+            //                }
+
+            //            }
+            //            styleCashe.Add(row.StyleID, addedRow.StyleID);
+            //        }
+            //    }                
+            //}
+            ////Columns
+            //foreach (ExcelColumn col in Copy._columns)
+            //{
+            //    col.Clone(added);
+            //    if (!sameWorkbook)   //Same workbook == same styles
+            //    {
+            //        ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
+            //        if (styleCashe.ContainsKey(col.StyleID))
+            //        {
+            //            addedCol.StyleID = styleCashe[col.StyleID];
+            //        }
+            //        else
+            //        {
+            //            addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
+            //            if (col.StyleName != "") //Named styles
+            //            {
+            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
+            //                {
+            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
+            //                    ns.StyleXfId = addedCol.StyleID;
+            //                }
+
+            //            }
+            //            styleCashe.Add(col.StyleID, addedCol.StyleID);
+            //        }
+            //    }
+            //}
             added._package.DoAdjustDrawings = doAdjust;
         }
-        private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
+
+        private int CopyValues(ExcelWorksheet Copy, ExcelWorksheet added, int row, int col)
         {
+            added._values.SetValue(row, col, Copy._values.GetValue(row, col));
+            var t = Copy._types.GetValue(row, col);
+            if (t != null)
+            {
+                added._types.SetValue(row, col, t);
+            }
+            var v = Copy._formulas.GetValue(row, col);
+            if (v != null)
+            {
+                added.SetFormula(row, col, v);
+            }
+            var s = Copy._styles.GetValue(row, col);
+            if (s != 0)
+            {
+                added._styles.SetValue(row, col, s);
+            }
+            var f = Copy._formulas.GetValue(row, col);
+            if (f != null)
+            {
+                added._formulas.SetValue(row, col, f);
+            }
+            return s;
+        }
+
+        private void CopyComment(ExcelWorksheet Copy, ExcelWorksheet workSheet)
+        {            
             //First copy the drawing XML
             string xml = Copy.Comments.CommentXml.InnerXml;
             var uriComment = new Uri(string.Format("/xl/comments{0}.xml", workSheet.SheetID), UriKind.Relative);
@@ -535,10 +646,11 @@ namespace OfficeOpenXml
 
             StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
             streamDrawing.Write(xml);
-            streamDrawing.Close();
+            //streamDrawing.Close();
+            streamDrawing.Flush();
 
             //Add the relationship ID to the worksheet xml.
-            PackageRelationship commentRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
+            var commentRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriComment), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/comments");
 
             xml = Copy.VmlDrawingsComments.VmlDrawingXml.InnerXml;
 
@@ -551,9 +663,10 @@ namespace OfficeOpenXml
             var vmlPart = _pck.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
             StreamWriter streamVml = new StreamWriter(vmlPart.GetStream(FileMode.Create, FileAccess.Write));
             streamVml.Write(xml);
-            streamVml.Close();
+            //streamVml.Close();
+            streamVml.Flush();
 
-            PackageRelationship newVmlRel = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+            var newVmlRel = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 
             //Add the relationship ID to the worksheet xml.
             XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
@@ -577,12 +690,13 @@ namespace OfficeOpenXml
                 var part= _pck.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _pck.Compression);
                 StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(xml);
-                streamDrawing.Close();
+                //streamDrawing.Close();
+                streamDrawing.Flush();
 
                 XmlDocument drawXml = new XmlDocument();
                 drawXml.LoadXml(xml);
                 //Add the relationship ID to the worksheet xml.
-                PackageRelationship drawRelation = workSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
+                var drawRelation = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriDraw), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                 XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
@@ -597,10 +711,11 @@ namespace OfficeOpenXml
                         var chartPart = _pck.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _pck.Compression);
                         StreamWriter streamChart = new StreamWriter(chartPart.GetStream(FileMode.Create, FileAccess.Write));
                         streamChart.Write(xml);
-                        streamChart.Close();
+                        //streamChart.Close();
+                        streamChart.Flush();
                         //Now create the new relationship to the copied chart xml
                         var prevRelID=draw.TopNode.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart/@r:id", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(PackUriHelper.GetRelativeUri(uriDraw,UriChart), TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(uriDraw,UriChart), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//c:chart/@r:id[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value=rel.Id;
                     }
@@ -610,12 +725,12 @@ namespace OfficeOpenXml
                         var uri = pic.UriPic;
                         if(!workSheet.Workbook._package.Package.PartExists(uri))
                         {
-                            var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionOption.NotCompressed);
+                            var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionLevel.None);
                             pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), pic.ImageFormat);
                         }
 
                         var prevRelID = draw.TopNode.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", Copy.Drawings.NameSpaceManager).Value;
-                        var rel = part.CreateRelationship(PackUriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
+                        var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                         XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//xdr:pic/xdr:blipFill/a:blip/@r:embed[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
                         relAtt.Value = rel.Id;
                     }
@@ -623,7 +738,9 @@ namespace OfficeOpenXml
                 //rewrite the drawing xml with the new relID's
                 streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(drawXml.OuterXml);
-                streamDrawing.Close();
+               // streamDrawing.Close();
+                streamDrawing.Flush();
+
             //}
         }
 
@@ -635,10 +752,11 @@ namespace OfficeOpenXml
 			using (var streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
 			{
 				streamDrawing.Write(xml);
-			}
-
-			//Add the relationship ID to the worksheet xml.
-			PackageRelationship vmlRelation = newSheet.Part.CreateRelationship(PackUriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
+                streamDrawing.Flush();
+            }
+			
+            //Add the relationship ID to the worksheet xml.
+			var vmlRelation = newSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(newSheet.WorksheetUri,vmlUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
 			var e = newSheet.WorksheetXml.SelectSingleNode("//d:legacyDrawing", _namespaceManager) as XmlElement;
 			if (e == null)
 			{
@@ -650,10 +768,10 @@ namespace OfficeOpenXml
 			}
 		}
 
-		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet)
+		string CreateWorkbookRel(string Name, int sheetID, Uri uriWorksheet, bool isChart)
         {
             //Create the relationship between the workbook and the new worksheet
-            PackageRelationship rel = _pck.Workbook.Part.CreateRelationship(PackUriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), TargetMode.Internal, ExcelPackage.schemaRelationships + "/worksheet");
+            var rel = _pck.Workbook.Part.CreateRelationship(UriHelper.GetRelativeUri(_pck.Workbook.WorkbookUri, uriWorksheet), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/" + (isChart ? "chartsheet" : "worksheet"));
             _pck.Package.Flush();
 
             //Create the new sheet node
@@ -665,7 +783,7 @@ namespace OfficeOpenXml
             TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
-        private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet)
+        private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet, bool isChart)
         {
             Name = ValidateFixSheetName(Name);
 
@@ -682,7 +800,14 @@ namespace OfficeOpenXml
             sheetID++;
 
             // add the new worksheet to the package
-            uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            if (isChart)
+            {
+                uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            }
+            else
+            {
+                uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
+            }
         }
 
         internal string ValidateFixSheetName(string Name)
@@ -702,7 +827,7 @@ namespace OfficeOpenXml
             {
                 throw new ArgumentException("The worksheet can not have an empty name");
             }
-            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's
+            if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's            
             return Name;
         }
         /// <summary>
@@ -719,30 +844,47 @@ namespace OfficeOpenXml
 		/// Creates the XML document representing a new empty worksheet
 		/// </summary>
 		/// <returns></returns>
-		internal XmlDocument CreateNewWorksheet()
+		internal XmlDocument CreateNewWorksheet(bool isChart)
 		{
 			XmlDocument xmlDoc = new XmlDocument();
-            XmlElement elemWs = xmlDoc.CreateElement("worksheet", ExcelPackage.schemaMain);
+            XmlElement elemWs = xmlDoc.CreateElement(isChart ? "chartsheet" : "worksheet", ExcelPackage.schemaMain);
             elemWs.SetAttribute("xmlns:r", ExcelPackage.schemaRelationships);
             xmlDoc.AppendChild(elemWs);
 
-            XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
-            elemWs.AppendChild(elemSheetViews);
 
-            XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
-            elemSheetView.SetAttribute("workbookViewId", "0");
-            elemSheetViews.AppendChild(elemSheetView);
+            if (isChart)
+            {
+                XmlElement elemSheetPr = xmlDoc.CreateElement("sheetPr", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetPr);
 
-            XmlElement elemSheetFormatPr = xmlDoc.CreateElement("sheetFormatPr", ExcelPackage.schemaMain);
-            elemSheetFormatPr.SetAttribute("defaultRowHeight", "15");
-            elemWs.AppendChild(elemSheetFormatPr);
+                XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetViews);
 
-            XmlElement elemSheetData = xmlDoc.CreateElement("sheetData", ExcelPackage.schemaMain);
-            elemWs.AppendChild(elemSheetData);
+                XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
+                elemSheetView.SetAttribute("workbookViewId", "0");
+                elemSheetView.SetAttribute("zoomToFit", "1");
+
+                elemSheetViews.AppendChild(elemSheetView);
+            }
+            else
+            {
+                XmlElement elemSheetViews = xmlDoc.CreateElement("sheetViews", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetViews);
+
+                XmlElement elemSheetView = xmlDoc.CreateElement("sheetView", ExcelPackage.schemaMain);
+                elemSheetView.SetAttribute("workbookViewId", "0");
+                elemSheetViews.AppendChild(elemSheetView);
+
+                XmlElement elemSheetFormatPr = xmlDoc.CreateElement("sheetFormatPr", ExcelPackage.schemaMain);
+                elemSheetFormatPr.SetAttribute("defaultRowHeight", "15");
+                elemWs.AppendChild(elemSheetFormatPr);
+
+                XmlElement elemSheetData = xmlDoc.CreateElement("sheetData", ExcelPackage.schemaMain);
+                elemWs.AppendChild(elemSheetData);
+            }
             return xmlDoc;
 		}
 		#endregion
-
 		#region Delete Worksheet
 		/// <summary>
 		/// Deletes a worksheet from the collection
@@ -753,8 +895,16 @@ namespace OfficeOpenXml
 			ExcelWorksheet worksheet = _worksheets[Index];
             if (worksheet.Drawings.Count > 0)
             {
-                worksheet.Drawings.Clear();
+                worksheet.Drawings.ClearDrawings();
             }
+
+             /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
+             var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
+             if (_pck.Package.PartExists(_uriDrawing))
+             {
+                 _pck.Package.DeletePart(_uriDrawing);
+             }
+
             //Delete the worksheet part and relation from the package 
 			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
@@ -769,6 +919,7 @@ namespace OfficeOpenXml
 					sheetsNode.RemoveChild(sheetNode);
 				}
 			}
+
 			_worksheets.Remove(Index);
             if (_pck.Workbook.VbaProject != null)
             {
@@ -816,7 +967,6 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-
 		private void ReindexWorksheetDictionary()
 		{
 			var index = 1;
@@ -870,7 +1020,6 @@ namespace OfficeOpenXml
             return added;
         }
 		#endregion
-
         internal ExcelWorksheet GetBySheetID(int localSheetID)
         {
             foreach (ExcelWorksheet ws in this)
@@ -1067,15 +1216,14 @@ namespace OfficeOpenXml
 		}
 
 		#endregion
-
-        void IDisposable.Dispose()
-        {
-            foreach (var sheet in this._worksheets.Values)
-            {
-                ((IDisposable)sheet).Dispose();
-            }
-            _worksheets = null;
+        public void Dispose()
+        {            
+             foreach (var sheet in this._worksheets.Values) 
+             { 
+                 ((IDisposable)sheet).Dispose(); 
+             } 
+             _worksheets = null;
+             _pck = null;            
         }
     } // end class Worksheets
 }
-

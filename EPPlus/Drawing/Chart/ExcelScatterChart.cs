@@ -33,7 +33,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using OfficeOpenXml.Table.PivotTable;
 
 namespace OfficeOpenXml.Drawing.Chart
@@ -49,7 +48,7 @@ namespace OfficeOpenXml.Drawing.Chart
             SetTypeProperties();
         }
 
-        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, PackagePart part, XmlDocument chartXml, XmlNode chartNode) :
+        internal ExcelScatterChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, Packaging.ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
             base(drawings, node, uriChart, part, chartXml, chartNode)
         {
             SetTypeProperties();
@@ -130,7 +129,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeBool(MARKER_PATH, value, false);
             }
         }
-
         internal override eChartType GetChartType(string name)
         {
             if (name == "scatterChart")

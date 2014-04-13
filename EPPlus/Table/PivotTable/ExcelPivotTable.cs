@@ -33,9 +33,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Table;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table.PivotTable
 {
@@ -44,11 +44,11 @@ namespace OfficeOpenXml.Table.PivotTable
     /// </summary>
     public class ExcelPivotTable : XmlHelper
     {
-        internal ExcelPivotTable(PackageRelationship rel, ExcelWorksheet sheet) : 
+        internal ExcelPivotTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
         {
             WorkSheet = sheet;
-            PivotTableUri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+            PivotTableUri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             Relationship = rel;
             var pck = sheet._package.Package;
             Part=pck.GetPart(PivotTableUri);
@@ -141,10 +141,10 @@ namespace OfficeOpenXml.Table.PivotTable
             PivotTableXml.Save(Part.GetStream());
             
             //Worksheet-Pivottable relationship
-            Relationship = sheet.Part.CreateRelationship(PackUriHelper.ResolvePartUri(sheet.WorksheetUri, PivotTableUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
+            Relationship = sheet.Part.CreateRelationship(UriHelper.ResolvePartUri(sheet.WorksheetUri, PivotTableUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
 
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this, sourceAddress, tblId);
-            _cacheDefinition.Relationship=Part.CreateRelationship(PackUriHelper.ResolvePartUri(PivotTableUri, _cacheDefinition.CacheDefinitionUri), TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
+            _cacheDefinition.Relationship=Part.CreateRelationship(UriHelper.ResolvePartUri(PivotTableUri, _cacheDefinition.CacheDefinitionUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheDefinition");
 
             sheet.Workbook.AddPivotTable(CacheID.ToString(), _cacheDefinition.CacheDefinitionUri);
 
@@ -202,7 +202,7 @@ namespace OfficeOpenXml.Table.PivotTable
             xml += "</pivotTableDefinition>";
             return xml;
         }
-        internal PackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -219,7 +219,7 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             internal set;
         }
-        internal PackageRelationship Relationship
+        internal Packaging.ZipPackageRelationship Relationship
         {
             get;
             set;

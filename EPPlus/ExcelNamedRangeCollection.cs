@@ -53,7 +53,8 @@ namespace OfficeOpenXml
             _wb = wb;
             _ws = ws;
         }
-        Dictionary<string, ExcelNamedRange> _dic = new Dictionary<string, ExcelNamedRange>();
+        List<ExcelNamedRange> _list = new List<ExcelNamedRange>();
+        Dictionary<string, int> _dic = new Dictionary<string, int>();
         /// <summary>
         /// Add a new named range
         /// </summary>
@@ -66,15 +67,22 @@ namespace OfficeOpenXml
             if (Range.IsName)
             {
 
-                item = new ExcelNamedRange(Name, _wb,_ws);
+                item = new ExcelNamedRange(Name, _wb,_ws, _dic.Count);
             }
             else
             {
-                item = new ExcelNamedRange(Name, _ws, Range.Worksheet, Range.Address);
+                item = new ExcelNamedRange(Name, _ws, Range.Worksheet, Range.Address, _dic.Count);
             }
-            
-            _dic.Add(Name.ToLower(), item);
+
+            AddName(Name, item);
+
             return item;
+        }
+
+        private void AddName(string Name, ExcelNamedRange item)
+        {
+            _dic.Add(Name.ToLower(), _list.Count);
+            _list.Add(item);
         }
         /// <summary>
         /// Add a defined name referencing value
@@ -84,11 +92,12 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public ExcelNamedRange AddValue(string Name, object value)
         {
-            var item = new ExcelNamedRange(Name,_wb, _ws);
+            var item = new ExcelNamedRange(Name,_wb, _ws, _dic.Count);
             item.NameValue = value;
-            _dic.Add(Name.ToLower(), item);
+            AddName(Name, item);
             return item;
         }
+
         /// <summary>
         /// Add a defined name referencing a formula -- the method name contains a typo.
         /// This method is obsolete and will be removed in the future.
@@ -111,9 +120,9 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public ExcelNamedRange AddFormula(string Name, string Formula)
         {
-            var item = new ExcelNamedRange(Name, _wb, _ws);
+            var item = new ExcelNamedRange(Name, _wb, _ws, _dic.Count);
             item.NameFormula = Formula;
-            _dic.Add(Name.ToLower(), item);
+            AddName(Name, item);
             return item;
         }
         /// <summary>
@@ -122,7 +131,20 @@ namespace OfficeOpenXml
         /// <param name="Name">The name</param>
         public void Remove(string Name)
         {
-            _dic.Remove(Name.ToLower());
+            Name=Name.ToLower();
+            if(_dic.ContainsKey(Name))
+            {
+                var ix = _dic[Name];
+
+                for (int i = ix+1; i < _list.Count; i++)
+                {
+                    _dic.Remove(_list[i].Name.ToLower());
+                    _list[i].Index--;
+                    _dic.Add(_list[i].Name.ToLower(), _list[i].Index);
+                }
+                _dic.Remove(Name);
+                _list.RemoveAt(ix);
+            }
         }
         /// <summary>
         /// Checks collection for the presence of a key
@@ -155,7 +177,14 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _dic[Name.ToLower()];
+                return _list[_dic[Name.ToLower()]];
+            }
+        }
+        public ExcelNamedRange this[int Index]
+        {
+            get
+            {
+                return _list[Index];
             }
         }
 
@@ -167,7 +196,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public IEnumerator<ExcelNamedRange> GetEnumerator()
         {
-            return _dic.Values.GetEnumerator();
+            return _list.GetEnumerator();
         }
         #endregion
         #region IEnumerable Members
@@ -177,7 +206,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return _dic.Values.GetEnumerator();
+            return _list.GetEnumerator();
         }
 
         #endregion
