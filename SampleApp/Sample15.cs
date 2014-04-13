@@ -203,7 +203,7 @@ namespace EPPlusSamples
             //If you have a valid certificate for code signing you can use this code to set it.
             ///*** Try to find a cert valid for signing... ***/
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
-            //store.Open(OpenFlags.ReadOnly);
+            //store.Open(OpenFlags.ReadOnly);   
             //foreach (var cert in store.Certificates)
             //{
             //    if (cert.HasPrivateKey && cert.NotBefore <= DateTime.Today && cert.NotAfter >= DateTime.Today)

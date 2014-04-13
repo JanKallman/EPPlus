@@ -62,6 +62,24 @@ namespace OfficeOpenXml
         AES256
     }
     /// <summary>
+    /// The major version of the Encryption 
+    /// </summary>
+    public enum EncryptionVersion
+    {
+        /// <summary>
+        /// Standard Encryption.
+        /// Used in Excel 2007 and previous version with compatibility pack.
+        /// <remarks>Default AES 128 with SHA-1 as the hash algorithm. Spincount is hardcoded to 50000</remarks>
+        /// </summary>
+        Standard,
+        /// <summary>
+        /// Agile Encryption.
+        /// Used in Excel 2010-
+        /// Default.
+        /// </summary>
+        Agile
+    }
+    /// <summary>
     /// How and if the workbook is encrypted
     ///<seealso cref="ExcelProtection"/> 
     ///<seealso cref="ExcelSheetProtection"/> 
@@ -70,10 +88,11 @@ namespace OfficeOpenXml
     {
         /// <summary>
         /// Constructor
+        /// <remarks>Default AES 256 with SHA-512 as the hash algorithm. Spincount is set to 100000</remarks>
         /// </summary>
         internal ExcelEncryption()
         {
-            Algorithm = EncryptionAlgorithm.AES128;
+            Algorithm = EncryptionAlgorithm.AES256;
         }
         /// <summary>
         /// Constructor
@@ -123,8 +142,34 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-        /// Algorithm used for encrypting the package. Default is AES 128-bit
+        /// Algorithm used for encrypting the package. Default is AES 128-bit for standard and AES 256 for agile
         /// </summary>
         public EncryptionAlgorithm Algorithm { get; set; }
+        private EncryptionVersion _version = EncryptionVersion.Agile;
+        /// <summary>
+        /// The version of the encryption.        
+        /// </summary>
+        public EncryptionVersion Version
+        {
+            get
+            {
+                return _version;
+            }
+            set
+            {
+                if (value != Version)
+                {
+                    if (value == EncryptionVersion.Agile)
+                    {
+                        Algorithm = EncryptionAlgorithm.AES256;
+                    }
+                    else
+                    {
+                        Algorithm = EncryptionAlgorithm.AES128;
+                    }
+                    _version = value;
+                }
+            }
+        }
     }
 }

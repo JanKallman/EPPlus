@@ -153,5 +153,105 @@ namespace OfficeOpenXml.Style
         {
             _parent.Index = index;
         }
+        /// <summary>
+        /// Return the RGB value for the color object that uses the Indexed or Tint property
+        /// </summary>
+        /// <param name="theColor">The color object</param>
+        /// <returns>The RGB color starting with a #</returns>
+        public string LookupColor(ExcelColor theColor)
+        {
+            //Thanks to neaves for contributing this method.
+            int iTint = 0;
+            string translatedRGB = "";
+
+            // reference extracted from ECMA-376, Part 4, Section 3.8.26
+            string[] rgbLookup =
+            {
+                "#FF000000", // 0
+                "#FFFFFFFF",
+                "#FFFF0000",
+                "#FF00FF00",
+                "#FF0000FF",
+                "#FFFFFF00",
+                "#FFFF00FF",
+                "#FF00FFFF",
+                "#FF000000", // 8
+                "#FFFFFFFF",
+                "#FFFF0000",
+                "#FF00FF00",
+                "#FF0000FF",
+                "#FFFFFF00",
+                "#FFFF00FF",
+                "#FF00FFFF",
+                "#FF800000",
+                "#FF008000",
+                "#FF000080",
+                "#FF808000",
+                "#FF800080",
+                "#FF008080",
+                "#FFC0C0C0",
+                "#FF808080",
+                "#FF9999FF",
+                "#FF993366",
+                "#FFFFFFCC",
+                "#FFCCFFFF",
+                "#FF660066",
+                "#FFFF8080",
+                "#FF0066CC",
+                "#FFCCCCFF",
+                "#FF000080",
+                "#FFFF00FF",
+                "#FFFFFF00",
+                "#FF00FFFF",
+                "#FF800080",
+                "#FF800000",
+                "#FF008080",
+                "#FF0000FF",
+                "#FF00CCFF",
+                "#FFCCFFFF",
+                "#FFCCFFCC",
+                "#FFFFFF99",
+                "#FF99CCFF",
+                "#FFFF99CC",
+                "#FFCC99FF",
+                "#FFFFCC99",
+                "#FF3366FF",
+                "#FF33CCCC",
+                "#FF99CC00",
+                "#FFFFCC00",
+                "#FFFF9900",
+                "#FFFF6600",
+                "#FF666699",
+                "#FF969696",
+                "#FF003366",
+                "#FF339966",
+                "#FF003300",
+                "#FF333300",
+                "#FF993300",
+                "#FF993366",
+                "#FF333399",
+                "#FF333333", // 63
+            };
+
+            if ((0 <= theColor.Indexed) && (rgbLookup.Length > theColor.Indexed))
+            {
+                // coloring by pre-set color codes
+                translatedRGB = rgbLookup[theColor.Indexed];
+            }
+            else if (null != theColor.Rgb && 0 < theColor.Rgb.Length)
+            {
+                // coloring by RGB value ("FFRRGGBB")
+                translatedRGB = "#" + theColor.Rgb;
+            }
+            else
+            {
+                // coloring by shades of grey (-1 -> 0)
+                iTint = ((int)(theColor.Tint * 160) + 0x80);
+                translatedRGB = ((int)(decimal.Round(theColor.Tint * -512))).ToString("X");
+                translatedRGB = "#FF" + translatedRGB + translatedRGB + translatedRGB;
+            }
+
+            return translatedRGB;
+        }
     }
 }

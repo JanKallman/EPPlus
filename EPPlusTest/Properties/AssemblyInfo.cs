@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EP Plus")]
+[assembly: AssemblyProduct("EPPlus Test")]
 [assembly: AssemblyCopyright("Copyright © Jan Källman")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

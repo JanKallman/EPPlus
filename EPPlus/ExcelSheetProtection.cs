@@ -35,6 +35,7 @@ using System.Text;
 using System.Xml;
 using System.Security.Cryptography;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Encryption;
 
 namespace OfficeOpenXml
 {

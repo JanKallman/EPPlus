@@ -78,8 +78,8 @@ namespace OfficeOpenXml.Style
                 return "general";
             }
             set
-            {
-                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Numberformat, eStyleProperty.Format, value, _positionID, _address));
+            {                
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Numberformat, eStyleProperty.Format, (string.IsNullOrEmpty(value) ? "General" : value), _positionID, _address));
             }
         }
 
@@ -164,6 +164,7 @@ namespace OfficeOpenXml.Style
             switch (format)
             {
                 case "General":
+                case "":
                     return 0;
                 case "0":
                     return 1;

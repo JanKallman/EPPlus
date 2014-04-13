@@ -134,6 +134,10 @@ namespace OfficeOpenXml.VBA
         /// <returns>The module object</returns>
         public ExcelVBAModule AddModule(string Name)
         {
+            if (this[Name] != null)
+            {
+                throw(new ArgumentException("Vba modulename already exist."));
+            }
             var m = new ExcelVBAModule();
             m.Name = Name;
             m.Type = eModuleType.Module;

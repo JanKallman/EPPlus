@@ -35,7 +35,7 @@ using System.Text;
 using System.Xml;
 using System.Globalization;
 using System.Drawing;
-using System.IO.Packaging;
+
 
 namespace OfficeOpenXml.Drawing.Vml
 {
@@ -340,7 +340,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 {
                     string value = split[1].EndsWith("pt") ? split[1].Substring(0, split[1].Length - 2) : split[1];
                     double ret;
-                    if (double.TryParse(value, out ret))
+                    if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out ret))
                     {
                         return ret;
                     }

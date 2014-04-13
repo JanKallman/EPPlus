@@ -28,6 +28,8 @@
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
  * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Richard Tallent					Fix inadvertent removal of XML node					2012-10-31
+ * Richard Tallent					Remove VertAlign node if no alignment specified		2012-10-31
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -48,6 +50,7 @@ namespace OfficeOpenXml.Style
         {
             SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
             PreserveSpace = false;
+
         }
         internal delegate void CallbackDelegate();
         CallbackDelegate _callback;
@@ -68,7 +71,9 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                SetXmlNodeString(TEXT_PATH, value);
+				// Don't remove if blank -- setting a blank rich text value on a node is common,
+				// for example when applying both bold and italic to text.
+				SetXmlNodeString(TEXT_PATH, value, false);
                 if (PreserveSpace)
                 {
                     XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
@@ -230,7 +235,14 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-                SetXmlNodeString(VERT_ALIGN_PATH,((ExcelVerticalAlignmentFont)value) == ExcelVerticalAlignmentFont.None ? "" : value.ToString().ToLower());
+				if(value == ExcelVerticalAlignmentFont.None) {
+					// If Excel 2010 encounters a vertical align value of blank, it will not load
+					// the spreadsheet. So if None is specified, delete the node, it will be 
+					// recreated if a new value is applied later.
+					DeleteNode(VERT_ALIGN_PATH);
+				} else {
+					SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
+				}
             }
         }
         const string SIZE_PATH = "d:rPr/d:sz/@val";

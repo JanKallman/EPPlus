@@ -32,8 +32,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Collections;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml
 {
@@ -59,7 +59,7 @@ namespace OfficeOpenXml
             CommentXml=new XmlDocument();
             foreach(var commentPart in commentParts)
             {
-                Uri = PackUriHelper.ResolvePartUri(commentPart.SourceUri, commentPart.TargetUri);
+                Uri = UriHelper.ResolvePartUri(commentPart.SourceUri, commentPart.TargetUri);
                 Part = pck.Package.GetPart(Uri);
                 XmlHelper.LoadXmlSafe(CommentXml, Part.GetStream()); 
                 RelId = commentPart.Id;
@@ -89,7 +89,7 @@ namespace OfficeOpenXml
         internal Uri Uri { get; set; }
         internal string RelId { get; set; }
         internal XmlNamespaceManager NameSpaceManager { get; set; }
-        internal PackagePart Part
+        internal Packaging.ZipPackagePart Part
         {
             get;
             set;
@@ -201,6 +201,12 @@ namespace OfficeOpenXml
                 throw (new ArgumentException("Comment does not exist in the worksheet"));
             }
         }
+
+        void IDisposable.Dispose() 
+        { 
+            if (_comments != null) 
+                ((IDisposable)_comments).Dispose(); 
+        } 
         /// <summary>
         /// Removes the comment at the specified position
         /// </summary>
@@ -216,13 +222,5 @@ namespace OfficeOpenXml
             return _comments;
         }
         #endregion
-
-
-
-        void IDisposable.Dispose()
-        {
-            if (_comments != null)
-                ((IDisposable)_comments).Dispose();
-        }
     }
 }
