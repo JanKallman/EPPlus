@@ -1919,7 +1919,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <typeparam name="T">The datatype in the collection</typeparam>
 		/// <param name="Collection">The collection to load</param>
-		/// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <param name="PrintHeaders">Print the property names on the first row. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
 		/// <returns>The filled range</returns>
 		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders)
 		{
@@ -1931,7 +1931,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <typeparam name="T">The datatype in the collection</typeparam>
 		/// <param name="Collection">The collection to load</param>
-		/// <param name="PrintHeaders">Print the property names on the first row</param>
+        /// <param name="PrintHeaders">Print the property names on the first row. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
 		/// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
 		/// <returns>The filled range</returns>
 		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle)
@@ -1943,7 +1943,7 @@ namespace OfficeOpenXml
 		/// </summary>
 		/// <typeparam name="T">The datatype in the collection</typeparam>
 		/// <param name="Collection">The collection to load</param>
-		/// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space. If the property is decorated with a <see cref="DisplayNameAttribute"/> that attribute will be used instead of the reflected member name.</param>
+		/// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
 		/// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
 		/// <param name="memberFlags">Property flags to use</param>
 		/// <param name="Members">The properties to output. Must be of type T</param>
@@ -1972,7 +1972,26 @@ namespace OfficeOpenXml
 				foreach (var t in Members)
 				{
                     var descriptionAttribute = t.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
-                    _worksheet._values.SetValue(row, col++, descriptionAttribute == null ? t.Name.Replace('_', ' ') : descriptionAttribute.Description);
+				    var header = string.Empty;
+                    if (descriptionAttribute != null)
+                    {
+                        header = descriptionAttribute.Description;
+                    }
+                    else
+                    {
+                        var displayNameAttribute =
+                            t.GetCustomAttributes(typeof (DisplayNameAttribute), false).FirstOrDefault() as
+                            DisplayNameAttribute;
+                        if (displayNameAttribute != null)
+                        {
+                            header = displayNameAttribute.DisplayName;
+                        }
+                        else
+                        {
+                            header = t.Name.Replace('_', ' ');
+                        }
+                    }
+                    _worksheet._values.SetValue(row, col++, header);
 				}
 				row++;
 			}
