@@ -167,7 +167,6 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(150d, ws.Cells["A1"].Value);
         }
-        [Ignore]
         [TestMethod]
         public void TestAllWorkbooks()
         {

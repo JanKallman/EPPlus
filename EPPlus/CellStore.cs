@@ -588,126 +588,133 @@ using OfficeOpenXml;
         }
         internal void SetValue(int Row, int Column, T Value)
         {
-            var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
-            var page = (short)(Row >> pageBits);
-            if (col >= 0)
+            lock (_columnIndex)
             {
-                //var pos = Array.BinarySearch(_columnIndex[col].Pages, 0, _columnIndex[col].Count, new IndexBase() { Index = page });
-                var pos = _columnIndex[col].GetPosition(Row);
-                if(pos < 0)
+                var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
+                var page = (short)(Row >> pageBits);
+                if (col >= 0)
                 {
-                    pos = ~pos;
-                    if (pos - 1 < 0 || _columnIndex[col]._pages[pos - 1].IndexOffset + PageSize - 1 < Row)
+                    //var pos = Array.BinarySearch(_columnIndex[col].Pages, 0, _columnIndex[col].Count, new IndexBase() { Index = page });
+                    var pos = _columnIndex[col].GetPosition(Row);
+                    if (pos < 0)
+                    {
+                        pos = ~pos;
+                        if (pos - 1 < 0 || _columnIndex[col]._pages[pos - 1].IndexOffset + PageSize - 1 < Row)
+                        {
+                            AddPage(_columnIndex[col], pos, page);
+                        }
+                        else
+                        {
+                            pos--;
+                        }
+                    }
+                    if (pos >= _columnIndex[col].PageCount)
                     {
                         AddPage(_columnIndex[col], pos, page);
                     }
-                    else
+                    var pageItem = _columnIndex[col]._pages[pos];
+                    if (pageItem.IndexOffset > Row)
                     {
                         pos--;
+                        page--;
+                        if (pos < 0)
+                        {
+                            throw (new Exception("Unexpected error when setting value"));
+                        }
+                        pageItem = _columnIndex[col]._pages[pos];
                     }
-                }
-                if (pos >= _columnIndex[col].PageCount)
-                {
-                    AddPage(_columnIndex[col], pos, page);
-                }
-                var pageItem = _columnIndex[col]._pages[pos];
-                if (pageItem.IndexOffset > Row)
-                {
-                    pos--;
-                    page--;
-                    if (pos < 0)
-                    {
-                        throw(new Exception("Unexpected error when setting value"));
-                    }
-                    pageItem = _columnIndex[col]._pages[pos];
-                }
 
-                short ix = (short)(Row - ((pageItem.Index << pageBits) + pageItem.Offset));
-                _searchIx.Index = ix;
-                var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchIx);
-                if (cellPos < 0)
-                {
-                    cellPos = ~cellPos;
-                    AddCell(_columnIndex[col], pos, cellPos, ix, Value);
+                    short ix = (short)(Row - ((pageItem.Index << pageBits) + pageItem.Offset));
+                    _searchIx.Index = ix;
+                    var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchIx);
+                    if (cellPos < 0)
+                    {
+                        cellPos = ~cellPos;
+                        AddCell(_columnIndex[col], pos, cellPos, ix, Value);
+                    }
+                    else
+                    {
+                        _values[pageItem.Rows[cellPos].IndexPointer] = Value;
+                    }
                 }
-                else
+                else //Column does not exist
                 {
-                    _values[pageItem.Rows[cellPos].IndexPointer] = Value;
+                    col = ~col;
+                    AddColumn(col, Column);
+                    AddPage(_columnIndex[col], 0, page);
+                    short ix = (short)(Row - (page << pageBits));
+                    AddCell(_columnIndex[col], 0, 0, ix, Value);
                 }
-            }
-            else //Column does not exist
-            {
-                col = ~col;
-                AddColumn(col, Column);
-                AddPage(_columnIndex[col], 0, page);
-                short ix = (short)(Row - (page << pageBits));
-                AddCell(_columnIndex[col], 0, 0, ix, Value);
             }
         }
 
         internal void Insert(int fromRow, int fromCol, int rows, int columns)
         {
-            if (columns > 0)
+            lock (_columnIndex)
             {
-                var col = GetPosition(fromCol);
-                if (col < 0)
+
+                if (columns > 0)
                 {
-                    col = ~col;
-                }
-                for (var c = col; c < ColumnCount; c++)
-                {
-                    _columnIndex[c].Index += (short)columns;
-                }
-            }
-            else
-            {
-                var page = fromRow >> pageBits;
-                for(int c=0;c< ColumnCount;c++)
-                {
-                    var column = _columnIndex[c];
-                    var pagePos = column.GetPosition(fromRow);
-                    if (pagePos >= 0)
+                    var col = GetPosition(fromCol);
+                    if (col < 0)
                     {
-                        if (fromRow >= column._pages[pagePos].MinIndex && fromRow <= column._pages[pagePos].MaxIndex) //The row is inside the page
+                        col = ~col;
+                    }
+                    for (var c = col; c < ColumnCount; c++)
+                    {
+                        _columnIndex[c].Index += (short)columns;
+                    }
+                }
+                else
+                {
+                    var page = fromRow >> pageBits;
+                    for (int c = 0; c < ColumnCount; c++)
+                    {
+                        var column = _columnIndex[c];
+                        var pagePos = column.GetPosition(fromRow);
+                        if (pagePos >= 0)
                         {
-                            int offset = fromRow - column._pages[pagePos].IndexOffset;
-                           var rowPos = column._pages[pagePos].GetPosition(offset);
-                           if (rowPos < 0) 
-                           {
-                               rowPos = ~rowPos;
-                           }
-                           UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
-                        }
-                        else if (column._pages[pagePos].MinIndex > fromRow-1 && pagePos>0) //The row is on the page before.
-                        {
-                            int offset = fromRow - ((page - 1) << pageBits);
-                            var rowPos = column._pages[pagePos-1].GetPosition(offset);
-                            if (rowPos > 0 && pagePos>0)
+                            if (fromRow >= column._pages[pagePos].MinIndex && fromRow <= column._pages[pagePos].MaxIndex) //The row is inside the page
                             {
-                                UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow, rows);
-                            }
-                        }
-                        else if (column.PageCount >= pagePos + 1)
-                        {
-                            int offset = fromRow - column._pages[pagePos].IndexOffset;
-                            var rowPos = column._pages[pagePos].GetPosition(offset);
-                            if (rowPos < 0)
-                            {
-                                rowPos = ~rowPos;
-                            }
-                            if (column._pages[pagePos].RowCount > rowPos)
-                            {
+                                int offset = fromRow - column._pages[pagePos].IndexOffset;
+                                var rowPos = column._pages[pagePos].GetPosition(offset);
+                                if (rowPos < 0)
+                                {
+                                    rowPos = ~rowPos;
+                                }
                                 UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
                             }
-                            else
+                            else if (column._pages[pagePos].MinIndex > fromRow - 1 && pagePos > 0) //The row is on the page before.
                             {
-                                UpdateIndexOffset(column, pagePos + 1, 0, fromRow, rows);
+                                int offset = fromRow - ((page - 1) << pageBits);
+                                var rowPos = column._pages[pagePos - 1].GetPosition(offset);
+                                if (rowPos > 0 && pagePos > 0)
+                                {
+                                    UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow, rows);
+                                }
+                            }
+                            else if (column.PageCount >= pagePos + 1)
+                            {
+                                int offset = fromRow - column._pages[pagePos].IndexOffset;
+                                var rowPos = column._pages[pagePos].GetPosition(offset);
+                                if (rowPos < 0)
+                                {
+                                    rowPos = ~rowPos;
+                                }
+                                if (column._pages[pagePos].RowCount > rowPos)
+                                {
+                                    UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
+                                }
+                                else
+                                {
+                                    UpdateIndexOffset(column, pagePos + 1, 0, fromRow, rows);
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-                        UpdateIndexOffset(column, ~pagePos, 0, fromRow, rows);
+                        else
+                        {
+                            UpdateIndexOffset(column, ~pagePos, 0, fromRow, rows);
+                        }
                     }
                 }
             }
@@ -722,60 +729,63 @@ using OfficeOpenXml;
         }
         internal void Delete(int fromRow, int fromCol, int rows, int columns, bool shift)
         {
-            if (columns > 0 && fromRow==1 && rows>=ExcelPackage.MaxRows)
+            lock (_columnIndex)
             {
-                DeleteColumns(fromCol, columns, shift);
-            }
-            else
-            {
-                var toCol = fromCol + columns - 1;
-                var pageFromRow = fromRow >> pageBits;
-                for (int c = 0; c < ColumnCount; c++)
+                if (columns > 0 && fromRow == 1 && rows >= ExcelPackage.MaxRows)
                 {
-                    var column = _columnIndex[c];
-                    if (column.Index >= fromCol)
+                    DeleteColumns(fromCol, columns, shift);
+                }
+                else
+                {
+                    var toCol = fromCol + columns - 1;
+                    var pageFromRow = fromRow >> pageBits;
+                    for (int c = 0; c < ColumnCount; c++)
                     {
-                        if (column.Index > toCol) break;
-                        var pagePos = column.GetPosition(fromRow);
-                        if (pagePos < 0) pagePos = ~pagePos;
-                        if (pagePos < column.PageCount)
+                        var column = _columnIndex[c];
+                        if (column.Index >= fromCol)
                         {
-                            var page = column._pages[pagePos];
-                            if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
+                            if (column.Index > toCol) break;
+                            var pagePos = column.GetPosition(fromRow);
+                            if (pagePos < 0) pagePos = ~pagePos;
+                            if (pagePos < column.PageCount)
                             {
-                                rows -= page.MinIndex - fromRow;
-                                fromRow = page.MinIndex;
-                            }
-                            if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
-                            {
-                                var endRow = fromRow + rows;
-                                var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
-                                if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
-                                if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
+                                var page = column._pages[pagePos];
+                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
                                 {
-                                    pagePos = (delEndRow == fromRow ? pagePos : pagePos + 1);
-                                    var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
-                                    //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
-                                    if (rowsLeft > 0)
+                                    rows -= page.MinIndex - fromRow;
+                                    fromRow = page.MinIndex;
+                                }
+                                if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
+                                {
+                                    var endRow = fromRow + rows;
+                                    var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
+                                    if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
+                                    if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
                                     {
-                                        pagePos = column.GetPosition(fromRow);
-                                        delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft);
-                                        if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
+                                        pagePos = (delEndRow == fromRow ? pagePos : pagePos + 1);
+                                        var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
+                                        //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
+                                        if (rowsLeft > 0)
+                                        {
+                                            pagePos = column.GetPosition(fromRow);
+                                            delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft);
+                                            if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
+                                        }
                                     }
                                 }
-                            }
-                            else if (pagePos > 0 && column._pages[pagePos].IndexOffset > fromRow) //The row is on the page before.
-                            {
-                                int offset = fromRow + rows - 1 - ((pageFromRow - 1) << pageBits);
-                                var rowPos = column._pages[pagePos - 1].GetPosition(offset);
-                                if (rowPos > 0 && pagePos > 0)
+                                else if (pagePos > 0 && column._pages[pagePos].IndexOffset > fromRow) //The row is on the page before.
                                 {
-                                    if (shift) UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow + rows - 1, -rows);
+                                    int offset = fromRow + rows - 1 - ((pageFromRow - 1) << pageBits);
+                                    var rowPos = column._pages[pagePos - 1].GetPosition(offset);
+                                    if (rowPos > 0 && pagePos > 0)
+                                    {
+                                        if (shift) UpdateIndexOffset(column, pagePos - 1, rowPos, fromRow + rows - 1, -rows);
+                                    }
                                 }
-                            }
-                            else
-                            {
-                                if (shift && pagePos + 1 < column.PageCount) UpdateIndexOffset(column, pagePos + 1, 0, column._pages[pagePos + 1].MinIndex, -rows);
+                                else
+                                {
+                                    if (shift && pagePos + 1 < column.PageCount) UpdateIndexOffset(column, pagePos + 1, 0, column._pages[pagePos + 1].MinIndex, -rows);
+                                }
                             }
                         }
                     }
@@ -1807,6 +1817,7 @@ using OfficeOpenXml;
         {
             minRow = _startRow;
             maxRow = _endRow;
+
             minColPos = _cellStore.GetPosition(_startCol);
             if (minColPos < 0) minColPos = ~minColPos;
             maxColPos = _cellStore.GetPosition(_endCol);
@@ -1843,11 +1854,17 @@ using OfficeOpenXml;
         {
             get
             {
-                return _cellStore.GetValue(row, Column);
+                lock (_cellStore)
+                {
+                    return _cellStore.GetValue(row, Column);
+                }
             }
             set
             {
-                _cellStore.SetValue(row, Column,value);
+                lock (_cellStore)
+                {
+                    _cellStore.SetValue(row, Column, value);
+                }
             }
         }
         internal bool Next()
@@ -1857,7 +1874,10 @@ using OfficeOpenXml;
         }
         internal bool Previous()
         {
-            return _cellStore.GetPrevCell(ref row, ref colPos, minRow, minColPos, maxColPos);
+            lock (_cellStore)
+            {
+                return _cellStore.GetPrevCell(ref row, ref colPos, minRow, minColPos, maxColPos);
+            }
         }
 
         public string CellAddress 

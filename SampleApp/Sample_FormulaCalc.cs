@@ -37,20 +37,25 @@ namespace EPPlusSamples
                 // Print the calculated value
                 Console.WriteLine("SUM(A1,ws1!A4) evaluated to {0}", ws2.Cells["A2"].Value);
 
-                // calculate a range
-                ws1.Cells["B1"].Formula = "IF(TODAY()<DATE(2013;6;1);\"BEFORE\" &\" FIRST\";CONCATENATE(\"FIRST\";\" OF\";\" JUNE 2013 OR LATER\"))";
+                // Calculate a range
+                ws1.Cells["B1"].Formula = "IF(TODAY()<DATE(2014,6,1),\"BEFORE\" &\" FIRST\",CONCATENATE(\"FIRST\",\" OF\",\" JUNE 2014 OR LATER\"))";
                 ws1.Cells["B1"].Calculate();
                 
                 // Print the calculated value
-                Console.WriteLine("IF(TODAY()<DATE(2014;6;1);\"BEFORE\" &\" FIRST\";CONCATENATE(\"FIRST\";\" OF\";\" JUNE OR LATER\")) evaluated to {0}", ws1.Cells["B1"].Value);
+                Console.WriteLine("IF(TODAY()<DATE(2014,6,1),\"BEFORE\" &\" FIRST\",CONCATENATE(\"FIRST\",\" OF\",\" JUNE 2014 OR LATER\")) evaluated to {0}", ws1.Cells["B1"].Value);
 
-                // evaluate a formula string
-                const string formula = "(2+4)*ws1!A2";
+                // Evaluate a formula string (without calculate depending cells).
+                // That means that if A1 contains a formula that hasn't been calculated it take the value from a1, blank or zero if it's a new formula.
+                // In this case A1 has been calculated (2), so everything should be ok!
+                const string formula = "(2+4)*ws1!A1";
                 var result = package.Workbook.FormulaParserManager.Parse(formula);
 
-                // print the calculated value
+                // Print the calculated value
                 Console.WriteLine("(2+4)*ws1!A2 evaluated to {0}", result);
-                ws1.Calculate("(2+4)*A2");
+
+                // Evaluate a formula string (Calculate depending cells)
+                // A1 will be recalculated.
+                var result2 = ws1.Calculate("(2+4)*A1");
                 
             }
         }

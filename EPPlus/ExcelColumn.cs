@@ -337,13 +337,13 @@ namespace OfficeOpenXml
                 newCol.ColumnMax = ColumnMax;
                 newCol.BestFit = BestFit;
                 newCol.Collapsed = Collapsed;
-                newCol.Hidden = Hidden;
                 newCol.OutlineLevel = OutlineLevel;
                 newCol.PageBreak = PageBreak;
                 newCol.Phonetic = Phonetic;
                 newCol._styleName = _styleName;
                 newCol.StyleID = StyleID;
                 newCol.Width = Width;
+                newCol.Hidden = Hidden;
                 return newCol;
         }
     }

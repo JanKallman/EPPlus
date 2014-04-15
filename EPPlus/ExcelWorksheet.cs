@@ -3079,7 +3079,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan) && _types.GetValue(cse.Row,cse.Column) != "s")
+                            if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
                                 string sv = GetValueForXml(v);
                                 cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
