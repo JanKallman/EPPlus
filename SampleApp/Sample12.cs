@@ -110,7 +110,7 @@ namespace EPPlusSamples
                 var chart = wsPivot.Drawings.AddChart("PivotChart", eChartType.Pie, pivotTable1);
                 chart.SetPosition(1, 0, 4, 0);
                 chart.SetSize(600, 400);
-
+                    
                 var wsPivot2 = pck.Workbook.Worksheets.Add("PivotDateGrp");
                 var pivotTable2 = wsPivot2.PivotTables.Add(wsPivot2.Cells["A3"], dataRange, "PerEmploeeAndQuarter");
 

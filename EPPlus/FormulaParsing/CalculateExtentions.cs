@@ -169,7 +169,7 @@ namespace OfficeOpenXml
                 else
                 {
                     var sh = workbook.Worksheets.GetBySheetID(item.SheetID);
-                    sh.Names[item.Index].NameValue = v;
+                    sh.Names[item.Row].NameValue = v;
                 }
             }
             else

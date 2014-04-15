@@ -1174,6 +1174,19 @@ namespace EPPlusTest
             //tbl.TotalsRowCellStyle = "RedStyle";
             //tbl.HeaderRowCellStyle = "RedStyle";
         }
+        [TestMethod]
+        public void TestRepeatRowsAndColumnsTest()
+        {
+            var p = new ExcelPackage();
+
+            var w = p.Workbook.Worksheets.Add("RepeatRowsAndColumnsTest");
+
+            w.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
+            w.PrinterSettings.RepeatRows = new ExcelAddress("1:1");
+
+            Assert.IsNotNull(w.PrinterSettings.RepeatColumns);
+            Assert.IsNotNull(w.PrinterSettings.RepeatRows); // Fails!
+        }
         [Ignore]
         [TestMethod]
         public void Merge()

@@ -759,7 +759,7 @@ namespace OfficeOpenXml
 
 		/// <summary>
 		/// Set the column width from the content of the range.
-		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+		/// Note: Cells containing formulas are ignored if no calculation is made.
 		///       Wrapped and merged cells are also ignored.
 		/// </summary>
         /// <remarks>This method will not work if you run in an environment that does not support GDI</remarks>
@@ -771,8 +771,8 @@ namespace OfficeOpenXml
 
 	    /// <summary>
 	    /// Set the column width from the content of the range.
-	    /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-	    ///       Wrapped and merged cells are also ignored.
+        /// Note: Cells containing formulas are ignored if no calculation is made.
+        ///       Wrapped and merged cells are also ignored.
 	    /// </summary>
 	    /// <param name="MinimumWidth">Minimum column width</param>
 	    /// <param name="MaximumWidth">Maximum column width</param>
@@ -819,10 +819,10 @@ namespace OfficeOpenXml
 			List<ExcelAddressBase> afAddr = new List<ExcelAddressBase>();
 			if (_worksheet.AutoFilterAddress != null)
 			{
-				afAddr.Add(new ExcelAddressBase(_worksheet.AutoFilterAddress._fromRow,
-																				_worksheet.AutoFilterAddress._fromCol,
-																				_worksheet.AutoFilterAddress._fromRow,
-																				_worksheet.AutoFilterAddress._toCol));
+				afAddr.Add(new ExcelAddressBase(    _worksheet.AutoFilterAddress._fromRow,
+													_worksheet.AutoFilterAddress._fromCol,
+													_worksheet.AutoFilterAddress._fromRow,
+													_worksheet.AutoFilterAddress._toCol));
 				afAddr[afAddr.Count - 1]._ws = WorkSheet;
 			}
 			foreach (var tbl in _worksheet.Tables)
@@ -1460,7 +1460,7 @@ namespace OfficeOpenXml
         private void SetValue(object value, int row, int col)
         {
             _worksheet.SetValue(row, col, value);
-            if (value is string) _worksheet._types.SetValue(row, col, "S"); else _worksheet._types.SetValue(row, col, "");
+           // if (value is string) _worksheet._types.SetValue(row, col, "S"); else _worksheet._types.SetValue(row, col, "");
             _worksheet._formulas.SetValue(row, col, "");
         }
 		/// <summary>

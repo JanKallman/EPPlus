@@ -9,6 +9,7 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
+using System.Threading;
 namespace EPPlusTest
 {
     [TestClass]
@@ -242,12 +243,10 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
         }
-
-        [Ignore]
         [TestMethod]
         public void ReadBug12()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\Velocity v3.1 Catalog Template.xlsm"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\students.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             ws.Column(0).Style.Font.Bold = true;
@@ -271,6 +270,93 @@ namespace EPPlusTest
             ws.Cells["A1"].AddComment("Test av kommentar", "J");
             ws.Comments.RemoveAt(0);
             package.SaveAs(new FileInfo(@"c:\temp\bug\CommentTest.xlsx"));
+        }
+        #region "Threading Cellstore Test"
+        public int _threadCount=0;
+        ExcelPackage _pckThread;
+        [TestMethod]
+        public void ThreadingTest()
+        {
+            var _pckThread = new ExcelPackage();
+            var ws = _pckThread.Workbook.Worksheets.Add("Threading");
+
+            for (int t = 0; t < 20; t++)
+            {
+                var ts=new ThreadState(Finnished)
+                {
+                    ws=ws,
+                    StartRow=1+(t*1000),
+                    Rows=1000,                    
+                };
+                var tstart=new ThreadStart(ts.StartLoad);                                
+                var thread = new Thread(tstart);
+                _threadCount++;
+                thread.Start();
+            }
+            while (1 == 1)
+            {                
+                if (_threadCount == 0)
+                {
+                    _pckThread.SaveAs(new FileInfo("c:\\temp\\thread.xlsx"));
+                    break;
+                }
+                Thread.Sleep(1000);
+            }
+        }
+        public void Finnished()
+        {
+            _threadCount--;
+        }
+        private class ThreadState
+        {
+            public ThreadState(cbFinished cb)
+            {
+                _cb = cb;
+            }
+            public ExcelWorksheet ws { get; set; }
+            public int StartRow { get; set; }
+            public int Rows { get; set; }
+            public delegate void cbFinished();
+            public cbFinished _cb;
+            public void StartLoad()
+            {
+                for(int row=StartRow;row<StartRow+Rows;row++)
+                {
+                    for (int col = 1; col < 100; col++)
+                    {
+                        ws.SetValue(row,col,string.Format("row {0} col {1}", row,col));
+                    }
+                }
+                _cb();
+            }
+        }
+        #endregion
+        [TestMethod]
+        public void TestInvalidVBA()
+        {
+            const string infile=@"C:\temp\bug\Infile.xlsm";
+            const string outfile=@"C:\temp\bug\Outfile.xlsm";
+            ExcelPackage ep;
+
+            using (FileStream fs = File.OpenRead(infile))
+            {
+                ep = new ExcelPackage(fs);
+            }
+
+            using (FileStream fs = File.OpenWrite(outfile))
+            {
+                ep.SaveAs(fs);
+            }
+
+            using (FileStream fs = File.OpenRead(outfile))
+            {
+                ep = new ExcelPackage(fs);
+            }
+
+            using (FileStream fs = File.OpenWrite(outfile))
+            {
+                ep.SaveAs(fs);
+            }            
         }
     }
 }
