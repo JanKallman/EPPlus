@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
@@ -43,6 +42,7 @@ namespace EPPlusTest
             LoadDataReader();
             LoadDataTable();
             LoadFromCollectionTest();
+            LoadFromEmptyCollectionTest();
             LoadArray();
             WorksheetCopy();
             DefaultColWidth();
@@ -638,7 +638,21 @@ namespace EPPlusTest
 
             var ints = new int[] {1,3,4,76,2,5};
             ws.Cells["A15"].Value = ints;
-        }        
+        }
+        [Ignore]
+        [TestMethod]
+        public void LoadFromEmptyCollectionTest()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("LoadFromEmpyCollection");
+            List<TestDTO> listDTO = new List<TestDTO>(0);
+            //List<int> list = new List<int>(0);
+
+            ws.Cells["A1"].LoadFromCollection(listDTO, true);
+            ws.Cells["A5"].LoadFromCollection(listDTO, true, OfficeOpenXml.Table.TableStyles.Medium9, BindingFlags.Instance | BindingFlags.Instance, typeof(TestDTO).GetFields());
+
+            ws.Cells["A10"].LoadFromCollection(listDTO, true, OfficeOpenXml.Table.TableStyles.Light1, BindingFlags.Instance | BindingFlags.Instance, new MemberInfo[] { typeof(TestDTO).GetMethod("GetNameID"), typeof(TestDTO).GetField("NameVar") });
+            ws.Cells["A15"].LoadFromCollection(from l in listDTO where l.Boolean orderby l.Date select new { Name = l.Name, Id = l.Id, Date = l.Date, NameVariable = l.NameVar }, true, OfficeOpenXml.Table.TableStyles.Dark4);
+        }
         static void Create(string file)
         {
             ExcelPackage pack = new ExcelPackage(new FileInfo(file));

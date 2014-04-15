@@ -138,6 +138,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
             Functions["choose"] = new Choose();
             Functions["index"] = new Index();
+            Functions["indirect"] = new Indirect();
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();
