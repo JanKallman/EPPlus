@@ -366,7 +366,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                     case "Symbols":
                         return "3Symbols";
                     case "Symbols2":
-                        return "3Symbols";
+                        return "3Symbols2";
                     case "TrafficLights1":
                         return "3TrafficLights1";
                     case "TrafficLights2":
