@@ -39,7 +39,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Utils;
-using Ionic.Zlib;
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
 namespace OfficeOpenXml

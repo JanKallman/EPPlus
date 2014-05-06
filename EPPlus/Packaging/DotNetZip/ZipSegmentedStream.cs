@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal class ZipSegmentedStream : System.IO.Stream
     {

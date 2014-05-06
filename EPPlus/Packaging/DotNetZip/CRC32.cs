@@ -29,7 +29,7 @@
 using System;
 using Interop = System.Runtime.InteropServices;
 
-namespace Ionic.Crc
+namespace OfficeOpenXml.Packaging.Ionic.Crc
 {
     /// <summary>
     ///   Computes a CRC-32. The CRC-32 algorithm is parameterized - you

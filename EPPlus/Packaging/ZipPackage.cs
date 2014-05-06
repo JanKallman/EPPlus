@@ -33,10 +33,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Ionic.Zip;
-using Ionic.Zlib;
 using System.Xml;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Packaging.Ionic.Zip;
+using Ionic.Zip;
 namespace OfficeOpenXml.Packaging
 {
     /// <summary>
@@ -259,7 +259,7 @@ namespace OfficeOpenXml.Packaging
             var ms = new MemoryStream();
             var enc = Encoding.UTF8;
             ZipOutputStream os = new ZipOutputStream(ms, true);
-            os.CompressionLevel = (Ionic.Zlib.CompressionLevel)_compression;            
+            os.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)_compression;            
             /**** ContentType****/
             var entry = os.PutNextEntry("[Content_Types].xml");
             byte[] b = enc.GetBytes(GetContentTypeXml());

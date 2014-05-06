@@ -42,9 +42,8 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using Interop = System.Runtime.InteropServices;
-
-
-namespace Ionic.Zip
+using OfficeOpenXml.Packaging.Ionic.Zlib;
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     ///   The ZipFile type represents a zip archive file.
@@ -400,7 +399,7 @@ namespace Ionic.Zip
         ///   information see <see
         ///   cref="Ionic.Zlib.CompressionStrategy">Ionic.Zlib.CompressionStrategy</see>.
         /// </remarks>
-        public Ionic.Zlib.CompressionStrategy Strategy
+        public CompressionStrategy Strategy
         {
             get { return _Strategy; }
             set { _Strategy = value; }
@@ -471,7 +470,7 @@ namespace Ionic.Zip
         ///    alone, and accept the default.
         ///  </para>
         /// </remarks>
-        public Ionic.Zlib.CompressionLevel CompressionLevel
+        public OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel CompressionLevel
         {
             get;
             set;
@@ -1668,7 +1667,7 @@ namespace Ionic.Zip
         /// </example>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.Encryption">ZipFile.Encryption</seealso>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Password">ZipEntry.Password</seealso>
+        /// <seealso cref="ZipEntry.Password">ZipEntry.Password</seealso>
         public String Password
         {
             set
@@ -1712,7 +1711,7 @@ namespace Ionic.Zip
         ///   to be extracted does not already exist.
         /// </para>
         /// </remarks>
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
         internal ExtractExistingFileAction ExtractExistingFile
         {
             get;
@@ -1809,7 +1808,7 @@ namespace Ionic.Zip
         /// </code>
         /// </example>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ZipErrorAction"/>
+        /// <seealso cref="ZipEntry.ZipErrorAction"/>
         /// <seealso cref="Ionic.Zip.ZipFile.ZipError"/>
 
         internal ZipErrorAction ZipErrorAction
@@ -1945,7 +1944,7 @@ namespace Ionic.Zip
         /// </example>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.Password">ZipFile.Password</seealso>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Encryption">ZipEntry.Encryption</seealso>
+        /// <seealso cref="ZipEntry.Encryption">ZipEntry.Encryption</seealso>
         internal EncryptionAlgorithm Encryption
         {
             get
@@ -2840,7 +2839,7 @@ namespace Ionic.Zip
             _StatusMessageTextWriter = statusMessageWriter;
             _contentsChanged = true;
             AddDirectoryWillTraverseReparsePoints = true;  // workitem 8617
-            CompressionLevel = Ionic.Zlib.CompressionLevel.Default;
+            CompressionLevel = OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.Default;
 #if !NETCF
             ParallelDeflateThreshold = 512 * 1024;
 #endif

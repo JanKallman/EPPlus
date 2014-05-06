@@ -411,7 +411,7 @@ namespace EPPlusTest
             Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
             ws.Cells["A1:B3"].Merge = true;
             ws.Cells["D3"].Formula = "A2+C5";
-            ws.InsertColumn(2, 1);
+            ws.InsertColumn(1, 1);
 
             ws.Cells["K10:M15"].Value = 1;
             ws.Cells["K11:L13"].Merge = true;
@@ -1807,7 +1807,6 @@ namespace EPPlusTest
             }
             ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
         }
-
         #region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()

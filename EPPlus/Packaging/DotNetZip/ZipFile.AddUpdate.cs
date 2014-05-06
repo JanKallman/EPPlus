@@ -30,7 +30,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal partial class ZipFile
     {
@@ -1796,7 +1796,7 @@ namespace Ionic.Zip
         /// </remarks>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.AddEntry(string, System.IO.Stream)"/>
-        /// <seealso cref="Ionic.Zip.ZipEntry.InputStream"/>
+        /// <seealso cref="ZipEntry.InputStream"/>
         ///
         /// <param name="entryName">
         ///   The name, including any path, to use within the archive for the entry.

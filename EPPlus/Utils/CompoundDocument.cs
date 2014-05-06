@@ -176,7 +176,7 @@ namespace OfficeOpenXml.Utils
                             {
                                 int length = 1;
 
-                                while (buffer.Length > dPos + length && buffer[candidate + length] == buffer[dPos + length] && length < lengthMask)
+                                while (buffer.Length > dPos + length && buffer[candidate + length] == buffer[dPos + length] && length < lengthMask && dPos+length < dEnd)
                                 {
                                     length++;
                                 }

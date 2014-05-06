@@ -31,7 +31,7 @@ using System.Text;
 using System.Runtime.Serialization;
 #endif
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     ///// <summary>
     ///// Base exception type for all custom exceptions in the Zip library. It acts as a marker class.

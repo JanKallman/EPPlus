@@ -47,8 +47,9 @@ using System.Threading;
 using System.Collections.Generic;
 using System.IO;
 using Ionic.Zip;
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     ///   Provides a stream metaphor for generating zip files.
@@ -345,8 +346,8 @@ namespace Ionic.Zip
         {
             // workitem 9307
             _outputStream = stream.CanRead ? stream : new CountingStream(stream);
-            CompressionLevel = Ionic.Zlib.CompressionLevel.Default;
-            CompressionMethod = Ionic.Zip.CompressionMethod.Deflate;
+            CompressionLevel = OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.Default;
+            CompressionMethod = OfficeOpenXml.Packaging.Ionic.Zip.CompressionMethod.Deflate;
             _encryption = EncryptionAlgorithm.None;
             _entriesWritten = new Dictionary<String, ZipEntry>(StringComparer.Ordinal);
             _zip64 = Zip64Option.Never;
@@ -463,7 +464,7 @@ namespace Ionic.Zip
         /// </remarks>
         ///
         /// <seealso cref="Password">ZipOutputStream.Password</seealso>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Encryption">ZipEntry.Encryption</seealso>
+        /// <seealso cref="ZipEntry.Encryption">ZipEntry.Encryption</seealso>
         public EncryptionAlgorithm Encryption
         {
             get
@@ -516,7 +517,7 @@ namespace Ionic.Zip
         ///   of the compresssion.  For more information see <see
         ///   cref="Ionic.Zlib.CompressionStrategy "/>.
         /// </remarks>
-        public Ionic.Zlib.CompressionStrategy Strategy
+        public CompressionStrategy Strategy
         {
             get;
             set;
@@ -580,7 +581,7 @@ namespace Ionic.Zip
         ///    alone, and accept the default.
         ///  </para>
         /// </remarks>
-        public Ionic.Zlib.CompressionLevel CompressionLevel
+        public OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel CompressionLevel
         {
             get;
             set;
@@ -589,7 +590,7 @@ namespace Ionic.Zip
         /// <summary>
         ///   The compression method used on each entry added to the ZipOutputStream.
         /// </summary>
-        public Ionic.Zip.CompressionMethod CompressionMethod
+        public CompressionMethod CompressionMethod
         {
             get;
             set;
@@ -1629,7 +1630,7 @@ namespace Ionic.Zip
         private string _name;
         private bool _DontIgnoreCase;
 #if !NETCF
-        internal Ionic.Zlib.ParallelDeflateOutputStream ParallelDeflater;
+        internal ParallelDeflateOutputStream ParallelDeflater;
         private long _ParallelDeflateThreshold;
         private int _maxBufferPairs = 16;
 #endif

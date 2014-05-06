@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     ///   Delegate in which the application writes the <c>ZipEntry</c> content for the named entry.
@@ -133,7 +133,7 @@ namespace Ionic.Zip
     /// </para>
     /// </remarks>
     /// <seealso cref="Ionic.Zip.ZipFile.SetCompression"/>
-    public delegate Ionic.Zlib.CompressionLevel SetCompressionCallback(string localFileName, string fileNameInArchive);
+    public delegate OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel SetCompressionCallback(string localFileName, string fileNameInArchive);
 
     /// <summary>
     ///   In an EventArgs type, indicates which sort of progress event is being

@@ -58,7 +58,7 @@ using System.Collections.Generic;
 using System.Linq;
 #endif
 
-namespace Ionic
+namespace OfficeOpenXml.Packaging.Ionic
 {
 
     /// <summary>

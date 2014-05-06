@@ -62,7 +62,8 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 Smooth = 1;
             }
-            else
+            else if (chartSeries.Chart.ChartType == eChartType.XYScatterLines || chartSeries.Chart.ChartType == eChartType.XYScatterLinesNoMarkers || chartSeries.Chart.ChartType == eChartType.XYScatter)
+
             {
                 Smooth = 0;
             }

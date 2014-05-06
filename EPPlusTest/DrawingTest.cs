@@ -808,5 +808,14 @@ namespace EPPlusTest
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
 
         }
+        [TestMethod]
+        public void ReadWriteSmoothChart()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"c:\temp\bug\Xds_2014_TEST.xlsx"));
+            var chart = _pck.Workbook.Worksheets[1].Drawings[0] as ExcelChart;
+            _pck.Workbook.Worksheets[1].Cells["B2"].Value = 33;
+            _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
+
+        }                    
     }
 }

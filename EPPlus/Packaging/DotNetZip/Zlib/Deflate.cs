@@ -69,7 +69,7 @@
 
 using System;
 
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
 
     internal enum BlockState

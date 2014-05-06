@@ -28,7 +28,7 @@
 using System;
 using System.IO;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal partial class ZipEntry
     {

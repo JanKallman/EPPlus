@@ -525,9 +525,7 @@ namespace OfficeOpenXml
                         rows.Next();
                         while(rows.Value!=null)
                         {
-                            var r = rows.Value as ExcelRow;
-                            r._styleName = value;
-                            r.StyleID = StyleID;
+                            _worksheet._styles.SetValue(rows.Row, 0, _styleID);
                             if (!rows.Next())
                             {
                                 break;
@@ -2033,6 +2031,11 @@ namespace OfficeOpenXml
 					row++;
 				}
 			}
+
+            if (_fromRow == row-1)
+            {
+                row++;
+            }
 
             var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, Members.Length==0 ? col : col - 1];
 

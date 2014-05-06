@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 
 #if AESCRYPTO
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     ///   This is a helper class supporting WinZip AES encryption.

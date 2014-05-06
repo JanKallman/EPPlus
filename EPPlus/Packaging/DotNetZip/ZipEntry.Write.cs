@@ -26,11 +26,12 @@
 // ------------------------------------------------------------------
 
 
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 using System;
 using System.IO;
 using RE = System.Text.RegularExpressions;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal partial class ZipEntry
     {
@@ -682,7 +683,7 @@ namespace Ionic.Zip
         {
             if (_UncompressedSize < 0x10) return false;
             if (_CompressionMethod == 0x00) return false;
-            if (CompressionLevel == Ionic.Zlib.CompressionLevel.None) return false;
+            if (CompressionLevel == OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.None) return false;
             if (_CompressedSize < _UncompressedSize) return false;
 
             if (this._Source == ZipEntrySource.Stream && !this._sourceStream.CanSeek) return false;
@@ -1967,8 +1968,8 @@ namespace Ionic.Zip
                     if (_container.ParallelDeflater == null)
                     {
                         _container.ParallelDeflater =
-                            new Ionic.Zlib.ParallelDeflateOutputStream(s,
-                                                                       CompressionLevel,
+                            new ParallelDeflateOutputStream(s,
+                                                                        CompressionLevel,
                                                                        _container.Strategy,
                                                                        true);
                         // can set the codec buffer size only before the first call to Write().
@@ -1984,7 +1985,7 @@ namespace Ionic.Zip
                     return o1;
                 }
 #endif
-                var o = new Ionic.Zlib.DeflateStream(s, Ionic.Zlib.CompressionMode.Compress,
+                var o = new DeflateStream(s, OfficeOpenXml.Packaging.Ionic.Zlib.CompressionMode.Compress,
                                                      CompressionLevel,
                                                      true);
                 if (_container.CodecBufferSize > 0)

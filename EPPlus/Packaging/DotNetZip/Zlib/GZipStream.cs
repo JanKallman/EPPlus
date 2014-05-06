@@ -30,7 +30,7 @@
 using System;
 using System.IO;
 
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
     /// <summary>
     ///   A class for compressing and decompressing GZIP streams.

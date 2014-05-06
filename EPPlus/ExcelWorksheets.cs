@@ -40,7 +40,7 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Drawing.Vml;
-using Ionic.Zlib;
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.VBA;
 namespace OfficeOpenXml
@@ -145,47 +145,48 @@ namespace OfficeOpenXml
             ExcelWorksheet worksheet = AddSheet(Name,false, null);
 			return worksheet;
 		}
-
         private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType)
         {
             int sheetID;
             Uri uriWorksheet;
-            if (GetByName(Name) != null)
+            lock (_worksheets)
             {
-                throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                if (GetByName(Name) != null)
+                {
+                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                }
+                GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
+                Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
+
+                //Create the new, empty worksheet and save it to the package
+                StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
+                XmlDocument worksheetXml = CreateNewWorksheet(isChart);
+                worksheetXml.Save(streamWorksheet);
+                _pck.Package.Flush();
+
+                string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
+
+                int positionID = _worksheets.Count + 1;
+                ExcelWorksheet worksheet;
+                if (isChart)
+                {
+                    worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType);
+                }
+                else
+                {
+                    worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
+                }
+
+                _worksheets.Add(positionID, worksheet);
+                if (_pck.Workbook.VbaProject != null)
+                {
+                    var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
+                    _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    worksheet.CodeModuleName = Name;
+
+                }
+                return worksheet;
             }
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
-            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
-
-            //Create the new, empty worksheet and save it to the package
-            StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
-            XmlDocument worksheetXml = CreateNewWorksheet(isChart);
-            worksheetXml.Save(streamWorksheet);
-            //streamWorksheet.Close();
-            _pck.Package.Flush();
-
-            string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
-
-            int positionID = _worksheets.Count + 1;
-            ExcelWorksheet worksheet;
-            if (isChart)
-            {
-                worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType);
-            }
-            else
-            {
-                worksheet = new ExcelWorksheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible);
-            }
-
-            _worksheets.Add(positionID, worksheet);
-            if (_pck.Workbook.VbaProject != null)
-            {
-                var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
-                _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-                worksheet.CodeModuleName = Name;
-
-            }
-            return worksheet;
         }
         /// <summary>
         /// Adds a copy of a worksheet
@@ -194,84 +195,86 @@ namespace OfficeOpenXml
         /// <param name="Copy">The worksheet to be copied</param>
         public ExcelWorksheet Add(string Name, ExcelWorksheet Copy)
         {
-            int sheetID;
-            Uri uriWorksheet;
-            if (Copy is ExcelChartsheet)
+            lock (_worksheets)
             {
-                throw (new ArgumentException("Can not copy a chartsheet"));
-            }
-            if (GetByName(Name) != null)
-            {
-                throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
-            }
-
-            GetSheetURI(ref Name, out sheetID, out uriWorksheet, false);
-
-            //Create a copy of the worksheet XML
-            Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
-            StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
-            XmlDocument worksheetXml = new XmlDocument();
-            worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
-            worksheetXml.Save(streamWorksheet);
-            //streamWorksheet.Close();
-            _pck.Package.Flush();
-
-
-            //Create a relation to the workbook
-            string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet, false);
-            ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
-
-            //Copy comments
-            if (Copy.Comments.Count > 0)
-            {
-                CopyComment(Copy, added);
-            }
-            else if (Copy.VmlDrawingsComments.Count > 0)    //Vml drawings are copied as part of the comments. 
-            {
-                CopyVmlDrawing(Copy, added);
-            }
-
-            //Copy HeaderFooter
-            CopyHeaderFooterPictures(Copy, added);
-
-            //Copy all relationships 
-            //CopyRelationShips(Copy, added);
-            if (Copy.Drawings.Count > 0)
-            {
-                CopyDrawing(Copy, added);
-            }
-			if (Copy.Tables.Count > 0)
-            {
-                CopyTable(Copy, added);
-            }
-            if (Copy.PivotTables.Count > 0)
-            {
-                CopyPivotTable(Copy, added);
-            }
-            if (Copy.Names.Count > 0)
-            {
-                CopySheetNames(Copy, added);
-            }
-
-            //Copy all cells
-            CloneCells(Copy, added);
-
-            _worksheets.Add(_worksheets.Count + 1, added);
-
-            //Remove any relation to printersettings.
-            XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
-            if (pageSetup != null)
-            {
-                XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
-                if (attr != null)
+                int sheetID;
+                Uri uriWorksheet;
+                if (Copy is ExcelChartsheet)
                 {
-                    relID = attr.Value;
-                    // first delete the attribute from the XML
-                    pageSetup.Attributes.Remove(attr);
+                    throw (new ArgumentException("Can not copy a chartsheet"));
                 }
-            }
+                if (GetByName(Name) != null)
+                {
+                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                }
 
-            return added;
+                GetSheetURI(ref Name, out sheetID, out uriWorksheet, false);
+
+                //Create a copy of the worksheet XML
+                Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, WORKSHEET_CONTENTTYPE, _pck.Compression);
+                StreamWriter streamWorksheet = new StreamWriter(worksheetPart.GetStream(FileMode.Create, FileAccess.Write));
+                XmlDocument worksheetXml = new XmlDocument();
+                worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
+                worksheetXml.Save(streamWorksheet);
+                //streamWorksheet.Close();
+                _pck.Package.Flush();
+
+
+                //Create a relation to the workbook
+                string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet, false);
+                ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
+
+                //Copy comments
+                if (Copy.Comments.Count > 0)
+                {
+                    CopyComment(Copy, added);
+                }
+                else if (Copy.VmlDrawingsComments.Count > 0)    //Vml drawings are copied as part of the comments. 
+                {
+                    CopyVmlDrawing(Copy, added);
+                }
+
+                //Copy HeaderFooter
+                CopyHeaderFooterPictures(Copy, added);
+
+                //Copy all relationships 
+                //CopyRelationShips(Copy, added);
+                if (Copy.Drawings.Count > 0)
+                {
+                    CopyDrawing(Copy, added);
+                }
+                if (Copy.Tables.Count > 0)
+                {
+                    CopyTable(Copy, added);
+                }
+                if (Copy.PivotTables.Count > 0)
+                {
+                    CopyPivotTable(Copy, added);
+                }
+                if (Copy.Names.Count > 0)
+                {
+                    CopySheetNames(Copy, added);
+                }
+
+                //Copy all cells
+                CloneCells(Copy, added);
+
+                _worksheets.Add(_worksheets.Count + 1, added);
+
+                //Remove any relation to printersettings.
+                XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
+                if (pageSetup != null)
+                {
+                    XmlAttribute attr = (XmlAttribute)pageSetup.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships);
+                    if (attr != null)
+                    {
+                        relID = attr.Value;
+                        // first delete the attribute from the XML
+                        pageSetup.Attributes.Remove(attr);
+                    }
+                }
+                return added;
+            }
         }
         public ExcelChartsheet AddChart(string Name, eChartType chartType)
         {
@@ -1146,73 +1149,79 @@ namespace OfficeOpenXml
 
 		private void Move(int sourcePositionId, int targetPositionId, bool placeAfter)
 		{
-			var sourceSheet = this[sourcePositionId];
-			if (sourceSheet == null)
-			{
-				throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", sourcePositionId));
-			}
-			var targetSheet = this[targetPositionId];
-			if (targetSheet == null)
-			{
-				throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", targetPositionId));
-			}
-			if (_worksheets.Count < 2)
-			{
-				return;		//--- no reason to attempt to re-arrange a single item with itself
-			}
+            lock (_worksheets)
+            {
+                var sourceSheet = this[sourcePositionId];
+                if (sourceSheet == null)
+                {
+                    throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", sourcePositionId));
+                }
+                var targetSheet = this[targetPositionId];
+                if (targetSheet == null)
+                {
+                    throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", targetPositionId));
+                }
+                if (_worksheets.Count < 2)
+                {
+                    return;		//--- no reason to attempt to re-arrange a single item with itself
+                }
 
-			var index = 1;
-			var newOrder = new Dictionary<int, ExcelWorksheet>();
-			foreach (var entry in _worksheets)
-			{
-				if (entry.Key == targetPositionId)
-				{
-					if (!placeAfter)
-					{
-						sourceSheet.PositionID = index;
-						newOrder.Add(index++, sourceSheet);
-					}
+                var index = 1;
+                var newOrder = new Dictionary<int, ExcelWorksheet>();
+                foreach (var entry in _worksheets)
+                {
+                    if (entry.Key == targetPositionId)
+                    {
+                        if (!placeAfter)
+                        {
+                            sourceSheet.PositionID = index;
+                            newOrder.Add(index++, sourceSheet);
+                        }
 
-					entry.Value.PositionID = index;
-					newOrder.Add(index++, entry.Value);
+                        entry.Value.PositionID = index;
+                        newOrder.Add(index++, entry.Value);
 
-					if (placeAfter)
-					{
-						sourceSheet.PositionID = index;
-						newOrder.Add(index++, sourceSheet);
-					}
-				}
-				else if (entry.Key == sourcePositionId)
-				{
-					//--- do nothing
-				}
-				else
-				{
-					entry.Value.PositionID = index;
-					newOrder.Add(index++, entry.Value);
-				}
-			}
-			_worksheets = newOrder;
+                        if (placeAfter)
+                        {
+                            sourceSheet.PositionID = index;
+                            newOrder.Add(index++, sourceSheet);
+                        }
+                    }
+                    else if (entry.Key == sourcePositionId)
+                    {
+                        //--- do nothing
+                    }
+                    else
+                    {
+                        entry.Value.PositionID = index;
+                        newOrder.Add(index++, entry.Value);
+                    }
+                }
+                _worksheets = newOrder;
 
-			MoveSheetXmlNode(sourceSheet, targetSheet, placeAfter);
+                MoveSheetXmlNode(sourceSheet, targetSheet, placeAfter);
+            }
 		}
 
 		private void MoveSheetXmlNode(ExcelWorksheet sourceSheet, ExcelWorksheet targetSheet, bool placeAfter)
 		{
-			var sourceNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", sourceSheet.SheetID), _namespaceManager);
-            var targetNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", targetSheet.SheetID), _namespaceManager);
-			if (sourceNode == null || targetNode == null)
-			{
-				throw new Exception("Source SheetId and Target SheetId must be valid");
-			}
-			if (placeAfter)
-			{
-                TopNode.InsertAfter(sourceNode, targetNode);
-			}
-			else
-			{
-                TopNode.InsertBefore(sourceNode, targetNode);
-			}
+            lock (TopNode.OwnerDocument)
+            {
+                var sourceNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", sourceSheet.SheetID), _namespaceManager);
+                var targetNode = TopNode.SelectSingleNode(string.Format("d:sheet[@sheetId = '{0}']", targetSheet.SheetID), _namespaceManager);
+                if (sourceNode == null || targetNode == null)
+                {
+                    throw new Exception("Source SheetId and Target SheetId must be valid");
+                }
+                if (placeAfter)
+                {
+                    TopNode.InsertAfter(sourceNode, targetNode);
+                }
+                else
+                {
+                    TopNode.InsertBefore(sourceNode, targetNode);
+                }
+            }
 		}
 
 		#endregion

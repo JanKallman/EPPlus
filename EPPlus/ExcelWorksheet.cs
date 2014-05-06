@@ -55,6 +55,7 @@ using OfficeOpenXml.Utils;
 using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -1100,7 +1101,7 @@ namespace OfficeOpenXml
                         string aAddress = xr.GetAttribute("ref");
                         string formula = xr.ReadElementContentAsString();
                         var afIndex = GetMaxShareFunctionIndex(true);
-                        _formulas.SetValue(address._fromRow, address._fromCol, afIndex.ToString());
+                        _formulas.SetValue(address._fromRow, address._fromCol, afIndex);
                         _values.SetValue(address._fromRow, address._fromCol, null);
                         _sharedFormulas.Add(afIndex, new Formulas(SourceCodeTokenizer.Default) { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
                     }
@@ -1603,6 +1604,12 @@ namespace OfficeOpenXml
 		{
             CheckSheetType();
             var d = Dimension;
+
+            if (rowFrom < 1)
+            {
+                throw (new ArgumentOutOfRangeException("rowFrom can't be lesser that 1"));
+            }
+
             //Check that cells aren't shifted outside the boundries
             if (d != null && d.End.Row > rowFrom && d.End.Row + rows > ExcelPackage.MaxRows)
             {
@@ -1674,7 +1681,11 @@ namespace OfficeOpenXml
         {
             CheckSheetType();
             var d = Dimension;
-            
+
+            if (columnFrom < 1)
+            {
+                throw (new ArgumentOutOfRangeException("columnFrom can't be lesser that 1"));
+            }
             //Check that cells aren't shifted outside the boundries
             if (d != null && d.End.Column > columnFrom && d.End.Column + columns > ExcelPackage.MaxColumns)
             {
@@ -2463,11 +2474,11 @@ namespace OfficeOpenXml
                     }
                 }
         }
-        internal void SaveHandler(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName)
+        internal void SaveHandler(ZipOutputStream stream, CompressionLevel compressionLevel, string fileName)
         {
                     //Init Zip
                     stream.CodecBufferSize = 8096;
-                    stream.CompressionLevel = compressionLevel;
+                    stream.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)compressionLevel;
                     stream.PutNextEntry(fileName);
 
                     
@@ -2892,7 +2903,7 @@ namespace OfficeOpenXml
             //foreach(ExcelRow row in _rows)            
             while(cse.Next())
             {
-                var row=cse.Value as ExcelRow;
+                var row=cse.Value as RowInternal;
                 if (row != null && row.PageBreak)
                 {
                     breaks.AppendFormat("<brk id=\"{0}\" max=\"1048575\" man=\"1\" />", cse.Row);

@@ -184,5 +184,16 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\invvba.xlsm"));
             }
         }
+        //Issue with chunk overwriting 4096 bytes
+        [Ignore]
+        [TestMethod]
+        public void VbaBug()
+        {
+            using ( var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\outfile.xlsm")))
+            {
+                Console.WriteLine(package.Workbook.CodeModule.Code.Length);
+                package.SaveAs(new FileInfo(@"c:\temp\bug\outfile.xlsm"));
+            }   
+        }
     }
 }

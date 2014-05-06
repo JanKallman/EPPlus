@@ -35,6 +35,7 @@ using System.Text;
 using Ionic.Zip;
 using System.IO;
 using System.Security;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 
 namespace OfficeOpenXml.Packaging
 {

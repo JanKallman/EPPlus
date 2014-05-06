@@ -27,11 +27,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Ionic.Zlib;
 using System.IO;
 
 
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
     internal class WorkItem
     {

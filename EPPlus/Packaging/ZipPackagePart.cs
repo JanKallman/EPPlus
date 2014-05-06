@@ -32,15 +32,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ionic.Zip;
-using Ionic.Zlib;
 using System.IO;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 
 namespace OfficeOpenXml.Packaging
 {
     internal class ZipPackagePart : ZipPackageRelationshipBase, IDisposable
     {
-        internal delegate void SaveHandlerDelegate(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName);
+        internal delegate void SaveHandlerDelegate(ZipOutputStream stream, CompressionLevel compressionLevel, string fileName);
 
         internal ZipPackagePart(ZipPackage package, ZipEntry entry)
         {
@@ -143,13 +142,13 @@ namespace OfficeOpenXml.Packaging
                 {
                     return;
                 }
-                os.CompressionLevel = (Ionic.Zlib.CompressionLevel)CompressionLevel;
+                os.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)CompressionLevel;
                 os.PutNextEntry(Uri.OriginalString);
                 os.Write(b, 0, b.Length);
             }
             else
             {
-                SaveHandler(os, (Ionic.Zlib.CompressionLevel)CompressionLevel, Uri.OriginalString);
+                SaveHandler(os, (CompressionLevel)CompressionLevel, Uri.OriginalString);
             }
 
             if (_rels.Count > 0)

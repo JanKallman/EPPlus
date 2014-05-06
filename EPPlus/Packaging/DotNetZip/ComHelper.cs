@@ -26,7 +26,7 @@
 
 using Interop=System.Runtime.InteropServices;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     /// This class exposes a set of COM-accessible wrappers for static

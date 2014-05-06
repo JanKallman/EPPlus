@@ -62,7 +62,7 @@
 
 
 using System;
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
         
         sealed class InfTree

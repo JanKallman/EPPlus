@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using System.Security.Permissions;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     /// Collects general purpose utility methods.

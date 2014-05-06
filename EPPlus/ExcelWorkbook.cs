@@ -47,6 +47,7 @@ using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -799,7 +800,7 @@ namespace OfficeOpenXml
 			}
 		}
 
-        private void SaveSharedStringHandler(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName)
+        private void SaveSharedStringHandler(ZipOutputStream stream, CompressionLevel compressionLevel, string fileName)
 		{
             //Packaging.ZipPackagePart stringPart;
             //if (_package.Package.PartExists(SharedStringsUri))
@@ -814,7 +815,7 @@ namespace OfficeOpenXml
 
 			//StreamWriter sw = new StreamWriter(stringPart.GetStream(FileMode.Create, FileAccess.Write));
             //Init Zip
-            stream.CompressionLevel = compressionLevel;
+            stream.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)compressionLevel;
             stream.PutNextEntry(fileName);
 
             var cache = new StringBuilder();            
@@ -1147,9 +1148,12 @@ namespace OfficeOpenXml
             _sharedStrings = null;
             _sharedStringsList = null;
             _vba = null;
-            _worksheets.Dispose();
+            if (_worksheets != null)
+            {
+                _worksheets.Dispose();
+                _worksheets = null;
+            }
             _package = null;
-            _worksheets = null;
             _properties = null;
             _formulaParser = null;
         }
