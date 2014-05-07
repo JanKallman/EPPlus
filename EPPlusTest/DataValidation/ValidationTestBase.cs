@@ -61,6 +61,19 @@ namespace EPPlusTest.DataValidation
             _dataValidationNode = xmlDoc.DocumentElement;
         }
 
+        protected void LoadXmlTestData(string address, string validationType, string operatorName, string formula1Value)
+        {
+            var xmlDoc = new XmlDocument();
+            _namespaceManager = new XmlNamespaceManager(xmlDoc.NameTable);
+            _namespaceManager.AddNamespace("d", "urn:a");
+            var sb = new StringBuilder();
+            sb.AppendFormat("<dataValidation xmlns:d=\"urn:a\" type=\"{0}\" sqref=\"{1}\" operator=\"{2}\">", validationType, address, operatorName);
+            sb.AppendFormat("<d:formula1>{0}</d:formula1>", formula1Value);
+            sb.Append("</dataValidation>");
+            xmlDoc.LoadXml(sb.ToString());
+            _dataValidationNode = xmlDoc.DocumentElement;
+        }
+
         protected void LoadXmlTestData(string address, string validationType, string formula1Value, bool showErrorMsg, bool showInputMsg)
         {
             var xmlDoc = new XmlDocument();
