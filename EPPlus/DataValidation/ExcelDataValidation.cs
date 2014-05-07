@@ -106,10 +106,6 @@ namespace OfficeOpenXml.DataValidation
             TopNode = itemElementNode;
             ValidationType = validationType;
             Address = new ExcelAddress(address);
-            if (validationType.AllowOperator)
-            {
-                Operator = ExcelDataValidationOperator.any;
-            }
             Init();
         }
 
