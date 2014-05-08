@@ -729,7 +729,10 @@ namespace OfficeOpenXml
                 }
                 _package.Close();
                 ((IDisposable)_stream).Dispose();
-                ((IDisposable)_workbook).Dispose();
+                if(_workbook != null)
+                {
+                    _workbook.Dispose();
+                }
                 _package = null;
                 _images = null;
                 _file = null;
