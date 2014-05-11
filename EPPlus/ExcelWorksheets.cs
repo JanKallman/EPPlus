@@ -1149,6 +1149,10 @@ namespace OfficeOpenXml
 
 		private void Move(int sourcePositionId, int targetPositionId, bool placeAfter)
 		{
+            // Bugfix: if source and target are the same worksheet the following code will create a duplicate
+            //         which will cause a corrupt workbook. /swmal 2014-05-10
+		    if (sourcePositionId == targetPositionId) return;
+
             lock (_worksheets)
             {
                 var sourceSheet = this[sourcePositionId];
