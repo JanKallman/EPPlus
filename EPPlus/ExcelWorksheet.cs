@@ -3664,19 +3664,26 @@ namespace OfficeOpenXml
             }
         }
 
+        private void DisposeInternal(IDisposable candidateDisposable)
+        {
+            if (candidateDisposable != null)
+            {
+                candidateDisposable.Dispose();
+            }
+        }
 
 
         public void Dispose()
         {
-            _values.Dispose();
-            _formulas.Dispose();
-            _flags.Dispose();
-            _hyperLinks.Dispose();
-            _styles.Dispose();
-            _types.Dispose();
-            _commentsStore.Dispose();
+            DisposeInternal(_values);
+            DisposeInternal(_formulas);
+            DisposeInternal(_flags);
+            DisposeInternal(_hyperLinks);
+            DisposeInternal(_styles);
+            DisposeInternal(_types);
+            DisposeInternal(_commentsStore);
+            DisposeInternal(_formulaTokens);
 
-            if (_formulaTokens != null) _formulaTokens.Dispose();
             _values = null;
             _formulas = null;
             _flags = null;
@@ -3689,7 +3696,7 @@ namespace OfficeOpenXml
             _package = null;
             _pivotTables = null;
             _protection = null;
-            _sharedFormulas.Clear();
+            if(_sharedFormulas != null) _sharedFormulas.Clear();
             _sharedFormulas = null;
             _sheetView = null;
             _tables = null;
