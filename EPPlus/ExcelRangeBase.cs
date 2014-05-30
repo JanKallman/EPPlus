@@ -2081,73 +2081,100 @@ namespace OfficeOpenXml
 			int col = _fromCol;
 			int maxCol = col;
 			int lineNo = 1;
-			foreach (string line in lines)
+
+            col = _fromCol;
+            string v = "";
+            bool isText = false, isQualifier = false;
+            int QCount = 0;
+		    bool csvLineContinues = false;
+		    int lineQCount = 0;
+            foreach (string line in lines)
 			{
-				if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
-				{
-					col = _fromCol;
-					string v = "";
-					bool isText = false, isQualifier = false;
-					int QCount = 0;
-					foreach (char c in line)
-					{
-						if (Format.TextQualifier != 0 && c == Format.TextQualifier)
-						{
-							if (!isText && v != "")
-							{
-								throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
-							}
-							isQualifier = !isQualifier;
-							QCount += 1;
-							isText = true;
-						}
-						else
-						{
-                            if (QCount > 1 && !string.IsNullOrEmpty(v))
-							{
-								v += new string(Format.TextQualifier, QCount / 2);
-							}
-                            else if(QCount>2 && string.IsNullOrEmpty(v))
-                            {
-                                v += new string(Format.TextQualifier, (QCount-1) / 2);
-                            }
+			    foreach (char c in line)
+			    {
+			        if (Format.TextQualifier != 0 && c == Format.TextQualifier)
+			        {
+			            if (!isText && v != "")
+			            {
+			                throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
+			            }
+			            isQualifier = !isQualifier;
+			            QCount += 1;
+			            lineQCount++;
+			            isText = true;
+			        }
+			        else
+			        {
+			            if (QCount > 1 && !string.IsNullOrEmpty(v))
+			            {
+			                v += new string(Format.TextQualifier, QCount/2);
+			            }
+			            else if (QCount > 2 && string.IsNullOrEmpty(v))
+			            {
+			                v += new string(Format.TextQualifier, (QCount - 1)/2);
+			            }
 
-							if (isQualifier)
-							{
-								v += c;
-							}
-							else
-							{
-								if (c == Format.Delimiter)
-								{
-										_worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-									v = "";
-									isText = false;
-									col++;
-								}
-								else
-								{
-									if (QCount % 2 == 1)
-									{
-										throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
-									}
-									v += c;
-								}
-							}
-							QCount = 0;
-						}
-					}
-					if (QCount > 1)
-					{
-						v += new string(Format.TextQualifier, QCount / 2);
-					}
+			            if (isQualifier)
+			            {
+			                v += c;
+			            }
+			            else
+			            {
+			                if (c == Format.Delimiter)
+			                {
+			                    if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)//moved to actual write as the number of line can't be found without processing the actual text
+			                    {
+			                        _worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+			                    }
+			                    v = "";
+			                    isText = false;
+			                    col++;
+			                }
+			                else
+			                {
+			                    if (QCount%2 == 1)
+			                    {
+			                        throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
+			                    }
+                                
+			                    v += c;
+			                }
+			            }
+			            QCount = 0;
+			        }
+			    }
+			    if (QCount > 1)
+			    {
+			        v += new string(Format.TextQualifier, QCount/2);
+			    }
+			    if (lineQCount%2 == 1)//in case QCount is odd - line continues, so we skip the reset of variables, and move on to the next line
+			    {
+			        v += Format.EOL;
+			        csvLineContinues = true;
+			        continue;
+			    }
 
-						_worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-					if (col > maxCol) maxCol = col;
+			    if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)//moved to actual write as the number of line can't be found without processing the actual text
+			    {
+			        _worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+			    }
+			    if (col > maxCol) maxCol = col;
 					row++;
-				}
+				
 				lineNo++;
+                //reset moved here so we can skip if a csv line continues to another line
+                col = _fromCol;
+                v = "";
+                isText = false;
+                isQualifier = false;
+                QCount = 0;
+                csvLineContinues = false;
+			    lineQCount = 0;
 			}
+            if (csvLineContinues)//Validation for case when line continues, but file ends
+            {
+                throw (new Exception(string.Format("Line ended unexpectedly : {0}", lines[lines.Count()-2])));
+            }
 			return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
 		}
 		/// <summary>

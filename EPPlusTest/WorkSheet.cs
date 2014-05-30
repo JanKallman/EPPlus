@@ -1140,6 +1140,34 @@ namespace EPPlusTest
 
             ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
         }
+
+        [TestMethod]
+        public void LoadText_Bug15015()
+        {
+            var package = new ExcelPackage();
+            var ws=package.Workbook.Worksheets.Add("Loaded Text");
+            ws.Cells["A1"].LoadFromText("\"text with eol,\r\n in a cell\",\"other value\"", new ExcelTextFormat{TextQualifier = '"', EOL = ",\r\n", Delimiter = ','});
+        }
+
+        [TestMethod]
+        public void LoadText_Bug15015_Negative()
+        {
+            var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("Loaded Text");
+            bool exceptionThrown=false;
+            try
+            {
+                ws.Cells["A1"].LoadFromText("\"text with eol,\r\n",
+                                            new ExcelTextFormat {TextQualifier = '"', EOL = ",\r\n", Delimiter = ','});
+            }
+            catch (Exception e)
+            {
+                Assert.AreEqual("Line ended unexpectedly : \"text with eol",e.Message,"Exception message");
+                exceptionThrown = true;
+            }
+            Assert.IsTrue(exceptionThrown,"Exception thrown");
+        }
+
         [Ignore]
         [TestMethod]
         public void LoadText()
