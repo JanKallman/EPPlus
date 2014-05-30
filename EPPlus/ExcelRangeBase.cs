@@ -2065,118 +2065,96 @@ namespace OfficeOpenXml
 		/// <param name="Text">The Text</param>
 		/// <param name="Format">Information how to load the text</param>
 		/// <returns>The range containing the data</returns>
-		public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
-		{
+        public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
+        {
             if (string.IsNullOrEmpty(Text))
             {
                 var r = _worksheet.Cells[_fromRow, _fromCol];
                 r.Value = "";
                 return r;
             }
-            
+
             if (Format == null) Format = new ExcelTextFormat();
 
-            string[] lines = Regex.Split(Text, Format.EOL);
-			int row = _fromRow;
-			int col = _fromCol;
-			int maxCol = col;
-			int lineNo = 1;
-
-            col = _fromCol;
-            string v = "";
-            bool isText = false, isQualifier = false;
-            int QCount = 0;
-		    bool csvLineContinues = false;
-		    int lineQCount = 0;
+            string splitRegex = String.Format("{0}(?=(?:[^{1}]*{1}[^{1}]*{1})*[^{1}]*$)", Format.EOL, Format.TextQualifier);
+            string[] lines = Regex.Split(Text, splitRegex);
+            int row = _fromRow;
+            int col = _fromCol;
+            int maxCol = col;
+            int lineNo = 1;
             foreach (string line in lines)
-			{
-			    foreach (char c in line)
-			    {
-			        if (Format.TextQualifier != 0 && c == Format.TextQualifier)
-			        {
-			            if (!isText && v != "")
-			            {
-			                throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
-			            }
-			            isQualifier = !isQualifier;
-			            QCount += 1;
-			            lineQCount++;
-			            isText = true;
-			        }
-			        else
-			        {
-			            if (QCount > 1 && !string.IsNullOrEmpty(v))
-			            {
-			                v += new string(Format.TextQualifier, QCount/2);
-			            }
-			            else if (QCount > 2 && string.IsNullOrEmpty(v))
-			            {
-			                v += new string(Format.TextQualifier, (QCount - 1)/2);
-			            }
-
-			            if (isQualifier)
-			            {
-			                v += c;
-			            }
-			            else
-			            {
-			                if (c == Format.Delimiter)
-			                {
-			                    if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)//moved to actual write as the number of line can't be found without processing the actual text
-			                    {
-			                        _worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-			                    }
-			                    v = "";
-			                    isText = false;
-			                    col++;
-			                }
-			                else
-			                {
-			                    if (QCount%2 == 1)
-			                    {
-			                        throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
-			                    }
-                                
-			                    v += c;
-			                }
-			            }
-			            QCount = 0;
-			        }
-			    }
-			    if (QCount > 1)
-			    {
-			        v += new string(Format.TextQualifier, QCount/2);
-			    }
-			    if (lineQCount%2 == 1)//in case QCount is odd - line continues, so we skip the reset of variables, and move on to the next line
-			    {
-			        v += Format.EOL;
-			        csvLineContinues = true;
-			        continue;
-			    }
-
-			    if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)//moved to actual write as the number of line can't be found without processing the actual text
-			    {
-			        _worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
-			    }
-			    if (col > maxCol) maxCol = col;
-					row++;
-				
-				lineNo++;
-                //reset moved here so we can skip if a csv line continues to another line
-                col = _fromCol;
-                v = "";
-                isText = false;
-                isQualifier = false;
-                QCount = 0;
-                csvLineContinues = false;
-			    lineQCount = 0;
-			}
-            if (csvLineContinues)//Validation for case when line continues, but file ends
             {
-                throw (new Exception(string.Format("Line ended unexpectedly : {0}", lines[lines.Count()-2])));
+                if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
+                {
+                    col = _fromCol;
+                    string v = "";
+                    bool isText = false, isQualifier = false;
+                    int QCount = 0;
+                    int lineQCount = 0;
+                    foreach (char c in line)
+                    {
+                        if (Format.TextQualifier != 0 && c == Format.TextQualifier)
+                        {
+                            if (!isText && v != "")
+                            {
+                                throw (new Exception(string.Format("Invalid Text Qualifier in line : {0}", line)));
+                            }
+                            isQualifier = !isQualifier;
+                            QCount += 1;
+                            lineQCount++;
+                            isText = true;
+                        }
+                        else
+                        {
+                            if (QCount > 1 && !string.IsNullOrEmpty(v))
+                            {
+                                v += new string(Format.TextQualifier, QCount / 2);
+                            }
+                            else if (QCount > 2 && string.IsNullOrEmpty(v))
+                            {
+                                v += new string(Format.TextQualifier, (QCount - 1) / 2);
+                            }
+
+                            if (isQualifier)
+                            {
+                                v += c;
+                            }
+                            else
+                            {
+                                if (c == Format.Delimiter)
+                                {
+                                    _worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                                    v = "";
+                                    isText = false;
+                                    col++;
+                                }
+                                else
+                                {
+                                    if (QCount % 2 == 1)
+                                    {
+                                        throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
+                                    }
+                                    v += c;
+                                }
+                            }
+                            QCount = 0;
+                        }
+                    }
+                    if (QCount > 1)
+                    {
+                        v += new string(Format.TextQualifier, QCount / 2);
+                    }
+                    if (lineQCount % 2 == 1)
+                        throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
+
+                    _worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                    if (col > maxCol) maxCol = col;
+                    row++;
+                }
+                lineNo++;
             }
-			return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
-		}
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
+        }
 		/// <summary>
 		/// Loads a CSV text into a range starting from the top left cell.
 		/// </summary>
