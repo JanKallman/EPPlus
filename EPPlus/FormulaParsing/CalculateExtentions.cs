@@ -48,6 +48,7 @@ namespace OfficeOpenXml
             Init(workbook);
 
             var dc = DependencyChainFactory.Create(workbook, options);
+            workbook._formulaParser = null;
             var parser = workbook.FormulaParser;
 
             //TODO: Remove when tests are done. Outputs the dc to a text file. 
@@ -79,6 +80,7 @@ namespace OfficeOpenXml
         public static void Calculate(this ExcelWorksheet worksheet, ExcelCalculationOption options)
         {
             Init(worksheet.Workbook);
+            worksheet.Workbook._formulaParser = null;
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet, options);
             CalcChain(worksheet.Workbook, parser, dc);

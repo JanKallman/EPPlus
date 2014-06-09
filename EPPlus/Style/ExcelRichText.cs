@@ -82,7 +82,6 @@ namespace OfficeOpenXml.Style
                 if (_callback != null) _callback();
             }
         }
-        bool _preserveSpace=false;
         /// <summary>
         /// Preserves whitespace. Default true
         /// </summary>
@@ -95,7 +94,7 @@ namespace OfficeOpenXml.Style
                 {
                     return elem.GetAttribute("xml:space")=="preserve";
                 }
-                return _preserveSpace;
+                return false;
             }
             set
             {
@@ -111,7 +110,7 @@ namespace OfficeOpenXml.Style
                         elem.RemoveAttribute("xml:space");
                     }
                 }
-                _preserveSpace = false;
+                if (_callback != null) _callback();
             }
         }
         const string BOLD_PATH = "d:rPr/d:b";
@@ -243,6 +242,7 @@ namespace OfficeOpenXml.Style
 				} else {
 					SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
 				}
+                if (_callback != null) _callback();
             }
         }
         const string SIZE_PATH = "d:rPr/d:sz/@val";

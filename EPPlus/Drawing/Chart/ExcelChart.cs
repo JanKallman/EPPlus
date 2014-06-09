@@ -1381,14 +1381,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                if (value == eDisplayBlanksAs.Gap)
-                {
-                    _chartSeries.DeleteNode(_displayBlanksAsPath);
-                }
-                else
-                {
-                    _chartSeries.SetXmlNodeString(_displayBlanksAsPath, value.ToString().ToLower());
-                }
+                _chartSeries.SetXmlNodeString(_displayBlanksAsPath, value.ToString().ToLower());
             }
         }
         const string _showDLblsOverMax = "../../c:showDLblsOverMax/@val";

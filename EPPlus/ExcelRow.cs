@@ -44,6 +44,7 @@ namespace OfficeOpenXml
         internal bool PageBreak;
         internal bool Phonetic;
         internal bool CustomHeight;
+        internal int MergeID;
         internal RowInternal Clone()
         {
             return new RowInternal()
@@ -54,7 +55,8 @@ namespace OfficeOpenXml
                 OutlineLevel=OutlineLevel,
                 PageBreak=PageBreak,
                 Phonetic=Phonetic,
-                CustomHeight=CustomHeight
+                CustomHeight=CustomHeight,
+                MergeID=MergeID
             };
         }
     }
@@ -340,12 +342,23 @@ namespace OfficeOpenXml
                 r.PageBreak = value;
             }
         }
+        public bool Merged
+        {
+            get
+            {
+                return _worksheet.MergedCells[Row, 0] != null;
+            }
+            set
+            {
+                _worksheet.MergedCells.Add(new ExcelAddressBase(Row, 1, Row, ExcelPackage.MaxColumns), true);
+            }
+        }
         internal static ulong GetRowID(int sheetID, int row)
         {
             return ((ulong)sheetID) + (((ulong)row) << 29);
 
         }
-
+        
         #region IRangeID Members
 
         ulong IRangeID.RangeID

@@ -98,14 +98,14 @@ namespace EPPlusSamples
                 worksheet.Cells[5, 3, 5, 5].Formula = string.Format("SUBTOTAL(9,{0})", new ExcelAddress(2,3,4,3).Address);
                 worksheet.Cells["C2:C5"].Style.Numberformat.Format = "#,##0";
                 worksheet.Cells["D2:E5"].Style.Numberformat.Format = "#,##0.00";
-
+                
                 //Create an autofilter for the range
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
 
                 //There is actually no need to calculate, Excel will do it for you, but in some cases it might be useful. 
-                //For example if you link to the this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
+                //For example if you link to this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
                 //you want to use the result of a formula in your program.
                 worksheet.Calculate(); 
 
