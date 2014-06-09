@@ -168,6 +168,23 @@ namespace EPPlusTest
             Assert.AreEqual(150d, ws.Cells["A1"].Value);
         }
         [TestMethod]
+        public void TestDataType()
+        {
+            var pck = new ExcelPackage(new FileInfo(@"c:\temp\EPPlusTestark\calc_amount.xlsx"));
+            var ws = pck.Workbook.Worksheets[1];
+            //ws.Names.Add("Name1",ws.Cells["A1"]);
+            //ws.Names.Add("Name2", ws.Cells["A2"]);
+            ws.Names["PRICE"].Value = 30;
+            ws.Names["QUANTITY"].Value = 10;
+
+            ws.Calculate();
+
+            ws.Names["PRICE"].Value = 40;
+            ws.Names["QUANTITY"].Value = 20;
+
+            ws.Calculate();
+        }
+        [TestMethod]
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();

@@ -53,7 +53,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// Returns the names of all worksheet names
         /// </summary>
         /// <returns></returns>
-        public abstract ExcelNamedRangeCollection GetWorksheetNames();
+        public abstract ExcelNamedRangeCollection GetWorksheetNames(string worksheet);
         /// <summary>
         /// Returns all defined names in a workbook
         /// </summary>

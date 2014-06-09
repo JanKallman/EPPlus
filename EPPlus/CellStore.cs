@@ -1655,11 +1655,12 @@ using OfficeOpenXml;
                 c=~c;
                 if (c == 0)
                 {
-                    if (col >= maxColPos)
+                    if (col >= maxColPos || row<=0)
                     {
                         return false;
                     }
                     col = maxColPos;
+                    row--;
                     return PrevCell(ref row, ref col, minRow, minColPos, maxRow, maxColPos);
                 }
                 else
