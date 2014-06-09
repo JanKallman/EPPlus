@@ -48,7 +48,7 @@ namespace OfficeOpenXml
             Init(workbook);
 
             var dc = DependencyChainFactory.Create(workbook, options);
-            worksheet.Workbook._formulaParser = null;
+            workbook._formulaParser = null;
             var parser = workbook.FormulaParser;
 
             //TODO: Remove when tests are done. Outputs the dc to a text file. 
