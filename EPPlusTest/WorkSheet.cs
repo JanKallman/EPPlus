@@ -1196,6 +1196,8 @@ namespace EPPlusTest
             ws.Cells["C1:C4,C8:C12"].Merge=true;
             ws.Cells["D13:E18,G5,U32:U45"].Merge = true;
             ws.Cells["D13:E18,G5,U32:U45"].Style.WrapText = true;
+            //ws.Cells["50:52"].Merge = true;
+            ws.Cells["AA:AC"].Merge = true;
             ws.SetValue(13, 4, "Merged\r\nnew row");
         }
         [Ignore]
@@ -1806,6 +1808,27 @@ namespace EPPlusTest
                 }
             }
             ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
+        }
+        [TestMethod]
+        public void RunSample0()
+        {
+            FileInfo newFile = new FileInfo( @"c:\temp\bug\sample0.xlsx" );
+            using ( ExcelPackage package = new ExcelPackage( newFile ) )
+            {
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
+                worksheet.InsertColumn( 1, 1 );
+
+                ExcelColumn entireColumn = worksheet.Column( 1 );
+
+                var last = worksheet.Column(6);
+                last.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                last.Style.Fill.BackgroundColor.SetColor(Color.Blue);
+                last.ColumnMax = 7;
+                worksheet.InsertColumn(7, 1);
+
+                //save our new workbook and we are done!
+                package.Save();
+            }
         }
         #region Date1904 Test Cases
         [TestMethod]

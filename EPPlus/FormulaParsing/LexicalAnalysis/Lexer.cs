@@ -56,7 +56,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public IEnumerable<Token> Tokenize(string input)
         {
-            var tokens = _tokenizer.Tokenize(input);
+            return Tokenize(input, null);
+        }
+        public IEnumerable<Token> Tokenize(string input, string worksheet)
+        {
+            var tokens = _tokenizer.Tokenize(input, worksheet);
             _analyzer.Analyze(tokens);
             return tokens;
         }

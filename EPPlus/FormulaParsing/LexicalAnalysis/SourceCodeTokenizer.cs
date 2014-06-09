@@ -59,6 +59,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public IEnumerable<Token> Tokenize(string input)
         {
+            return Tokenize(input, null);
+        }
+        public IEnumerable<Token> Tokenize(string input, string worksheet)
+        {
             if (string.IsNullOrEmpty(input))
             {
                 return Enumerable.Empty<Token>();
@@ -131,7 +135,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     if (context.CurrentTokenHasValue)
                     {
-                        context.AddToken(CreateToken(context));
+                        context.AddToken(CreateToken(context, worksheet));
                         //If the a next token is an opening parantheses and the previous token is interpeted as an address or name, then the currenct token is a function
                         if(tokenSeparator.TokenType==TokenType.OpeningParenthesis && (context.LastToken.TokenType==TokenType.ExcelAddress || context.LastToken.TokenType==TokenType.NameValue)) 
                         {
@@ -154,7 +158,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             if (context.CurrentTokenHasValue)
             {
-                context.AddToken(CreateToken(context));
+                context.AddToken(CreateToken(context, worksheet));
             }
 
             CleanupTokens(context);
@@ -285,7 +289,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 && !context.CurrentTokenHasValue;
         }
 
-        private Token CreateToken(TokenizerContext context)
+        private Token CreateToken(TokenizerContext context, string worksheet)
         {
             if (context.CurrentToken == "-")
             {
@@ -294,7 +298,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     return new Token("-", TokenType.Negator);
                 }
             }
-            return _tokenFactory.Create(context.Result, context.CurrentToken);
+            return _tokenFactory.Create(context.Result, context.CurrentToken, worksheet);
         }
 
         private bool CharIsTokenSeparator(char c, out Token token)

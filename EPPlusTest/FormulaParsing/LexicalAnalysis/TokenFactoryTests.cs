@@ -160,7 +160,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         public void CreateShouldCreateNamedValueAsExcelAddressToken()
         {
             var input = "NamedValue";
-            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue")).Return(true);
+            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue","")).Return(true);
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
             Assert.AreEqual(TokenType.NameValue, token.TokenType);
             Assert.AreEqual("NamedValue", token.Value);

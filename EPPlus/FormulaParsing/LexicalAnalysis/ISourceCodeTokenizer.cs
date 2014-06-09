@@ -37,6 +37,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public interface ISourceCodeTokenizer
     {
-        IEnumerable<Token> Tokenize(string input);
+        IEnumerable<Token> Tokenize(string input, string worksheet);
     }
 }

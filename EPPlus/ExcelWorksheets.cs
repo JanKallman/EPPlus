@@ -1161,7 +1161,7 @@ namespace OfficeOpenXml
                 {
                     throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", targetPositionId));
                 }
-                if (_worksheets.Count < 2)
+                if (sourcePositionId == targetPositionId && _worksheets.Count < 2)
                 {
                     return;		//--- no reason to attempt to re-arrange a single item with itself
                 }

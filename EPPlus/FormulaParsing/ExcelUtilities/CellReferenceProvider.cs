@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         public virtual IEnumerable<string> GetReferencedAddresses(string cellFormula, ParsingContext context)
         {
             var resultCells = new List<string>();
-            var r = context.Configuration.Lexer.Tokenize(cellFormula);
+            var r = context.Configuration.Lexer.Tokenize(cellFormula, context.Scopes.Current.Address.Worksheet);
             var toAddresses = r.Where(x => x.TokenType == TokenType.ExcelAddress);
             foreach (var toAddress in toAddresses)
             {
