@@ -60,8 +60,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         private readonly ITokenSeparatorProvider _tokenSeparatorProvider;
         private readonly IFunctionNameProvider _functionNameProvider;
         private readonly INameValueProvider _nameValueProvider;
-
         public Token Create(IEnumerable<Token> tokens, string token)
+        {
+            return Create(tokens, token, null);
+        }
+        public Token Create(IEnumerable<Token> tokens, string token, string worksheet)
         {
             Token tokenSeparator = null;
             if (_tokenSeparatorProvider.Tokens.TryGetValue(token, out tokenSeparator))
@@ -134,7 +137,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Null);
             }
-            if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token))
+            if (_nameValueProvider != null && _nameValueProvider.IsNamedValue(token, worksheet))
             {
                 return new Token(token, TokenType.NameValue);
             }

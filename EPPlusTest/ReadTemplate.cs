@@ -10,6 +10,7 @@ using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
 using System.Threading;
+using System.Drawing;
 namespace EPPlusTest
 {
     [TestClass]
@@ -246,10 +247,10 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug12()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\students.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\baseball1.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
-            ws.Column(0).Style.Font.Bold = true;
+            //ws.Column(0).Style.Font.Bold = true;
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
         [Ignore]
@@ -358,5 +359,56 @@ namespace EPPlusTest
                 ep.SaveAs(fs);
             }            
         }
+        [TestMethod]
+        public void StreamTest()
+        {
+            using (var templateStream = File.OpenRead(@"c:\temp\thread.xlsx"))
+            {
+
+                using (var outStream = File.Open(@"c:\temp\streamOut.xlsx", FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+                {
+                    using (var package = new ExcelPackage(outStream, templateStream))
+                    {
+                        package.Workbook.Worksheets[1].Cells["A1"].Value = 1;
+                        // Create more content
+                        package.Save();
+                    }
+                }
+            }
+        }
+        [TestMethod]
+        public void test()
+        { 
+            CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
+            CreateXlsxSheet(@"C:\temp\bug\test25.xlsx", 25, 25); 
+        }
+        private static void CreateXlsxSheet(string pFileName,int pRows,int pColumns) 
+        {
+            if(File.Exists(pFileName)) File.Delete(pFileName);
+
+            using(ExcelPackage excelPackage = new ExcelPackage(new FileInfo(pFileName))) {
+                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("Testsheet");
+
+                // Fill with data
+                for (int row = 1; row <= pRows; row++) {
+                    for (int column = 1; column <= pColumns; column++) {
+                        if (column > 1 && row > 2) {
+                            using (ExcelRange range = excelWorksheet.Cells[row, column]) {
+                                range.Style.Numberformat.Format = "0";
+                                range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                                range.Style.VerticalAlignment = ExcelVerticalAlignment.Center; }
+                            excelWorksheet.Cells[row, column].Value = row*column; } } }
+                
+                // Try to style the first column, begining with row 3 which has no content yet...
+                using (ExcelRange range = excelWorksheet.Cells[ExcelCellBase.GetAddress(3, 1, pRows, 1)]) {
+                    ExcelStyle style = range.Style;
+                    style.Fill.PatternType = ExcelFillStyle.Solid;
+                    style.Fill.BackgroundColor.SetColor(Color.Red);
+                }
+
+                // now I would add data to the first column (left out here)...
+                excelPackage.Save(); 
+            } 
+        }    
     }
 }

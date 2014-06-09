@@ -80,13 +80,14 @@ namespace OfficeOpenXml
             internal int? StyleID { get; set; }
             internal Uri HyperLink { get; set; }
             internal ExcelComment Comment { get; set; }
-        }
-        private class CopiedFlag
-        {
-            internal int Row { get; set; }
-            internal int Column { get; set; }
             internal Byte Flag { get; set; }
         }
+        //private class CopiedFlag
+        //{
+        //    internal int Row { get; set; }
+        //    internal int Column { get; set; }
+        //    internal Byte Flag { get; set; }
+        //}
         #region Constructors
 		internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
 		{
@@ -1137,10 +1138,14 @@ namespace OfficeOpenXml
 				{
 					for (int row = _fromRow; row <= _toRow; row++)
 					{
-						if (!_worksheet._flags.GetFlagValue(row, col, CellFlags.Merged))
-						{
-							return false;
-						}
+                        if(_worksheet.MergedCells[row, col]==null)
+                        {
+                            return false;
+                        }
+                        //if (!_worksheet._flags.GetFlagValue(row, col, CellFlags.Merged))
+                        //{
+                        //    return false;
+                        //}
 					}
 				}
 				return true;
@@ -1148,47 +1153,49 @@ namespace OfficeOpenXml
 			set
 			{
 				IsRangeValid("merging");
-				SetMerge(value, FirstAddress);
+				//SetMerge(value, FirstAddress);
+                _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
 				if (Addresses != null)
 				{
 					foreach (var address in Addresses)
 					{
-						SetMerge(value, address._address);
+                        _worksheet.MergedCells.Add(address, true);
+						//SetMerge(value, address._address);
 					}
 				}
 			}
 		}
 
-		private void SetMerge(bool value, string address)
-		{
-			if (!value)
-			{
-				if (_worksheet.MergedCells.List.Contains(address))
-				{
-					SetCellMerge(false, address);
-					_worksheet.MergedCells.List.Remove(address);
-				}
-				else if (!CheckMergeDiff(false, address))
-				{
-					throw (new Exception("Range is not fully merged.Specify the exact range"));
-				}
-			}
-			else
-			{
-				if (CheckMergeDiff(false, address))
-				{
-					SetCellMerge(true, address);
-					_worksheet.MergedCells.List.Add(address);
-				}
-				else
-				{
-					if (!_worksheet.MergedCells.List.Contains(address))
-					{
-						throw (new Exception("Cells are already merged"));
-					}
-				}
-			}
-		}
+        //private void SetMerge(bool value, string address)
+        //{
+        //    if (!value)
+        //    {
+        //        if (_worksheet.MergedCells.List.Contains(address))
+        //        {
+        //            SetCellMerge(false, address);
+        //            _worksheet.MergedCells.List.Remove(address);
+        //        }
+        //        else if (!CheckMergeDiff(false, address))
+        //        {
+        //            throw (new Exception("Range is not fully merged.Specify the exact range"));
+        //        }
+        //    }
+        //    else
+        //    {
+        //        if (CheckMergeDiff(false, address))
+        //        {
+        //            SetCellMerge(true, address);
+        //            _worksheet.MergedCells.List.Add(address);
+        //        }
+        //        else
+        //        {
+        //            if (!_worksheet.MergedCells.List.Contains(address))
+        //            {
+        //                throw (new Exception("Cells are already merged"));
+        //            }
+        //        }
+        //    }
+        //}
 		/// <summary>
 		/// Set an autofilter for the range
 		/// </summary>
@@ -1269,7 +1276,6 @@ namespace OfficeOpenXml
 		private ExcelRichTextCollection GetRichText(int row, int col)
 		{
 			XmlDocument xml = new XmlDocument();
-			//var cell = _worksheet.Cell(row, col);
             var v = _worksheet._values.GetValue(row, col);
             var isRt = _worksheet._flags.GetFlagValue(row, col, CellFlags.RichText);
             if (v != null)
@@ -1394,43 +1400,43 @@ namespace OfficeOpenXml
         }
 		#endregion
 		#region Private Methods
-		/// <summary>
-		/// Check if the range is partly merged
-		/// </summary>
-		/// <param name="startValue">the starting value</param>
-		/// <param name="address">the address</param>
-		/// <returns></returns>
-		private bool CheckMergeDiff(bool startValue, string address)
-		{
-			ExcelAddress a = new ExcelAddress(address);
-			for (int col = a._fromCol; col <= a._toCol; col++)
-			{
-				for (int row = a._fromRow; row <= a._toRow; row++)
-				{
-					if (_worksheet._flags.GetFlagValue(row, col, CellFlags.Merged) != startValue)
-					{
-						return false;
-					}
-				}
-			}
-			return true;
-		}
-		/// <summary>
-		/// Set the merge flag for the range
-		/// </summary>
-		/// <param name="value"></param>
-		/// <param name="address"></param>
-		internal void SetCellMerge(bool value, string address)
-		{
-			ExcelAddress a = new ExcelAddress(address);
-			for (int col = a._fromCol; col <= a._toCol; col++)
-			{
-				for (int row = a._fromRow; row <= a._toRow; row++)
-				{
-					_worksheet._flags.SetFlagValue(row, col,value,CellFlags.Merged);
-				}
-			}
-		}
+        ///// <summary>
+        ///// Check if the range is partly merged
+        ///// </summary>
+        ///// <param name="startValue">the starting value</param>
+        ///// <param name="address">the address</param>
+        ///// <returns></returns>
+        //private bool CheckMergeDiff(bool startValue, string address)
+        //{
+        //    ExcelAddress a = new ExcelAddress(address);
+        //    for (int col = a._fromCol; col <= a._toCol; col++)
+        //    {
+        //        for (int row = a._fromRow; row <= a._toRow; row++)
+        //        {
+        //            if (_worksheet._flags.GetFlagValue(row, col, CellFlags.Merged) != startValue)
+        //            {
+        //                return false;
+        //            }
+        //        }
+        //    }
+        //    return true;
+        //}
+        ///// <summary>
+        ///// Set the merge flag for the range
+        ///// </summary>
+        ///// <param name="value"></param>
+        ///// <param name="address"></param>
+        //internal void SetCellMerge(bool value, string address)
+        //{
+        //    ExcelAddress a = new ExcelAddress(address);
+        //    for (int col = a._fromCol; col <= a._toCol; col++)
+        //    {
+        //        for (int row = a._fromRow; row <= a._toRow; row++)
+        //        {
+        //            _worksheet._flags.SetFlagValue(row, col,value,CellFlags.Merged);
+        //        }
+        //    }
+        //}
 		/// <summary>
 		/// Set the value without altering the richtext property
 		/// </summary>
@@ -2265,7 +2271,6 @@ namespace OfficeOpenXml
 			//Create the comments
 			_changePropMethod(Set_Comment, new string[] { Text, Author });
 
-
 			return _worksheet.Comments[new ExcelCellAddress(_fromRow, _fromCol)];
 		}
 
@@ -2302,7 +2307,6 @@ namespace OfficeOpenXml
                     Row = row,
                     Column = col,
                     Value=cse.Value
-                    
                 };
 
                 //Destination._worksheet._values.SetValue(row, col, cse.Value);
@@ -2326,7 +2330,7 @@ namespace OfficeOpenXml
                         cell.Formula=o;
                     }
                 }
-                if(_worksheet._styles.Exists(row,col, ref i))
+                if(_worksheet._styles.Exists(row, col, ref i))
                 {
                     if (sameWorkbook)
                     {
@@ -2335,15 +2339,15 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        int styleID = _worksheet._styles.GetValue(cse.Row, cse.Column);
-                        if (styleCashe.ContainsKey(styleID))
+                        if (styleCashe.ContainsKey(i))
                         {
-                            i = styleCashe[styleID];
+                            i = styleCashe[i];
                         }
                         else
                         {
-                            i = styles.CloneStyle(sourceStyles, styleID);
-                            styleCashe.Add(styleID, i);
+                            var oldStyleID = i;
+                            i = styles.CloneStyle(sourceStyles, i);
+                            styleCashe.Add(oldStyleID, i);
                         }
                         //Destination._worksheet._styles.SetValue(row, col, i);
                         cell.StyleID=i;
@@ -2360,22 +2364,77 @@ namespace OfficeOpenXml
                 {
                     cell.Comment=comment;
                 }
-            
+
+                if (_worksheet._flags.Exists(row, col, ref flag))
+                {
+                    cell.Flag = flag;
+                }
                 copiedValue.Add(cell);
             }
 
-            var copiedFlag = new List<CopiedFlag>();
-            //Flags don't always have a value in _values, so we use an specific enumeration for them. (For merged cells)
-            var csef = new CellsStoreEnumerator<byte>(_worksheet._flags, _fromRow, _fromCol, _toRow, _toCol);
-            while (csef.Next())
+            //Copy styles with no cell value
+            var cses = new CellsStoreEnumerator<int>(_worksheet._styles, _fromRow, _fromCol, _toRow, _toCol);
+            while (cses.Next())
             {
-                copiedFlag.Add(new CopiedFlag()
+                if (!_worksheet._values.Exists(cses.Row, cses.Column))
                 {
-                    Row = Destination._fromRow + (csef.Row - _fromRow),
-                    Column = Destination._fromCol + (csef.Column - _fromCol),
-                    Flag=csef.Value
-                });
+                    var row = Destination._fromRow + (cses.Row - _fromRow);
+                    var col = Destination._fromCol + (cses.Column - _fromCol);
+                    var cell = new CopiedCell
+                    {
+                        Row = row,
+                        Column = col,
+                        Value = null
+                    };
+
+                    i = cses.Value;
+                    if (sameWorkbook)
+                    {
+                        cell.StyleID = i;
+                    }
+                    else
+                    {
+                        if (styleCashe.ContainsKey(i))
+                        {
+                            i = styleCashe[i];
+                        }
+                        else
+                        {
+                            var oldStyleID = i;
+                            i = styles.CloneStyle(sourceStyles, i);
+                            styleCashe.Add(oldStyleID, i);
+                        }
+                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        cell.StyleID = i;
+                    }
+                    copiedValue.Add(cell);
+                }
             }
+            var copiedMergedCells = new Dictionary<int, ExcelAddress>();
+            //Merged cells
+            var csem = new CellsStoreEnumerator<int>(_worksheet.MergedCells._cells, _fromRow, _fromCol, _toRow, _toCol);
+            while (csem.Next())
+            {
+                if(!copiedMergedCells.ContainsKey(csem.Value))
+                {
+                    var adr = new ExcelAddress(_worksheet.MergedCells.List[csem.Value]);
+                    if(this.Collide(adr)==eAddressCollition.Inside)
+                    {
+                        copiedMergedCells.Add(csem.Value, new ExcelAddress(
+                            Destination._fromRow + (cses.Row - _fromRow),
+                            Destination._fromCol + (cses.Column - _fromCol),
+                            Destination._toRow + (cses.Row - _toRow),
+                            Destination._toCol + (cses.Column - _toCol)));
+                    }
+                    else
+                    {
+                        //Partial merge of the addres ignore.
+                        copiedMergedCells.Add(csem.Value, null);
+                    }
+                }
+            }
+
+            Destination._worksheet.MergedCells.Delete(new ExcelAddressBase(Destination._fromRow, Destination._fromCol, Destination._fromRow+toRow, Destination._fromCol+toCol));
 
             Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
@@ -2384,7 +2443,7 @@ namespace OfficeOpenXml
             Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._commentsStore.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            
+           
             foreach(var cell in copiedValue)
             {
                 Destination._worksheet._values.SetValue(cell.Row, cell.Column, cell.Value);
@@ -2414,9 +2473,13 @@ namespace OfficeOpenXml
                 }
             }
 
-            foreach(var f in copiedFlag)
+            //Add mered cells
+            foreach(var m in copiedMergedCells.Values)
             {
-                Destination._worksheet._flags.SetValue(f.Row, f.Column, f.Flag);
+                if(m!=null)
+                {
+                    Destination._worksheet.MergedCells.Add(m, true);
+                }
             }
 
 
@@ -2548,7 +2611,8 @@ namespace OfficeOpenXml
         //}
         internal void Delete(ExcelAddressBase Range, bool shift)
 		{
-            DeleteCheckMergedCells(Range);
+            //DeleteCheckMergedCells(Range);
+            _worksheet.MergedCells.Delete(Range);
 			//First find the start cell
             var rows=Range._toRow-Range._fromRow;
             var cols=Range._toCol - Range._fromCol;

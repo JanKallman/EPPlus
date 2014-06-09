@@ -253,9 +253,17 @@ namespace OfficeOpenXml.FormulaParsing
             _rangeAddressFactory = new RangeAddressFactory(this);
         }
 
-        public override ExcelNamedRangeCollection GetWorksheetNames()
+        public override ExcelNamedRangeCollection GetWorksheetNames(string worksheet)
         {
-            return _package.Workbook.Worksheets.First().Names;
+            var ws=_package.Workbook.Worksheets[worksheet];
+            if (ws != null)
+            {
+                return ws.Names;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override ExcelNamedRangeCollection GetWorkbookNameValues()
@@ -297,7 +305,7 @@ namespace OfficeOpenXml.FormulaParsing
                 ws = _package._workbook.Worksheets[worksheet];
                 if (ws !=null && ws.Names.ContainsKey(name))
                 {
-                    nameItem = _package._workbook.Names[name];
+                    nameItem = ws.Names[name];
                 }
                 else if (_package._workbook.Names.ContainsKey(name))
                 {
@@ -352,7 +360,8 @@ namespace OfficeOpenXml.FormulaParsing
 
         public bool IsMerged(int row, int column)
         {
-            return _currentWorksheet._flags.GetFlagValue(row, column, CellFlags.Merged);
+            //return _currentWorksheet._flags.GetFlagValue(row, column, CellFlags.Merged);
+            return _currentWorksheet.MergedCells[row, column] != null;
         }
 
         public bool IsHidden(int row, int column)

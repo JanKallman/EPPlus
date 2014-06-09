@@ -17,8 +17,16 @@ namespace OfficeOpenXml.FormulaParsing
             _values = _excelDataProvider.GetWorkbookNameValues();
         }
 
-        public virtual bool IsNamedValue(string key)
+        public virtual bool IsNamedValue(string key, string ws)
         {
+            if(ws!=null)
+            {
+                var wsNames = _excelDataProvider.GetWorksheetNames(ws);
+                if(wsNames!=null && wsNames.ContainsKey(key))
+                {
+                    return true;
+                }
+            }
             return _values != null && _values.ContainsKey(key);
         }
 

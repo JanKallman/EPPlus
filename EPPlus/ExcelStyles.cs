@@ -746,7 +746,11 @@ namespace OfficeOpenXml
                 var cse = new CellsStoreEnumerator<int>(sheet._styles);
                 while(cse.Next())
                 {
-                    CellXfs[cse.Value].useCnt++;
+                    var v = cse.Value;
+                    if (v >= 0)
+                    {
+                        CellXfs[v].useCnt++;
+                    }
                 }
             }
             foreach (ExcelNamedStyleXml ns in NamedStyles)
