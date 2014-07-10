@@ -272,6 +272,7 @@ namespace OfficeOpenXml.Utils
                         //Literal token
                         if ((token & (1 << i)) == 0)
                         {
+                            ms.WriteByte(compBuffer[pos]);
                             buffer[decomprPos++] = compBuffer[pos++];
                         }
                         else //copy token
