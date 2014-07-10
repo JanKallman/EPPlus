@@ -195,5 +195,19 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\outfile.xlsm"));
             }   
         }
+        [TestMethod]
+        public void DecompressionChunkGreaterThan4k()
+        {
+            // This is a test for Issue 15026: VBA decompression encounters index out of range
+            // on the decompression buffer.
+            var workbookDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
+            var path = Path.Combine(workbookDir, "VBADecompressBug.xlsm");
+
+            using (var package = new ExcelPackage(new FileInfo(path)))
+            {
+                // Reading the Workbook.CodeModule.Code will cause an IndexOutOfRange if the problem hasn't been fixed.
+                Assert.IsTrue(package.Workbook.CodeModule.Code.Length > 0);
+            }
+        }
     }
 }
