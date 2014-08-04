@@ -109,10 +109,17 @@ namespace OfficeOpenXml.Drawing
             }
         }
         private void AddDrawings()
-        {                        
-            //XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
+        {
+            // Look inside all children for the drawings because they could be inside
+            // Markup Compatibility AlternativeContent/Choice or AlternativeContent/Fallback nodes.
+            // The code below currently pretends that loading all Choice alternative drawings doesn't cause a problem
+            // elsewhere. This seems to be ok for the time being as encountered drawing files so far only seem to have
+            // one Choice node (and no Fallback) underneath the AlternativeContent node. (Excel 2013 that is.)
+            // This change prevents CodePlex issue #15028 from occurring. 
+            // (the drawing xml part (that ONLY contained AlternativeContent nodes) was incorrectly being garbage collected when the package was saved)
+            XmlNodeList list = _drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", NameSpaceManager);
 
-            foreach (XmlNode node in _drawingsXml.DocumentElement.ChildNodes)
+            foreach (XmlNode node in list)
             {
                 
                 ExcelDrawing dr;
