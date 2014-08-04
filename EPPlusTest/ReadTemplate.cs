@@ -247,7 +247,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadBug12()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\baseball1.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\test4.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             //ws.Column(0).Style.Font.Bold = true;

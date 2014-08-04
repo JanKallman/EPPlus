@@ -901,7 +901,14 @@ namespace OfficeOpenXml
                 worksheet.Drawings.ClearDrawings();
             }
 
-             /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
+            //Remove all comments
+            if (worksheet.Comments.Count > 0)
+            {
+                worksheet.Comments.Clear();
+            }
+            
+            
+            /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
              var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
              if (_pck.Package.PartExists(_uriDrawing))
              {
@@ -922,7 +929,6 @@ namespace OfficeOpenXml
 					sheetsNode.RemoveChild(sheetNode);
 				}
 			}
-
 			_worksheets.Remove(Index);
             if (_pck.Workbook.VbaProject != null)
             {
@@ -936,7 +942,7 @@ namespace OfficeOpenXml
             }
             if (_pck.Workbook.View.ActiveTab == worksheet.SheetID)
             {
-                _pck.Workbook.Worksheets[0].View.TabSelected = true;
+                _pck.Workbook.Worksheets[1].View.TabSelected = true;
             }
             worksheet = null;
         }

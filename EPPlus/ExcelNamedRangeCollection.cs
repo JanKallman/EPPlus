@@ -211,5 +211,13 @@ namespace OfficeOpenXml
 
         #endregion
         #endregion
+
+        internal void Clear()
+        {
+            while(Count>0)
+            {
+                Remove(_list[0].Name);
+            }
+        }
     }
 }

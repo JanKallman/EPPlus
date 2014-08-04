@@ -1064,7 +1064,14 @@ namespace OfficeOpenXml
                         var uri = Part.GetRelationship(rId).TargetUri;
                         if (uri.IsAbsoluteUri)
                         {
-                            hl = new ExcelHyperLink(uri.AbsoluteUri);
+                            try
+                            {
+                                hl = new ExcelHyperLink(uri.AbsoluteUri);
+                            }
+                            catch
+                            {
+                                hl = new ExcelHyperLink(uri.OriginalString, UriKind.Absolute);
+                            }
                         }
                         else
                         {

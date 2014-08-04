@@ -226,5 +226,13 @@ namespace OfficeOpenXml
             return _comments;
         }
         #endregion
+
+        internal void Clear()
+        {
+            while(Count>0)
+            {
+                RemoveAt(0);
+            }
+        }
     }
 }
