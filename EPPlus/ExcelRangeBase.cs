@@ -2417,7 +2417,7 @@ namespace OfficeOpenXml
             {
                 if(!copiedMergedCells.ContainsKey(csem.Value))
                 {
-                    var adr = new ExcelAddress(_worksheet.MergedCells.List[csem.Value]);
+                    var adr = new ExcelAddress(_worksheet.Name, _worksheet.MergedCells.List[csem.Value]);
                     if(this.Collide(adr)==eAddressCollition.Inside)
                     {
                         copiedMergedCells.Add(csem.Value, new ExcelAddress(

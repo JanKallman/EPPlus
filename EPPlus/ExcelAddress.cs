@@ -597,7 +597,7 @@ namespace OfficeOpenXml
         #region Address manipulation methods
         internal eAddressCollition Collide(ExcelAddressBase address)
         {
-            if (address.WorkSheet != WorkSheet)
+            if (address.WorkSheet != WorkSheet && address.WorkSheet!=null)
             {
                 return eAddressCollition.No;
             }
