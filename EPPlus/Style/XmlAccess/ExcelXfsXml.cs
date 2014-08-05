@@ -320,7 +320,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _textRotation;
+                return (_textRotation == int.MinValue ? 0 : _textRotation);
             }
             set
             {
@@ -400,7 +400,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _indent;
+                return (_indent == int.MinValue ? 0 : _indent);
             }
             set
             {

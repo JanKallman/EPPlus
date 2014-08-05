@@ -132,7 +132,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _family;
+                return (_family == int.MinValue ? 0 : _family); ;
             }
             set
             {

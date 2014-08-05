@@ -146,7 +146,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-              return _indexed;
+                return (_indexed == int.MinValue ? 0 : _indexed);
             }
             set
             {

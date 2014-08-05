@@ -310,7 +310,7 @@ namespace OfficeOpenXml
                     if(!used.Contains(v))
                     {
                         var adr=new ExcelAddressBase(_list[v]);
-                        if (Destination.Collide(adr) != ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr)==ExcelAddressBase.eAddressCollition.Equal)
+                        if (!(Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr)==ExcelAddressBase.eAddressCollition.Equal))
                         {
                             throw(new InvalidOperationException(string.Format("Can't delete merged cells. A range is partly merged with the deleted range. {0}", adr._address)));
                         }
