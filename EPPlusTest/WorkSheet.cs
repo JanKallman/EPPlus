@@ -1830,6 +1830,19 @@ namespace EPPlusTest
                 package.Save();
             }
         }
+        [TestMethod]
+        public void Issue15041()
+        {
+            using ( var package = new ExcelPackage())
+            {
+                var ws=package.Workbook.Worksheets.Add("Test");
+                ws.Cells["A1"].Value=202100083;
+                ws.Cells["A1"].Style.Numberformat.Format="00.00.00.000.0";
+
+                Assert.AreEqual("02.02.10.008.3", ws.Cells["A1"].Text);
+                ws.Dispose();
+            }
+        }        
         #region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()
