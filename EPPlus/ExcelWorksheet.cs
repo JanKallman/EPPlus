@@ -3512,7 +3512,7 @@ namespace OfficeOpenXml
                         ExcelHyperLink hl = uri as ExcelHyperLink;
                         sw.Write("<hyperlink ref=\"{0}\" location=\"{1}\" {2}{3}/>",
                                 Cells[cse.Row, cse.Column, cse.Row + hl.RowSpann, cse.Column + hl.ColSpann].Address, 
-                                ExcelCellBase.GetFullAddress(Name, hl.ReferenceAddress),
+                                ExcelCellBase.GetFullAddress(SecurityElement.Escape(Name), hl.ReferenceAddress),
                                     string.IsNullOrEmpty(hl.Display) ? "" : "display=\"" + SecurityElement.Escape(hl.Display) + "\" ",
                                     string.IsNullOrEmpty(hl.ToolTip) ? "" : "tooltip=\"" + SecurityElement.Escape(hl.ToolTip) + "\" ");
                     }

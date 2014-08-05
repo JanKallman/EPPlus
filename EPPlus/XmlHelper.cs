@@ -646,7 +646,7 @@ namespace OfficeOpenXml
 		internal bool GetXmlNodeBool(string path, bool blankValue)
 		{
 			string value = GetXmlNodeString(path);
-			if (value == "1" || value == "-1" || value == "True")
+			if (value == "1" || value == "-1" || value.Equals("true",StringComparison.InvariantCultureIgnoreCase))
 			{
 				return true;
 			}

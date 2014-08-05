@@ -62,7 +62,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _shrinkToFit = GetXmlNodeString(shrinkToFitPath) == "1" ? true : false; 
             _verticalAlignment = GetVerticalAlign(GetXmlNodeString(verticalAlignPath));
             _horizontalAlignment = GetHorizontalAlign(GetXmlNodeString(horizontalAlignPath));
-            _wrapText = GetXmlNodeString(wrapTextPath) == "1" ? true : false;
+            _wrapText = GetXmlNodeBool(wrapTextPath);
             _textRotation = GetXmlNodeInt(textRotationPath);
             _hidden = GetXmlNodeBool(hiddenPath);
             _locked = GetXmlNodeBool(lockedPath,true);

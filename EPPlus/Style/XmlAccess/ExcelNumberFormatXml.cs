@@ -325,6 +325,14 @@ namespace OfficeOpenXml.Style.XmlAccess
                                         }
                                     }
                                 }
+                                else if(bracketText[0]=='t')
+                                {
+                                    sb.Append("hh"); //TODO:This will not be correct for dates over 24H.
+                                }
+                                else if (bracketText[0] == 'h')
+                                {
+                                    specialDateFormat = "hh"; //TODO:This will not be correct for dates over 24H.
+                                }
                             }
                             else
                             {

@@ -80,7 +80,7 @@ namespace OfficeOpenXml
         public static void Calculate(this ExcelWorksheet worksheet, ExcelCalculationOption options)
         {
             Init(worksheet.Workbook);
-            worksheet.Workbook._formulaParser = null;
+            //worksheet.Workbook._formulaParser = null; TODO:Cant reset. Don't work with userdefined or overrided worksheet functions            
             var parser = worksheet.Workbook.FormulaParser;
             var dc = DependencyChainFactory.Create(worksheet, options);
             CalcChain(worksheet.Workbook, parser, dc);

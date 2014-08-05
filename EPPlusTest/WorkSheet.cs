@@ -1838,11 +1838,33 @@ namespace EPPlusTest
                 var ws=package.Workbook.Worksheets.Add("Test");
                 ws.Cells["A1"].Value=202100083;
                 ws.Cells["A1"].Style.Numberformat.Format="00.00.00.000.0";
-
                 Assert.AreEqual("02.02.10.008.3", ws.Cells["A1"].Text);
                 ws.Dispose();
             }
-        }        
+        }
+        [TestMethod]
+        public void Issue15031()
+        {
+             var d=OfficeOpenXml.Utils.ConvertUtil.GetValueDouble(new TimeSpan(35, 59, 1));
+             using (var package = new ExcelPackage())
+             {
+                 var ws = package.Workbook.Worksheets.Add("Test");
+                 ws.Cells["A1"].Value = d;
+                 ws.Cells["A1"].Style.Numberformat.Format = "[t]:mm:ss";
+                 ws.Dispose();
+             }
+        }
+        [TestMethod]
+        public void Issue15022()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Test");
+                ws.Cells.AutoFitColumns();
+                ws.Cells["A1"].Style.Numberformat.Format = "0";
+                ws.Cells.AutoFitColumns();
+            }
+        }
         #region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()

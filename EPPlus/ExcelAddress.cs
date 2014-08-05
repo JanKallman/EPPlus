@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -784,7 +785,12 @@ namespace OfficeOpenXml
 
         internal static AddressType IsValid(string Address)
         {
+            double d;
             if (Address == "#REF!")
+            {
+                return AddressType.Invalid;
+            }
+            else if(double.TryParse(Address, NumberStyles.Any, CultureInfo.InvariantCulture, out d)) //A double, no valid address
             {
                 return AddressType.Invalid;
             }
