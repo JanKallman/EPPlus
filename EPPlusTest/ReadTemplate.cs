@@ -382,7 +382,25 @@ namespace EPPlusTest
             CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
             CreateXlsxSheet(@"C:\temp\bug\test25.xlsx", 25, 25); 
         }
-        private static void CreateXlsxSheet(string pFileName,int pRows,int pColumns) 
+        [TestMethod]
+        public void I15038()
+        {
+            using(var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\15038.xlsx")))
+            {
+                var ws=p.Workbook.Worksheets[1];
+            
+            }
+        }
+        [TestMethod]
+        public void I15014()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\ClassicWineCompany.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                Assert.AreEqual("SFFSectionHeading00", ws.Cells[5, 2].StyleName);
+            }
+        }
+        private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 
         {
             if(File.Exists(pFileName)) File.Delete(pFileName);
 

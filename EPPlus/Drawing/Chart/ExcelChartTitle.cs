@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 topNode = node.OwnerDocument.CreateElement("c", "title", ExcelPackage.schemaChart);
                 node.InsertBefore(topNode, node.ChildNodes[0]);
-                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
+                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr sz=\"1800\" b=\"0\" /></a:pPr><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
             }
             TopNode = topNode;
             SchemaNodeOrder = new string[] { "tx","bodyPr", "lstStyle", "layout", "overlay" };
