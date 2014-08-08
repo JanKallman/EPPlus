@@ -905,7 +905,7 @@ namespace EPPlusTest
         [TestMethod]
         public void CopyRange()
         {
-            var ws = _pck.Workbook.Worksheets.Add("CopyTest");
+            var ws = _pck.Workbook.Worksheets.Add("CopyTest");  
 
             ws.Cells["A1"].Value = "Single Cell";
             ws.Cells["A2"].Value = "Merged Cells";

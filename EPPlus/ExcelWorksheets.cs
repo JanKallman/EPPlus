@@ -552,60 +552,6 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            ////Rows
-            //foreach (ExcelRow row in Copy._rows)
-            //{
-            //    row.Clone(added);
-            //    if (!sameWorkbook)   //Same workbook == same styles
-            //    {
-            //        ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
-            //        if (styleCashe.ContainsKey(row.StyleID))
-            //        {
-            //            addedRow.StyleID = styleCashe[row.StyleID];
-            //        }
-            //        else
-            //        {
-            //            addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
-            //            if (row.StyleName != "") //Named styles
-            //            {
-            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
-            //                {
-            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
-            //                    ns.StyleXfId = addedRow.StyleID;
-            //                }
-
-            //            }
-            //            styleCashe.Add(row.StyleID, addedRow.StyleID);
-            //        }
-            //    }                
-            //}
-            ////Columns
-            //foreach (ExcelColumn col in Copy._columns)
-            //{
-            //    col.Clone(added);
-            //    if (!sameWorkbook)   //Same workbook == same styles
-            //    {
-            //        ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
-            //        if (styleCashe.ContainsKey(col.StyleID))
-            //        {
-            //            addedCol.StyleID = styleCashe[col.StyleID];
-            //        }
-            //        else
-            //        {
-            //            addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
-            //            if (col.StyleName != "") //Named styles
-            //            {
-            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
-            //                {
-            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
-            //                    ns.StyleXfId = addedCol.StyleID;
-            //                }
-
-            //            }
-            //            styleCashe.Add(col.StyleID, addedCol.StyleID);
-            //        }
-            //    }
-            //}
             added._package.DoAdjustDrawings = doAdjust;
         }
 
@@ -617,6 +563,12 @@ namespace OfficeOpenXml
             {
                 added._types.SetValue(row, col, t);
             }
+            var fl = Copy._flags.GetValue(row, col);
+            if (fl != null)
+            {
+                added._flags.SetValue(row, col, fl);
+            }
+
             var v = Copy._formulas.GetValue(row, col);
             if (v != null)
             {
