@@ -70,8 +70,8 @@ namespace OfficeOpenXml.Packaging
                 Match = match;
             }
         }
-        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>();
-        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>();
+        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>(StringComparer.InvariantCultureIgnoreCase);
+        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>(StringComparer.InvariantCultureIgnoreCase);
         internal ZipPackage()
         {
             AddNew();
@@ -121,7 +121,8 @@ namespace OfficeOpenXml.Packaging
                                 else
                                 {
                                     var part = new ZipPackagePart(this, e);
-                                    part.Stream = new MemoryStream(b);
+                                    part.Stream = new MemoryStream();
+                                    part.Stream.Write(b, 0, b.Length);
                                     Parts.Add(GetUriKey(e.FileName), part);
                                 }
                             }

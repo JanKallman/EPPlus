@@ -332,6 +332,7 @@ namespace EPPlusTest
             }
         }
         #endregion
+        [Ignore]
         [TestMethod]
         public void TestInvalidVBA()
         {
@@ -359,6 +360,7 @@ namespace EPPlusTest
                 ep.SaveAs(fs);
             }            
         }
+        [Ignore]
         [TestMethod]
         public void StreamTest()
         {
@@ -376,12 +378,14 @@ namespace EPPlusTest
                 }
             }
         }
+        [Ignore]
         [TestMethod]
         public void test()
         { 
-            CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
+                CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
             CreateXlsxSheet(@"C:\temp\bug\test25.xlsx", 25, 25); 
         }
+        [Ignore]
         [TestMethod]
         public void I15038()
         {
@@ -391,6 +395,33 @@ namespace EPPlusTest
             
             }
         }
+        [Ignore]
+        [TestMethod]
+        public void I15039()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\15039.xlsm")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+
+                p.SaveAs(new FileInfo(@"c:\temp\bug\15039-saved.xlsm"));
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15030()
+        {
+            using (var newPack = new ExcelPackage(new FileInfo(@"c:\temp\bug\I15030.xlsx")))
+            {
+                var wkBk = newPack.Workbook.Worksheets[1];
+                var cell = wkBk.Cells["A1"];
+                if (cell.Comment != null)
+                {
+                    cell.Comment.Text = "Hello edited comments";
+                }
+                newPack.SaveAs(new FileInfo(@"c:\temp\bug\15030-save.xlsx"));
+            }
+        }
+        [Ignore]
         [TestMethod]
         public void I15014()
         {
@@ -398,6 +429,16 @@ namespace EPPlusTest
             {
                 var ws = p.Workbook.Worksheets[1];
                 Assert.AreEqual("SFFSectionHeading00", ws.Cells[5, 2].StyleName);
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15043()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\EPPlusTest\EPPlusTest\EPPlusTest\example.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                p.Workbook.Worksheets.Copy(ws.Name, "Copy");
             }
         }
         private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 

@@ -95,7 +95,7 @@ namespace OfficeOpenXml.Packaging
             }
             else
             {
-                _stream.Seek(0, SeekOrigin.Begin);
+                _stream.Seek(0, SeekOrigin.Begin);                
             }
             return _stream;
         }
