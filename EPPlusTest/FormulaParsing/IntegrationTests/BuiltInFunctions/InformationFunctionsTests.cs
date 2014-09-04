@@ -72,7 +72,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
-        public void IsNaShouldReturnTrueIfErrorCodeIsNa()
+        public void IsNaShouldReturnTrueCodeIsNa()
         {
             using (var pck = new ExcelPackage())
             {

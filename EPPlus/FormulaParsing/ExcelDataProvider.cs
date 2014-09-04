@@ -111,5 +111,7 @@ namespace OfficeOpenXml.FormulaParsing
 
         public abstract object GetRangeValue(string worksheetName, int row, int column);
         public abstract string GetFormat(object value, string format);
+
+        internal abstract void Reset();
     }
 }

@@ -82,6 +82,7 @@ namespace OfficeOpenXml
             Init(worksheet.Workbook);
             //worksheet.Workbook._formulaParser = null; TODO:Cant reset. Don't work with userdefined or overrided worksheet functions            
             var parser = worksheet.Workbook.FormulaParser;
+            parser.InitNewCalc();
             var dc = DependencyChainFactory.Create(worksheet, options);
             CalcChain(worksheet.Workbook, parser, dc);
         }
@@ -93,6 +94,7 @@ namespace OfficeOpenXml
         {
             Init(range._workbook);
             var parser = range._workbook.FormulaParser;
+            parser.InitNewCalc();
             var dc = DependencyChainFactory.Create(range, options);
             CalcChain(range._workbook, parser, dc);
         }
@@ -108,6 +110,7 @@ namespace OfficeOpenXml
                 if(string.IsNullOrEmpty(Formula.Trim())) return null;
                 Init(worksheet.Workbook);
                 var parser = worksheet.Workbook.FormulaParser;
+                parser.InitNewCalc();
                 if (Formula[0] == '=') Formula = Formula.Substring(1); //Remove any starting equal sign
                 var dc = DependencyChainFactory.Create(worksheet, Formula, options);
                 var f = dc.list[0];

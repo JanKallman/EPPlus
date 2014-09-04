@@ -808,6 +808,15 @@ namespace EPPlusTest
 
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
+        [TestMethod]
+        public void FormulaArray()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("FormulaError");
+
+            ws.Cells["E2:E5"].CreateArrayFormula("FREQUENCY(B2:B18,C2:C5)");
+            _pck.SaveAs(new FileInfo("c:\\temp\\arrayformula.xlsx"));
+        }
         [Ignore]
         [TestMethod]
         public void PictureURL()
