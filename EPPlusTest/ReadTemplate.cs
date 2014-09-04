@@ -382,7 +382,7 @@ namespace EPPlusTest
         [TestMethod]
         public void test()
         { 
-                CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
+            CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
             CreateXlsxSheet(@"C:\temp\bug\test25.xlsx", 25, 25); 
         }
         [Ignore]

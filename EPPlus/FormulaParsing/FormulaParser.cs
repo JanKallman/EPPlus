@@ -194,5 +194,13 @@ namespace OfficeOpenXml.FormulaParsing
             //return Parse(dataItem.Value.ToString(), _parsingContext.RangeAddressFactory.Create(address));
         }
 
+
+        internal void InitNewCalc()
+        {
+            if(_excelDataProvider!=null)
+            {
+                _excelDataProvider.Reset();
+            }
+        }
     }
 }

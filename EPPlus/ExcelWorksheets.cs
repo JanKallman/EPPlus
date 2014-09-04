@@ -151,7 +151,7 @@ namespace OfficeOpenXml
             Uri uriWorksheet;
             lock (_worksheets)
             {
-                if (GetByName(Name) != null)
+                if (GetByName(ValidateFixSheetName(Name)) != null)
                 {
                     throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
                 }
