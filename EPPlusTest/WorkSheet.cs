@@ -1020,13 +1020,17 @@ namespace EPPlusTest
             ws.Cells["A32:H33"].Formula = "G2+E1";
 
             ws.Cells["A50:A59"].CreateArrayFormula("C50+D50");
-
+            ws.Cells["A1"].Value = "test";
             ws.Cells["A15"].Value = "Värde";
             ws.Cells["C12"].AddComment("Test", "JJOD");
             ws.Cells["D12:I12"].Merge = true;
             ws.Cells["D12:I12"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             ws.Cells["D12:I12"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
             ws.Cells["D12:I12"].Style.WrapText = true;
+
+            ws.Cells["F1:F3"].Formula = "F2+F3";
+            ws.Cells["J1:J3"].Formula = "F2+F3";            
+            ws.Cells["F1:F3"].Formula = "F5+F6";    //Overwrite same range
         }
         [Ignore]
         [TestMethod]
@@ -1818,6 +1822,7 @@ namespace EPPlusTest
             }
             ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
         }
+        [Ignore]
         [TestMethod]
         public void RunSample0()
         {
@@ -1837,41 +1842,6 @@ namespace EPPlusTest
 
                 //save our new workbook and we are done!
                 package.Save();
-            }
-        }
-        [TestMethod]
-        public void Issue15041()
-        {
-            using ( var package = new ExcelPackage())
-            {
-                var ws=package.Workbook.Worksheets.Add("Test");
-                ws.Cells["A1"].Value=202100083;
-                ws.Cells["A1"].Style.Numberformat.Format="00.00.00.000.0";
-                Assert.AreEqual("02.02.10.008.3", ws.Cells["A1"].Text);
-                ws.Dispose();
-            }
-        }
-        [TestMethod]
-        public void Issue15031()
-        {
-             var d=OfficeOpenXml.Utils.ConvertUtil.GetValueDouble(new TimeSpan(35, 59, 1));
-             using (var package = new ExcelPackage())
-             {
-                 var ws = package.Workbook.Worksheets.Add("Test");
-                 ws.Cells["A1"].Value = d;
-                 ws.Cells["A1"].Style.Numberformat.Format = "[t]:mm:ss";
-                 ws.Dispose();
-             }
-        }
-        [TestMethod]
-        public void Issue15022()
-        {
-            using (var package = new ExcelPackage())
-            {
-                var ws = package.Workbook.Worksheets.Add("Test");
-                ws.Cells.AutoFitColumns();
-                ws.Cells["A1"].Style.Numberformat.Format = "0";
-                ws.Cells.AutoFitColumns();
             }
         }
         #region Date1904 Test Cases

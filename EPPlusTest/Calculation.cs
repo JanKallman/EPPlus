@@ -144,9 +144,7 @@ namespace EPPlusTest
                     nErrors++;
                 }
             }
-            
         }
-
         [Ignore]
         [TestMethod]
         public void TestOneCell()
@@ -155,7 +153,6 @@ namespace EPPlusTest
             var ws = pck.Workbook.Worksheets.First(); 
             pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Calculate();
             Assert.AreEqual(0d, pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Value);  
-
         }
 
         [Ignore]

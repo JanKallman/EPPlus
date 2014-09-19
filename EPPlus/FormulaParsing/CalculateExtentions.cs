@@ -71,7 +71,7 @@ namespace OfficeOpenXml
 
             CalcChain(workbook, parser, dc);
 
-            workbook._isCalculated = true;
+            //workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {

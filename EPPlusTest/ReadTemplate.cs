@@ -272,6 +272,17 @@ namespace EPPlusTest
             ws.Comments.RemoveAt(0);
             package.SaveAs(new FileInfo(@"c:\temp\bug\CommentTest.xlsx"));
         }
+        [Ignore]
+        [TestMethod]
+        public void ReadBug15()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\ColumnMaxError.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            var col = ws.Column(1);
+            col.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            col.Style.Fill.BackgroundColor.SetColor(Color.Red);
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
+        }
         #region "Threading Cellstore Test"
         public int _threadCount=0;
         ExcelPackage _pckThread;

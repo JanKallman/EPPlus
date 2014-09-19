@@ -246,6 +246,7 @@
     <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
     <Compile Include="DataValidation\IRangeDataValidation.cs" />
     <Compile Include="DataValidation\RangeDataValidation.cs" />
+    <Compile Include="Drawing\Chart\ExcelBarChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelSurfaceChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelSurfaceChart.cs" />
     <Compile Include="Drawing\Chart\ExcelRadarChart.cs" />

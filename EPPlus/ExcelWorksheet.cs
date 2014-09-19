@@ -1312,7 +1312,10 @@ namespace OfficeOpenXml
             sw.Write("<mergeCells>");
             foreach (string address in _mergedCells)
             {
-                sw.Write("<mergeCell ref=\"{0}\" />", address);
+                if (!string.IsNullOrEmpty(address))
+                {
+                    sw.Write("<mergeCell ref=\"{0}\" />", address);
+                }
             }
             sw.Write("</mergeCells>");
         }
@@ -3259,11 +3262,11 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        if (v == null)
+                        if (v == null && styleID > 0)
                         {
                             cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" />", cse.CellAddress, styleID < 0 ? 0 : styleID);
                         }
-                        else
+                        else if(v != null)
                         {
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
@@ -3315,10 +3318,12 @@ namespace OfficeOpenXml
 
         private object GetFormulaValue(object v)
         {
-            if (_package.Workbook._isCalculated)
+            //if (_package.Workbook._isCalculated)
+            //{                    
+            if (v != null && v.ToString()!="")
             {
                 return "<v>" + GetValueForXml(v) + "</v>";
-            }
+            }            
             else
             {
                 return "";
