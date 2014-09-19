@@ -44,6 +44,10 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             if (o1 != null && o2 == null) return 1;
             if (o1 == null && o2 != null) return -1;
             if (o1 == null && o2 == null) return 0;
+            //Handle ranges and defined names
+            o1 = CheckGetRange(o1);
+            o2 = CheckGetRange(o2);
+
             if (o1 is string && o2 is string)
             {
                 return CompareStringToString(o1.ToString().ToLower(), o2.ToString().ToLower());
@@ -57,6 +61,25 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                 return CompareObjectToString(o1, o2.ToString());
             }
             return Convert.ToDouble(o1).CompareTo(Convert.ToDouble(o2));
+        }
+
+        private static object CheckGetRange(object v)
+        {
+            if (v is ExcelDataProvider.IRangeInfo)
+            {
+                var r = ((ExcelDataProvider.IRangeInfo)v);
+                if (r.GetNCells() > 1)
+                {
+                    v = ExcelErrorValue.Create(eErrorType.NA);
+                }
+                v = r.GetOffset(0, 0);
+            }
+            else if (v is ExcelDataProvider.INameInfo)
+            {
+                var n = ((ExcelDataProvider.INameInfo)v);
+                v = CheckGetRange(n);
+            }
+            return v;
         }
 
         protected virtual int CompareStringToString(string s1, string s2)

@@ -1111,7 +1111,7 @@ namespace OfficeOpenXml
 			pivotCaches.AppendChild(item);
 		}
 		internal List<string> _externalReferences = new List<string>();
-        internal bool _isCalculated=false;
+        //internal bool _isCalculated=false;
 		internal void GetExternalReferences()
 		{
 			XmlNodeList nl = WorkbookXml.SelectNodes("//d:externalReferences/d:externalReference", NameSpaceManager);

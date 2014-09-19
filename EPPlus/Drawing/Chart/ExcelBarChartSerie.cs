@@ -26,47 +26,58 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ * Jan Källman		Initial Release		        2009-10-01
+ * Jan Källman		License changed GPL-->LGPL 2011-12-16
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using OfficeOpenXml.FormulaParsing.Exceptions;
+using System.Xml;
 
-namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
+namespace OfficeOpenXml.Drawing.Chart
 {
-    public class FormulaDependency
+    /// <summary>
+    /// A serie for a scatter chart
+    /// </summary>
+    public sealed class ExcelBarChartSerie : ExcelChartSerie
     {
-        public FormulaDependency(ParsingScope scope)
-	    {   
-            ScopeId = scope.ScopeId;
-            Address = scope.Address;
-	    }
-        public Guid ScopeId { get; private set; }
-
-        public RangeAddress Address { get; private set; }
-
-        private List<RangeAddress> _referencedBy = new List<RangeAddress>();
-
-        private List<RangeAddress> _references = new List<RangeAddress>();
-
-        public virtual void AddReferenceFrom(RangeAddress rangeAddress)
+        /// <summary>
+        /// Default constructor
+        /// </summary>
+        /// <param name="chartSeries">Parent collection</param>
+        /// <param name="ns">Namespacemanager</param>
+        /// <param name="node">Topnode</param>
+        /// <param name="isPivot">Is pivotchart</param>
+        internal ExcelBarChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
+            base(chartSeries, ns, node, isPivot)
         {
-            if (Address.CollidesWith(rangeAddress) || _references.Exists(x => x.CollidesWith(rangeAddress)))
-            {
-                throw new CircularReferenceException("Circular reference detected at " + rangeAddress.ToString());
-            }
-            _referencedBy.Add(rangeAddress);
         }
-
-        public virtual void AddReferenceTo(RangeAddress rangeAddress)
+        ExcelChartSerieDataLabel _DataLabel = null;
+        /// <summary>
+        /// Datalabel
+        /// </summary>
+        public ExcelChartSerieDataLabel DataLabel
         {
-            if (Address.CollidesWith(rangeAddress) || _referencedBy.Exists(x => x.CollidesWith(rangeAddress)))
+            get
             {
-                throw new CircularReferenceException("Circular reference detected at " + rangeAddress.ToString());
+                if (_DataLabel == null)
+                {
+                    _DataLabel = new ExcelChartSerieDataLabel(_ns, _node);
+                }
+                return _DataLabel;
             }
-            _references.Add(rangeAddress);
+        }
+        const string INVERTIFNEGATIVE_PATH = "c:invertIfNegative/@val";
+        internal bool InvertIfNegative
+        {
+            get
+            {
+                return GetXmlNodeBool(INVERTIFNEGATIVE_PATH, true);
+            }
+            set
+            {
+                SetXmlNodeBool(INVERTIFNEGATIVE_PATH, value);
+            }
         }
     }
 }
