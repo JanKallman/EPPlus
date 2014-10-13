@@ -143,7 +143,7 @@ namespace EPPlusTest
         private static void AddTestSerie(ExcelWorksheet ws, ExcelChart chrt)
         {
             AddTestData(ws);
-            chrt.Series.Add("'" + ws.Name + "'!V19:V24", "'" + ws.Name + "'U19:U24");
+            chrt.Series.Add("'" + ws.Name + "'!V19:V24", "'" + ws.Name + "'!U19:U24");
         }
 
         private static void AddTestData(ExcelWorksheet ws)
@@ -419,6 +419,8 @@ namespace EPPlusTest
             chrt.Title.Text = "Cone bar";
             chrt.Series[0].Header = "Serie 1";
             chrt.Legend.Position = eLegendPosition.Right;
+            chrt.Axis[1].DisplayUnit = 100000;
+            Assert.AreEqual(chrt.Axis[1].DisplayUnit, 100000);
         }
         [TestMethod]
         [Ignore]
@@ -438,6 +440,8 @@ namespace EPPlusTest
             chrt.Locked = false;
             chrt.Print = false;
             chrt.EditAs = eEditAs.TwoCell;
+            chrt.Axis[1].DisplayUnit = 10020;
+            Assert.AreEqual(chrt.Axis[1].DisplayUnit, 10020);
         }
         [TestMethod]
         [Ignore]

@@ -2495,7 +2495,7 @@ namespace OfficeOpenXml
                 }
             }
 
-            //Add mered cells
+            //Add merged cells
             foreach(var m in copiedMergedCells.Values)
             {
                 if(m!=null)

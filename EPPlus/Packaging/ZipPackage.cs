@@ -255,11 +255,10 @@ namespace OfficeOpenXml.Packaging
             Parts.Remove(GetUriKey(Uri.OriginalString));
             
         }
-        internal MemoryStream Save()
+        internal void Save(Stream stream)
         {
-            var ms = new MemoryStream();
             var enc = Encoding.UTF8;
-            ZipOutputStream os = new ZipOutputStream(ms, true);
+            ZipOutputStream os = new ZipOutputStream(stream, true);
             os.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)_compression;            
             /**** ContentType****/
             var entry = os.PutNextEntry("[Content_Types].xml");
@@ -286,8 +285,9 @@ namespace OfficeOpenXml.Packaging
             }
             os.Flush();
             os.Close();
-            os.Dispose();            
-            return ms;
+            os.Dispose();  
+            
+            //return ms;
         }
 
         private string GetContentTypeXml()

@@ -73,5 +73,48 @@ namespace EPPlusTest
             }
 
         }
+        [Ignore]
+        [TestMethod]
+        public void Issue15058()
+        {
+            System.IO.FileInfo newFile = new System.IO.FileInfo(@"C:\Temp\output.xlsx");
+            ExcelPackage excelP = new ExcelPackage(newFile);
+            ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
+        }
+        [Ignore]
+        [TestMethod]
+        public void Issue15063()
+        {
+            System.IO.FileInfo newFile = new System.IO.FileInfo(@"C:\Temp\bug\TableFormula.xlsx");
+            ExcelPackage excelP = new ExcelPackage(newFile);
+            ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
+            ws.Calculate();
+        }
+        [TestMethod]
+        public void Issue14988()
+        {
+            var guid = Guid.NewGuid().ToString("N");
+            using (var outputStream = new FileStream(@"C:\temp\" + guid + ".xlsx", FileMode.Create))
+            {
+                using (var inputStream = new FileStream(@"C:\temp\bug2.xlsx", FileMode.Open))
+                {
+                    using (var package = new ExcelPackage(outputStream, inputStream, "Test"))
+                    {
+                        //foreach (var names in package.Workbook.Names)
+                        //{
+                        //    if (names.Name.Equals("ReportTitle"))
+                        //    {
+                        //        //names.First().Value = "TestingValue";
+                        //    }
+                        //}
+                        var ws= package.Workbook.Worksheets.Add("Test empty");
+                        ws.Cells["A1"].Value = "Test";
+                        package.Encryption.Password = "Test2";
+                        package.Save();
+                        //package.SaveAs(new FileInfo(@"c:\temp\test2.xlsx"));
+                    }
+                }
+            }
+        }
     }
 }
