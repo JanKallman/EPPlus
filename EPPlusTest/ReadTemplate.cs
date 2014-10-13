@@ -452,6 +452,15 @@ namespace EPPlusTest
                 p.Workbook.Worksheets.Copy(ws.Name, "Copy");
             }
         }
+        [TestMethod]
+        public void whitespace()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\book1.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                p.Workbook.Worksheets.Copy(ws.Name, "Copy");
+            }
+        }
         private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 
         {
             if(File.Exists(pFileName)) File.Delete(pFileName);

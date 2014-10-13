@@ -804,7 +804,7 @@ namespace OfficeOpenXml
 
             XmlTextReader xr = new XmlTextReader(stream);
             xr.ProhibitDtd = true;
-            
+            xr.WhitespaceHandling = WhitespaceHandling.None;
             LoadColumns(xr);    //columnXml
             long start = stream.Position;
             LoadCells(xr);
@@ -1122,6 +1122,7 @@ namespace OfficeOpenXml
                 while (xr.NodeType == XmlNodeType.EndElement)
                 {
                     xr.Read();
+                    continue;
                 }                
                 if (xr.LocalName == "row")
                 {

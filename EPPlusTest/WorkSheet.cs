@@ -517,7 +517,6 @@ namespace EPPlusTest
             comment.RichText[0].PreserveSpace = true;
             var rt = comment.RichText.Add("Test comment");
             comment.VerticalAlignment = eTextAlignVerticalVml.Center;
-            
             comment = ws.Comments.Add(ws.Cells["A2"], "Jan Källman\r\nAuthor\r\n1", "JK");            
             comment = ws.Comments.Add(ws.Cells["A1"], "Jan Källman\r\nAuthor\r\n2", "JK");            
             comment = ws.Comments.Add(ws.Cells["C2"], "Jan Källman\r\nAuthor\r\n3", "JK");            

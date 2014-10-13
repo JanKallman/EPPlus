@@ -206,6 +206,24 @@ namespace EPPlusTest
             Assert.AreEqual(800D, ws.Names["AMOUNT"].Value);
         }
         [TestMethod]
+        public void IfError()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("CalcTest");
+            ws.Cells["A1"].Value = "test1";
+            ws.Cells["A5"].Value = "test2";
+            ws.Cells["A2"].Value = "Sant";
+            ws.Cells["A3"].Value = "Falskt";
+            ws.Cells["A4"].Formula = "if(A1>=A5,true,A3)";
+            ws.Cells["B1"].Formula = "isText(a1)";
+            ws.Cells["B2"].Formula = "isText(\"Test\")";
+            ws.Cells["B3"].Formula = "isText(1)";
+            ws.Cells["B4"].Formula = "isText(true)";
+            ws.Cells["c1"].Formula = "mid(a1,4,15)";
+
+            ws.Calculate();
+        }
+        [TestMethod]
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();
@@ -224,7 +242,7 @@ namespace EPPlusTest
                 throw(new Exception("Test failed with\r\n\r\n" + sb.ToString()));
 
             }
-        }
+        }        
         private string GetOutput(string file)
         {
             using (var pck = new ExcelPackage(new FileInfo(file)))

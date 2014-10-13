@@ -125,6 +125,18 @@ namespace OfficeOpenXml.Drawing.Chart
         /// </summary>
         Out
     }
+    public enum eBuildInUnits : long
+    {
+        hundreds = 100,
+        thousands = 1000,
+        tenThousands = 10000,
+        hundredThousands = 100000,
+        millions = 1000000,
+        tenMillions = 10000000,
+        hundredMillions = 100000000,
+        billions = 1000000000,
+        trillions = 1000000000000
+    }
     /// <summary>
     /// An axis for a chart
     /// </summary>
@@ -493,6 +505,58 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeString(_ticLblPos_Path,v);
             }
         }
+        const string _displayUnitPath = "c:dispUnits/c:builtInUnit/@val";
+        const string _custUnitPath = "c:dispUnits/c:custUnit/@val";
+        public double DisplayUnit
+        {
+            get
+            {
+                string v = GetXmlNodeString(_displayUnitPath);
+                if (string.IsNullOrEmpty(v))
+                {
+                    var c = GetXmlNodeDoubleNull(_custUnitPath);
+                    if (c == null)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return c.Value;
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        return (double)(long)Enum.Parse(typeof(eBuildInUnits), v, true);
+                    }
+                    catch
+                    {
+                        return 0;
+                    }
+                }
+            }
+            set
+            {
+                if (AxisType == eAxisType.Val && value>=0)
+                {
+                    foreach(var v in Enum.GetValues(typeof(eBuildInUnits)))
+                    {
+                        if((double)(long)v==value)
+                        {
+                            DeleteNode(_custUnitPath);
+                            SetXmlNodeString(_displayUnitPath, ((eBuildInUnits)value).ToString());
+                            return;
+                        }
+                    }
+                    DeleteNode(_displayUnitPath);
+                    if(value!=0)
+                    {
+                        SetXmlNodeString(_custUnitPath, value.ToString(CultureInfo.InvariantCulture));
+                    }
+                }
+            }
+        }        
         ExcelChartTitle _title = null;
         /// <summary>
         /// Chart axis title
