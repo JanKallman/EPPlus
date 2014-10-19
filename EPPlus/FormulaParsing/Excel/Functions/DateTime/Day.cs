@@ -37,12 +37,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             ValidateArguments(arguments, 1);
             var dateObj = GetFirstValue(arguments);            
             System.DateTime date = System.DateTime.MinValue;
-            var d = ArgToDecimal(arguments, 0);
-            date = System.DateTime.FromOADate(d);
             if (dateObj is string)
             {
                 date = System.DateTime.Parse(dateObj.ToString());
             }
+            else
+            {
+                var d = ArgToDecimal(arguments, 0);
+                date = System.DateTime.FromOADate(d);
+            }
+
             return CreateResult(date.Day, DataType.Integer);
         }
     }
