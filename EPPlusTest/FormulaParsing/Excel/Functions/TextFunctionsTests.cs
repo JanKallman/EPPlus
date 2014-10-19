@@ -69,7 +69,7 @@ namespace EPPlusTest.Excel.Functions.Text
         {
             var func = new Mid();
             var result = func.Execute(FunctionsHelper.CreateArgs("abcd", 1, 2), _parsingContext);
-            Assert.AreEqual("bc", result.Result);
+            Assert.AreEqual("ab", result.Result);
         }
 
         [TestMethod]

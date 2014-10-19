@@ -66,7 +66,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void MidShouldReturnSubstringAccordingToParams()
         {
             var result = _parser.Parse("Mid('abacd', 2, 2)");
-            Assert.AreEqual("ac", result);
+            Assert.AreEqual("ba", result);
         }
 
         [TestMethod]

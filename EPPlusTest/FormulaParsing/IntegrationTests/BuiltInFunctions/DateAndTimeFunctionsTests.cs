@@ -162,5 +162,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Workday(Date(2013, 2, 2), 3)");
             Assert.IsInstanceOfType(result, typeof(double));
         }
+
+        [TestMethod]
+        public void DateNotEqualToStringShouldBeTrue()
+        {
+            var result = _parser.Parse("TODAY() <> \"\"");
+            Assert.IsTrue((bool)result);
+        }
     }
 }
