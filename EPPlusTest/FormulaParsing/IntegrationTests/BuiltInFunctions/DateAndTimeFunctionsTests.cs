@@ -171,12 +171,15 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
-        public void Test_15073()
+        public void Calculation5()
         {
-            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\15072.xlsx")))
-            {
-                package.Workbook.Calculate();
-            }
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            ws.Cells["A1"].Value = "John";
+            ws.Cells["B1"].Value = "Doe";
+            ws.Cells["C1"].Formula = "B1&\", \"&A1";
+            ws.Calculate();
+            Assert.AreEqual("Doe, John", ws.Cells["C1"].Value);
         }
     }
 }
