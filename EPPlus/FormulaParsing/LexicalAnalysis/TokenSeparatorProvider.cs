@@ -60,6 +60,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add("=", new Token("=", TokenType.Operator));
             _tokens.Add("<=", new Token("<=", TokenType.Operator));
             _tokens.Add(">=", new Token(">=", TokenType.Operator));
+            _tokens.Add("<>", new Token("<>", TokenType.Operator));
             _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
             _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
             _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
@@ -87,7 +88,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool IsPossibleLastPartOfMultipleCharOperator(string part)
         {
-            return part == "=";
+            return part == "=" || part == ">";
         }
     }
 }

@@ -468,7 +468,7 @@ namespace OfficeOpenXml.FormulaParsing
             return b;
         }
 
-        internal override void Reset()
+        public override void Reset()
         {
             _names = new Dictionary<ulong, INameInfo>(); //Reset name cache.            
         }
