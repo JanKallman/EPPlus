@@ -169,5 +169,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("TODAY() <> \"\"");
             Assert.IsTrue((bool)result);
         }
+
+        [TestMethod]
+        public void Test_15073()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\15072.xlsx")))
+            {
+                package.Workbook.Calculate();
+            }
+        }
     }
 }
