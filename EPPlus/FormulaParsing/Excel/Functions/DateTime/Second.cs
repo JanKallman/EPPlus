@@ -30,29 +30,23 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
-    public class Second : TimeBaseFunction
+    public class Second : ExcelFunction
     {
-        public Second()
-            : base()
-        {
-
-        }
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var firstArg = arguments.ElementAt(0).Value.ToString();
-            if (arguments.Count() == 1 && TimeStringParser.CanParse(firstArg))
+            var dateObj = arguments.ElementAt(0).Value;
+            System.DateTime date = System.DateTime.MinValue;
+            if (dateObj is string)
             {
-                var result = TimeStringParser.Parse(firstArg);
-                return CreateResult(GetSecondFromSerialNumber(result), DataType.Integer);
+                date = System.DateTime.Parse(dateObj.ToString());
             }
-            ValidateAndInitSerialNumber(arguments);
-            return CreateResult(GetSecondFromSerialNumber(SerialNumber), DataType.Integer);
-        }
-
-        private int GetSecondFromSerialNumber(double serialNumber)
-        {
-            return (int)System.Math.Round(GetSecond(serialNumber), 0);
+            else
+            {
+                var d = ArgToDecimal(arguments, 0);
+                date = System.DateTime.FromOADate(d);
+            }
+            return CreateResult(date.Second, DataType.Integer);
         }
     }
 }
