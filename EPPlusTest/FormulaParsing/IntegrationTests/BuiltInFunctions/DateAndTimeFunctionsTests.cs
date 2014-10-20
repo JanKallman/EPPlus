@@ -181,5 +181,38 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             ws.Calculate();
             Assert.AreEqual("Doe, John", ws.Cells["C1"].Value);
         }
+
+        [TestMethod]
+        public void HourWithExcelReference()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            ws.Cells["A1"].Value = new DateTime(2014, 1, 1, 10, 11, 12).ToOADate();
+            ws.Cells["B1"].Formula = "HOUR(A1)";
+            ws.Calculate();
+            Assert.AreEqual(10, ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void MinuteWithExcelReference()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            ws.Cells["A1"].Value = new DateTime(2014, 1, 1, 10, 11, 12).ToOADate();
+            ws.Cells["B1"].Formula = "MINUTE(A1)";
+            ws.Calculate();
+            Assert.AreEqual(11, ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void SecondWithExcelReference()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            ws.Cells["A1"].Value = new DateTime(2014, 1, 1, 10, 11, 12).ToOADate();
+            ws.Cells["B1"].Formula = "SECOND(A1)";
+            ws.Calculate();
+            Assert.AreEqual(12, ws.Cells["B1"].Value);
+        }
     }
 }
