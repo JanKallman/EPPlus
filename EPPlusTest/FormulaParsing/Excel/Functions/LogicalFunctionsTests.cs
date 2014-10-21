@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -48,6 +49,19 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(1);
             var result = func.Execute(args, _parsingContext);
             Assert.IsFalse((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void NotShouldHandleExcelReference()
+        {
+            using(var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("sheet1");
+                sheet.Cells["A1"].Value = false;
+                sheet.Cells["A2"].Formula = "NOT(A1)";
+                sheet.Calculate();
+                Assert.IsTrue((bool)sheet.Cells["A2"].Value);
+            }
         }
 
         [TestMethod]

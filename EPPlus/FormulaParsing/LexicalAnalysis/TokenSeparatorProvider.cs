@@ -42,6 +42,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             if(!_isInitialized)
             {
                 Init();
+                _isInitialized = true;
             }
 	    }
         private bool _isInitialized = false;
