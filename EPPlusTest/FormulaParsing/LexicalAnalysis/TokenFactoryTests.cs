@@ -33,10 +33,10 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldCreateAStringToken()
         {
-            var input = "'";
+            var input = "\"";
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
 
-            Assert.AreEqual("'", token.Value);
+            Assert.AreEqual("\"", token.Value);
             Assert.AreEqual(TokenType.String, token.TokenType);
         }
 

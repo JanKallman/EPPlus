@@ -286,7 +286,7 @@ namespace EPPlusTest
         #region "Threading Cellstore Test"
         public int _threadCount=0;
         ExcelPackage _pckThread;
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ThreadingTest()
         {
             var _pckThread = new ExcelPackage();

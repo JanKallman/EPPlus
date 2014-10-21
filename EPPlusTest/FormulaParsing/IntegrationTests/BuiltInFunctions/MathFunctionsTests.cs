@@ -199,21 +199,21 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void CountShouldReturnAResult()
         {
-            var result = _parser.Parse("Count(1,2,2,'4')");
+            var result = _parser.Parse("Count(1,2,2,\"4\")");
             Assert.AreEqual(4d, result);
         }
 
         [TestMethod]
         public void CountAShouldReturnAResult()
         {
-            var result = _parser.Parse("CountA(1,2,2,'', 'a')");
+            var result = _parser.Parse("CountA(1,2,2,\"\", \"a\")");
             Assert.AreEqual(4d, result);
         }
 
         [TestMethod]
         public void CountIfShouldReturnAResult()
         {
-            var result = _parser.Parse("CountIf({1;2;2;''}, '2')");
+            var result = _parser.Parse("CountIf({1;2;2;\"\"}, \"2\")");
             Assert.AreEqual(2d, result);
         }
 

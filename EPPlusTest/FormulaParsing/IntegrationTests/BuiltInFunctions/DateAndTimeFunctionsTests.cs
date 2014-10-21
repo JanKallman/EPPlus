@@ -110,21 +110,21 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void SecondShouldReturnCorrectResultWhenParsingString()
         {
-            var result = _parser.Parse("Second('10:12:14')");
+            var result = _parser.Parse("Second(\"10:12:14\")");
             Assert.AreEqual(14, result);
         }
 
         [TestMethod]
         public void MinuteShouldReturnCorrectResultWhenParsingString()
         {
-            var result = _parser.Parse("Minute('10:12:14 AM')");
+            var result = _parser.Parse("Minute(\"10:12:14 AM\")");
             Assert.AreEqual(12, result);
         }
 
         [TestMethod]
         public void HourShouldReturnCorrectResultWhenParsingString()
         {
-            var result = _parser.Parse("Hour('10:12:14')");
+            var result = _parser.Parse("Hour(\"10:12:14\")");
             Assert.AreEqual(10, result);
         }
 

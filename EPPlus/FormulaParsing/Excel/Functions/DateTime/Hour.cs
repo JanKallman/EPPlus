@@ -28,25 +28,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using System.Globalization;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
-    public class Hour : ExcelFunction
+    public class Hour : DateParsingFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
             var dateObj = arguments.ElementAt(0).Value;
-            System.DateTime date = System.DateTime.MinValue;
-            if (dateObj is string)
-            {
-                date = System.DateTime.Parse(dateObj.ToString());
-            }
-            else
-            {
-                var d = ArgToDecimal(arguments, 0);
-                date = System.DateTime.FromOADate(d);
-            }
+            var date = ParseDate(arguments, dateObj);
             return CreateResult(date.Hour, DataType.Integer);
         }
 

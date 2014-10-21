@@ -30,22 +30,13 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
-    public class Second : ExcelFunction
+    public class Second : DateParsingFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
             var dateObj = arguments.ElementAt(0).Value;
-            System.DateTime date = System.DateTime.MinValue;
-            if (dateObj is string)
-            {
-                date = System.DateTime.Parse(dateObj.ToString());
-            }
-            else
-            {
-                var d = ArgToDecimal(arguments, 0);
-                date = System.DateTime.FromOADate(d);
-            }
+            System.DateTime date = ParseDate(arguments, dateObj);
             return CreateResult(date.Second, DataType.Integer);
         }
     }

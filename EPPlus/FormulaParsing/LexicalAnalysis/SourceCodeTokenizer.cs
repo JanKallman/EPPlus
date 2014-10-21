@@ -78,9 +78,9 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 {
                     if (context.IsInString)
                     {
-                        if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\'')
+                        if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\"')
                         {
-                            i++;
+                            i ++;
                             context.AppendToCurrentToken(c);
                             continue;
                         }
