@@ -44,7 +44,7 @@ namespace OfficeOpenXml.DataValidation
     /// <summary>
     /// Excel datavalidation
     /// </summary>
-    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation  
+    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation
     {
         private const string _itemElementNodeName = "d:dataValidation";
 
@@ -209,7 +209,7 @@ namespace OfficeOpenXml.DataValidation
             }
             private set
             {
-                SetXmlNodeString(_typeMessagePath, value.SchemaName);
+                SetXmlNodeString(_typeMessagePath, value.SchemaName, true);
             }
         }
 
@@ -253,7 +253,7 @@ namespace OfficeOpenXml.DataValidation
             }
             set
             {
-                if(value == ExcelDataValidationWarningStyle.undefined)
+                if (value == ExcelDataValidationWarningStyle.undefined)
                 {
                     DeleteNode(_errorStylePath);
                 }
