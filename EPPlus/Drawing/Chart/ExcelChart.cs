@@ -1372,7 +1372,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 string v=_chartXmlHelper.GetXmlNodeString(_displayBlanksAsPath);
                 if (string.IsNullOrEmpty(v))
                 {
-                    return eDisplayBlanksAs.Gap;
+                    return eDisplayBlanksAs.Zero; //Issue 14715 Changed in Office 2010-?
                 }
                 else
                 {

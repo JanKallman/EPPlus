@@ -59,7 +59,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             _name = GetXmlNodeString(namePath);
             _size = (float)GetXmlNodeDecimal(sizePath);
-            _family = GetXmlNodeInt(familyPath);
+            _family = GetXmlNodeIntNull(familyPath)??int.MinValue;
             _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
             _bold = (topNode.SelectSingleNode(boldPath, NameSpaceManager) != null);
@@ -279,15 +279,15 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal ExcelFontXml Copy()
         {
             ExcelFontXml newFont = new ExcelFontXml(NameSpaceManager);
-            newFont.Name = Name;
-            newFont.Size = Size;
-            newFont.Family = Family;
-            newFont.Scheme = Scheme;
-            newFont.Bold = Bold;
-            newFont.Italic = Italic;
-            newFont.UnderLineType = UnderLineType;
-            newFont.Strike = Strike;
-            newFont.VerticalAlign = VerticalAlign;
+            newFont.Name = _name;
+            newFont.Size = _size;
+            newFont.Family = _family;
+            newFont.Scheme = _scheme;
+            newFont.Bold = _bold;
+            newFont.Italic = _italic;
+            newFont.UnderLineType = _underlineType;
+            newFont.Strike = _strike;
+            newFont.VerticalAlign = _verticalAlign;
             newFont.Color = Color.Copy();
             return newFont;
         }
