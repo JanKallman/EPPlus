@@ -1158,7 +1158,7 @@ namespace OfficeOpenXml
                         //}
 					}
 				}
-				return true;
+				return false;
 			}
 			set
 			{
@@ -2322,12 +2322,12 @@ namespace OfficeOpenXml
             var copiedValue = new List<CopiedCell>();
             while (cse.Next())
             {
-                var row=Destination._fromRow + (cse.Row - _fromRow);
-                var col=Destination._fromCol + (cse.Column - _fromCol);
+                var row=cse.Row;
+                var col = cse.Column;       //Issue 15070
                 var cell = new CopiedCell
                 {
-                    Row = row,
-                    Column = col,
+                    Row = Destination._fromRow + (row - _fromRow),
+                    Column = Destination._fromCol + (col - _fromCol),
                     Value=cse.Value
                 };
 

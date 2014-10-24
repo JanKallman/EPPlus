@@ -174,8 +174,8 @@ namespace OfficeOpenXml
             {
                 get
                 {
-                    var ix = _cells.GetValue(row, column);
-                    if(ix>=0 && ix < _list.Count)
+                    int ix=-1;
+                    if (_cells.Exists(row, column, ref ix) && ix >= 0 && ix < List.Count)  //Fixes issue 15075
                     {
                         return List[ix];
                     }
@@ -3271,9 +3271,9 @@ namespace OfficeOpenXml
                         {
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
-                                string sv = GetValueForXml(v);
+                                //string sv = GetValueForXml(v);
                                 cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
-                                cache.AppendFormat("<v>{0}</v></c>", sv);
+                                cache.AppendFormat("{0}</c>", GetFormulaValue(v));
                             }
                             else
                             {
@@ -3323,7 +3323,7 @@ namespace OfficeOpenXml
             //{                    
             if (v != null && v.ToString()!="")
             {
-                return "<v>" + GetValueForXml(v) + "</v>";
+                return "<v>" + SecurityElement.Escape(GetValueForXml(v)) + "</v>"; //Fixes issue 15071
             }            
             else
             {

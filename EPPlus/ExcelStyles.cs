@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Xml;
+using System.Linq;
 using System.Collections.Generic;
 using draw=System.Drawing;
 using OfficeOpenXml.Style;
@@ -919,15 +920,24 @@ namespace OfficeOpenXml
                 {
                     var id = style.CellStyleXfs[xfs.XfId].Id;
                     var newId = CellStyleXfs.FindIndexByID(id);
-                    //if (newId < 0)
-                    //{
-
-                    //    newXfs.XfId = CloneStyle(style, xfs.XfId, true);
-                    //}
-                    //else
-                    //{
-                    newXfs.XfId = newId;
-                    //}
+                    if (newId >= 0)
+                    {
+                        newXfs.XfId = newId;
+                    }
+                    else //Not the same workbook, copy the namedstyle to the workbook or match the id
+                    {
+                        var nsFind = style.NamedStyles.ToDictionary(d => (d.StyleXfId));
+                        var st = nsFind[xfs.XfId];
+                        if (NamedStyles.ExistsKey(st.Name))
+                        {
+                            newXfs.XfId = NamedStyles.FindIndexByID(st.Name);
+                        }
+                        else
+                        {
+                            var ns = CreateNamedStyle(st.Name, st.Style);
+                            newXfs.XfId = NamedStyles.Count - 1;
+                        }
+                    }
                 }
 
                 int index;

@@ -505,7 +505,6 @@ namespace OfficeOpenXml.Encryption
                 return ms.ToArray();
             }
         }
-
         private MemoryStream GetStreamFromPackage(CompoundDocument doc, ExcelEncryption encryption)
         {
             var ret = new MemoryStream();

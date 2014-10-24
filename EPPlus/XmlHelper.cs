@@ -697,7 +697,19 @@ namespace OfficeOpenXml
 				return 0;
 			}
 		}
-		internal double? GetXmlNodeDoubleNull(string path)
+        internal decimal? GetXmlNodeDecimalNull(string path)
+        {
+            decimal d;
+            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+            {
+                return d;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        internal double? GetXmlNodeDoubleNull(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
