@@ -204,7 +204,7 @@ namespace OfficeOpenXml.Packaging
         {
             if (PartExists(partUri))
             {
-                return Parts[GetUriKey(partUri.OriginalString)];
+                return Parts.Single(x => x.Key.ToLower() == GetUriKey(partUri.OriginalString.ToLower())).Value;
             }
             else
             {
@@ -223,7 +223,8 @@ namespace OfficeOpenXml.Packaging
         }
         internal bool PartExists(Uri partUri)
         {
-            return Parts.ContainsKey(GetUriKey(partUri.OriginalString));
+            var uriKey = GetUriKey(partUri.OriginalString.ToLower());
+            return Parts.Keys.Any(x => x.ToLower() == uriKey);
         }
         #endregion
 

@@ -1002,6 +1002,7 @@ namespace OfficeOpenXml
                 //var xr=new XmlTextReader(new StringReader(xml));
                 while(xr.Read())
                 {
+                    if (xr.NodeType == XmlNodeType.Whitespace) continue;
                     if (xr.LocalName != "col") break;
                     if (xr.NodeType == XmlNodeType.Element)
                     {
