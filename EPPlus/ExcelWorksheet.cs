@@ -1378,7 +1378,14 @@ namespace OfficeOpenXml
                         {
                             res += ExcelWorkbook.date1904Offset;
                         }
-                        _values.SetValue(row, col, DateTime.FromOADate(res));
+                        if (res >= -657435.0 && res < 2958465.9999999)
+                        {
+                            _values.SetValue(row, col, DateTime.FromOADate(res));
+                        }
+                        else
+                        {
+                            _values.SetValue(row, col, "");
+                        } 
                     }
                     else
                     {
