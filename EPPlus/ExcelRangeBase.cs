@@ -1690,7 +1690,7 @@ namespace OfficeOpenXml
 
 			double d;
 			DateTime dt;
-			if (Format.DataTypes == null || Format.DataTypes.Length < col || Format.DataTypes[col] == eDataTypes.Unknown)
+			if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
 			{
 				string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
 				if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
