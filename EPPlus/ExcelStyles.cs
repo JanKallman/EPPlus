@@ -859,7 +859,12 @@ namespace OfficeOpenXml
                 //Numberformat
                 if (xfs.NumberFormatId > 0)
                 {
-                    string format = "";
+                    //rake36: Two problems here...
+                    //rake36:  1. the first time through when format stays equal to String.Empty, it adds a string.empty to the list of Number Formats
+                    //rake36:  2. when adding a second sheet, if the numberformatid == 164, it finds the 164 added by previous sheets but was using the array index
+                    //rake36:      for the numberformatid
+
+                    string format = string.Empty;
                     foreach (var fmt in style.NumberFormats)
                     {
                         if (fmt.NumFmtId == xfs.NumberFormatId)
@@ -868,14 +873,23 @@ namespace OfficeOpenXml
                             break;
                         }
                     }
-                    int ix = NumberFormats.FindIndexByID(format);
-                    if (ix < 0)
+                    //rake36: Don't add another format if it's blank
+                    if (!String.IsNullOrEmpty(format))
                     {
-                        ExcelNumberFormatXml item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = NumberFormats.NextId++ };
-                        NumberFormats.Add(format, item);
-                        ix = item.NumFmtId;
+                        int ix = NumberFormats.FindIndexByID(format);
+                        if (ix < 0)
+                        {
+                            var item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = NumberFormats.NextId++ };
+                            NumberFormats.Add(format, item);
+                            //rake36: Use the just added format id
+                            newXfs.NumberFormatId = item.NumFmtId;
+                        }
+                        else
+                        {
+                            //rake36: Use the format id defined by the index... not the index itself
+                            newXfs.NumberFormatId = NumberFormats[ix].NumFmtId;
+                        }
                     }
-                    newXfs.NumberFormatId = ix;
                 }
 
                 //Font
