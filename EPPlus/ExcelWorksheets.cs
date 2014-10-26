@@ -847,7 +847,18 @@ namespace OfficeOpenXml
 		/// <param name="Index">The position of the worksheet in the workbook</param>
 		public void Delete(int Index)
 		{
-			ExcelWorksheet worksheet = _worksheets[Index];
+			/*
+            * Hack to prefetch all the drawings,
+            * so that all the images are referenced, 
+            * to prevent the deletion of the image file, 
+            * when referenced more than once
+            */
+            foreach (var ws in _worksheets)
+            {
+                var drawings = ws.Value.Drawings; 
+            }			
+            
+            ExcelWorksheet worksheet = _worksheets[Index];
             if (worksheet.Drawings.Count > 0)
             {
                 worksheet.Drawings.ClearDrawings();
