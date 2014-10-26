@@ -145,7 +145,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void ChooseShouldReturnCorrectResult()
         {
-            var result = _parser.Parse("Choose(1, \"A\", 'B')");
+            var result = _parser.Parse("Choose(1, \"A\", \"B\")");
             Assert.AreEqual("A", result);
         }
 
