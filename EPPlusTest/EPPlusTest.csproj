@@ -108,6 +108,7 @@
     <Compile Include="DataValidation\RangeBaseTests.cs" />
     <Compile Include="DataValidation\ValidationCollectionTests.cs" />
     <Compile Include="DataValidation\ValidationTestBase.cs" />
+    <Compile Include="DTS_FailingTests.cs" />
     <Compile Include="Encrypt.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslatorTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\CellReferenceProviderTests.cs" />
