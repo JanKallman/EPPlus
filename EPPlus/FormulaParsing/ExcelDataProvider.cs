@@ -62,8 +62,11 @@ namespace OfficeOpenXml.FormulaParsing
         /// <summary>
         /// Returns values from the required range.
         /// </summary>
-        /// <param name="address">An Excel address</param>
-        /// <returns>values from the required cells</returns>
+        /// <param name="worksheetName">The name of the worksheet</param>
+        /// <param name="row">Row</param>
+        /// <param name="column">Column</param>
+        /// <param name="address">The reference address</param>
+        /// <returns></returns>
         public abstract IRangeInfo GetRange(string worksheetName, int row, int column, string address);
         public abstract INameInfo GetName(string worksheet, string name);
 
@@ -82,6 +85,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <summary>
         /// Returns a single cell value
         /// </summary>
+        /// <param name="sheetName"></param>
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>

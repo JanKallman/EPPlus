@@ -50,7 +50,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             {
                 return double.Parse(str,CultureInfo.InvariantCulture);
             }
-            catch (Exception e)
+            catch// (Exception e)
             {
                 throw new ExcelErrorValueException(ExcelErrorValue.Create(eErrorType.Value));
             }

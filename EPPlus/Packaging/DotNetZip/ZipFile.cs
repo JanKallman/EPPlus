@@ -99,7 +99,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
     ///   <item>
     ///     <c>ZipFile</c> can be used to read and extract zip files, in addition to
     ///     creating zip files. <c>ZipOutputStream</c> cannot read zip files. If you want
-    ///     to use a stream to read zip files, check out the <see cref="ZipInputStream"/> class.
+    ///     to use a stream to read zip files, check out the ZipInputStream class.
     ///   </item>
     ///
     ///   <item>

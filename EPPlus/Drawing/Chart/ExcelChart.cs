@@ -1882,7 +1882,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.Bubble:
                 case eChartType.Bubble3DEffect:
                     return new ExcelBubbleChart(drawings, drawNode, chartType, topChart, PivotTableSource);
-                    break;
                 case eChartType.Radar:
                 case eChartType.RadarFilled:
                 case eChartType.RadarMarkers:

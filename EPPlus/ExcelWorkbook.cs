@@ -865,7 +865,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-		/// OOXML requires that "," , and & be escaped, but ' and " should *not* be escaped, nor should
+		/// OOXML requires that "," , and &amp; be escaped, but ' and " should *not* be escaped, nor should
 		/// any extended Unicode characters. This function only encodes the required characters.
 		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
 		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric

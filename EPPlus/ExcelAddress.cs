@@ -107,8 +107,9 @@ namespace OfficeOpenXml
         /// Creates an Address object
         /// </summary>
         /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
-        /// <param name="pck">Reference to the package to find information about tables and names</param>
         /// <param name="address">The Excel Address</param>
+        /// <param name="pck">Reference to the package to find information about tables and names</param>
+        /// <param name="referenceAddress">The address</param>
         public ExcelAddressBase(string address, ExcelPackage pck, ExcelAddressBase referenceAddress)
         {
             SetAddress(address);
@@ -1162,9 +1163,6 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelAddress : ExcelAddressBase
     {
-        private string fullAddress;
-        private ExcelPackage _package;
-
         internal ExcelAddress()
             : base()
         {

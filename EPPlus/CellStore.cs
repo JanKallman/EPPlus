@@ -905,24 +905,6 @@ using OfficeOpenXml;
                 }
                 else
                 {
-                    int offset;
-                    //if (pagePos == 0)
-                    //{
-                    //    offset = column._pages[0].IndexOffset-page.MaxIndex;
-                    //    //Set offset to Zero
-                    //    for (var r = 0; r < column._pages[0].RowCount; r++)
-                    //    {
-                    //        var row = column._pages[0].Rows[r];
-                    //        row.Index += (short)offset;
-                    //    }
-
-                    //    if (column._pages[0].Index > 0)
-                    //    {
-                    //        column._pages[0].Index--;
-                    //    }
-                    //    column._pages[0].Offset = 0;
-                    //    pagePos++;
-                    //}
                     for (int i = pagePos; i < column.PageCount; i++)
                     {
                         column._pages[i].Offset -= delSize;
@@ -931,8 +913,6 @@ using OfficeOpenXml;
                             column._pages[i].Index--;
                             column._pages[i].Offset += PageSize;
                         }
-                        //column._pages[i].Index--;
-                        //column._pages[i].Offset += (PageSize - delSize);
                     }
                 }                
                 if (column.PageCount > pagePos)
@@ -1392,7 +1372,7 @@ using OfficeOpenXml;
             _columnIndex[pos] = new ColumnIndex() { Index = (short)(Column) };
             ColumnCount++;
         }        
-        int _colPos = -1, _row, _col;
+        int _colPos = -1, _row;
         public ulong Current
         {
             get

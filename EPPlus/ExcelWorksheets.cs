@@ -556,8 +556,8 @@ namespace OfficeOpenXml
             {
                 added._types.SetValue(row, col, t);
             }
-            var fl = Copy._flags.GetValue(row, col);
-            if (fl != null)
+            byte fl=0;
+            if (Copy._flags.Exists(row,col,ref fl))
             {
                 added._flags.SetValue(row, col, fl);
             }

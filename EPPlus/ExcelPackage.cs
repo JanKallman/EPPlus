@@ -535,7 +535,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        throw (ex);
+                        throw;
                     }
                 }
             }
@@ -576,7 +576,7 @@ namespace OfficeOpenXml
                    }
                    else
                    {
-                       throw (ex);
+                       throw;
                    }
                 }
             }
@@ -815,7 +815,7 @@ namespace OfficeOpenXml
             {
                 if (File == null)
                 {
-                    throw (ex);
+                    throw;
                 }
                 else
                 {
@@ -828,7 +828,8 @@ namespace OfficeOpenXml
         /// This method recursively calls the Save method on all sub-components.
         /// The package is closed after it ha
         /// d to encrypt the workbook with. 
-        /// This parameter overrides the Workbook.Encryption.Password.</param>
+        /// </summary>
+        /// <param name="password">This parameter overrides the Workbook.Encryption.Password.</param>
         public void Save(string password)
 		{
             Encryption.Password = password;
@@ -836,8 +837,9 @@ namespace OfficeOpenXml
         }
         /// <summary>
         /// Saves the workbook to a new file
-        /// The package is closed after it has been saved
+        /// The package is closed after it has been saved        
         /// </summary>
+        /// <param name="file">The file location</param>
         public void SaveAs(FileInfo file)
         {
             File = file;
@@ -1098,7 +1100,7 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        throw (ex);
+                        throw;
                     }
                 }
             }            
