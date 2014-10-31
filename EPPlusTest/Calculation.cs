@@ -138,7 +138,7 @@ namespace EPPlusTest
                         Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
                     }
                 }
-                catch (Exception e)
+                catch
                 {
                     errors.Add(new Tuple<string, object, object>(adr, fr[adr], ws.Cells[adr].Value));
                     nErrors++;
