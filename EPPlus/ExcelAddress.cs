@@ -241,7 +241,8 @@ namespace OfficeOpenXml
                 {
                     pos = address.IndexOf("'", pos+2);
                 }
-                _ws = address.Substring(1,pos-1).Replace("''","'");
+                var wbws = address.Substring(1,pos-1).Replace("''","'");
+                SetWbWs(wbws);
                 _address = address.Substring(pos + 2);
             }
             else if (address.StartsWith("[")) //Remove any external reference
@@ -954,7 +955,15 @@ namespace OfficeOpenXml
                 {
                     if(Address[i]=='!' && !isText)
                     {
-                        ws=text;
+                        if (text.Length>0 && text[0] == '[')
+                        {
+                            wb = text.Substring(1, text.IndexOf("]") - 1);
+                            ws = text.Substring(text.IndexOf("]") + 1);
+                        }
+                        else
+                        {
+                            ws=text;
+                        }
                         intAddress=Address.Substring(i+1);
                         return true;
                     }
@@ -969,7 +978,7 @@ namespace OfficeOpenXml
                             }
                             brackPos=i;
                         }
-                        else if(Address[i]==']')
+                        else if(Address[i]==']' && !isText)
                         {
                             if (brackPos > -1)
                             {

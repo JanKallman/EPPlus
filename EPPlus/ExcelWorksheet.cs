@@ -174,8 +174,8 @@ namespace OfficeOpenXml
             {
                 get
                 {
-                    var ix = _cells.GetValue(row, column);
-                    if(ix>=0 && ix < _list.Count)
+                    int ix=-1;
+                    if (_cells.Exists(row, column, ref ix) && ix >= 0 && ix < List.Count)  //Fixes issue 15075
                     {
                         return List[ix];
                     }
@@ -249,23 +249,23 @@ namespace OfficeOpenXml
             {
                 if (address._fromRow == 1 && address._toRow == ExcelPackage.MaxRows) //Entire row
                 {
-                    for (int col = address._fromCol; col < address._toCol; col++)
+                    for (int col = address._fromCol; col <= address._toCol; col++)
                     {
                         _cells.SetValue(0, col, ix);
                     }
                 }
                 else if (address._fromCol == 1 && address._toCol == ExcelPackage.MaxColumns) //Entire row
                 {
-                    for (int row = address._fromRow; row < address._toRow; row++)
+                    for (int row = address._fromRow; row <= address._toRow; row++)
                     {
                         _cells.SetValue(row, 0, ix);
                     }
                 }
                 else
                 {
-                    for (int col = address._fromCol; col < address._toCol; col++)
+                    for (int col = address._fromCol; col <= address._toCol; col++)
                     {
-                        for (int row = address._fromRow; row < address._toRow; row++)
+                        for (int row = address._fromRow; row <= address._toRow; row++)
                         {
                             _cells.SetValue(row, col, ix);
                         }
@@ -1793,10 +1793,13 @@ namespace OfficeOpenXml
                 FixMergedCellsRow(rowFrom, rows, false);
                 if (copyStylesFromRow > 0)
                 {
-                    for (var r = 0; r < rows; r++)
+                    var cseS = new CellsStoreEnumerator<int>(_styles, copyStylesFromRow, 0, ExcelPackage.MaxRows, copyStylesFromRow); //Fixes issue 15068 
+                    while(cseS.Next())
                     {
-                        var row = this.Row(rowFrom + r);
-                        row.StyleID = this.Row(copyStylesFromRow).StyleID;
+                        for (var r = 0; r < rows; r++)
+                        {
+                            _styles.SetValue(rowFrom + r, cseS.Column, cseS.Value);
+                        }
                     }
                 }
             }
@@ -3199,7 +3202,7 @@ namespace OfficeOpenXml
             cache.Append("<sheetData>");
             
             //Set a value for cells with style and no value set.
-            var cseStyle = new CellsStoreEnumerator<int>(_styles, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            var cseStyle = new CellsStoreEnumerator<int>(_styles, 0, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             foreach (var s in cseStyle)
             {
                 if(!_values.Exists(cseStyle.Row, cseStyle.Column))
@@ -3279,9 +3282,9 @@ namespace OfficeOpenXml
                         {
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
-                                string sv = GetValueForXml(v);
+                                //string sv = GetValueForXml(v);
                                 cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" {2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v));
-                                cache.AppendFormat("<v>{0}</v></c>", sv);
+                                cache.AppendFormat("{0}</c>", GetFormulaValue(v));
                             }
                             else
                             {
@@ -3331,7 +3334,7 @@ namespace OfficeOpenXml
             //{                    
             if (v != null && v.ToString()!="")
             {
-                return "<v>" + GetValueForXml(v) + "</v>";
+                return "<v>" + SecurityElement.Escape(GetValueForXml(v)) + "</v>"; //Fixes issue 15071
             }            
             else
             {
