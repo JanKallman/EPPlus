@@ -249,23 +249,23 @@ namespace OfficeOpenXml
             {
                 if (address._fromRow == 1 && address._toRow == ExcelPackage.MaxRows) //Entire row
                 {
-                    for (int col = address._fromCol; col < address._toCol; col++)
+                    for (int col = address._fromCol; col <= address._toCol; col++)
                     {
                         _cells.SetValue(0, col, ix);
                     }
                 }
                 else if (address._fromCol == 1 && address._toCol == ExcelPackage.MaxColumns) //Entire row
                 {
-                    for (int row = address._fromRow; row < address._toRow; row++)
+                    for (int row = address._fromRow; row <= address._toRow; row++)
                     {
                         _cells.SetValue(row, 0, ix);
                     }
                 }
                 else
                 {
-                    for (int col = address._fromCol; col < address._toCol; col++)
+                    for (int col = address._fromCol; col <= address._toCol; col++)
                     {
-                        for (int row = address._fromRow; row < address._toRow; row++)
+                        for (int row = address._fromRow; row <= address._toRow; row++)
                         {
                             _cells.SetValue(row, col, ix);
                         }
@@ -1785,10 +1785,13 @@ namespace OfficeOpenXml
                 FixMergedCellsRow(rowFrom, rows, false);
                 if (copyStylesFromRow > 0)
                 {
-                    for (var r = 0; r < rows; r++)
+                    var cseS = new CellsStoreEnumerator<int>(_styles, copyStylesFromRow, 0, ExcelPackage.MaxRows, copyStylesFromRow); //Fixes issue 15068 
+                    while(cseS.Next())
                     {
-                        var row = this.Row(rowFrom + r);
-                        row.StyleID = this.Row(copyStylesFromRow).StyleID;
+                        for (var r = 0; r < rows; r++)
+                        {
+                            _styles.SetValue(rowFrom + r, cseS.Column, cseS.Value);
+                        }
                     }
                 }
             }
@@ -3191,7 +3194,7 @@ namespace OfficeOpenXml
             cache.Append("<sheetData>");
             
             //Set a value for cells with style and no value set.
-            var cseStyle = new CellsStoreEnumerator<int>(_styles, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            var cseStyle = new CellsStoreEnumerator<int>(_styles, 0, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             foreach (var s in cseStyle)
             {
                 if(!_values.Exists(cseStyle.Row, cseStyle.Column))

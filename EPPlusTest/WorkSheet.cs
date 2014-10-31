@@ -1701,7 +1701,7 @@ namespace EPPlusTest
 
             wsSheet.Cells["B2"].Value = "Text Center";
             wsSheet.Cells["B2"].StyleName = "first";
-            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name="Arial";
+            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name = "Arial";
 
             var rowStyle = _pck.Workbook.Styles.CreateNamedStyle("RowStyle", firstNamedStyle.Style).Style;
             rowStyle.Fill.BackgroundColor.SetColor(Color.Pink);

@@ -496,17 +496,25 @@ namespace OfficeOpenXml
                             column._styleName = value;
                             column.StyleID = _styleID;
 
-
                             if (cols.Value == null)
                             {
                                 break;
                             }
                             else
                             {
-                                column = (ExcelColumn)cols.Value;
+                                var nextCol = (ExcelColumn)cols.Value;
+                                if(column.ColumnMax < nextCol.ColumnMax-1)
+                                {
+                                    column.ColumnMax = nextCol.ColumnMax - 1;
+                                }
+                                column = nextCol;
                                 cols.Next();
                             }
                         }
+                    }
+                    if (column.ColumnMax < _toCol)
+                    {
+                        column.ColumnMax = _toCol;
                     }
                     //if (column.ColumnMin == _fromCol)
                     //{
@@ -539,7 +547,7 @@ namespace OfficeOpenXml
                     for (int r = _fromRow; r <= _toRow; r++)
                     {
                         _worksheet.Row(r)._styleName = value;
-                        _worksheet.Row(r).StyleID = StyleID;
+                        _worksheet.Row(r).StyleID = _styleID;
                     }
                 }
 
@@ -1158,7 +1166,7 @@ namespace OfficeOpenXml
                         //}
 					}
 				}
-				return false;
+				return true;
 			}
 			set
 			{
@@ -2441,12 +2449,12 @@ namespace OfficeOpenXml
                 {
                     var adr = new ExcelAddress(_worksheet.Name, _worksheet.MergedCells.List[csem.Value]);
                     if(this.Collide(adr)==eAddressCollition.Inside)
-                    {
+                    {                        
                         copiedMergedCells.Add(csem.Value, new ExcelAddress(
-                            Destination._fromRow + (cses.Row - _fromRow),
-                            Destination._fromCol + (cses.Column - _fromCol),
-                            Destination._toRow + (cses.Row - _toRow),
-                            Destination._toCol + (cses.Column - _toCol)));
+                            Destination._fromRow + (adr.Start.Row - _fromRow),
+                            Destination._fromCol + (adr.Start.Column - _fromCol),
+                            Destination._toRow + (adr.End.Row - _fromRow),
+                            Destination._toCol + (adr.End.Column - _fromCol)));
                     }
                     else
                     {

@@ -924,18 +924,21 @@ namespace OfficeOpenXml
                     {
                         newXfs.XfId = newId;
                     }
-                    else //Not the same workbook, copy the namedstyle to the workbook or match the id
+                    else if(style._wb!=_wb) //Not the same workbook, copy the namedstyle to the workbook or match the id
                     {
                         var nsFind = style.NamedStyles.ToDictionary(d => (d.StyleXfId));
-                        var st = nsFind[xfs.XfId];
-                        if (NamedStyles.ExistsKey(st.Name))
+                        if (nsFind.ContainsKey(xfs.XfId))
                         {
-                            newXfs.XfId = NamedStyles.FindIndexByID(st.Name);
-                        }
-                        else
-                        {
-                            var ns = CreateNamedStyle(st.Name, st.Style);
-                            newXfs.XfId = NamedStyles.Count - 1;
+                            var st = nsFind[xfs.XfId];
+                            if (NamedStyles.ExistsKey(st.Name))
+                            {
+                                newXfs.XfId = NamedStyles.FindIndexByID(st.Name);
+                            }
+                            else
+                            {
+                                var ns = CreateNamedStyle(st.Name, st.Style);
+                                newXfs.XfId = NamedStyles.Count - 1;
+                            }
                         }
                     }
                 }
