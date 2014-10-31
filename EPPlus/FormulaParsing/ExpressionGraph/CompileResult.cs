@@ -51,7 +51,6 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Result = result;
             DataType = dataType;
         }
-        object _result;
         public object Result
         {
             get;

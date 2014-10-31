@@ -489,8 +489,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         /// <para>
         ///    The <c>OpenReader()</c> method works only when the ZipEntry is
         ///    obtained from an instance of <c>ZipFile</c>. This method will throw
-        ///    an exception if the ZipEntry is obtained from a <see
-        ///    cref="ZipInputStream"/>.
+        ///    an exception if the ZipEntry is obtained from a ZipInputStream.
         /// </para>
         /// </remarks>
         ///

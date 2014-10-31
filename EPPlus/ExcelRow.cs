@@ -98,7 +98,6 @@ namespace OfficeOpenXml
 		internal XmlNode Node { get { return (_rowElement); } }
 
 		#region ExcelRow Hidden
-        bool _hidden = false;
         /// <summary>
 		/// Allows the row to be hidden in the worksheet
 		/// </summary>
@@ -125,7 +124,6 @@ namespace OfficeOpenXml
 		#endregion
 
 		#region ExcelRow Height
-        double _height=-1;  //Set to default height
         /// <summary>
 		/// Sets the height of the row
 		/// </summary>
@@ -361,6 +359,7 @@ namespace OfficeOpenXml
         
         #region IRangeID Members
 
+        [Obsolete]
         ulong IRangeID.RangeID
         {
             get

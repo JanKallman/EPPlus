@@ -206,7 +206,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeString("@subtotal", v);
             }
         }
-        ///Since we have no items, Excel will crash when we use showDataAs options that require baseItem's
+        /////Since we have no items, Excel will crash when we use showDataAs options that require baseItem's
         //public eShowDataAs ShowDataAs
         //{
         //    get

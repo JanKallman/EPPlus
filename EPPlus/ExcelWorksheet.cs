@@ -160,7 +160,6 @@ namespace OfficeOpenXml
         /// <summary>
         /// Collection containing merged cell addresses
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         public class MergeCellsCollection : IEnumerable<string>
         {
             internal MergeCellsCollection()
@@ -1808,19 +1807,19 @@ namespace OfficeOpenXml
         /// Inserts a new column into the spreadsheet.  Existing columns below the position are 
         /// shifted down.  All formula are updated to take account of the new column.
         /// </summary>
-        /// <param name="rowFrom">The position of the new column</param>
-        /// <param name="rows">Number of columns to insert</param>
-        /// <summary>
+        /// <param name="columnFrom">The position of the new column</param>
+        /// <param name="columns">Number of columns to insert</param>        
         public void InsertColumn(int columnFrom, int columns)
         {
             InsertColumn(columnFrom, columns, 0);
         }
+        ///<summary>
         /// Inserts a new column into the spreadsheet.  Existing column to the left are 
         /// shifted.  All formula are updated to take account of the new column.
         /// </summary>
-        /// <param name="rowFrom">The position of the new column</param>
-        /// <param name="rows">Number of columns to insert.</param>
-        /// <param name="copyStylesFromRow">Copy Styles from this column. Applied to all inserted columns</param>
+        /// <param name="columnFrom">The position of the new column</param>
+        /// <param name="columns">Number of columns to insert.</param>
+        /// <param name="copyStylesFromColumn">Copy Styles from this column. Applied to all inserted columns</param>
         public void InsertColumn(int columnFrom, int columns, int copyStylesFromColumn)
         {
             CheckSheetType();
@@ -1948,8 +1947,8 @@ namespace OfficeOpenXml
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="rows"></param>
+        /// <param name="column"></param>
+        /// <param name="columns"></param>
         /// <param name="delete"></param>
         private void FixMergedCellsColumn(int column, int columns, bool delete)
         {
@@ -2204,7 +2203,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Delete the specified row from the worksheet.
         /// </summary>
-        /// <param name="rowFrom">A row to be deleted</param>
+        /// <param name="row">A row to be deleted</param>
         public void DeleteRow(int row)
         {
             DeleteRow(row, 1);
@@ -2235,7 +2234,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Delete the specified column from the worksheet.
         /// </summary>
-        /// <param name="rowFrom">The column to be deleted</param>
+        /// <param name="column">The column to be deleted</param>
         public void DeleteColumn(int column)
         {
             DeleteColumn(column,1);
@@ -2243,8 +2242,8 @@ namespace OfficeOpenXml
         /// <summary>
         /// Delete the specified column from the worksheet.
         /// </summary>
-        /// <param name="rowFrom">The start column</param>
-        /// <param name="rows">Number of columns to delete</param>
+        /// <param name="columnFrom">The start column</param>
+        /// <param name="columns">Number of columns to delete</param>
         public void DeleteColumn(int columnFrom, int columns)
         {
             lock (this)

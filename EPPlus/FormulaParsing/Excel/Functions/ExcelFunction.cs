@@ -203,7 +203,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         /// <summary>
         /// Returns the value of the argument att the position of the 0-based
-        /// <paramref name="index"/> as a bool
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Value of the argument as a double.</returns>

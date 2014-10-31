@@ -52,8 +52,6 @@ using System.Security;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using System.ComponentModel;
-
 namespace OfficeOpenXml
 {	
     /// <summary>
@@ -455,7 +453,7 @@ namespace OfficeOpenXml
 			set
 			{
 				_styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
-                int row = 0, col = _fromCol;
+                int col = _fromCol;
                 if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)    //Full column
 				{
 					ExcelColumn column;
@@ -1812,7 +1810,7 @@ namespace OfficeOpenXml
 	    /// <summary>
 	    /// Load the data from the datareader starting from the top left cell of the range
 	    /// </summary>
-	    /// <param name="Reader">The datareader to load< from/param>
+	    /// <param name="Reader">The datareader to load from</param>
 	    /// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
 	    /// <returns>The filled range</returns>
 	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders)
