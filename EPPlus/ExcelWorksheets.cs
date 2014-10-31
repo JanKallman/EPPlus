@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.IO;
+using System.Linq;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
@@ -509,7 +510,9 @@ namespace OfficeOpenXml
                     var c = Copy._values.GetValue(row, col) as ExcelColumn;
                     if (c != null)
                     {
-                        added._values.SetValue(row, col, c.Clone(added, c.ColumnMin));
+                        var clone = c.Clone(added, c.ColumnMin);
+                        clone.StyleID = c.StyleID;
+                        added._values.SetValue(row, col, clone);
                         styleID = c.StyleID;
                     }
                 }
@@ -539,16 +542,6 @@ namespace OfficeOpenXml
                         var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
                         styleCashe.Add(styleID, s);
                         added._styles.SetValue(row, col, s);
-                        if (Copy.Workbook.Styles.CellXfs[styleID].XfId > 0) //Named styles
-                        {
-                            var styleName = Copy.Workbook.Styles.NamedStyles[Copy.Workbook.Styles.CellXfs[styleID].XfId].Name;
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(styleName))
-                            {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(styleName);
-                                ns.StyleXfId = s;
-                            }
-
-                        }
                     }
                 }
             }

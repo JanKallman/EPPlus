@@ -228,7 +228,15 @@ namespace OfficeOpenXml
 						}
 						else
 						{
-							namedRange.NameFormula = fullAddress;
+                            //if (addressType == ExcelAddressBase.AddressType.ExternalAddress || addressType == ExcelAddressBase.AddressType.ExternalName)
+                            //{
+                            //    var r = new ExcelAddress(fullAddress);
+                            //    namedRange.NameFormula = '\'[' + r._wb
+                            //}
+                            //else
+                            //{
+                                namedRange.NameFormula = fullAddress;
+                            //}
 						}
 					}
 					else
