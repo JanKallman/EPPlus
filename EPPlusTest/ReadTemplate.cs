@@ -289,7 +289,7 @@ namespace EPPlusTest
         [TestMethod, Ignore]
         public void ThreadingTest()
         {
-            var _pckThread = new ExcelPackage();
+            _pckThread = new ExcelPackage();
             var ws = _pckThread.Workbook.Worksheets.Add("Threading");
 
             for (int t = 0; t < 20; t++)
