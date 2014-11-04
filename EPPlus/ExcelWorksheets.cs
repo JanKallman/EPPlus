@@ -739,7 +739,7 @@ namespace OfficeOpenXml
             var uriId = sheetID;
 
 
-            // get the next available worhsheet id
+            // get the next available worhsheet uri
             do
             {
                 if (isChart)
