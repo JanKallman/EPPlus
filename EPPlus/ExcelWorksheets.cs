@@ -731,31 +731,28 @@ namespace OfficeOpenXml
             TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
+
         private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet, bool isChart)
         {
             Name = ValidateFixSheetName(Name);
+            sheetID = this.Any() ? this.Max(ws => ws.SheetID) + 1 : 1;
+            var uriId = sheetID;
 
-            //First find maximum existing sheetID
-            sheetID = 0;
-            foreach(var ws in this)
-            {                
-                if (ws.SheetID > sheetID)
+
+            // get the next available worhsheet id
+            do
+            {
+                if (isChart)
                 {
-                    sheetID = ws.SheetID;
+                    uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + uriId + ".xml", UriKind.Relative);
                 }
-            }
-            // we now have the max existing values, so add one
-            sheetID++;
+                else
+                {
+                    uriWorksheet = new Uri("/xl/worksheets/sheet" + uriId + ".xml", UriKind.Relative);
+                }
 
-            // add the new worksheet to the package
-            if (isChart)
-            {
-                uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + sheetID.ToString() + ".xml", UriKind.Relative);
-            }
-            else
-            {
-                uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
-            }
+                uriId++;
+            } while (_pck.Package.PartExists(uriWorksheet));
         }
 
         internal string ValidateFixSheetName(string Name)
