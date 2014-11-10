@@ -1794,6 +1794,27 @@ namespace EPPlusTest
            ws.Cells["H1"].Style.TextRotation = 180;
            ws.Cells["A1:H1"].AutoFitColumns(0);
         }
+        [TestMethod]
+        public void Moveissue()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDelete.xlsx"));
+            _pck.Workbook.Worksheets[1].DeleteRow(2,4);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
+        [TestMethod]
+        public void DelCol()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
+            _pck.Workbook.Worksheets[1].DeleteColumn(5, 1);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
+        [TestMethod]
+        public void InsCol()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
+            _pck.Workbook.Worksheets[1].InsertColumn(4, 5);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
         [Ignore]
         [TestMethod]
         public void FileLockedProblem()
@@ -1804,7 +1825,6 @@ namespace EPPlusTest
                 pck.Save();
                 pck.Dispose();
             }
-            
         }
         [Ignore]
         [TestMethod]
@@ -1841,6 +1861,27 @@ namespace EPPlusTest
 
                 //save our new workbook and we are done!
                 package.Save();
+            }
+        }
+        [TestMethod]
+        public void Deletews()
+        {
+            FileInfo newFile = new FileInfo(@"c:\temp\bug\worksheet error.xlsx");
+            using (ExcelPackage package = new ExcelPackage(newFile))
+            {
+                var ws1 = package.Workbook.Worksheets.Add("sheet1");
+                var ws2 = package.Workbook.Worksheets.Add("sheet2");
+                var ws3 = package.Workbook.Worksheets.Add("sheet3");
+
+                package.Workbook.Worksheets.MoveToStart(ws3.Name);
+                //save our new workbook and we are done!
+                package.Save();
+            }
+            using (ExcelPackage package = new ExcelPackage(newFile))
+            {
+                package.Workbook.Worksheets.Delete(1);
+                var ws3 = package.Workbook.Worksheets.Add("sheet3");
+                package.SaveAs(new FileInfo(@"c:\temp\bug\worksheet error_save.xlsx"));
             }
         }
         #region Date1904 Test Cases

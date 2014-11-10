@@ -67,30 +67,33 @@ namespace OfficeOpenXml
 
             foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
-				string name = sheetNode.Attributes["name"].Value;
-				//Get the relationship id
-				string relId = sheetNode.Attributes["r:id"].Value;
-				int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
-                
-                //Hidden property
-                eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
-				XmlNode attr = sheetNode.Attributes["state"];
-				if (attr != null)
-					hidden = TranslateHidden(attr.Value);
+                if (sheetNode.NodeType == XmlNodeType.Element)
+                {
+                    string name = sheetNode.Attributes["name"].Value;
+                    //Get the relationship id
+                    string relId = sheetNode.Attributes["r:id"].Value;
+                    int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
-				var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
-				
-				//add the worksheet
-                if(sheetRelation.RelationshipType.EndsWith("chartsheet"))
-                {
-                    _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    //Hidden property
+                    eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
+                    XmlNode attr = sheetNode.Attributes["state"];
+                    if (attr != null)
+                        hidden = TranslateHidden(attr.Value);
+
+                    var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+                    Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
+
+                    //add the worksheet
+                    if (sheetRelation.RelationshipType.EndsWith("chartsheet"))
+                    {
+                        _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    else
+                    {
+                        _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    positionID++;
                 }
-                else
-                {
-                    _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
-                }
-				positionID++;
 			}
 		}
 
