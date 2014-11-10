@@ -2256,7 +2256,7 @@ namespace OfficeOpenXml
                     if(_values.PrevCell(ref r,ref c))
                     {
                         col = _values.GetValue(0, c) as ExcelColumn;
-                        if(col._columnMax>=columnFrom)
+                        if(col._columnMax >= columnFrom)
                         {
                             col.ColumnMax=columnFrom-1;
                         }
@@ -2302,10 +2302,11 @@ namespace OfficeOpenXml
                 else
                 {
                     sf.Address = a.Address;
-                    sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -rows, 0, rowFrom, 0);
-                    if (sf.StartRow >= rowFrom)
+                    if (sf.StartRow > rowFrom)
                     {
-                        sf.StartRow -= sf.StartRow;
+                        var r = Math.Min(sf.StartRow - rowFrom, rows);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -r, 0, rowFrom, 0);
+                        sf.StartRow -= r;
                     }
                 }
             }
@@ -2336,11 +2337,20 @@ namespace OfficeOpenXml
                 else
                 {
                     sf.Address = a.Address;
-                    sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0,-columns,0, columnFrom);
-                    if (sf.StartCol >= columnFrom)
+                    //sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -columns, 0, columnFrom);
+                    if (sf.StartCol > columnFrom)
                     {
-                        sf.StartCol -= sf.StartCol;
+                        var c = Math.Min(sf.StartCol - columnFrom, columns);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, columnFrom);
+                        sf.StartCol-= c;
                     }
+
+                    //sf.Address = a.Address;
+                    //sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0,-columns,0, columnFrom);
+                    //if (sf.StartCol >= columnFrom)
+                    //{
+                    //    sf.StartCol -= sf.StartCol;
+                    //}
                 }
             }
             foreach (var ix in delSF)
@@ -2886,6 +2896,7 @@ namespace OfficeOpenXml
 
         internal void SetTableTotalFunction(ExcelTable tbl, ExcelTableColumn col, int colNum=-1)
         {
+            if (tbl.ShowTotal == false) return;
             if (colNum == -1)
             {
                 for (int i = 0; i < tbl.Columns.Count; i++)

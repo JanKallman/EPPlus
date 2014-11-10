@@ -750,12 +750,13 @@ using OfficeOpenXml;
                             if (pagePos < column.PageCount)
                             {
                                 var page = column._pages[pagePos];
-                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
+                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex >= fromRow + rows)
                                 {
-                                    rows -= page.MinIndex - fromRow;
-                                    fromRow = page.MinIndex;
+                                    var o = page.MinIndex - fromRow;
+                                    rows -= o;
+                                    page.Offset-=o;
                                 }
-                                if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
+                                if (page.RowCount > 0 && page.MinIndex <= fromRow+rows-1 && page.MaxIndex >= fromRow) //The row is inside the page
                                 {
                                     var endRow = fromRow + rows;
                                     var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
@@ -982,28 +983,34 @@ using OfficeOpenXml;
                 fPos = ~fPos;
             }
             int tPos = fPos;
-            for (var c = fPos; c < ColumnCount; c++)
+            for (var c = fPos; c <= ColumnCount; c++)
             {
-                if (_columnIndex[c].Index < fromCol + columns) break;
                 tPos = c;
+                if (tPos==ColumnCount || _columnIndex[c].Index >= fromCol + columns)
+                {
+                    break;
+                }
             }
 
-            if (Count <= fPos)
+            if (ColumnCount <= fPos)
             {
                 return;
             }
 
             if (_columnIndex[fPos].Index >= fromCol && _columnIndex[fPos].Index <= fromCol + columns)
             {
-                if (_columnIndex[fPos].Index > ColumnCount)
+                if (_columnIndex[fPos].Index < ColumnCount)
                 {
-                    Array.Copy(_columnIndex, fPos, _columnIndex, tPos, tPos - fPos);
+                    if (tPos < ColumnCount)
+                    {
+                        Array.Copy(_columnIndex, tPos, _columnIndex, fPos, ColumnCount - tPos);
+                    }
+                    ColumnCount -= (tPos - fPos);
                 }
-                ColumnCount -= columns;
             }
             if (shift)
             {
-                for (var c = tPos + 1; c < ColumnCount; c++)
+                for (var c = fPos; c < ColumnCount; c++)
                 {
                     _columnIndex[c].Index -= (short)columns;
                 }
