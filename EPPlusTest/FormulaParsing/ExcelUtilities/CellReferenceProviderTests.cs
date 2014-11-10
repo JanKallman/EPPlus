@@ -26,6 +26,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldReturnReferencedSingleAddress()
         {
             var parsingContext = ParsingContext.Create();
+            parsingContext.Scopes.NewScope(RangeAddress.Empty);
             parsingContext.Configuration.SetLexer(new Lexer(parsingContext.Configuration.FunctionRepository, parsingContext.NameValueProvider));
             parsingContext.RangeAddressFactory = new RangeAddressFactory(_provider);
             var provider = new CellReferenceProvider();
@@ -37,6 +38,7 @@ namespace EPPlusTest.ExcelUtilities
         public void ShouldReturnReferencedMultipleAddresses()
         {
             var parsingContext = ParsingContext.Create();
+            parsingContext.Scopes.NewScope(RangeAddress.Empty);
             parsingContext.Configuration.SetLexer(new Lexer(parsingContext.Configuration.FunctionRepository, parsingContext.NameValueProvider));
             parsingContext.RangeAddressFactory = new RangeAddressFactory(_provider);
             var provider = new CellReferenceProvider();

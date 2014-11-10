@@ -29,18 +29,6 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldCreateTokensForStringCorrectly()
         {
-            var input = "'abc123'";
-            var tokens = _tokenizer.Tokenize(input);
-            
-            Assert.AreEqual(3, tokens.Count());
-            Assert.AreEqual(TokenType.String, tokens.First().TokenType);
-            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
-            Assert.AreEqual(TokenType.String, tokens.Last().TokenType);
-        }
-
-        [TestMethod]
-        public void ShouldCreateTokensForStringCorrectly2()
-        {
             var input = "\"abc123\"";
             var tokens = _tokenizer.Tokenize(input);
 
@@ -51,12 +39,12 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         }
 
         [TestMethod]
-        public void ShouldIgnoreTokenSeparatorsInAString()
+        public void ShouldTokenizeStringCorrectly()
         {
             var input = "'ab(c)d'";
             var tokens = _tokenizer.Tokenize(input);
 
-            Assert.AreEqual(3, tokens.Count());
+            Assert.AreEqual(5, tokens.Count());
         }
 
         [TestMethod]
@@ -110,6 +98,15 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var input = "1,23%";
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(TokenType.Percent, tokens.Last().TokenType);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreTwoSubsequentStringIdentifyers()
+        {
+            var input = "\"hello\"\"world\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(3, tokens.Count());
+            Assert.AreEqual("hello\"world", tokens.ElementAt(1).Value);
         }
     }
 }

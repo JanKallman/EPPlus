@@ -60,7 +60,41 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             var args = new List<FunctionArgument>();
             Function.BeforeInvoke(context);
             var firstChild = children.ElementAt(0);
-            var boolVal = (bool)firstChild.Compile().Result;
+            var v = firstChild.Compile().Result;
+
+            /****  Handle names and ranges ****/
+            if (v is ExcelDataProvider.INameInfo)
+            {
+                v = ((ExcelDataProvider.INameInfo)v).Value;
+            }
+            
+            if (v is ExcelDataProvider.IRangeInfo)
+            {
+                var r=((ExcelDataProvider.IRangeInfo)v);
+                if(r.GetNCells()>1)
+                {
+                    throw(new ArgumentException("Logical can't be more than one cell"));
+                }
+                v = r.GetOffset(0, 0);
+            }
+            bool boolVal;
+            if(v is bool)
+            {
+                boolVal = (bool)v;
+            }
+            else
+            {
+                if(OfficeOpenXml.Utils.ConvertUtil.IsNumeric(v))
+                {
+                    boolVal = OfficeOpenXml.Utils.ConvertUtil.GetValueDouble(v)!=0;
+                }
+                else
+                {
+                    throw (new ArgumentException("Invalid logical test"));
+                }
+            }
+            /****  End Handle names and ranges ****/
+            
             args.Add(new FunctionArgument(boolVal));
             if (boolVal)
             {

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -106,8 +107,9 @@ namespace OfficeOpenXml
         /// Creates an Address object
         /// </summary>
         /// <remarks>Examples of addresses are "A1" "B1:C2" "A:A" "1:1" "A1:E2,G3:G5" </remarks>
-        /// <param name="pck">Reference to the package to find information about tables and names</param>
         /// <param name="address">The Excel Address</param>
+        /// <param name="pck">Reference to the package to find information about tables and names</param>
+        /// <param name="referenceAddress">The address</param>
         public ExcelAddressBase(string address, ExcelPackage pck, ExcelAddressBase referenceAddress)
         {
             SetAddress(address);
@@ -184,7 +186,7 @@ namespace OfficeOpenXml
                                 var cols = Table.ColumnSpan.Split(':');
                                 foreach (var c in t.Columns)
                                 {
-                                    if (_fromCol <= 0 && cols[0].Equals(c.Name))
+                                    if (_fromCol <= 0 && cols[0].Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))   //Issue15063 Add invariant igore case
                                     {
                                         _fromCol = col;
                                         if (cols.Length == 1)
@@ -193,7 +195,7 @@ namespace OfficeOpenXml
                                             return;
                                         }
                                     }
-                                    else if (cols.Length > 1 && _fromCol > 0 && cols[1].Equals(c.Name))
+                                    else if (cols.Length > 1 && _fromCol > 0 && cols[1].Equals(c.Name, StringComparison.InvariantCultureIgnoreCase)) //Issue15063 Add invariant igore case
                                     {
                                         _toCol = col;
                                         return;
@@ -240,7 +242,8 @@ namespace OfficeOpenXml
                 {
                     pos = address.IndexOf("'", pos+2);
                 }
-                _ws = address.Substring(1,pos-1).Replace("''","'");
+                var wbws = address.Substring(1,pos-1).Replace("''","'");
+                SetWbWs(wbws);
                 _address = address.Substring(pos + 2);
             }
             else if (address.StartsWith("[")) //Remove any external reference
@@ -596,7 +599,7 @@ namespace OfficeOpenXml
         #region Address manipulation methods
         internal eAddressCollition Collide(ExcelAddressBase address)
         {
-            if (address.WorkSheet != WorkSheet)
+            if (address.WorkSheet != WorkSheet && address.WorkSheet!=null)
             {
                 return eAddressCollition.No;
             }
@@ -784,7 +787,12 @@ namespace OfficeOpenXml
 
         internal static AddressType IsValid(string Address)
         {
+            double d;
             if (Address == "#REF!")
+            {
+                return AddressType.Invalid;
+            }
+            else if(double.TryParse(Address, NumberStyles.Any, CultureInfo.InvariantCulture, out d)) //A double, no valid address
             {
                 return AddressType.Invalid;
             }
@@ -948,7 +956,15 @@ namespace OfficeOpenXml
                 {
                     if(Address[i]=='!' && !isText)
                     {
-                        ws=text;
+                        if (text.Length>0 && text[0] == '[')
+                        {
+                            wb = text.Substring(1, text.IndexOf("]") - 1);
+                            ws = text.Substring(text.IndexOf("]") + 1);
+                        }
+                        else
+                        {
+                            ws=text;
+                        }
                         intAddress=Address.Substring(i+1);
                         return true;
                     }
@@ -963,7 +979,7 @@ namespace OfficeOpenXml
                             }
                             brackPos=i;
                         }
-                        else if(Address[i]==']')
+                        else if(Address[i]==']' && !isText)
                         {
                             if (brackPos > -1)
                             {
@@ -1147,9 +1163,6 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelAddress : ExcelAddressBase
     {
-        private string fullAddress;
-        private ExcelPackage _package;
-
         internal ExcelAddress()
             : base()
         {

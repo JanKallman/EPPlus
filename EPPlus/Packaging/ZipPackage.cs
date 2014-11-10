@@ -70,8 +70,8 @@ namespace OfficeOpenXml.Packaging
                 Match = match;
             }
         }
-        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>();
-        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>();
+        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>(StringComparer.InvariantCultureIgnoreCase);
+        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>(StringComparer.InvariantCultureIgnoreCase);
         internal ZipPackage()
         {
             AddNew();
@@ -121,7 +121,8 @@ namespace OfficeOpenXml.Packaging
                                 else
                                 {
                                     var part = new ZipPackagePart(this, e);
-                                    part.Stream = new MemoryStream(b);
+                                    part.Stream = new MemoryStream();
+                                    part.Stream.Write(b, 0, b.Length);
                                     Parts.Add(GetUriKey(e.FileName), part);
                                 }
                             }
@@ -203,7 +204,7 @@ namespace OfficeOpenXml.Packaging
         {
             if (PartExists(partUri))
             {
-                return Parts[GetUriKey(partUri.OriginalString)];
+                return Parts.Single(x => x.Key.ToLower() == GetUriKey(partUri.OriginalString.ToLower())).Value;
             }
             else
             {
@@ -222,7 +223,8 @@ namespace OfficeOpenXml.Packaging
         }
         internal bool PartExists(Uri partUri)
         {
-            return Parts.ContainsKey(GetUriKey(partUri.OriginalString));
+            var uriKey = GetUriKey(partUri.OriginalString.ToLower());
+            return Parts.Keys.Any(x => x.ToLower() == uriKey);
         }
         #endregion
 
@@ -254,11 +256,10 @@ namespace OfficeOpenXml.Packaging
             Parts.Remove(GetUriKey(Uri.OriginalString));
             
         }
-        internal MemoryStream Save()
+        internal void Save(Stream stream)
         {
-            var ms = new MemoryStream();
             var enc = Encoding.UTF8;
-            ZipOutputStream os = new ZipOutputStream(ms, true);
+            ZipOutputStream os = new ZipOutputStream(stream, true);
             os.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)_compression;            
             /**** ContentType****/
             var entry = os.PutNextEntry("[Content_Types].xml");
@@ -285,8 +286,9 @@ namespace OfficeOpenXml.Packaging
             }
             os.Flush();
             os.Close();
-            os.Dispose();            
-            return ms;
+            os.Dispose();  
+            
+            //return ms;
         }
 
         private string GetContentTypeXml()

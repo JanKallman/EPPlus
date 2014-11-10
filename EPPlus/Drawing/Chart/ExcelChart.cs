@@ -1372,7 +1372,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 string v=_chartXmlHelper.GetXmlNodeString(_displayBlanksAsPath);
                 if (string.IsNullOrEmpty(v))
                 {
-                    return eDisplayBlanksAs.Gap;
+                    return eDisplayBlanksAs.Zero; //Issue 14715 Changed in Office 2010-?
                 }
                 else
                 {
@@ -1882,7 +1882,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 case eChartType.Bubble:
                 case eChartType.Bubble3DEffect:
                     return new ExcelBubbleChart(drawings, drawNode, chartType, topChart, PivotTableSource);
-                    break;
                 case eChartType.Radar:
                 case eChartType.RadarFilled:
                 case eChartType.RadarMarkers:

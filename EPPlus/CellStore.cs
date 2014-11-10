@@ -750,12 +750,13 @@ using OfficeOpenXml;
                             if (pagePos < column.PageCount)
                             {
                                 var page = column._pages[pagePos];
-                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex <= fromRow + rows)
+                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex >= fromRow + rows)
                                 {
-                                    rows -= page.MinIndex - fromRow;
-                                    fromRow = page.MinIndex;
+                                    var o = page.MinIndex - fromRow;
+                                    rows -= o;
+                                    page.Offset-=o;
                                 }
-                                if (page.RowCount > 0 && page.MinIndex <= fromRow && page.MaxIndex >= fromRow) //The row is inside the page
+                                if (page.RowCount > 0 && page.MinIndex <= fromRow+rows-1 && page.MaxIndex >= fromRow) //The row is inside the page
                                 {
                                     var endRow = fromRow + rows;
                                     var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
@@ -905,24 +906,6 @@ using OfficeOpenXml;
                 }
                 else
                 {
-                    int offset;
-                    //if (pagePos == 0)
-                    //{
-                    //    offset = column._pages[0].IndexOffset-page.MaxIndex;
-                    //    //Set offset to Zero
-                    //    for (var r = 0; r < column._pages[0].RowCount; r++)
-                    //    {
-                    //        var row = column._pages[0].Rows[r];
-                    //        row.Index += (short)offset;
-                    //    }
-
-                    //    if (column._pages[0].Index > 0)
-                    //    {
-                    //        column._pages[0].Index--;
-                    //    }
-                    //    column._pages[0].Offset = 0;
-                    //    pagePos++;
-                    //}
                     for (int i = pagePos; i < column.PageCount; i++)
                     {
                         column._pages[i].Offset -= delSize;
@@ -931,8 +914,6 @@ using OfficeOpenXml;
                             column._pages[i].Index--;
                             column._pages[i].Offset += PageSize;
                         }
-                        //column._pages[i].Index--;
-                        //column._pages[i].Offset += (PageSize - delSize);
                     }
                 }                
                 if (column.PageCount > pagePos)
@@ -1002,28 +983,34 @@ using OfficeOpenXml;
                 fPos = ~fPos;
             }
             int tPos = fPos;
-            for (var c = fPos; c < ColumnCount; c++)
+            for (var c = fPos; c <= ColumnCount; c++)
             {
-                if (_columnIndex[c].Index < fromCol + columns) break;
                 tPos = c;
+                if (tPos==ColumnCount || _columnIndex[c].Index >= fromCol + columns)
+                {
+                    break;
+                }
             }
 
-            if (Count <= fPos)
+            if (ColumnCount <= fPos)
             {
                 return;
             }
 
             if (_columnIndex[fPos].Index >= fromCol && _columnIndex[fPos].Index <= fromCol + columns)
             {
-                if (_columnIndex[fPos].Index > ColumnCount)
+                if (_columnIndex[fPos].Index < ColumnCount)
                 {
-                    Array.Copy(_columnIndex, fPos, _columnIndex, tPos, tPos - fPos);
+                    if (tPos < ColumnCount)
+                    {
+                        Array.Copy(_columnIndex, tPos, _columnIndex, fPos, ColumnCount - tPos);
+                    }
+                    ColumnCount -= (tPos - fPos);
                 }
-                ColumnCount -= columns;
             }
             if (shift)
             {
-                for (var c = tPos + 1; c < ColumnCount; c++)
+                for (var c = fPos; c < ColumnCount; c++)
                 {
                     _columnIndex[c].Index -= (short)columns;
                 }
@@ -1392,7 +1379,7 @@ using OfficeOpenXml;
             _columnIndex[pos] = new ColumnIndex() { Index = (short)(Column) };
             ColumnCount++;
         }        
-        int _colPos = -1, _row, _col;
+        int _colPos = -1, _row;
         public ulong Current
         {
             get

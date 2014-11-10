@@ -48,7 +48,7 @@ namespace OfficeOpenXml.Utils
                     }
                     else if (v is TimeSpan)
                     {
-                        d = new DateTime(((TimeSpan)v).Ticks).ToOADate();
+                        d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
                     }
                     else
                     {

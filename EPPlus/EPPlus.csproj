@@ -54,6 +54,8 @@
     <DocumentationFile>bin\Debug\EPPlus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <NoWarn>
+    </NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -208,6 +210,7 @@
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
+    <Compile Include="DataValidation\Contracts\IExcelDataValidationAny.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationDateTime.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationDecimal.cs" />
@@ -217,6 +220,7 @@
     <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationWithFormula2.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationWithOperator.cs" />
+    <Compile Include="DataValidation\ExcelDataValidationAny.cs" />
     <Compile Include="DataValidation\ExcelDataValidationCustom.cs" />
     <Compile Include="DataValidation\ExcelDataValidationDateTime.cs" />
     <Compile Include="DataValidation\ExcelDataValidationFactory.cs" />
@@ -246,6 +250,7 @@
     <Compile Include="DataValidation\ExcelDataValidationInt.cs" />
     <Compile Include="DataValidation\IRangeDataValidation.cs" />
     <Compile Include="DataValidation\RangeDataValidation.cs" />
+    <Compile Include="Drawing\Chart\ExcelBarChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelSurfaceChartSerie.cs" />
     <Compile Include="Drawing\Chart\ExcelSurfaceChart.cs" />
     <Compile Include="Drawing\Chart\ExcelRadarChart.cs" />
@@ -321,6 +326,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\BuiltInFunctions.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CollectionFlattener.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />

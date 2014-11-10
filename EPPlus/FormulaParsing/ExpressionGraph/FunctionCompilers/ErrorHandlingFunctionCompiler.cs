@@ -59,7 +59,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 {
                     return ((ErrorHandlingFunction)Function).HandleError(efe.ErrorValue.ToString());
                 }
-                catch (Exception e)
+                catch// (Exception e)
                 {
                     return ((ErrorHandlingFunction)Function).HandleError(ExcelErrorValue.Values.Value);
                 }

@@ -228,7 +228,15 @@ namespace OfficeOpenXml
 						}
 						else
 						{
-							namedRange.NameFormula = fullAddress;
+                            //if (addressType == ExcelAddressBase.AddressType.ExternalAddress || addressType == ExcelAddressBase.AddressType.ExternalName)
+                            //{
+                            //    var r = new ExcelAddress(fullAddress);
+                            //    namedRange.NameFormula = '\'[' + r._wb
+                            //}
+                            //else
+                            //{
+                                namedRange.NameFormula = fullAddress;
+                            //}
 						}
 					}
 					else
@@ -857,7 +865,7 @@ namespace OfficeOpenXml
 		}
 
 		/// <summary>
-		/// OOXML requires that "," , and & be escaped, but ' and " should *not* be escaped, nor should
+		/// OOXML requires that "," , and &amp; be escaped, but ' and " should *not* be escaped, nor should
 		/// any extended Unicode characters. This function only encodes the required characters.
 		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
 		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
@@ -1111,7 +1119,7 @@ namespace OfficeOpenXml
 			pivotCaches.AppendChild(item);
 		}
 		internal List<string> _externalReferences = new List<string>();
-        internal bool _isCalculated=false;
+        //internal bool _isCalculated=false;
 		internal void GetExternalReferences()
 		{
 			XmlNodeList nl = WorkbookXml.SelectNodes("//d:externalReferences/d:externalReference", NameSpaceManager);

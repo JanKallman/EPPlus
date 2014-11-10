@@ -850,7 +850,7 @@ namespace OfficeOpenXml
                         {
                             a = a.AddColumn(afterColumn, colIncrement);
                         }
-                        else if (colIncrement > 0)
+                        else if (colIncrement < 0)
                         {
                             a = a.DeleteColumn(afterColumn, -colIncrement);
                         }

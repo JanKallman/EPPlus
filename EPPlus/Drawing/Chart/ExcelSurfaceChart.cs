@@ -69,24 +69,6 @@ namespace OfficeOpenXml.Drawing.Chart
         #endregion
 
 
-        /// <summary>
-        /// 3D-settings
-        /// </summary>
-        public ExcelView3D View3D
-        {
-            get
-            {
-                if (IsType3D())
-                {
-                    return new ExcelView3D(NameSpaceManager, ChartXml.SelectSingleNode("//c:view3D", NameSpaceManager));
-                }
-                else
-                {
-                    throw (new Exception("Charttype does not support 3D"));
-                }
-
-            }
-        }
         ExcelChartSurface _floor;
         public ExcelChartSurface Floor
         {

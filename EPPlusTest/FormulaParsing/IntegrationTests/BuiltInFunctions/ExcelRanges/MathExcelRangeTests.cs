@@ -67,7 +67,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         [TestMethod]
         public void CountIfShouldReturnCorrectResult()
         {
-            _worksheet.Cells["A4"].Formula = "COUNTIF(A1:A3, '>2')";
+            _worksheet.Cells["A4"].Formula = "COUNTIF(A1:A3, \">2\")";
             _worksheet.Calculate();
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(2d, result);
@@ -105,7 +105,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         {
             _worksheet.Cells["A4"].Value = "B";
             _worksheet.Cells["A5"].Value = 3;
-            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>1')";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,\">1\")";
             _worksheet.Calculate();
             Assert.AreEqual(4d, _worksheet.Cells["A6"].Value);
         }
@@ -115,7 +115,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         {
             _worksheet.Cells["A4"].Value = "ABC";
             _worksheet.Cells["A5"].Value = "3";
-            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>1')";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,\">1\")";
             _worksheet.Calculate();
             Assert.AreEqual(4.5d, _worksheet.Cells["A6"].Value);
         }
@@ -135,7 +135,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             _worksheet.Cells["B4"].Value = 6;
             _worksheet.Cells["B5"].Value = 7;
 
-            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'abc',B1:B5)";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,\"abc\",B1:B5)";
             _worksheet.Calculate();
             Assert.AreEqual(2d, _worksheet.Cells["A6"].Value);
         }
@@ -155,7 +155,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             _worksheet.Cells["B4"].Value = 1;
             _worksheet.Cells["B5"].Value = 8;
 
-            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'>2',B1:B5)";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,\">2\",B1:B5)";
             _worksheet.Calculate();
             Assert.AreEqual(2d, _worksheet.Cells["A6"].Value);
         }
@@ -175,7 +175,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             _worksheet.Cells["B4"].Value = 6;
             _worksheet.Cells["B5"].Value = 8;
 
-            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5,'ab*',B1:B5)";
+            _worksheet.Cells["A6"].Formula = "AverageIf(A1:A5, \"ab*\",B1:B5)";
             _worksheet.Calculate();
             Assert.AreEqual(4d, _worksheet.Cells["A6"].Value);
         }

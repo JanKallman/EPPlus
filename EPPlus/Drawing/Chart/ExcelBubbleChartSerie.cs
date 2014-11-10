@@ -51,10 +51,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelBubbleChartSerie(ExcelChartSeries chartSeries, XmlNamespaceManager ns, XmlNode node, bool isPivot) :
             base(chartSeries, ns, node, isPivot)
         {
-            if (chartSeries.Chart.ChartType == eChartType.Bubble3DEffect)
-            {
-                
-            }
+
         }
         ExcelChartSerieDataLabel _DataLabel = null;
         /// <summary>
@@ -81,6 +78,18 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 SetXmlNodeBool(BUBBLE3D_PATH, value);    
+            }
+        }
+        const string INVERTIFNEGATIVE_PATH = "c:invertIfNegative/@val";
+        internal bool InvertIfNegative
+        {
+            get
+            {
+                return GetXmlNodeBool(INVERTIFNEGATIVE_PATH, true);
+            }
+            set
+            {
+                SetXmlNodeBool(INVERTIFNEGATIVE_PATH, value);
             }
         }
         public override string Series

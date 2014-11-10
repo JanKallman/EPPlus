@@ -28,6 +28,7 @@
  * ******************************************************************************
  * Mats Alm   		                Added       		        2011-01-01
  * Jan Källman		                License changed GPL-->LGPL  2011-12-27
+ * Raziq York 		                Added support for Any type  2014-08-08
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,10 @@ namespace OfficeOpenXml.DataValidation
     /// </summary>
     public enum eDataValidationType
     {
+        /// <summary>
+        /// Any value
+        /// </summary>
+        Any,
         /// <summary>
         /// Integer value
         /// </summary>
@@ -73,6 +78,7 @@ namespace OfficeOpenXml.DataValidation
 
     internal static class DataValidationSchemaNames
     {
+        public const string Any = "";
         public const string Whole = "whole";
         public const string Decimal = "decimal";
         public const string List = "list";
@@ -128,6 +134,8 @@ namespace OfficeOpenXml.DataValidation
         {
             switch (type)
             {
+                case eDataValidationType.Any:
+                    return ExcelDataValidationType.Any;
                 case eDataValidationType.Whole:
                     return ExcelDataValidationType.Whole;
                 case eDataValidationType.List:
@@ -151,6 +159,8 @@ namespace OfficeOpenXml.DataValidation
         {
             switch (schemaName)
             {
+                case DataValidationSchemaNames.Any:
+                    return ExcelDataValidationType.Any;
                 case DataValidationSchemaNames.Whole:
                     return ExcelDataValidationType.Whole;
                 case DataValidationSchemaNames.Decimal:
@@ -196,14 +206,30 @@ namespace OfficeOpenXml.DataValidation
         /// <summary>
         /// Integer values
         /// </summary>
+        private static ExcelDataValidationType _any;
+        public static ExcelDataValidationType Any
+        {
+            get
+            {
+                if (_any == null)
+                {
+                    _any = new ExcelDataValidationType(eDataValidationType.Any, false, DataValidationSchemaNames.Any);
+                }
+                return _any;
+            }
+        }
+
+        /// <summary>
+        /// Integer values
+        /// </summary>
         private static ExcelDataValidationType _whole;
         public static ExcelDataValidationType Whole
         {
-            get 
+            get
             {
-                if(_whole == null)
+                if (_whole == null)
                 {
-                    _whole = new ExcelDataValidationType(eDataValidationType.Whole, true, DataValidationSchemaNames.Whole); 
+                    _whole = new ExcelDataValidationType(eDataValidationType.Whole, true, DataValidationSchemaNames.Whole);
                 }
                 return _whole;
             }

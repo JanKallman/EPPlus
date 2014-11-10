@@ -26,8 +26,7 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2011-01-08
- * Jan Källman		    License changed GPL-->LGPL  2011-12-27
+ * Raziq York   		            Added       		        2014-08-08
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -37,9 +36,10 @@ using OfficeOpenXml.DataValidation.Formulas.Contracts;
 
 namespace OfficeOpenXml.DataValidation.Contracts
 {
-    public interface IExcelDataValidationWithFormula<T> : IExcelDataValidation
-        where T : IExcelDataValidationFormula
+    /// <summary>
+    /// Data validation interface for Any value validation.
+    /// </summary>
+    public interface IExcelDataValidationAny : IExcelDataValidation
     {
-        T Formula { get; }
     }
 }

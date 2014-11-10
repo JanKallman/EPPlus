@@ -30,7 +30,8 @@
  * Mats Alm                         Applying patch submitted    2011-11-14
  *                                  by Ted Heatherington
  * Jan Källman		                License changed GPL-->LGPL  2011-12-27
- *******************************************************************************/
+ * Raziq York		                Added support for Any type  2014-08-08
+*******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -91,11 +92,13 @@ namespace OfficeOpenXml.DataValidation
             {
                 foreach (XmlNode node in dataValidationNodes)
                 {
-                    if (node.Attributes["sqref"] == null || node.Attributes["type"] == null) continue;
+                    if (node.Attributes["sqref"] == null) continue;
 
                     var addr = node.Attributes["sqref"].Value;
 
-                    var type = ExcelDataValidationType.GetBySchemaName(node.Attributes["type"].Value);
+                    var typeSchema = node.Attributes["type"] != null ? node.Attributes["type"].Value : "";
+
+                    var type = ExcelDataValidationType.GetBySchemaName(typeSchema);
                     _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
             }
@@ -116,10 +119,10 @@ namespace OfficeOpenXml.DataValidation
 
         private void OnValidationCountChanged()
         {
-            if (TopNode != null)
-            {
-                SetXmlNodeString("@count", _validations.Count.ToString());
-            }
+            //if (TopNode != null)
+            //{
+            //    SetXmlNodeString("@count", _validations.Count.ToString());
+            //}
         }
 
         private XmlNode GetRootNode()
@@ -137,7 +140,7 @@ namespace OfficeOpenXml.DataValidation
         private void ValidateAddress(string address, IExcelDataValidation validatingValidation)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
-            
+
             // ensure that the new address does not collide with an existing validation.
             var newAddress = new ExcelAddress(address);
             if (_validations.Count > 0)
@@ -176,6 +179,21 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
+        /// Adds a <see cref="ExcelDataValidationAny"/> to the worksheet.
+        /// </summary>
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public IExcelDataValidationAny AddAnyValidation(string address)
+        {
+            ValidateAddress(address);
+            EnsureRootElementExists();
+            var item = new ExcelDataValidationAny(_worksheet, address, ExcelDataValidationType.Any);
+            _validations.Add(item);
+            OnValidationCountChanged();
+            return item;
+        }
+
+        /// <summary>
         /// Adds an <see cref="IExcelDataValidationInt"/> to the worksheet. Whole means that the only accepted values
         /// are integer values.
         /// </summary>
@@ -183,7 +201,7 @@ namespace OfficeOpenXml.DataValidation
         public IExcelDataValidationInt AddIntegerValidation(string address)
         {
             ValidateAddress(address);
-            EnsureRootElementExists(); 
+            EnsureRootElementExists();
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.Whole);
             _validations.Add(item);
             OnValidationCountChanged();
@@ -252,7 +270,7 @@ namespace OfficeOpenXml.DataValidation
             return item;
         }
 
-        
+
         public IExcelDataValidationTime AddTimeValidation(string address)
         {
             ValidateAddress(address);

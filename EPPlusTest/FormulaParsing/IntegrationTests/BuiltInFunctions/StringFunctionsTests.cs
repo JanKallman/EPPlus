@@ -30,70 +30,70 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void LenShouldAddLengthUsingSuppliedOperator()
         {
-            var result = _parser.Parse("Len('abc') + 2");
+            var result = _parser.Parse("Len(\"abc\") + 2");
             Assert.AreEqual(5d, result);
         }
 
         [TestMethod]
         public void LowerShouldReturnALowerCaseString()
         {
-            var result = _parser.Parse("Lower('ABC')");
+            var result = _parser.Parse("Lower(\"ABC\")");
             Assert.AreEqual("abc", result);
         }
 
         [TestMethod]
         public void UpperShouldReturnAnUpperCaseString()
         {
-            var result = _parser.Parse("Upper('abc')");
+            var result = _parser.Parse("Upper(\"abc\")");
             Assert.AreEqual("ABC", result);
         }
 
         [TestMethod]
         public void LeftShouldReturnSubstringFromLeft()
         {
-            var result = _parser.Parse("Left('abacd', 2)");
+            var result = _parser.Parse("Left(\"abacd\", 2)");
             Assert.AreEqual("ab", result);
         }
 
         [TestMethod]
         public void RightShouldReturnSubstringFromRight()
         {
-            var result = _parser.Parse("RIGHT('abacd', 2)");
+            var result = _parser.Parse("RIGHT(\"abacd\", 2)");
             Assert.AreEqual("cd", result);
         }
 
         [TestMethod]
         public void MidShouldReturnSubstringAccordingToParams()
         {
-            var result = _parser.Parse("Mid('abacd', 2, 2)");
-            Assert.AreEqual("ac", result);
+            var result = _parser.Parse("Mid(\"abacd\", 2, 2)");
+            Assert.AreEqual("ba", result);
         }
 
         [TestMethod]
         public void ReplaceShouldReturnSubstringAccordingToParams()
         {
-            var result = _parser.Parse("Replace('testar', 3, 3, 'hej')");
+            var result = _parser.Parse("Replace(\"testar\", 3, 3, \"hej\")");
             Assert.AreEqual("tehejr", result);
         }
 
         [TestMethod]
         public void SubstituteShouldReturnSubstringAccordingToParams()
         {
-            var result = _parser.Parse("Substitute('testar testar', 'es', 'xx')");
+            var result = _parser.Parse("Substitute(\"testar testar\", \"es\", \"xx\")");
             Assert.AreEqual("txxtar txxtar", result);
         }
 
         [TestMethod]
         public void ConcatenateShouldReturnAccordingToParams()
         {
-            var result = _parser.Parse("CONCATENATE('One', 'Two', 'Three')");
+            var result = _parser.Parse("CONCATENATE(\"One\", \"Two\", \"Three\")");
             Assert.AreEqual("OneTwoThree", result);
         }
 
         [TestMethod]
         public void TShouldReturnText()
         {
-            var result = _parser.Parse("T('One')");
+            var result = _parser.Parse("T(\"One\")");
             Assert.AreEqual("One", result);
         }
     }

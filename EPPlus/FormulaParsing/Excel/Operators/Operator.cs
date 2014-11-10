@@ -315,7 +315,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
             }
             else
             {
-                return CompareString(l.Result, r.Result);
+                return CompareString(left, right);
             }
         }
 

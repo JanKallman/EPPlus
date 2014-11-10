@@ -34,7 +34,6 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Utilities;
-
 namespace OfficeOpenXml.FormulaParsing
 {
     /// <summary>
@@ -64,8 +63,8 @@ namespace OfficeOpenXml.FormulaParsing
 
         /// <summary>
         /// If the supplied <paramref name="functionName"/> does not exist, the supplied
-        /// <paramref name="ExcelFunction"/> implementation will be added to the formula parser.
-        /// If it exists, the existing function will be replaced by the supplied <see cref="functionImpl">function implementation</see>
+        /// <paramref name="functionImpl"/> implementation will be added to the formula parser.
+        /// If it exists, the existing function will be replaced by the supplied <paramref name="functionImpl">function implementation</paramref>
         /// </summary>
         /// <param name="functionName"></param>
         /// <param name="functionImpl"></param>
@@ -87,7 +86,7 @@ namespace OfficeOpenXml.FormulaParsing
         }
 
         /// <summary>
-        /// Parses the supplied the <see cref="formula"/> and returns the result.
+        /// Parses the supplied <paramref name="formula"/> and returns the result.
         /// </summary>
         /// <param name="formula"></param>
         /// <returns></returns>

@@ -112,7 +112,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(SIZEREPRESENTS_PATH, value == eSizeRepresents.Width ? "w" : "area");
             }
         }
-        ExcelBubbleChartSeries _series = null;
         public new ExcelBubbleChartSeries Series
         {
             get
