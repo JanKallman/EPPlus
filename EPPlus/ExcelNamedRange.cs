@@ -48,6 +48,7 @@ namespace OfficeOpenXml
         /// <param name="nameSheet">The sheet containing the name. null if its a global name</param>
         /// <param name="sheet">Sheet where the address points</param>
         /// <param name="address">The address</param>
+        /// <param name="index">The index in the collection</param>
         public ExcelNamedRange(string name, ExcelWorksheet nameSheet , ExcelWorksheet sheet, string address, int index) :
             base(sheet, address)
         {

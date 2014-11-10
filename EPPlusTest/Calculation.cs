@@ -138,15 +138,13 @@ namespace EPPlusTest
                         Assert.AreEqual(fr[adr], ws.Cells[adr].Value);
                     }
                 }
-                catch (Exception e)
+                catch
                 {
                     errors.Add(new Tuple<string, object, object>(adr, fr[adr], ws.Cells[adr].Value));
                     nErrors++;
                 }
             }
-            
         }
-
         [Ignore]
         [TestMethod]
         public void TestOneCell()
@@ -155,7 +153,6 @@ namespace EPPlusTest
             var ws = pck.Workbook.Worksheets.First(); 
             pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Calculate();
             Assert.AreEqual(0d, pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Value);  
-
         }
 
         [Ignore]
@@ -167,6 +164,7 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(150d, ws.Cells["A1"].Value);
         }
+        [Ignore]
         [TestMethod]
         public void TestDataType()
         {
@@ -181,6 +179,47 @@ namespace EPPlusTest
 
             ws.Names["PRICE"].Value = 40;
             ws.Names["QUANTITY"].Value = 20;
+
+            ws.Calculate();
+        }
+        [TestMethod]
+        public void CalcTwiceError()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("CalcTest");
+            ws.Names.AddValue("PRICE", 10);
+            ws.Names.AddValue("QUANTITY", 11);
+            ws.Cells["A1"].Formula="PRICE*QUANTITY";
+            ws.Names.AddFormula("AMOUNT", "PRICE*QUANTITY");
+
+            ws.Names["PRICE"].Value = 30;
+            ws.Names["QUANTITY"].Value = 10;
+
+            ws.Calculate();
+            Assert.AreEqual(300D, ws.Cells["A1"].Value);
+            Assert.AreEqual(300D, ws.Names["AMOUNT"].Value);
+            ws.Names["PRICE"].Value = 40;
+            ws.Names["QUANTITY"].Value = 20;
+
+            ws.Calculate();
+            Assert.AreEqual(800D, ws.Cells["A1"].Value);
+            Assert.AreEqual(800D, ws.Names["AMOUNT"].Value);
+        }
+        [TestMethod]
+        public void IfError()
+        {
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("CalcTest");
+            ws.Cells["A1"].Value = "test1";
+            ws.Cells["A5"].Value = "test2";
+            ws.Cells["A2"].Value = "Sant";
+            ws.Cells["A3"].Value = "Falskt";
+            ws.Cells["A4"].Formula = "if(A1>=A5,true,A3)";
+            ws.Cells["B1"].Formula = "isText(a1)";
+            ws.Cells["B2"].Formula = "isText(\"Test\")";
+            ws.Cells["B3"].Formula = "isText(1)";
+            ws.Cells["B4"].Formula = "isText(true)";
+            ws.Cells["c1"].Formula = "mid(a1,4,15)";
 
             ws.Calculate();
         }
@@ -203,7 +242,7 @@ namespace EPPlusTest
                 throw(new Exception("Test failed with\r\n\r\n" + sb.ToString()));
 
             }
-        }
+        }        
         private string GetOutput(string file)
         {
             using (var pck = new ExcelPackage(new FileInfo(file)))

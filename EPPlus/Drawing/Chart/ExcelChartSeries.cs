@@ -242,7 +242,42 @@ namespace OfficeOpenXml.Drawing.Chart
                        }
                        ((ExcelLineChartSerie)serie).Smooth = ((ExcelLineChart)Chart).Smooth;
                        break;
-
+                   case eChartType.BarClustered:
+                   case eChartType.BarStacked:
+                   case eChartType.BarStacked100:
+                   case eChartType.ColumnClustered:
+                   case eChartType.ColumnStacked:
+                   case eChartType.ColumnStacked100:
+                   case eChartType.BarClustered3D:
+                   case eChartType.BarStacked3D:
+                   case eChartType.BarStacked1003D:
+                   case eChartType.ColumnClustered3D:
+                   case eChartType.ColumnStacked3D:
+                   case eChartType.ColumnStacked1003D:
+                   case eChartType.ConeBarClustered:
+                   case eChartType.ConeBarStacked:
+                   case eChartType.ConeBarStacked100:
+                   case eChartType.ConeCol:
+                   case eChartType.ConeColClustered:
+                   case eChartType.ConeColStacked:
+                   case eChartType.ConeColStacked100:
+                   case eChartType.CylinderBarClustered:
+                   case eChartType.CylinderBarStacked:
+                   case eChartType.CylinderBarStacked100:
+                   case eChartType.CylinderCol:
+                   case eChartType.CylinderColClustered:
+                   case eChartType.CylinderColStacked:
+                   case eChartType.CylinderColStacked100:
+                   case eChartType.PyramidBarClustered:
+                   case eChartType.PyramidBarStacked:
+                   case eChartType.PyramidBarStacked100:
+                   case eChartType.PyramidCol:
+                   case eChartType.PyramidColClustered:
+                   case eChartType.PyramidColStacked:
+                   case eChartType.PyramidColStacked100:
+                       serie = new ExcelBarChartSerie(this, NameSpaceManager, ser, _isPivot);
+                       ((ExcelBarChartSerie)serie).InvertIfNegative=false;
+                       break;
                    default:
                        serie = new ExcelChartSerie(this, NameSpaceManager, ser, _isPivot);
                        break;

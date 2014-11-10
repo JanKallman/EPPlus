@@ -253,7 +253,7 @@ namespace OfficeOpenXml.Utils
         {
             ushort header = BitConverter.ToUInt16(compBuffer, pos);
             int  decomprPos=0;
-            byte[] buffer = new byte[4098];
+            byte[] buffer = new byte[4198]; //Add an extra 100 byte. Some workbooks have overflowing worksheets.
             int size = (int)(header & 0xFFF)+3;
             int endPos = pos+size;
             int a = (int)(header & 0x7000) >> 12;

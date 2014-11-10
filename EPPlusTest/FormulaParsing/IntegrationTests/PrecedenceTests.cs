@@ -50,7 +50,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests
         [TestMethod]
         public void ShouldConcatAfterAdd()
         {
-            var result = _parser.Parse("2 + 4 & 'abc'");
+            var result = _parser.Parse("2 + 4 & \"abc\"");
             Assert.AreEqual("6abc", result);
         }
     }

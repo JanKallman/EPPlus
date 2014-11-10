@@ -42,6 +42,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             if(!_isInitialized)
             {
                 Init();
+                _isInitialized = true;
             }
 	    }
         private bool _isInitialized = false;
@@ -60,11 +61,12 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add("=", new Token("=", TokenType.Operator));
             _tokens.Add("<=", new Token("<=", TokenType.Operator));
             _tokens.Add(">=", new Token(">=", TokenType.Operator));
+            _tokens.Add("<>", new Token("<>", TokenType.Operator));
             _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
             _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
             _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
             _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
-            _tokens.Add("'", new Token("'", TokenType.String));
+            //_tokens.Add("'", new Token("'", TokenType.String));
             _tokens.Add("\"", new Token("\"", TokenType.String));
             _tokens.Add(",", new Token(",", TokenType.Comma));
             _tokens.Add(";", new Token(";", TokenType.SemiColon));
@@ -87,7 +89,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool IsPossibleLastPartOfMultipleCharOperator(string part)
         {
-            return part == "=";
+            return part == "=" || part == ">";
         }
     }
 }

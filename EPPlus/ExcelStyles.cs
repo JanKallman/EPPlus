@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Xml;
+using System.Linq;
 using System.Collections.Generic;
 using draw=System.Drawing;
 using OfficeOpenXml.Style;
@@ -710,6 +711,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
+            if (dxfsNode != null) (dxfsNode as XmlElement).SetAttribute("count", Dxfs.Count.ToString());
         }
 
         private void AddNamedStyle(int id, XmlNode styleXfsNode,XmlNode cellXfsNode, ExcelNamedStyleXml style)
@@ -858,7 +860,12 @@ namespace OfficeOpenXml
                 //Numberformat
                 if (xfs.NumberFormatId > 0)
                 {
-                    string format = "";
+                    //rake36: Two problems here...
+                    //rake36:  1. the first time through when format stays equal to String.Empty, it adds a string.empty to the list of Number Formats
+                    //rake36:  2. when adding a second sheet, if the numberformatid == 164, it finds the 164 added by previous sheets but was using the array index
+                    //rake36:      for the numberformatid
+
+                    string format = string.Empty;
                     foreach (var fmt in style.NumberFormats)
                     {
                         if (fmt.NumFmtId == xfs.NumberFormatId)
@@ -867,14 +874,23 @@ namespace OfficeOpenXml
                             break;
                         }
                     }
-                    int ix = NumberFormats.FindIndexByID(format);
-                    if (ix < 0)
+                    //rake36: Don't add another format if it's blank
+                    if (!String.IsNullOrEmpty(format))
                     {
-                        ExcelNumberFormatXml item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = NumberFormats.NextId++ };
-                        NumberFormats.Add(format, item);
-                        ix = item.NumFmtId;
+                        int ix = NumberFormats.FindIndexByID(format);
+                        if (ix < 0)
+                        {
+                            var item = new ExcelNumberFormatXml(NameSpaceManager) { Format = format, NumFmtId = NumberFormats.NextId++ };
+                            NumberFormats.Add(format, item);
+                            //rake36: Use the just added format id
+                            newXfs.NumberFormatId = item.NumFmtId;
+                        }
+                        else
+                        {
+                            //rake36: Use the format id defined by the index... not the index itself
+                            newXfs.NumberFormatId = NumberFormats[ix].NumFmtId;
+                        }
                     }
-                    newXfs.NumberFormatId = ix;
                 }
 
                 //Font
@@ -918,15 +934,27 @@ namespace OfficeOpenXml
                 {
                     var id = style.CellStyleXfs[xfs.XfId].Id;
                     var newId = CellStyleXfs.FindIndexByID(id);
-                    //if (newId < 0)
-                    //{
-
-                    //    newXfs.XfId = CloneStyle(style, xfs.XfId, true);
-                    //}
-                    //else
-                    //{
-                    newXfs.XfId = newId;
-                    //}
+                    if (newId >= 0)
+                    {
+                        newXfs.XfId = newId;
+                    }
+                    else if(style._wb!=_wb) //Not the same workbook, copy the namedstyle to the workbook or match the id
+                    {
+                        var nsFind = style.NamedStyles.ToDictionary(d => (d.StyleXfId));
+                        if (nsFind.ContainsKey(xfs.XfId))
+                        {
+                            var st = nsFind[xfs.XfId];
+                            if (NamedStyles.ExistsKey(st.Name))
+                            {
+                                newXfs.XfId = NamedStyles.FindIndexByID(st.Name);
+                            }
+                            else
+                            {
+                                var ns = CreateNamedStyle(st.Name, st.Style);
+                                newXfs.XfId = NamedStyles.Count - 1;
+                            }
+                        }
+                    }
                 }
 
                 int index;

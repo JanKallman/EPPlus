@@ -173,6 +173,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="wb">The workbook where the formula comes from</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function object</param>
+        /// <param name="options">Calcultaiton options</param>
         private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f, ExcelCalculationOption options)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();

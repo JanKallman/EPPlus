@@ -206,9 +206,14 @@ namespace OfficeOpenXml.DataValidation.Formulas
             {
                 State = FormulaState.Value;
             }
+            // Get the length of all the strings, add the N-1 to account for comma separation
+            // See if this result is more than 255 and throw an exception
+            if (Values.Sum(x => x.Length) + Values.Count - 1 > 255)
+            {
+                throw new InvalidOperationException("The total length of a DataValidation list cannot exceed 255 characters");
+            }
             SetXmlNodeString(_formulaPath, GetValueAsString());
         }
-
         public IList<string> Values
         {
             get;

@@ -467,6 +467,11 @@ namespace OfficeOpenXml.FormulaParsing
 
             return b;
         }
+
+        public override void Reset()
+        {
+            _names = new Dictionary<ulong, INameInfo>(); //Reset name cache.            
+        }
     }
 }
     

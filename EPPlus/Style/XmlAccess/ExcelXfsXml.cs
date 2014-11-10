@@ -62,7 +62,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _shrinkToFit = GetXmlNodeString(shrinkToFitPath) == "1" ? true : false; 
             _verticalAlignment = GetVerticalAlign(GetXmlNodeString(verticalAlignPath));
             _horizontalAlignment = GetHorizontalAlign(GetXmlNodeString(horizontalAlignPath));
-            _wrapText = GetXmlNodeString(wrapTextPath) == "1" ? true : false;
+            _wrapText = GetXmlNodeBool(wrapTextPath);
             _textRotation = GetXmlNodeInt(textRotationPath);
             _hidden = GetXmlNodeBool(hiddenPath);
             _locked = GetXmlNodeBool(lockedPath,true);
@@ -320,7 +320,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _textRotation;
+                return (_textRotation == int.MinValue ? 0 : _textRotation);
             }
             set
             {
@@ -400,7 +400,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _indent;
+                return (_indent == int.MinValue ? 0 : _indent);
             }
             set
             {
@@ -813,30 +813,32 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal XmlNode CreateXmlNode(XmlNode topNode, bool isCellStyleXsf)
         {
             TopNode = topNode;
+            var doSetXfId = (!isCellStyleXsf && _xfID > int.MinValue && _styles.CellStyleXfs.Count > 0 && _styles.CellStyleXfs[_xfID].newID > int.MinValue);
             if (_numFmtId >= 0)
             {
                 SetXmlNodeString("@numFmtId", _numFmtId.ToString());
-                SetXmlNodeString("@applyNumberFormat", "1");
+                if(doSetXfId) SetXmlNodeString("@applyNumberFormat", "1");
             }
             if (_fontId >= 0)
             {
                 SetXmlNodeString("@fontId", _styles.Fonts[_fontId].newID.ToString());
-                SetXmlNodeString("@applyFont", "1");
+                if (doSetXfId) SetXmlNodeString("@applyFont", "1");
             }
             if (_fillId >= 0)
             {
                 SetXmlNodeString("@fillId", _styles.Fills[_fillId].newID.ToString());
-                SetXmlNodeString("@applyFill", "1");
+                if (doSetXfId) SetXmlNodeString("@applyFill", "1");
             }
             if (_borderId >= 0)
             {
                 SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
-                SetXmlNodeString("@applyBorder", "1");
+                if (doSetXfId) SetXmlNodeString("@applyBorder", "1");
             }
             if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
-            if (!isCellStyleXsf && _xfID > int.MinValue && _styles.CellStyleXfs.Count>0)
+            if (doSetXfId)
+            {
                 SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
-
+            }
             if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
             if(_wrapText) this.SetXmlNodeString(wrapTextPath, "1");
             if(_readingOrder!=ExcelReadingOrder.ContextDependent) this.SetXmlNodeString(readingOrderPath, ((int)_readingOrder).ToString());

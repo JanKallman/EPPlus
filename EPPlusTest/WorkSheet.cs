@@ -517,7 +517,6 @@ namespace EPPlusTest
             comment.RichText[0].PreserveSpace = true;
             var rt = comment.RichText.Add("Test comment");
             comment.VerticalAlignment = eTextAlignVerticalVml.Center;
-            
             comment = ws.Comments.Add(ws.Cells["A2"], "Jan Källman\r\nAuthor\r\n1", "JK");            
             comment = ws.Comments.Add(ws.Cells["A1"], "Jan Källman\r\nAuthor\r\n2", "JK");            
             comment = ws.Comments.Add(ws.Cells["C2"], "Jan Källman\r\nAuthor\r\n3", "JK");            
@@ -808,6 +807,15 @@ namespace EPPlusTest
 
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
+        [TestMethod]
+        public void FormulaArray()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("FormulaError");
+
+            ws.Cells["E2:E5"].CreateArrayFormula("FREQUENCY(B2:B18,C2:C5)");
+            _pck.SaveAs(new FileInfo("c:\\temp\\arrayformula.xlsx"));
+        }
         [Ignore]
         [TestMethod]
         public void PictureURL()
@@ -905,7 +913,7 @@ namespace EPPlusTest
         [TestMethod]
         public void CopyRange()
         {
-            var ws = _pck.Workbook.Worksheets.Add("CopyTest");
+            var ws = _pck.Workbook.Worksheets.Add("CopyTest");  
 
             ws.Cells["A1"].Value = "Single Cell";
             ws.Cells["A2"].Value = "Merged Cells";
@@ -1011,13 +1019,17 @@ namespace EPPlusTest
             ws.Cells["A32:H33"].Formula = "G2+E1";
 
             ws.Cells["A50:A59"].CreateArrayFormula("C50+D50");
-
+            ws.Cells["A1"].Value = "test";
             ws.Cells["A15"].Value = "Värde";
             ws.Cells["C12"].AddComment("Test", "JJOD");
             ws.Cells["D12:I12"].Merge = true;
             ws.Cells["D12:I12"].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
             ws.Cells["D12:I12"].Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Top;
             ws.Cells["D12:I12"].Style.WrapText = true;
+
+            ws.Cells["F1:F3"].Formula = "F2+F3";
+            ws.Cells["J1:J3"].Formula = "F2+F3";            
+            ws.Cells["F1:F3"].Formula = "F5+F6";    //Overwrite same range
         }
         [Ignore]
         [TestMethod]
@@ -1689,7 +1701,7 @@ namespace EPPlusTest
 
             wsSheet.Cells["B2"].Value = "Text Center";
             wsSheet.Cells["B2"].StyleName = "first";
-            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name="Arial";
+            _pck.Workbook.Styles.NamedStyles[0].Style.Font.Name = "Arial";
 
             var rowStyle = _pck.Workbook.Styles.CreateNamedStyle("RowStyle", firstNamedStyle.Style).Style;
             rowStyle.Fill.BackgroundColor.SetColor(Color.Pink);
@@ -1782,6 +1794,27 @@ namespace EPPlusTest
            ws.Cells["H1"].Style.TextRotation = 180;
            ws.Cells["A1:H1"].AutoFitColumns(0);
         }
+        [TestMethod]
+        public void Moveissue()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDelete.xlsx"));
+            _pck.Workbook.Worksheets[1].DeleteRow(2,4);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
+        [TestMethod]
+        public void DelCol()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
+            _pck.Workbook.Worksheets[1].DeleteColumn(5, 1);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
+        [TestMethod]
+        public void InsCol()
+        {
+            _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
+            _pck.Workbook.Worksheets[1].InsertColumn(4, 5);
+            _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
+        }
         [Ignore]
         [TestMethod]
         public void FileLockedProblem()
@@ -1792,7 +1825,6 @@ namespace EPPlusTest
                 pck.Save();
                 pck.Dispose();
             }
-            
         }
         [Ignore]
         [TestMethod]
@@ -1809,6 +1841,7 @@ namespace EPPlusTest
             }
             ws.Cells["A1:P30"].Copy(ws.Cells["B1"]);
         }
+        [Ignore]
         [TestMethod]
         public void RunSample0()
         {
@@ -1828,6 +1861,27 @@ namespace EPPlusTest
 
                 //save our new workbook and we are done!
                 package.Save();
+            }
+        }
+        [TestMethod]
+        public void Deletews()
+        {
+            FileInfo newFile = new FileInfo(@"c:\temp\bug\worksheet error.xlsx");
+            using (ExcelPackage package = new ExcelPackage(newFile))
+            {
+                var ws1 = package.Workbook.Worksheets.Add("sheet1");
+                var ws2 = package.Workbook.Worksheets.Add("sheet2");
+                var ws3 = package.Workbook.Worksheets.Add("sheet3");
+
+                package.Workbook.Worksheets.MoveToStart(ws3.Name);
+                //save our new workbook and we are done!
+                package.Save();
+            }
+            using (ExcelPackage package = new ExcelPackage(newFile))
+            {
+                package.Workbook.Worksheets.Delete(1);
+                var ws3 = package.Workbook.Worksheets.Add("sheet3");
+                package.SaveAs(new FileInfo(@"c:\temp\bug\worksheet error_save.xlsx"));
             }
         }
         #region Date1904 Test Cases

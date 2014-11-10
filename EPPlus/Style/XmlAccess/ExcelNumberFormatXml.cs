@@ -258,7 +258,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 int fractionPos = -1;
                 string specialDateFormat = "";
                 bool containsAmPm = ExcelFormat.Contains("AM/PM");
-
+                List<int> lstDec=new List<int>();
                 StringBuilder sb = new StringBuilder();
                 Culture = null;
                 var format = "";
@@ -324,6 +324,14 @@ namespace OfficeOpenXml.Style.XmlAccess
                                             }
                                         }
                                     }
+                                }
+                                else if(bracketText[0]=='t')
+                                {
+                                    sb.Append("hh"); //TODO:This will not be correct for dates over 24H.
+                                }
+                                else if (bracketText[0] == 'h')
+                                {
+                                    specialDateFormat = "hh"; //TODO:This will not be correct for dates over 24H.
                                 }
                             }
                             else
@@ -393,6 +401,10 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     clc == 's')
                                 {
                                     sb.Append(c);
+                                    if(c=='.')
+                                    {
+                                        lstDec.Add(sb.Length - 1);
+                                    }
                                 }
                                 else if (clc == 'h')
                                 {
@@ -477,6 +489,16 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 }
                             }
                         }
+                    }
+                }
+
+                //Add qoutes
+                if(lstDec.Count>1)
+                {
+                    for(int i=lstDec.Count-1;i>=0;i--)
+                    {
+                        sb.Insert(lstDec[i] + 1,'\'');
+                        sb.Insert(lstDec[i],'\'');
                     }
                 }
 
