@@ -452,6 +452,7 @@ namespace EPPlusTest
                 p.Workbook.Worksheets.Copy(ws.Name, "Copy");
             }
         }
+        [Ignore]
         [TestMethod]
         public void whitespace()
         {

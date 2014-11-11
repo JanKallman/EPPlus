@@ -36,6 +36,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using comTypes = System.Runtime.InteropServices.ComTypes;
 using System.IO;
+using System.Security;
 
 namespace OfficeOpenXml.Utils
 {
@@ -72,6 +73,7 @@ namespace OfficeOpenXml.Utils
             var b = File.ReadAllBytes(fi.FullName);
             Read(b);
         }
+        [SecuritySafeCritical]
         internal void Read(byte[] doc)
         {
             ILockBytes lb;
@@ -86,6 +88,7 @@ namespace OfficeOpenXml.Utils
             Read(lb);
         }
 
+        [SecuritySafeCritical]
         internal void Read(ILockBytes lb)
         {
             if (StgIsStorageILockBytes(lb) == 0)
@@ -564,14 +567,17 @@ namespace OfficeOpenXml.Utils
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
         
         #endregion
+        [SecuritySafeCritical]
         internal static int IsStorageFile(string Name)
         {
             return StgIsStorageFile(Name);
         }
+        [SecuritySafeCritical]
         internal static int IsStorageILockBytes(ILockBytes lb)
         {
             return StgIsStorageILockBytes(lb);
-        }        
+        }
+        [SecuritySafeCritical]
         internal static ILockBytes GetLockbyte(MemoryStream stream)
         {
             ILockBytes lb;
@@ -586,6 +592,7 @@ namespace OfficeOpenXml.Utils
 
             return lb;
         }
+        [SecuritySafeCritical]
         private MemoryStream ReadParts(IStorage storage, StoragePart storagePart)
         {
             MemoryStream ret = null;
@@ -668,6 +675,7 @@ namespace OfficeOpenXml.Utils
         /// <param name="storage"></param>
         /// <param name="statstg"></param>
         /// <returns></returns>
+        [SecuritySafeCritical]
         private byte[] GetOleStream(IStorage storage, comTypes.STATSTG statstg)
         {
             comTypes.IStream pIStream;
@@ -683,6 +691,7 @@ namespace OfficeOpenXml.Utils
 
             return data;
         }
+        [SecuritySafeCritical]
         internal byte[] Save()
         {
             ILockBytes lb;

@@ -202,11 +202,14 @@ namespace EPPlusTest
             // on the decompression buffer.
             var workbookDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
             var path = Path.Combine(workbookDir, "VBADecompressBug.xlsm");
-
-            using (var package = new ExcelPackage(new FileInfo(path)))
+            var f = new FileInfo(path);
+            if (f.Exists)
             {
-                // Reading the Workbook.CodeModule.Code will cause an IndexOutOfRange if the problem hasn't been fixed.
-                Assert.IsTrue(package.Workbook.CodeModule.Code.Length > 0);
+                using (var package = new ExcelPackage(f))
+                {
+                    // Reading the Workbook.CodeModule.Code will cause an IndexOutOfRange if the problem hasn't been fixed.
+                    Assert.IsTrue(package.Workbook.CodeModule.Code.Length > 0);
+                }
             }
         }
     }
