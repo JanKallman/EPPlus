@@ -1863,6 +1863,7 @@ namespace EPPlusTest
                 package.Save();
             }
         }
+        [Ignore]
         [TestMethod]
         public void Deletews()
         {

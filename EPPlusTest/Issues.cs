@@ -90,6 +90,7 @@ namespace EPPlusTest
             ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
             ws.Calculate();
         }
+        [Ignore]
         [TestMethod]
         public void Issue14988()
         {

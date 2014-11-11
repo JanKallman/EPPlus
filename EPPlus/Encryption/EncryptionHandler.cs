@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
@@ -88,6 +89,7 @@ namespace OfficeOpenXml.Encryption
         /// <param name="stream">The memory stream. </param>
         /// <param name="encryption">The encryption object from the Package</param>
         /// <returns></returns>
+        [SecuritySafeCritical]
         internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
         {
             //Create the lockBytes object.
