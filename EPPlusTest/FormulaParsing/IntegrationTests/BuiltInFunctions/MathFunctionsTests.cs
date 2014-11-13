@@ -5,6 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
 using Rhino.Mocks;
+using OfficeOpenXml;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
 {
@@ -145,6 +146,18 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         {
             var result = _parser.Parse("Average(2, 2, 2)");
             Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
+        public void AverageShouldReturnDiv0IfEmptyCell()
+        {
+            using(var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("test");
+                ws.Cells["A2"].Formula = "AVERAGE(A1)";
+                ws.Calculate();
+                Assert.AreEqual("#DIV/0!", ws.Cells["A2"].Value.ToString());
+            }
         }
 
         [TestMethod]
