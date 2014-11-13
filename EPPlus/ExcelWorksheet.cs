@@ -1741,7 +1741,7 @@ namespace OfficeOpenXml
 		public void  InsertRow(int rowFrom, int rows, int copyStylesFromRow)
 		{
             CheckSheetType();
-            var d = Dimension;
+                var d = Dimension;
 
             if (rowFrom < 1)
             {
@@ -1792,7 +1792,7 @@ namespace OfficeOpenXml
                 FixMergedCellsRow(rowFrom, rows, false);
                 if (copyStylesFromRow > 0)
                 {
-                    var cseS = new CellsStoreEnumerator<int>(_styles, copyStylesFromRow, 0, ExcelPackage.MaxRows, copyStylesFromRow); //Fixes issue 15068 
+                    var cseS = new CellsStoreEnumerator<int>(_styles, copyStylesFromRow, 0, copyStylesFromRow, ExcelPackage.MaxColumns); //Fixes issue 15068 , 15090
                     while(cseS.Next())
                     {
                         for (var r = 0; r < rows; r++)
