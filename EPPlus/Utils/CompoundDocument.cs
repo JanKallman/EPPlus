@@ -275,7 +275,7 @@ namespace OfficeOpenXml.Utils
                         //Literal token
                         if ((token & (1 << i)) == 0)
                         {
-                            ms.WriteByte(compBuffer[pos]);
+                            ms.WriteByte(compBuffer[pos]);  
                             buffer[decomprPos++] = compBuffer[pos++];
                         }
                         else //copy token
@@ -298,13 +298,14 @@ namespace OfficeOpenXml.Utils
                                 Array.Copy(buffer, largerBuffer, decomprPos);
                                 buffer = largerBuffer;
                             }
-                            ms.Write(buffer, source, length);
+                            
                             // Even though we've written to the MemoryStream,
                             // We still should decompress the token into this buffer
                             // in case a later token needs to use the bytes we're
                             // about to decompress.
                             for (int c = 0; c < length; c++)
                             {
+                                ms.WriteByte(buffer[source]); //Must copy byte-wise because copytokens can overlap compressed buffer.
                                 buffer[decomprPos++] = buffer[source++];
                             }
 
@@ -315,15 +316,7 @@ namespace OfficeOpenXml.Utils
                             break;
                     }
                 }
-                if (decomprPos > 0)
-                {
-                    ms.Write(buffer, 0, decomprPos);
-                    return;
-                }
-                else
-                {
-                    return;
-                }
+                return;
             }
             else //Raw chunk
             {
