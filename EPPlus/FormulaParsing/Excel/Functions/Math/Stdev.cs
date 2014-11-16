@@ -41,10 +41,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return CreateResult(StandardDeviation(values), DataType.Decimal);
         }
 
-        private static double StandardDeviation(IEnumerable<double> values)
+        private double StandardDeviation(IEnumerable<double> values)
         {
             double ret = 0;
-            if (values.Count() > 0)
+            if (values.Any())
             {
                 var nValues = values.Count();
                 if(nValues == 1) throw new ExcelErrorValueException(eErrorType.Div0);
@@ -53,7 +53,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 //Perform the Sum of (value-avg)_2_2       
                 double sum = values.Sum(d => MathObj.Pow(d - avg, 2));
                 //Put it all together       
-                ret = MathObj.Sqrt((sum) / (values.Count() - 1));
+                ret = MathObj.Sqrt(Divide(sum, (values.Count() - 1)));
             }
             return ret;
         } 

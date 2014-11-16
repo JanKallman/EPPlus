@@ -225,6 +225,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             return ArgToDecimal(arguments.ElementAt(index).Value);
         }
 
+        protected double Divide(double left, double right)
+        {
+            if (System.Math.Abs(right - 0d) < double.Epsilon)
+            {
+                throw new ExcelErrorValueException(eErrorType.Div0);
+            }
+            return left/right;
+        }
+
         protected bool IsNumericString(object value)
         {
             if (value == null || string.IsNullOrEmpty(value.ToString())) return false;
