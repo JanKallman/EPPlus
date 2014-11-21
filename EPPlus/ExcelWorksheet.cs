@@ -1354,7 +1354,7 @@ namespace OfficeOpenXml
             }
             else if (type == "str")
             {
-                _values.SetValue(row, col, xr.ReadElementContentAsString());
+                _values.SetValue(row, col, ConvertUtil.ExcelDecodeString(xr.ReadElementContentAsString()));
             }
             else if (type == "b")
             {

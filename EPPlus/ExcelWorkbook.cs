@@ -142,7 +142,7 @@ namespace OfficeOpenXml
 						XmlNode n = node.SelectSingleNode("d:t", NameSpaceManager);
 						if (n != null)
 						{
-							_sharedStringsList.Add(new SharedStringItem() { Text = ExcelDecodeString(n.InnerText) });
+                            _sharedStringsList.Add(new SharedStringItem() { Text = ConvertUtil.ExcelDecodeString(n.InnerText) });
 						}
 						else
 						{
@@ -827,7 +827,7 @@ namespace OfficeOpenXml
             stream.PutNextEntry(fileName);
 
             var cache = new StringBuilder();            
-            StreamWriter sw = new StreamWriter(stream);
+            var sw = new StreamWriter(stream);
             cache.AppendFormat("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
 			foreach (string t in _sharedStrings.Keys)
 			{
@@ -836,7 +836,7 @@ namespace OfficeOpenXml
 				if (ssi.isRichText)
 				{
                     cache.Append("<si>");
-                    ExcelEncodeString(cache, t);
+                    ConvertUtil.ExcelEncodeString(cache, t);
                     cache.Append("</si>");
 				}
 				else
@@ -849,7 +849,7 @@ namespace OfficeOpenXml
 					{
                         cache.Append("<si><t>");
 					}
-					ExcelEncodeString(cache, ExcelEscapeString(t));
+                    ConvertUtil.ExcelEncodeString(cache, ConvertUtil.ExcelEscapeString(t));
                     cache.Append("</t></si>");
 				}
                 if (cache.Length > 0x600000)
@@ -862,117 +862,6 @@ namespace OfficeOpenXml
             sw.Write(cache.ToString());
             sw.Flush();
             Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
-		}
-
-		/// <summary>
-		/// OOXML requires that "," , and &amp; be escaped, but ' and " should *not* be escaped, nor should
-		/// any extended Unicode characters. This function only encodes the required characters.
-		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
-		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
-		/// escape equivalent.
-		/// </summary>
-		/// <param name="s"></param>
-		/// <returns></returns>
-		private static string ExcelEscapeString(string s) {
-			return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-		}
-
-		/// <summary>
-		/// Return true if preserve space attribute is set.
-		/// </summary>
-		/// <param name="sw"></param>
-		/// <param name="t"></param>
-		/// <returns></returns>
-		internal static void ExcelEncodeString(StreamWriter sw, string t)
-		{
-			if(Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-			{
-				var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-				int indexAdd = 0;
-				while (match.Success)
-				{
-					t=t.Insert(match.Index + indexAdd, "_x005F");
-					indexAdd += 6;
-					match = match.NextMatch();
-				}
-			}
-			for (int i=0;i<t.Length;i++)
-			{
-				if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-				{
-					sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));                    
-				}
-				else
-				{
-					sw.Write(t[i]);
-				}
-			}
-
-		}
-        /// <summary>
-        /// Return true if preserve space attribute is set.
-        /// </summary>
-        /// <param name="sb"></param>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        internal static void ExcelEncodeString(StringBuilder sb, string t)
-        {
-            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-            {
-                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-                int indexAdd = 0;
-                while (match.Success)
-                {
-                    t = t.Insert(match.Index + indexAdd, "_x005F");
-                    indexAdd += 6;
-                    match = match.NextMatch();
-                }
-            }
-            for (int i = 0; i < t.Length; i++)
-            {
-                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-                {
-                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
-                }
-                else
-                {
-                    sb.Append(t[i]);
-                }
-            }
-
-        }
-        internal static string ExcelDecodeString(string t)
-		{
-			var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
-			if(!match.Success) return t;
-
-			bool useNextValue = false;
-			StringBuilder ret=new StringBuilder();
-			int prevIndex=0;
-			while(match.Success)
-			{
-				if (prevIndex < match.Index) ret.Append(t.Substring(prevIndex, match.Index - prevIndex));
-				if (!useNextValue && match.Value == "_x005F")
-				{
-					useNextValue = true;
-				}
-				else
-				{
-					if (useNextValue)
-					{
-						ret.Append(match.Value);
-						useNextValue=false;
-					}
-					else
-					{
-						ret.Append((char)int.Parse(match.Value.Substring(2,4),NumberStyles.AllowHexSpecifier));
-					}
-				}
-				prevIndex=match.Index+match.Length;
-				match = match.NextMatch();
-			}
-			ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
-			return ret.ToString();
 		}
 		private void UpdateDefinedNamesXml()
 		{

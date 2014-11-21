@@ -186,7 +186,7 @@ namespace OfficeOpenXml
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-                    worksheet.CodeModuleName = Name;
+                    worksheet.CodeModuleName = name;
 
                 }
                 return worksheet;
@@ -262,6 +262,14 @@ namespace OfficeOpenXml
 
                 //Copy all cells
                 CloneCells(Copy, added);
+
+                //Copy the VBA code
+                if (_pck.Workbook.VbaProject != null)
+                {
+                    var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(added);
+                    _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(added.CodeNameChange) { Name = name, Code = Copy.CodeModule.Code, Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Copy.CodeModuleName = name;
+                }
 
                 _worksheets.Add(_worksheets.Count + 1, added);
 
@@ -956,7 +964,14 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                return (_worksheets[PositionID]);
+			    if (_worksheets.ContainsKey(PositionID))
+			    {
+			        return _worksheets[PositionID];
+			    }
+			    else
+			    {
+			        throw (new IndexOutOfRangeException("Worksheet position out of range."));
+			    }
 			}
 		}
 

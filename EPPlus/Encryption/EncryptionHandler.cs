@@ -616,7 +616,7 @@ namespace OfficeOpenXml.Encryption
                 }
                 else
                 {
-                    throw (new UnauthorizedAccessException("Invalid password"));
+                    throw (new SecurityException("Invalid password"));
                 }
             }
             return null;
