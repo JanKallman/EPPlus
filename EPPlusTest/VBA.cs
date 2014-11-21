@@ -15,7 +15,6 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
-        [Ignore]
         [TestMethod]
         public void Compression()
         {
@@ -116,6 +115,7 @@ namespace EPPlusTest
 
             package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
         }
+        [Ignore]        
         [TestMethod]
         public void VbaError()
         {
@@ -192,7 +192,9 @@ namespace EPPlusTest
             using ( var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\outfile.xlsm")))
             {
                 Console.WriteLine(package.Workbook.CodeModule.Code.Length);
-                package.SaveAs(new FileInfo(@"c:\temp\bug\outfile.xlsm"));
+                package.Workbook.Worksheets[1].CodeModule.Code = "Private Sub Worksheet_SelectionChange(ByVal Target As Range)\r\n\r\nEnd Sub";
+                package.Workbook.Worksheets.Add("TestCopy",package.Workbook.Worksheets[1]);
+                package.SaveAs(new FileInfo(@"c:\temp\bug\outfile2.xlsm"));
             }   
         }
         [TestMethod]

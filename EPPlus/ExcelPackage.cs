@@ -329,10 +329,11 @@ namespace OfficeOpenXml
             Init();
             if (newStream.Length == 0)
             {
+                _stream = newStream;
                 ConstructNewFile(null);
             }
             else
-            {
+            {                
                 Load(newStream);
             }
         }
@@ -506,7 +507,7 @@ namespace OfficeOpenXml
             if (template != null) template.Refresh();
             if (template.Exists)
             {
-                _stream=new MemoryStream();
+                if(_stream==null) _stream=new MemoryStream();
                 var ms = new MemoryStream();
                 if (password != null)
                 {
@@ -546,7 +547,7 @@ namespace OfficeOpenXml
         private void ConstructNewFile(string password)
         {
             var ms = new MemoryStream();
-            _stream = new MemoryStream();
+            if (_stream == null) _stream = new MemoryStream();
             if (File != null) File.Refresh();
             if (File != null && File.Exists)
             {
@@ -875,7 +876,6 @@ namespace OfficeOpenXml
                 long pos = Stream.Position;
                 Stream.Seek(0, SeekOrigin.Begin);
                 Stream.Read(file, 0, (int)Stream.Length);
-
                 EncryptedPackageHandler eph = new EncryptedPackageHandler();
                 var ms = eph.EncryptPackage(file, Encryption);
                 CopyStream(ms, ref OutputStream);
@@ -1127,8 +1127,8 @@ namespace OfficeOpenXml
                 inputStream.Seek(0, SeekOrigin.Begin);
             }
 
-            int bufferLength = 8096;
-            Byte[] buffer = new Byte[bufferLength];
+            const int bufferLength = 8096;
+            var buffer = new Byte[bufferLength];
             int bytesRead = inputStream.Read(buffer, 0, bufferLength);
             // write the required bytes
             while (bytesRead > 0)

@@ -7,6 +7,7 @@ using System.IO;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
 using OfficeOpenXml.Drawing.Vml;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table.PivotTable;
@@ -2001,7 +2002,16 @@ namespace EPPlusTest
             Assert.AreEqual(dateTest1, w3.Cells[1, 1].Value);
             Assert.AreEqual(dateTest2,w3.Cells[2, 1].Value);
         }
-
+        [TestMethod]
+        public void SaveToStream()
+        {
+            var stream = new MemoryStream(File.ReadAllBytes(@"c:\temp\book1.xlsx"));
+            var excelPackage = new ExcelPackage(stream);
+            excelPackage.Workbook.Worksheets.Add("test");
+            excelPackage.Save();
+            var s=stream.ToArray();
+        }
+        
         #endregion
     }
 }

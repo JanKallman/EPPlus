@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using System.IO;
 
 namespace OfficeOpenXml.Utils
 {
@@ -66,6 +67,117 @@ namespace OfficeOpenXml.Utils
                 d = 0;
             }
             return d;
+        }
+        /// <summary>
+        /// OOXML requires that "," , and &amp; be escaped, but ' and " should *not* be escaped, nor should
+        /// any extended Unicode characters. This function only encodes the required characters.
+        /// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
+        /// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
+        /// escape equivalent.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
+        internal static string ExcelEscapeString(string s)
+        {
+            return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+        }
+
+        /// <summary>
+        /// Return true if preserve space attribute is set.
+        /// </summary>
+        /// <param name="sw"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        internal static void ExcelEncodeString(StreamWriter sw, string t)
+        {
+            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
+            {
+                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+                int indexAdd = 0;
+                while (match.Success)
+                {
+                    t = t.Insert(match.Index + indexAdd, "_x005F");
+                    indexAdd += 6;
+                    match = match.NextMatch();
+                }
+            }
+            for (int i = 0; i < t.Length; i++)
+            {
+                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
+                {
+                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                }
+                else
+                {
+                    sw.Write(t[i]);
+                }
+            }
+
+        }
+        /// <summary>
+        /// Return true if preserve space attribute is set.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        internal static void ExcelEncodeString(StringBuilder sb, string t)
+        {
+            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
+            {
+                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
+                int indexAdd = 0;
+                while (match.Success)
+                {
+                    t = t.Insert(match.Index + indexAdd, "_x005F");
+                    indexAdd += 6;
+                    match = match.NextMatch();
+                }
+            }
+            for (int i = 0; i < t.Length; i++)
+            {
+                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
+                {
+                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                }
+                else
+                {
+                    sb.Append(t[i]);
+                }
+            }
+
+        }
+        internal static string ExcelDecodeString(string t)
+        {
+            var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
+            if (!match.Success) return t;
+
+            var useNextValue = false;
+            var ret = new StringBuilder();
+            var prevIndex = 0;
+            while (match.Success)
+            {
+                if (prevIndex < match.Index) ret.Append(t.Substring(prevIndex, match.Index - prevIndex));
+                if (!useNextValue && match.Value == "_x005F")
+                {
+                    useNextValue = true;
+                }
+                else
+                {
+                    if (useNextValue)
+                    {
+                        ret.Append(match.Value);
+                        useNextValue = false;
+                    }
+                    else
+                    {
+                        ret.Append((char)int.Parse(match.Value.Substring(2, 4), NumberStyles.AllowHexSpecifier));
+                    }
+                }
+                prevIndex = match.Index + match.Length;
+                match = match.NextMatch();
+            }
+            ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
+            return ret.ToString();
         }
     }
 }
