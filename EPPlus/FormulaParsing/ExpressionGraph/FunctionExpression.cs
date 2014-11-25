@@ -70,6 +70,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             try
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
+                if(function == null) return new CompileResult(ExcelErrorValue.Create(eErrorType.Name), DataType.ExcelError);
                 var compiler = _functionCompilerFactory.Create(function);
                 var result = compiler.Compile(HasChildren ? Children : Enumerable.Empty<Expression>(), _parsingContext);
                 if (_isNegated)
