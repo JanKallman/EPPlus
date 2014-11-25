@@ -393,6 +393,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Large.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Ln.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
@@ -412,6 +413,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sign.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sinh.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Small.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sqrt.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SqrtPi.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Stdev.cs" />

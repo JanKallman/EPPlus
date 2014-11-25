@@ -108,6 +108,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["atan2"] = new Atan2();
             Functions["var"] = new Var();
             Functions["varp"] = new VarP();
+            Functions["large"] = new Large();
+            Functions["small"] = new Small();
             // Information
             Functions["isblank"] = new IsBlank();
             Functions["isnumber"] = new IsNumber();

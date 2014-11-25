@@ -69,7 +69,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             if(!_functions.ContainsKey(name.ToLower()))
             {
                 //throw new InvalidOperationException("Non supported function: " + name);
-                throw new ExcelErrorValueException("Non supported function: " + name, ExcelErrorValue.Create(eErrorType.Name));
+                //throw new ExcelErrorValueException("Non supported function: " + name, ExcelErrorValue.Create(eErrorType.Name));
+                return null;
             }
             return _functions[name.ToLower()];
         }
