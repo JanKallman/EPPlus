@@ -81,6 +81,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\"')
                         {
                             i ++;
+                            //if (context.LastToken.TokenType == TokenType.String && !context.CurrentTokenHasValue)
+                            //{
+                            //    context.AddToken(new Token(string.Empty, TokenType.StringContent));
+                            //}
                             context.AppendToCurrentToken(c);
                             continue;
                         }
@@ -135,7 +139,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     if (context.CurrentTokenHasValue)
                     {
-                        context.AddToken(CreateToken(context, worksheet));
+                        if (context.CurrentToken == "\"" && context.IsInString)
+                        {
+                            context.AddToken(_tokenFactory.Create(context.CurrentToken, TokenType.StringContent));
+                        }
+                        else
+                        {
+                            context.AddToken(CreateToken(context, worksheet));
+                        }
+                        
                         //If the a next token is an opening parantheses and the previous token is interpeted as an address or name, then the currenct token is a function
                         if(tokenSeparator.TokenType==TokenType.OpeningParenthesis && (context.LastToken.TokenType==TokenType.ExcelAddress || context.LastToken.TokenType==TokenType.NameValue)) 
                         {
