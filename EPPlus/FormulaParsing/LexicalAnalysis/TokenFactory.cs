@@ -157,5 +157,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             return new Token(token, TokenType.Unrecognized);
 
         }
+
+        public Token Create(string token, TokenType explicitTokenType)
+        {
+            return new Token(token, explicitTokenType);
+        }
     }
 }
