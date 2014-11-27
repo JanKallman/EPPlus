@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
@@ -81,10 +82,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\"')
                         {
                             i ++;
-                            //if (context.LastToken.TokenType == TokenType.String && !context.CurrentTokenHasValue)
-                            //{
-                            //    context.AddToken(new Token(string.Empty, TokenType.StringContent));
-                            //}
                             context.AppendToCurrentToken(c);
                             continue;
                         }
@@ -139,14 +136,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     }
                     if (context.CurrentTokenHasValue)
                     {
-                        if (context.CurrentToken == "\"" && context.IsInString)
+                        if (Regex.IsMatch(context.CurrentToken, "^\"*$"))
                         {
                             context.AddToken(_tokenFactory.Create(context.CurrentToken, TokenType.StringContent));
                         }
                         else
                         {
-                            context.AddToken(CreateToken(context, worksheet));
+                            context.AddToken(CreateToken(context, worksheet));  
                         }
+                        
                         
                         //If the a next token is an opening parantheses and the previous token is interpeted as an address or name, then the currenct token is a function
                         if(tokenSeparator.TokenType==TokenType.OpeningParenthesis && (context.LastToken.TokenType==TokenType.ExcelAddress || context.LastToken.TokenType==TokenType.NameValue)) 

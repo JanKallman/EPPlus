@@ -114,7 +114,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldIgnoreTwoSubsequentStringIdentifyers2()
         {
-            //using (var pck = new ExcelPackage(new FileInfo("c:\\temp\\QuoteIssue.xlsx")))
+            //using (var pck = new ExcelPackage(new FileInfo("c:\\temp\\QuoteIssue2.xlsx")))
             //{
             //    pck.Workbook.Worksheets.First().Calculate();
             //}
