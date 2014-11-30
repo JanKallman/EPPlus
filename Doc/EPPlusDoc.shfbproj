@@ -45,7 +45,9 @@ EPPlus started with the source from the ExcelPackage project hosted on CodePlex.
 <NamespaceSummaryItem name="Ionic.Zip" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
 <NamespaceSummaryItem name="Ionic.Zlib" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing" isDocumented="True">Top namesspace for formula parsing</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Packaging" isDocumented="True">Contains classes too handle OOXML packaging</NamespaceSummaryItem></NamespaceSummaries>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging" isDocumented="True">Contains classes to handle OOXML packaging. Uses the DotNetZip library to handle compression.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging.Ionic.Zip" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging.Ionic.Zlib" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem></NamespaceSummaries>
     <HelpTitle>EPPlus 4.0</HelpTitle>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers</VisibleItems>
     <BuildLogFile />

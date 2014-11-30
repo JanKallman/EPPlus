@@ -812,6 +812,7 @@ namespace EPPlusTest
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
 
         }
+        [Ignore]
         [TestMethod]
         public void ReadWriteSmoothChart()
         {
@@ -820,6 +821,19 @@ namespace EPPlusTest
             _pck.Workbook.Worksheets[1].Cells["B2"].Value = 33;
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
 
+        }
+        [TestMethod]
+        public void TestHeaderaddress()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Draw");
+            var chart = ws.Drawings.AddChart("NewChart1",eChartType.Area) as ExcelChart;
+            var ser1 = chart.Series.Add("A1:A2", "B1:B2");
+            ser1.HeaderAddress = new ExcelAddress("A1:A2");
+            ser1.HeaderAddress = new ExcelAddress("A1:B1");
+            ser1.HeaderAddress = new ExcelAddress("A1");
+            _pck.Dispose();
+            _pck = null;
         }
         [Ignore]
         [TestMethod]

@@ -90,6 +90,22 @@ namespace EPPlusTest
             ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
             ws.Calculate();
         }
+        [TestMethod]
+        public void Issue15109()
+        {
+            System.IO.FileInfo newFile = new System.IO.FileInfo(@"C:\Temp\bug\test01.xlsx");
+            ExcelPackage excelP = new ExcelPackage(newFile);
+            ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
+            Assert.AreEqual("A1:Z75",ws.Dimension.Address);
+            excelP.Dispose();
+
+            newFile = new System.IO.FileInfo(@"C:\Temp\bug\test02.xlsx");
+            excelP = new ExcelPackage(newFile);
+            ws = excelP.Workbook.Worksheets[1];
+            Assert.AreEqual("A1:AF501", ws.Dimension.Address);
+            excelP.Dispose();
+
+        }
         [Ignore]
         [TestMethod]
         public void Issue14988()

@@ -398,19 +398,35 @@ using OfficeOpenXml;
             else
             {
                 fromCol=_columnIndex[0].Index;
+                var fromIndex = 0;
                 if (fromCol <= 0 && ColumnCount > 1)
                 {
                     fromCol = _columnIndex[1].Index;
+                    fromIndex = 1;
                 }
                 else if(ColumnCount == 1 && fromCol <= 0)
                 {
                     fromRow = fromCol = toRow = toCol = 0;
                     return false;
                 }
-                toCol=_columnIndex[ColumnCount-1].Index;
+                var col = ColumnCount - 1;
+                while (col > 0)
+                {
+                    if (_columnIndex[col].PageCount > 1 || _columnIndex[col]._pages[0].RowCount > 1 || _columnIndex[col]._pages[0].Rows[0].Index > 0)
+                    {
+                        break;
+                    }
+                    col--;
+                }
+                toCol=_columnIndex[col].Index;
+                if (toCol == 0)
+                {
+                    fromRow = fromCol = toRow = toCol = 0;
+                    return false;                    
+                }
                 fromRow = toRow= 0;
 
-                for (int c = 0; c < ColumnCount; c++)
+                for (int c = fromIndex; c < ColumnCount; c++)
                 {                    
                     int first, last;
                     if (_columnIndex[c].PageCount > 0 && _columnIndex[c]._pages[0].RowCount > 0 && _columnIndex[c]._pages[0].Rows[0].Index > 0)

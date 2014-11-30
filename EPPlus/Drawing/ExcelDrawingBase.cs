@@ -472,12 +472,13 @@ namespace OfficeOpenXml.Drawing
             object o = null;
             if (ws._values.Exists(row, 0, ref o) && o != null)   //Check that the row exists
             {
-                return ((RowInternal)o).Height;
+                var internalRow = (RowInternal)o;
+                if (internalRow.Height >= 0)
+                {
+                    return internalRow.Height;
+                }
             }
-            else
-            {
-                return (double)ws.DefaultRowHeight;
-            }
+            return (double)ws.DefaultRowHeight;
         }
         internal void SetPixelTop(int pixels)
         {

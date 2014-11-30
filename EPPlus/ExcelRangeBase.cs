@@ -791,21 +791,17 @@ namespace OfficeOpenXml
 			{
 				SetToSelectedRange();
 			}
-            Dictionary<int, Font> fontCache = new Dictionary<int, Font>();
-			Font f;
+            var fontCache = new Dictionary<int, Font>();
 
-			bool doAdjust = _worksheet._package.DoAdjustDrawings;
+	        bool doAdjust = _worksheet._package.DoAdjustDrawings;
 			_worksheet._package.DoAdjustDrawings = false;
 			var drawWidths = _worksheet.Drawings.GetDrawingWidths();
 
-			int fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
-			int toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
+			var fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
+			var toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
 			if (Addresses == null)
 			{
-				for (int col = fromCol; col <= toCol; col++)
-				{
-					_worksheet.Column(col).Width = MinimumWidth;
-				}
+				SetMinWidth(MinimumWidth, fromCol, toCol);
 			}
 			else
 			{
@@ -813,15 +809,12 @@ namespace OfficeOpenXml
 				{
 					fromCol = addr._fromCol > _worksheet.Dimension._fromCol ? addr._fromCol : _worksheet.Dimension._fromCol;
 					toCol = addr._toCol < _worksheet.Dimension._toCol ? addr._toCol : _worksheet.Dimension._toCol;
-					for (int col = fromCol; col <= toCol; col++)
-					{
-						_worksheet.Column(col).Width = MinimumWidth;
-					}
-				}
+                    SetMinWidth(MinimumWidth, fromCol, toCol);
+                }
 			}
 
 			//Get any autofilter to widen these columns
-			List<ExcelAddressBase> afAddr = new List<ExcelAddressBase>();
+			var afAddr = new List<ExcelAddressBase>();
 			if (_worksheet.AutoFilterAddress != null)
 			{
 				afAddr.Add(new ExcelAddressBase(    _worksheet.AutoFilterAddress._fromRow,
@@ -844,24 +837,25 @@ namespace OfficeOpenXml
 
 			var styles = _worksheet.Workbook.Styles;
 			var nf = styles.Fonts[styles.CellXfs[0].FontId];
-			FontStyle fs = FontStyle.Regular;
+			var fs = FontStyle.Regular;
 			if (nf.Bold) fs |= FontStyle.Bold;
 			if (nf.UnderLine) fs |= FontStyle.Underline;
 			if (nf.Italic) fs |= FontStyle.Italic;
 			if (nf.Strike) fs |= FontStyle.Strikeout;
 			var nfont = new Font(nf.Name, nf.Size, fs);
             
-			using (Bitmap b = new Bitmap(1, 1))
+			using (var b = new Bitmap(1, 1))
 			{
-				using (Graphics g = Graphics.FromImage(b))
+				using (var g = Graphics.FromImage(b))
 				{
-					float normalSize = (float)Math.Truncate(g.MeasureString("00", nfont).Width - g.MeasureString("0", nfont).Width);
+					var normalSize = (float)Math.Truncate(g.MeasureString("00", nfont).Width - g.MeasureString("0", nfont).Width);
 					g.PageUnit = GraphicsUnit.Pixel;
 					foreach (var cell in this)
 					{
 						if (cell.Merge == true || cell.Style.WrapText) continue;
 						var fntID = styles.CellXfs[cell.StyleID].FontId;
-						if (fontCache.ContainsKey(fntID))
+					    Font f;
+					    if (fontCache.ContainsKey(fntID))
 						{
 							f = fontCache[fntID];
 						}
@@ -912,7 +906,30 @@ namespace OfficeOpenXml
 			_worksheet._package.DoAdjustDrawings = doAdjust;
 		}
 
-		internal string TextForWidth
+        private void SetMinWidth(double minimumWidth, int fromCol, int toCol)
+        {
+            var iterator = new CellsStoreEnumerator<object>(_worksheet._values, 0, fromCol, 0, toCol);
+            var prevCol = fromCol;
+            foreach (ExcelColumn col in iterator)
+            {
+                col.Width = minimumWidth;
+                if (_worksheet.DefaultColWidth > minimumWidth && col.ColumnMin > prevCol)
+                {
+                    var newCol = _worksheet.Column(prevCol);
+                    newCol.ColumnMax = col.ColumnMin - 1;
+                    newCol.Width = minimumWidth;
+                }
+                prevCol = col.ColumnMax + 1;
+            }
+            if (_worksheet.DefaultColWidth > minimumWidth && prevCol<toCol)
+            {
+                var newCol = _worksheet.Column(prevCol);
+                newCol.ColumnMax = toCol;
+                newCol.Width = minimumWidth;
+            }
+        }
+
+        internal string TextForWidth
 		{
 			get
 			{

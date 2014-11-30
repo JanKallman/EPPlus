@@ -2011,6 +2011,28 @@ namespace EPPlusTest
             excelPackage.Save();
             var s=stream.ToArray();
         }
+        [TestMethod]
+        public void ColumnsTest()
+        {
+            var excelPackage = new ExcelPackage();
+            var ws=excelPackage.Workbook.Worksheets.Add("ColumnTest");
+
+
+            for (var c = 4; c <= 20; c += 4)
+            {
+                var col = ws.Column(c);
+                col.ColumnMax = c + 3;
+            }
+
+            ws.Column(3).Hidden = true;
+            ws.Column(6).Hidden = true;
+            ws.Column(9).Hidden = true;
+            ws.Column(15).Hidden = true;
+            ws.Cells["a1:Z1"].Value = "Test";
+            ws.Cells["a1:FF33"].AutoFitColumns(0);
+            ws.Column(26).ColumnMax=ExcelPackage.MaxColumns;
+            excelPackage.SaveAs(new FileInfo(@"c:\temp\autofit.xlsx"));
+        }
         
         #endregion
     }

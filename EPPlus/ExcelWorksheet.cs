@@ -1575,17 +1575,16 @@ namespace OfficeOpenXml
             {
                 throw (new ArgumentException("Column number out of bounds"));
             }
-            ExcelColumn column = _values.GetValue(0, col) as ExcelColumn;
-            // id=ExcelColumn.GetColumnID(_sheetID, col);
+            var column = _values.GetValue(0, col) as ExcelColumn;
             if (column!=null)
-            {
-                //column = _columns[id] as ExcelColumn;
-                if (column.ColumnMin != column.ColumnMax)
-                {
-                    int maxCol = column.ColumnMax;
-                    column.ColumnMax=col;
-                    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
-                }
+            {                
+                
+                //if (column.ColumnMin != column.ColumnMax)
+                //{
+                //    int maxCol = column.ColumnMax;
+                //    column.ColumnMax = col;
+                //    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
+                //}
             }
             else
             {
@@ -3618,7 +3617,7 @@ namespace OfficeOpenXml
                 int fromRow, fromCol, toRow, toCol;
                 if (_values.GetDimension(out fromRow, out fromCol, out toRow, out toCol))
                 {
-                    ExcelAddressBase addr = new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
+                    var addr = new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
                     addr._ws = Name;
                     return addr;
                 }
