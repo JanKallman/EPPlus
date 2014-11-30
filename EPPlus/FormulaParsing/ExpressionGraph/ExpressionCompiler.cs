@@ -98,6 +98,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     groupedExpression.Prev.Next = newExp;
                 }
+                if (groupedExpression.Next != null)
+                {
+                    groupedExpression.Next.Prev = newExp;
+                }
                 if (groupedExpression == first)
                 {
                     first = newExp;

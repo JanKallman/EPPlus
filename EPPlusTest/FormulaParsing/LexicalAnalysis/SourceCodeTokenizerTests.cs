@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing;
@@ -107,6 +109,18 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(3, tokens.Count());
             Assert.AreEqual("hello\"world", tokens.ElementAt(1).Value);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreTwoSubsequentStringIdentifyers2()
+        {
+            //using (var pck = new ExcelPackage(new FileInfo("c:\\temp\\QuoteIssue2.xlsx")))
+            //{
+            //    pck.Workbook.Worksheets.First().Calculate();
+            //}
+            var input = "\"\"\"\"\"\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
         }
     }
 }
