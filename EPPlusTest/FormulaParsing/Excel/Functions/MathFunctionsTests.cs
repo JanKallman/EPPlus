@@ -913,5 +913,57 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(1, 0);
             func.Execute(args, _parsingContext);
         }
+
+        [TestMethod]
+        public void LargeShouldReturnTheLargestNumberIf1()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1, 2, 3), 1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod]
+        public void LargeShouldReturnTheSecondLargestNumberIf2()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void LargeShouldThrowIfIndexOutOfBounds()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 6);
+            var result = func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void SmallShouldReturnTheSmallestNumberIf1()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1, 2, 3), 1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+        [TestMethod]
+        public void SmallShouldReturnTheSecondSmallestNumberIf2()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void SmallShouldThrowIfIndexOutOfBounds()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 6);
+            var result = func.Execute(args, _parsingContext);
+        }
     }
 }

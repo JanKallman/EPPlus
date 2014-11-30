@@ -32,20 +32,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class TokenSeparatorProvider : ITokenSeparatorProvider
     {
+        private static readonly Mutex _mutex = new Mutex();
+        private static bool _isInitialized = false;
+
         public TokenSeparatorProvider ()
-	    {
+        {
+            _mutex.WaitOne();
             if(!_isInitialized)
             {
                 Init();
                 _isInitialized = true;
             }
+            _mutex.ReleaseMutex();
 	    }
-        private bool _isInitialized = false;
+        
 
         private static void Init()
         {
