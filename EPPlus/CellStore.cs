@@ -977,18 +977,27 @@ using OfficeOpenXml;
                 }
                 else
                 {
-                    int rows = toPos - fromPos;
-                    for (int r = toPos; r < page.RowCount; r++)
-                    {
-                        page.Rows[r].Index -= (short)rows;
-                    }
+                    var rows = toRow - fromRow;
+                    UpdateRowIndex(page, toPos, rows);
                     Array.Copy(page.Rows, toPos, page.Rows, fromPos, page.RowCount - toPos);
                     page.RowCount -= rows;
 
                     return toRow;
                 }
             }
+            else
+            {
+                UpdateRowIndex(page, toPos, toRow - fromRow);
+            }
             return toRow < maxRow ? toRow : maxRow;
+        }
+
+        private static void UpdateRowIndex(PageIndex page, int toPos, int rows)
+        {
+            for (int r = toPos; r < page.RowCount; r++)
+            {
+                page.Rows[r].Index -= (short) rows;
+            }
         }
 
         private void DeleteColumns(int fromCol, int columns, bool shift)
