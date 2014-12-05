@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace EPPlusTest
 {
@@ -90,6 +92,23 @@ namespace EPPlusTest
             ExcelWorksheet ws = excelP.Workbook.Worksheets[1];
             ws.Calculate();
         }
+        [Ignore]        
+        [TestMethod]
+        public void Issue15112()
+        {
+            System.IO.FileInfo case1 = new System.IO.FileInfo(@"c:\temp\bug\src\src\DeleteRowIssue\Template.xlsx");
+            var p = new ExcelPackage(case1);
+            var first = p.Workbook.Worksheets[1];
+            first.DeleteRow(5);
+            p.SaveAs(new System.IO.FileInfo(@"c:\temp\bug\DeleteCol_case1.xlsx"));
+            
+            var case2 = new System.IO.FileInfo(@"c:\temp\bug\src2\DeleteRowIssue\Template.xlsx");
+            p = new ExcelPackage(case2);
+            first = p.Workbook.Worksheets[1];
+            first.DeleteRow(5);
+            p.SaveAs(new System.IO.FileInfo(@"c:\temp\bug\DeleteCol_case2.xlsx"));
+        }
+        [Ignore]
         [TestMethod]
         public void Issue15109()
         {
@@ -104,8 +123,21 @@ namespace EPPlusTest
             ws = excelP.Workbook.Worksheets[1];
             Assert.AreEqual("A1:AF501", ws.Dimension.Address);
             excelP.Dispose();
-
         }
+        [TestMethod]
+        public void Issue15113()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("t");
+            ws.Cells["A1"].Value = " Performance Update";
+            ws.Cells["A1:H1"].Merge = true;
+            ws.Cells["A1:H1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
+            ws.Cells["A1:H1"].Style.Font.Size = 14;
+            ws.Cells["A1:H1"].Style.Font.Color.SetColor(Color.Red);
+            ws.Cells["A1:H1"].Style.Font.Bold = true;
+            p.SaveAs(new FileInfo(@"c:\temp\merge.xlsx"));
+        }
+
         [Ignore]
         [TestMethod]
         public void Issue14988()

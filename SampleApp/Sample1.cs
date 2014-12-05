@@ -104,6 +104,11 @@ namespace EPPlusSamples
 
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
 
+                foreach (var cell in worksheet.Cells[5, 1, 1000, 1])
+                {
+                    Console.WriteLine(cell.Address);
+                }
+
                 //There is actually no need to calculate, Excel will do it for you, but in some cases it might be useful. 
                 //For example if you link to this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
                 //you want to use the result of a formula in your program.
