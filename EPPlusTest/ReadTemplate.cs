@@ -389,7 +389,6 @@ namespace EPPlusTest
                 }
             }
         }
-        [Ignore]
         [TestMethod]
         public void test()
         { 
@@ -464,30 +463,38 @@ namespace EPPlusTest
         }
         private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 
         {
-            if(File.Exists(pFileName)) File.Delete(pFileName);
+            if (File.Exists(pFileName)) File.Delete(pFileName);
 
-            using(ExcelPackage excelPackage = new ExcelPackage(new FileInfo(pFileName))) {
+            using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(pFileName)))
+            {
                 ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("Testsheet");
 
                 // Fill with data
-                for (int row = 1; row <= pRows; row++) {
-                    for (int column = 1; column <= pColumns; column++) {
-                        if (column > 1 && row > 2) {
-                            using (ExcelRange range = excelWorksheet.Cells[row, column]) {
+                for (int row = 1; row <= pRows; row++)
+                {
+                    for (int column = 1; column <= pColumns; column++)
+                    {
+                        if (column > 1 && row > 2)
+                        {
+                            using (ExcelRange range = excelWorksheet.Cells[row, column])
+                            {
                                 range.Style.Numberformat.Format = "0";
                                 range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
-                                range.Style.VerticalAlignment = ExcelVerticalAlignment.Center; }
-                            excelWorksheet.Cells[row, column].Value = row*column; } } }
-                
+                                range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            }
+                            excelWorksheet.Cells[row, column].Value = row * column;
+                        }
+                    }
+                }
+
                 // Try to style the first column, begining with row 3 which has no content yet...
-                using (ExcelRange range = excelWorksheet.Cells[ExcelCellBase.GetAddress(3, 1, pRows, 1)]) {
+                using (ExcelRange range = excelWorksheet.Cells[ExcelCellBase.GetAddress(3, 1, pRows, 1)])
+                {
                     ExcelStyle style = range.Style;
-                    style.Fill.PatternType = ExcelFillStyle.Solid;
-                    style.Fill.BackgroundColor.SetColor(Color.Red);
                 }
 
                 // now I would add data to the first column (left out here)...
-                excelPackage.Save(); 
+                excelPackage.Save();
             } 
         }    
     }

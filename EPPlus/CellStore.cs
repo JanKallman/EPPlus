@@ -766,11 +766,21 @@ using OfficeOpenXml;
                             if (pagePos < column.PageCount)
                             {
                                 var page = column._pages[pagePos];
-                                if (page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex >= fromRow + rows)
+                                if (shift && page.RowCount > 0 && page.MinIndex > fromRow && page.MaxIndex >= fromRow + rows)
                                 {
-                                    var o = page.MinIndex - fromRow;
-                                    rows -= o;
-                                    page.Offset-=o;
+                                    var o=page.MinIndex - fromRow;
+                                    if (o < rows)
+                                    {
+                                        rows -= o;
+                                        page.Offset -= o;
+                                        UpdatePageOffset(column, pagePos, o);
+                                    }
+                                    else
+                                    {
+                                        page.Offset -= rows;
+                                        UpdatePageOffset(column, pagePos, rows);
+                                        continue;
+                                    }
                                 }
                                 if (page.RowCount > 0 && page.MinIndex <= fromRow+rows-1 && page.MaxIndex >= fromRow) //The row is inside the page
                                 {
