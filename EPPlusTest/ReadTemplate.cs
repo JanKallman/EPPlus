@@ -451,16 +451,93 @@ namespace EPPlusTest
                 p.Workbook.Worksheets.Copy(ws.Name, "Copy");
             }
         }
-        [Ignore]
         [TestMethod]
         public void whitespace()
         {
-            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\book1.xlsx")))
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\GridToExcel_05-12-2014.xlsx")))
             {
                 var ws = p.Workbook.Worksheets[1];
-                p.Workbook.Worksheets.Copy(ws.Name, "Copy");
+                foreach (var cell in ws.Cells[1,84,3,86])
+                {
+                    Console.WriteLine(cell.Address);
+                }
             }
         }
+        [TestMethod]
+        public void SaveCorruption()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\tables.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                p.SaveAs(new FileInfo(@"c:\temp\bug\corr.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void VBAerror()
+        {
+            ExcelWorksheet ws;
+            using (var p = new ExcelPackage())
+            {
+                p.Workbook.CreateVBAProject();
+                ws = p.Workbook.Worksheets.Add("Градуировка");                
+                using (var p2 = new ExcelPackage())
+                {
+                    p2.Workbook.CreateVBAProject();
+                    var ws2 = p2.Workbook.Worksheets.Add("Градуировка2", ws);
+                }
+            }
+        }
+
+        [TestMethod]
+        public void CopyIssue()
+        {
+            using (var pkg = new ExcelPackage())
+            {
+                var templateFile = ReadTemplateFile(@"C:\temp\bug\StackOverflow\EPPlusTest\20141120_01_3.各股累計收結表 (其他案件).xlsx");
+                using (var ms = new System.IO.MemoryStream(templateFile))
+                {
+                    using (var tempPkg = new ExcelPackage(ms))
+                    {
+                        pkg.Workbook.Worksheets.Add("20141120_01_3.各股累計收結表 (其他案件)", tempPkg.Workbook.Worksheets.First());
+                    }
+                }
+            }
+        }
+        [TestMethod]
+        public void FileStreamSave()
+        {
+            var fs = File.Create(@"c:\temp\fs.xlsx");
+            using (var pkg = new ExcelPackage(fs))
+            {
+                var ws=pkg.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Value = 1;
+                var col=ws.Column(1);
+                col.OutlineLevel = 1;
+                col.ColumnMax = ExcelPackage.MaxColumns;
+                col.ColumnMax = 1;
+                pkg.Save();
+            }
+        }
+        public static byte[] ReadTemplateFile(string templateName)
+        {
+            byte[] templateFIle;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                using (var sw = new System.IO.FileStream(templateName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = sw.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, bytesRead);
+                    }
+                }
+                ms.Position = 0;
+                templateFIle = ms.ToArray();
+            }
+            return templateFIle;
+        }
+
         private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 
         {
             if (File.Exists(pFileName)) File.Delete(pFileName);

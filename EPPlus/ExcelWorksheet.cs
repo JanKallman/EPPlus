@@ -306,7 +306,7 @@ namespace OfficeOpenXml
                 while(cse.Next())
                 {
                     var v=cse.Value;
-                    if(!used.Contains(v))
+                    if (!used.Contains(v) && _list[v]!=null)
                     {
                         var adr=new ExcelAddressBase(_list[v]);
                         if (!(Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr)==ExcelAddressBase.eAddressCollition.Equal))
@@ -317,7 +317,7 @@ namespace OfficeOpenXml
                     }
                 }
 
-                _cells.Delete(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow, Destination._toRow - Destination._fromCol);
+                _cells.Delete(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
                 foreach(var i in used)
                 {
                     _list[i] = null;
@@ -1579,12 +1579,12 @@ namespace OfficeOpenXml
             if (column!=null)
             {                
                 
-                //if (column.ColumnMin != column.ColumnMax)
-                //{
-                //    int maxCol = column.ColumnMax;
-                //    column.ColumnMax = col;
-                //    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
-                //}
+                if (column.ColumnMin != column.ColumnMax)
+                {
+                    int maxCol = column.ColumnMax;
+                    column.ColumnMax = col;
+                    ExcelColumn copy = CopyColumn(column, col + 1, maxCol);
+                }
             }
             else
             {
@@ -2639,7 +2639,7 @@ namespace OfficeOpenXml
                         }
 
 
-                        if (_drawings != null && _drawings.Count == 0)
+                        if (Drawings.Count == 0)
                         {
                             //Remove node if no drawings exists.
                             DeleteNode("d:drawing");
@@ -3431,7 +3431,7 @@ namespace OfficeOpenXml
                 {
                     cache.Append("ht=\"0\" hidden=\"1\" ");
                 }
-                else if (currRow.Height != DefaultRowHeight)
+                else if (currRow.Height != DefaultRowHeight && currRow.Height>=0)
                 {
                     cache.AppendFormat(string.Format(CultureInfo.InvariantCulture, "ht=\"{0}\" ", currRow.Height));
                     if (currRow.CustomHeight)

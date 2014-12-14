@@ -33,6 +33,7 @@ using System;
 using System.Xml;
 using System.Linq;
 using System.Collections.Generic;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using draw=System.Drawing;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
@@ -938,7 +939,7 @@ namespace OfficeOpenXml
                     {
                         newXfs.XfId = newId;
                     }
-                    else if(style._wb!=_wb) //Not the same workbook, copy the namedstyle to the workbook or match the id
+                    else if(style._wb!=_wb && allwaysAdd==false) //Not the same workbook, copy the namedstyle to the workbook or match the id
                     {
                         var nsFind = style.NamedStyles.ToDictionary(d => (d.StyleXfId));
                         if (nsFind.ContainsKey(xfs.XfId))
