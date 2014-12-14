@@ -354,6 +354,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 secCount++;
                                 if (DataType == eFormatType.DateTime || secCount == 3)
                                 {
+                                    //Add qoutes
+                                    SetDecimal(lstDec, sb);
+                                    lstDec = new List<int>();
                                     format = sb.ToString();
                                     sb = new StringBuilder();
                                 }
@@ -493,14 +496,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 }
 
                 //Add qoutes
-                if(lstDec.Count>1)
-                {
-                    for(int i=lstDec.Count-1;i>=0;i--)
-                    {
-                        sb.Insert(lstDec[i] + 1,'\'');
-                        sb.Insert(lstDec[i],'\'');
-                    }
-                }
+                SetDecimal(lstDec, sb);
 
                 // AM/PM format
                 if (containsAmPm)
@@ -533,6 +529,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                     Culture = CultureInfo.CurrentCulture;
                 }
             }
+
+            private static void SetDecimal(List<int> lstDec, StringBuilder sb)
+            {
+                if (lstDec.Count > 1)
+                {
+                    for (int i = lstDec.Count - 1; i >= 0; i--)
+                    {
+                        sb.Insert(lstDec[i] + 1, '\'');
+                        sb.Insert(lstDec[i], '\'');
+                    }
+                }
+            }
+
             internal string FormatFraction(double d)
             {
                 int numerator, denomerator;

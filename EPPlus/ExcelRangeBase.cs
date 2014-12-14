@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Data;
+using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Style;
 using System.Xml;
 using System.Drawing;
@@ -379,7 +380,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		    #region Public Properties
+		#region Public Properties
 		/// <summary>
 		/// The styleobject for the range.
 		/// </summary>
@@ -1187,15 +1188,30 @@ namespace OfficeOpenXml
 			{
 				IsRangeValid("merging");
 				//SetMerge(value, FirstAddress);
-                _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
-				if (Addresses != null)
-				{
-					foreach (var address in Addresses)
-					{
-                        _worksheet.MergedCells.Add(address, true);
-						//SetMerge(value, address._address);
-					}
-				}
+			    if (value)
+			    {
+			        _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
+			        if (Addresses != null)
+			        {
+			            foreach (var address in Addresses)
+			            {
+			                _worksheet.MergedCells.Add(address, true);
+			                //SetMerge(value, address._address);
+			            }
+			        }
+			    }
+			    else
+			    {
+			        _worksheet.MergedCells.Delete(this);
+                    if (Addresses != null)
+			        {
+			            foreach (var address in Addresses)
+			            {
+                            _worksheet.MergedCells.Delete(address); ;
+			            }
+			        }
+			        
+			    }
 			}
 		}
 
@@ -1503,34 +1519,34 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Removes a shared formula
 		/// </summary>
-		private void RemoveFormuls(ExcelAddress address)
-		{
-			List<int> removed = new List<int>();
-			int fFromRow, fFromCol, fToRow, fToCol;
-			foreach (int index in _worksheet._sharedFormulas.Keys)
-			{
-				ExcelWorksheet.Formulas f = _worksheet._sharedFormulas[index];
-				ExcelCellBase.GetRowColFromAddress(f.Address, out fFromRow, out fFromCol, out fToRow, out fToCol);
-				if (((fFromCol >= address.Start.Column && fFromCol <= address.End.Column) ||
-					 (fToCol >= address.Start.Column && fToCol <= address.End.Column)) &&
-					 ((fFromRow >= address.Start.Row && fFromRow <= address.End.Row) ||
-					 (fToRow >= address.Start.Row && fToRow <= address.End.Row)))
-				{
-					for (int col = fFromCol; col <= fToCol; col++)
-					{
-						for (int row = fFromRow; row <= fToRow; row++)
-						{
-                            _worksheet._formulas.SetValue(row, col, int.MinValue);
-						}
-					}
-					removed.Add(index);
-				}
-			}
-			foreach (int index in removed)
-			{
-				_worksheet._sharedFormulas.Remove(index);
-			}
-		}
+        //private void RemoveFormuls(ExcelAddress address)
+        //{
+        //    List<int> removed = new List<int>();
+        //    int fFromRow, fFromCol, fToRow, fToCol;
+        //    foreach (int index in _worksheet._sharedFormulas.Keys)
+        //    {
+        //        ExcelWorksheet.Formulas f = _worksheet._sharedFormulas[index];
+        //        ExcelCellBase.GetRowColFromAddress(f.Address, out fFromRow, out fFromCol, out fToRow, out fToCol);
+        //        if (((fFromCol >= address.Start.Column && fFromCol <= address.End.Column) ||
+        //             (fToCol >= address.Start.Column && fToCol <= address.End.Column)) &&
+        //             ((fFromRow >= address.Start.Row && fFromRow <= address.End.Row) ||
+        //             (fToRow >= address.Start.Row && fToRow <= address.End.Row)))
+        //        {
+        //            for (int col = fFromCol; col <= fToCol; col++)
+        //            {
+        //                for (int row = fFromRow; row <= fToRow; row++)
+        //                {
+        //                    _worksheet._formulas.SetValue(row, col, int.MinValue);
+        //                }
+        //            }
+        //            removed.Add(index);
+        //        }
+        //    }
+        //    foreach (int index in removed)
+        //    {
+        //        _worksheet._sharedFormulas.Remove(index);
+        //    }
+        //}
 		internal void SetSharedFormulaID(int id)
 		{
 			for (int col = _fromCol; col <= _toCol; col++)
@@ -2331,8 +2347,8 @@ namespace OfficeOpenXml
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
 
             //Delete all existing cells; 
-            int toRow = Destination._toRow - Destination._fromRow + 1,
-                toCol = Destination._toCol - Destination._fromCol + 1;
+            int toRow = _toRow - _fromRow + 1,
+                toCol = _toCol - _fromCol + 1;
 
             string s = "";
             int i=0;
@@ -2505,6 +2521,7 @@ namespace OfficeOpenXml
 
                 if(cell.Formula!=null)
                 {
+                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, true);
                     Destination._worksheet._formulas.SetValue(cell.Row, cell.Column, cell.Formula);
                 }
                 if(cell.HyperLink!=null)
