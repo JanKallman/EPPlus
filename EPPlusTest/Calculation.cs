@@ -223,13 +223,13 @@ namespace EPPlusTest
 
             ws.Calculate();
         }
-        [Ignore]
+        //[Ignore]
         [TestMethod]
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();
             //Add sheets to test in this directory or change it to your testpath.
-            string path = @"C:\temp\EPPlusTestark\";
+            string path = @"C:\temp\EPPlusTestark\workbooks";
             if(!Directory.Exists(path)) return;
 
             foreach (var file in Directory.GetFiles(path, "*.xls*"))
