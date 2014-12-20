@@ -223,7 +223,7 @@ namespace EPPlusTest
 
             ws.Calculate();
         }
-        //[Ignore]
+        [Ignore]
         [TestMethod]
         public void TestAllWorkbooks()
         {
