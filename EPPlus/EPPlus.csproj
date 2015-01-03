@@ -437,7 +437,6 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Columns.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ExcelLookupNavigator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
-    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Index.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Indirect.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Lookup.cs" />
@@ -454,6 +453,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
