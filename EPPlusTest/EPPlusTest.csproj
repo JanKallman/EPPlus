@@ -185,6 +185,7 @@
     <Compile Include="TestDTO.cs" />
     <Compile Include="CellStoreTest.cs" />
     <Compile Include="Issues.cs" />
+    <Compile Include="LoadFromCollectionTests.cs" />
     <Compile Include="Utils\AddressUtilityTests.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="Utils\SqRefUtilityTests.cs" />

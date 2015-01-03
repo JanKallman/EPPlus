@@ -2024,9 +2024,9 @@ namespace OfficeOpenXml
 			{
 				foreach (var t in Members)
 				{
-					if (t.DeclaringType != type)
+					if (type != t.DeclaringType && !(type.IsAssignableFrom(t.DeclaringType)))
 					{
-						throw (new Exception("Supplied properties in parameter Properties must be of the same type as T"));
+						throw new InvalidOperationException("Supplied properties in parameter Properties must be of the same type as T");
 					}
 				}
 			}
