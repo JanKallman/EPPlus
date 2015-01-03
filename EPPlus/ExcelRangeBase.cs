@@ -2026,7 +2026,7 @@ namespace OfficeOpenXml
 				{
 					if (type != t.DeclaringType && !(type.IsAssignableFrom(t.DeclaringType)))
 					{
-						throw new InvalidOperationException("Supplied properties in parameter Properties must be of the same type as T");
+						throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T");
 					}
 				}
 			}
