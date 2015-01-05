@@ -965,5 +965,40 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 6);
             var result = func.Execute(args, _parsingContext);
         }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void MedianShouldThrowIfNoArgs()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.Empty();
+            func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithOneMember()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithOddMembers()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(3, 5, 1, 4, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithEvenMembers()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(1, 2, 3, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2.5d, result.Result);
+        }
     }
 }
