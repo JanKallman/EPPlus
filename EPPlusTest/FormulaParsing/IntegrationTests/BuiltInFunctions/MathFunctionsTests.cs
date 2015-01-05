@@ -362,5 +362,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Quotient(5;2)");
             Assert.AreEqual(2, result);
         }
+
+        [TestMethod]
+        public void MedianShouldReturnAResult()
+        {
+            var result = _parser.Parse("Median(1;2;3)");
+            Assert.AreEqual(2d, result);
+        }
     }
 }

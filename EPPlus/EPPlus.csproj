@@ -399,6 +399,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Max.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Maxa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Median.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Min.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mod.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
