@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using OfficeOpenXml.Style;
 using System.Xml;
@@ -45,6 +46,7 @@ namespace OfficeOpenXml
     public class ExcelComment : ExcelVmlDrawingComment
     {
         internal XmlHelper _commentHelper;
+        private string _text;
         internal ExcelComment(XmlNamespaceManager ns, XmlNode commentTopNode, ExcelRangeBase cell)
             : base(null, cell, cell.Worksheet.VmlDrawingsComments.NameSpaceManager)
         {
@@ -63,6 +65,11 @@ namespace OfficeOpenXml
 
             TopNode = cell.Worksheet.VmlDrawingsComments[ExcelCellBase.GetCellID(cell.Worksheet.SheetID, cell.Start.Row, cell.Start.Column)].TopNode;
             RichText = new ExcelRichTextCollection(ns,textElem);
+            var tNode = textElem.SelectSingleNode("d:t", ns);
+            if (tNode != null)
+            {
+                _text = tNode.InnerText;
+            }
         }
         const string AUTHORS_PATH = "d:comments/d:authors";
         const string AUTHOR_PATH = "d:comments/d:authors/d:author";
@@ -110,7 +117,8 @@ namespace OfficeOpenXml
         {
             get
             {
-                return RichText.Text;
+                if(!string.IsNullOrEmpty(RichText.Text)) return RichText.Text;
+                return _text;
             }
             set
             {
