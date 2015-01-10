@@ -125,14 +125,16 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             context.ToggleIsInString();
                             continue;
                         }
-                        else if (context.LastToken != null &&
-                            context.LastToken.TokenType == TokenType.String &&
-                            !context.CurrentTokenHasValue) //Added check for enumartion 
+                        if (context.LastToken != null && context.LastToken.TokenType == TokenType.String)
                         {
-                            // We are dealing with an empty string ('').
-                            context.AddToken(new Token(string.Empty, TokenType.StringContent));
+                            context.AddToken(!context.CurrentTokenHasValue
+                                ? new Token(string.Empty, TokenType.StringContent)
+                                : new Token(context.CurrentToken, TokenType.StringContent));
                         }
+                        context.AddToken(new Token("\"", TokenType.String));
                         context.ToggleIsInString();
+                        context.NewToken();
+                        continue;
                     }
                     if (context.CurrentTokenHasValue)
                     {
