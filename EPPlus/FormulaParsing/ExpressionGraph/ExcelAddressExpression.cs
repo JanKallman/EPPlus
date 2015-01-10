@@ -96,7 +96,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return CompileResult.Empty;
             }
-            if (result.IsMulti)
+            if (result.Address.Rows > 1 || result.Address.Columns > 1)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }

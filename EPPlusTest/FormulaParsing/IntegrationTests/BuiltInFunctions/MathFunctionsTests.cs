@@ -369,5 +369,19 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("Median(1;2;3)");
             Assert.AreEqual(2d, result);
         }
+
+        [TestMethod]
+        public void CountBlankShouldCalculateEmptyCells()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["B2"].Value = string.Empty;
+                sheet.Cells["A5"].Formula = "COUNTBLANK(A1:B4)";
+                sheet.Calculate();
+                Assert.AreEqual(7, sheet.Cells["A5"].Value);
+            }
+        }
     }
 }
