@@ -124,6 +124,14 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         }
 
         [TestMethod]
+        public void TokenizerShouldIgnoreOperatorInString()
+        {
+            var input = "\"*\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+        }
+
+        [TestMethod]
         public void TestBug9_12_14()
         {
             //(( W60 -(- W63 )-( W29 + W30 + W31 ))/( W23 + W28 + W42 - W51 )* W4 )
