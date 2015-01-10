@@ -72,6 +72,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ceiling"] = new Ceiling();
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
+            Functions["countblank"] = new CountBlank();
             Functions["countif"] = new CountIf();
             Functions["fact"] = new Fact();
             Functions["floor"] = new Floor();

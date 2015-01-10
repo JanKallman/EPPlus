@@ -389,6 +389,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cosh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Count.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountA.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
