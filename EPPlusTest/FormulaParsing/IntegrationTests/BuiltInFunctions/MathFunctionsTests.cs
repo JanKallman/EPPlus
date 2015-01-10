@@ -142,6 +142,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void MinaShouldCalculateStringAs0()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["B2"].Value = "a";
+                sheet.Cells["A5"].Formula = "MINA(A1:B4)";
+                sheet.Calculate();
+                Assert.AreEqual(0d, sheet.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
         public void AverageShouldReturnAResult()
         {
             var result = _parser.Parse("Average(2, 2, 2)");

@@ -95,6 +95,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["maxa"] = new Maxa();
             Functions["median"] = new Median();
             Functions["min"] = new Min();
+            Functions["mina"] = new Mina();
             Functions["mod"] = new Mod();
             Functions["average"] = new Average();
             Functions["averagea"] = new AverageA();
