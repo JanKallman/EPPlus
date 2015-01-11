@@ -2034,7 +2034,7 @@ namespace OfficeOpenXml
 				{
                     if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
 					{
-						throw (new Exception("Supplied properties in parameter Properties must be of the same type as T"));
+						throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T");
 					}
 				}
 			}

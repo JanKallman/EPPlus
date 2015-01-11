@@ -389,6 +389,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cosh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Count.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountA.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
@@ -399,6 +400,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Max.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Maxa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Median.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Min.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mod.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
@@ -437,7 +439,6 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Columns.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ExcelLookupNavigator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\HLookup.cs" />
-    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Index.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Indirect.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Lookup.cs" />
@@ -454,9 +455,11 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Rept.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Text.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />

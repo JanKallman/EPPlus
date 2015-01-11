@@ -96,5 +96,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = _parser.Parse("T(\"One\")");
             Assert.AreEqual("One", result);
         }
+
+        [TestMethod]
+        public void ReptShouldConcatenate()
+        {
+            var result = _parser.Parse("REPT(\"*\",3)");
+            Assert.AreEqual("***", result);
+        }
     }
 }
