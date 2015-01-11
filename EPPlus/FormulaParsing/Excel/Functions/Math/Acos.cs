@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-/* Copyright (C) 2011  Jan Källman
+﻿/* Copyright (C) 2011  Jan Källman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,18 +22,21 @@ using System.Linq;
  *******************************************************************************
  * Mats Alm   		                Added		                2015-01-11
  *******************************************************************************/
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
-    public class Asin : ExcelFunction
+    public class Acos : ExcelFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
             var arg = ArgToDecimal(arguments, 0);
-            return CreateResult(System.Math.Asin(arg), DataType.Decimal);
+            return CreateResult(MathHelper.Arccos(arg), DataType.Decimal);
         }
     }
 }

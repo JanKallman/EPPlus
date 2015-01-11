@@ -62,6 +62,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             // Math
             Functions["abs"] = new Abs();
             Functions["asin"] = new Asin();
+            Functions["asinh"] = new Asinh();
             Functions["cos"] = new Cos();
             Functions["cosh"] = new Cosh();
             Functions["power"] = new Power();
@@ -113,6 +114,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["tanh"] = new Tanh();
             Functions["atan"] = new Atan();
             Functions["atan2"] = new Atan2();
+            Functions["atanh"] = new Atanh();
+            Functions["acos"] = new Acos();
+            Functions["acosh"] = new Acosh();
             Functions["var"] = new Var();
             Functions["varp"] = new VarP();
             Functions["large"] = new Large();
@@ -149,6 +153,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["choose"] = new Choose();
             Functions["index"] = new Index();
             Functions["indirect"] = new Indirect();
+            Functions["offset"] = new Offset(){SkipArgumentEvaluation = true};
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();

@@ -379,9 +379,13 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Abs.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Acos.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Acosh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Asin.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Asinh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan2.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Atanh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIf.cs" />
@@ -400,6 +404,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Ln.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Log10.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\MathHelper.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Max.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Maxa.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Median.cs" />
@@ -451,6 +456,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigator.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactory.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Match.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Offset.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Row.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Rows.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
