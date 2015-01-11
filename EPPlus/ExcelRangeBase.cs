@@ -394,7 +394,15 @@ namespace OfficeOpenXml
                 {
                     if(!_worksheet._styles.Exists(_fromRow,0, ref s)) //No, check Row style
                     {
-                        s = Worksheet.Column(_fromCol).StyleID;
+                        var c = Worksheet.GetColumn(_fromCol);
+                        if (c == null)
+                        {
+                            s = 0;
+                        }
+                        else
+                        {
+                            s = c.StyleID;   
+                        }                        
                     }
                 }
 				return _worksheet.Workbook.Styles.GetStyleObject(s, _worksheet.PositionID, Address);
@@ -459,7 +467,7 @@ namespace OfficeOpenXml
 				{
 					ExcelColumn column;
 					//Get the startcolumn
-					//ulong colID = ExcelColumn.GetColumnID(_worksheet.SheetID, _fromCol);
+					//ulong colID = ExcelColumn.GetColumnID(_worksheet.SheetID, column);
                     var c = _worksheet.GetValue(0, _fromCol);
                     if (c==null)
 					{
@@ -467,8 +475,8 @@ namespace OfficeOpenXml
                         //if (_worksheet._values.PrevCell(ref row, ref col))
                         //{
                         //    var prevCol = (ExcelColumn)_worksheet._values.GetValue(row, col);
-                        //    column = prevCol.Clone(_worksheet, _fromCol);
-                        //    prevCol.ColumnMax = _fromCol - 1;
+                        //    column = prevCol.Clone(_worksheet, column);
+                        //    prevCol.ColumnMax = column - 1;
                         //}
 					}
 					else
@@ -515,7 +523,7 @@ namespace OfficeOpenXml
                     {
                         column.ColumnMax = _toCol;
                     }
-                    //if (column.ColumnMin == _fromCol)
+                    //if (column.ColumnMin == column)
                     //{
                     //    column.ColumnMax = _toCol;
                     //}
@@ -1458,7 +1466,7 @@ namespace OfficeOpenXml
         //private bool CheckMergeDiff(bool startValue, string address)
         //{
         //    ExcelAddress a = new ExcelAddress(address);
-        //    for (int col = a._fromCol; col <= a._toCol; col++)
+        //    for (int col = a.column; col <= a._toCol; col++)
         //    {
         //        for (int row = a._fromRow; row <= a._toRow; row++)
         //        {
@@ -1478,7 +1486,7 @@ namespace OfficeOpenXml
         //internal void SetCellMerge(bool value, string address)
         //{
         //    ExcelAddress a = new ExcelAddress(address);
-        //    for (int col = a._fromCol; col <= a._toCol; col++)
+        //    for (int col = a.column; col <= a._toCol; col++)
         //    {
         //        for (int row = a._fromRow; row <= a._toRow; row++)
         //        {
@@ -1603,7 +1611,7 @@ namespace OfficeOpenXml
 			}
         
             ////Delete any formula references inside the refered range
-            //_worksheet._formulas.Delete(address._fromRow, address._toRow, address._toRow - address._fromRow + 1, address._toCol - address._fromCol + 1);
+            //_worksheet._formulas.Delete(address._fromRow, address._toRow, address._toRow - address._fromRow + 1, address._toCol - address.column + 1);
         }
 
 		private void SplitFormula(ExcelAddressBase address, int ix)
@@ -2024,7 +2032,7 @@ namespace OfficeOpenXml
 			{
 				foreach (var t in Members)
 				{
-					if (type != t.DeclaringType && !(type.IsAssignableFrom(t.DeclaringType)))
+                    if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
 					{
 						throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T");
 					}
@@ -2546,11 +2554,11 @@ namespace OfficeOpenXml
 
 
             //Clone the cell
-                //var copiedCell = (_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell._fromCol)] as ExcelCell);
+                //var copiedCell = (_worksheet._cells[GetCellID(_worksheet.SheetID, cell._fromRow, cell.column)] as ExcelCell);
 
                 //var newCell = copiedCell.Clone(Destination._worksheet,
                 //        Destination._fromRow + (copiedCell.Row - _fromRow),
-                //        Destination._fromCol + (copiedCell.Column - _fromCol));
+                //        Destination.column + (copiedCell.Column - column));
 
         //        newCell.MergeId = _worksheet.GetMergeCellId(copiedCell.Row, copiedCell.Column);
 
@@ -2578,7 +2586,7 @@ namespace OfficeOpenXml
         //    }
 
         //    //Now clear the destination.
-        //    Destination.Offset(0, 0, (_toRow - _fromRow) + 1, (_toCol - _fromCol) + 1).Clear();
+        //    Destination.Offset(0, 0, (_toRow - _fromRow) + 1, (_toCol - column) + 1).Clear();
 
         //    //And last add the new cells to the worksheet
         //    foreach (var cell in newCells)
@@ -2676,8 +2684,8 @@ namespace OfficeOpenXml
             //DeleteCheckMergedCells(Range);
             _worksheet.MergedCells.Delete(Range);
 			//First find the start cell
-            var rows=Range._toRow-Range._fromRow;
-            var cols=Range._toCol - Range._fromCol;
+            var rows=Range._toRow-Range._fromRow+1;
+            var cols=Range._toCol - Range._fromCol+1;
             
             _worksheet._values.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
             _worksheet._types.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
