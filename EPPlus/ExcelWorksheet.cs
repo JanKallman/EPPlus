@@ -1800,6 +1800,10 @@ namespace OfficeOpenXml
                         }
                     }
                 }
+                foreach (var tbl in Tables)
+                {
+                    tbl.Address = tbl.Address.AddRow(rowFrom, rows);
+                }
             }
         }
         /// <summary>
@@ -1873,24 +1877,32 @@ namespace OfficeOpenXml
                 FixMergedCellsColumn(columnFrom, columns, false);
 
                 var csec = new CellsStoreEnumerator<object>(_values, 0, 1, 0, ExcelPackage.MaxColumns);
+                var lst = new List<ExcelColumn>();
                 foreach (var col in csec)
                 {
                     if (col is ExcelColumn)
                     {
-                        var c = (ExcelColumn)col;
-                        if (c._columnMin >= columnFrom)
-                        {
-                            c._columnMin += columns;
-                            c._columnMax += columns;
-                        }
-                        else if (c._columnMax >= columnFrom)
-                        {
-                            var cc = c._columnMax - columnFrom;
-                            c._columnMax = columnFrom - 1;
-                            CopyColumn(c, columnFrom + columns, columnFrom + columns + cc);
-                        }
+                        lst.Add((ExcelColumn)col);
                     }
                 }
+
+                for (int i = lst.Count-1; i >= 0; i--)
+                {
+                    var c = lst[i];
+                    if (c._columnMin >= columnFrom)
+                    {
+                        c._columnMin += columns;
+                        c._columnMax += columns;
+                    }
+                    else if (c._columnMax >= columnFrom)
+                    {
+                        var cc = c._columnMax - columnFrom;
+                        c._columnMax = columnFrom - 1;
+                        CopyColumn(c, columnFrom + columns, columnFrom + columns + cc);
+                    }                    
+                }
+
+
                 if (copyStylesFromColumn > 0)
                 {
                     for (var c = 0; c < columns; c++)
@@ -1899,8 +1911,39 @@ namespace OfficeOpenXml
                         col.StyleID = this.Column(copyStylesFromColumn).StyleID;
                     }
                 }
+                //Adjust tables
+                foreach (var tbl in Tables)
+                {
+                    if (columnFrom > tbl.Address.Start.Column && columnFrom <= tbl.Address.End.Column)
+                    {
+                        InsertTableColumns(columnFrom, columns, tbl);
+                    }
+
+                    tbl.Address=tbl.Address.AddColumn(columnFrom, columns);
+                }
             }
         }
+
+        private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
+        {
+            var node = tbl.Columns[0].TopNode.ParentNode;
+            var ix = columnFrom - tbl.Address.Start.Column - 1;
+            var insPos = node.ChildNodes[ix];
+            ix += 2;
+            for (int i = 0; i < columns; i++)
+            {
+                var name =
+                    tbl.Columns.GetUniqueName(string.Format("Column{0}",
+                        (ix++).ToString(CultureInfo.InvariantCulture)));
+                XmlElement tableColumn =
+                    (XmlElement) tbl.TableXml.CreateNode(XmlNodeType.Element, "tableColumn", ExcelPackage.schemaMain);
+                tableColumn.SetAttribute("id", (tbl.Columns.Count + i + 1).ToString(CultureInfo.InvariantCulture));
+                tableColumn.SetAttribute("name", name);
+                insPos = node.InsertAfter(tableColumn, insPos);
+            } //Create tbl Column
+            tbl._cols = new ExcelTableColumnCollection(tbl);
+        }
+
         /// <summary>
         /// Adds a value to the row of merged cells to fix for inserts or deletes
         /// </summary>
@@ -2228,6 +2271,11 @@ namespace OfficeOpenXml
 
                 AdjustFormulasRow(rowFrom, rows);
                 FixMergedCellsRow(rowFrom, rows, true);
+
+                foreach (var tbl in Tables)
+                {
+                    tbl.Address = tbl.Address.DeleteRow(rowFrom, rows);
+                }
             }
         }
         /// <summary>
@@ -2285,6 +2333,25 @@ namespace OfficeOpenXml
                             c._columnMax -= columns;
                         }
                     }
+                }
+
+                foreach (var tbl in Tables)
+                {
+                    if (columnFrom > tbl.Address.Start.Column && columnFrom <= tbl.Address.End.Column)
+                    {
+                        var node = tbl.Columns[0].TopNode.ParentNode;
+                        var ix = columnFrom - tbl.Address.Start.Column + 1;
+                        for (int i = 0; i < columns; i++)
+                        {
+                            if (node.ChildNodes.Count > ix)
+                            {
+                                node.RemoveChild(node.ChildNodes[ix]);
+                            }
+                        } 
+                        tbl._cols = new ExcelTableColumnCollection(tbl);
+                    }
+
+                    tbl.Address = tbl.Address.DeleteColumn(columnFrom, columns);
                 }
             }
         }
@@ -3909,6 +3976,31 @@ namespace OfficeOpenXml
             _conditionalFormatting = null;
             _dataValidation = null;
             _drawings = null;
+        }
+
+        /// <summary>
+        /// Get the ExcelColumn for column (span ColumnMin and ColumnMax)
+        /// </summary>
+        /// <param name="column"></param>
+        /// <returns></returns>
+        internal ExcelColumn GetColumn(int column)
+        {
+            var c = _values.GetValue(0, column) as ExcelColumn;
+            if (c == null)
+            {
+                int row = 0, col = column;
+                if (_values.PrevCell(ref row, ref col))
+                {
+                    c = _values.GetValue(0, col) as ExcelColumn;
+                    if (c != null && c.ColumnMax >= column)
+                    {
+                        return c;
+                    }
+                    return null;
+                }
+            }
+            return c;
+
         }
     }  // END class Worksheet
 }

@@ -786,7 +786,7 @@ using OfficeOpenXml;
                                 if (page.RowCount > 0 && page.MinIndex <= fromRow+rows-1 && page.MaxIndex >= fromRow) //The row is inside the page
                                 {
                                     var endRow = fromRow + rows;
-                                    var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow);
+                                    var delEndRow = DeleteCells(column._pages[pagePos], fromRow, endRow, shift);
                                     if (shift && delEndRow != fromRow) UpdatePageOffset(column, pagePos, delEndRow - fromRow);
                                     if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
                                     {
@@ -796,7 +796,7 @@ using OfficeOpenXml;
                                         if (rowsLeft > 0)
                                         {
                                             pagePos = column.GetPosition(fromRow);
-                                            delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft);
+                                            delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft, shift);
                                             if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
                                         }
                                     }
@@ -957,7 +957,7 @@ using OfficeOpenXml;
             return rows;
         }
         ///
-        private int DeleteCells(PageIndex page,  int fromRow, int toRow)
+        private int DeleteCells(PageIndex page,  int fromRow, int toRow, bool shift)
         {
             var fromPos = page.GetPosition(fromRow - (page.IndexOffset));
             if (fromPos < 0)
@@ -982,21 +982,21 @@ using OfficeOpenXml;
                         return fromRow;
                     }
                     var r = page.MaxIndex;
-                    var deletedRow = page.MaxIndex - page.GetIndex(fromPos)+1; 
+                    var deletedRow = page.RowCount - fromPos; 
                     page.RowCount -= deletedRow;
                     return r+1;
                 }
                 else
                 {
                     var rows = toRow - fromRow;
-                    UpdateRowIndex(page, toPos, rows);
+                    if(shift) UpdateRowIndex(page, toPos, rows);
                     Array.Copy(page.Rows, toPos, page.Rows, fromPos, page.RowCount - toPos);
-                    page.RowCount -= rows;
+                    page.RowCount -= toPos-fromPos;
 
                     return toRow;
                 }
             }
-            else
+            else if(shift)
             {
                 UpdateRowIndex(page, toPos, toRow - fromRow);
             }
@@ -1035,14 +1035,14 @@ using OfficeOpenXml;
 
             if (_columnIndex[fPos].Index >= fromCol && _columnIndex[fPos].Index <= fromCol + columns)
             {
-                if (_columnIndex[fPos].Index < ColumnCount)
-                {
+                //if (_columnIndex[fPos].Index < ColumnCount)
+                //{
                     if (tPos < ColumnCount)
                     {
                         Array.Copy(_columnIndex, tPos, _columnIndex, fPos, ColumnCount - tPos);
                     }
                     ColumnCount -= (tPos - fPos);
-                }
+                //}
             }
             if (shift)
             {
@@ -1727,10 +1727,10 @@ using OfficeOpenXml;
                             minCol = 0;
                         }
 
-                        var c = colPos + 1;
-                        if (c <= endColPos)
+                        var c = colPos - 1;
+                        if (c >= startColPos)
                         {
-                            while (c >= 0)
+                            while (c >= startColPos)
                             {
                                 r = _columnIndex[c].GetNextRow(row);
                                 if (r == row) //Exists next Row

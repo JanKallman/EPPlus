@@ -590,12 +590,12 @@ namespace OfficeOpenXml.Table.PivotTable
                     {
                         return field;
                     }
-                    else if (fieldIndex > index)
-                    {
-                        newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
-                        newElement.SetAttribute(indexAttrText, index.ToString());
-                        rowsNode.InsertAfter(newElement, field);
-                    }
+                    //else if (fieldIndex > index)
+                    //{
+                    //    newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
+                    //    newElement.SetAttribute(indexAttrText, index.ToString());
+                    //    rowsNode.InsertAfter(newElement, field);
+                    //}
                 }
                 prevField=field;
             }

@@ -734,8 +734,8 @@ namespace OfficeOpenXml
         internal ExcelAddressBase Insert(ExcelAddressBase address, eShiftType Shift/*, out ExcelAddressBase topAddress, out ExcelAddressBase leftAddress, out ExcelAddressBase rightAddress, out ExcelAddressBase bottomAddress*/)
         {
             //Before or after, no change
-            //if ((_toRow > address._fromRow && _toCol > address._fromCol) || 
-            //    (_fromRow > address._toRow && _fromCol > address._toCol))
+            //if ((_toRow > address._fromRow && _toCol > address.column) || 
+            //    (_fromRow > address._toRow && column > address._toCol))
             if(_toRow < address._fromRow || _toCol < address._fromCol || (_fromRow > address._toRow && _fromCol > address._toCol))
             {
                 //topAddress = null;
@@ -883,10 +883,10 @@ namespace OfficeOpenXml
             //        return AddressType.Invalid;
             //    }            
             //}
-            //int _fromRow, _fromCol, _toRow, _toCol;
-            //if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out _fromCol, out _toRow, out _toCol))
+            //int _fromRow, column, _toRow, _toCol;
+            //if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out column, out _toRow, out _toCol))
             //{
-            //    if (_fromRow > 0 && _fromCol > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
+            //    if (_fromRow > 0 && column > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
             //    {
             //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
             //        {
