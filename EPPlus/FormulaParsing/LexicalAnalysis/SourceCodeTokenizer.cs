@@ -79,13 +79,13 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 {
                     if (context.IsInString)
                     {
-                        if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\"')
+                        if (IsDoubleQuote(tokenSeparator, i, context))
                         {
                             i ++;
                             context.AppendToCurrentToken(c);
                             continue;
                         }
-                        else if(tokenSeparator.TokenType != TokenType.String)
+                        if(tokenSeparator.TokenType != TokenType.String)
                         {
                             context.AppendToCurrentToken(c);
                             continue;
@@ -125,14 +125,16 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             context.ToggleIsInString();
                             continue;
                         }
-                        else if (context.LastToken != null &&
-                            context.LastToken.TokenType == TokenType.String &&
-                            !context.CurrentTokenHasValue) //Added check for enumartion 
+                        if (context.LastToken != null && context.LastToken.TokenType == TokenType.String)
                         {
-                            // We are dealing with an empty string ('').
-                            context.AddToken(new Token(string.Empty, TokenType.StringContent));
+                            context.AddToken(!context.CurrentTokenHasValue
+                                ? new Token(string.Empty, TokenType.StringContent)
+                                : new Token(context.CurrentToken, TokenType.StringContent));
                         }
+                        context.AddToken(new Token("\"", TokenType.String));
                         context.ToggleIsInString();
+                        context.NewToken();
+                        continue;
                     }
                     if (context.CurrentTokenHasValue)
                     {
@@ -176,10 +178,11 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             return context.Result;
         }
 
-        private void FixOperators(TokenizerContext context)
+        private static bool IsDoubleQuote(Token tokenSeparator, int formulaCharIndex, TokenizerContext context)
         {
-            
+            return tokenSeparator.TokenType == TokenType.String && formulaCharIndex + 1 < context.FormulaChars.Length && context.FormulaChars[formulaCharIndex + 1] == '\"';
         }
+
 
         private static void CleanupTokens(TokenizerContext context)
         {

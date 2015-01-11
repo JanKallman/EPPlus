@@ -48,6 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["right"] = new Right();
             Functions["mid"] = new Mid();
             Functions["replace"] = new Replace();
+            Functions["rept"] = new Rept();
             Functions["substitute"] = new Substitute();
             Functions["concatenate"] = new Concatenate();
             Functions["exact"] = new Exact();
@@ -55,6 +56,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["proper"] = new Proper();
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
+            Functions["hyperlink"] = new Hyperlink();
             // Numbers
             Functions["int"] = new CInt();
             // Math
@@ -70,6 +72,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ceiling"] = new Ceiling();
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
+            Functions["countblank"] = new CountBlank();
             Functions["countif"] = new CountIf();
             Functions["fact"] = new Fact();
             Functions["floor"] = new Floor();
@@ -90,6 +93,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ln"] = new Ln();
             Functions["max"] = new Max();
             Functions["maxa"] = new Maxa();
+            Functions["median"] = new Median();
             Functions["min"] = new Min();
             Functions["mod"] = new Mod();
             Functions["average"] = new Average();
@@ -128,6 +132,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["and"] = new And();
             Functions["or"] = new Or();
             Functions["true"] = new True();
+            Functions["false"] = new False();
             // Reference and lookup
             Functions["address"] = new Address();
             Functions["hlookup"] = new HLookup();

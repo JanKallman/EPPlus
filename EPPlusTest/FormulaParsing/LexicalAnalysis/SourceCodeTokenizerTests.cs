@@ -122,5 +122,33 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
         }
+
+        [TestMethod]
+        public void TokenizerShouldIgnoreOperatorInString()
+        {
+            var input = "\"*\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+        }
+
+        [TestMethod]
+        public void TestBug9_12_14()
+        {
+            //(( W60 -(- W63 )-( W29 + W30 + W31 ))/( W23 + W28 + W42 - W51 )* W4 )
+            using (var pck = new ExcelPackage())
+            {
+                var ws1 = pck.Workbook.Worksheets.Add("test");
+                for (var x = 1; x <= 10; x++)
+                {
+                    ws1.Cells[x, 1].Value = x;
+                }
+
+                ws1.Cells["A11"].Formula = "(( A1 -(- A2 )-( A3 + A4 + A5 ))/( A6 + A7 + A8 - A9 )* A5 )";
+                //ws1.Cells["A11"].Formula = "(-A2 + 1 )";
+                ws1.Calculate();
+                var result = ws1.Cells["A11"].Value;
+                Assert.AreEqual(-3.75, result);
+            }
+        }
     }
 }
