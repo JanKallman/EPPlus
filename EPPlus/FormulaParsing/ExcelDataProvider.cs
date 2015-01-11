@@ -23,6 +23,8 @@ namespace OfficeOpenXml.FormulaParsing
             ExcelAddressBase Address { get; }
             object GetValue(int row, int col);
             object GetOffset(int rowOffset, int colOffset);
+
+            ExcelWorksheet Worksheet { get; }
         }
         /// <summary>
         /// Information and help methods about a cell
@@ -117,5 +119,6 @@ namespace OfficeOpenXml.FormulaParsing
         public abstract string GetFormat(object value, string format);
 
         public abstract void Reset();
+        public abstract IRangeInfo GetRange(string worksheet, int fromRow, int fromCol, int toRow, int toCol);
     }
 }

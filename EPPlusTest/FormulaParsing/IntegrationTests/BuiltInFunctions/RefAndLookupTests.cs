@@ -173,5 +173,33 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual(4d, s1.Cells["A4"].Value);
             }
         }
+
+        [TestMethod]
+        public void OffsetShouldReturnASingleValue()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["B3"].Value = 1d;
+                s1.Cells["A5"].Formula = "OFFSET(A1, 2, 1)";
+                s1.Calculate();
+                Assert.AreEqual(1d, s1.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void OffsetShouldReturnARange()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["B1"].Value = 1d;
+                s1.Cells["B2"].Value = 1d;
+                s1.Cells["B3"].Value = 1d;
+                s1.Cells["A5"].Formula = "SUM(OFFSET(A1:A3, 0, 1))";
+                s1.Calculate();
+                Assert.AreEqual(3d, s1.Cells["A5"].Value);
+            }
+        }
     }
 }

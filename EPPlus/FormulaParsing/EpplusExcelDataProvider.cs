@@ -89,6 +89,11 @@ namespace OfficeOpenXml.FormulaParsing
                 get { return _cell; }
             }
 
+            public ExcelWorksheet Worksheet
+            {
+                get { return _ws; }
+            }
+
             public void Dispose()
             {
                 //_values = null;
@@ -269,6 +274,14 @@ namespace OfficeOpenXml.FormulaParsing
         public override ExcelNamedRangeCollection GetWorkbookNameValues()
         {
             return _package.Workbook.Names;
+        }
+
+        public override IRangeInfo GetRange(string worksheet, int fromRow, int fromCol, int toRow, int toCol)
+        {
+            SetCurrentWorksheet(worksheet);
+            var wsName = string.IsNullOrEmpty(worksheet) ? _currentWorksheet.Name : worksheet;
+            var ws = _package.Workbook.Worksheets[wsName];
+            return new RangeInfo(ws, fromRow, fromCol, toRow, toCol);
         }
         public override IRangeInfo GetRange(string worksheet, int row, int column, string address)
         {
