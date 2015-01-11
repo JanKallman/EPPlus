@@ -61,6 +61,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["int"] = new CInt();
             // Math
             Functions["abs"] = new Abs();
+            Functions["asin"] = new Asin();
             Functions["cos"] = new Cos();
             Functions["cosh"] = new Cosh();
             Functions["power"] = new Power();

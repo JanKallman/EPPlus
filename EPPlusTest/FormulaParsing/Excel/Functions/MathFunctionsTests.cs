@@ -48,6 +48,17 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AsinShouldReturnCorrectResult()
+        {
+            const double expectedValue = 1.5708;
+            var func = new Asin();
+            var args = FunctionsHelper.CreateArgs(1d);
+            var result = func.Execute(args, _parsingContext);
+            var rounded = Math.Round((double)result.Result, 4);
+            Assert.AreEqual(expectedValue, rounded);
+        }
+
+        [TestMethod]
         public void CeilingShouldRoundUpAccordingToParamsSignificanceLowerThan0()
         {
             var expectedValue = 22.36d;

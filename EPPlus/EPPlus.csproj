@@ -379,6 +379,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Abs.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Asin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Atan2.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
