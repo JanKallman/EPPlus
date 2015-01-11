@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
 using System.Data;
+using OfficeOpenXml.Table;
+using Rhino.Mocks.Constraints;
+using System.Collections.Generic;
 
 namespace EPPlusTest
 {
@@ -178,6 +182,72 @@ namespace EPPlusTest
             p.SaveAs(new FileInfo(@"c:\temp\merge.xlsx"));
         }
         [TestMethod]
+        public void Issue15141()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            using (ExcelWorksheet sheet = package.Workbook.Worksheets.Add("Test"))
+            {
+                sheet.Cells.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                sheet.Cells.Style.Fill.BackgroundColor.SetColor(Color.White);
+                sheet.Cells[1, 1, 1, 3].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                sheet.Cells[1, 5, 2, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                ExcelColumn column = sheet.Column(3); // fails with exception
+            }
+        }
+        [TestMethod]
+        public void Issue15145()
+        {
+            using (ExcelPackage p = new ExcelPackage(new System.IO.FileInfo(@"C:\Temp\bug\ColumnInsert.xlsx")))
+            {
+                ExcelWorksheet ws = p.Workbook.Worksheets[1];
+                ws.InsertColumn(12,3);
+                ws.InsertRow(30,3);
+                ws.DeleteRow(31,1);
+                ws.DeleteColumn(7,1);
+                p.SaveAs(new System.IO.FileInfo(@"C:\Temp\bug\InsertCopyFail.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void Issue15150()
+        {
+            var template = new FileInfo(@"c:\temp\bug\ClearIssue.xlsx");
+            const string output = @"c:\temp\bug\ClearIssueSave.xlsx";
+
+            using (var pck = new ExcelPackage(template, false))
+            {
+                var ws = pck.Workbook.Worksheets[1];
+                ws.Cells["A2:C3"].Value = "Test";
+                var c = ws.Cells["B2:B3"];
+                c.Clear();
+
+                pck.SaveAs(new FileInfo(output));
+            }
+        }
+
+        [TestMethod]
+        public void Issue15146()
+        {
+            var template = new FileInfo(@"c:\temp\bug\CopyFail.xlsx");
+            const string output = @"c:\temp\bug\CopyFail-Save.xlsx";
+
+            using (var pck = new ExcelPackage(template, false))
+            {
+                var ws = pck.Workbook.Worksheets[3];
+
+                //ws.InsertColumn(3, 1);
+                CustomColumnInsert(ws, 3, 1);
+
+                pck.SaveAs(new FileInfo(output));
+            }
+        }
+
+    private static void CustomColumnInsert(ExcelWorksheet ws, int column, int columns)
+    {
+        var source = ws.Cells[1, column, ws.Dimension.End.Row, ws.Dimension.End.Column];
+        var dest = ws.Cells[1, column + columns, ws.Dimension.End.Row, ws.Dimension.End.Column + columns];
+        source.Copy(dest);
+    }
+        [TestMethod]
         public void Issue15123()
         {
             var p = new ExcelPackage();
@@ -239,6 +309,72 @@ namespace EPPlusTest
             ws.Cells["A1:A8"].Merge = false;
             p.Dispose();
         }
+        [Ignore]
+        [TestMethod]
+        public void Issue15158()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\Output.xlsx"), new FileInfo(@"C:\temp\bug\DeleteColFormula\FormulasIssue\demo.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                ExcelWorksheet worksheet = workBook.Worksheets[1];
+
+                //string column = ColumnIndexToColumnLetter(28);
+                worksheet.DeleteColumn(28);
+
+                if (worksheet.Cells["AA19"].Formula != "")
+                {
+                    throw new Exception("this cell should not have formula");
+                }
+
+                package.Save();
+            }
+        }
+
+        public class cls1
+        {
+            public int prop1 { get; set; }
+        }
+
+        public class cls2 : cls1
+        {
+            public string prop2 { get; set; }
+        }
+        [TestMethod]
+        public void LoadFromColIssue()
+        {
+            var l = new List<cls1>();
+
+            var c2 = new cls2() {prop1=1, prop2="test1"};
+            l.Add(c2);
+
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("Test");
+
+            ws.Cells["A1"].LoadFromCollection(l, true, TableStyles.Light16, BindingFlags.Instance | BindingFlags.Public,
+                new MemberInfo[] {typeof(cls2).GetProperty("prop2")});
+        }
+        [Ignore]
+        [TestMethod]
+        public void Issue15159()
+        {
+            var fs = new FileStream(@"C:\temp\bug\DeleteColFormula\FormulasIssue\demo.xlsx", FileMode.OpenOrCreate);
+            using (var package = new OfficeOpenXml.ExcelPackage(fs))
+            {                
+                package.Save();
+            }
+            fs.Seek(0, SeekOrigin.Begin);
+            var fs2 = fs;
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void PictureIssue()
+        {
+            var p = new ExcelPackage();
+            var ws = p.Workbook.Worksheets.Add("t");
+            ws.Drawings.AddPicture("Test", new FileInfo(@"c:\temp\bug\2152228.jpg"));
+            p.SaveAs(new FileInfo(@"c:\temp\bug\pic.xlsx"));
+        }
 
         [Ignore]
         [TestMethod]
@@ -251,13 +387,6 @@ namespace EPPlusTest
                 {
                     using (var package = new ExcelPackage(outputStream, inputStream, "Test"))
                     {
-                        //foreach (var names in package.Workbook.Names)
-                        //{
-                        //    if (names.Name.Equals("ReportTitle"))
-                        //    {
-                        //        //names.First().Value = "TestingValue";
-                        //    }
-                        //}
                         var ws= package.Workbook.Worksheets.Add("Test empty");
                         ws.Cells["A1"].Value = "Test";
                         package.Encryption.Password = "Test2";

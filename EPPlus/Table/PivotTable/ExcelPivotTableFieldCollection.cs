@@ -102,7 +102,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 foreach (var field in _list)
                 {
-                    if (field.Name == name)
+                    if (field.Name.Equals(name,StringComparison.InvariantCultureIgnoreCase))
                     {
                         return field;
                     }

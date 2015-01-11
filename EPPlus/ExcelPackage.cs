@@ -166,6 +166,7 @@ namespace OfficeOpenXml
 	{
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
+        private bool _isExternalStream=false;
         internal class ImageInfo
         {
             internal string Hash { get; set; }
@@ -330,6 +331,7 @@ namespace OfficeOpenXml
             if (newStream.Length == 0)
             {
                 _stream = newStream;
+                _isExternalStream = true;
                 ConstructNewFile(null);
             }
             else
@@ -357,6 +359,7 @@ namespace OfficeOpenXml
             else
             {
                 _stream = newStream;
+                _isExternalStream = true;
                 //_package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite); TODO:Remove
                 _package = new Packaging.ZipPackage(_stream);
                 CreateBlankWb();
@@ -723,12 +726,12 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-                if (Stream != null && (Stream.CanRead || Stream.CanWrite))
+                if (_isExternalStream==false && Stream != null && (Stream.CanRead || Stream.CanWrite))
                 {
                     Stream.Close();
                 }
                 _package.Close();
-                ((IDisposable)_stream).Dispose();
+                if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
                 {
                     _workbook.Dispose();
@@ -869,20 +872,23 @@ namespace OfficeOpenXml
             File = null;
             Save();
 
-            if (Encryption.IsEncrypted)
+            if (OutputStream != _stream)
             {
-                //Encrypt Workbook
-                Byte[] file = new byte[Stream.Length];
-                long pos = Stream.Position;
-                Stream.Seek(0, SeekOrigin.Begin);
-                Stream.Read(file, 0, (int)Stream.Length);
-                EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                var ms = eph.EncryptPackage(file, Encryption);
-                CopyStream(ms, ref OutputStream);
-            }
-            else
-            {
-                CopyStream(_stream, ref OutputStream);
+                if (Encryption.IsEncrypted)
+                {
+                    //Encrypt Workbook
+                    Byte[] file = new byte[Stream.Length];
+                    long pos = Stream.Position;
+                    Stream.Seek(0, SeekOrigin.Begin);
+                    Stream.Read(file, 0, (int) Stream.Length);
+                    EncryptedPackageHandler eph = new EncryptedPackageHandler();
+                    var ms = eph.EncryptPackage(file, Encryption);
+                    CopyStream(ms, ref OutputStream);
+                }
+                else
+                {
+                    CopyStream(_stream, ref OutputStream);
+                }
             }
         }
         /// <summary>
@@ -1062,7 +1068,7 @@ namespace OfficeOpenXml
                 this._stream.Dispose();
                 this._stream = null;
             }
-
+            _isExternalStream = true;
             if (input.Length == 0) // Template is blank, Construct new
             {
                 _stream = output;
