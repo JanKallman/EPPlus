@@ -123,6 +123,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParserFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersImplementationsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTimeFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunctionTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgumentTests.cs" />

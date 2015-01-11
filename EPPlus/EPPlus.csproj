@@ -391,6 +391,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountIfs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
