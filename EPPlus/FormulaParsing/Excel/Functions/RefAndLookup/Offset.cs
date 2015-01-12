@@ -39,14 +39,25 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var startRange = ArgToString(functionArguments, 0);
             var rowOffset = ArgToInt(functionArguments, 1);
             var colOffset = ArgToInt(functionArguments, 2);
+            int width = 0, height = 0;
+            if (functionArguments.Length > 3)
+            {
+                height = ArgToInt(functionArguments, 3);
+                ThrowExcelErrorValueExceptionIf(() => height == 0, eErrorType.Ref);
+            }
+            if (functionArguments.Length > 4)
+            {
+                width = ArgToInt(functionArguments, 4);
+                ThrowExcelErrorValueExceptionIf(() => width == 0, eErrorType.Ref);
+            }
 
             var adr = new ExcelAddress(startRange);
             var ws = adr.WorkSheet;
 
             var fromRow = adr._fromRow + rowOffset;
             var fromCol = adr._fromCol + colOffset;
-            var toRow = adr._toRow + rowOffset;
-            var toCol = adr._toCol + colOffset;
+            var toRow = (height != 0 ? height : adr._toRow) + rowOffset;
+            var toCol = (width != 0 ? width : adr._toCol) + colOffset;
 
             var newRange = context.ExcelDataProvider.GetRange(ws, fromRow, fromCol, toRow, toCol);
             if (!newRange.IsMulti)

@@ -201,5 +201,72 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual(3d, s1.Cells["A5"].Value);
             }
         }
+
+        [TestMethod]
+        public void OffsetDirectReferenceToMultiRangeShouldSetValueError()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["B1"].Value = 1d;
+                s1.Cells["B2"].Value = 1d;
+                s1.Cells["B3"].Value = 1d;
+                s1.Cells["A5"].Formula = "OFFSET(A1:A3, 0, 1)";
+                s1.Calculate();
+                var result = s1.Cells["A5"].Value;
+                Assert.AreEqual(ExcelErrorValue.Create(eErrorType.Value), result);
+            }
+        }
+
+        [TestMethod]
+        public void OffsetShouldReturnARangeAccordingToWidth()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["B1"].Value = 1d;
+                s1.Cells["B2"].Value = 1d;
+                s1.Cells["B3"].Value = 1d;
+                s1.Cells["A5"].Formula = "SUM(OFFSET(A1:A3, 0, 1, 2))";
+                s1.Calculate();
+                Assert.AreEqual(2d, s1.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void OffsetShouldReturnARangeAccordingToHeight()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["B1"].Value = 1d;
+                s1.Cells["B2"].Value = 1d;
+                s1.Cells["B3"].Value = 1d;
+                s1.Cells["C1"].Value = 2d;
+                s1.Cells["C2"].Value = 2d;
+                s1.Cells["C3"].Value = 2d;
+                s1.Cells["A5"].Formula = "SUM(OFFSET(A1:A3, 0, 1, 2, 2))";
+                s1.Calculate();
+                Assert.AreEqual(6d, s1.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void OffsetShouldCoverMultipleColumns()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("Test");
+                s1.Cells["C1"].Value = 1d;
+                s1.Cells["C2"].Value = 1d;
+                s1.Cells["C3"].Value = 1d;
+                s1.Cells["D1"].Value = 2d;
+                s1.Cells["D2"].Value = 2d;
+                s1.Cells["D3"].Value = 2d;
+                s1.Cells["A5"].Formula = "SUM(OFFSET(A1:B3, 0, 2))";
+                s1.Calculate();
+                Assert.AreEqual(9d, s1.Cells["A5"].Value);
+            }
+        }
     }
 }
