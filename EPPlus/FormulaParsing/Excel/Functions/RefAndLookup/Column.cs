@@ -41,22 +41,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             {
                 return CreateResult(context.Scopes.Current.Address.FromCol, DataType.Integer);
             }
-            var r=arguments.ElementAt(0).ValueAsRangeInfo;
-            if (r != null)
-            {
-                return CreateResult(r.Address._fromCol, DataType.Integer);
-            }
-            else
-            {
-                var rangeAddress = ArgToString(arguments, 0);
-                if (ExcelAddressUtil.IsValidAddress(rangeAddress))
-                {
-                    var factory = new RangeAddressFactory(context.ExcelDataProvider);
-                    var address = factory.Create(rangeAddress);
-                    return CreateResult(address.FromCol, DataType.Integer);
-                }
-            }
-            throw new ArgumentException("An invalid argument was supplied");
+            var rangeAddress = ArgToString(arguments, 0);
+            if (!ExcelAddressUtil.IsValidAddress(rangeAddress))
+                throw new ArgumentException("An invalid argument was supplied");
+            var factory = new RangeAddressFactory(context.ExcelDataProvider);
+            var address = factory.Create(rangeAddress);
+            return CreateResult(address.FromCol, DataType.Integer);
         }
     }
 }
