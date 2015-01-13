@@ -146,9 +146,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["vlookup"] = new VLookup();
             Functions["lookup"] = new Lookup();
             Functions["match"] = new Match();
-            Functions["row"] = new Row();
+            Functions["row"] = new Row(){SkipArgumentEvaluation = true};
             Functions["rows"] = new Rows(){SkipArgumentEvaluation = true};
-            Functions["column"] = new Column();
+            Functions["column"] = new Column(){SkipArgumentEvaluation = true};
             Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
             Functions["choose"] = new Choose();
             Functions["index"] = new Index();

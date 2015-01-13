@@ -40,23 +40,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             if (arguments == null || arguments.Count() == 0)
             {
                 return CreateResult(context.Scopes.Current.Address.FromRow, DataType.Integer);
-            }            
-            var r=arguments.ElementAt(0).ValueAsRangeInfo;
-            if (r != null)
-            {
-                return CreateResult(r.Address._fromRow, DataType.Integer);
             }
-            else
-            {
-                var rangeAddress = ArgToString(arguments, 0);
-                if (ExcelAddressUtil.IsValidAddress(rangeAddress))
-                {
-                    var factory = new RangeAddressFactory(context.ExcelDataProvider);
-                    var address = factory.Create(rangeAddress);
-                    return CreateResult(address.FromRow, DataType.Integer);
-                }
-            }
-            throw new ArgumentException("An invalid argument was supplied");
+            var rangeAddress = ArgToString(arguments, 0);
+            if (!ExcelAddressUtil.IsValidAddress(rangeAddress))
+                throw new ArgumentException("An invalid argument was supplied");
+            var factory = new RangeAddressFactory(context.ExcelDataProvider);
+            var address = factory.Create(rangeAddress);
+            return CreateResult(address.FromRow, DataType.Integer);
         }
     }
 }

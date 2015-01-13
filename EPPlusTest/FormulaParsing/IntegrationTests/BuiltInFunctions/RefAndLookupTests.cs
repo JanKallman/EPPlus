@@ -118,12 +118,36 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void RowSholdHandleReference()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "ROW(A4)";
+                s1.Calculate();
+                Assert.AreEqual(4, s1.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
         public void ColumnShouldReturnRowNumber()
         {
             //_excelDataProvider.Stub(x => x.GetRangeValues("B4")).Return(new List<ExcelCell> { new ExcelCell(null, "Column()", 0, 0) });
             _excelDataProvider.Stub(x => x.GetRangeFormula("", 4, 2)).Return("Column()");
             var result = _parser.ParseAt("B4");
             Assert.AreEqual(2, result);
+        }
+
+        [TestMethod]
+        public void ColumnSholdHandleReference()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "COLUMN(B4)";
+                s1.Calculate();
+                Assert.AreEqual(2, s1.Cells["A1"].Value);
+            }
         }
 
         [TestMethod]
