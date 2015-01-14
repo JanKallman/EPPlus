@@ -135,6 +135,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["n"] = new N();
             // Logical
             Functions["if"] = new If();
+            Functions["iferror"] = new IfError();
             Functions["not"] = new Not();
             Functions["and"] = new And();
             Functions["or"] = new Or();
