@@ -44,6 +44,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             if (function.IsLookupFuction) return new LookupFunctionCompiler(function);
             if (function.IsErrorHandlingFunction) return new ErrorHandlingFunctionCompiler(function);
             if(function is If) return new IfFunctionCompiler(function);
+            var error = function as IfError;
+            if(error != null) return new IfErrorFunctionCompiler(error);
             return new DefaultCompiler(function);
         }
     }
