@@ -375,6 +375,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\False.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\If.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\IfError.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
@@ -513,6 +514,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\ErrorHandlingFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfErrorFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\LookupFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionExpression.cs" />
