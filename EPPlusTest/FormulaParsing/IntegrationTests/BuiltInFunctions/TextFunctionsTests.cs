@@ -46,5 +46,18 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual("testing", sheet.Cells["A1"].Value);
             }
         }
+
+        [TestMethod]
+        public void CharShouldReturnCharValOfNumber()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Char(A2)";
+                sheet.Cells["A2"].Value = 55;
+                sheet.Calculate();
+                Assert.AreEqual("7", sheet.Cells["A1"].Value);
+            }
+        }
     }
 }

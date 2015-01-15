@@ -461,6 +461,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Row.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Rows.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\CharFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Concatenate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
