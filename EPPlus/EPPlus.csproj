@@ -360,6 +360,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\HiddenValuesHandlingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionModule.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionNameProvider.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\ErrorType.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsErr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsError.cs" />
@@ -398,6 +399,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIfs.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Degrees.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
@@ -466,6 +468,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Fixed.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
