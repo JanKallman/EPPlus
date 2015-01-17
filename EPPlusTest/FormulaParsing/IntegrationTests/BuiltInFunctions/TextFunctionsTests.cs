@@ -59,5 +59,57 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual("7", sheet.Cells["A1"].Value);
             }
         }
+
+        [TestMethod]
+        public void FixedShouldHaveCorrectDefaultValues()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2)";
+                sheet.Cells["A2"].Value = 1234.5678;
+                sheet.Calculate();
+                Assert.AreEqual(1234.5678.ToString("N2"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldSetCorrectNumberOfDecimals()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,4)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1234.56789.ToString("N4"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldSetNoCommas()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,4,true)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1234.56789.ToString("F4"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldHandleNegativeDecimals()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,-1,true)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1230.ToString("F0"), sheet.Cells["A1"].Value);
+            }
+        }
     }
 }
