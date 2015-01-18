@@ -56,12 +56,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             : base(expression)
         {
             _parsingContext = parsingContext;
+            _functionCompilerFactory = new FunctionCompilerFactory(parsingContext.Configuration.FunctionRepository);
             _isNegated = isNegated;
             base.AddChild(new FunctionArgumentExpression(this));
         }
 
         private readonly ParsingContext _parsingContext;
-        private readonly FunctionCompilerFactory _functionCompilerFactory = new FunctionCompilerFactory();
+        private readonly FunctionCompilerFactory _functionCompilerFactory;
         private readonly bool _isNegated;
 
 

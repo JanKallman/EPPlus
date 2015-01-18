@@ -35,39 +35,8 @@ using Require = OfficeOpenXml.FormulaParsing.Utilities.Require;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
-    public class CountIfs : ExcelFunction
+    public class CountIfs : MultipleRangeCriteriasFunction
     {
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
-
-         public CountIfs()
-            : this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
-        {
-
-        }
-
-        public CountIfs(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
-        {
-            Utilities.Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(wildCardValueMatcher).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
-        }
-
-        private bool Evaluate(object obj, object expression)
-        {
-            double? candidate = default(double?);
-            if (IsNumeric(obj))
-            {
-                candidate = ConvertUtil.GetValueDouble(obj);
-            }
-            if (candidate.HasValue && expression is string)
-            {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression.ToString());
-            }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
-        }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
@@ -95,24 +64,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             
             return CreateResult((double)matchIndexes.Count(), DataType.Integer);
-        }
-
-        private List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, object searched)
-        {
-            var result = new List<int>();
-            var internalIndex = 0;
-            for (var row = rangeInfo.Address._fromRow; row <= rangeInfo.Address._toRow; row++)
-            {
-                for (var col = rangeInfo.Address._fromCol; col <= rangeInfo.Address._toCol; col++)
-                {
-                    var candidate = rangeInfo.GetValue(row, col);
-                    if (Evaluate(candidate, searched))
-                    {
-                        result.Add(internalIndex++);
-                    }
-                }
-            }
-            return result;
         }
     }
 }

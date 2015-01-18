@@ -27,22 +27,40 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using OfficeOpenXml.Utils;
 
-namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
+namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
-    public class IsOdd : ExcelFunction
+    public class SumIfs : MultipleRangeCriteriasFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 1);
-            var arg1 = GetFirstValue(arguments);//arguments.ElementAt(0);
-            if (!ConvertUtil.IsNumeric(arg1))
+            var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
+            ValidateArguments(functionArguments, 3);
+            var sumRange = ArgsToDoubleEnumerable(true, new List<FunctionArgument> {functionArguments[0]}, context).ToList();
+            var argRanges = new List<ExcelDataProvider.IRangeInfo>();
+            var criterias = new List<object>();
+            for (var ix = 1; ix < 31; ix += 2)
             {
-                ThrowExcelErrorValueException(eErrorType.Value);
+                if (functionArguments.Length <= ix) break;
+                var rangeInfo = functionArguments[ix].ValueAsRangeInfo;
+                argRanges.Add(rangeInfo);
+                if (ix > 1)
+                {
+                    ThrowExcelErrorValueExceptionIf(() => rangeInfo.GetNCells() != argRanges[0].GetNCells(), eErrorType.Value);
+                }
+                criterias.Add(functionArguments[ix + 1].Value);
             }
-            var number = (int)System.Math.Floor(ConvertUtil.GetValueDouble(arg1));
-            return CreateResult(number % 2 == 1, DataType.Boolean);
+            IEnumerable<int> matchIndexes = GetMatchIndexes(argRanges[0], criterias[0]);
+            var enumerable = matchIndexes as IList<int> ?? matchIndexes.ToList();
+            for (var ix = 1; ix < argRanges.Count && enumerable.Any(); ix++)
+            {
+                var indexes = GetMatchIndexes(argRanges[ix], criterias[ix]);
+                matchIndexes = enumerable.Intersect(indexes);
+            }
+
+            var result = matchIndexes.Sum(index => sumRange[index]);
+
+            return CreateResult(result, DataType.Decimal);
         }
     }
 }
