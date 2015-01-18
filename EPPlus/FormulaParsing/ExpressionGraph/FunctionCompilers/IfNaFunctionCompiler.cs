@@ -3,19 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OfficeOpenXml.FormulaParsing.Exceptions;
-using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 {
-    public class IfErrorFunctionCompiler : FunctionCompiler
+    public class IfNaFunctionCompiler : FunctionCompiler
     {
-        public IfErrorFunctionCompiler(ExcelFunction function)
-            : base(function)
+        public IfNaFunctionCompiler(ExcelFunction function)
+            :base(function)
         {
-            Require.That(function).Named("function").IsNotNull();
-          
+            
         }
 
         public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
@@ -28,15 +25,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             try
             {
                 var result = firstChild.Compile();
-                if (result.DataType == DataType.ExcelError)
+                if (result.DataType == DataType.ExcelError && (Equals(result.Result,
+                    ExcelErrorValue.Create(eErrorType.NA))))
                 {
                     args.Add(new FunctionArgument(lastChild.Compile().Result));
                 }
                 else
                 {
-                    args.Add(new FunctionArgument(result.Result)); 
+                    args.Add(new FunctionArgument(result.Result));
                 }
-                
+
             }
             catch (ExcelErrorValueException ex)
             {

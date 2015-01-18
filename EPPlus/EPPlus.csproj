@@ -367,6 +367,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsEven.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsLogical.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsNonText.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
@@ -377,6 +378,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\False.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\If.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\IfError.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\IfNa.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
@@ -414,6 +416,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Min.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mina.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mod.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\MultipleRangeCriteriasFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
@@ -434,6 +437,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Subtotal.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumIfs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sumsq.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
@@ -520,6 +524,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactory.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfErrorFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfFunctionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfNaFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\LookupFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\GroupExpression.cs" />

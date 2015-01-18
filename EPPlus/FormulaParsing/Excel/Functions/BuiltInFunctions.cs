@@ -85,6 +85,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["sinh"] = new Sinh();
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
+            Functions["sumifs"] = new SumIfs();
             Functions["sumproduct"] = new SumProduct();
             Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
@@ -128,6 +129,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["isblank"] = new IsBlank();
             Functions["isnumber"] = new IsNumber();
             Functions["istext"] = new IsText();
+            Functions["isnontext"] = new IsNonText();
             Functions["iserror"] = new IsError();
             Functions["iserr"] = new IsErr();
             Functions["error.type"] = new ErrorType();
@@ -140,6 +142,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             // Logical
             Functions["if"] = new If();
             Functions["iferror"] = new IfError();
+            Functions["ifna"] = new IfNa();
             Functions["not"] = new Not();
             Functions["and"] = new And();
             Functions["or"] = new Or();
