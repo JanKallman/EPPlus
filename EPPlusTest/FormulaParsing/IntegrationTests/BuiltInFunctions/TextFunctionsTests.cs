@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 
@@ -109,6 +110,19 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 sheet.Cells["A2"].Value = 1234.56789;
                 sheet.Calculate();
                 Assert.AreEqual(1230.ToString("F0"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void ConcatenateShouldHandleRange()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Concatenate(1,A2)";
+                sheet.Cells["A2"].Value = "hello";
+                sheet.Calculate();
+                Assert.AreEqual("1hello", sheet.Cells["A1"].Value);
             }
         }
     }
