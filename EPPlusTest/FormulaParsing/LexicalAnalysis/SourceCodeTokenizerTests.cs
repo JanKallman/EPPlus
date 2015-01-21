@@ -46,7 +46,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var input = "'ab(c)d'";
             var tokens = _tokenizer.Tokenize(input);
 
-            Assert.AreEqual(5, tokens.Count());
+            Assert.AreEqual(3, tokens.Count());
         }
 
         [TestMethod]
@@ -129,6 +129,14 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var input = "\"*\"";
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+        }
+
+        [TestMethod]
+        public void TokenizerShouldHandleWorksheetNameWithMinus()
+        {
+            var input = "'A-B'!A1";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(1, tokens.Count());
         }
 
         [TestMethod]
