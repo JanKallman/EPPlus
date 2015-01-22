@@ -40,6 +40,7 @@ using System.Security;
 
 namespace OfficeOpenXml.Utils
 {
+#if !MONO
     internal class CompoundDocument
     {        
         internal class StoragePart
@@ -525,6 +526,7 @@ namespace OfficeOpenXml.Utils
             STGTY_LOCKBYTES = 3,
             STGTY_PROPERTY = 4
         }
+
         [DllImport("ole32.dll")]
         private static extern int StgIsStorageFile(
             [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
@@ -558,7 +560,7 @@ namespace OfficeOpenXml.Utils
 
         [DllImport("ole32.dll")]
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
-        
+
         #endregion
         [SecuritySafeCritical]
         internal static int IsStorageFile(string Name)
@@ -684,6 +686,7 @@ namespace OfficeOpenXml.Utils
 
             return data;
         }
+
         [SecuritySafeCritical]
         internal byte[] Save()
         {
@@ -746,5 +749,7 @@ namespace OfficeOpenXml.Utils
             }
             subStorage.Commit(0);
         }
+			
     }
+#endif
 }
