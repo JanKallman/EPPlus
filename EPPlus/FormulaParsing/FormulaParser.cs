@@ -147,6 +147,11 @@ namespace OfficeOpenXml.FormulaParsing
                         {
                             return rangeInfo.First().Value ?? 0d;
                         }
+                        // ok to return multicell if it is a workbook scoped name.
+                        if (string.IsNullOrEmpty(worksheet))
+                        {
+                            return rangeInfo;
+                        }
                         throw new ExcelErrorValueException(eErrorType.Value);
                     }
                 }
