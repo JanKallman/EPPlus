@@ -136,6 +136,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\IndexTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\SumIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TextFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TimeStringParserTests.cs" />
     <Compile Include="FormulaParsing\Excel\OperatorsTests.cs" />

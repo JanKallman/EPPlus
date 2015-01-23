@@ -95,6 +95,24 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void IsNonTextShouldReturnFalseWhenFirstArgIsAString()
+        {
+            var args = FunctionsHelper.CreateArgs("1");
+            var func = new IsNonText();
+            var result = func.Execute(args, _context);
+            Assert.IsFalse((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void IsNonTextShouldReturnTrueWhenFirstArgIsNotAString()
+        {
+            var args = FunctionsHelper.CreateArgs(1);
+            var func = new IsNonText();
+            var result = func.Execute(args, _context);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
         public void IsOddShouldReturnCorrectResult()
         {
             var args = FunctionsHelper.CreateArgs(3.123);

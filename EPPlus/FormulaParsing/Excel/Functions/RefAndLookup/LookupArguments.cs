@@ -57,6 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             else
             {
+                //if (arg1 is ExcelDataProvider.INameInfo) arg1 = ((ExcelDataProvider.INameInfo) arg1).Value;
                 var rangeInfo = arg1 as ExcelDataProvider.IRangeInfo;
                 if (rangeInfo != null)
                 {

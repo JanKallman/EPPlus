@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 
@@ -44,6 +45,84 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 sheet.Cells["A1"].Formula = "HYPERLINK(\"testing\")";
                 sheet.Calculate();
                 Assert.AreEqual("testing", sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void CharShouldReturnCharValOfNumber()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Char(A2)";
+                sheet.Cells["A2"].Value = 55;
+                sheet.Calculate();
+                Assert.AreEqual("7", sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldHaveCorrectDefaultValues()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2)";
+                sheet.Cells["A2"].Value = 1234.5678;
+                sheet.Calculate();
+                Assert.AreEqual(1234.5678.ToString("N2"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldSetCorrectNumberOfDecimals()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,4)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1234.56789.ToString("N4"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldSetNoCommas()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,4,true)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1234.56789.ToString("F4"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void FixedShouldHandleNegativeDecimals()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Fixed(A2,-1,true)";
+                sheet.Cells["A2"].Value = 1234.56789;
+                sheet.Calculate();
+                Assert.AreEqual(1230.ToString("F0"), sheet.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void ConcatenateShouldHandleRange()
+        {
+            using (var pck = new ExcelPackage(new MemoryStream()))
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "Concatenate(1,A2)";
+                sheet.Cells["A2"].Value = "hello";
+                sheet.Calculate();
+                Assert.AreEqual("1hello", sheet.Cells["A1"].Value);
             }
         }
     }

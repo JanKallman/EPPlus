@@ -428,5 +428,26 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 throw (new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString())));
             }
         }
+
+        protected CompileResult GetResultByObject(object result)
+        {
+            if (IsNumeric(result))
+            {
+                return CreateResult(result, DataType.Decimal);
+            }
+            if (result is string)
+            {
+                return CreateResult(result, DataType.String);
+            }
+            if (ExcelErrorValue.Values.IsErrorValue(result))
+            {
+                return CreateResult(result, DataType.ExcelAddress);
+            }
+            if (result == null)
+            {
+                return CompileResult.Empty;
+            }
+            return CreateResult(result, DataType.Enumerable);
+        }
     }
 }

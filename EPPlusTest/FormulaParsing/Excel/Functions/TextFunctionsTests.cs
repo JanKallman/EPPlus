@@ -105,6 +105,14 @@ namespace EPPlusTest.Excel.Functions.Text
         }
 
         [TestMethod]
+        public void ConcatenateShouldConcatenateStringWithInt()
+        {
+            var func = new Concatenate();
+            var result = func.Execute(FunctionsHelper.CreateArgs(1, "Two"), _parsingContext);
+            Assert.AreEqual("1Two", result.Result);
+        }
+
+        [TestMethod]
         public void ExactShouldReturnTrueWhenTwoEqualStrings()
         {
             var func = new Exact();

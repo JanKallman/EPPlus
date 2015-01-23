@@ -51,8 +51,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["rept"] = new Rept();
             Functions["substitute"] = new Substitute();
             Functions["concatenate"] = new Concatenate();
+            Functions["char"] = new CharFunction();
             Functions["exact"] = new Exact();
             Functions["find"] = new Find();
+            Functions["fixed"] = new Fixed();
             Functions["proper"] = new Proper();
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
@@ -83,6 +85,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["sinh"] = new Sinh();
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
+            Functions["sumifs"] = new SumIfs();
             Functions["sumproduct"] = new SumProduct();
             Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
@@ -121,12 +124,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["varp"] = new VarP();
             Functions["large"] = new Large();
             Functions["small"] = new Small();
+            Functions["degrees"] = new Degrees();
             // Information
             Functions["isblank"] = new IsBlank();
             Functions["isnumber"] = new IsNumber();
             Functions["istext"] = new IsText();
+            Functions["isnontext"] = new IsNonText();
             Functions["iserror"] = new IsError();
             Functions["iserr"] = new IsErr();
+            Functions["error.type"] = new ErrorType();
             Functions["iseven"] = new IsEven();
             Functions["isodd"] = new IsOdd();
             Functions["islogical"] = new IsLogical();
@@ -135,6 +141,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["n"] = new N();
             // Logical
             Functions["if"] = new If();
+            Functions["iferror"] = new IfError();
+            Functions["ifna"] = new IfNa();
             Functions["not"] = new Not();
             Functions["and"] = new And();
             Functions["or"] = new Or();

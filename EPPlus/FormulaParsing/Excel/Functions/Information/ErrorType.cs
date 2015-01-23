@@ -22,27 +22,46 @@
  *******************************************************************************
  * Mats Alm   		                Added		                2015-01-15
  *******************************************************************************/
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
 {
-    public class IsOdd : ExcelFunction
+    public class ErrorType : ExcelFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var arg1 = GetFirstValue(arguments);//arguments.ElementAt(0);
-            if (!ConvertUtil.IsNumeric(arg1))
+            var error = arguments.ElementAt(0);
+            var isErrorFunc = context.Configuration.FunctionRepository.GetFunction("iserror");
+            var isErrorResult = isErrorFunc.Execute(arguments, context);
+            if (!(bool) isErrorResult.Result)
             {
-                ThrowExcelErrorValueException(eErrorType.Value);
+                return CreateResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
             }
-            var number = (int)System.Math.Floor(ConvertUtil.GetValueDouble(arg1));
-            return CreateResult(number % 2 == 1, DataType.Boolean);
+            var errorType = error.ValueAsExcelErrorValue;
+            int retValue;
+            switch (errorType.Type)
+            {
+                case eErrorType.Null:
+                    return CreateResult(1, DataType.Integer);
+                case eErrorType.Div0:
+                    return CreateResult(2, DataType.Integer);
+                case eErrorType.Value:
+                    return CreateResult(3, DataType.Integer);
+                case eErrorType.Ref:
+                    return CreateResult(4, DataType.Integer);
+                case eErrorType.Name:
+                    return CreateResult(5, DataType.Integer);
+                case eErrorType.Num:
+                    return CreateResult(6, DataType.Integer);
+                case eErrorType.NA:
+                    return CreateResult(7, DataType.Integer);
+            }
+            return CreateResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
         }
     }
 }

@@ -397,5 +397,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual(7, sheet.Cells["A5"].Value);
             }
         }
+
+        [TestMethod]
+        public void DegreesShouldReturnCorrectResult()
+        {
+            var result = _parser.Parse("DEGREES(0.5)");
+            var rounded = Math.Round((double)result, 3);
+            Assert.AreEqual(28.648, rounded);
+
+        }
     }
 }

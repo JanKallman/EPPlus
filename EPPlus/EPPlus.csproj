@@ -360,12 +360,14 @@
     <Compile Include="FormulaParsing\Excel\Functions\HiddenValuesHandlingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionModule.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\IFunctionNameProvider.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\ErrorType.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsErr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsError.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsEven.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsLogical.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNa.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Information\IsNonText.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsNumber.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsOdd.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Information\IsText.cs" />
@@ -375,6 +377,8 @@
     <Compile Include="FormulaParsing\Excel\Functions\Logical\And.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\False.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\If.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\IfError.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Logical\IfNa.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Not.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\Or.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Logical\True.cs" />
@@ -397,6 +401,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountBlank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIf.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\CountIfs.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Degrees.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Exp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Fact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Floor.cs" />
@@ -411,6 +416,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Min.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mina.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Mod.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\MultipleRangeCriteriasFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Pi.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
@@ -431,6 +437,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Subtotal.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumIfs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumProduct.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Sumsq.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tan.cs" />
@@ -460,10 +467,12 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Row.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\Rows.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\VLookup.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\CharFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Concatenate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\CStr.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Exact.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Find.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Fixed.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Hyperlink.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Left.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
@@ -513,7 +522,9 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\ErrorHandlingFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactory.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfErrorFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfFunctionCompiler.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\IfNaFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\LookupFunctionCompiler.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\GroupExpression.cs" />
