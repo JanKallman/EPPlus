@@ -1948,37 +1948,40 @@ namespace OfficeOpenXml
         /// Adds a value to the row of merged cells to fix for inserts or deletes
         /// </summary>
         /// <param name="row"></param>
-        /// <param name="rows"></param>
+        /// <param name="rows"></param> 
         /// <param name="delete"></param>
         private void FixMergedCellsRow(int row, int rows, bool delete)
         {
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
             {
-                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
-                if (delete)
+                if (!string.IsNullOrEmpty( _mergedCells[i]))
                 {
-                    newAddr = addr.DeleteRow(row, rows);
-                    _mergedCells._cells.Delete(row, 0, rows, 0);
-                    if (newAddr == null)
+                    ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
+                    if (delete)
                     {
-                        removeIndex.Add(i);
-                        continue;
+                        newAddr = addr.DeleteRow(row, rows);
+                        _mergedCells._cells.Delete(row, 0, rows, 0);
+                        if (newAddr == null)
+                        {
+                            removeIndex.Add(i);
+                            continue;
+                        }
                     }
-                }
-                else
-                {
-                    newAddr = addr.AddRow(row, rows);
+                    else
+                    {
+                        newAddr = addr.AddRow(row, rows);
+                        if (newAddr.Address != addr.Address)
+                        {
+                            _mergedCells._cells.Insert(row, 0, rows, 0);
+                            _mergedCells.SetIndex(newAddr, i);
+                        }
+                    }
+
                     if (newAddr.Address != addr.Address)
                     {
-                        _mergedCells._cells.Insert(row, 0, rows, 0);
-                        _mergedCells.SetIndex(newAddr, i);
+                        _mergedCells.List[i] = newAddr._address;
                     }
-                }
-
-                if (newAddr.Address != addr.Address)
-                {
-                   _mergedCells.List[i] = newAddr._address;
                 }
             }
             for (int i = removeIndex.Count - 1; i >= 0; i--)
@@ -1997,30 +2000,33 @@ namespace OfficeOpenXml
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
             {
-                ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
-                if (delete)
+                if (!string.IsNullOrEmpty(_mergedCells[i]))
                 {
-                    newAddr = addr.DeleteColumn(column, columns);
-                    _mergedCells._cells.Delete(0, column, 0, columns);
-                    if (newAddr == null)
+                    ExcelAddressBase addr = new ExcelAddressBase(_mergedCells[i]), newAddr;
+                    if (delete)
                     {
-                        removeIndex.Add(i);
-                        continue;
+                        newAddr = addr.DeleteColumn(column, columns);
+                        _mergedCells._cells.Delete(0, column, 0, columns);
+                        if (newAddr == null)
+                        {
+                            removeIndex.Add(i);
+                            continue;
+                        }
                     }
-                }
-                else
-                {
-                    newAddr = addr.AddColumn(column, columns);
+                    else
+                    {
+                        newAddr = addr.AddColumn(column, columns);
+                        if (newAddr.Address != addr.Address)
+                        {
+                            _mergedCells._cells.Insert(0, column, 0, columns);
+                            _mergedCells.SetIndex(newAddr, i);
+                        }
+                    }
+
                     if (newAddr.Address != addr.Address)
                     {
-                        _mergedCells._cells.Insert(0, column, 0, columns);
-                        _mergedCells.SetIndex(newAddr, i);
+                        _mergedCells.List[i] = newAddr._address;
                     }
-                }
-
-                if (newAddr.Address != addr.Address)
-                {
-                    _mergedCells.List[i] = newAddr._address;
                 }
             }
             for (int i = removeIndex.Count - 1; i >= 0; i--)
@@ -2663,13 +2669,16 @@ namespace OfficeOpenXml
         {
             for (int i = 0; i < _mergedCells.Count; i++)
             {
-                ExcelRange range = Cells[_mergedCells[i]];
+               if(!string.IsNullOrEmpty( _mergedCells[i]))
+               {
+                    ExcelRange range = Cells[_mergedCells[i]];
 
-                if (range.Start.Row <= row && row <= range.End.Row)
-                {
-                    if (range.Start.Column <= column && column <= range.End.Column)
+                    if (range.Start.Row <= row && row <= range.End.Row)
                     {
-                        return i + 1;
+                        if (range.Start.Column <= column && column <= range.End.Column)
+                        {
+                            return i + 1;
+                        }
                     }
                 }
             }

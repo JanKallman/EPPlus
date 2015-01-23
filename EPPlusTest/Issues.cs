@@ -353,6 +353,20 @@ namespace EPPlusTest
             ws.Cells["A1"].LoadFromCollection(l, true, TableStyles.Light16, BindingFlags.Instance | BindingFlags.Public,
                 new MemberInfo[] {typeof(cls2).GetProperty("prop2")});
         }
+
+        [TestMethod]
+        public void Issue15168()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Test");
+                ws.Cells[1, 1].Value = "A1";
+                ws.Cells[2, 1].Value = "A2";
+
+                ws.Cells[2, 1].Value = ws.Cells[1, 1].Value;
+                Assert.AreEqual("A1", ws.Cells[1, 1].Value);
+            }
+        }
         [Ignore]
         [TestMethod]
         public void Issue15159()
@@ -365,7 +379,49 @@ namespace EPPlusTest
             fs.Seek(0, SeekOrigin.Begin);
             var fs2 = fs;
         }
+        [TestMethod]
+        public void Issue15179()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("MergeDeleteBug");
+                ws.Cells["E3:F3"].Merge = true;
+                ws.Cells["E3:F3"].Merge = false;
+                ws.DeleteRow(2, 6);
+                ws.Cells["A1"].Value = 0;
+                var s = ws.Cells["A1"].Value.ToString();
 
+            }
+        }
+
+        [TestMethod]
+        public void Issue15169()
+        {
+            FileInfo fileInfo = new FileInfo(@"C:\temp\bug\issue\input.xlsx");
+
+            ExcelPackage excelPackage = new ExcelPackage(fileInfo);
+            {
+                string sheetName = "Labour Costs";
+
+                ExcelWorksheet ws = excelPackage.Workbook.Worksheets[sheetName];
+                excelPackage.Workbook.Worksheets.Delete(ws);
+
+                ws = excelPackage.Workbook.Worksheets.Add(sheetName);
+
+                excelPackage.SaveAs(new FileInfo(@"C:\temp\bug\issue\output2.xlsx"));
+            }            
+        }
+        [Ignore]
+        [TestMethod]
+        public void Issue15174()
+        {
+            using (ExcelPackage package = new ExcelPackage(new FileInfo(@"C:\temp\bug\MyTemplate.xlsx")))
+            {
+                package.Workbook.Worksheets[1].Column(2).Style.Numberformat.Format = "dd/mm/yyyy";
+
+                package.SaveAs(new FileInfo(@"C:\temp\bug\MyTemplate2.xlsx"));
+            }
+        }
         [Ignore]
         [TestMethod]
         public void PictureIssue()

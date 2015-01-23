@@ -423,7 +423,7 @@ namespace OfficeOpenXml
                         if(ws._values.PrevCell(ref r,ref c))
                         {
                             var column=ws._values.GetValue(0,c) as ExcelColumn;
-                            if (column!=null || column.ColumnMax >= col)
+                            if (column != null && column.ColumnMax >= col) //Fixes issue 15174
                             {
                                 return ws._styles.GetValue(0, c);
                             }
