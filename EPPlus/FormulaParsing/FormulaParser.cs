@@ -39,13 +39,14 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing.Excel;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using OfficeOpenXml.FormulaParsing.Logging;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using System.Diagnostics;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace OfficeOpenXml.FormulaParsing
 {
-    public class FormulaParser
+    public class FormulaParser : IDisposable
     {
         private readonly ParsingContext _parsingContext;
         private readonly ExcelDataProvider _excelDataProvider;
@@ -70,7 +71,6 @@ namespace OfficeOpenXml.FormulaParsing
                     .SetLexer(new Lexer(_parsingContext.Configuration.FunctionRepository, _parsingContext.NameValueProvider))
                     .SetGraphBuilder(new ExpressionGraphBuilder(excelDataProvider, _parsingContext))
                     .SetExpresionCompiler(new ExpressionCompiler())
-                    .SetIdProvider(new IntegerIdProvider())
                     .FunctionRepository.LoadModule(new BuiltInFunctions());
             });
         }
@@ -152,11 +152,21 @@ namespace OfficeOpenXml.FormulaParsing
                         {
                             return rangeInfo;
                         }
-                        throw new ExcelErrorValueException(eErrorType.Value);
+                        if (_parsingContext.Debug)
+                        {
+                            var msg = string.Format("A range with multiple cell was returned at row {0}, column {1}",
+                                row, column);
+                            _parsingContext.Configuration.Logger.Log(_parsingContext, msg);
+                        }
+                        return ExcelErrorValue.Create(eErrorType.Value);
                     }
                 }
                 catch(ExcelErrorValueException ex)
                 {
+                    if (_parsingContext.Debug)
+                    {
+                        _parsingContext.Configuration.Logger.Log(_parsingContext, ex);
+                    }
                     return ex.ErrorValue;
                 }
             }
@@ -205,6 +215,19 @@ namespace OfficeOpenXml.FormulaParsing
             if(_excelDataProvider!=null)
             {
                 _excelDataProvider.Reset();
+            }
+        }
+
+        public IFormulaParserLogger Logger
+        {
+            get { return _parsingContext.Configuration.Logger; }
+        }
+
+        public void Dispose()
+        {
+            if (_parsingContext.Debug)
+            {
+                _parsingContext.Configuration.Logger.Dispose();
             }
         }
     }
