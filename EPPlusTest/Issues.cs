@@ -393,7 +393,7 @@ namespace EPPlusTest
 
             }
         }
-
+        [Ignore]
         [TestMethod]
         public void Issue15169()
         {
@@ -410,6 +410,21 @@ namespace EPPlusTest
 
                 excelPackage.SaveAs(new FileInfo(@"C:\temp\bug\issue\output2.xlsx"));
             }            
+        }
+        [Ignore]
+        [TestMethod]
+        public void Issue15172()
+        {
+            FileInfo fileInfo = new FileInfo(@"C:\temp\bug\book2.xlsx");
+
+            ExcelPackage excelPackage = new ExcelPackage(fileInfo);
+            {
+                ExcelWorksheet ws = excelPackage.Workbook.Worksheets[1];
+
+                Assert.AreEqual("IF($R10>=X$2,1,0)", ws.Cells["X10"].Formula);
+                ws.Calculate();
+                Assert.AreEqual(0D,ws.Cells["X10"].Value);
+            }
         }
         [Ignore]
         [TestMethod]
