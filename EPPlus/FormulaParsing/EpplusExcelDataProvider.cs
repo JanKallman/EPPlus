@@ -389,6 +389,18 @@ namespace OfficeOpenXml.FormulaParsing
             return _currentWorksheet._values.GetValue(row, col);
         }
 
+        public override ExcelCellAddress GetDimensionEnd(string worksheet)
+        {
+            ExcelCellAddress address = null;
+            try
+            {
+                address = _package.Workbook.Worksheets[worksheet].Dimension.End;
+            }
+            catch{}
+            
+            return address;
+        }
+
         private void SetCurrentWorksheet(ExcelAddressInfo addressInfo)
         {
             if (addressInfo.WorksheetIsSpecified)

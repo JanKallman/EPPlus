@@ -71,24 +71,42 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             try
             {
                 var function = _parsingContext.Configuration.FunctionRepository.GetFunction(ExpressionString);
-                if(function == null) return new CompileResult(ExcelErrorValue.Create(eErrorType.Name), DataType.ExcelError);
+                if (function == null)
+                {
+                    if (_parsingContext.Debug)
+                    {
+                        _parsingContext.Configuration.Logger.Log(_parsingContext, string.Format("'{0}' is not a supported function", ExpressionString));
+                    }
+                    return new CompileResult(ExcelErrorValue.Create(eErrorType.Name), DataType.ExcelError);
+                }
+                if (_parsingContext.Debug)
+                {
+                    _parsingContext.Configuration.Logger.LogFunction(ExpressionString);
+                }
                 var compiler = _functionCompilerFactory.Create(function);
                 var result = compiler.Compile(HasChildren ? Children : Enumerable.Empty<Expression>(), _parsingContext);
                 if (_isNegated)
                 {
                     if (!result.IsNumeric)
                     {
-                        throw new ExcelErrorValueException(eErrorType.Value);
+                        if (_parsingContext.Debug)
+                        {
+                            var msg = string.Format("Trying to negate a non-numeric value ({0}) in function '{1}'",
+                                result.Result, ExpressionString);
+                            _parsingContext.Configuration.Logger.Log(_parsingContext, msg);
+                        }
+                        return new CompileResult(ExcelErrorValue.Create(eErrorType.Value), DataType.ExcelError);
                     }
-                    else
-                    {
-                        return new CompileResult(result.ResultNumeric * -1, result.DataType);
-                    }
+                    return new CompileResult(result.ResultNumeric * -1, result.DataType);
                 }
                 return result;
             }
             catch (ExcelErrorValueException e)
             {
+                if (_parsingContext.Debug)
+                {
+                    _parsingContext.Configuration.Logger.Log(_parsingContext, e);
+                }
                 return new CompileResult(e.ErrorValue, DataType.ExcelError);
             }
             

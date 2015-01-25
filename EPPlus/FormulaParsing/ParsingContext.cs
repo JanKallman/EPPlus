@@ -6,6 +6,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.FormulaParsing.Logging;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -46,6 +47,14 @@ namespace OfficeOpenXml.FormulaParsing
         /// Scopes, a scope represents the parsing of a cell or a value.
         /// </summary>
         public ParsingScopes Scopes { get; private set; }
+
+        /// <summary>
+        /// Returns true if a <see cref="IFormulaParserLogger"/> is attached to the parser.
+        /// </summary>
+        public bool Debug
+        {
+            get { return Configuration.Logger != null; }
+        }
 
         /// <summary>
         /// Factory method.
