@@ -1052,7 +1052,11 @@ namespace OfficeOpenXml
             }
             _package = null;
             _properties = null;
-            _formulaParser = null;
+            if (_formulaParser != null)
+            {
+                _formulaParser.Dispose();
+                _formulaParser = null;
+            }   
         }
     } // end Workbook
 }

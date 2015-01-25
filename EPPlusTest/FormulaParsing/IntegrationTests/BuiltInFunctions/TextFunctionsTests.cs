@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Logging;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
 {
@@ -124,6 +126,23 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 sheet.Calculate();
                 Assert.AreEqual("1hello", sheet.Cells["A1"].Value);
             }
+        }
+
+        [TestMethod]
+        public void Logtest1()
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\denis.xlsx")))
+            {
+                var logger = LoggerFactory.CreateTextFileLogger(new FileInfo(@"c:\temp\log1.txt"));
+                pck.Workbook.FormulaParser.Configure(x => x.AttachLogger(logger));
+                pck.Workbook.Calculate();
+                //
+            }
+            sw.Stop();
+            var elapsed = sw.Elapsed;
+            Console.WriteLine(string.Format("{0} seconds", elapsed.TotalSeconds));
         }
     }
 }

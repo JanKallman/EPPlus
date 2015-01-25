@@ -48,8 +48,12 @@ namespace OfficeOpenXml
             Init(workbook);
 
             var dc = DependencyChainFactory.Create(workbook, options);
-            workbook._formulaParser = null;
-            var parser = workbook.FormulaParser;
+            workbook.FormulaParser.InitNewCalc();
+            if (workbook.FormulaParser.Logger != null)
+            {
+                var msg = string.Format("Starting... number of cells to parse: {0}", dc.list.Count);
+                workbook.FormulaParser.Logger.Log(msg);
+            }
 
             //TODO: Remove when tests are done. Outputs the dc to a text file. 
             //var fileDc = new System.IO.StreamWriter("c:\\temp\\dc.txt");
@@ -69,7 +73,7 @@ namespace OfficeOpenXml
 
             //TODO: Add calculation here
 
-            CalcChain(workbook, parser, dc);
+            CalcChain(workbook, workbook.FormulaParser, dc);
 
             //workbook._isCalculated = true;
         }
@@ -127,6 +131,7 @@ namespace OfficeOpenXml
         }
         private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
         {
+            var debug = parser.Logger != null;
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
@@ -135,6 +140,10 @@ namespace OfficeOpenXml
                     var ws = wb.Worksheets.GetBySheetID(item.SheetID);
                     var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
                     SetValue(wb, item, v);
+                    if (debug)
+                    {
+                        parser.Logger.LogCellCounted();
+                    }
                 }
                 catch (FormatException fe)
                 {

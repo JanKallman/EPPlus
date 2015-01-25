@@ -16,6 +16,18 @@ namespace EPPlusTest
     [TestClass]
     public class Issues
     {
+        [TestInitialize]
+        public void Initialize()
+        {
+            if (!Directory.Exists(@"c:\Temp"))
+            {
+                Directory.CreateDirectory(@"c:\Temp");
+            }
+            if (!Directory.Exists(@"c:\Temp\bug"))
+            {
+                Directory.CreateDirectory(@"c:\Temp\bug");
+            }
+        }
         [TestMethod]
         public void Issue15052()
         {

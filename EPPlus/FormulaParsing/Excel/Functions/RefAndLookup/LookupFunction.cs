@@ -76,7 +76,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             int? lastMatchResult = null;
             if (lookupArgs.SearchedValue == null)
             {
-                throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
+                return new CompileResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
             }
             do
             {
@@ -111,8 +111,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             {
                 return _compileResultFactory.Create(lastLookupValue);
             }
-
-            throw new ExcelErrorValueException("Lookupfunction failed to lookup value", ExcelErrorValue.Create(eErrorType.NA));
+            return new CompileResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
         }
     }
 }
