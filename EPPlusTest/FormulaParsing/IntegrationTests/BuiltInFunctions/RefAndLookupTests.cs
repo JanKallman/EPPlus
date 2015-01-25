@@ -22,6 +22,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void Initialize()
         {
             _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
+            _excelDataProvider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(10, 1));
             _parser = new FormulaParser(_excelDataProvider);
             _package = new ExcelPackage();
             _worksheet = _package.Workbook.Worksheets.Add("Test");
@@ -36,29 +37,37 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestMethod]
         public void VLookupShouldReturnCorrespondingValue()
         {
-            var lookupAddress = "A1:B2";
-            _worksheet.Cells["A1"].Value = 1;
-            _worksheet.Cells["B1"].Value = 1;
-            _worksheet.Cells["A2"].Value = 2;
-            _worksheet.Cells["B2"].Value = 5;
-            _worksheet.Cells["A3"].Formula = "VLOOKUP(2, " + lookupAddress + ", 2)";
-            _worksheet.Calculate();
-            var result = _worksheet.Cells["A3"].Value;
-            Assert.AreEqual(5, result);
+            using(var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("test");
+                var lookupAddress = "A1:B2";
+                ws.Cells["A1"].Value = 1;
+                ws.Cells["B1"].Value = 1;
+                ws.Cells["A2"].Value = 2;
+                ws.Cells["B2"].Value = 5;
+                ws.Cells["A3"].Formula = "VLOOKUP(2, " + lookupAddress + ", 2)";
+                ws.Calculate();
+                var result = ws.Cells["A3"].Value;
+                Assert.AreEqual(5, result);
+            }
         }
 
         [TestMethod]
         public void VLookupShouldReturnClosestValueBelowIfLastArgIsTrue()
         {
-            var lookupAddress = "A1:B2";
-            _worksheet.Cells["A1"].Value = 3;
-            _worksheet.Cells["B1"].Value = 1;
-            _worksheet.Cells["A2"].Value = 5;
-            _worksheet.Cells["B2"].Value = 5;
-            _worksheet.Cells["A3"].Formula = "VLOOKUP(4, " + lookupAddress + ", 2, true)";
-            _worksheet.Calculate();
-            var result = _worksheet.Cells["A3"].Value;
-            Assert.AreEqual(1, result);
+            using (var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("test");
+                var lookupAddress = "A1:B2";
+                ws.Cells["A1"].Value = 3;
+                ws.Cells["B1"].Value = 1;
+                ws.Cells["A2"].Value = 5;
+                ws.Cells["B2"].Value = 5;
+                ws.Cells["A3"].Formula = "VLOOKUP(4, " + lookupAddress + ", 2, true)";
+                ws.Calculate();
+                var result = ws.Cells["A3"].Value;
+                Assert.AreEqual(1, result);
+            }
         }
 
         [TestMethod]
@@ -79,6 +88,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void HLookupShouldReturnClosestValueBelowIfLastArgIsTrue()
         {
             var lookupAddress = "A1:B2";
+            _excelDataProvider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
             _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,1, 2)).Return(5);
             _excelDataProvider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(1);
@@ -290,6 +300,18 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 s1.Cells["A5"].Formula = "SUM(OFFSET(A1:B3, 0, 2))";
                 s1.Calculate();
                 Assert.AreEqual(9d, s1.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void VLookupShouldHandleNames()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\Book3.xlsx")))
+            {
+                var s1 = package.Workbook.Worksheets.First();
+                var v = s1.Cells["X10"].Formula;
+                //s1.Calculate();
+                v = s1.Cells["X10"].Formula;
             }
         }
     }

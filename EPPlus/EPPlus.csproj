@@ -537,6 +537,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\FormulaParserManager.cs" />
+    <Compile Include="FormulaParsing\Logging\IFormulaParserLogger.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />
     <Compile Include="FormulaParsing\IParsingLifetimeEventHandler.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionNameProvider.cs" />
@@ -554,6 +555,8 @@
     <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorProvider.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\TokenType.cs" />
     <Compile Include="FormulaParsing\EpplusNameValueProvider.cs" />
+    <Compile Include="FormulaParsing\Logging\LoggerFactory.cs" />
+    <Compile Include="FormulaParsing\Logging\TextFileLogger.cs" />
     <Compile Include="FormulaParsing\NameValueProvider.cs" />
     <Compile Include="FormulaParsing\ParsedValue.cs" />
     <Compile Include="FormulaParsing\ParsingConfiguration.cs" />

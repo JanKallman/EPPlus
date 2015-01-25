@@ -101,6 +101,13 @@ namespace OfficeOpenXml.FormulaParsing
         //public abstract void SetCellValue(string address, object value);
 
         /// <summary>
+        /// Returns the address of the lowest rightmost cell on the worksheet.
+        /// </summary>
+        /// <param name="worksheet"></param>
+        /// <returns></returns>
+        public abstract ExcelCellAddress GetDimensionEnd(string worksheet);
+
+        /// <summary>
         /// Use this method to free unmanaged resources.
         /// </summary>
         public abstract void Dispose();

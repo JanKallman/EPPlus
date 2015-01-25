@@ -24,6 +24,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
@@ -35,10 +36,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
+            Stopwatch sw = null;
+            if (context.Debug)
+            {
+                sw = new Stopwatch();
+                sw.Start();
+            }
             ValidateArguments(arguments, 3);
             var lookupArgs = new LookupArguments(arguments);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, lookupArgs, context);
-            return Lookup(navigator, lookupArgs);
+            var result = Lookup(navigator, lookupArgs);
+            if (context.Debug)
+            {
+                sw.Stop();
+                context.Configuration.Logger.LogFunction("VLOOKUP", sw.ElapsedMilliseconds);
+            }
+            return result;
         }
     }
 }
