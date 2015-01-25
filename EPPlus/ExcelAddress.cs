@@ -1360,6 +1360,7 @@ namespace OfficeOpenXml
         internal string GetOffset(int row, int column)
         {
             int fromRow = _fromRow, fromCol = _fromCol, toRow = _toRow, tocol = _toCol;
+            var isMulti = (fromRow != toRow || fromCol != tocol);
             if (!_fromRowFixed)
             {
                 fromRow += row;
@@ -1368,7 +1369,7 @@ namespace OfficeOpenXml
             {
                 fromCol += column;
             }
-            if (fromRow != toRow || fromCol != tocol)
+            if (isMulti)
             {
                 if (!_toRowFixed)
                 {
@@ -1378,6 +1379,11 @@ namespace OfficeOpenXml
                 {
                     tocol += column;
                 }
+            }
+            else
+            {
+                toRow = fromRow;
+                tocol = fromCol;
             }
             string a = GetAddress(fromRow, fromCol, toRow, tocol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             if (Addresses != null)
