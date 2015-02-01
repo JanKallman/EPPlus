@@ -28,6 +28,8 @@
  * ******************************************************************************
  * Jan Källman                      Added                       2012-03-04  
  *******************************************************************************/
+
+using System.Threading;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System;
 using System.Collections.Generic;
@@ -85,9 +87,14 @@ namespace OfficeOpenXml
         {
             Init(worksheet.Workbook);
             //worksheet.Workbook._formulaParser = null; TODO:Cant reset. Don't work with userdefined or overrided worksheet functions            
+            var dc = DependencyChainFactory.Create(worksheet, options);
             var parser = worksheet.Workbook.FormulaParser;
             parser.InitNewCalc();
-            var dc = DependencyChainFactory.Create(worksheet, options);
+            if (parser.Logger != null)
+            {
+                var msg = string.Format("Starting... number of cells to parse: {0}", dc.list.Count);
+                parser.Logger.Log(msg);
+            }
             CalcChain(worksheet.Workbook, parser, dc);
         }
         public static void Calculate(this ExcelRangeBase range)
@@ -144,6 +151,7 @@ namespace OfficeOpenXml
                     {
                         parser.Logger.LogCellCounted();
                     }
+                    Thread.Sleep(0);
                 }
                 catch (FormatException fe)
                 {

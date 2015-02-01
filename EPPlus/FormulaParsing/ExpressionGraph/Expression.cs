@@ -93,6 +93,12 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var result = Operator.Apply(Compile(), Next.Compile());
                 expression = ExpressionConverter.Instance.FromCompileResult(result);
+                if (expression is ExcelErrorExpression)
+                {
+                    expression.Next = null;
+                    expression.Prev = null;
+                    return expression;
+                }
                 if (Next != null)
                 {
                     expression.Operator = Next.Operator;
