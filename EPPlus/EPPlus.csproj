@@ -493,7 +493,6 @@
     <Compile Include="FormulaParsing\Exceptions\CircularReferenceException.cs" />
     <Compile Include="FormulaParsing\Exceptions\ExcelErrorCodes.cs" />
     <Compile Include="FormulaParsing\Exceptions\ExcelErrorValueException.cs" />
-    <Compile Include="FormulaParsing\Exceptions\ExcelFunctionException.cs" />
     <Compile Include="FormulaParsing\Exceptions\UnrecognizedTokenException.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\AtomicExpression.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\BooleanExpression.cs" />

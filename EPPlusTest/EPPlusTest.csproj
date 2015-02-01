@@ -167,6 +167,7 @@
     <Compile Include="FormulaParsing\IntegrationTests\PrecedenceTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\CalcExtensionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\FormulaErrorHandlingTestBase.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\OperatorsTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\NegationTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzerTests.cs" />

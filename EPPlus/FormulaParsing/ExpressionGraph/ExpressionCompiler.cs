@@ -120,7 +120,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var strategy = _compileStrategyFactory.Create(expression);
                 var compiledExpression = strategy.Compile();
-
+                if(compiledExpression is ExcelErrorExpression)
+                {
+                    return RefreshList(compiledExpression);
+                }
                 if (expression == first)
                 {
                     first = compiledExpression;

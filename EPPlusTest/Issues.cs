@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using OfficeOpenXml;
+using OfficeOpenXml.FormulaParsing.Logging;
 using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table;
@@ -477,6 +479,45 @@ namespace EPPlusTest
                         //package.SaveAs(new FileInfo(@"c:\temp\test2.xlsx"));
                     }
                 }
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void Issue15173_1()
+        {
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\EPPlusIssues\Excel01.xlsx")))
+            {
+                var sw = new Stopwatch();
+                //pck.Workbook.FormulaParser.Configure(x => x.AttachLogger(LoggerFactory.CreateTextFileLogger(new FileInfo(@"c:\Temp\log1.txt"))));
+                sw.Start();
+                var ws = pck.Workbook.Worksheets.First();
+                pck.Workbook.Calculate();
+                Assert.AreEqual("20L2300", ws.Cells["F4"].Value);
+                Assert.AreEqual("20K2E01", ws.Cells["F5"].Value);
+                var f7Val = pck.Workbook.Worksheets["MODELLO-TIPO PANNELLO"].Cells["F7"].Value;
+                Assert.AreEqual(13.445419, Math.Round((double) f7Val, 6));
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed.TotalSeconds); // approx. 10 seconds
+
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void Issue15173_2()
+        {
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\EPPlusIssues\Excel02.xlsx")))
+            {
+                var sw = new Stopwatch();
+                pck.Workbook.FormulaParser.Configure(x => x.AttachLogger(LoggerFactory.CreateTextFileLogger(new FileInfo(@"c:\Temp\log1.txt"))));
+                sw.Start();
+                var ws = pck.Workbook.Worksheets.First();
+                //ws.Calculate();
+                pck.Workbook.Calculate();
+                Assert.AreEqual("20L2300", ws.Cells["F4"].Value);
+                Assert.AreEqual("20K2E01", ws.Cells["F5"].Value);
+                sw.Stop();
+                Console.WriteLine(sw.Elapsed.TotalSeconds); // approx. 10 seconds
+
             }
         }
     }
