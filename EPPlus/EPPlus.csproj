@@ -393,6 +393,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Average.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIf.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIfs.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Ceiling.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cos.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Cosh.cs" />

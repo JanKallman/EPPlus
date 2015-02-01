@@ -106,6 +106,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["average"] = new Average();
             Functions["averagea"] = new AverageA();
             Functions["averageif"] = new AverageIf();
+            Functions["averageifs"] = new AverageIfs();
             Functions["round"] = new Round();
             Functions["rounddown"] = new Rounddown();
             Functions["roundup"] = new Roundup();
