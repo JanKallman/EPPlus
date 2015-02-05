@@ -2264,7 +2264,10 @@ namespace OfficeOpenXml
         public void DeleteRow(int rowFrom, int rows)
         {
             CheckSheetType();
-
+            if (rowFrom < 1 || rowFrom + rows > ExcelPackage.MaxRows)
+            {
+                throw(new ArgumentException("Row out of range. Spans from 1 to " + ExcelPackage.MaxRows.ToString(CultureInfo.InvariantCulture)));
+            }
             lock (this)
             {
                 _values.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
@@ -2299,9 +2302,13 @@ namespace OfficeOpenXml
         /// <param name="columns">Number of columns to delete</param>
         public void DeleteColumn(int columnFrom, int columns)
         {
+            if (columnFrom < 1 || columnFrom + columns > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentException("Column out of range. Spans from 1 to " + ExcelPackage.MaxColumns.ToString(CultureInfo.InvariantCulture)));
+            }
             lock (this)
             {
-                ExcelColumn col = _values.GetValue(0, columnFrom) as ExcelColumn;
+                var col = _values.GetValue(0, columnFrom) as ExcelColumn;
                 if (col == null)
                 {
                     var r = 0; 

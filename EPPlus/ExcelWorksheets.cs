@@ -155,9 +155,10 @@ namespace OfficeOpenXml
             Uri uriWorksheet;
             lock (_worksheets)
             {
-                if (GetByName(ValidateFixSheetName(Name)) != null)
+                Name = ValidateFixSheetName(Name);
+                if (GetByName(Name) != null)
                 {
-                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET + " : " + Name));
                 }
                 GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
                 Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
@@ -869,7 +870,7 @@ namespace OfficeOpenXml
             }
 
             //Remove all comments
-            if (worksheet.Comments.Count > 0)
+            if (!(worksheet is ExcelChartsheet) && worksheet.Comments.Count > 0)
             {
                 worksheet.Comments.Clear();
             }

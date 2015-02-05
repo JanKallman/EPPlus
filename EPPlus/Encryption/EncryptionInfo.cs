@@ -48,7 +48,7 @@ namespace OfficeOpenXml.Encryption
             var majorVersion = BitConverter.ToInt16(data, 0);
             var minorVersion = BitConverter.ToInt16(data, 2);
             EncryptionInfo ret;
-            if (minorVersion == 3 && majorVersion<=4)
+            if ((minorVersion == 2 || minorVersion == 3) && majorVersion <= 4) // minorVersion==1 is RC4, not supported.
             {
                 ret = new EncryptionInfoBinary();
             }

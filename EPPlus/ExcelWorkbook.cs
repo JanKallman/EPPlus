@@ -111,6 +111,7 @@ namespace OfficeOpenXml
 			_namespaceManager = namespaceManager;
 			TopNode = WorkbookXml.DocumentElement;
 			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
+		    FullCalcOnLoad = true;  //Full calculation on load by default, for both new workbooks and templates.
 			GetSharedStrings();
 		}
 		#endregion
@@ -681,7 +682,7 @@ namespace OfficeOpenXml
 						return ExcelCalcMode.Manual;
 					default:
 						return ExcelCalcMode.Automatic;
-
+                        
 				}
 			}
 			set
@@ -702,6 +703,23 @@ namespace OfficeOpenXml
 			}
 			#endregion
 		}
+
+        private const string FULL_CALC_ON_LOAD_PATH = "d:calcPr/@fullCalcOnLoad";
+        /// <summary>
+        /// Should Excel do a full calculation after the workbook has been loaded?
+        /// <remarks>This property is always true for both new workbooks and loaded templates(on load). If this is not the wanted behavior set this property to false.</remarks>
+        /// </summary>
+        public bool FullCalcOnLoad
+	    {
+	        get
+	        {
+                return GetXmlNodeBool(FULL_CALC_ON_LOAD_PATH);   
+	        }
+	        set
+	        {
+                SetXmlNodeBool(FULL_CALC_ON_LOAD_PATH, value);
+	        }
+	    }
 		#endregion
 		#region Workbook Private Methods
 			
