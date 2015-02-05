@@ -610,7 +610,15 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                return _worksheet._styles.GetValue(_fromRow, _fromCol);
+                int s=0;
+                if(!_worksheet._styles.Exists(_fromRow, _fromCol, ref s))
+                {
+                    if (!_worksheet._styles.Exists(_fromRow, 0, ref s))
+                    {
+                        s = _worksheet._styles.GetValue(0, _fromCol);
+                    }
+                }
+                return s;
 			}
 			set
 			{
