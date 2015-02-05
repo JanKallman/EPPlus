@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -472,7 +473,7 @@ namespace EPPlusTest
                 {
                     using (var package = new ExcelPackage(outputStream, inputStream, "Test"))
                     {
-                        var ws= package.Workbook.Worksheets.Add("Test empty");
+                        var ws = package.Workbook.Worksheets.Add("Test empty");
                         ws.Cells["A1"].Value = "Test";
                         package.Encryption.Password = "Test2";
                         package.Save();
@@ -520,5 +521,39 @@ namespace EPPlusTest
 
             }
         }
-    }
+        [Ignore]
+        [TestMethod]
+        public void Issue15154()
+        {           
+            Directory.EnumerateFiles(@"c:\temp\bug\ConstructorInvokationNotThreadSafe\").AsParallel().ForAll(file =>
+            {
+                //lock (_lock)
+                //{
+                using (var package = new ExcelPackage(new FileStream(file, FileMode.Open)))
+                {
+                    package.Workbook.Worksheets[1].Cells[1, 1].Value = file;
+                    package.SaveAs(new FileInfo(@"c:\temp\bug\ConstructorInvokationNotThreadSafe\new\"+new FileInfo(file).Name));
+                }
+                //}
+            });
+
+        }
+        [Ignore]
+        [TestMethod]
+        public void Issue15188()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("test");
+                worksheet.Column(6).Style.Numberformat.Format = "mm/dd/yyyy";
+                worksheet.Column(7).Style.Numberformat.Format = "mm/dd/yyyy";
+                worksheet.Column(8).Style.Numberformat.Format = "mm/dd/yyyy";
+                worksheet.Column(10).Style.Numberformat.Format = "mm/dd/yyyy";
+
+                worksheet.Cells[2, 6].Value = DateTime.Today;
+                string a = worksheet.Cells[2,6].Text;
+                Assert.AreEqual(DateTime.Today.ToString("MM/dd/yyyy"), a);
+            }
+        }
+    }    
 }
