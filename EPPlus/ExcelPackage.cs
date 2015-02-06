@@ -1113,6 +1113,7 @@ namespace OfficeOpenXml
             //Clear the workbook so that it gets reinitialized next time
             this._workbook = null;
         }
+        static object _lock=new object();
         /// <summary>
         /// Copies the input stream to the output stream.
         /// </summary>
@@ -1133,16 +1134,19 @@ namespace OfficeOpenXml
                 inputStream.Seek(0, SeekOrigin.Begin);
             }
 
-            const int bufferLength = 8096;
-            var buffer = new Byte[bufferLength];
-            int bytesRead = inputStream.Read(buffer, 0, bufferLength);
-            // write the required bytes
-            while (bytesRead > 0)
-            {
-                outputStream.Write(buffer, 0, bytesRead);
-                bytesRead = inputStream.Read(buffer, 0, bufferLength);
+                const int bufferLength = 8096;
+                var buffer = new Byte[bufferLength];
+                lock (_lock)
+                {
+                    int bytesRead = inputStream.Read(buffer, 0, bufferLength);
+                    // write the required bytes
+                    while (bytesRead > 0)
+                    {
+                        outputStream.Write(buffer, 0, bytesRead);
+                        bytesRead = inputStream.Read(buffer, 0, bufferLength);
+                    }
+                    outputStream.Flush();
             }
-            outputStream.Flush();
         }
     }
 }
