@@ -63,7 +63,9 @@ namespace OfficeOpenXml.VBA
             {
                 Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _pck.GetPart(Uri);
+#if !MONO
                 GetProject();                
+#endif
             }
             else
             {
@@ -152,6 +154,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         #endregion
+#if !MONO
         #region Read Project
         private void GetProject()
         {
@@ -160,8 +163,8 @@ namespace OfficeOpenXml.VBA
             byte[] vba;
             vba = new byte[stream.Length];
             stream.Read(vba, 0, (int)stream.Length);
-
             Document = new CompoundDocument(vba);
+
             ReadDirStream();
             ProjectStreamText = Encoding.GetEncoding(CodePage).GetString(Document.Storage.DataStreams["PROJECT"]);
             ReadModules();
@@ -551,6 +554,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         #endregion
+
         #region Save Project
         internal void Save()
         {
@@ -1014,8 +1018,10 @@ namespace OfficeOpenXml.VBA
             return sUC.Length == 0 ? s : sUC;
         }
         internal CompoundDocument Document { get; set; }
+#endif
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
+#if !MONO
         /// <summary>
         /// Create a new VBA Project
         /// </summary>
@@ -1049,7 +1055,6 @@ namespace OfficeOpenXml.VBA
         internal string GetModuleNameFromWorksheet(ExcelWorksheet sheet)
         {
             var name = sheet.Name;
-
             if (name.Any(c => c > 255) || this.Modules[name] != null)
             {
                 int i = sheet.PositionID;
@@ -1075,6 +1080,8 @@ namespace OfficeOpenXml.VBA
 
             return attr;
         }
+
+
         //internal string GetBlankDocumentModule(string name, string clsid)
         //{
         //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
@@ -1103,6 +1110,7 @@ namespace OfficeOpenXml.VBA
         //    ret += "Attribute VB_Customizable = False\r\n";
         //    return ret;
         //}
+#endif
         /// <summary>
         /// Remove the project from the package
         /// </summary>

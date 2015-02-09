@@ -42,11 +42,13 @@ using comTypes = System.Runtime.InteropServices.ComTypes;
 
 namespace OfficeOpenXml.Encryption
 {
+
     /// <summary>
     /// Handels encrypted Excel documents 
     /// </summary>
     internal class EncryptedPackageHandler
     {
+#if !MONO
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -891,6 +893,7 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
+
         /// <summary>
         /// Create the hash.
         /// This method is written with the help of Lyquidity library, many thanks for this nice sample
@@ -914,8 +917,8 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-
-        private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
+#endif
+			private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

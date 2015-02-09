@@ -183,6 +183,7 @@ namespace OfficeOpenXml
                 }
 
                 _worksheets.Add(positionID, worksheet);
+#if !MONO
                 if (_pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
@@ -190,6 +191,7 @@ namespace OfficeOpenXml
                     worksheet.CodeModuleName = name;
 
                 }
+#endif
                 return worksheet;
             }
         }
@@ -265,12 +267,14 @@ namespace OfficeOpenXml
                 CloneCells(Copy, added);
 
                 //Copy the VBA code
+#if !MONO
                 if (_pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(added);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(added.CodeNameChange) { Name = name, Code = Copy.CodeModule.Code, Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                     Copy.CodeModuleName = name;
                 }
+#endif
 
                 _worksheets.Add(_worksheets.Count + 1, added);
 

@@ -432,11 +432,13 @@ namespace OfficeOpenXml
                 return _vba;
             }
         }
+
         /// <summary>
         /// Create an empty VBA project.
         /// </summary>
         public void CreateVBAProject()
         {
+#if !MONO
             if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 throw (new InvalidOperationException("VBA project already exists."));
@@ -444,7 +446,11 @@ namespace OfficeOpenXml
                         
             _vba = new ExcelVbaProject(this);
             _vba.Create();
-        }
+#endif
+#if MONO
+            throw new NotSupportedException("Creating a VBA project is not supported under Mono.");
+#endif
+				}
 		/// <summary>
 		/// URI to the workbook inside the package
 		/// </summary>
@@ -791,7 +797,9 @@ namespace OfficeOpenXml
             //VBA
             if (_vba!=null)
             {
+#if !MONO
                 VbaProject.Save();
+#endif
             }
 
 		}

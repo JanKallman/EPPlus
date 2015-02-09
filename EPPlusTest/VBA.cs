@@ -15,6 +15,7 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
+#if !MONO
         [TestMethod]
         public void Compression()
         {
@@ -31,6 +32,7 @@ namespace EPPlusTest
             decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
         }
+#endif
         [Ignore]
         [TestMethod]
         public void ReadVBA()
