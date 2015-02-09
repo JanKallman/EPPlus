@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.Utils;
@@ -135,7 +136,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 throw new FormatException("Multiple addresses may not be commaseparated, use space instead");
             }
-            address = address.ToUpper();
+            address = address.ToUpper(CultureInfo.InvariantCulture);
             if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
             {
                 address = AddressUtility.ParseEntireColumnSelections(address);

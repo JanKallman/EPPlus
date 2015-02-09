@@ -59,7 +59,7 @@ namespace OfficeOpenXml.ConditionalFormatting
           ExcelConditionalFormattingConstants.Errors.CommaSeparatedAddresses);
       }
 
-      address = address.ToUpper();
+      address = address.ToUpper(CultureInfo.InvariantCulture);
 
       if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
       {
@@ -171,7 +171,7 @@ namespace OfficeOpenXml.ConditionalFormatting
       try
       {
         var value = node.Attributes[attribute].Value;
-        return (value == "1" || value == "-1" || value.ToUpper() == "TRUE");
+        return (value == "1" || value == "-1" || value.Equals("TRUE", StringComparison.InvariantCultureIgnoreCase));
       }
       catch
       {
@@ -198,7 +198,7 @@ namespace OfficeOpenXml.ConditionalFormatting
           else
           {
               var value = node.Attributes[attribute].Value;
-              return (value == "1" || value == "-1" || value.ToUpper() == "TRUE");
+              return (value == "1" || value == "-1" || value.Equals("TRUE",StringComparison.InvariantCultureIgnoreCase));
           }
       }
       catch

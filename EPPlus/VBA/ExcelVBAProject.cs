@@ -20,6 +20,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -389,7 +390,7 @@ namespace OfficeOpenXml.VBA
                     ret += value[i].ToString("x");
                 }
             }
-            return ret.ToUpper();
+            return ret.ToUpper(CultureInfo.InvariantCulture);
         }
         private byte[] GetByte(string value)
         {

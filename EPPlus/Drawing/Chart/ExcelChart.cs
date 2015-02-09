@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.IO;
@@ -1381,7 +1382,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                _chartSeries.SetXmlNodeString(_displayBlanksAsPath, value.ToString().ToLower());
+                _chartSeries.SetXmlNodeString(_displayBlanksAsPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string _showDLblsOverMax = "../../c:showDLblsOverMax/@val";

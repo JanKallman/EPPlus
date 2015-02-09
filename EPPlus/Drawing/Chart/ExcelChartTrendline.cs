@@ -121,7 +121,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
            get
            {
-               switch (GetXmlNodeString(TRENDLINEPATH).ToLower())
+               switch (GetXmlNodeString(TRENDLINEPATH).ToLower(CultureInfo.InvariantCulture))
                {
                    case "exp":
                        return eTrendLine.Exponential;

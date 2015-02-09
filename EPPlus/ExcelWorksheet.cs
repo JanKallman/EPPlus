@@ -557,7 +557,7 @@ namespace OfficeOpenXml
                     {
                         string v;
                         v=value.ToString();                        
-                        v=v.Substring(0,1).ToLower()+v.Substring(1);
+                        v=v.Substring(0,1).ToLower(CultureInfo.InvariantCulture)+v.Substring(1);
                         _package.Workbook.SetXmlNodeString(string.Format("d:sheets/d:sheet[@sheetId={0}]/@state", _sheetID),v );
                     }
 		    }
@@ -1408,7 +1408,7 @@ namespace OfficeOpenXml
 
         private object GetErrorType(string v)
         {
-            return ExcelErrorValue.Parse(v.ToUpper());
+            return ExcelErrorValue.Parse(v.ToUpper(CultureInfo.InvariantCulture));
             //switch(v.ToUpper())
             //{
             //    case "#DIV/0!":
@@ -2925,7 +2925,7 @@ namespace OfficeOpenXml
                     var colVal = new HashSet<string>();
                     foreach (var col in tbl.Columns)
                     {                        
-                        var n=col.Name.ToLower();
+                        var n=col.Name.ToLower(CultureInfo.InvariantCulture);
                         if(colVal.Contains(n))
                         {
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));

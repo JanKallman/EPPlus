@@ -32,6 +32,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Drawing.Chart;
@@ -257,7 +258,7 @@ namespace OfficeOpenXml.Drawing
             set
             {
                 string s=value.ToString();
-                SetXmlNodeString("@editAs", s.Substring(0,1).ToLower()+s.Substring(1,s.Length-1));
+                SetXmlNodeString("@editAs", s.Substring(0,1).ToLower(CultureInfo.InvariantCulture)+s.Substring(1,s.Length-1));
             }
         }
         const string lockedPath="xdr:clientData/@fLocksWithSheet";
