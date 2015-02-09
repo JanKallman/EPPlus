@@ -288,7 +288,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                 {
                     throw(new ArgumentException("Value type can't be Min or Max for icon sets"));
                 }
-                SetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute, value.ToString().ToLower());                
+                SetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute, value.ToString().ToLower(CultureInfo.InvariantCulture));                
 			}
 		}
 

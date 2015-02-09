@@ -475,7 +475,7 @@ namespace OfficeOpenXml
             if (value is bool)
             {
                 valueElem = CustomPropertiesXml.CreateElement("vt", "bool", ExcelPackage.schemaVt);
-                valueElem.InnerText = value.ToString().ToLower();
+                valueElem.InnerText = value.ToString().ToLower(CultureInfo.InvariantCulture);
             }
             else if (value is DateTime)
             {

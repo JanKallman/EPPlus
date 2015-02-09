@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -57,7 +58,7 @@ namespace OfficeOpenXml.Style.Dxf
         private ExcelBorderStyle GetBorderStyleEnum(string style)
         {
             if (style == "") return ExcelBorderStyle.None;
-            string sInStyle = style.Substring(0, 1).ToUpper() + style.Substring(1, style.Length - 1);
+            string sInStyle = style.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + style.Substring(1, style.Length - 1);
             try
             {
                 return (ExcelBorderStyle)Enum.Parse(typeof(ExcelBorderStyle), sInStyle);
@@ -71,7 +72,7 @@ namespace OfficeOpenXml.Style.Dxf
         private ExcelFillStyle GetPatternTypeEnum(string patternType)
         {
             if (patternType == "") return ExcelFillStyle.None;
-            patternType = patternType.Substring(0, 1).ToUpper() + patternType.Substring(1, patternType.Length - 1);
+            patternType = patternType.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + patternType.Substring(1, patternType.Length - 1);
             try
             {
                 return (ExcelFillStyle)Enum.Parse(typeof(ExcelFillStyle), patternType);
@@ -100,7 +101,7 @@ namespace OfficeOpenXml.Style.Dxf
         }
         private ExcelUnderLineType? GetUnderLineEnum(string value)
         {
-            switch(value.ToLower())
+            switch(value.ToLower(CultureInfo.InvariantCulture))
             {
                 case "single":
                     return ExcelUnderLineType.Single;

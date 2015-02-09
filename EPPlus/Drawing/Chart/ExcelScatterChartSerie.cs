@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -118,7 +119,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                SetXmlNodeString(markerPath, value.ToString().ToLower());
+                SetXmlNodeString(markerPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
     }

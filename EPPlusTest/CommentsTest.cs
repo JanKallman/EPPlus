@@ -9,6 +9,7 @@ namespace EPPlusTest
     [TestClass]
     public class CommentsTest
     {
+        [Ignore]
         [TestMethod]
         public void ReadExcelComments()
         {
@@ -19,7 +20,7 @@ namespace EPPlusTest
                 Assert.AreEqual(2, sheet1.Comments.Count);
             }
         }
-
+        [Ignore]
         [TestMethod]
         public void ReadGoogleComments()
         {

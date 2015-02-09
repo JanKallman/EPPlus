@@ -590,7 +590,7 @@ namespace OfficeOpenXml
                 {
                     if(s.IndexOf("[")<0)
                     {
-                        switch(s.ToLower())                
+                        switch(s.ToLower(CultureInfo.InvariantCulture))                
                         {
                             case "#all":
                                 _table.IsAll = true;

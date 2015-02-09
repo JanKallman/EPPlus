@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
@@ -213,7 +214,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
-            string check = part.ToUpper();
+            string check = part.ToUpper(CultureInfo.InvariantCulture);
 
             int rStart = check.IndexOf("R");
             if (rStart != 0)
@@ -413,7 +414,7 @@ namespace OfficeOpenXml
                 return false;
             }
 
-            CellAddress = CellAddress.ToUpper();
+            CellAddress = CellAddress.ToUpper(CultureInfo.InvariantCulture);
             //This one can be removed when the worksheet Select format is fixed
             if (CellAddress.IndexOf(' ') > 0)
             {
@@ -503,7 +504,7 @@ namespace OfficeOpenXml
                 address = address.Substring(sheetMarkerIndex + 1);
             }
 
-            address = address.ToUpper();
+            address = address.ToUpper(CultureInfo.InvariantCulture);
             for (int i = 0; i < address.Length; i++)
             {
                 if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)
@@ -746,7 +747,7 @@ namespace OfficeOpenXml
         #region IsValidCellAddress
         public static bool IsValidAddress(string address)
         {
-            address = address.ToUpper();
+            address = address.ToUpper(CultureInfo.InvariantCulture);
             string r1 = "", c1 = "", r2 = "", c2 = "";
             bool isSecond = false;
             for (int i = 0; i < address.Length; i++)

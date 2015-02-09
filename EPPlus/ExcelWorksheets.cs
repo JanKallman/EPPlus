@@ -1021,7 +1021,7 @@ namespace OfficeOpenXml
             ExcelWorksheet xlWorksheet = null;
             foreach (ExcelWorksheet worksheet in _worksheets.Values)
             {
-                if (worksheet.Name.ToLower() == Name.ToLower())
+                if (worksheet.Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase))
                     xlWorksheet = worksheet;
             }
             return (xlWorksheet);

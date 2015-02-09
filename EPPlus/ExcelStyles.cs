@@ -660,7 +660,7 @@ namespace OfficeOpenXml
             }
             foreach (ExcelNamedStyleXml style in NamedStyles)
             {
-                if (style.Name.ToLower() != "normal")
+                if (!style.Name.Equals("normal", StringComparison.InvariantCultureIgnoreCase))
                 {
                     AddNamedStyle(count++, styleXfsNode, cellXfsNode, style);
                 }

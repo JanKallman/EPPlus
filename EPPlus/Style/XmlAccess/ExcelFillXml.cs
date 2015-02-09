@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
@@ -58,7 +59,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private ExcelFillStyle GetPatternType(string patternType)
         {
             if (patternType == "") return ExcelFillStyle.None;
-            patternType = patternType.Substring(0, 1).ToUpper() + patternType.Substring(1, patternType.Length - 1);
+            patternType = patternType.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + patternType.Substring(1, patternType.Length - 1);
             try
             {
                 return (ExcelFillStyle)Enum.Parse(typeof(ExcelFillStyle), patternType);
@@ -167,7 +168,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private string SetPatternString(ExcelFillStyle pattern)
         {
             string newName = Enum.GetName(typeof(ExcelFillStyle), pattern);
-            return newName.Substring(0, 1).ToLower() + newName.Substring(1, newName.Length - 1);
+            return newName.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + newName.Substring(1, newName.Length - 1);
         }
     }
 }

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
@@ -311,7 +312,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 var v=_underlineType.ToString();
-                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower() + v.Substring(1));
+                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1));
             }
 
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Drawing;
@@ -260,7 +261,7 @@ namespace OfficeOpenXml.Style
                     return "dbl";
                 default:
                     string ret = value.ToString();
-                    return ret.Substring(0, 1).ToLower() + ret.Substring(1, ret.Length - 1);
+                    return ret.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + ret.Substring(1, ret.Length - 1);
             }
         }
         private eStrikeType TranslateStrike(string text)
