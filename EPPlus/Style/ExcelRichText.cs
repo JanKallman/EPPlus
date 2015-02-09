@@ -49,8 +49,6 @@ namespace OfficeOpenXml.Style
             base(ns, topNode)
         {
             SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
-            PreserveSpace = false;
-
         }
         internal delegate void CallbackDelegate();
         CallbackDelegate _callback;
@@ -71,9 +69,9 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-				// Don't remove if blank -- setting a blank rich text value on a node is common,
-				// for example when applying both bold and italic to text.
-				SetXmlNodeString(TEXT_PATH, value, false);
+                // Don't remove if blank -- setting a blank rich text value on a node is common,
+                // for example when applying both bold and italic to text.
+                SetXmlNodeString(TEXT_PATH, value, false);
                 if (PreserveSpace)
                 {
                     XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
