@@ -303,7 +303,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void VLookupShouldHandleNames()
         {
             using (var package = new ExcelPackage(new FileInfo(@"c:\temp\Book3.xlsx")))

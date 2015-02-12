@@ -639,10 +639,10 @@ namespace EPPlusTest
             var ints = new int[] {1,3,4,76,2,5};
             ws.Cells["A15"].Value = ints;
         }
-        [Ignore]
         [TestMethod]
         public void LoadFromEmptyCollectionTest()
         {
+            if (_pck == null) _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("LoadFromEmpyCollection");
             List<TestDTO> listDTO = new List<TestDTO>(0);
             //List<int> list = new List<int>(0);
@@ -652,6 +652,19 @@ namespace EPPlusTest
 
             ws.Cells["A10"].LoadFromCollection(listDTO, true, OfficeOpenXml.Table.TableStyles.Light1, BindingFlags.Instance | BindingFlags.Instance, new MemberInfo[] { typeof(TestDTO).GetMethod("GetNameID"), typeof(TestDTO).GetField("NameVar") });
             ws.Cells["A15"].LoadFromCollection(from l in listDTO where l.Boolean orderby l.Date select new { Name = l.Name, Id = l.Id, Date = l.Date, NameVariable = l.NameVar }, true, OfficeOpenXml.Table.TableStyles.Dark4);
+        }
+        [TestMethod]
+        public void LoadFromOneCollectionTest()
+        {
+            if (_pck == null) _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("LoadFromEmpyCollection");
+            List<TestDTO> listDTO = new List<TestDTO>(0){new TestDTO(){Name = "Single"}};
+            //List<int> list = new List<int>(0);
+
+            var r=ws.Cells["A1"].LoadFromCollection(listDTO, true);
+            Assert.AreEqual(2,r.Rows);
+            var r2=ws.Cells["A5"].LoadFromCollection(listDTO, false);
+            Assert.AreEqual(1, r2.Rows);
         }
         static void Create(string file)
         {
@@ -808,7 +821,7 @@ namespace EPPlusTest
 
             //ws.Cells["B2:I2"].Formula = "";   //Error
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void FormulaArray()
         {
             _pck = new ExcelPackage();
@@ -1117,10 +1130,11 @@ namespace EPPlusTest
             }
         }
 
-        [Ignore]
-        [TestMethod]
+        
+        [TestMethod, Ignore]
         public void LoadDataTable()
         {
+            if (_pck == null) _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("Loaded DataTable");
 
             var dt = new DataTable();
@@ -1130,28 +1144,33 @@ namespace EPPlusTest
             dt.Columns.Add("Double", typeof(double));
 
 
-            var dr=dt.NewRow();
+            var dr = dt.NewRow();
             dr[0] = "Row1";
             dr[1] = 1;
             dr[2] = true;
             dr[3] = 1.5;
             dt.Rows.Add(dr);
 
-            //dr = dt.NewRow();
-            //dr[0] = "Row2";
-            //dr[1] = 2;
-            //dr[2] = false;
-            //dr[3] = 2.25;
-            //dt.Rows.Add(dr);
+            dr = dt.NewRow();
+            dr[0] = "Row2";
+            dr[1] = 2;
+            dr[2] = false;
+            dr[3] = 2.25;
+            dt.Rows.Add(dr);
 
-            //dr = dt.NewRow();
-            //dr[0] = "Row3";
-            //dr[1] = 3;
-            //dr[2] = true;
-            //dr[3] = 3.125;
-            //dt.Rows.Add(dr);
+            dr = dt.NewRow();
+            dr[0] = "Row3";
+            dr[1] = 3;
+            dr[2] = true;
+            dr[3] = 3.125;
+            dt.Rows.Add(dr);
 
             ws.Cells["A1"].LoadFromDataTable(dt,true,OfficeOpenXml.Table.TableStyles.Medium5);
+
+            //worksheet.Cells[startRow, 7, worksheet.Dimension.End.Row, 7].FormulaR1C1 = "=IF(RC[-2]=0,0,RC[-1]/RC[-2])";
+
+            ws.Tables[0].Columns[1].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
+            ws.Tables[0].ShowTotal = true;
         }
         [Ignore]
         [TestMethod]
@@ -1795,21 +1814,21 @@ namespace EPPlusTest
            ws.Cells["H1"].Style.TextRotation = 180;
            ws.Cells["A1:H1"].AutoFitColumns(0);
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void Moveissue()
         {
             _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDelete.xlsx"));
             _pck.Workbook.Worksheets[1].DeleteRow(2,4);
             _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void DelCol()
         {
             _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
             _pck.Workbook.Worksheets[1].DeleteColumn(5, 1);
             _pck.SaveAs(new FileInfo(@"c:\temp\move.xlsx"));
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void InsCol()
         {
             _pck = new ExcelPackage(new FileInfo(@"C:\temp\bug\FormulaIssue\PreDeleteCol.xlsx"));
@@ -2002,7 +2021,7 @@ namespace EPPlusTest
             Assert.AreEqual(dateTest1, w3.Cells[1, 1].Value);
             Assert.AreEqual(dateTest2,w3.Cells[2, 1].Value);
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void SaveToStream()
         {
             var stream = new MemoryStream(File.ReadAllBytes(@"c:\temp\book1.xlsx"));
@@ -2011,7 +2030,7 @@ namespace EPPlusTest
             excelPackage.Save();
             var s=stream.ToArray();
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void ColumnsTest()
         {
             var excelPackage = new ExcelPackage();

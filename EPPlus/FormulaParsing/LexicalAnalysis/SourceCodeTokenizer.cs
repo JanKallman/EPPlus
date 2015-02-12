@@ -173,7 +173,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 context.AddToken(CreateToken(context, worksheet));
             }
 
-            CleanupTokens(context);
+            CleanupTokens(context, _tokenProvider.Tokens);
 
             return context.Result;
         }
@@ -184,7 +184,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         }
 
 
-        private static void CleanupTokens(TokenizerContext context)
+        private static void CleanupTokens(TokenizerContext context, IDictionary<string, Token>  tokens)
         {
             for (int i = 0; i < context.Result.Count; i++)
             {
@@ -215,7 +215,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         if (context.Result[i - 1].TokenType  == TokenType.OpeningParenthesis)
                         {
                             context.Result.RemoveAt(i);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                             continue;
                         }
@@ -228,14 +228,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         {
                             //Remove first
                             context.Result.RemoveAt(i);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                         }
                         else if (token.Value == "-" && nextToken.Value == "+")
                         {
                             //Remove second
                             context.Result.RemoveAt(i+1);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                         }
                         else if (token.Value == "-" && nextToken.Value == "-")
@@ -249,9 +249,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             }
                             else
                             {
-                                context.Result[i].TokenType = TokenType.Operator;
-                                context.Result[i].Value = "+";
-                                SetNegatorOperator(context, i);
+                                //context.Result[i].TokenType = TokenType.Operator;
+                                //context.Result[i].Value = "+";
+                                context.Result[i] = tokens["+"];
+                                SetNegatorOperator(context, i, tokens);
                                 i--;
                             }
                         }
@@ -260,17 +261,17 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
         }
 
-        private static void SetNegatorOperator(TokenizerContext context, int i)
+        private static void SetNegatorOperator(TokenizerContext context, int i, IDictionary<string, Token>  tokens)
         {
             if (context.Result[i].Value == "-" && i > 0 && (context.Result[i].TokenType == TokenType.Operator || context.Result[i].TokenType == TokenType.Negator))
             {
                 if (TokenIsNegator(context.Result[i - 1]))
                 {
-                    context.Result[i].TokenType = TokenType.Negator;
+                    context.Result[i] = new Token("-", TokenType.Negator);
                 }
                 else
                 {
-                    context.Result[i].TokenType = TokenType.Operator;
+                    context.Result[i] = tokens["-"];
                 }
             }
         }

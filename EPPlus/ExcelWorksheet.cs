@@ -807,7 +807,8 @@ namespace OfficeOpenXml
             LoadColumns(xr);    //columnXml
             long start = stream.Position;
             LoadCells(xr);
-            long end = stream.Position;
+            var nextElementLength = GetAttributeLength(xr);
+            long end = stream.Position - nextElementLength;
             LoadMergeCells(xr);
             LoadHyperLinks(xr);
             LoadRowPageBreakes(xr);
@@ -825,6 +826,24 @@ namespace OfficeOpenXml
 
             _package.DoAdjustDrawings = doAdjust;
             ClearNodes();
+        }
+        /// <summary>
+        /// Get the lenth of the attributes
+        /// Conditional formatting attributes can be extremly long som get length of the attributes to finetune position.
+        /// </summary>
+        /// <param name="xr"></param>
+        /// <returns></returns>
+        private int GetAttributeLength(XmlTextReader xr)
+        {
+            if (xr.NodeType != XmlNodeType.Element) return 0;
+            var length = 0;
+            
+            for (int i = 0; i < xr.AttributeCount; i++)
+            {
+                var a=xr.GetAttribute(i);
+                length += string.IsNullOrEmpty(a) ? 0 : a.Length;
+            }
+            return length;
         }
         private void LoadRowPageBreakes(XmlTextReader xr)
         {
@@ -930,17 +949,25 @@ namespace OfficeOpenXml
                 {
                     if (sr.Peek() != -1)
                     {
-                        if (end - BLOCKSIZE > 0)
+                        /**** Fixes issue 14788. Fix by Philip Garrett ****/
+                        long endSeekStart = end;
+
+                        while (endSeekStart >= 0)
                         {
-                            long endSeekStart = end - BLOCKSIZE - 4096 < 0 ? 0 : (end - BLOCKSIZE - 4096);
+                            endSeekStart = Math.Max(endSeekStart - BLOCKSIZE, 0);
+                            int size = (int)(end - endSeekStart);
                             stream.Seek(endSeekStart, SeekOrigin.Begin);
-                            int size = (int)(stream.Length-endSeekStart);
                             block = new char[size];
                             sr = new StreamReader(stream);
                             pos = sr.ReadBlock(block, 0, size);
                             sb = new StringBuilder();
                             sb.Append(block, 0, pos);
                             s = sb.ToString();
+                            endMatch = Regex.Match(s, string.Format("(</[^>]*{0}[^>]*>)", "sheetData"));
+                            if (endMatch.Success)
+                            {
+                                break;
+                            }
                         }
                     }
                     endMatch = Regex.Match(s, string.Format("(</[^>]*{0}[^>]*>)", "sheetData"));
@@ -1313,10 +1340,7 @@ namespace OfficeOpenXml
             sw.Write("<mergeCells>");
             foreach (string address in _mergedCells)
             {
-                if (!string.IsNullOrEmpty(address))
-                {
-                    sw.Write("<mergeCell ref=\"{0}\" />", address);
-                }
+                sw.Write("<mergeCell ref=\"{0}\" />", address);
             }
             sw.Write("</mergeCells>");
         }
@@ -1633,7 +1657,7 @@ namespace OfficeOpenXml
         internal ExcelColumn CopyColumn(ExcelColumn c, int col, int maxCol)
         {
             ExcelColumn newC = new ExcelColumn(this, col);
-            newC.ColumnMax = maxCol;
+            newC.ColumnMax = maxCol < ExcelPackage.MaxColumns ? maxCol : ExcelPackage.MaxColumns;
             if (c.StyleName != "")
                 newC.StyleName = c.StyleName;
             else
@@ -1891,8 +1915,23 @@ namespace OfficeOpenXml
                     var c = lst[i];
                     if (c._columnMin >= columnFrom)
                     {
-                        c._columnMin += columns;
-                        c._columnMax += columns;
+                        if (c._columnMin + columns <= ExcelPackage.MaxColumns)
+                        {
+                            c._columnMin += columns;
+                        }
+                        else
+                        {
+                            c._columnMin = ExcelPackage.MaxColumns;
+                        }
+                        
+                        if (c._columnMax + columns <= ExcelPackage.MaxColumns)
+                        {
+                            c._columnMax += columns;
+                        }
+                        else
+                        {
+                            c._columnMax = ExcelPackage.MaxColumns;
+                        }
                     }
                     else if (c._columnMax >= columnFrom)
                     {
@@ -2350,10 +2389,10 @@ namespace OfficeOpenXml
 
                 foreach (var tbl in Tables)
                 {
-                    if (columnFrom > tbl.Address.Start.Column && columnFrom <= tbl.Address.End.Column)
+                    if (columnFrom >= tbl.Address.Start.Column && columnFrom <= tbl.Address.End.Column)
                     {
                         var node = tbl.Columns[0].TopNode.ParentNode;
-                        var ix = columnFrom - tbl.Address.Start.Column + 1;
+                        var ix = columnFrom - tbl.Address.Start.Column;
                         for (int i = 0; i < columns; i++)
                         {
                             if (node.ChildNodes.Count > ix)
@@ -2394,7 +2433,7 @@ namespace OfficeOpenXml
                 _sharedFormulas.Remove(ix);
             }
             delSF = null;
-            var cse = new CellsStoreEnumerator<object>(_formulas, rowFrom, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            var cse = new CellsStoreEnumerator<object>(_formulas, 1, 1, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             while (cse.Next())
             {
                 if (cse.Value is string)
@@ -2420,7 +2459,7 @@ namespace OfficeOpenXml
                     if (sf.StartCol > columnFrom)
                     {
                         var c = Math.Min(sf.StartCol - columnFrom, columns);
-                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, columnFrom);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, 1);
                         sf.StartCol-= c;
                     }
 
@@ -2437,7 +2476,7 @@ namespace OfficeOpenXml
                 _sharedFormulas.Remove(ix);
             }
             delSF = null;
-            var cse = new CellsStoreEnumerator<object>(_formulas, 1, columnFrom,  ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            var cse = new CellsStoreEnumerator<object>(_formulas, 1, 1,  ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
             while (cse.Next())
             {
                 if (cse.Value is string)
@@ -3125,6 +3164,7 @@ namespace OfficeOpenXml
                 GetBlockPos(xml, "mergeCells", ref mergeStart, ref mergeEnd);
                 sw.Write(xml.Substring(cellEnd, mergeStart - cellEnd));
 
+                CleanupMergedCells(_mergedCells);
                 if (_mergedCells.Count > 0)
                 {
                     UpdateMergedCells(sw);
@@ -3157,6 +3197,22 @@ namespace OfficeOpenXml
             }
             sw.Flush();
             //sw.Close();
+        }
+
+        private void CleanupMergedCells(MergeCellsCollection _mergedCells)
+        {
+            int i=0;
+            while (i < _mergedCells.List.Count)
+            {
+                if (_mergedCells[i] == null)
+                {
+                    _mergedCells.List.RemoveAt(i);
+                }
+                else
+                {
+                    i++;
+                }
+            }
         }
         private void UpdateColBreaks(StreamWriter sw)
         {
