@@ -31,7 +31,7 @@ namespace EPPlusTest
                 Directory.CreateDirectory(@"c:\Temp\bug");
             }
         }
-        [TestMethod]
+        [TestMethod,Ignore]
         public void Issue15052()
         {
             var p = new ExcelPackage();
@@ -553,6 +553,77 @@ namespace EPPlusTest
                 worksheet.Cells[2, 6].Value = DateTime.Today;
                 string a = worksheet.Cells[2,6].Text;
                 Assert.AreEqual(DateTime.Today.ToString("MM/dd/yyyy"), a);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15194()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\bug\i15194-Save.xlsx"), new FileInfo(@"c:\temp\bug\I15194.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                var worksheet = workBook.Worksheets[1];
+
+                worksheet.Cells["E3:F3"].Merge = false;
+
+                worksheet.DeleteRow(2, 6);
+
+                package.Save();
+            }            
+        }
+        [TestMethod, Ignore]
+        public void Issue15195()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\bug\i15195_Save.xlsx"), new FileInfo(@"c:\temp\bug\i15195.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                var worksheet = workBook.Worksheets[1];
+
+                worksheet.InsertColumn(8, 2);
+
+                package.Save();
+            }
+        }
+        [TestMethod,Ignore]
+        public void Issue14788()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\bug\i15195_Save.xlsx"), new FileInfo(@"c:\temp\bug\GetWorkSheetXmlBad.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                var worksheet = workBook.Worksheets[1];
+
+                worksheet.InsertColumn(8, 2);
+
+                package.Save();
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15167()
+        {
+            FileInfo fileInfo = new FileInfo(@"c:\temp\bug\Draw\input.xlsx");
+
+            ExcelPackage excelPackage = new ExcelPackage(fileInfo);
+            {
+                string sheetName = "Board pack";
+
+                ExcelWorksheet ws = excelPackage.Workbook.Worksheets[sheetName];
+                excelPackage.Workbook.Worksheets.Delete(ws);
+
+                ws = excelPackage.Workbook.Worksheets.Add(sheetName);
+
+                excelPackage.SaveAs(new FileInfo(@"c:\temp\bug\output.xlsx"));
+            }            
+        }
+        [TestMethod, Ignore]
+        public void Issue15198()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\bug\Output.xlsx"), new FileInfo(@"c:\temp\bug\demo.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                var worksheet = workBook.Worksheets[1];
+
+                worksheet.DeleteRow(12);
+
+                package.Save();
             }
         }
     }    

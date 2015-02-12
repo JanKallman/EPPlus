@@ -32,6 +32,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml;
 using System.IO;
@@ -878,17 +879,12 @@ namespace OfficeOpenXml
             {
                 worksheet.Comments.Clear();
             }
-            
-            
-            /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
-             var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
-             if (_pck.Package.PartExists(_uriDrawing))
-             {
-                 _pck.Package.DeletePart(_uriDrawing);
-             }
+                        
+		    //Delete any parts still with relations to the Worksheet.
+            DeleteRelationsAndParts(worksheet.Part);
+
 
             //Delete the worksheet part and relation from the package 
-			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
             //Delete worksheet from the workbook XML
@@ -917,6 +913,18 @@ namespace OfficeOpenXml
                 _pck.Workbook.Worksheets[1].View.TabSelected = true;
             }
             worksheet = null;
+        }
+
+        private void DeleteRelationsAndParts(Packaging.ZipPackagePart part)
+        {
+            var rels = part.GetRelationships().ToList();
+            for(int i=0;i<rels.Count;i++)
+            {
+                var rel = rels[i];
+                DeleteRelationsAndParts(_pck.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri)));
+                part.DeleteRelationship(rel.Id);
+            }            
+            _pck.Package.DeletePart(part.Uri);
         }
 
 		/// <summary>

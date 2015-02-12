@@ -223,7 +223,7 @@ namespace EPPlusTest
 
             ws.Calculate();
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();

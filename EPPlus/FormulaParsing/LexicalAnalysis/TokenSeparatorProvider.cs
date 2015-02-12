@@ -55,30 +55,33 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         private static void Init()
         {
-            _tokens.Clear();
-            _tokens.Add("+", new Token("+", TokenType.Operator));
-            _tokens.Add("-", new Token("-", TokenType.Operator));
-            _tokens.Add("*", new Token("*", TokenType.Operator));
-            _tokens.Add("/", new Token("/", TokenType.Operator));
-            _tokens.Add("^", new Token("^", TokenType.Operator));
-            _tokens.Add("&", new Token("&", TokenType.Operator));
-            _tokens.Add(">", new Token(">", TokenType.Operator));
-            _tokens.Add("<", new Token("<", TokenType.Operator));
-            _tokens.Add("=", new Token("=", TokenType.Operator));
-            _tokens.Add("<=", new Token("<=", TokenType.Operator));
-            _tokens.Add(">=", new Token(">=", TokenType.Operator));
-            _tokens.Add("<>", new Token("<>", TokenType.Operator));
-            _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
-            _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
-            _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
-            _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
-            _tokens.Add("'", new Token("'", TokenType.String));
-            _tokens.Add("\"", new Token("\"", TokenType.String));
-            _tokens.Add(",", new Token(",", TokenType.Comma));
-            _tokens.Add(";", new Token(";", TokenType.SemiColon));
-            _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
-            _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
-            _tokens.Add("%", new Token("%", TokenType.Percent));
+            lock (_tokens)
+            {
+                _tokens.Clear();
+                _tokens.Add("+", new Token("+", TokenType.Operator));
+                _tokens.Add("-", new Token("-", TokenType.Operator));
+                _tokens.Add("*", new Token("*", TokenType.Operator));
+                _tokens.Add("/", new Token("/", TokenType.Operator));
+                _tokens.Add("^", new Token("^", TokenType.Operator));
+                _tokens.Add("&", new Token("&", TokenType.Operator));
+                _tokens.Add(">", new Token(">", TokenType.Operator));
+                _tokens.Add("<", new Token("<", TokenType.Operator));
+                _tokens.Add("=", new Token("=", TokenType.Operator));
+                _tokens.Add("<=", new Token("<=", TokenType.Operator));
+                _tokens.Add(">=", new Token(">=", TokenType.Operator));
+                _tokens.Add("<>", new Token("<>", TokenType.Operator));
+                _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
+                _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
+                _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
+                _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
+                _tokens.Add("'", new Token("'", TokenType.String));
+                _tokens.Add("\"", new Token("\"", TokenType.String));
+                _tokens.Add(",", new Token(",", TokenType.Comma));
+                _tokens.Add(";", new Token(";", TokenType.SemiColon));
+                _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
+                _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
+                _tokens.Add("%", new Token("%", TokenType.Percent));
+            }
         }
 
         private static Dictionary<string, Token> _tokens = new Dictionary<string, Token>();

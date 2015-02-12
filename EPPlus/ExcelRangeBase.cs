@@ -1905,10 +1905,10 @@ namespace OfficeOpenXml
 		{
 			var r = LoadFromDataTable(Table, PrintHeaders);
 
-			int rows = Table.Rows.Count + (PrintHeaders ? 1 : 0) - 1;
+            int rows = (Table.Rows.Count == 0 ? 1 : Table.Rows.Count) + (PrintHeaders ? 1 : 0);
             if (rows >= 0 && Table.Columns.Count>0)
 			{
-                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows==0 ? 1 : rows), _fromCol + Table.Columns.Count-1), Table.TableName);
+                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + rows - 1, _fromCol + Table.Columns.Count-1), Table.TableName);
 				tbl.ShowHeader = PrintHeaders;
 				tbl.TableStyle = TableStyle;
 			}
@@ -1954,7 +1954,7 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
-            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + Table.Columns.Count - 1];
+            return _worksheet.Cells[_fromRow, _fromCol, (row == _fromRow ? _fromRow : row - 1), _fromCol + Table.Columns.Count - 1];
 		}
 		#endregion
 		#region LoadFromArrays
@@ -2115,7 +2115,7 @@ namespace OfficeOpenXml
 				}
 			}
 
-            if (_fromRow == row-1)
+            if (_fromRow == row-1 && PrintHeaders)
             {
                 row++;
             }
