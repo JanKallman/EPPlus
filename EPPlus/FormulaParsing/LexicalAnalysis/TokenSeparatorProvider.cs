@@ -38,53 +38,35 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class TokenSeparatorProvider : ITokenSeparatorProvider
     {
-        private static readonly Mutex _mutex = new Mutex();
-        private static bool _isInitialized = false;
+       private static readonly Dictionary<string, Token> _tokens;
 
-        public TokenSeparatorProvider ()
+        static TokenSeparatorProvider()
         {
-            _mutex.WaitOne();
-            if(!_isInitialized)
-            {
-                Init();
-                _isInitialized = true;
-            }
-            _mutex.ReleaseMutex();
-	    }
-        
-
-        private static void Init()
-        {
-            lock (_tokens)
-            {
-                _tokens.Clear();
-                _tokens.Add("+", new Token("+", TokenType.Operator));
-                _tokens.Add("-", new Token("-", TokenType.Operator));
-                _tokens.Add("*", new Token("*", TokenType.Operator));
-                _tokens.Add("/", new Token("/", TokenType.Operator));
-                _tokens.Add("^", new Token("^", TokenType.Operator));
-                _tokens.Add("&", new Token("&", TokenType.Operator));
-                _tokens.Add(">", new Token(">", TokenType.Operator));
-                _tokens.Add("<", new Token("<", TokenType.Operator));
-                _tokens.Add("=", new Token("=", TokenType.Operator));
-                _tokens.Add("<=", new Token("<=", TokenType.Operator));
-                _tokens.Add(">=", new Token(">=", TokenType.Operator));
-                _tokens.Add("<>", new Token("<>", TokenType.Operator));
-                _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
-                _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
-                _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
-                _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
-                _tokens.Add("'", new Token("'", TokenType.String));
-                _tokens.Add("\"", new Token("\"", TokenType.String));
-                _tokens.Add(",", new Token(",", TokenType.Comma));
-                _tokens.Add(";", new Token(";", TokenType.SemiColon));
-                _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
-                _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
-                _tokens.Add("%", new Token("%", TokenType.Percent));
-            }
+            _tokens = new Dictionary<string, Token>();
+            _tokens.Add("+", new Token("+", TokenType.Operator));
+            _tokens.Add("-", new Token("-", TokenType.Operator));
+            _tokens.Add("*", new Token("*", TokenType.Operator));
+            _tokens.Add("/", new Token("/", TokenType.Operator));
+            _tokens.Add("^", new Token("^", TokenType.Operator));
+            _tokens.Add("&", new Token("&", TokenType.Operator));
+            _tokens.Add(">", new Token(">", TokenType.Operator));
+            _tokens.Add("<", new Token("<", TokenType.Operator));
+            _tokens.Add("=", new Token("=", TokenType.Operator));
+            _tokens.Add("<=", new Token("<=", TokenType.Operator));
+            _tokens.Add(">=", new Token(">=", TokenType.Operator));
+            _tokens.Add("<>", new Token("<>", TokenType.Operator));
+            _tokens.Add("(", new Token("(", TokenType.OpeningParenthesis));
+            _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
+            _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
+            _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
+            _tokens.Add("'", new Token("'", TokenType.String));
+            _tokens.Add("\"", new Token("\"", TokenType.String));
+            _tokens.Add(",", new Token(",", TokenType.Comma));
+            _tokens.Add(";", new Token(";", TokenType.SemiColon));
+            _tokens.Add("[", new Token("[", TokenType.OpeningBracket));
+            _tokens.Add("]", new Token("]", TokenType.ClosingBracket));
+            _tokens.Add("%", new Token("%", TokenType.Percent));
         }
-
-        private static Dictionary<string, Token> _tokens = new Dictionary<string, Token>();
 
         IDictionary<string, Token> ITokenSeparatorProvider.Tokens
         {
@@ -93,7 +75,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool IsOperator(string item)
         {
-            return _tokens.ContainsKey(item) && _tokens[item].TokenType == TokenType.Operator;
+            Token token;
+            if (_tokens.TryGetValue(item, out token))
+            {
+                if (token.TokenType == TokenType.Operator)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool IsPossibleLastPartOfMultipleCharOperator(string part)
