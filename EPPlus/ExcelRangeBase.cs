@@ -2549,6 +2549,10 @@ namespace OfficeOpenXml
                 {
                     //Destination._worksheet._commentsStore.SetValue(cell.Row, cell.Column, cell.Comment);
                 }
+                if (cell.Flag != 0)
+                {
+                    Destination._worksheet._flags.SetValue(cell.Row, cell.Column, cell.Flag);
+                }
             }
 
             //Add merged cells

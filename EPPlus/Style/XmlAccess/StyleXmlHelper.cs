@@ -54,5 +54,18 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal long useCnt=0;
         internal int newID=int.MinValue;
+        protected bool GetBoolValue(XmlNode topNode, string path)
+        {
+            var node = topNode.SelectSingleNode(path, NameSpaceManager);
+            if (node != null && node.Attributes["val"] != null && node.Attributes["val"].Value != "0")
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
     }
 }

@@ -626,5 +626,24 @@ namespace EPPlusTest
                 package.Save();
             }
         }
-    }    
-}
+        [TestMethod,Ignore]
+        public void Issue13492()
+        {
+            using (var package = new OfficeOpenXml.ExcelPackage(new FileInfo(@"c:\temp\bug\Bug13492.xlsx")))
+            {
+                ExcelWorkbook workBook = package.Workbook;
+                var worksheet = workBook.Worksheets[1];
+
+                var rt = worksheet.Cells["K31"].RichText.Text;
+
+                package.Save();
+            }
+        }
+        [TestMethod,Ignore]
+        public void Issue14966()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\ssis\FileFromReportingServer2012.xlsx")))
+                package.SaveAs(new FileInfo(@"c:\temp\bug\ssis\Corrupted.xlsx"));
+        }
+    }
+}    
