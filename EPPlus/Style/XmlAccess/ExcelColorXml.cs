@@ -84,10 +84,6 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             set
             {
-                if (value)
-                {
-
-                }
                 _auto = value;
                 _exists = true;
                 Clear();

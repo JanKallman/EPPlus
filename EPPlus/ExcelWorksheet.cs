@@ -1239,7 +1239,7 @@ namespace OfficeOpenXml
                             _formulas.SetValue(address._fromRow, address._fromCol, sfIndex);
                             _values.SetValue(address._fromRow, address._fromCol, null);
                             string fAddress = xr.GetAttribute("ref");
-                            string formula = xr.ReadElementContentAsString();
+                            string formula = ConvertUtil.ExcelDecodeString(xr.ReadElementContentAsString());
                             if (formula != "")
                             {
                                 _sharedFormulas.Add(sfIndex, new Formulas(SourceCodeTokenizer.Default) { Index = sfIndex, Formula = formula, Address = fAddress, StartRow = address._fromRow, StartCol = address._fromCol });
@@ -1270,7 +1270,7 @@ namespace OfficeOpenXml
                     xr.Read();
                     if (xr.LocalName == "t")
                     {
-                        _values.SetValue(address._fromRow, address._fromCol, xr.ReadInnerXml());
+                        _values.SetValue(address._fromRow, address._fromCol, ConvertUtil.ExcelDecodeString(xr.ReadElementContentAsString()));
                         //cell._value = xr.ReadInnerXml();
                     }
                     else
