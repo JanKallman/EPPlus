@@ -28,6 +28,8 @@
  * ******************************************************************************
  * Jan Källman                      Added                       2012-03-04  
  *******************************************************************************/
+
+using System.Threading;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using System;
 using System.Collections.Generic;
@@ -48,7 +50,12 @@ namespace OfficeOpenXml
             Init(workbook);
 
             var dc = DependencyChainFactory.Create(workbook, options);
-            var parser = workbook.FormulaParser;
+            workbook.FormulaParser.InitNewCalc();
+            if (workbook.FormulaParser.Logger != null)
+            {
+                var msg = string.Format("Starting... number of cells to parse: {0}", dc.list.Count);
+                workbook.FormulaParser.Logger.Log(msg);
+            }
 
             //TODO: Remove when tests are done. Outputs the dc to a text file. 
             //var fileDc = new System.IO.StreamWriter("c:\\temp\\dc.txt");
@@ -68,9 +75,9 @@ namespace OfficeOpenXml
 
             //TODO: Add calculation here
 
-            CalcChain(workbook, parser, dc);
+            CalcChain(workbook, workbook.FormulaParser, dc);
 
-            workbook._isCalculated = true;
+            //workbook._isCalculated = true;
         }
         public static void Calculate(this ExcelWorksheet worksheet)
         {
@@ -79,8 +86,15 @@ namespace OfficeOpenXml
         public static void Calculate(this ExcelWorksheet worksheet, ExcelCalculationOption options)
         {
             Init(worksheet.Workbook);
-            var parser = worksheet.Workbook.FormulaParser;
+            //worksheet.Workbook._formulaParser = null; TODO:Cant reset. Don't work with userdefined or overrided worksheet functions            
             var dc = DependencyChainFactory.Create(worksheet, options);
+            var parser = worksheet.Workbook.FormulaParser;
+            parser.InitNewCalc();
+            if (parser.Logger != null)
+            {
+                var msg = string.Format("Starting... number of cells to parse: {0}", dc.list.Count);
+                parser.Logger.Log(msg);
+            }
             CalcChain(worksheet.Workbook, parser, dc);
         }
         public static void Calculate(this ExcelRangeBase range)
@@ -91,6 +105,7 @@ namespace OfficeOpenXml
         {
             Init(range._workbook);
             var parser = range._workbook.FormulaParser;
+            parser.InitNewCalc();
             var dc = DependencyChainFactory.Create(range, options);
             CalcChain(range._workbook, parser, dc);
         }
@@ -106,6 +121,7 @@ namespace OfficeOpenXml
                 if(string.IsNullOrEmpty(Formula.Trim())) return null;
                 Init(worksheet.Workbook);
                 var parser = worksheet.Workbook.FormulaParser;
+                parser.InitNewCalc();
                 if (Formula[0] == '=') Formula = Formula.Substring(1); //Remove any starting equal sign
                 var dc = DependencyChainFactory.Create(worksheet, Formula, options);
                 var f = dc.list[0];
@@ -122,6 +138,7 @@ namespace OfficeOpenXml
         }
         private static void CalcChain(ExcelWorkbook wb, FormulaParser parser, DependencyChain dc)
         {
+            var debug = parser.Logger != null;
             foreach (var ix in dc.CalcOrder)
             {
                 var item = dc.list[ix];
@@ -130,6 +147,11 @@ namespace OfficeOpenXml
                     var ws = wb.Worksheets.GetBySheetID(item.SheetID);
                     var v = parser.ParseCell(item.Tokens, ws == null ? "" : ws.Name, item.Row, item.Column);
                     SetValue(wb, item, v);
+                    if (debug)
+                    {
+                        parser.Logger.LogCellCounted();
+                    }
+                    Thread.Sleep(0);
                 }
                 catch (FormatException fe)
                 {

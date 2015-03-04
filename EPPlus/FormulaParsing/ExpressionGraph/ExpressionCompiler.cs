@@ -98,6 +98,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     groupedExpression.Prev.Next = newExp;
                 }
+                if (groupedExpression.Next != null)
+                {
+                    groupedExpression.Next.Prev = newExp;
+                }
                 if (groupedExpression == first)
                 {
                     first = newExp;
@@ -116,7 +120,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 var strategy = _compileStrategyFactory.Create(expression);
                 var compiledExpression = strategy.Compile();
-
+                if(compiledExpression is ExcelErrorExpression)
+                {
+                    return RefreshList(compiledExpression);
+                }
                 if (expression == first)
                 {
                     first = compiledExpression;

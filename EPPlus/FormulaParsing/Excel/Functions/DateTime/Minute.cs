@@ -30,24 +30,23 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
-    public class Minute : TimeBaseFunction
+    public class Minute : ExcelFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var firstArg = arguments.ElementAt(0).Value.ToString();
-            if (arguments.Count() == 1 && TimeStringParser.CanParse(firstArg))
+            var dateObj = arguments.ElementAt(0).Value;
+            System.DateTime date = System.DateTime.MinValue;
+            if (dateObj is string)
             {
-                var result = TimeStringParser.Parse(firstArg);
-                return CreateResult(GetMinuteFromSerialNumber(result), DataType.Integer);
+                date = System.DateTime.Parse(dateObj.ToString());
             }
-            ValidateAndInitSerialNumber(arguments);
-            return CreateResult(GetMinuteFromSerialNumber(SerialNumber), DataType.Integer);
-        }
-
-        private int GetMinuteFromSerialNumber(double serialNumber)
-        {
-            return (int)System.Math.Round(GetMinute(serialNumber), 0);
+            else
+            {
+                var d = ArgToDecimal(arguments, 0);
+                date = System.DateTime.FromOADate(d);
+            }
+            return CreateResult(date.Minute, DataType.Integer);
         }
     }
 }

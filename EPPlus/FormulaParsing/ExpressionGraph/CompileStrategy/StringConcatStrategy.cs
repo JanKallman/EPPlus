@@ -45,7 +45,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.CompileStrategy
 
         public override Expression Compile()
         {
-            var newExp = ExpressionConverter.Instance.ToStringExpression(_expression);
+            var newExp = _expression is ExcelAddressExpression ? _expression : ExpressionConverter.Instance.ToStringExpression(_expression);
             newExp.Prev = _expression.Prev;
             newExp.Next = _expression.Next;
             if (_expression.Prev != null)

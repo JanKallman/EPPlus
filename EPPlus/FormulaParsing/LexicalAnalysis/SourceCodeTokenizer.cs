@@ -33,6 +33,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
@@ -59,6 +60,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public IEnumerable<Token> Tokenize(string input)
         {
+            return Tokenize(input, null);
+        }
+        public IEnumerable<Token> Tokenize(string input, string worksheet)
+        {
             if (string.IsNullOrEmpty(input))
             {
                 return Enumerable.Empty<Token>();
@@ -74,13 +79,13 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 {
                     if (context.IsInString)
                     {
-                        if (tokenSeparator.TokenType == TokenType.String && i + 1 < context.FormulaChars.Length && context.FormulaChars[i + 1] == '\'')
+                        if (IsDoubleQuote(tokenSeparator, i, context))
                         {
-                            i++;
+                            i ++;
                             context.AppendToCurrentToken(c);
                             continue;
                         }
-                        else if(tokenSeparator.TokenType != TokenType.String)
+                        if(tokenSeparator.TokenType != TokenType.String)
                         {
                             context.AppendToCurrentToken(c);
                             continue;
@@ -120,18 +125,29 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             context.ToggleIsInString();
                             continue;
                         }
-                        else if (context.LastToken != null &&
-                            context.LastToken.TokenType == TokenType.String &&
-                            !context.CurrentTokenHasValue) //Added check for enumartion 
+                        if (context.LastToken != null && context.LastToken.TokenType == TokenType.String)
                         {
-                            // We are dealing with an empty string ('').
-                            context.AddToken(new Token(string.Empty, TokenType.StringContent));
+                            context.AddToken(!context.CurrentTokenHasValue
+                                ? new Token(string.Empty, TokenType.StringContent)
+                                : new Token(context.CurrentToken, TokenType.StringContent));
                         }
+                        context.AddToken(new Token("\"", TokenType.String));
                         context.ToggleIsInString();
+                        context.NewToken();
+                        continue;
                     }
                     if (context.CurrentTokenHasValue)
                     {
-                        context.AddToken(CreateToken(context));
+                        if (Regex.IsMatch(context.CurrentToken, "^\"*$"))
+                        {
+                            context.AddToken(_tokenFactory.Create(context.CurrentToken, TokenType.StringContent));
+                        }
+                        else
+                        {
+                            context.AddToken(CreateToken(context, worksheet));  
+                        }
+                        
+                        
                         //If the a next token is an opening parantheses and the previous token is interpeted as an address or name, then the currenct token is a function
                         if(tokenSeparator.TokenType==TokenType.OpeningParenthesis && (context.LastToken.TokenType==TokenType.ExcelAddress || context.LastToken.TokenType==TokenType.NameValue)) 
                         {
@@ -154,20 +170,21 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
             if (context.CurrentTokenHasValue)
             {
-                context.AddToken(CreateToken(context));
+                context.AddToken(CreateToken(context, worksheet));
             }
 
-            CleanupTokens(context);
+            CleanupTokens(context, _tokenProvider.Tokens);
 
             return context.Result;
         }
 
-        private void FixOperators(TokenizerContext context)
+        private static bool IsDoubleQuote(Token tokenSeparator, int formulaCharIndex, TokenizerContext context)
         {
-            
+            return tokenSeparator.TokenType == TokenType.String && formulaCharIndex + 1 < context.FormulaChars.Length && context.FormulaChars[formulaCharIndex + 1] == '\"';
         }
 
-        private static void CleanupTokens(TokenizerContext context)
+
+        private static void CleanupTokens(TokenizerContext context, IDictionary<string, Token>  tokens)
         {
             for (int i = 0; i < context.Result.Count; i++)
             {
@@ -198,7 +215,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         if (context.Result[i - 1].TokenType  == TokenType.OpeningParenthesis)
                         {
                             context.Result.RemoveAt(i);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                             continue;
                         }
@@ -211,14 +228,14 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         {
                             //Remove first
                             context.Result.RemoveAt(i);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                         }
                         else if (token.Value == "-" && nextToken.Value == "+")
                         {
                             //Remove second
                             context.Result.RemoveAt(i+1);
-                            SetNegatorOperator(context, i);
+                            SetNegatorOperator(context, i, tokens);
                             i--;
                         }
                         else if (token.Value == "-" && nextToken.Value == "-")
@@ -232,9 +249,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                             }
                             else
                             {
-                                context.Result[i].TokenType = TokenType.Operator;
-                                context.Result[i].Value = "+";
-                                SetNegatorOperator(context, i);
+                                //context.Result[i].TokenType = TokenType.Operator;
+                                //context.Result[i].Value = "+";
+                                context.Result[i] = tokens["+"];
+                                SetNegatorOperator(context, i, tokens);
                                 i--;
                             }
                         }
@@ -243,17 +261,17 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             }
         }
 
-        private static void SetNegatorOperator(TokenizerContext context, int i)
+        private static void SetNegatorOperator(TokenizerContext context, int i, IDictionary<string, Token>  tokens)
         {
             if (context.Result[i].Value == "-" && i > 0 && (context.Result[i].TokenType == TokenType.Operator || context.Result[i].TokenType == TokenType.Negator))
             {
                 if (TokenIsNegator(context.Result[i - 1]))
                 {
-                    context.Result[i].TokenType = TokenType.Negator;
+                    context.Result[i] = new Token("-", TokenType.Negator);
                 }
                 else
                 {
-                    context.Result[i].TokenType = TokenType.Operator;
+                    context.Result[i] = tokens["-"];
                 }
             }
         }
@@ -285,7 +303,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 && !context.CurrentTokenHasValue;
         }
 
-        private Token CreateToken(TokenizerContext context)
+        private Token CreateToken(TokenizerContext context, string worksheet)
         {
             if (context.CurrentToken == "-")
             {
@@ -294,7 +312,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                     return new Token("-", TokenType.Negator);
                 }
             }
-            return _tokenFactory.Create(context.Result, context.CurrentToken);
+            return _tokenFactory.Create(context.Result, context.CurrentToken, worksheet);
         }
 
         private bool CharIsTokenSeparator(char c, out Token token)

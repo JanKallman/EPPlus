@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
@@ -266,15 +267,25 @@ namespace OfficeOpenXml.Table
             get;
             set;
         }
+
+        private ExcelAddressBase _address = null;
         /// <summary>
         /// The address of the table
         /// </summary>
         public ExcelAddressBase Address
         {
-            get;
-            internal set;
+            get
+            {
+                return _address;
+            }
+            internal set
+            {
+                _address = value;
+                SetXmlNodeString("@ref",value.Address);
+                WriteAutoFilter(ShowTotal);
+            }
         }
-        ExcelTableColumnCollection _cols = null;
+        internal ExcelTableColumnCollection _cols = null;
         /// <summary>
         /// Collection of the columns in the table
         /// </summary>
@@ -613,6 +624,6 @@ namespace OfficeOpenXml.Table
                 }
 
             }
-        }        
+        }
     }
 }

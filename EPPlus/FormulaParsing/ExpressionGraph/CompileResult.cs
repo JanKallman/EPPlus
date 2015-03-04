@@ -51,7 +51,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Result = result;
             DataType = dataType;
         }
-        object _result;
+
+        public CompileResult(eErrorType errorType)
+        {
+            Result = ExcelErrorValue.Create(errorType);
+            DataType = DataType.ExcelError;
+        }
+
+        public CompileResult(ExcelErrorValue errorValue)
+        {
+            Require.Argument(errorValue).IsNotNull("errorValue");
+            Result = errorValue;
+            DataType = DataType.ExcelError;
+        }
         public object Result
         {
             get;
@@ -121,7 +133,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             get 
             {
-                return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty || DataType == DataType.Boolean; 
+                return DataType == DataType.Decimal || DataType == DataType.Integer || DataType == DataType.Empty || DataType == DataType.Boolean || DataType == DataType.Date; 
             }
         }
 

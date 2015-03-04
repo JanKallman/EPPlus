@@ -89,6 +89,11 @@ namespace OfficeOpenXml.FormulaParsing
                 get { return _cell; }
             }
 
+            public ExcelWorksheet Worksheet
+            {
+                get { return _ws; }
+            }
+
             public void Dispose()
             {
                 //_values = null;
@@ -253,14 +258,30 @@ namespace OfficeOpenXml.FormulaParsing
             _rangeAddressFactory = new RangeAddressFactory(this);
         }
 
-        public override ExcelNamedRangeCollection GetWorksheetNames()
+        public override ExcelNamedRangeCollection GetWorksheetNames(string worksheet)
         {
-            return _package.Workbook.Worksheets.First().Names;
+            var ws=_package.Workbook.Worksheets[worksheet];
+            if (ws != null)
+            {
+                return ws.Names;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override ExcelNamedRangeCollection GetWorkbookNameValues()
         {
             return _package.Workbook.Names;
+        }
+
+        public override IRangeInfo GetRange(string worksheet, int fromRow, int fromCol, int toRow, int toCol)
+        {
+            SetCurrentWorksheet(worksheet);
+            var wsName = string.IsNullOrEmpty(worksheet) ? _currentWorksheet.Name : worksheet;
+            var ws = _package.Workbook.Worksheets[wsName];
+            return new RangeInfo(ws, fromRow, fromCol, toRow, toCol);
         }
         public override IRangeInfo GetRange(string worksheet, int row, int column, string address)
         {
@@ -297,7 +318,7 @@ namespace OfficeOpenXml.FormulaParsing
                 ws = _package._workbook.Worksheets[worksheet];
                 if (ws !=null && ws.Names.ContainsKey(name))
                 {
-                    nameItem = _package._workbook.Names[name];
+                    nameItem = ws.Names[name];
                 }
                 else if (_package._workbook.Names.ContainsKey(name))
                 {
@@ -352,7 +373,8 @@ namespace OfficeOpenXml.FormulaParsing
 
         public bool IsMerged(int row, int column)
         {
-            return _currentWorksheet._flags.GetFlagValue(row, column, CellFlags.Merged);
+            //return _currentWorksheet._flags.GetFlagValue(row, column, CellFlags.Merged);
+            return _currentWorksheet.MergedCells[row, column] != null;
         }
 
         public bool IsHidden(int row, int column)
@@ -365,6 +387,18 @@ namespace OfficeOpenXml.FormulaParsing
         {
             SetCurrentWorksheet(sheetName);
             return _currentWorksheet._values.GetValue(row, col);
+        }
+
+        public override ExcelCellAddress GetDimensionEnd(string worksheet)
+        {
+            ExcelCellAddress address = null;
+            try
+            {
+                address = _package.Workbook.Worksheets[worksheet].Dimension.End;
+            }
+            catch{}
+            
+            return address;
         }
 
         private void SetCurrentWorksheet(ExcelAddressInfo addressInfo)
@@ -457,6 +491,11 @@ namespace OfficeOpenXml.FormulaParsing
                     _package.Workbook.Worksheets[worksheetName].Row(row).Hidden;
 
             return b;
+        }
+
+        public override void Reset()
+        {
+            _names = new Dictionary<ulong, INameInfo>(); //Reset name cache.            
         }
     }
 }

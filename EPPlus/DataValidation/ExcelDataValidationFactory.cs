@@ -28,6 +28,7 @@
  * ******************************************************************************
  * Mats Alm   		                Added       		        2011-01-01
  * Jan Källman		                License changed GPL-->LGPL  2011-12-27
+ * Raziq York 		                Added support for Any type  2014-08-08
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -56,6 +57,8 @@ namespace OfficeOpenXml.DataValidation
             Require.Argument(type).IsNotNull("validationType");
             switch (type.Type)
             {
+                case eDataValidationType.Any:
+                    return new ExcelDataValidationAny(worksheet, address, type, itemElementNode);
                 case eDataValidationType.TextLength:
                 case eDataValidationType.Whole:
                     return new ExcelDataValidationInt(worksheet, address, type, itemElementNode);

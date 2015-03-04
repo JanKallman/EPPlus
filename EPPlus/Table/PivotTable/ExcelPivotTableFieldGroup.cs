@@ -78,7 +78,7 @@ namespace OfficeOpenXml.Table.PivotTable
             }
             private set
             {
-                SetXmlNodeString(groupByPath, value.ToString().ToLower());
+                SetXmlNodeString(groupByPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         /// <summary>

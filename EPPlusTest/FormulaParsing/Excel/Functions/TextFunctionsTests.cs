@@ -69,7 +69,7 @@ namespace EPPlusTest.Excel.Functions.Text
         {
             var func = new Mid();
             var result = func.Execute(FunctionsHelper.CreateArgs("abcd", 1, 2), _parsingContext);
-            Assert.AreEqual("bc", result.Result);
+            Assert.AreEqual("ab", result.Result);
         }
 
         [TestMethod]
@@ -102,6 +102,14 @@ namespace EPPlusTest.Excel.Functions.Text
             var func = new Concatenate();
             var result = func.Execute(FunctionsHelper.CreateArgs("One", "Two", "Three"), _parsingContext);
             Assert.AreEqual("OneTwoThree", result.Result);
+        }
+
+        [TestMethod]
+        public void ConcatenateShouldConcatenateStringWithInt()
+        {
+            var func = new Concatenate();
+            var result = func.Execute(FunctionsHelper.CreateArgs(1, "Two"), _parsingContext);
+            Assert.AreEqual("1Two", result.Result);
         }
 
         [TestMethod]
@@ -158,6 +166,22 @@ namespace EPPlusTest.Excel.Functions.Text
             var func = new Proper();
             var result = func.Execute(FunctionsHelper.CreateArgs("this IS A tEst.wi3th SOME w0rds östEr"), _parsingContext);
             Assert.AreEqual("This Is A Test.Wi3Th Some W0Rds Öster", result.Result);
+        }
+
+        [TestMethod]
+        public void HyperLinkShouldReturnArgIfOneArgIsSupplied()
+        {
+            var func = new Hyperlink();
+            var result = func.Execute(FunctionsHelper.CreateArgs("http://epplus.codeplex.com"), _parsingContext);
+            Assert.AreEqual("http://epplus.codeplex.com", result.Result);
+        }
+
+        [TestMethod]
+        public void HyperLinkShouldReturnLastArgIfTwoArgsAreSupplied()
+        {
+            var func = new Hyperlink();
+            var result = func.Execute(FunctionsHelper.CreateArgs("http://epplus.codeplex.com", "EPPlus"), _parsingContext);
+            Assert.AreEqual("EPPlus", result.Result);
         }
     }
 }

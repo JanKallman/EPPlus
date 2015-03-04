@@ -646,7 +646,7 @@ namespace OfficeOpenXml
 		internal bool GetXmlNodeBool(string path, bool blankValue)
 		{
 			string value = GetXmlNodeString(path);
-			if (value == "1" || value == "-1" || value == "True")
+			if (value == "1" || value == "-1" || value.Equals("true",StringComparison.InvariantCultureIgnoreCase))
 			{
 				return true;
 			}
@@ -697,7 +697,19 @@ namespace OfficeOpenXml
 				return 0;
 			}
 		}
-		internal double? GetXmlNodeDoubleNull(string path)
+        internal decimal? GetXmlNodeDecimalNull(string path)
+        {
+            decimal d;
+            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+            {
+                return d;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        internal double? GetXmlNodeDoubleNull(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -805,9 +817,8 @@ namespace OfficeOpenXml
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
-            settings.ProhibitDtd = true;            
-            XmlReader reader = XmlReader.Create(stream, settings);            
-            
+            settings.ProhibitDtd = true;
+            XmlReader reader = XmlReader.Create(stream, settings);
             xmlDoc.Load(reader);
         }
         internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml, Encoding encoding)

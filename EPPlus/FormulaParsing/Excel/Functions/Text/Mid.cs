@@ -38,8 +38,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             var text = ArgToString(arguments, 0);
             var startIx = ArgToInt(arguments, 1);
             var length = ArgToInt(arguments, 2);
-            var result = text.Substring(startIx, length);
-            return CreateResult(result, DataType.String);
+            if(startIx<=0)
+            {
+                throw(new ArgumentException("Argument start can't be less than 1"));
+            }
+            //Allow overflowing start and length
+            if (startIx > text.Length)
+            {
+                return CreateResult("", DataType.String);
+            }
+            else
+            {
+                var result = text.Substring(startIx - 1, startIx - 1 + length < text.Length ? length : text.Length - startIx + 1);
+                return CreateResult(result, DataType.String);
+            }
         }
     }
 }

@@ -23,6 +23,8 @@ namespace OfficeOpenXml.FormulaParsing
             ExcelAddressBase Address { get; }
             object GetValue(int row, int col);
             object GetOffset(int rowOffset, int colOffset);
+
+            ExcelWorksheet Worksheet { get; }
         }
         /// <summary>
         /// Information and help methods about a cell
@@ -53,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// Returns the names of all worksheet names
         /// </summary>
         /// <returns></returns>
-        public abstract ExcelNamedRangeCollection GetWorksheetNames();
+        public abstract ExcelNamedRangeCollection GetWorksheetNames(string worksheet);
         /// <summary>
         /// Returns all defined names in a workbook
         /// </summary>
@@ -62,8 +64,11 @@ namespace OfficeOpenXml.FormulaParsing
         /// <summary>
         /// Returns values from the required range.
         /// </summary>
-        /// <param name="address">An Excel address</param>
-        /// <returns>values from the required cells</returns>
+        /// <param name="worksheetName">The name of the worksheet</param>
+        /// <param name="row">Row</param>
+        /// <param name="column">Column</param>
+        /// <param name="address">The reference address</param>
+        /// <returns></returns>
         public abstract IRangeInfo GetRange(string worksheetName, int row, int column, string address);
         public abstract INameInfo GetName(string worksheet, string name);
 
@@ -82,6 +87,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <summary>
         /// Returns a single cell value
         /// </summary>
+        /// <param name="sheetName"></param>
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
@@ -93,6 +99,13 @@ namespace OfficeOpenXml.FormulaParsing
         ///// <param name="address"></param>
         ///// <param name="value"></param>
         //public abstract void SetCellValue(string address, object value);
+
+        /// <summary>
+        /// Returns the address of the lowest rightmost cell on the worksheet.
+        /// </summary>
+        /// <param name="worksheet"></param>
+        /// <returns></returns>
+        public abstract ExcelCellAddress GetDimensionEnd(string worksheet);
 
         /// <summary>
         /// Use this method to free unmanaged resources.
@@ -111,5 +124,8 @@ namespace OfficeOpenXml.FormulaParsing
 
         public abstract object GetRangeValue(string worksheetName, int row, int column);
         public abstract string GetFormat(object value, string format);
+
+        public abstract void Reset();
+        public abstract IRangeInfo GetRange(string worksheet, int fromRow, int fromCol, int toRow, int toCol);
     }
 }

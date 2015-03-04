@@ -169,7 +169,6 @@ namespace OfficeOpenXml
                 SetXmlNodeString("@hashValue", value);
             }
         }
-        eProtectedRangeAlgorithm _algorithm = eProtectedRangeAlgorithm.SHA512;
         internal eProtectedRangeAlgorithm Algorithm
         {
             get

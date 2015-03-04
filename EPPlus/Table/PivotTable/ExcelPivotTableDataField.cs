@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
@@ -200,13 +201,13 @@ namespace OfficeOpenXml.Table.PivotTable
                         v="stdDevP";
                         break;
                     default:
-                        v=value.ToString().ToLower();
+                        v=value.ToString().ToLower(CultureInfo.InvariantCulture);
                         break;
                 }                
                 SetXmlNodeString("@subtotal", v);
             }
         }
-        ///Since we have no items, Excel will crash when we use showDataAs options that require baseItem's
+        /////Since we have no items, Excel will crash when we use showDataAs options that require baseItem's
         //public eShowDataAs ShowDataAs
         //{
         //    get

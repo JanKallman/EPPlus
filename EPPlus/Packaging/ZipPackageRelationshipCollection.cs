@@ -41,7 +41,7 @@ namespace OfficeOpenXml.Packaging
 {
     public class ZipPackageRelationshipCollection : IEnumerable<ZipPackageRelationship>
     {
-        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>();
+        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>(StringComparer.InvariantCultureIgnoreCase);
         internal void Add(ZipPackageRelationship item)
         {
             _rels.Add(item.Id, item);

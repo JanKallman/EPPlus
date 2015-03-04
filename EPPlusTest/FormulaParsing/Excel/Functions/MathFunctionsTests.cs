@@ -48,6 +48,28 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AsinShouldReturnCorrectResult()
+        {
+            const double expectedValue = 1.5708;
+            var func = new Asin();
+            var args = FunctionsHelper.CreateArgs(1d);
+            var result = func.Execute(args, _parsingContext);
+            var rounded = Math.Round((double)result.Result, 4);
+            Assert.AreEqual(expectedValue, rounded);
+        }
+
+        [TestMethod]
+        public void AsinhShouldReturnCorrectResult()
+        {
+            const double expectedValue = 0.0998;
+            var func = new Asinh();
+            var args = FunctionsHelper.CreateArgs(0.1d);
+            var result = func.Execute(args, _parsingContext);
+            var rounded = Math.Round((double)result.Result, 4);
+            Assert.AreEqual(expectedValue, rounded);
+        }
+
+        [TestMethod]
         public void CeilingShouldRoundUpAccordingToParamsSignificanceLowerThan0()
         {
             var expectedValue = 22.36d;
@@ -673,6 +695,26 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void AcosShouldReturnCorrectResult()
+        {
+            var func = new Acos();
+            var args = FunctionsHelper.CreateArgs(0.1);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double)result.Result, 4);
+            Assert.AreEqual(1.4706, roundedResult);
+        }
+
+        [TestMethod]
+        public void ACosHShouldReturnCorrectResult()
+        {
+            var func = new Acosh();
+            var args = FunctionsHelper.CreateArgs(2);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double)result.Result, 3);
+            Assert.AreEqual(1.317, roundedResult);
+        }
+
+        [TestMethod]
         public void SinShouldReturnCorrectResult()
         {
             var func = new Sin();
@@ -730,6 +772,16 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             var roundedResult = Math.Round((double)result.Result, 9);
             Assert.AreEqual(1.107148718d, roundedResult);
+        }
+
+        [TestMethod]
+        public void AtanhShouldReturnCorrectResult()
+        {
+            var func = new Atanh();
+            var args = FunctionsHelper.CreateArgs(0.1);
+            var result = func.Execute(args, _parsingContext);
+            var roundedResult = Math.Round((double)result.Result, 4);
+            Assert.AreEqual(0.1003d, roundedResult);
         }
 
         [TestMethod]
@@ -912,6 +964,93 @@ namespace EPPlusTest.Excel.Functions
             var func = new Quotient();
             var args = FunctionsHelper.CreateArgs(1, 0);
             func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void LargeShouldReturnTheLargestNumberIf1()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1, 2, 3), 1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod]
+        public void LargeShouldReturnTheSecondLargestNumberIf2()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void LargeShouldThrowIfIndexOutOfBounds()
+        {
+            var func = new Large();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 6);
+            var result = func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void SmallShouldReturnTheSmallestNumberIf1()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1, 2, 3), 1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+        [TestMethod]
+        public void SmallShouldReturnTheSecondSmallestNumberIf2()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2d, result.Result);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void SmallShouldThrowIfIndexOutOfBounds()
+        {
+            var func = new Small();
+            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(4, 1, 2, 3), 6);
+            var result = func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        public void MedianShouldThrowIfNoArgs()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.Empty();
+            func.Execute(args, _parsingContext);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithOneMember()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(1);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithOddMembers()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(3, 5, 1, 4, 2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(3d, result.Result);
+        }
+
+        [TestMethod]
+        public void MedianShouldCalculateCorrectlyWithEvenMembers()
+        {
+            var func = new Median();
+            var args = FunctionsHelper.CreateArgs(1, 2, 3, 4);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(2.5d, result.Result);
         }
     }
 }

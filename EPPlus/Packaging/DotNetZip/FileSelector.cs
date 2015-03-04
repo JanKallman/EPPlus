@@ -48,6 +48,7 @@
 
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Reflection;
@@ -377,7 +378,7 @@ namespace OfficeOpenXml.Packaging.Ionic
             set
             {
                 _Attributes = FileAttributes.Normal;
-                foreach (char c in value.ToUpper())
+                foreach (char c in value.ToUpper(CultureInfo.InvariantCulture))
                 {
                     switch (c)
                     {
@@ -1020,7 +1021,7 @@ namespace OfficeOpenXml.Packaging.Ionic
 
             for (int i = 0; i < tokens.Length; i++)
             {
-                string tok1 = tokens[i].ToLower();
+                string tok1 = tokens[i].ToLower(CultureInfo.InvariantCulture);
                 switch (tok1)
                 {
                     case "and":
@@ -1033,7 +1034,7 @@ namespace OfficeOpenXml.Packaging.Ionic
                         if (tokens.Length <= i + 3)
                             throw new ArgumentException(String.Join(" ", tokens, i, tokens.Length - i));
 
-                        pendingConjunction = (LogicalConjunction)Enum.Parse(typeof(LogicalConjunction), tokens[i].ToUpper(), true);
+                        pendingConjunction = (LogicalConjunction)Enum.Parse(typeof(LogicalConjunction), tokens[i].ToUpper(CultureInfo.InvariantCulture), true);
                         current = new CompoundCriterion { Left = current, Right = null, Conjunction = pendingConjunction };
                         stateStack.Push(state);
                         stateStack.Push(ParseState.ConjunctionPending);
@@ -1115,17 +1116,17 @@ namespace OfficeOpenXml.Packaging.Ionic
 
                         Int64 sz = 0;
                         string v = tokens[i + 2];
-                        if (v.ToUpper().EndsWith("K"))
+                        if (v.EndsWith("K", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024;
-                        else if (v.ToUpper().EndsWith("KB"))
+                        else if (v.EndsWith("KB", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024;
-                        else if (v.ToUpper().EndsWith("M"))
+                        else if (v.EndsWith("M", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024 * 1024;
-                        else if (v.ToUpper().EndsWith("MB"))
+                        else if (v.EndsWith("MB", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024 * 1024;
-                        else if (v.ToUpper().EndsWith("G"))
+                        else if (v.EndsWith("G", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024 * 1024 * 1024;
-                        else if (v.ToUpper().EndsWith("GB"))
+                        else if (v.EndsWith("GB", StringComparison.InvariantCultureIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024 * 1024 * 1024;
                         else sz = Int64.Parse(tokens[i + 2]);
 
@@ -1466,7 +1467,7 @@ namespace OfficeOpenXml.Packaging.Ionic
         internal static object Parse(Type enumType, string stringRepresentation, bool ignoreCase)
         {
             if (ignoreCase)
-                stringRepresentation = stringRepresentation.ToLower();
+                stringRepresentation = stringRepresentation.ToLower(CultureInfo.InvariantCulture);
 
 #if SILVERLIGHT
             foreach (System.Enum enumVal in GetEnumValues(enumType))
@@ -1476,7 +1477,7 @@ namespace OfficeOpenXml.Packaging.Ionic
             {
                 string description = GetDescription(enumVal);
                 if (ignoreCase)
-                    description = description.ToLower();
+                    description = description.ToLower(CultureInfo.InvariantCulture);
                 if (description == stringRepresentation)
                     return enumVal;
             }

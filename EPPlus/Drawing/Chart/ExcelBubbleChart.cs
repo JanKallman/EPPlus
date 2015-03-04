@@ -1,4 +1,5 @@
-﻿using OfficeOpenXml.Packaging;
+﻿using System.Globalization;
+using OfficeOpenXml.Packaging;
 using OfficeOpenXml.Table.PivotTable;
 using System;
 using System.Collections.Generic;
@@ -97,7 +98,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                var v = _chartXmlHelper.GetXmlNodeString(SIZEREPRESENTS_PATH).ToLower();
+                var v = _chartXmlHelper.GetXmlNodeString(SIZEREPRESENTS_PATH).ToLower(CultureInfo.InvariantCulture);
                 if (v == "w")
                 {
                     return eSizeRepresents.Width;
@@ -112,7 +113,6 @@ namespace OfficeOpenXml.Drawing.Chart
                 _chartXmlHelper.SetXmlNodeString(SIZEREPRESENTS_PATH, value == eSizeRepresents.Width ? "w" : "area");
             }
         }
-        ExcelBubbleChartSeries _series = null;
         public new ExcelBubbleChartSeries Series
         {
             get

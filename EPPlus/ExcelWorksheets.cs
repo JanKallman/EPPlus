@@ -32,9 +32,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml;
 using System.IO;
+using System.Linq;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
@@ -66,30 +68,33 @@ namespace OfficeOpenXml
 
             foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
-				string name = sheetNode.Attributes["name"].Value;
-				//Get the relationship id
-				string relId = sheetNode.Attributes["r:id"].Value;
-				int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
-                
-                //Hidden property
-                eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
-				XmlNode attr = sheetNode.Attributes["state"];
-				if (attr != null)
-					hidden = TranslateHidden(attr.Value);
+                if (sheetNode.NodeType == XmlNodeType.Element)
+                {
+                    string name = sheetNode.Attributes["name"].Value;
+                    //Get the relationship id
+                    string relId = sheetNode.Attributes["r:id"].Value;
+                    int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
-				var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
-				
-				//add the worksheet
-                if(sheetRelation.RelationshipType.EndsWith("chartsheet"))
-                {
-                    _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    //Hidden property
+                    eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
+                    XmlNode attr = sheetNode.Attributes["state"];
+                    if (attr != null)
+                        hidden = TranslateHidden(attr.Value);
+
+                    var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+                    Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
+
+                    //add the worksheet
+                    if (sheetRelation.RelationshipType.EndsWith("chartsheet"))
+                    {
+                        _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    else
+                    {
+                        _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    positionID++;
                 }
-                else
-                {
-                    _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
-                }
-				positionID++;
 			}
 		}
 
@@ -151,9 +156,10 @@ namespace OfficeOpenXml
             Uri uriWorksheet;
             lock (_worksheets)
             {
+                Name = ValidateFixSheetName(Name);
                 if (GetByName(Name) != null)
                 {
-                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET + " : " + Name));
                 }
                 GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
                 Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
@@ -178,13 +184,15 @@ namespace OfficeOpenXml
                 }
 
                 _worksheets.Add(positionID, worksheet);
+#if !MONO
                 if (_pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-                    worksheet.CodeModuleName = Name;
+                    worksheet.CodeModuleName = name;
 
                 }
+#endif
                 return worksheet;
             }
         }
@@ -258,6 +266,16 @@ namespace OfficeOpenXml
 
                 //Copy all cells
                 CloneCells(Copy, added);
+
+                //Copy the VBA code
+#if !MONO
+                if (_pck.Workbook.VbaProject != null)
+                {
+                    var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(added);
+                    _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(added.CodeNameChange) { Name = name, Code = Copy.CodeModule.Code, Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Copy.CodeModuleName = name;
+                }
+#endif
 
                 _worksheets.Add(_worksheets.Count + 1, added);
 
@@ -509,7 +527,9 @@ namespace OfficeOpenXml
                     var c = Copy._values.GetValue(row, col) as ExcelColumn;
                     if (c != null)
                     {
-                        added._values.SetValue(row, col, c.Clone(added, c.ColumnMin));
+                        var clone = c.Clone(added, c.ColumnMin);
+                        clone.StyleID = c.StyleID;
+                        added._values.SetValue(row, col, clone);
                         styleID = c.StyleID;
                     }
                 }
@@ -539,73 +559,9 @@ namespace OfficeOpenXml
                         var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
                         styleCashe.Add(styleID, s);
                         added._styles.SetValue(row, col, s);
-                        if (Copy.Workbook.Styles.CellXfs[styleID].XfId > 0) //Named styles
-                        {
-                            var styleName = Copy.Workbook.Styles.NamedStyles[Copy.Workbook.Styles.CellXfs[styleID].XfId].Name;
-                            if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(styleName))
-                            {
-                                var ns = Copy.Workbook.Styles.CreateNamedStyle(styleName);
-                                ns.StyleXfId = s;
-                            }
-
-                        }
                     }
                 }
             }
-            ////Rows
-            //foreach (ExcelRow row in Copy._rows)
-            //{
-            //    row.Clone(added);
-            //    if (!sameWorkbook)   //Same workbook == same styles
-            //    {
-            //        ExcelRow addedRow = added.Row(row.Row) as ExcelRow;
-            //        if (styleCashe.ContainsKey(row.StyleID))
-            //        {
-            //            addedRow.StyleID = styleCashe[row.StyleID];
-            //        }
-            //        else
-            //        {
-            //            addedRow.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedRow.StyleID);
-            //            if (row.StyleName != "") //Named styles
-            //            {
-            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(row.StyleName))
-            //                {
-            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(row.StyleName);
-            //                    ns.StyleXfId = addedRow.StyleID;
-            //                }
-
-            //            }
-            //            styleCashe.Add(row.StyleID, addedRow.StyleID);
-            //        }
-            //    }                
-            //}
-            ////Columns
-            //foreach (ExcelColumn col in Copy._columns)
-            //{
-            //    col.Clone(added);
-            //    if (!sameWorkbook)   //Same workbook == same styles
-            //    {
-            //        ExcelColumn addedCol = added.Column(col.ColumnMin) as ExcelColumn;
-            //        if (styleCashe.ContainsKey(col.StyleID))
-            //        {
-            //            addedCol.StyleID = styleCashe[col.StyleID];
-            //        }
-            //        else
-            //        {
-            //            addedCol.StyleID = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, addedCol.StyleID);
-            //            if (col.StyleName != "") //Named styles
-            //            {
-            //                if (!Copy.Workbook.Styles.NamedStyles.ExistsKey(col.StyleName))
-            //                {
-            //                    var ns = Copy.Workbook.Styles.CreateNamedStyle(col.StyleName);
-            //                    ns.StyleXfId = addedCol.StyleID;
-            //                }
-
-            //            }
-            //            styleCashe.Add(col.StyleID, addedCol.StyleID);
-            //        }
-            //    }
-            //}
             added._package.DoAdjustDrawings = doAdjust;
         }
 
@@ -617,6 +573,12 @@ namespace OfficeOpenXml
             {
                 added._types.SetValue(row, col, t);
             }
+            byte fl=0;
+            if (Copy._flags.Exists(row,col,ref fl))
+            {
+                added._flags.SetValue(row, col, fl);
+            }
+
             var v = Copy._formulas.GetValue(row, col);
             if (v != null)
             {
@@ -895,21 +857,34 @@ namespace OfficeOpenXml
 		/// <param name="Index">The position of the worksheet in the workbook</param>
 		public void Delete(int Index)
 		{
-			ExcelWorksheet worksheet = _worksheets[Index];
+			/*
+            * Hack to prefetch all the drawings,
+            * so that all the images are referenced, 
+            * to prevent the deletion of the image file, 
+            * when referenced more than once
+            */
+            foreach (var ws in _worksheets)
+            {
+                var drawings = ws.Value.Drawings; 
+            }			
+            
+            ExcelWorksheet worksheet = _worksheets[Index];
             if (worksheet.Drawings.Count > 0)
             {
                 worksheet.Drawings.ClearDrawings();
             }
 
-             /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
-             var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
-             if (_pck.Package.PartExists(_uriDrawing))
-             {
-                 _pck.Package.DeletePart(_uriDrawing);
-             }
+            //Remove all comments
+            if (!(worksheet is ExcelChartsheet) && worksheet.Comments.Count > 0)
+            {
+                worksheet.Comments.Clear();
+            }
+                        
+		    //Delete any parts still with relations to the Worksheet.
+            DeleteRelationsAndParts(worksheet.Part);
+
 
             //Delete the worksheet part and relation from the package 
-			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
             //Delete worksheet from the workbook XML
@@ -922,7 +897,6 @@ namespace OfficeOpenXml
 					sheetsNode.RemoveChild(sheetNode);
 				}
 			}
-
 			_worksheets.Remove(Index);
             if (_pck.Workbook.VbaProject != null)
             {
@@ -936,9 +910,21 @@ namespace OfficeOpenXml
             }
             if (_pck.Workbook.View.ActiveTab == worksheet.SheetID)
             {
-                _pck.Workbook.Worksheets[0].View.TabSelected = true;
+                _pck.Workbook.Worksheets[1].View.TabSelected = true;
             }
             worksheet = null;
+        }
+
+        private void DeleteRelationsAndParts(Packaging.ZipPackagePart part)
+        {
+            var rels = part.GetRelationships().ToList();
+            for(int i=0;i<rels.Count;i++)
+            {
+                var rel = rels[i];
+                DeleteRelationsAndParts(_pck.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri)));
+                part.DeleteRelationship(rel.Id);
+            }            
+            _pck.Package.DeletePart(part.Uri);
         }
 
 		/// <summary>
@@ -991,7 +977,14 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                return (_worksheets[PositionID]);
+			    if (_worksheets.ContainsKey(PositionID))
+			    {
+			        return _worksheets[PositionID];
+			    }
+			    else
+			    {
+			        throw (new IndexOutOfRangeException("Worksheet position out of range."));
+			    }
 			}
 		}
 
@@ -1040,7 +1033,7 @@ namespace OfficeOpenXml
             ExcelWorksheet xlWorksheet = null;
             foreach (ExcelWorksheet worksheet in _worksheets.Values)
             {
-                if (worksheet.Name.ToLower() == Name.ToLower())
+                if (worksheet.Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase))
                     xlWorksheet = worksheet;
             }
             return (xlWorksheet);
@@ -1165,7 +1158,7 @@ namespace OfficeOpenXml
                 {
                     throw new Exception(string.Format("Move worksheet error: Could not find worksheet at position '{0}'", targetPositionId));
                 }
-                if (_worksheets.Count < 2)
+                if (sourcePositionId == targetPositionId && _worksheets.Count < 2)
                 {
                     return;		//--- no reason to attempt to re-arrange a single item with itself
                 }

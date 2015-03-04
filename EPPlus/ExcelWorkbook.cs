@@ -111,6 +111,7 @@ namespace OfficeOpenXml
 			_namespaceManager = namespaceManager;
 			TopNode = WorkbookXml.DocumentElement;
 			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
+		    FullCalcOnLoad = true;  //Full calculation on load by default, for both new workbooks and templates.
 			GetSharedStrings();
 		}
 		#endregion
@@ -142,7 +143,7 @@ namespace OfficeOpenXml
 						XmlNode n = node.SelectSingleNode("d:t", NameSpaceManager);
 						if (n != null)
 						{
-							_sharedStringsList.Add(new SharedStringItem() { Text = ExcelDecodeString(n.InnerText) });
+                            _sharedStringsList.Add(new SharedStringItem() { Text = ConvertUtil.ExcelDecodeString(n.InnerText) });
 						}
 						else
 						{
@@ -153,7 +154,7 @@ namespace OfficeOpenXml
                 //Delete the shared string part, it will be recreated when the package is saved.
                 foreach (var rel in Part.GetRelationships())
                 {
-                    if (rel.TargetUri.OriginalString.ToLower().EndsWith("sharedstrings.xml"))
+                    if (rel.TargetUri.OriginalString.EndsWith("sharedstrings.xml", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Part.DeleteRelationship(rel.Id);
                         break;
@@ -228,7 +229,15 @@ namespace OfficeOpenXml
 						}
 						else
 						{
-							namedRange.NameFormula = fullAddress;
+                            //if (addressType == ExcelAddressBase.AddressType.ExternalAddress || addressType == ExcelAddressBase.AddressType.ExternalName)
+                            //{
+                            //    var r = new ExcelAddress(fullAddress);
+                            //    namedRange.NameFormula = '\'[' + r._wb
+                            //}
+                            //else
+                            //{
+                                namedRange.NameFormula = fullAddress;
+                            //}
 						}
 					}
 					else
@@ -423,11 +432,13 @@ namespace OfficeOpenXml
                 return _vba;
             }
         }
+
         /// <summary>
         /// Create an empty VBA project.
         /// </summary>
         public void CreateVBAProject()
         {
+#if !MONO
             if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 throw (new InvalidOperationException("VBA project already exists."));
@@ -435,7 +446,11 @@ namespace OfficeOpenXml
                         
             _vba = new ExcelVbaProject(this);
             _vba.Create();
-        }
+#endif
+#if MONO
+            throw new NotSupportedException("Creating a VBA project is not supported under Mono.");
+#endif
+				}
 		/// <summary>
 		/// URI to the workbook inside the package
 		/// </summary>
@@ -673,7 +688,7 @@ namespace OfficeOpenXml
 						return ExcelCalcMode.Manual;
 					default:
 						return ExcelCalcMode.Automatic;
-
+                        
 				}
 			}
 			set
@@ -694,6 +709,23 @@ namespace OfficeOpenXml
 			}
 			#endregion
 		}
+
+        private const string FULL_CALC_ON_LOAD_PATH = "d:calcPr/@fullCalcOnLoad";
+        /// <summary>
+        /// Should Excel do a full calculation after the workbook has been loaded?
+        /// <remarks>This property is always true for both new workbooks and loaded templates(on load). If this is not the wanted behavior set this property to false.</remarks>
+        /// </summary>
+        public bool FullCalcOnLoad
+	    {
+	        get
+	        {
+                return GetXmlNodeBool(FULL_CALC_ON_LOAD_PATH);   
+	        }
+	        set
+	        {
+                SetXmlNodeBool(FULL_CALC_ON_LOAD_PATH, value);
+	        }
+	    }
 		#endregion
 		#region Workbook Private Methods
 			
@@ -765,7 +797,9 @@ namespace OfficeOpenXml
             //VBA
             if (_vba!=null)
             {
+#if !MONO
                 VbaProject.Save();
+#endif
             }
 
 		}
@@ -819,7 +853,7 @@ namespace OfficeOpenXml
             stream.PutNextEntry(fileName);
 
             var cache = new StringBuilder();            
-            StreamWriter sw = new StreamWriter(stream);
+            var sw = new StreamWriter(stream);
             cache.AppendFormat("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
 			foreach (string t in _sharedStrings.Keys)
 			{
@@ -828,7 +862,7 @@ namespace OfficeOpenXml
 				if (ssi.isRichText)
 				{
                     cache.Append("<si>");
-                    ExcelEncodeString(cache, t);
+                    ConvertUtil.ExcelEncodeString(cache, t);
                     cache.Append("</si>");
 				}
 				else
@@ -841,7 +875,7 @@ namespace OfficeOpenXml
 					{
                         cache.Append("<si><t>");
 					}
-					ExcelEncodeString(cache, ExcelEscapeString(t));
+                    ConvertUtil.ExcelEncodeString(cache, ConvertUtil.ExcelEscapeString(t));
                     cache.Append("</t></si>");
 				}
                 if (cache.Length > 0x600000)
@@ -854,117 +888,6 @@ namespace OfficeOpenXml
             sw.Write(cache.ToString());
             sw.Flush();
             Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
-		}
-
-		/// <summary>
-		/// OOXML requires that "," , and & be escaped, but ' and " should *not* be escaped, nor should
-		/// any extended Unicode characters. This function only encodes the required characters.
-		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
-		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
-		/// escape equivalent.
-		/// </summary>
-		/// <param name="s"></param>
-		/// <returns></returns>
-		private static string ExcelEscapeString(string s) {
-			return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-		}
-
-		/// <summary>
-		/// Return true if preserve space attribute is set.
-		/// </summary>
-		/// <param name="sw"></param>
-		/// <param name="t"></param>
-		/// <returns></returns>
-		internal static void ExcelEncodeString(StreamWriter sw, string t)
-		{
-			if(Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-			{
-				var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-				int indexAdd = 0;
-				while (match.Success)
-				{
-					t=t.Insert(match.Index + indexAdd, "_x005F");
-					indexAdd += 6;
-					match = match.NextMatch();
-				}
-			}
-			for (int i=0;i<t.Length;i++)
-			{
-				if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-				{
-					sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));                    
-				}
-				else
-				{
-					sw.Write(t[i]);
-				}
-			}
-
-		}
-        /// <summary>
-        /// Return true if preserve space attribute is set.
-        /// </summary>
-        /// <param name="sb"></param>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        internal static void ExcelEncodeString(StringBuilder sb, string t)
-        {
-            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-            {
-                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-                int indexAdd = 0;
-                while (match.Success)
-                {
-                    t = t.Insert(match.Index + indexAdd, "_x005F");
-                    indexAdd += 6;
-                    match = match.NextMatch();
-                }
-            }
-            for (int i = 0; i < t.Length; i++)
-            {
-                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-                {
-                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
-                }
-                else
-                {
-                    sb.Append(t[i]);
-                }
-            }
-
-        }
-        internal static string ExcelDecodeString(string t)
-		{
-			var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
-			if(!match.Success) return t;
-
-			bool useNextValue = false;
-			StringBuilder ret=new StringBuilder();
-			int prevIndex=0;
-			while(match.Success)
-			{
-				if (prevIndex < match.Index) ret.Append(t.Substring(prevIndex, match.Index - prevIndex));
-				if (!useNextValue && match.Value == "_x005F")
-				{
-					useNextValue = true;
-				}
-				else
-				{
-					if (useNextValue)
-					{
-						ret.Append(match.Value);
-						useNextValue=false;
-					}
-					else
-					{
-						ret.Append((char)int.Parse(match.Value.Substring(2,4),NumberStyles.AllowHexSpecifier));
-					}
-				}
-				prevIndex=match.Index+match.Length;
-				match = match.NextMatch();
-			}
-			ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
-			return ret.ToString();
 		}
 		private void UpdateDefinedNamesXml()
 		{
@@ -1111,7 +1034,7 @@ namespace OfficeOpenXml
 			pivotCaches.AppendChild(item);
 		}
 		internal List<string> _externalReferences = new List<string>();
-        internal bool _isCalculated=false;
+        //internal bool _isCalculated=false;
 		internal void GetExternalReferences()
 		{
 			XmlNodeList nl = WorkbookXml.SelectNodes("//d:externalReferences/d:externalReference", NameSpaceManager);
@@ -1155,7 +1078,11 @@ namespace OfficeOpenXml
             }
             _package = null;
             _properties = null;
-            _formulaParser = null;
+            if (_formulaParser != null)
+            {
+                _formulaParser.Dispose();
+                _formulaParser = null;
+            }   
         }
     } // end Workbook
 }

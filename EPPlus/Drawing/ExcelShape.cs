@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
@@ -304,7 +305,7 @@ namespace OfficeOpenXml.Drawing
             set
             {
                 string v = value.ToString();
-                v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                 SetXmlNodeString(ShapeStylePath, v);
             }
         }

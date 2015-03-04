@@ -34,7 +34,6 @@ using System.Text;
 using System.Xml;
 using System.Collections;
 using OfficeOpenXml.Utils;
-
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -178,6 +177,11 @@ namespace OfficeOpenXml
                 comment.Author=author;
             }
             _comments.Add(comment);
+            //Check if a value exists otherwise add one so it is saved when the cells collection is iterated
+            if (!Worksheet._values.Exists(cell._fromRow, cell._fromCol))
+            {
+                Worksheet._values.SetValue(cell._fromRow, cell._fromCol, null);
+            }
             return comment;
         }
         /// <summary>
@@ -222,5 +226,13 @@ namespace OfficeOpenXml
             return _comments;
         }
         #endregion
+
+        internal void Clear()
+        {
+            while(Count>0)
+            {
+                RemoveAt(0);
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace OfficeOpenXml.FormulaParsing
             get { return new NameValueProvider(); }
         }
 
-        public bool IsNamedValue(string key)
+        public bool IsNamedValue(string key, string worksheet)
         {
             return false;
         }

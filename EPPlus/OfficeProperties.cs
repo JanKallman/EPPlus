@@ -29,6 +29,7 @@
  * Jan Källman		                Initial Release		        2009-10-01
  * Jan Källman                      Total rewrite               2010-03-01
  * Jan Källman		    License changed GPL-->LGPL  2011-12-27
+ * Raziq York                       Added Created & Modified    2014-08-20
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -196,6 +197,25 @@ namespace OfficeOpenXml
             set { _coreHelper.SetXmlNodeString(LastPrintedPath, value); }
         }
 
+        const string CreatedPath = "dcterms:created";
+
+        /// <summary>
+	    /// Gets/sets the created property of the document (core property)
+	    /// </summary>
+	    public DateTime Created
+	    {
+	        get
+	        {
+	            DateTime date;
+	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(CreatedPath), out date) ? date : DateTime.MinValue;
+	        }
+	        set
+	        {
+	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+	            _coreHelper.SetXmlNodeString(CreatedPath, dateString);
+	        }
+	    }
+
         const string CategoryPath = "cp:category";
         /// <summary>
         /// Gets/sets the category property of the document (core property)
@@ -287,6 +307,24 @@ namespace OfficeOpenXml
             get { return _extendedHelper.GetXmlNodeString(ManagerPath); }
             set { _extendedHelper.SetXmlNodeString(ManagerPath, value); }
         }
+
+        const string ModifiedPath = "dcterms:modified";
+	    /// <summary>
+	    /// Gets/sets the modified property of the document (core property)
+	    /// </summary>
+	    public DateTime Modified
+	    {
+	        get
+	        {
+	            DateTime date;
+	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(ModifiedPath), out date) ? date : DateTime.MinValue;
+	        }
+	        set
+	        {
+	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+	            _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
+	        }
+	    }
 
         #region Get and Set Extended Properties
         private string GetExtendedPropertyValue(string propertyName)
@@ -437,7 +475,7 @@ namespace OfficeOpenXml
             if (value is bool)
             {
                 valueElem = CustomPropertiesXml.CreateElement("vt", "bool", ExcelPackage.schemaVt);
-                valueElem.InnerText = value.ToString().ToLower();
+                valueElem.InnerText = value.ToString().ToLower(CultureInfo.InvariantCulture);
             }
             else if (value is DateTime)
             {

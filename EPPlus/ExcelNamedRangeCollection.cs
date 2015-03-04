@@ -54,7 +54,7 @@ namespace OfficeOpenXml
             _ws = ws;
         }
         List<ExcelNamedRange> _list = new List<ExcelNamedRange>();
-        Dictionary<string, int> _dic = new Dictionary<string, int>();
+        Dictionary<string, int> _dic = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         /// <summary>
         /// Add a new named range
         /// </summary>
@@ -81,7 +81,7 @@ namespace OfficeOpenXml
 
         private void AddName(string Name, ExcelNamedRange item)
         {
-            _dic.Add(Name.ToLower(), _list.Count);
+            _dic.Add(Name, _list.Count);
             _list.Add(item);
         }
         /// <summary>
@@ -131,16 +131,15 @@ namespace OfficeOpenXml
         /// <param name="Name">The name</param>
         public void Remove(string Name)
         {
-            Name=Name.ToLower();
             if(_dic.ContainsKey(Name))
             {
                 var ix = _dic[Name];
 
                 for (int i = ix+1; i < _list.Count; i++)
                 {
-                    _dic.Remove(_list[i].Name.ToLower());
+                    _dic.Remove(_list[i].Name);
                     _list[i].Index--;
-                    _dic.Add(_list[i].Name.ToLower(), _list[i].Index);
+                    _dic.Add(_list[i].Name, _list[i].Index);
                 }
                 _dic.Remove(Name);
                 _list.RemoveAt(ix);
@@ -153,7 +152,7 @@ namespace OfficeOpenXml
         /// <returns>true if the key is in the collection</returns>
         public bool ContainsKey(string key)
         {
-            return _dic.ContainsKey(key.ToLower());
+            return _dic.ContainsKey(key);
         }
         /// <summary>
         /// The current number of items in the collection
@@ -177,7 +176,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _list[_dic[Name.ToLower()]];
+                return _list[_dic[Name]];
             }
         }
         public ExcelNamedRange this[int Index]
@@ -211,5 +210,13 @@ namespace OfficeOpenXml
 
         #endregion
         #endregion
+
+        internal void Clear()
+        {
+            while(Count>0)
+            {
+                Remove(_list[0].Name);
+            }
+        }
     }
 }

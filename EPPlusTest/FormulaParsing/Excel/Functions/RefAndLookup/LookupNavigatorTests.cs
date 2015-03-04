@@ -71,6 +71,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void HasNextShouldBeTrueIfNotLastCell()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(4);
             var args = GetArgs(3, "A1:B2", 1);
@@ -94,6 +95,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void MoveNextShouldIncreaseIndex()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(4);
             var args = GetArgs(6, "A1:B2", 1);
@@ -107,6 +109,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void GetLookupValueShouldReturnCorrespondingValue()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(4);
             var args = GetArgs(6, "A1:B2", 2);
@@ -118,6 +121,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         public void GetLookupValueShouldReturnCorrespondingValueWithOffset()
         {
             var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName, 3, 3)).Return(4);
             var args = new LookupArguments(3, "A1:A4", 3, 2, false);

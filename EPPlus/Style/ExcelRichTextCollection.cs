@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Drawing;
@@ -157,6 +158,7 @@ namespace OfficeOpenXml.Style
         {
             _list.Clear();
             TopNode.RemoveAll();
+            UpdateCells();
             if (_cells != null) _cells.IsRichText = false;
         }
         /// <summary>
@@ -218,7 +220,7 @@ namespace OfficeOpenXml.Style
 
         IEnumerator<ExcelRichText> IEnumerable<ExcelRichText>.GetEnumerator()
         {
-            return _list.GetEnumerator();
+            return _list.Select(x => { x.SetCallback(UpdateCells); return x; }).GetEnumerator();
         }
 
         #endregion
@@ -227,7 +229,7 @@ namespace OfficeOpenXml.Style
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return _list.GetEnumerator();
+            return _list.Select(x => { x.SetCallback(UpdateCells); return x; }).GetEnumerator();
         }
 
         #endregion

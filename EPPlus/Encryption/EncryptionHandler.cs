@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
@@ -41,11 +42,13 @@ using comTypes = System.Runtime.InteropServices.ComTypes;
 
 namespace OfficeOpenXml.Encryption
 {
+
     /// <summary>
     /// Handels encrypted Excel documents 
     /// </summary>
     internal class EncryptedPackageHandler
     {
+#if !MONO
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -88,6 +91,7 @@ namespace OfficeOpenXml.Encryption
         /// <param name="stream">The memory stream. </param>
         /// <param name="encryption">The encryption object from the Package</param>
         /// <returns></returns>
+        [SecuritySafeCritical]
         internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
         {
             //Create the lockBytes object.
@@ -107,9 +111,9 @@ namespace OfficeOpenXml.Encryption
                     throw (new InvalidDataException("The stream is not an valid/supported encrypted document."));
                 }
             }
-            catch (Exception ex)
+            catch// (Exception ex)
             {                
-                throw (ex);
+                throw;
             }
             finally
             {
@@ -505,7 +509,6 @@ namespace OfficeOpenXml.Encryption
                 return ms.ToArray();
             }
         }
-
         private MemoryStream GetStreamFromPackage(CompoundDocument doc, ExcelEncryption encryption)
         {
             var ret = new MemoryStream();
@@ -615,14 +618,13 @@ namespace OfficeOpenXml.Encryption
                 }
                 else
                 {
-                    throw (new UnauthorizedAccessException("Invalid password"));
+                    throw (new SecurityException("Invalid password"));
                 }
             }
             return null;
         }
         private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
         {
-            HashAlgorithm hashProvider;
             switch (encr.HashAlgorithm)
             {
                 case eHashAlogorithm.MD5:
@@ -734,8 +736,8 @@ namespace OfficeOpenXml.Encryption
         /// <summary>
         /// Validate the password
         /// </summary>
-        /// <param name="key">The encryption key</param>
-        /// <param name="encryptionInfo">The encryption info extracted from the ENCRYPTIOINFO stream inside the OLE document</param>
+        /// <param name="sha">The hash algorithm</param>
+        /// <param name="encr">The encryption info extracted from the ENCRYPTIOINFO stream inside the OLE document</param>
         /// <returns></returns>
         private bool IsPasswordValid(HashAlgorithm sha, EncryptionInfoAgile.EncryptionKeyEncryptor encr)
         {
@@ -891,12 +893,13 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
+
         /// <summary>
         /// Create the hash.
         /// This method is written with the help of Lyquidity library, many thanks for this nice sample
         /// </summary>
         /// <param name="password">The password</param>
-        /// <param name="encryptionInfo">The encryption info extracted from the ENCRYPTIOINFO stream inside the OLE document</param>
+        /// <param name="encr">The encryption info extracted from the ENCRYPTIOINFO stream inside the OLE document</param>
         /// <param name="blockKey">The block key appended to the hash to obtain the final hash</param>
         /// <returns>The hash to encrypt the document</returns>
         private byte[] GetPasswordHashAgile(string password, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey)
@@ -914,8 +917,8 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-
-        private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
+#endif
+			private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

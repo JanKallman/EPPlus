@@ -143,7 +143,7 @@ namespace EPPlusTest
         private static void AddTestSerie(ExcelWorksheet ws, ExcelChart chrt)
         {
             AddTestData(ws);
-            chrt.Series.Add("'" + ws.Name + "'!V19:V24", "'" + ws.Name + "'U19:U24");
+            chrt.Series.Add("'" + ws.Name + "'!V19:V24", "'" + ws.Name + "'!U19:U24");
         }
 
         private static void AddTestData(ExcelWorksheet ws)
@@ -419,6 +419,8 @@ namespace EPPlusTest
             chrt.Title.Text = "Cone bar";
             chrt.Series[0].Header = "Serie 1";
             chrt.Legend.Position = eLegendPosition.Right;
+            chrt.Axis[1].DisplayUnit = 100000;
+            Assert.AreEqual(chrt.Axis[1].DisplayUnit, 100000);
         }
         [TestMethod]
         [Ignore]
@@ -438,6 +440,8 @@ namespace EPPlusTest
             chrt.Locked = false;
             chrt.Print = false;
             chrt.EditAs = eEditAs.TwoCell;
+            chrt.Axis[1].DisplayUnit = 10020;
+            Assert.AreEqual(chrt.Axis[1].DisplayUnit, 10020);
         }
         [TestMethod]
         [Ignore]
@@ -808,6 +812,7 @@ namespace EPPlusTest
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
 
         }
+        [Ignore]
         [TestMethod]
         public void ReadWriteSmoothChart()
         {
@@ -816,6 +821,76 @@ namespace EPPlusTest
             _pck.Workbook.Worksheets[1].Cells["B2"].Value = 33;
             _pck.SaveAs(new FileInfo(@"c:\temp\chart.xlsx"));
 
-        }                    
+        }
+        [TestMethod]
+        public void TestHeaderaddress()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Draw");
+            var chart = ws.Drawings.AddChart("NewChart1",eChartType.Area) as ExcelChart;
+            var ser1 = chart.Series.Add("A1:A2", "B1:B2");
+            ser1.HeaderAddress = new ExcelAddress("A1:A2");
+            ser1.HeaderAddress = new ExcelAddress("A1:B1");
+            ser1.HeaderAddress = new ExcelAddress("A1");
+            _pck.Dispose();
+            _pck = null;
+        }
+        [Ignore]
+        [TestMethod]
+        public void AllDrawingsInsideMarkupCompatibility()
+        {
+            string workbooksDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
+            // This is codeplex issue 15028: Making an unrelated change to an Excel file that contains drawings that ALL exist
+            // inside MarkupCompatibility/Choice nodes causes the drawings.xml file to be incorrectly garbage collected
+            // when an unrelated change is made.
+            string path = Path.Combine(workbooksDir, "AllDrawingsInsideMarkupCompatibility.xlsm");
+
+            // Load example document.
+            _pck = new ExcelPackage(new FileInfo(path));
+            // Verify the drawing part exists:
+            Uri partUri = new Uri("/xl/drawings/drawing1.xml", UriKind.Relative);
+            Assert.IsTrue(_pck.Package.PartExists(partUri));
+
+            // The Excel Drawings NamespaceManager from ExcelDrawing.CreateNSM:
+            NameTable nt = new NameTable();
+            var xmlNsm = new XmlNamespaceManager(nt);
+            xmlNsm.AddNamespace("a", ExcelPackage.schemaDrawings);
+            xmlNsm.AddNamespace("xdr", ExcelPackage.schemaSheetDrawings);
+            xmlNsm.AddNamespace("c", ExcelPackage.schemaChart);
+            xmlNsm.AddNamespace("r", ExcelPackage.schemaRelationships);
+            xmlNsm.AddNamespace("mc", ExcelPackage.schemaMarkupCompatibility);
+
+            XmlDocument drawingsXml = new XmlDocument();
+            drawingsXml.PreserveWhitespace = false;
+            OfficeOpenXml.XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
+
+            // Verify that there are the correct # of drawings:
+            Assert.AreEqual(drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", xmlNsm).Count, 5);
+
+            // Make unrelated change. (in this case a useless additional worksheet)
+            _pck.Workbook.Worksheets.Add("NewWorksheet");
+
+            // Save it out.
+            string savedPath = Path.Combine(workbooksDir, "AllDrawingsInsideMarkupCompatibility2.xlsm");
+            _pck.SaveAs(new FileInfo(savedPath));
+            _pck.Dispose();
+            
+            // Reload the new saved file.
+            _pck = new ExcelPackage(new FileInfo(savedPath));
+
+            // Verify the drawing part still exists.
+            Assert.IsTrue(_pck.Package.PartExists(new Uri("/xl/drawings/drawing1.xml", UriKind.Relative)));
+
+            drawingsXml = new XmlDocument();
+            drawingsXml.PreserveWhitespace = false;
+            OfficeOpenXml.XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
+
+            // Verify that there are the correct # of drawings:
+            Assert.AreEqual(drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", xmlNsm).Count, 5);
+            // Verify that the new worksheet exists:
+            Assert.IsNotNull(_pck.Workbook.Worksheets["NewWorksheet"]);
+            // Cleanup:
+            File.Delete(savedPath);
+        }
     }
 }
