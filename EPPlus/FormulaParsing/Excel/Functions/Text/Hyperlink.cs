@@ -1,10 +1,4 @@
-﻿/*******************************************************************************
- * You may amend and distribute as you like, but don't remove this header!
- *
- * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
- *
- * Copyright (C) 2011  Jan Källman
+﻿/* Copyright (C) 2011  Jan Källman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,34 +19,27 @@
  * Code change notes:
  * 
  * Author							Change						Date
- * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ *******************************************************************************
+ * Mats Alm   		                Added		                2015-01-10
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
-namespace OfficeOpenXml.FormulaParsing.Exceptions
+namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
 {
-    //public class ExcelFunctionException : Exception
-    //{
-    //    public ExcelFunctionException(string message, ExcelErrorCodes errorCode)
-    //        : base(message)
-    //    {
-    //        ErrorCode = errorCode.Code;
-    //    }
-
-    //    public ExcelFunctionException(string message, Exception innerException, ExcelErrorCodes errorCode)
-    //        : base(message, innerException)
-    //    {
-    //        ErrorCode = errorCode.Code;
-    //    }
-
-    //    public string ErrorCode
-    //    {
-    //        get;
-    //        private set;
-    //    }
-    //}
+    public class Hyperlink : ExcelFunction
+    {
+        public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        {
+            ValidateArguments(arguments, 1);
+            if (arguments.Count() > 1)
+            {
+                return CreateResult(ArgToString(arguments, 1), DataType.String);
+            }
+            return CreateResult(ArgToString(arguments, 0), DataType.String);
+        }
+    }
 }

@@ -197,7 +197,7 @@ namespace EPPlusSamples
             foreach (var cell in wsAnswers.Cells["C7,C9,C11"])
             {
                 wsUser.Cells[cell.Address].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                if (cell.Value.ToString().ToLower() == wsUser.Cells[cell.Address].Value.ToString().ToLower()) //Correct Answer?
+                if (cell.Value.ToString().Equals(wsUser.Cells[cell.Address].Value.ToString(), StringComparison.InvariantCultureIgnoreCase)) //Correct Answer?
                 {
                     wsUser.Cells[cell.Address].Style.Fill.BackgroundColor.SetColor(Color.Green);
                 }

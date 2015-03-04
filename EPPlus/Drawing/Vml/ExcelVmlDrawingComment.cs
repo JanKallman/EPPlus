@@ -229,7 +229,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 else
                 {
                     string v = value.ToString();
-                    v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                    v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                     SetXmlNodeString(LINESTYLE_PATH, v);
                     DeleteNode(ENDCAP_PATH);
                 }

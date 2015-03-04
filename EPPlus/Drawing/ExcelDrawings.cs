@@ -81,7 +81,7 @@ namespace OfficeOpenXml.Drawing
                 _drawingsXml = new XmlDocument();                
                 _drawingsXml.PreserveWhitespace = false;
                 _drawings = new List<ExcelDrawing>();
-                _drawingNames = new Dictionary<string,int>();
+                _drawingNames = new Dictionary<string,int>(StringComparer.InvariantCultureIgnoreCase);
                 _package = xlPackage;
                 Worksheet = sheet;
                 XmlNode node = sheet.WorksheetXml.SelectSingleNode("//d:drawing", sheet.NameSpaceManager);
@@ -109,10 +109,17 @@ namespace OfficeOpenXml.Drawing
             }
         }
         private void AddDrawings()
-        {                        
-            //XmlNodeList list = _drawingsXml.SelectNodes("//xdr:twoCellAnchor", NameSpaceManager);
+        {
+            // Look inside all children for the drawings because they could be inside
+            // Markup Compatibility AlternativeContent/Choice or AlternativeContent/Fallback nodes.
+            // The code below currently pretends that loading all Choice alternative drawings doesn't cause a problem
+            // elsewhere. This seems to be ok for the time being as encountered drawing files so far only seem to have
+            // one Choice node (and no Fallback) underneath the AlternativeContent node. (Excel 2013 that is.)
+            // This change prevents CodePlex issue #15028 from occurring. 
+            // (the drawing xml part (that ONLY contained AlternativeContent nodes) was incorrectly being garbage collected when the package was saved)
+            XmlNodeList list = _drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", NameSpaceManager);
 
-            foreach (XmlNode node in _drawingsXml.DocumentElement.ChildNodes)
+            foreach (XmlNode node in list)
             {
                 
                 ExcelDrawing dr;
@@ -134,9 +141,9 @@ namespace OfficeOpenXml.Drawing
                 if (dr != null)
                 {
                     _drawings.Add(dr);
-                    if (!_drawingNames.ContainsKey(dr.Name.ToLower()))
+                    if (!_drawingNames.ContainsKey(dr.Name))
                     {
-                        _drawingNames.Add(dr.Name.ToLower(), _drawings.Count - 1);
+                        _drawingNames.Add(dr.Name, _drawings.Count - 1);
                     }
                 }
             }
@@ -205,9 +212,9 @@ namespace OfficeOpenXml.Drawing
         {
             get
             {
-                if (_drawingNames.ContainsKey(Name.ToLower()))
+                if (_drawingNames.ContainsKey(Name))
                 {
-                    return _drawings[_drawingNames[Name.ToLower()]];
+                    return _drawings[_drawingNames[Name]];
                 }
                 else
                 {
@@ -257,7 +264,7 @@ namespace OfficeOpenXml.Drawing
             /// <returns>The chart</returns>
             public ExcelChart AddChart(string Name, eChartType ChartType, ExcelPivotTable PivotTableSource)
             {
-                if(_drawingNames.ContainsKey(Name.ToLower()))
+                if(_drawingNames.ContainsKey(Name))
                 {
                     throw new Exception("Name already exists in the drawings collection");
                 }
@@ -277,7 +284,7 @@ namespace OfficeOpenXml.Drawing
                 ExcelChart chart = ExcelChart.GetNewChart(this, drawNode, ChartType, null, PivotTableSource);
                 chart.Name = Name;
                 _drawings.Add(chart);
-                _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                _drawingNames.Add(Name, _drawings.Count - 1);
                 return chart;
             }
             /// <summary>
@@ -312,7 +319,7 @@ namespace OfficeOpenXml.Drawing
             {
                 if (image != null)
                 {
-                    if (_drawingNames.ContainsKey(Name.ToLower()))
+                    if (_drawingNames.ContainsKey(Name))
                     {
                         throw new Exception("Name already exists in the drawings collection");
                     }
@@ -321,7 +328,7 @@ namespace OfficeOpenXml.Drawing
                     ExcelPicture pic = new ExcelPicture(this, drawNode, image, Hyperlink);
                     pic.Name = Name;
                     _drawings.Add(pic);
-                    _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                    _drawingNames.Add(Name, _drawings.Count - 1);
                     return pic;
                 }
                 throw (new Exception("AddPicture: Image can't be null"));
@@ -351,7 +358,7 @@ namespace OfficeOpenXml.Drawing
                 }
                 if (ImageFile != null)
                {
-                  if (_drawingNames.ContainsKey(Name.ToLower()))
+                  if (_drawingNames.ContainsKey(Name))
                   {
                      throw new Exception("Name already exists in the drawings collection");
                   }
@@ -360,7 +367,7 @@ namespace OfficeOpenXml.Drawing
                   ExcelPicture pic = new ExcelPicture(this, drawNode, ImageFile, Hyperlink);
                   pic.Name = Name;
                   _drawings.Add(pic);
-                  _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                  _drawingNames.Add(Name, _drawings.Count - 1);
                   return pic;
                }
                throw (new Exception("AddPicture: ImageFile can't be null"));
@@ -379,7 +386,7 @@ namespace OfficeOpenXml.Drawing
                 {
                     throw new InvalidOperationException("Chart worksheets can't have more than one drawing");
                 }
-                if (_drawingNames.ContainsKey(Name.ToLower()))
+                if (_drawingNames.ContainsKey(Name))
                 {
                     throw new Exception("Name already exists in the drawings collection");
                 }
@@ -388,7 +395,7 @@ namespace OfficeOpenXml.Drawing
                 shape.Name = Name;
                 shape.Style = Style;
                 _drawings.Add(shape);
-                _drawingNames.Add(Name.ToLower(), _drawings.Count - 1);
+                _drawingNames.Add(Name, _drawings.Count - 1);
                 return shape;
             }
             private XmlElement CreateDrawingXml()
@@ -466,9 +473,9 @@ namespace OfficeOpenXml.Drawing
             draw.DeleteMe();
             for (int i = Index + 1; i < _drawings.Count; i++)
             {
-                _drawingNames[_drawings[i].Name.ToLower()]--;
+                _drawingNames[_drawings[i].Name]--;
             }
-            _drawingNames.Remove(draw.Name.ToLower());
+            _drawingNames.Remove(draw.Name);
             _drawings.Remove(draw);
         }
         /// <summary>
@@ -477,7 +484,7 @@ namespace OfficeOpenXml.Drawing
         /// <param name="Drawing">The drawing</param>
         public void Remove(ExcelDrawing Drawing)
         {
-            Remove(_drawingNames[Drawing.Name.ToLower()]);
+            Remove(_drawingNames[Drawing.Name]);
         }
         /// <summary>
         /// Removes a drawing.
@@ -485,7 +492,7 @@ namespace OfficeOpenXml.Drawing
         /// <param name="Name">The name of the drawing</param>
         public void Remove(string Name)
         {
-            Remove(_drawingNames[Name.ToLower()]);
+            Remove(_drawingNames[Name]);
         }
         /// <summary>
         /// Removes all drawings from the collection

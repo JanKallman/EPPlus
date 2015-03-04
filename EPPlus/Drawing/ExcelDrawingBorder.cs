@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Drawing;
@@ -152,7 +153,7 @@ namespace OfficeOpenXml.Drawing
                 case eLineStyle.Dot:
                 case eLineStyle.DashDot:
                 case eLineStyle.Solid:
-                    return text.Substring(0,1).ToLower() + text.Substring(1,text.Length-1); //First to Lower case.
+                    return text.Substring(0,1).ToLower(CultureInfo.InvariantCulture) + text.Substring(1,text.Length-1); //First to Lower case.
                 case eLineStyle.LongDash:
                 case eLineStyle.LongDashDot:
                 case eLineStyle.LongDashDotDot:

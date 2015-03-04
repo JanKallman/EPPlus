@@ -109,7 +109,7 @@ namespace OfficeOpenXml.FormulaParsing
                 var f = new FormulaCell() { SheetID = ws == null ? 0 : ws.SheetID, Row = name.Index, Column = 0, Formula=name.NameFormula };
                 if (!string.IsNullOrEmpty(f.Formula))
                 {
-                    f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                    f.Tokens = lexer.Tokenize(f.Formula, (ws==null ? null : ws.Name)).ToList();
                     if (ws == null)
                     {
                         name._workbook._formulaTokens.SetValue(name.Index, 0, f.Tokens);
@@ -129,7 +129,7 @@ namespace OfficeOpenXml.FormulaParsing
             f.Formula = formula;
             if (!string.IsNullOrEmpty(f.Formula))
             {
-                f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                f.Tokens = lexer.Tokenize(f.Formula, ws.Name).ToList();
                 depChain.Add(f);
                 FollowChain(depChain, lexer, ws.Workbook, ws, f, options);
             }
@@ -148,7 +148,7 @@ namespace OfficeOpenXml.FormulaParsing
                     var f = new FormulaCell() { SheetID = ws.SheetID, Row = fs.Row, Column = fs.Column };
                     if (fs.Value is int)
                     {
-                        f.Formula = ws._sharedFormulas[(int)fs.Value].GetFormula(fs.Row, fs.Column);
+                        f.Formula = ws._sharedFormulas[(int)fs.Value].GetFormula(fs.Row, fs.Column, ws.Name);
                     }
                     else
                     {
@@ -156,7 +156,7 @@ namespace OfficeOpenXml.FormulaParsing
                     }
                     if (!string.IsNullOrEmpty(f.Formula))
                     {
-                        f.Tokens = lexer.Tokenize(f.Formula).ToList();
+                        f.Tokens = lexer.Tokenize(f.Formula, Range.Worksheet.Name).ToList();
                         ws._formulaTokens.SetValue(fs.Row, fs.Column, f.Tokens);
                         depChain.Add(f);
                         FollowChain(depChain, lexer, ws.Workbook, ws, f, options);
@@ -173,6 +173,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="wb">The workbook where the formula comes from</param>
         /// <param name="ws">The worksheet where the formula comes from</param>
         /// <param name="f">The cell function object</param>
+        /// <param name="options">Calcultaiton options</param>
         private static void FollowChain(DependencyChain depChain, ILexer lexer, ExcelWorkbook wb, ExcelWorksheet ws, FormulaCell f, ExcelCalculationOption options)
         {
             Stack<FormulaCell> stack = new Stack<FormulaCell>();
@@ -258,10 +259,15 @@ namespace OfficeOpenXml.FormulaParsing
 
                     if (name != null)
                     {
+        
                         if (string.IsNullOrEmpty(name.NameFormula))
                         {
-                            f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, name.Start.Row, name.Start.Column, name.End.Row, name.End.Column);
-                            goto iterateCells;
+                            if (name.NameValue == null)
+                            {
+                                f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, name.Start.Row,
+                                    name.Start.Column, name.End.Row, name.End.Column);
+                                goto iterateCells;
+                            }
                         }
                         else
                         {
@@ -271,7 +277,8 @@ namespace OfficeOpenXml.FormulaParsing
                             {
                                 var rf = new FormulaCell() { SheetID = name.LocalSheetId, Row = name.Index, Column = 0 };
                                 rf.Formula = name.NameFormula;
-                                rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
+                                rf.Tokens = name.LocalSheetId == -1 ? lexer.Tokenize(rf.Formula).ToList() : lexer.Tokenize(rf.Formula, wb.Worksheets.GetBySheetID(name.LocalSheetId).Name).ToList();
+                                
                                 depChain.Add(rf);
                                 stack.Push(f);
                                 f = rf;
@@ -305,7 +312,7 @@ namespace OfficeOpenXml.FormulaParsing
             return;
         iterateCells:
 
-            while (f.iterator.Next())
+            while (f.iterator != null && f.iterator.Next())
             {
                 var v = f.iterator.Value;
                 if (v == null || v.ToString().Trim() == "") continue;
@@ -315,14 +322,14 @@ namespace OfficeOpenXml.FormulaParsing
                     var rf = new FormulaCell() { SheetID = f.ws.SheetID, Row = f.iterator.Row, Column = f.iterator.Column };
                     if (f.iterator.Value is int)
                     {
-                        rf.Formula = f.ws._sharedFormulas[(int)v].GetFormula(f.iterator.Row, f.iterator.Column);
+                        rf.Formula = f.ws._sharedFormulas[(int)v].GetFormula(f.iterator.Row, f.iterator.Column, ws.Name);
                     }
                     else
                     {
                         rf.Formula = v.ToString();
                     }
                     rf.ws = f.ws;
-                    rf.Tokens = lexer.Tokenize(rf.Formula).ToList();
+                    rf.Tokens = lexer.Tokenize(rf.Formula, f.ws.Name).ToList();
                     ws._formulaTokens.SetValue(rf.Row, rf.Column, rf.Tokens);
                     depChain.Add(rf);
                     stack.Push(f);

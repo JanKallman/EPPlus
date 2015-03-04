@@ -461,7 +461,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNodeString(_orientationPath, value.ToString().ToLower());
+                SetXmlNodeString(_orientationPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string _fitToWidthPath = "d:pageSetup/@fitToWidth";

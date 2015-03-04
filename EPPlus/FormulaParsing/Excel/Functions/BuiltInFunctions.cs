@@ -48,17 +48,23 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["right"] = new Right();
             Functions["mid"] = new Mid();
             Functions["replace"] = new Replace();
+            Functions["rept"] = new Rept();
             Functions["substitute"] = new Substitute();
             Functions["concatenate"] = new Concatenate();
+            Functions["char"] = new CharFunction();
             Functions["exact"] = new Exact();
             Functions["find"] = new Find();
+            Functions["fixed"] = new Fixed();
             Functions["proper"] = new Proper();
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
+            Functions["hyperlink"] = new Hyperlink();
             // Numbers
             Functions["int"] = new CInt();
             // Math
             Functions["abs"] = new Abs();
+            Functions["asin"] = new Asin();
+            Functions["asinh"] = new Asinh();
             Functions["cos"] = new Cos();
             Functions["cosh"] = new Cosh();
             Functions["power"] = new Power();
@@ -70,13 +76,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ceiling"] = new Ceiling();
             Functions["count"] = new Count();
             Functions["counta"] = new CountA();
+            Functions["countblank"] = new CountBlank();
             Functions["countif"] = new CountIf();
+            Functions["countifs"] = new CountIfs();
             Functions["fact"] = new Fact();
             Functions["floor"] = new Floor();
             Functions["sin"] = new Sin();
             Functions["sinh"] = new Sinh();
             Functions["sum"] = new Sum();
             Functions["sumif"] = new SumIf();
+            Functions["sumifs"] = new SumIfs();
             Functions["sumproduct"] = new SumProduct();
             Functions["sumsq"] = new Sumsq();
             Functions["stdev"] = new Stdev();
@@ -90,11 +99,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["ln"] = new Ln();
             Functions["max"] = new Max();
             Functions["maxa"] = new Maxa();
+            Functions["median"] = new Median();
             Functions["min"] = new Min();
+            Functions["mina"] = new Mina();
             Functions["mod"] = new Mod();
             Functions["average"] = new Average();
             Functions["averagea"] = new AverageA();
             Functions["averageif"] = new AverageIf();
+            Functions["averageifs"] = new AverageIfs();
             Functions["round"] = new Round();
             Functions["rounddown"] = new Rounddown();
             Functions["roundup"] = new Roundup();
@@ -106,14 +118,22 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["tanh"] = new Tanh();
             Functions["atan"] = new Atan();
             Functions["atan2"] = new Atan2();
+            Functions["atanh"] = new Atanh();
+            Functions["acos"] = new Acos();
+            Functions["acosh"] = new Acosh();
             Functions["var"] = new Var();
             Functions["varp"] = new VarP();
+            Functions["large"] = new Large();
+            Functions["small"] = new Small();
+            Functions["degrees"] = new Degrees();
             // Information
             Functions["isblank"] = new IsBlank();
             Functions["isnumber"] = new IsNumber();
             Functions["istext"] = new IsText();
+            Functions["isnontext"] = new IsNonText();
             Functions["iserror"] = new IsError();
             Functions["iserr"] = new IsErr();
+            Functions["error.type"] = new ErrorType();
             Functions["iseven"] = new IsEven();
             Functions["isodd"] = new IsOdd();
             Functions["islogical"] = new IsLogical();
@@ -122,23 +142,27 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["n"] = new N();
             // Logical
             Functions["if"] = new If();
+            Functions["iferror"] = new IfError();
+            Functions["ifna"] = new IfNa();
             Functions["not"] = new Not();
             Functions["and"] = new And();
             Functions["or"] = new Or();
             Functions["true"] = new True();
+            Functions["false"] = new False();
             // Reference and lookup
             Functions["address"] = new Address();
             Functions["hlookup"] = new HLookup();
             Functions["vlookup"] = new VLookup();
             Functions["lookup"] = new Lookup();
             Functions["match"] = new Match();
-            Functions["row"] = new Row();
+            Functions["row"] = new Row(){SkipArgumentEvaluation = true};
             Functions["rows"] = new Rows(){SkipArgumentEvaluation = true};
-            Functions["column"] = new Column();
+            Functions["column"] = new Column(){SkipArgumentEvaluation = true};
             Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
             Functions["choose"] = new Choose();
             Functions["index"] = new Index();
             Functions["indirect"] = new Indirect();
+            Functions["offset"] = new Offset(){SkipArgumentEvaluation = true};
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();

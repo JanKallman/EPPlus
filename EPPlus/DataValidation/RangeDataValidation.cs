@@ -51,6 +51,11 @@ namespace OfficeOpenXml.DataValidation
         ExcelWorksheet _worksheet;
         string _address;
 
+        public IExcelDataValidationAny AddAnyDataValidation()
+        {
+            return _worksheet.DataValidations.AddAnyValidation(_address);
+        }
+
         public IExcelDataValidationInt AddIntegerDataValidation()
         {
             return _worksheet.DataValidations.AddIntegerValidation(_address);

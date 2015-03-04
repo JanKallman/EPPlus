@@ -203,7 +203,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 
         /// <summary>
         /// Returns the value of the argument att the position of the 0-based
-        /// <paramref name="index"/> as a bool
         /// </summary>
         /// <param name="obj"></param>
         /// <returns>Value of the argument as a double.</returns>
@@ -224,6 +223,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected double ArgToDecimal(IEnumerable<FunctionArgument> arguments, int index)
         {
             return ArgToDecimal(arguments.ElementAt(index).Value);
+        }
+
+        protected double Divide(double left, double right)
+        {
+            if (System.Math.Abs(right - 0d) < double.Epsilon)
+            {
+                throw new ExcelErrorValueException(eErrorType.Div0);
+            }
+            return left/right;
         }
 
         protected bool IsNumericString(object value)
@@ -419,6 +427,27 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             {
                 throw (new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString())));
             }
+        }
+
+        protected CompileResult GetResultByObject(object result)
+        {
+            if (IsNumeric(result))
+            {
+                return CreateResult(result, DataType.Decimal);
+            }
+            if (result is string)
+            {
+                return CreateResult(result, DataType.String);
+            }
+            if (ExcelErrorValue.Values.IsErrorValue(result))
+            {
+                return CreateResult(result, DataType.ExcelAddress);
+            }
+            if (result == null)
+            {
+                return CompileResult.Empty;
+            }
+            return CreateResult(result, DataType.Enumerable);
         }
     }
 }

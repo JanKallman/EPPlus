@@ -112,7 +112,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     retVal += candidate;
                 }
             }
-            return retVal / nMatches;
+            return Divide(retVal, nMatches);
         }
 
         private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
@@ -129,7 +129,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     nMatches++;
                 }
             }
-            return retVal / nMatches;
+            return Divide(retVal, nMatches);
         }
 
         private double Calculate(FunctionArgument arg, string expression)

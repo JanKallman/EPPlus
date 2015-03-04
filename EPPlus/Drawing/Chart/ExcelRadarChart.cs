@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Table.PivotTable;
@@ -96,7 +97,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                _chartXmlHelper.SetXmlNodeString(STYLE_PATH, value.ToString().ToLower());
+                _chartXmlHelper.SetXmlNodeString(STYLE_PATH, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
 

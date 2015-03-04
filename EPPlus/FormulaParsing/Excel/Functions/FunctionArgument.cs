@@ -78,6 +78,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             get
             {
+                if (Value is ExcelDataProvider.INameInfo)
+                {
+                    Value = ((ExcelDataProvider.INameInfo)Value).Value;
+                }
                 var v = Value as ExcelDataProvider.IRangeInfo;
                 if (v==null)
                 {

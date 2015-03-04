@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -42,7 +43,7 @@ namespace OfficeOpenXml.Table
     public class ExcelTableColumnCollection : IEnumerable<ExcelTableColumn>
     {
         List<ExcelTableColumn> _cols = new List<ExcelTableColumn>();
-        Dictionary<string, int> _colNames = new Dictionary<string, int>();
+        Dictionary<string, int> _colNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         public ExcelTableColumnCollection(ExcelTable table)
         {
             Table = table;
@@ -114,6 +115,21 @@ namespace OfficeOpenXml.Table
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             return _cols.GetEnumerator();
+        }
+        internal string GetUniqueName(string name)
+        {            
+            if (_colNames.ContainsKey(name))
+            {
+                var newName = name;
+                var i = 2;
+                do
+                {
+                    newName = name+(i++).ToString(CultureInfo.InvariantCulture);
+                }
+                while (_colNames.ContainsKey(newName));
+                return newName;
+            }
+            return name;
         }
     }
 }

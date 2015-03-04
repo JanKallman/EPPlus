@@ -33,10 +33,10 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldCreateAStringToken()
         {
-            var input = "'";
+            var input = "\"";
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
 
-            Assert.AreEqual("'", token.Value);
+            Assert.AreEqual("\"", token.Value);
             Assert.AreEqual(TokenType.String, token.TokenType);
         }
 
@@ -160,7 +160,8 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         public void CreateShouldCreateNamedValueAsExcelAddressToken()
         {
             var input = "NamedValue";
-            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue")).Return(true);
+            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue","")).Return(true);
+            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue", null)).Return(true);
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
             Assert.AreEqual(TokenType.NameValue, token.TokenType);
             Assert.AreEqual("NamedValue", token.Value);

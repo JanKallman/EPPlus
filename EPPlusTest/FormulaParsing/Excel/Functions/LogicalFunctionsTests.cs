@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -51,6 +52,19 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void NotShouldHandleExcelReference()
+        {
+            using(var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("sheet1");
+                sheet.Cells["A1"].Value = false;
+                sheet.Cells["A2"].Formula = "NOT(A1)";
+                sheet.Calculate();
+                Assert.IsTrue((bool)sheet.Cells["A2"].Value);
+            }
+        }
+
+        [TestMethod]
         public void AndShouldReturnTrueIfAllArgumentsAreTrue()
         {
             var func = new And();
@@ -93,6 +107,70 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(true, false, false);
             var result = func.Execute(args, _parsingContext);
             Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void IfErrorShouldReturnSecondArgIfCriteriaEvaluatesAsAnError()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "IFERROR(0/0, \"hello\")";
+                s1.Calculate();
+                Assert.AreEqual("hello", s1.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void IfErrorShouldReturnSecondArgIfCriteriaEvaluatesAsAnError2()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "IFERROR(A2, \"hello\")";
+                s1.Cells["A2"].Formula = "23/0";
+                s1.Calculate();
+                Assert.AreEqual("hello", s1.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void IfErrorShouldReturnResultOfFormulaIfNoError()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "IFERROR(A2, \"hello\")";
+                s1.Cells["A2"].Value = "hi there";
+                s1.Calculate();
+                Assert.AreEqual("hi there", s1.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void IfNaShouldReturnSecondArgIfCriteriaEvaluatesAsAnError2()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "IFERROR(A2, \"hello\")";
+                s1.Cells["A2"].Value = ExcelErrorValue.Create(eErrorType.NA);
+                s1.Calculate();
+                Assert.AreEqual("hello", s1.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void IfNaShouldReturnResultOfFormulaIfNoError()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var s1 = package.Workbook.Worksheets.Add("test");
+                s1.Cells["A1"].Formula = "IFNA(A2, \"hello\")";
+                s1.Cells["A2"].Value = "hi there";
+                s1.Calculate();
+                Assert.AreEqual("hi there", s1.Cells["A1"].Value);
+            }
         }
     }
 }

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.IO;
@@ -154,7 +155,7 @@ namespace OfficeOpenXml.Drawing
 
         internal static string GetContentType(string extension)
         {
-            switch (extension.ToLower())
+            switch (extension.ToLower(CultureInfo.InvariantCulture))
             {
                 case ".bmp":
                     return  "image/bmp";

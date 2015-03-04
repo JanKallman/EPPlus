@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
@@ -68,7 +69,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                switch(GetXmlNodeString(POSITION_PATH).ToLower())
+                switch(GetXmlNodeString(POSITION_PATH).ToLower(CultureInfo.InvariantCulture))
                 {
                     case "t":
                         return eLegendPosition.Top;

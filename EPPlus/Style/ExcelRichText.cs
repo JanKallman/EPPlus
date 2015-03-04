@@ -49,8 +49,6 @@ namespace OfficeOpenXml.Style
             base(ns, topNode)
         {
             SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
-            PreserveSpace = false;
-
         }
         internal delegate void CallbackDelegate();
         CallbackDelegate _callback;
@@ -71,9 +69,9 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-				// Don't remove if blank -- setting a blank rich text value on a node is common,
-				// for example when applying both bold and italic to text.
-				SetXmlNodeString(TEXT_PATH, value, false);
+                // Don't remove if blank -- setting a blank rich text value on a node is common,
+                // for example when applying both bold and italic to text.
+                SetXmlNodeString(TEXT_PATH, value, false);
                 if (PreserveSpace)
                 {
                     XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
@@ -82,7 +80,6 @@ namespace OfficeOpenXml.Style
                 if (_callback != null) _callback();
             }
         }
-        bool _preserveSpace=false;
         /// <summary>
         /// Preserves whitespace. Default true
         /// </summary>
@@ -95,7 +92,7 @@ namespace OfficeOpenXml.Style
                 {
                     return elem.GetAttribute("xml:space")=="preserve";
                 }
-                return _preserveSpace;
+                return false;
             }
             set
             {
@@ -111,7 +108,7 @@ namespace OfficeOpenXml.Style
                         elem.RemoveAttribute("xml:space");
                     }
                 }
-                _preserveSpace = false;
+                if (_callback != null) _callback();
             }
         }
         const string BOLD_PATH = "d:rPr/d:b";
@@ -243,6 +240,7 @@ namespace OfficeOpenXml.Style
 				} else {
 					SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
 				}
+                if (_callback != null) _callback();
             }
         }
         const string SIZE_PATH = "d:rPr/d:sz/@val";

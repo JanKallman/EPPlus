@@ -42,10 +42,28 @@ EPPlus started with the source from the ExcelPackage project hosted on CodePlex.
 <NamespaceSummaryItem name="OfficeOpenXml.ConditionalFormatting.Contracts" isDocumented="True">Contains interfaces for Conditional formatting</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Contracts" isDocumented="True">Contains interfaces for data validation</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.DataValidation.Formulas.Contracts" isDocumented="True">Contains interfaces for data validation formulas</NamespaceSummaryItem>
-<NamespaceSummaryItem name="Ionic.Zip" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
-<NamespaceSummaryItem name="Ionic.Zlib" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Ionic.Zip" isDocumented="False">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="Ionic.Zlib" isDocumented="False">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
 <NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing" isDocumented="True">Top namesspace for formula parsing</NamespaceSummaryItem>
-<NamespaceSummaryItem name="OfficeOpenXml.Packaging" isDocumented="True">Contains classes too handle OOXML packaging</NamespaceSummaryItem></NamespaceSummaries>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging" isDocumented="True">Contains classes to handle OOXML packaging. Uses the DotNetZip library to handle compression.</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging.Ionic.Zip" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.Packaging.Ionic.Zlib" isDocumented="True">Internal zip handling for packaging. This is code comes from the DotNetZip library... http://dotnetzip.codeplex.com</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions" isDocumented="True">Formula parsing buildin functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime" isDocumented="True">Formula parsing buildin date and time functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.Information" isDocumented="True">Formula parsing buildin information functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.Logical" isDocumented="True">Formula parsing buildin logical functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.Math" isDocumented="True">Formula parsing buildin math functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric" isDocumented="True">Formula parsing buildin numeric functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup" isDocumented="True">Formula parsing buildin reference and lookup functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Functions.Text" isDocumented="True">Formula parsing buildin text functions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Excel.Operators" isDocumented="True">Formula parsing operators</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.ExcelUtilities" isDocumented="False">Formula parsing internal utilities</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Exceptions" isDocumented="True">Formula parsing exeptions</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.ExpressionGraph" isDocumented="True">Formula parsing expression graph</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.ExpressionGraph.CompileStrategy" isDocumented="True">Formula parsing expression graph</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers" isDocumented="True">Formula parsing expression graph</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.LexicalAnalysis" isDocumented="False">Formula parsing lexial analysis</NamespaceSummaryItem>
+<NamespaceSummaryItem name="OfficeOpenXml.FormulaParsing.Utilities" isDocumented="True">Formula parsing internal utilities</NamespaceSummaryItem></NamespaceSummaries>
     <HelpTitle>EPPlus 4.0</HelpTitle>
     <VisibleItems>InheritedMembers, InheritedFrameworkMembers</VisibleItems>
     <BuildLogFile />

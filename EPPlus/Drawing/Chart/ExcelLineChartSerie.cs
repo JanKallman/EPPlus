@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -87,7 +88,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                SetXmlNodeString(markerPath, value.ToString().ToLower());
+                SetXmlNodeString(markerPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string smoothPath = "c:smooth/@val";

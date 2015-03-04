@@ -42,7 +42,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 Calculate(arg, context, ref result, ref nValues);
             }
-            return CreateResult(result / nValues, DataType.Decimal);
+            return CreateResult(Divide(result, nValues), DataType.Decimal);
         }
 
         private void Calculate(FunctionArgument arg, ParsingContext context, ref double retVal, ref double nValues, bool isInArray = false)

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.Utils;
@@ -44,7 +45,7 @@ namespace OfficeOpenXml.DataValidation
     /// <summary>
     /// Excel datavalidation
     /// </summary>
-    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation  
+    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation
     {
         private const string _itemElementNodeName = "d:dataValidation";
 
@@ -135,7 +136,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 throw new FormatException("Multiple addresses may not be commaseparated, use space instead");
             }
-            address = address.ToUpper();
+            address = address.ToUpper(CultureInfo.InvariantCulture);
             if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
             {
                 address = AddressUtility.ParseEntireColumnSelections(address);
@@ -209,7 +210,7 @@ namespace OfficeOpenXml.DataValidation
             }
             private set
             {
-                SetXmlNodeString(_typeMessagePath, value.SchemaName);
+                SetXmlNodeString(_typeMessagePath, value.SchemaName, true);
             }
         }
 
@@ -253,7 +254,7 @@ namespace OfficeOpenXml.DataValidation
             }
             set
             {
-                if(value == ExcelDataValidationWarningStyle.undefined)
+                if (value == ExcelDataValidationWarningStyle.undefined)
                 {
                     DeleteNode(_errorStylePath);
                 }

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 
@@ -153,7 +154,7 @@ namespace OfficeOpenXml.Table
                     throw(new Exception("Use the TotalsRowFormula-property to set a custom table formula"));
                 }
                 string s = value.ToString();
-                s = s.Substring(0, 1).ToLower() + s.Substring(1, s.Length - 1);
+                s = s.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + s.Substring(1, s.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", s);
                 _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
