@@ -93,7 +93,7 @@ namespace OfficeOpenXml.Style
         /// <param name="Text">The text to add</param>
         /// <returns></returns>
         public ExcelRichText Add(string Text)
-        {
+        {            
             ConvertRichtext();
             XmlDocument doc;
             if (TopNode is XmlDocument)
@@ -152,6 +152,7 @@ namespace OfficeOpenXml.Style
 
         internal void ConvertRichtext()
         {
+            if (_cells == null) return;
             var isRt = _cells.Worksheet._flags.GetFlagValue(_cells._fromRow, _cells._fromCol, CellFlags.RichText);
             if (Count == 1 && isRt == false)
             {

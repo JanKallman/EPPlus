@@ -54,7 +54,7 @@ namespace EPPlusTest
             {
                 var ws = package.Workbook.Worksheets.Add("Test");
                 ws.Cells["A1"].Value = 202100083;
-                ws.Cells["A1"].Style.Numberformat.Format = "00.00.00.000.0";
+                ws.Cells["A1"].Style.Numberformat.Format = "00\\.00\\.00\\.000\\.0";
                 Assert.AreEqual("02.02.10.008.3", ws.Cells["A1"].Text);
                 ws.Dispose();
             }

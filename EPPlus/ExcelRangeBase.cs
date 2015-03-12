@@ -2683,7 +2683,8 @@ namespace OfficeOpenXml
             _worksheet.MergedCells.Delete(Range);
 			//First find the start cell
             int fromRow, fromCol;
-            if (Range._fromRow <= Worksheet.Dimension._fromRow && Range._toRow >= Worksheet.Dimension._toRow) //EntireRow?
+            var d = Worksheet.Dimension;
+            if (d != null && Range._fromRow <= d._fromRow && Range._toRow >= d._toRow) //EntireRow?
             {
                 fromRow = 0;
             }
@@ -2691,7 +2692,7 @@ namespace OfficeOpenXml
             {
                 fromRow = Range._fromRow;                
             }
-            if (Range._fromCol <= Worksheet.Dimension._fromCol && Range._toCol >= Worksheet.Dimension._toCol) //EntireRow?
+            if (d != null && Range._fromCol <= d._fromCol && Range._toCol >= d._toCol) //EntireRow?
             {
                 fromCol = 0;
             }
