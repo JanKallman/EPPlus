@@ -708,7 +708,7 @@ namespace OfficeOpenXml
 				{
 					if (_worksheet._values.Exists(row,col))
 					{
-						if (IsRichText)
+                        if (_worksheet._flags.GetFlagValue(row, col, CellFlags.RichText))
 						{
 							v[row - addr._fromRow, col - addr._fromCol] = GetRichText(row, col).Text;
 						}
@@ -1323,7 +1323,8 @@ namespace OfficeOpenXml
 		}
 		ExcelRichTextCollection _rtc = null;
 		/// <summary>
-		/// Cell value is richtext formated. 
+		/// Cell value is richtext formatted. 
+		/// Richtext-property only apply to the left-top cell of the range.
 		/// </summary>
 		public ExcelRichTextCollection RichText
 		{
@@ -1359,26 +1360,6 @@ namespace OfficeOpenXml
 				xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
 			}
 			var rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
-            if (rtc.Count == 1 && isRt == false)
-			{
-				IsRichText = true;
-                var s = _worksheet._styles.GetValue(row, col);
-                //var fnt = cell.Style.Font;
-                var fnt = _worksheet.Workbook.Styles.GetStyleObject(s, _worksheet.PositionID, ExcelAddressBase.GetAddress(row, col)).Font;
-				rtc[0].PreserveSpace = true;
-				rtc[0].Bold = fnt.Bold;
-				rtc[0].FontName = fnt.Name;
-				rtc[0].Italic = fnt.Italic;
-				rtc[0].Size = fnt.Size;
-				rtc[0].UnderLine = fnt.UnderLine;
-
-				int hex;
-				if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber, null, out hex))
-				{
-					rtc[0].Color = Color.FromArgb(hex);
-				}
-
-			}
 			return rtc;
 		}
 		/// <summary>
@@ -1515,14 +1496,14 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				for (int col = _fromCol; col <= _toCol; col++)
-				{
-					for (int row = _fromRow; row <= _toRow; row++)
-					{
+                //for (int col = _fromCol; col <= _toCol; col++)
+                //{
+                //    for (int row = _fromRow; row <= _toRow; row++)
+                //    {
 						//_worksheet.Cell(row, col).SetValueRichText(value);
-                        SetValue(value, row,col);
-					}
-				}
+                        SetValue(value, _fromRow,_fromCol);
+                    //}
+				//}
 			}
 		}
 
@@ -2505,8 +2486,8 @@ namespace OfficeOpenXml
                         copiedMergedCells.Add(csem.Value, new ExcelAddress(
                             Destination._fromRow + (adr.Start.Row - _fromRow),
                             Destination._fromCol + (adr.Start.Column - _fromCol),
-                            Destination._toRow + (adr.End.Row - _fromRow),
-                            Destination._toCol + (adr.End.Column - _fromCol)));
+                            Destination._fromRow + (adr.End.Row - _fromRow),
+                            Destination._fromCol + (adr.End.Column - _fromCol)));
                     }
                     else
                     {
@@ -2701,20 +2682,38 @@ namespace OfficeOpenXml
             //DeleteCheckMergedCells(Range);
             _worksheet.MergedCells.Delete(Range);
 			//First find the start cell
-            var rows=Range._toRow-Range._fromRow+1;
-            var cols=Range._toCol - Range._fromCol+1;
+            int fromRow, fromCol;
+            if (Range._fromRow <= Worksheet.Dimension._fromRow && Range._toRow >= Worksheet.Dimension._toRow) //EntireRow?
+            {
+                fromRow = 0;
+            }
+            else
+            {
+                fromRow = Range._fromRow;                
+            }
+            if (Range._fromCol <= Worksheet.Dimension._fromCol && Range._toCol >= Worksheet.Dimension._toCol) //EntireRow?
+            {
+                fromCol = 0;
+            }
+            else
+            {
+                fromCol = Range._fromRow;
+            }
+
+            var rows = Range._toRow - fromRow + 1;
+            var cols = Range._toCol - fromCol + 1;
             
-            _worksheet._values.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._types.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._styles.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._formulas.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._hyperLinks.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._flags.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
-            _worksheet._commentsStore.Delete(Range._fromRow, Range._fromCol, rows, cols, shift);
+            _worksheet._values.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._types.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._styles.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._formulas.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._hyperLinks.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._flags.Delete(fromRow, fromCol, rows, cols, shift);
+            _worksheet._commentsStore.Delete(fromRow, fromCol, rows, cols, shift);
 
             //if(shift)
             //{
-            //    _worksheet.AdjustFormulasRow(Range._fromRow, rows);
+            //    _worksheet.AdjustFormulasRow(fromRow, rows);
             //}
 
 			//Delete multi addresses as well

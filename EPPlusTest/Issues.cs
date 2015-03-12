@@ -645,5 +645,75 @@ namespace EPPlusTest
             using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\ssis\FileFromReportingServer2012.xlsx")))
                 package.SaveAs(new FileInfo(@"c:\temp\bug\ssis\Corrupted.xlsx"));
         }
+        [TestMethod, Ignore]
+        public void Issue15200()
+        {
+            File.Copy(@"C:\temp\bug\EPPlusRangeCopyTest\EPPlusRangeCopyTest\input.xlsx", @"C:\temp\bug\EPPlusRangeCopyTest\EPPlusRangeCopyTest\output.xlsx", true);
+
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\EPPlusRangeCopyTest\EPPlusRangeCopyTest\output.xlsx")))
+            {
+                var sheet = p.Workbook.Worksheets.First();
+
+                var sourceRange = sheet.Cells[1, 1, 1, 2];
+                var resultRange = sheet.Cells[3, 1, 3, 2];
+                sourceRange.Copy(resultRange);
+
+                sourceRange = sheet.Cells[1, 1, 1, 7];
+                resultRange = sheet.Cells[5, 1, 5, 7];
+                sourceRange.Copy(resultRange);  // This throws System.ArgumentException: Can't merge and already merged range
+
+                sourceRange = sheet.Cells[1, 1, 1, 7];
+                resultRange = sheet.Cells[7, 3, 7, 7];
+                sourceRange.Copy(resultRange);  // This throws System.ArgumentException: Can't merge and already merged range
+
+                p.Save();
+            }
+        }        
+        [TestMethod]
+        public void Issue15212()
+        {
+            var s="_(\"R$ \"* #,##0.00_);_(\"R$ \"* (#,##0.00);_(\"R$ \"* \"-\"??_);_(@_) )";
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("StyleBug");
+                ws.Cells["A1"].Value = 5698633.64;
+                ws.Cells["A1"].Style.Numberformat.Format = s;
+                var t = ws.Cells["A1"].Text;
+            }            
+        }
+        [TestMethod, Ignore]
+        public void Issue15213()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\ExcelClearDemo\exceltestfile.xlsx")))
+            {
+                foreach (var ws in p.Workbook.Worksheets)
+                {
+                    ws.Cells[1023, 1, ws.Dimension.End.Row-2,ws.Dimension.End.Column].Clear();
+                    Assert.AreNotEqual(ws.Dimension, null);
+                }
+                foreach (var cell in p.Workbook.Worksheets[2].Cells)
+                {
+                    Console.WriteLine(cell);
+                }
+                p.SaveAs(new FileInfo(@"c:\temp\bug\ExcelClearDemo\exceltestfile-save.xlsx"));
+            }            
+        }
+
+        [TestMethod, Ignore]
+        public void Issuer15217()
+        {
+
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\FormatRowCol.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets.Add("fmt");
+                ws.Row(1).Style.Fill.PatternType = ExcelFillStyle.Solid;
+                ws.Row(1).Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                ws.Cells["A1:B2"].Value = 1;
+                ws.Column(1).Style.Numberformat.Format = "yyyy-mm-dd hh:mm";
+                ws.Column(2).Style.Numberformat.Format = "#,##0";
+                p.Save();
+            }
+
+        }
     }
 }    

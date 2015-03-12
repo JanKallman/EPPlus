@@ -815,7 +815,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             TopNode = topNode;
             var doSetXfId = (!isCellStyleXsf && _xfID > int.MinValue && _styles.CellStyleXfs.Count > 0 && _styles.CellStyleXfs[_xfID].newID > int.MinValue);
-            if (_numFmtId >= 0)
+            if (_numFmtId > 0)
             {
                 SetXmlNodeString("@numFmtId", _numFmtId.ToString());
                 if(doSetXfId) SetXmlNodeString("@applyNumberFormat", "1");

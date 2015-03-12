@@ -1933,6 +1933,38 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\worksheet error_save.xlsx"));
             }
         }
+
+        [TestMethod,Ignore]
+        public void Issue15207()
+        {
+            using (ExcelPackage ep = new ExcelPackage(new FileInfo(@"c:\temp\bug\worksheet error.xlsx")))
+            {
+                ExcelWorkbook wb = ep.Workbook;
+
+                if (wb != null)
+                {
+                    ExcelWorksheet ws = null;
+
+                    ws = wb.Worksheets[1];
+
+                    if (ws != null)
+                    {
+                        //do something with the worksheet
+                        ws.Dispose();
+                    }
+
+                    wb.Dispose();
+
+                } //if wb != null
+
+                wb = null;
+
+                //do some other things
+
+                //running through this next line now throws the null reference exception
+                //so the inbuilt dispose method doesn't work properly.
+            } //using (ExcelPackage ep = new ExcelPackage(new FileInfo(some_file))
+        }
         #region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()
