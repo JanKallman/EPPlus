@@ -2309,13 +2309,13 @@ namespace OfficeOpenXml
             }
             lock (this)
             {
-                _values.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _types.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _formulas.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _styles.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _flags.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _commentsStore.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
-                _hyperLinks.Delete(rowFrom, 1, rows, ExcelPackage.MaxColumns);
+                _values.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _types.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _formulas.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _styles.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _flags.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _commentsStore.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _hyperLinks.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
 
                 AdjustFormulasRow(rowFrom, rows);
                 FixMergedCellsRow(rowFrom, rows, true);
@@ -2362,13 +2362,13 @@ namespace OfficeOpenXml
                     }
                 }
 
-                _values.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _types.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _formulas.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _styles.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _flags.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _commentsStore.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
-                _hyperLinks.Delete(1, columnFrom, ExcelPackage.MaxRows, columns);
+                _values.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _types.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _formulas.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _styles.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _flags.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _commentsStore.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _hyperLinks.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
 
                 AdjustFormulasColumn(columnFrom, columns);
                 FixMergedCellsColumn(columnFrom, columns, true);

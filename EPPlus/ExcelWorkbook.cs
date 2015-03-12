@@ -1065,11 +1065,16 @@ namespace OfficeOpenXml
 
         public void Dispose()
         {
-            _sharedStrings.Clear();
-            _sharedStringsList.Clear();
-            
-            _sharedStrings = null;
-            _sharedStringsList = null;
+            if (_sharedStrings != null)
+            {
+                _sharedStrings.Clear();
+                _sharedStrings = null;
+            }
+            if (_sharedStringsList != null)
+            {
+                _sharedStringsList.Clear();
+                _sharedStringsList = null;
+            }
             _vba = null;
             if (_worksheets != null)
             {

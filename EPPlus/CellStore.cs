@@ -34,7 +34,9 @@ using System.Linq;
 using System.Text;
 using System.Collections;
 using OfficeOpenXml;
-    internal class IndexBase : IComparable<IndexBase>
+using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
+
+internal class IndexBase : IComparable<IndexBase>
     {        
         internal short Index;
         public int CompareTo(IndexBase other)
@@ -95,7 +97,7 @@ using OfficeOpenXml;
             }
             else
             {
-                if (res + 1 < PageCount && _pages[res + 1].MinIndex <= Row)
+                if (res + 1 < PageCount && (_pages[res + 1].MinIndex <= Row))
                 {
                     do
                     {
@@ -791,12 +793,13 @@ using OfficeOpenXml;
                                     if (endRow > delEndRow && pagePos < column.PageCount && column._pages[pagePos].MinIndex < endRow)
                                     {
                                         pagePos = (delEndRow == fromRow ? pagePos : pagePos + 1);
-                                        var rowsLeft = DeletePage(fromRow, endRow - delEndRow, column, pagePos);
+                                        var rowsLeft = DeletePage(shift ? fromRow : delEndRow, endRow - delEndRow, column, pagePos, shift);
                                         //if (shift) UpdatePageOffset(column, pagePos, endRow - fromRow - rowsLeft);
                                         if (rowsLeft > 0)
                                         {
-                                            pagePos = column.GetPosition(fromRow);
-                                            delEndRow = DeleteCells(column._pages[pagePos], fromRow, fromRow + rowsLeft, shift);
+                                            var fr = shift ? fromRow : endRow - rowsLeft;
+                                            pagePos = column.GetPosition(fr);
+                                            delEndRow = DeleteCells(column._pages[pagePos], fr, shift ? fr + rowsLeft : endRow, shift);
                                             if (shift) UpdatePageOffset(column, pagePos, rowsLeft);
                                         }
                                     }
@@ -916,10 +919,11 @@ using OfficeOpenXml;
             return rows;
         }
 
-        private int DeletePage(int fromRow, int rows, ColumnIndex column, int pagePos)
+        private int DeletePage(int fromRow, int rows, ColumnIndex column, int pagePos, bool shift)
         {
             PageIndex page = column._pages[pagePos];
-            while (page != null && page.MinIndex >= fromRow && page.MaxIndex < fromRow + rows)
+            var startRows = rows;
+            while (page != null && page.MinIndex >= fromRow && ((shift && page.MaxIndex < fromRow + rows) || (!shift && page.MaxIndex < fromRow + startRows)))
             {
                 //Delete entire page.
                 var delSize=page.MaxIndex - page.MinIndex+1;
@@ -931,7 +935,7 @@ using OfficeOpenXml;
                 {
                     return 0;
                 }
-                else
+                if(shift)
                 {
                     for (int i = pagePos; i < column.PageCount; i++)
                     {

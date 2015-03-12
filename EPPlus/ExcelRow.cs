@@ -314,7 +314,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet.Workbook.Styles.GetStyleObject(StyleID,_worksheet.PositionID ,Row.ToString()+":"+Row.ToString());                
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID,_worksheet.PositionID ,Row.ToString() + ":" + Row.ToString());                
             }
         }
         /// <summary>

@@ -184,7 +184,10 @@ namespace OfficeOpenXml
         public string LastModifiedBy
         {
             get { return _coreHelper.GetXmlNodeString(LastModifiedByPath); }
-            set { _coreHelper.SetXmlNodeString(LastModifiedByPath, value); }
+            set
+            {
+                _coreHelper.SetXmlNodeString(LastModifiedByPath, value);
+            }
         }
 
         const string LastPrintedPath = "cp:lastPrinted";
@@ -213,6 +216,7 @@ namespace OfficeOpenXml
 	        {
 	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
 	            _coreHelper.SetXmlNodeString(CreatedPath, dateString);
+                _coreHelper.SetXmlNodeString(CreatedPath + "/@xsi:type", "dcterms:W3CDTF");
 	        }
 	    }
 
@@ -323,6 +327,7 @@ namespace OfficeOpenXml
 	        {
 	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
 	            _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
+                _coreHelper.SetXmlNodeString(ModifiedPath + "/@xsi:type", "dcterms:W3CDTF");
 	        }
 	    }
 

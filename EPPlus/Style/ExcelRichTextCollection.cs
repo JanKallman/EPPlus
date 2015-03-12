@@ -35,6 +35,7 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Drawing;
+using System.Globalization;
 
 namespace OfficeOpenXml.Style
 {
@@ -53,7 +54,7 @@ namespace OfficeOpenXml.Style
             {
                 foreach (XmlNode n in nl)
                 {
-                    _list.Add(new ExcelRichText(ns, n));
+                    _list.Add(new ExcelRichText(ns, n,this));
                 }
             }
         }
@@ -93,6 +94,7 @@ namespace OfficeOpenXml.Style
         /// <returns></returns>
         public ExcelRichText Add(string Text)
         {
+            ConvertRichtext();
             XmlDocument doc;
             if (TopNode is XmlDocument)
             {
@@ -104,7 +106,7 @@ namespace OfficeOpenXml.Style
             }
             var node = doc.CreateElement("d", "r", ExcelPackage.schemaMain);
             TopNode.AppendChild(node);
-            var rt = new ExcelRichText(NameSpaceManager, node);
+            var rt = new ExcelRichText(NameSpaceManager, node, this);
             if (_list.Count > 0)
             {
                 ExcelRichText prevItem = _list[_list.Count - 1];
@@ -146,6 +148,30 @@ namespace OfficeOpenXml.Style
             }
             _list.Add(rt);
             return rt;
+        }
+
+        internal void ConvertRichtext()
+        {
+            var isRt = _cells.Worksheet._flags.GetFlagValue(_cells._fromRow, _cells._fromCol, CellFlags.RichText);
+            if (Count == 1 && isRt == false)
+            {
+                _cells.Worksheet._flags.SetFlagValue(_cells._fromRow, _cells._fromCol, true, CellFlags.RichText);
+                var s = _cells.Worksheet._styles.GetValue(_cells._fromRow, _cells._fromCol);
+                //var fnt = cell.Style.Font;
+                var fnt = _cells.Worksheet.Workbook.Styles.GetStyleObject(s, _cells.Worksheet.PositionID, ExcelAddressBase.GetAddress(_cells._fromRow, _cells._fromCol)).Font;
+                this[0].PreserveSpace = true;
+                this[0].Bold = fnt.Bold;
+                this[0].FontName = fnt.Name;
+                this[0].Italic = fnt.Italic;
+                this[0].Size = fnt.Size;
+                this[0].UnderLine = fnt.UnderLine;
+
+                int hex;
+                if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber, null, out hex))
+                {
+                    this[0].Color = Color.FromArgb(hex);
+                }
+            }
         }
         internal void UpdateCells()
         {
