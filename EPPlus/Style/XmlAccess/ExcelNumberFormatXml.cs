@@ -355,7 +355,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 if (DataType == eFormatType.DateTime || secCount == 3)
                                 {
                                     //Add qoutes
-                                    if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb);
+                                    if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
                                     lstDec = new List<int>();
                                     format = sb.ToString();
                                     sb = new StringBuilder();
@@ -383,6 +383,10 @@ namespace OfficeOpenXml.Style.XmlAccess
 
                                 if (prevBslsh)
                                 {
+                                    if (c == '.' || c == ',')
+                                    {
+                                        sb.Append('\\');
+                                    }                                    
                                     sb.Append(c);
                                     prevBslsh = false;
                                 }
@@ -496,7 +500,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 }
 
                 //Add qoutes
-                if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb);
+                if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
 
                 // AM/PM format
                 if (containsAmPm)
