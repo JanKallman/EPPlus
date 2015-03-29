@@ -40,7 +40,7 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         [TestMethod]
         public void CompileShouldMultiplyGroupExpressionWithFollowingIntegerExpression()
         {
-            var groupExpression = new GroupExpression();
+            var groupExpression = new GroupExpression(false);
             groupExpression.AddChild(new IntegerExpression("2"));
             groupExpression.Children.First().Operator = Operator.Plus;
             groupExpression.AddChild(new IntegerExpression("3"));
