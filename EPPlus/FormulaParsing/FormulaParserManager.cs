@@ -30,9 +30,11 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.Logging;
 using OfficeOpenXml.FormulaParsing.Utilities;
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -93,6 +95,32 @@ namespace OfficeOpenXml.FormulaParsing
         public object Parse(string formula)
         {
             return _parser.Parse(formula);
+        }
+
+        /// <summary>
+        /// Attaches a logger to the <see cref="FormulaParser"/>.
+        /// </summary>
+        /// <param name="logger">An instance of <see cref="IFormulaParserLogger"/></param>
+        /// <see cref="OfficeOpenXml.FormulaParsing.Logging.LoggerFactory"/>
+        public void AttachLogger(IFormulaParserLogger logger)
+        {
+            _parser.Configure(c => c.AttachLogger(logger));
+        }
+
+        /// <summary>
+        /// Attaches a logger to the formula parser that produces output to the supplied logfile.
+        /// </summary>
+        /// <param name="logfile"></param>
+        public void AttachLogger(FileInfo logfile)
+        {
+            _parser.Configure(c => c.AttachLogger(LoggerFactory.CreateTextFileLogger(logfile)));
+        }
+        /// <summary>
+        /// Detaches any attached logger from the formula parser.
+        /// </summary>
+        public void DetachLogger()
+        {
+            _parser.Configure(c => c.DetachLogger());
         }
     }
 }

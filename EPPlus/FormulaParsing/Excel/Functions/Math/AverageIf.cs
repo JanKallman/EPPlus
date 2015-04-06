@@ -65,6 +65,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
             }
+            if (obj == null) return false;
             return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
         }
 

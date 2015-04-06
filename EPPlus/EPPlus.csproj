@@ -327,6 +327,13 @@
     <Compile Include="FormulaParsing\Excel\Functions\BoolArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\BuiltInFunctions.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CollectionFlattener.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dcount.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\DcountA.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dget.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabase.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseCriteria.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseField.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcher.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
