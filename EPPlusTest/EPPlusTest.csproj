@@ -124,6 +124,9 @@
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersImplementationsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\CriteriaTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcherTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTimeFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunctionTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgumentTests.cs" />
@@ -161,6 +164,7 @@
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\StringFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\SubtotalTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\TextFunctionsTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DatabaseTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\SumTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ExcelDataProviderTests\ExcelDataProviderIntegrationTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\FormulaParserTestBase.cs" />

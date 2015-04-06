@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Database;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
@@ -182,6 +183,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["eomonth"] = new Eomonth();
             Functions["isoweeknum"] = new IsoWeekNum();
             Functions["workday"] = new Workday();
+            // Database
+            Functions["dget"] = new Dget();
+            Functions["dcount"] = new Dcount();
+            Functions["dcounta"] = new DcountA();
         }
     }
 }
