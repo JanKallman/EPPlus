@@ -327,9 +327,13 @@
     <Compile Include="FormulaParsing\Excel\Functions\BoolArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\BuiltInFunctions.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CollectionFlattener.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\DatabaseFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dcount.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\DcountA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dget.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dmax.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dmin.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dsum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabase.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseCriteria.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseField.cs" />

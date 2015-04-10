@@ -31,9 +31,8 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 {
-    public class Dget : ExcelFunction
+    public class Dget : DatabaseFunction
     {
-        private readonly RowMatcher _rowMatcher;
 
         public Dget()
             : this(new RowMatcher())
@@ -42,8 +41,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
         }
 
         public Dget(RowMatcher rowMatcher)
+            : base(rowMatcher)
         {
-            _rowMatcher = rowMatcher;
+
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -61,11 +61,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             while (db.HasMoreRows)
             {
                 var dataRow = db.Read();
-                if (_rowMatcher.IsMatch(dataRow, criteria.Items))
-                {
-                    if(++nHits > 1) return CreateResult(ExcelErrorValue.Values.Num, DataType.ExcelError);
-                    retVal = dataRow[field];
-                }
+                if (!RowMatcher.IsMatch(dataRow, criteria.Items)) continue;
+                if(++nHits > 1) return CreateResult(ExcelErrorValue.Values.Num, DataType.ExcelError);
+                retVal = dataRow[field];
             }
             return new CompileResultFactory().Create(retVal);
         }
