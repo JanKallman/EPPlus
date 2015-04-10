@@ -96,5 +96,89 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual(2, sheet.Cells["F1"].Value);
             }
         }
+
+        [TestMethod]
+        public void DMaxShouldReturnCorrectResult()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                // database
+                sheet.Cells["A1"].Value = "crit1";
+                sheet.Cells["B1"].Value = "crit2";
+
+                sheet.Cells["A2"].Value = "test";
+                sheet.Cells["B2"].Value = 2;
+
+                sheet.Cells["A3"].Value = "tesst";
+                sheet.Cells["B3"].Value = 1;
+                // criteria
+                sheet.Cells["D1"].Value = "crit1";
+                sheet.Cells["D2"].Value = "t*t";
+
+                // function
+                sheet.Cells["F1"].Formula = "DMAX(A1:B3,\"Crit2\",D1:E2)";
+
+                sheet.Workbook.Calculate();
+
+                Assert.AreEqual(2d, sheet.Cells["F1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void DMinShouldReturnCorrectResult()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                // database
+                sheet.Cells["A1"].Value = "crit1";
+                sheet.Cells["B1"].Value = "crit2";
+
+                sheet.Cells["A2"].Value = "test";
+                sheet.Cells["B2"].Value = 2;
+
+                sheet.Cells["A3"].Value = "tesst";
+                sheet.Cells["B3"].Value = 1;
+                // criteria
+                sheet.Cells["D1"].Value = "crit1";
+                sheet.Cells["D2"].Value = "t*t";
+
+                // function
+                sheet.Cells["F1"].Formula = "DMIN(A1:B3,\"Crit2\",D1:E2)";
+
+                sheet.Workbook.Calculate();
+
+                Assert.AreEqual(1d, sheet.Cells["F1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void DSumShouldReturnCorrectResult()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                // database
+                sheet.Cells["A1"].Value = "crit1";
+                sheet.Cells["B1"].Value = "crit2";
+
+                sheet.Cells["A2"].Value = "test";
+                sheet.Cells["B2"].Value = 2;
+
+                sheet.Cells["A3"].Value = "tesst";
+                sheet.Cells["B3"].Value = 1;
+                // criteria
+                sheet.Cells["D1"].Value = "crit1";
+                sheet.Cells["D2"].Value = "t*t";
+
+                // function
+                sheet.Cells["F1"].Formula = "DSUM(A1:B3,\"Crit2\",D1:E2)";
+
+                sheet.Workbook.Calculate();
+
+                Assert.AreEqual(3d, sheet.Cells["F1"].Value);
+            }
+        }
     }
 }

@@ -32,9 +32,8 @@ using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 {
-    public class DcountA : ExcelFunction
+    public class DcountA : DatabaseFunction
     {
-        private readonly RowMatcher _rowMatcher;
 
         public DcountA()
             : this(new RowMatcher())
@@ -43,8 +42,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
         }
 
         public DcountA(RowMatcher rowMatcher)
+            : base(rowMatcher)
         {
-            _rowMatcher = rowMatcher;
+
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -69,7 +69,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             while (db.HasMoreRows)
             {
                 var dataRow = db.Read();
-                if (_rowMatcher.IsMatch(dataRow, criteria.Items))
+                if (RowMatcher.IsMatch(dataRow, criteria.Items))
                 {
                     // if a fieldname is supplied, count only this row if the value
                     // of the supplied field is not blank.

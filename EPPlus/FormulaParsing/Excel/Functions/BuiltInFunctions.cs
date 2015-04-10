@@ -187,6 +187,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["dget"] = new Dget();
             Functions["dcount"] = new Dcount();
             Functions["dcounta"] = new DcountA();
+            Functions["dmax"] = new Dmax();
+            Functions["dmin"] = new Dmin();
+            Functions["dsum"] = new Dsum();
         }
     }
 }
