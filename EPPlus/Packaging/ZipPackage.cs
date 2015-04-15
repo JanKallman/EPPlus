@@ -136,8 +136,9 @@ namespace OfficeOpenXml.Packaging
 
                     foreach (var p in Parts)
                     {
-                        FileInfo fi = new FileInfo(p.Key);
-                        string relFile = string.Format("{0}_rels/{1}.rels", p.Key.Substring(0, p.Key.Length - fi.Name.Length), fi.Name);
+                        string name = Path.GetFileName(p.Key);
+                        string extension = Path.GetExtension(p.Key);
+                        string relFile = string.Format("{0}_rels/{1}.rels", p.Key.Substring(0, p.Key.Length - name.Length), name);
                         if (rels.ContainsKey(relFile))
                         {
                             p.Value.ReadRelation(rels[relFile], p.Value.Uri.OriginalString);
@@ -146,9 +147,9 @@ namespace OfficeOpenXml.Packaging
                         {
                             p.Value.ContentType = _contentTypes[p.Key].Name;
                         }
-                        else if (fi.Extension.Length > 1 && _contentTypes.ContainsKey(fi.Extension.Substring(1)))
+                        else if (extension.Length > 1 && _contentTypes.ContainsKey(extension.Substring(1))))
                         {
-                            p.Value.ContentType = _contentTypes[fi.Extension.Substring(1)].Name;
+                            p.Value.ContentType = _contentTypes[extension.Substring(1)].Name;
                         }
                     }
                     if (!hasContentTypeXml)
