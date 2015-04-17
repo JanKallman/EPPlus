@@ -147,7 +147,7 @@ namespace OfficeOpenXml.Packaging
                         {
                             p.Value.ContentType = _contentTypes[p.Key].Name;
                         }
-                        else if (extension.Length > 1 && _contentTypes.ContainsKey(extension.Substring(1))))
+                        else if (extension.Length > 1 && _contentTypes.ContainsKey(extension.Substring(1)))
                         {
                             p.Value.ContentType = _contentTypes[extension.Substring(1)].Name;
                         }
