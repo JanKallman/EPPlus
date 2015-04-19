@@ -190,6 +190,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["dmax"] = new Dmax();
             Functions["dmin"] = new Dmin();
             Functions["dsum"] = new Dsum();
+            Functions["daverage"] = new Daverage();
+            Functions["dvar"] = new Dvar();
+            Functions["dvarp"] = new Dvarp();
         }
     }
 }

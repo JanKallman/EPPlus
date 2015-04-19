@@ -26,29 +26,35 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.FormulaParsing.Excel.Operators;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 {
-    public class Dmin : DatabaseFunction
+    public class ExcelDatabaseRow
     {
-        public Dmin()
-            : this(new RowMatcher())
+        private Dictionary<int, string> _fieldIndexes = new Dictionary<int, string>();
+        private readonly Dictionary<string, object> _items = new Dictionary<string, object>();
+        private int _colIndex = 1;
+        public object this[string field]
         {
+            get { return _items[field]; }
 
+            set
+            {
+                _items[field] = value;
+                _fieldIndexes[_colIndex++] = field;
+            }
         }
 
-        public Dmin(RowMatcher rowMatcher)
-            : base(rowMatcher)
+        public object this[int index]
         {
-
+            get
+            {
+                var field = _fieldIndexes[index];
+                return _items[field];
+            }
         }
-        public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
-        {
-            ValidateArguments(arguments, 3);
-            var values = GetMatchingValues(arguments, context);
-            if (!values.Any()) return CreateResult(0d, DataType.Integer);
-            return CreateResult(values.Min(), DataType.Integer);
-        }
+        
+        
     }
 }

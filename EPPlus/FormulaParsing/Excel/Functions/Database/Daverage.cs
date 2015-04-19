@@ -30,15 +30,15 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 {
-    public class Dmin : DatabaseFunction
+    public class Daverage : DatabaseFunction
     {
-        public Dmin()
+         public Daverage()
             : this(new RowMatcher())
         {
 
         }
 
-        public Dmin(RowMatcher rowMatcher)
+         public Daverage(RowMatcher rowMatcher)
             : base(rowMatcher)
         {
 
@@ -48,7 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             ValidateArguments(arguments, 3);
             var values = GetMatchingValues(arguments, context);
             if (!values.Any()) return CreateResult(0d, DataType.Integer);
-            return CreateResult(values.Min(), DataType.Integer);
+            return CreateResult(values.Average(), DataType.Integer);
         }
     }
 }

@@ -26,8 +26,8 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Database
                 var criteria = new ExcelDatabaseCriteria(provider, "A1:B2");
 
                 Assert.AreEqual(2, criteria.Items.Count);
-                Assert.AreEqual("crit1", criteria.Items.Keys.First());
-                Assert.AreEqual("crit2", criteria.Items.Keys.Last());
+                Assert.AreEqual("crit1", criteria.Items.Keys.First().ToString());
+                Assert.AreEqual("crit2", criteria.Items.Keys.Last().ToString());
                 Assert.AreEqual(1, criteria.Items.Values.First());
                 Assert.AreEqual(2, criteria.Items.Values.Last());
             }
@@ -48,7 +48,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Database
                 var criteria = new ExcelDatabaseCriteria(provider, "A1:B2");
 
                 Assert.AreEqual(1, criteria.Items.Count);
-                Assert.AreEqual("crit1", criteria.Items.Keys.First());
+                Assert.AreEqual("crit1", criteria.Items.Keys.First().ToString());
                 Assert.AreEqual(1, criteria.Items.Values.Last());
             }
         }
@@ -67,9 +67,10 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Database
                 var criteria = new ExcelDatabaseCriteria(provider, "A1:B2");
 
                 Assert.AreEqual(1, criteria.Items.Count);
-                Assert.AreEqual("crit1", criteria.Items.Keys.First());
+                Assert.AreEqual("crit1", criteria.Items.Keys.First().ToString());
                 Assert.AreEqual(1, criteria.Items.Values.Last());
             }
         }
+
     }
 }

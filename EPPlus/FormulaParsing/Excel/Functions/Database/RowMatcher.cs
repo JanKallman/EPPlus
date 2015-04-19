@@ -49,12 +49,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             _numericExpressionEvaluator = numericExpressionEvaluator;
         }
 
-        public bool IsMatch(IDictionary<string, object> data, IDictionary<string, object> criteria)
+        public bool IsMatch(ExcelDatabaseRow row, ExcelDatabaseCriteria criteria)
         {
             var retVal = true;
-            foreach (var c in criteria)
+            foreach (var c in criteria.Items)
             {
-                var candidate = data[c.Key];
+                var candidate = c.Key.FieldIndex.HasValue ? row[c.Key.FieldIndex.Value] : row[c.Key.FieldName];
                 var crit = c.Value;
                 if (candidate.IsNumeric() && crit.IsNumeric())
                 {
