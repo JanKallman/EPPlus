@@ -49,8 +49,8 @@ namespace EPPlusTest
             ReadDocument();
             ReadDrawing();
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void ReadDrawing()
         {
             using (ExcelPackage pck = new ExcelPackage(new FileInfo(_worksheetPath + @"Drawing.xlsx")))
@@ -64,8 +64,8 @@ namespace EPPlusTest
                 Assert.AreEqual(cht.Title.Text, "Test");
             }
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Picture()
          {
              var ws = _pck.Workbook.Worksheets.Add("Picture");
@@ -95,8 +95,8 @@ namespace EPPlusTest
              pic.SetPosition(400, 400);
              pic.SetSize(100);
          }
-         [TestMethod]
-         [Ignore]
+         //[TestMethod]
+         //[Ignore]
          public void DrawingSizingAndPositioning()
          {
              var ws = _pck.Workbook.Worksheets.Add("DrawingPosSize");
@@ -117,8 +117,8 @@ namespace EPPlusTest
              ws.Column(3).Width = 100;
          }
 
-        [TestMethod]
-         [Ignore]
+        //[TestMethod]
+        // [Ignore]
          public void BarChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("BarChart");            
@@ -170,8 +170,8 @@ namespace EPPlusTest
             ws.Cells["X23"].Value = "ÿ";
             ws.Cells["X24"].Value = "û";
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void PieChart()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart");
@@ -190,8 +190,8 @@ namespace EPPlusTest
             Assert.IsTrue(chrt.VaryColors);
             chrt.Title.Text = "Piechart";
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void PieChart3D()
         {
             var ws = _pck.Workbook.Worksheets.Add("PieChart3d");
@@ -210,8 +210,8 @@ namespace EPPlusTest
             Assert.IsTrue(chrt.VaryColors);
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Scatter()
         {
             var ws = _pck.Workbook.Worksheets.Add("Scatter");
@@ -253,8 +253,8 @@ namespace EPPlusTest
             //Assert.IsTrue(chrt.ChartType == eChartType.XYScatter, "Invalid Charttype");
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Bubble()
         {
             var ws = _pck.Workbook.Worksheets.Add("Bubble");
@@ -283,8 +283,8 @@ namespace EPPlusTest
             
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Radar()
         {
             var ws = _pck.Workbook.Worksheets.Add("Radar");
@@ -323,8 +323,8 @@ namespace EPPlusTest
             chrt.To.Column = 22;
             chrt.Title.Text = "Radar Chart 3";
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Surface()
         {
             var ws = _pck.Workbook.Worksheets.Add("Surface");
@@ -363,8 +363,8 @@ namespace EPPlusTest
             //chrt.To.Column = 22;
             //chrt.Title.Text = "Radar Chart 3";
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Pyramid()
         {
             var ws = _pck.Workbook.Worksheets.Add("Pyramid");
@@ -407,8 +407,8 @@ namespace EPPlusTest
             chrt.DataLabel.Border.Fill.Color=Color.Black;
             chrt.DataLabel.Border.LineStyle = eLineStyle.Solid;
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Cone()
         {
             var ws = _pck.Workbook.Worksheets.Add("Cone");
@@ -422,8 +422,8 @@ namespace EPPlusTest
             chrt.Axis[1].DisplayUnit = 100000;
             Assert.AreEqual(chrt.Axis[1].DisplayUnit, 100000);
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Column()
         {
             var ws = _pck.Workbook.Worksheets.Add("Column");
@@ -443,8 +443,8 @@ namespace EPPlusTest
             chrt.Axis[1].DisplayUnit = 10020;
             Assert.AreEqual(chrt.Axis[1].DisplayUnit, 10020);
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Dougnut()
         {
             var ws = _pck.Workbook.Worksheets.Add("Dougnut");
@@ -455,8 +455,8 @@ namespace EPPlusTest
             chrt.Series[0].Header = "Serie 1";
             chrt.EditAs = eEditAs.Absolute;
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Line()
         {
             var ws = _pck.Workbook.Worksheets.Add("Line");
@@ -504,8 +504,8 @@ namespace EPPlusTest
             chrt.Axis[1].Title.Border.LineStyle=eLineStyle.LongDashDotDot;
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void LineMarker()
         {
             var ws = _pck.Workbook.Worksheets.Add("LineMarker1");
@@ -525,8 +525,8 @@ namespace EPPlusTest
             serie.Marker = eMarkerStyle.X;
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Drawings()
         {
             var ws = _pck.Workbook.Worksheets.Add("Shapes");
@@ -593,16 +593,16 @@ namespace EPPlusTest
             (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
 
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void DrawingWorksheetCopy()
         {
             var wsShapes = _pck.Workbook.Worksheets.Add("Copy Shapes", _pck.Workbook.Worksheets["Shapes"]);
             var wsScatterChart = _pck.Workbook.Worksheets.Add("Copy Scatter", _pck.Workbook.Worksheets["Scatter"]);
             var wsPicture = _pck.Workbook.Worksheets.Add("Copy Picture", _pck.Workbook.Worksheets["Picture"]);
         }    
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void Line2Test()
         {
            ExcelWorksheet worksheet = _pck.Workbook.Worksheets.Add("LineIssue");
@@ -630,8 +630,8 @@ namespace EPPlusTest
            
            chart.Series[0].Header = "Blah";
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void MultiChartSeries()
         {
             ExcelWorksheet worksheet = _pck.Workbook.Worksheets.Add("MultiChartTypes");
@@ -702,8 +702,8 @@ namespace EPPlusTest
             var element = chart.ChartXml.SelectSingleNode("//c:plotVisOnly", ns);
             if (element!=null) element.ParentNode.RemoveChild(element);
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void DeleteDrawing()
         {
             var ws=_pck.Workbook.Worksheets.Add("DeleteDrawing1");
@@ -730,8 +730,8 @@ namespace EPPlusTest
             pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
             ws.Drawings.Clear();
         }
-        [TestMethod]
-        [Ignore]
+        //[TestMethod]
+        //[Ignore]
         public void ReadDocument()
         {
             var fi=new FileInfo(_worksheetPath + "drawing.xlsx");
