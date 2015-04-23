@@ -224,18 +224,18 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        const string ID_PATH = "@id";
-        internal int Id
-        {
-            get
-            {
-                return GetXmlNodeInt(ID_PATH);
-            }
-            set
-            {
-                SetXmlNodeString(ID_PATH, value.ToString());
-            }
-        }
+        //const string ID_PATH = "@id";
+        //internal int Id
+        //{
+        //    get
+        //    {
+        //        return GetXmlNodeInt(ID_PATH);
+        //    }
+        //    set
+        //    {
+        //        SetXmlNodeString(ID_PATH, value.ToString());
+        //    }
+        //}
         const string NAME_PATH = "@name";
         const string DISPLAY_NAME_PATH = "@displayName";
         /// <summary>

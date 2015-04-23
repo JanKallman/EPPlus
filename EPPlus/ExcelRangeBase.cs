@@ -1218,12 +1218,12 @@ namespace OfficeOpenXml
 			    }
 			    else
 			    {
-			        _worksheet.MergedCells.Delete(this);
+			        _worksheet.MergedCells.Clear(this);
                     if (Addresses != null)
 			        {
 			            foreach (var address in Addresses)
 			            {
-                            _worksheet.MergedCells.Delete(address); ;
+                            _worksheet.MergedCells.Clear(address); ;
 			            }
 			        }
 			        
@@ -1599,8 +1599,8 @@ namespace OfficeOpenXml
                 SplitFormula(address, ix);
 			}
         
-            ////Delete any formula references inside the refered range
-            //_worksheet._formulas.Delete(address._fromRow, address._toRow, address._toRow - address._fromRow + 1, address._toCol - address.column + 1);
+            ////Clear any formula references inside the refered range
+            //_worksheet._formulas.Clear(address._fromRow, address._toRow, address._toRow - address._fromRow + 1, address._toCol - address.column + 1);
         }
 
 		private void SplitFormula(ExcelAddressBase address, int ix)
@@ -2348,7 +2348,7 @@ namespace OfficeOpenXml
                         styles = Destination._worksheet.Workbook.Styles;
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
 
-            //Delete all existing cells; 
+            //Clear all existing cells; 
             int toRow = _toRow - _fromRow + 1,
                 toCol = _toCol - _fromCol + 1;
 
@@ -2497,7 +2497,7 @@ namespace OfficeOpenXml
                 }
             }
 
-            Destination._worksheet.MergedCells.Delete(new ExcelAddressBase(Destination._fromRow, Destination._fromCol, Destination._fromRow+toRow, Destination._fromCol+toCol));
+            Destination._worksheet.MergedCells.Clear(new ExcelAddressBase(Destination._fromRow, Destination._fromCol, Destination._fromRow+toRow-1, Destination._fromCol+toCol-1));
 
             Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
@@ -2673,14 +2673,14 @@ namespace OfficeOpenXml
 			}
 			Set_SharedFormula(ArrayFormula, this, true);
 		}
-        //private void Delete(ExcelAddressBase Range)
+        //private void Clear(ExcelAddressBase Range)
         //{
-        //    Delete(Range, true);
+        //    Clear(Range, true);
         //}
         internal void Delete(ExcelAddressBase Range, bool shift)
 		{
             //DeleteCheckMergedCells(Range);
-            _worksheet.MergedCells.Delete(Range);
+            _worksheet.MergedCells.Clear(Range);
 			//First find the start cell
             int fromRow, fromCol;
             var d = Worksheet.Dimension;
@@ -2717,7 +2717,7 @@ namespace OfficeOpenXml
             //    _worksheet.AdjustFormulasRow(fromRow, rows);
             //}
 
-			//Delete multi addresses as well
+			//Clear multi addresses as well
 			if (Addresses != null)
 			{
 				foreach (var sub in Addresses)

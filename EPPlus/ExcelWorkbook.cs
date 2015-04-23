@@ -31,6 +31,8 @@
  * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
+using System.Runtime.Remoting.Messaging;
+using System.Windows.Navigation;
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
@@ -120,8 +122,8 @@ namespace OfficeOpenXml
 		internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
 		internal ExcelNamedRangeCollection _names;
 		internal int _nextDrawingID = 0;
-		internal int _nextTableID = 1;
-		internal int _nextPivotTableID = 1;
+		internal int _nextTableID = int.MinValue;
+        internal int _nextPivotTableID = int.MinValue;
 		internal XmlNamespaceManager _namespaceManager;
         internal FormulaParser _formulaParser = null;
 	    internal FormulaParserManager _parserManager;
@@ -1088,6 +1090,30 @@ namespace OfficeOpenXml
                 _formulaParser.Dispose();
                 _formulaParser = null;
             }   
+        }
+
+        internal void ReadAllTables()
+        {
+            if (_nextTableID > 0) return;
+            _nextTableID = 1;
+            _nextPivotTableID = 1;
+            foreach (var ws in Worksheets)
+            {
+                foreach (var tbl in ws.Tables)
+                {
+                    if (tbl.Id >= _nextTableID)
+                    {
+                        _nextTableID = tbl.Id+1;
+                    }
+                }
+                foreach (var pt in ws.PivotTables)
+                {
+                    if (pt.CacheID >= _nextPivotTableID)
+                    {
+                        _nextPivotTableID = pt.CacheID + 1;
+                    }                    
+                }
+            }
         }
     } // end Workbook
 }

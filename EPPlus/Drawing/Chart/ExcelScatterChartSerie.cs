@@ -117,8 +117,13 @@ namespace OfficeOpenXml.Drawing.Chart
                     return (eMarkerStyle)Enum.Parse(typeof(eMarkerStyle), marker, true);
                 }
             }
-            internal set
+            set
             {
+                if (_chartSeries.Chart.ChartType == eChartType.XYScatterLinesNoMarkers ||
+                    _chartSeries.Chart.ChartType == eChartType.XYScatterSmoothNoMarkers)
+                {
+                    throw (new InvalidOperationException("Can't set marker style for this charttype."));
+                }
                 SetXmlNodeString(markerPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }

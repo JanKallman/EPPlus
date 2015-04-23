@@ -13,6 +13,7 @@ using System.Data;
 using OfficeOpenXml.Table;
 using Rhino.Mocks.Constraints;
 using System.Collections.Generic;
+using OfficeOpenXml.Table.PivotTable;
 
 namespace EPPlusTest
 {
@@ -209,7 +210,7 @@ namespace EPPlusTest
                 ExcelColumn column = sheet.Column(3); // fails with exception
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue15145()
         {
             using (ExcelPackage p = new ExcelPackage(new System.IO.FileInfo(@"C:\Temp\bug\ColumnInsert.xlsx")))
@@ -222,7 +223,7 @@ namespace EPPlusTest
                 p.SaveAs(new System.IO.FileInfo(@"C:\Temp\bug\InsertCopyFail.xlsx"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue15150()
         {
             var template = new FileInfo(@"c:\temp\bug\ClearIssue.xlsx");
@@ -239,7 +240,7 @@ namespace EPPlusTest
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue15146()
         {
             var template = new FileInfo(@"c:\temp\bug\CopyFail.xlsx");
@@ -713,7 +714,235 @@ namespace EPPlusTest
                 ws.Column(2).Style.Numberformat.Format = "#,##0";
                 p.Save();
             }
+        }
+        [TestMethod, Ignore]
+        public void Issuer15228()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("colBug");
 
+                var col = ws.Column(7);
+                col.ColumnMax = 8;
+                col.Hidden = true;
+
+                var col8 = ws.Column(8);
+                Assert.AreEqual(true, col8.Hidden);
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void Issue15234()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\merge2\input.xlsx")))
+            {
+                var sheet = p.Workbook.Worksheets.First();
+
+                var sourceRange = sheet.Cells["1:4"];
+
+                sheet.InsertRow(5, 4);
+
+                var resultRange = sheet.Cells["5:8"];
+                sourceRange.Copy(resultRange);
+
+                p.Save();
+            }
+        }
+        [TestMethod]
+        /**** Pivottable issue ****/
+        public void Issue()
+        {
+            DirectoryInfo outputDir = new DirectoryInfo(@"c:\ExcelPivotTest");
+            FileInfo MyFile = new FileInfo(@"c:\temp\bug\pivottable.xlsx");
+            LoadData(MyFile);
+            BuildPivotTable1(MyFile);
+            BuildPivotTable2(MyFile);
+        }
+
+        private void LoadData(FileInfo MyFile)
+        {
+            if (MyFile.Exists)
+            {
+                MyFile.Delete();  // ensures we create a new workbook
+            }
+
+            using (ExcelPackage EP = new ExcelPackage(MyFile))
+            {
+                // add a new worksheet to the empty workbook
+                ExcelWorksheet wsData = EP.Workbook.Worksheets.Add("Data");
+                //Add the headers
+                wsData.Cells[1, 1].Value = "INVOICE_DATE";
+                wsData.Cells[1, 2].Value = "TOTAL_INVOICE_PRICE";
+                wsData.Cells[1, 3].Value = "EXTENDED_PRICE_VARIANCE";
+                wsData.Cells[1, 4].Value = "AUDIT_LINE_STATUS";
+                wsData.Cells[1, 5].Value = "RESOLUTION_STATUS";
+                wsData.Cells[1, 6].Value = "COUNT";
+
+                //Add some items...
+                wsData.Cells["A2"].Value = Convert.ToDateTime("04/2/2012");
+                wsData.Cells["B2"].Value = 33.63;
+                wsData.Cells["C2"].Value = (-.87);
+                wsData.Cells["D2"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E2"].Value = "Pending";
+                wsData.Cells["F2"].Value = 1;
+
+                wsData.Cells["A3"].Value = Convert.ToDateTime("04/2/2012");
+                wsData.Cells["B3"].Value = 43.14;
+                wsData.Cells["C3"].Value = (-1.29);
+                wsData.Cells["D3"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E3"].Value = "Pending";
+                wsData.Cells["F3"].Value = 1;
+
+                wsData.Cells["A4"].Value = Convert.ToDateTime("11/8/2011");
+                wsData.Cells["B4"].Value = 55;
+                wsData.Cells["C4"].Value = (-2.87);
+                wsData.Cells["D4"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E4"].Value = "Pending";
+                wsData.Cells["F4"].Value = 1;
+
+                wsData.Cells["A5"].Value = Convert.ToDateTime("11/8/2011");
+                wsData.Cells["B5"].Value = 38.72;
+                wsData.Cells["C5"].Value = (-5.00);
+                wsData.Cells["D5"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E5"].Value = "Pending";
+                wsData.Cells["F5"].Value = 1;
+
+                wsData.Cells["A6"].Value = Convert.ToDateTime("3/4/2011");
+                wsData.Cells["B6"].Value = 77.44;
+                wsData.Cells["C6"].Value = (-1.55);
+                wsData.Cells["D6"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E6"].Value = "Pending";
+                wsData.Cells["F6"].Value = 1;
+
+                wsData.Cells["A7"].Value = Convert.ToDateTime("3/4/2011");
+                wsData.Cells["B7"].Value = 127.55;
+                wsData.Cells["C7"].Value = (-10.50);
+                wsData.Cells["D7"].Value = "Unfavorable Price Variance";
+                wsData.Cells["E7"].Value = "Pending";
+                wsData.Cells["F7"].Value = 1;
+
+                using (var range = wsData.Cells[2, 1, 7, 1])
+                {
+                    range.Style.Numberformat.Format = "mm-dd-yy";
+                }
+
+                wsData.Cells.AutoFitColumns(0);
+                EP.Save();
+            }
+        }
+        private void BuildPivotTable1(FileInfo MyFile)
+        {
+            using (ExcelPackage ep = new ExcelPackage(MyFile))
+            {
+
+                var wsData = ep.Workbook.Worksheets["Data"];
+                var totalRows = wsData.Dimension.Address;
+                ExcelRange data = wsData.Cells[totalRows];
+
+                var wsAuditPivot = ep.Workbook.Worksheets.Add("Pivot1");
+
+                var pivotTable1 = wsAuditPivot.PivotTables.Add(wsAuditPivot.Cells["A7:C30"], data, "PivotAudit1");
+                pivotTable1.ColumGrandTotals = true;
+                var rowField = pivotTable1.RowFields.Add(pivotTable1.Fields["INVOICE_DATE"]);
+
+
+                rowField.AddDateGrouping(eDateGroupBy.Years);
+                var yearField = pivotTable1.Fields.GetDateGroupField(eDateGroupBy.Years);
+                yearField.Name = "Year";
+
+                var rowField2 = pivotTable1.RowFields.Add(pivotTable1.Fields["AUDIT_LINE_STATUS"]);
+
+                var TotalSpend = pivotTable1.DataFields.Add(pivotTable1.Fields["TOTAL_INVOICE_PRICE"]);
+                TotalSpend.Name = "Total Spend";
+                TotalSpend.Format = "$##,##0";
+
+
+                var CountInvoicePrice = pivotTable1.DataFields.Add(pivotTable1.Fields["COUNT"]);
+                CountInvoicePrice.Name = "Total Lines";
+                CountInvoicePrice.Format = "##,##0";
+
+                pivotTable1.DataOnRows = false;
+                ep.Save();
+                ep.Dispose();
+
+            }
+
+        }
+
+        private void BuildPivotTable2(FileInfo MyFile)
+        {
+            using (ExcelPackage ep = new ExcelPackage(MyFile))
+            {
+
+                var wsData = ep.Workbook.Worksheets["Data"];
+                var totalRows = wsData.Dimension.Address;
+                ExcelRange data = wsData.Cells[totalRows];
+
+                var wsAuditPivot = ep.Workbook.Worksheets.Add("Pivot2");
+
+                var pivotTable1 = wsAuditPivot.PivotTables.Add(wsAuditPivot.Cells["A7:C30"], data, "PivotAudit2");
+                pivotTable1.ColumGrandTotals = true;
+                var rowField = pivotTable1.RowFields.Add(pivotTable1.Fields["INVOICE_DATE"]);
+
+
+                rowField.AddDateGrouping(eDateGroupBy.Years);
+                var yearField = pivotTable1.Fields.GetDateGroupField(eDateGroupBy.Years);
+                yearField.Name = "Year";
+
+                var rowField2 = pivotTable1.RowFields.Add(pivotTable1.Fields["AUDIT_LINE_STATUS"]);
+
+                var TotalSpend = pivotTable1.DataFields.Add(pivotTable1.Fields["TOTAL_INVOICE_PRICE"]);
+                TotalSpend.Name = "Total Spend";
+                TotalSpend.Format = "$##,##0";
+
+
+                var CountInvoicePrice = pivotTable1.DataFields.Add(pivotTable1.Fields["COUNT"]);
+                CountInvoicePrice.Name = "Total Lines";
+                CountInvoicePrice.Format = "##,##0";
+
+                pivotTable1.DataOnRows = false;
+                ep.Save();
+                ep.Dispose();
+
+            }
+
+        }
+        [TestMethod, Ignore]
+        public static string Issue15247(DirectoryInfo outputDir)
+        {
+            FileInfo templateFile = new FileInfo(outputDir.FullName + @"\diagonal.xlsx");
+            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sampleDiagonal.xlsx");
+            if (newFile.Exists)
+            {
+                newFile.Delete();  // ensures we create a new workbook
+                newFile = new FileInfo(outputDir.FullName + @"\sampleDiagonal.xlsx");
+            }
+            using (ExcelPackage package = new ExcelPackage(newFile, templateFile))
+            {
+                //Open worksheet 1
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
+
+                Debug.WriteLine(worksheet.Cells["A1"].Style.Border.DiagonalUp);
+                Debug.WriteLine(worksheet.Cells["A1"].Style.Border.DiagonalDown);
+
+
+                //worksheet.Cells["A1"].Style.Border.DiagonalUp = true;
+                //worksheet.Cells["A1"].Style.Border.DiagonalDown = true;
+
+                // save our new workbook and we are done!
+                package.Save();
+            }
+
+            return newFile.FullName;
+        }
+        [TestMethod]
+        public void issue15249()
+        {
+            using(var exfile=new ExcelPackage(new FileInfo(@"c:\temp\bug\Boldtextcopy.xlsx")))
+            {
+                exfile.Workbook.Worksheets.Copy("sheet1","copiedSheet");
+                exfile.SaveAs(new FileInfo(@"c:\temp\bug\Boldtextcopy2.xlsx"));
+            }
         }
     }
 }    
