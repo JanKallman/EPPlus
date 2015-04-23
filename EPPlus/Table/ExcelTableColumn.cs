@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
 {
@@ -100,7 +101,7 @@ namespace OfficeOpenXml.Table
                 {
                     if (_tbl.ShowHeader)
                     {
-                        n = _tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position);
+                        n = ConvertUtil.ExcelDecodeString(_tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position));
                     }
                     else
                     {
@@ -111,7 +112,12 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                SetXmlNodeString("@name", value);
+                var v = ConvertUtil.ExcelEncodeString(value);
+                SetXmlNodeString("@name", v);
+                if (_tbl.ShowHeader)
+                {
+                    _tbl.WorkSheet.SetValue(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position, value);
+                }
                 _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }

@@ -266,11 +266,12 @@ namespace OfficeOpenXml
 
         const string ApplicationPath = "xp:Properties/xp:Application";
         /// <summary>
-        /// Gets the Application property of the document (extended property)
+        /// Gets/Set the Application property of the document (extended property)
         /// </summary>
         public string Application
         {
             get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
+            set { _extendedHelper.SetXmlNodeString(ApplicationPath, value); }
         }
 
         const string HyperlinkBasePath = "xp:Properties/xp:HyperlinkBase";
@@ -285,11 +286,12 @@ namespace OfficeOpenXml
 
         const string AppVersionPath = "xp:Properties/xp:AppVersion";
         /// <summary>
-        /// Gets the AppVersion property of the document (extended property)
+        /// Gets/Set the AppVersion property of the document (extended property)
         /// </summary>
         public string AppVersion
         {
             get { return _extendedHelper.GetXmlNodeString(AppVersionPath); }
+            set { _extendedHelper.SetXmlNodeString(AppVersionPath, value); }
         }
         const string CompanyPath = "xp:Properties/xp:Company";
 

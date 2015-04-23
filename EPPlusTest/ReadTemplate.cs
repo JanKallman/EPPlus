@@ -243,8 +243,8 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
-        }
-        [TestMethod]
+        }        
+        [TestMethod, Ignore]
         public void ReadBug12()
         {
             var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\test4.xlsx"));
@@ -389,7 +389,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void test()
         { 
             CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
@@ -451,7 +451,7 @@ namespace EPPlusTest
                 p.Workbook.Worksheets.Copy(ws.Name, "Copy");
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void whitespace()
         {
             using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\GridToExcel_05-12-2014.xlsx")))
@@ -463,7 +463,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void SaveCorruption()
         {
             using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\tables.xlsx")))
@@ -488,7 +488,7 @@ namespace EPPlusTest
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void CopyIssue()
         {
             using (var pkg = new ExcelPackage())
@@ -503,7 +503,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void FileStreamSave()
         {
             var fs = File.Create(@"c:\temp\fs.xlsx");
