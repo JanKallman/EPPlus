@@ -37,6 +37,7 @@ using System.IO;
 using System.Configuration;
 using OfficeOpenXml.Drawing;
 using System.Diagnostics;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OfficeOpenXml.Style;
 using System.Globalization;
 using System.Text;
@@ -299,7 +300,7 @@ namespace OfficeOpenXml
             }
             
             #endregion
-            internal void Delete(ExcelAddressBase Destination)
+            internal void Clear(ExcelAddressBase Destination)
             {
                 var cse = new CellsStoreEnumerator<int>(_cells, Destination._fromRow, Destination._fromCol, Destination._toRow, Destination._toCol);
                 var used=new HashSet<int>();
@@ -317,7 +318,7 @@ namespace OfficeOpenXml
                     }
                 }
 
-                _cells.Delete(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
+                _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
                 foreach(var i in used)
                 {
                     _list[i] = null;
@@ -384,6 +385,7 @@ namespace OfficeOpenXml
             _hyperLinks = new CellStore<Uri>();
             
             _names = new ExcelNamedRangeCollection(Workbook,this);
+
             CreateXml();
             TopNode = _worksheetXml.DocumentElement;
         }
@@ -1663,13 +1665,13 @@ namespace OfficeOpenXml
             else
                 newC.StyleID = c.StyleID;
 
-            newC._hidden = c.Hidden;
             newC.OutlineLevel = c.OutlineLevel;
             newC.Phonetic = c.Phonetic;
             newC.BestFit = c.BestFit;
             //_columns.Add(newC);
             _values.SetValue(0, col, newC);
-            newC.Width = c._width;
+            newC._width = c._width;
+            newC._hidden = c._hidden;
             return newC;
        }
         /// <summary>
@@ -1991,6 +1993,15 @@ namespace OfficeOpenXml
         /// <param name="delete"></param>
         private void FixMergedCellsRow(int row, int rows, bool delete)
         {
+            if (delete)
+            {
+                _mergedCells._cells.Delete(row, 0, rows, 0);
+            }
+            else
+            {
+                _mergedCells._cells.Insert(row, 0, rows, 0);
+            }
+
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
             {
@@ -2000,7 +2011,6 @@ namespace OfficeOpenXml
                     if (delete)
                     {
                         newAddr = addr.DeleteRow(row, rows);
-                        _mergedCells._cells.Delete(row, 0, rows, 0);
                         if (newAddr == null)
                         {
                             removeIndex.Add(i);
@@ -2012,7 +2022,7 @@ namespace OfficeOpenXml
                         newAddr = addr.AddRow(row, rows);
                         if (newAddr.Address != addr.Address)
                         {
-                            _mergedCells._cells.Insert(row, 0, rows, 0);
+                        //    _mergedCells._cells.Insert(row, 0, rows, 0);
                             _mergedCells.SetIndex(newAddr, i);
                         }
                     }
@@ -2036,6 +2046,14 @@ namespace OfficeOpenXml
         /// <param name="delete"></param>
         private void FixMergedCellsColumn(int column, int columns, bool delete)
         {
+            if (delete)
+            {
+                _mergedCells._cells.Delete(0, column, 0, columns);
+            }
+            else
+            {
+                _mergedCells._cells.Insert(0, column, 0, columns);                
+            }
             List<int> removeIndex = new List<int>();
             for (int i = 0; i < _mergedCells.Count; i++)
             {
@@ -2045,7 +2063,6 @@ namespace OfficeOpenXml
                     if (delete)
                     {
                         newAddr = addr.DeleteColumn(column, columns);
-                        _mergedCells._cells.Delete(0, column, 0, columns);
                         if (newAddr == null)
                         {
                             removeIndex.Add(i);
@@ -2057,7 +2074,6 @@ namespace OfficeOpenXml
                         newAddr = addr.AddColumn(column, columns);
                         if (newAddr.Address != addr.Address)
                         {
-                            _mergedCells._cells.Insert(0, column, 0, columns);
                             _mergedCells.SetIndex(newAddr, i);
                         }
                     }
@@ -2964,16 +2980,35 @@ namespace OfficeOpenXml
                     var colVal = new HashSet<string>();
                     foreach (var col in tbl.Columns)
                     {                        
-                        var n=col.Name.ToLower(CultureInfo.InvariantCulture);
+                        string n=col.Name.ToLower(CultureInfo.InvariantCulture);
+                        if (tbl.ShowHeader)
+                        {
+                            n = tbl.WorkSheet.GetValue<string>(tbl.Address._fromRow,
+                                tbl.Address._fromCol + col.Position);
+                            if (string.IsNullOrEmpty(n))
+                            {
+                                n = col.Name.ToLower(CultureInfo.InvariantCulture);
+                            }
+                            else
+                            {
+                                col.Name = n;
+                            }
+                        }
+                        else
+                        {
+                            n = col.Name.ToLower(CultureInfo.InvariantCulture);
+                        }
+                    
                         if(colVal.Contains(n))
                         {
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
-                        }
+                        }                        
                         colVal.Add(n);
-                        if (tbl.ShowHeader)
-                        {
-                            _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
-                        }
+                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
+                        //if (tbl.ShowHeader)
+                        //{
+                        //    _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
+                        //}
                         if (tbl.ShowTotal)
                         {
                             SetTableTotalFunction(tbl, col, colNum);
@@ -3113,6 +3148,50 @@ namespace OfficeOpenXml
                         XmlElement fieldNode = pt.PivotTableXml.CreateElement("field", ExcelPackage.schemaMain);
                         fieldNode.SetAttribute("x", "-2");
                         parentNode.AppendChild(fieldNode);
+                    }
+                }
+                var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
+                var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
+                var fields =
+                    pt.CacheDefinition.CacheDefinitionXml.SelectNodes(
+                        "d:pivotCacheDefinition/d:cacheFields/d:cacheField", NameSpaceManager);
+                int ix = 0;
+                if (fields != null)
+                {
+                    foreach (XmlElement node in fields)
+                    {
+                        if (ix >= pt.CacheDefinition.SourceRange.Columns) break;
+                        if (t == null)
+                        {
+                            node.SetAttribute("name", pt.CacheDefinition.SourceRange.Offset(0, ix++,1,1).Value.ToString());
+                        }
+                        else
+                        {
+                            node.SetAttribute("name", t.Columns[ix++].Name);
+                        }
+                    }
+                    foreach (var df in pt.DataFields)
+                    {
+                        if (string.IsNullOrEmpty(df.Name))
+                        {
+                            string name;
+                            if (df.Function == DataFieldFunctions.None)
+                            {
+                                name = df.Field.Name; //Name must be set or Excel will crash on rename.                                
+                            }
+                            else
+                            {
+                                name = df.Function.ToString() + " of " + df.Field.Name; //Name must be set or Excel will crash on rename.
+                            }
+                            //Make sure name is unique
+                            var newName = name;
+                            var i = 2;
+                            while (pt.DataFields.ExistsDfName(newName, df))
+                            {
+                                newName = name + (i++).ToString(CultureInfo.InvariantCulture);
+                            }
+                            df.Name = newName;
+                        }
                     }
                 }
                 pt.PivotTableXml.Save(pt.Part.GetStream(FileMode.Create));
@@ -3819,6 +3898,7 @@ namespace OfficeOpenXml
             get
             {
                 CheckSheetType();
+                if (Workbook._nextTableID == int.MinValue) Workbook.ReadAllTables();
                 if (_tables == null)
                 {
                     _tables = new ExcelTableCollection(this);
@@ -3837,6 +3917,7 @@ namespace OfficeOpenXml
                 CheckSheetType();
                 if (_pivotTables == null)
                 {
+                    if (Workbook._nextPivotTableID == int.MinValue) Workbook.ReadAllTables();
                     _pivotTables = new ExcelPivotTableCollection(this);
                 }
                 return _pivotTables;

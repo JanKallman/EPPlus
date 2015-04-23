@@ -105,7 +105,7 @@ namespace OfficeOpenXml.Utils
             {
                 if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
                 {
-                    sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                    sw.Write("_x00{0}_", (t[i] < 0xf ? "0" : "") + ((int)t[i]).ToString("X"));
                 }
                 else
                 {
@@ -120,7 +120,7 @@ namespace OfficeOpenXml.Utils
         /// <param name="sb"></param>
         /// <param name="t"></param>
         /// <returns></returns>
-        internal static void ExcelEncodeString(StringBuilder sb, string t)
+        internal static void ExcelEncodeString(StringBuilder sb, string t, bool encodeTabCRLF=false)
         {
             if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
             {
@@ -135,9 +135,9 @@ namespace OfficeOpenXml.Utils
             }
             for (int i = 0; i < t.Length; i++)
             {
-                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
+                if (t[i] <= 0x1f && ((t[i] != '\t' && t[i] != '\n' && t[i] != '\r' && encodeTabCRLF == false) || encodeTabCRLF)) //Not Tab, CR or LF
                 {
-                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
+                    sb.AppendFormat("_x00{0}_", (t[i] < 0xf ? "0" : "") + ((int)t[i]).ToString("X"));
                 }
                 else
                 {
@@ -145,6 +145,19 @@ namespace OfficeOpenXml.Utils
                 }
             }
 
+        }
+        /// <summary>
+        /// Return true if preserve space attribute is set.
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="t"></param>
+        /// <returns></returns>
+        internal static string ExcelEncodeString(string t)
+        {
+            StringBuilder sb=new StringBuilder();
+            t=t.Replace("\r\n", "\n"); //For some reason can't table name have cr in them. Replace with nl
+            ExcelEncodeString(sb, t, true);
+            return sb.ToString();
         }
         internal static string ExcelDecodeString(string t)
         {
