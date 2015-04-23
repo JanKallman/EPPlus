@@ -935,7 +935,7 @@ namespace EPPlusTest
 
             return newFile.FullName;
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void issue15249()
         {
             using(var exfile=new ExcelPackage(new FileInfo(@"c:\temp\bug\Boldtextcopy.xlsx")))
