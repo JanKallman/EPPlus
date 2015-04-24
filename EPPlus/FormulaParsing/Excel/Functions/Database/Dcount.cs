@@ -69,7 +69,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             while (db.HasMoreRows)
             {
                 var dataRow = db.Read();
-                if (_rowMatcher.IsMatch(dataRow, criteria.Items))
+                if (_rowMatcher.IsMatch(dataRow, criteria))
                 {
                     // if a fieldname is supplied, count only this row if the value
                     // of the supplied field is numeric.

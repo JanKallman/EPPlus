@@ -26,29 +26,33 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.FormulaParsing.Exceptions;
 
-namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
+namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
-    public class Dmin : DatabaseFunction
+    internal static class VarMethods
     {
-        public Dmin()
-            : this(new RowMatcher())
+        private static double Divide(double left, double right)
         {
-
+            if (System.Math.Abs(right - 0d) < double.Epsilon)
+            {
+                throw new ExcelErrorValueException(eErrorType.Div0);
+            }
+            return left / right;
         }
 
-        public Dmin(RowMatcher rowMatcher)
-            : base(rowMatcher)
+        public static double Var(IEnumerable<double> args)
         {
-
+            double avg = args.Average();
+            double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
+            return Divide(d, (args.Count() - 1));
         }
-        public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+
+        public static double VarP(IEnumerable<double> args)
         {
-            ValidateArguments(arguments, 3);
-            var values = GetMatchingValues(arguments, context);
-            if (!values.Any()) return CreateResult(0d, DataType.Integer);
-            return CreateResult(values.Min(), DataType.Integer);
+            double avg = args.Average();
+            double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
+            return Divide(d, args.Count()); 
         }
     }
 }

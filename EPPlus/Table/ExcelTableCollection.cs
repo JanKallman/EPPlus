@@ -52,7 +52,6 @@ namespace OfficeOpenXml.Table
             {
                 var rel = ws.Part.GetRelationship(node.GetAttribute("id",ExcelPackage.schemaRelationships));
                 var tbl = new ExcelTable(rel, ws);
-                if (tbl.Id + 1 > _ws.Workbook._nextTableID) _ws.Workbook._nextTableID = tbl.Id + 1;
                 _tableNames.Add(tbl.Name, _tables.Count);
                 _tables.Add(tbl);
             }
