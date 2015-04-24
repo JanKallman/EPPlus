@@ -205,7 +205,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    return GetXmlNodeString("@name");
+                    return v;
                 }
             }
             set

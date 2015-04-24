@@ -80,9 +80,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             get { return _rowIndex < _endRow; }
         }
 
-        public IDictionary<string, object> Read()
+        public ExcelDatabaseRow Read()
         {
-            var retVal = new Dictionary<string, object>();
+            var retVal = new ExcelDatabaseRow();
             _rowIndex++;
             foreach (var field in Fields)
             {

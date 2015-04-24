@@ -53,6 +53,8 @@ namespace OfficeOpenXml.Style.XmlAccess
             _top = new ExcelBorderItemXml(nsm, topNode.SelectSingleNode(topPath, nsm));
             _bottom = new ExcelBorderItemXml(nsm, topNode.SelectSingleNode(bottomPath, nsm));
             _diagonal = new ExcelBorderItemXml(nsm, topNode.SelectSingleNode(diagonalPath, nsm));
+            _diagonalUp = GetBoolValue(topNode, diagonalUpPath);
+            _diagonalDown = GetBoolValue(topNode, diagonalDownPath);
         }
         internal override string Id
         {

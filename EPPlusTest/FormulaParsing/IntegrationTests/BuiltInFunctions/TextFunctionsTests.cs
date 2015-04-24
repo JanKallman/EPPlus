@@ -128,7 +128,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Logtest1()
         {
             var sw = new Stopwatch();

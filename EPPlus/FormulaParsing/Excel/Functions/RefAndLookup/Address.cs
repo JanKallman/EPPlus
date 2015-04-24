@@ -51,13 +51,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             if (arguments.Count() > 3)
             {
                 var fourthArg = arguments.ElementAt(3).Value;
-                if(fourthArg.GetType().Equals(typeof(bool)) && !(bool)fourthArg)
+                if (fourthArg is bool && !(bool)fourthArg)
                 {
                     throw new InvalidOperationException("Excelformulaparser does not support the R1C1 format!");
                 }
-                if (fourthArg.GetType().Equals(typeof(string)))
+            }
+            if (arguments.Count() > 4)
+            {
+                var fifthArg = arguments.ElementAt(4).Value;
+                if (fifthArg is string && !string.IsNullOrEmpty(fifthArg.ToString()))
                 {
-                    worksheetSpec = fourthArg.ToString() + "!";
+                    worksheetSpec = fifthArg + "!";
                 }
             }
             var translator = new IndexToAddressTranslator(context.ExcelDataProvider, referenceType);

@@ -464,7 +464,7 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
             parsingContext.ExcelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
             parsingContext.ExcelDataProvider.Stub(x => x.ExcelMaxRows).Return(10);
-            var result = func.Execute(FunctionsHelper.CreateArgs(1, 2, (int)ExcelReferenceType.RelativeRowAndColumn, "Worksheet1"), parsingContext);
+            var result = func.Execute(FunctionsHelper.CreateArgs(1, 2, (int)ExcelReferenceType.RelativeRowAndColumn, true, "Worksheet1"), parsingContext);
             Assert.AreEqual("Worksheet1!B1", result.Result);
         }
 

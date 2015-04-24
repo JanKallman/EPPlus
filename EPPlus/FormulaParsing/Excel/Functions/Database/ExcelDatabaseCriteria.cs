@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.Utilities;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 {
@@ -37,7 +39,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
         private readonly int _toCol;
         private readonly string _worksheet;
         private readonly int _fieldRow;
-        private readonly Dictionary<string, object> _criterias = new Dictionary<string, object>(); 
+        private readonly Dictionary<ExcelDatabaseCriteriaField, object> _criterias = new Dictionary<ExcelDatabaseCriteriaField, object>(); 
 
         public ExcelDatabaseCriteria(ExcelDataProvider dataProvider, string range)
         {
@@ -52,18 +54,29 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 
         private void Initialize()
         {
+            var fo = 1;
             for (var x = _fromCol; x <= _toCol; x++)
             {
                 var fieldObj = _dataProvider.GetCellValue(_worksheet, _fieldRow, x);
                 var val = _dataProvider.GetCellValue(_worksheet, _fieldRow + 1, x);
                 if (fieldObj != null && val != null)
                 {
-                    _criterias.Add(fieldObj.ToString().ToLower(CultureInfo.InvariantCulture), val);
+                    if(fieldObj is string)
+                    { 
+                        var field = new ExcelDatabaseCriteriaField(fieldObj.ToString().ToLower(CultureInfo.InvariantCulture));
+                        _criterias.Add(field, val);
+                    }
+                    else if (ConvertUtil.IsNumeric(fieldObj))
+                    {
+                        var field = new ExcelDatabaseCriteriaField((int) fieldObj);
+                        _criterias.Add(field, val);
+                    }
+
                 }
             }
         }
 
-        public IDictionary<string, object> Items
+        public virtual IDictionary<ExcelDatabaseCriteriaField, object> Items
         {
             get { return _criterias; }
         }

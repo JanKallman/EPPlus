@@ -37,10 +37,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             ValidateArguments(arguments, 1);
             var args = ArgsToDoubleEnumerable(IgnoreHiddenValues, false, arguments, context);
-            double avg = args.Average();
-            double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
-            var result = Divide(d, (args.Count() - 1));
-            return new CompileResult(result, DataType.Decimal);
+            return new CompileResult(VarMethods.Var(args), DataType.Decimal);
         }
     }
 }

@@ -57,13 +57,20 @@ namespace OfficeOpenXml.Style.XmlAccess
         protected bool GetBoolValue(XmlNode topNode, string path)
         {
             var node = topNode.SelectSingleNode(path, NameSpaceManager);
-            if (node != null && node.Attributes["val"] != null && node.Attributes["val"].Value != "0")
+            if (node is XmlAttribute)
             {
-                return true;
+                return node.Value != "0";
             }
             else
             {
-                return false;
+                if (node != null && ((node.Attributes["val"] != null && node.Attributes["val"].Value != "0") || node.Attributes["val"] == null))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }                
             }
         }
 

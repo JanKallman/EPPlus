@@ -328,15 +328,22 @@
     <Compile Include="FormulaParsing\Excel\Functions\BuiltInFunctions.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CollectionFlattener.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\DatabaseFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Daverage.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dcount.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\DcountA.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dget.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dmax.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dmin.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\Dsum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dvar.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="FormulaParsing\Excel\Functions\Database\Dvarp.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabase.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseCriteria.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseCriteriaField.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseField.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseRow.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcher.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
@@ -456,6 +463,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Tanh.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Trunc.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Var.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\VarMethods.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\VarP.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Numeric\CInt.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ObjectEnumerableArgConverter.cs" />
