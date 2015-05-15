@@ -500,10 +500,10 @@ namespace OfficeOpenXml
           if (sheetMarkerIndex >= 0) {
             colStartIx = sheetMarkerIndex + 1;
           }
-
+          address = address.ToUpper(CultureInfo.InvariantCulture);
           for (int i = colStartIx; i < address.Length; i++) {
             char c = address[i];
-            if (colPart && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) && colLength <= 3) {
+            if (colPart && (c >= 'A' && c <= 'Z') && colLength <= 3) {
               col *= 26;
               col += ((int)c) - 64;
               colLength++;
