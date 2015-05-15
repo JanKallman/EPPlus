@@ -482,90 +482,62 @@ namespace OfficeOpenXml
         }
         internal static bool GetRowCol(string address, out int row, out int col, bool throwException, out bool fixedRow, out bool fixedCol)
         {
-            bool colPart = true;
-            string sRow = "", sCol = "";
+          bool colPart = true;
+          int colStartIx = 0;
+          int colLength = 0;
+          col = 0;
+          row = 0;
+          fixedRow = false;
+          fixedCol = false;
+
+          if (address.EndsWith("#REF!")) {
+            row = 0;
             col = 0;
-            fixedRow = false;
-            fixedCol = false;
-            if (address.IndexOf(':') > 0)  //If it is a mult-cell address use 
-            {
-                address = address.Substring(0, address.IndexOf(':'));
-            }
-            if (address.EndsWith("#REF!"))
-            {
-                row = 0;
-                col = 0;
-                return true;
-            }
+            return true;
+          }
 
-            int sheetMarkerIndex = address.IndexOf('!');
-            if (sheetMarkerIndex >= 0)
-            {
-                address = address.Substring(sheetMarkerIndex + 1);
-            }
+          int sheetMarkerIndex = address.IndexOf('!');
+          if (sheetMarkerIndex >= 0) {
+            colStartIx = sheetMarkerIndex + 1;
+          }
 
-            address = address.ToUpper(CultureInfo.InvariantCulture);
-            for (int i = 0; i < address.Length; i++)
-            {
-                if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)
-                {
-                    sCol += address[i];
-                }
-                else if (address[i] >= '0' && address[i] <= '9')
-                {
-                    sRow += address[i];
-                    colPart = false;
-                }
-                else if (address[i] == '$')
-                {
-                    if (i == 0) 
-                        fixedCol = true; 
-                    else 
-                        fixedRow = true;
-                }
-                else
-                {
-                    if (throwException)
-                    {
-                        throw (new Exception(string.Format("Invalid Address format {0}", address)));
-                    }
-                    else
-                    {
-                        row = 0;
-                        col = 0;
-                        return false;
-                    }
-                }
+          for (int i = colStartIx; i < address.Length; i++) {
+            char c = address[i];
+            if (colPart && ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) && colLength <= 3) {
+              col *= 26;
+              col += ((int)c) - 64;
+              colLength++;
             }
-
-            // Get the column number
-            if (sCol != "")
-            {
-                col = GetColumn(sCol);
+            else if (c >= '0' && c <= '9') {
+              row *= 10;
+              row += ((int)c) - 48;
+              colPart = false;
             }
-            else
-            {
-                col = 0;
-                int.TryParse(sRow, out row);
-                return row>0;
+            else if (c == '$') {
+              if (i == colStartIx) {
+                colStartIx++;
+                fixedCol = true;
+              }
+              else {
+                colPart = false;
+                fixedRow = true;
+              }
             }
-            // Get the row number
-            if (sRow == "") //Blank, fullRow
-            {
-                //if (throwException)
-                //{
-                //    throw (new Exception(string.Format("Invalid Address format {0}", address)));
-                //}
-                //else
-                //{                    
-                row = 0;
-                return col > 0;
-                //}
+            else if (c == ':') {
+              break;
             }
-            else
-            {
-                return int.TryParse(sRow, out row);
+            else {
+              row = 0;
+              col = 0;
+              if (throwException) {
+                throw (new Exception(string.Format("Invalid Address format {0}", address)));
+              }
+              else {
+                return false;
+              }
             }
+          }
+          return row != 0 || col != 0;
         }
 
         private static int GetColumn(string sCol)
