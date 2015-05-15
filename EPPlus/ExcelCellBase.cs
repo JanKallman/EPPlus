@@ -490,49 +490,61 @@ namespace OfficeOpenXml
           fixedRow = false;
           fixedCol = false;
 
-          if (address.EndsWith("#REF!")) {
+          if (address.EndsWith("#REF!"))
+          {
             row = 0;
             col = 0;
             return true;
           }
 
           int sheetMarkerIndex = address.IndexOf('!');
-          if (sheetMarkerIndex >= 0) {
+          if (sheetMarkerIndex >= 0)
+          {
             colStartIx = sheetMarkerIndex + 1;
           }
           address = address.ToUpper(CultureInfo.InvariantCulture);
-          for (int i = colStartIx; i < address.Length; i++) {
+          for (int i = colStartIx; i < address.Length; i++)
+          {
             char c = address[i];
-            if (colPart && (c >= 'A' && c <= 'Z') && colLength <= 3) {
+            if (colPart && (c >= 'A' && c <= 'Z') && colLength <= 3)
+            {
               col *= 26;
               col += ((int)c) - 64;
               colLength++;
             }
-            else if (c >= '0' && c <= '9') {
+            else if (c >= '0' && c <= '9')
+            {
               row *= 10;
               row += ((int)c) - 48;
               colPart = false;
             }
-            else if (c == '$') {
-              if (i == colStartIx) {
+            else if (c == '$')
+            {
+              if (i == colStartIx)
+              {
                 colStartIx++;
                 fixedCol = true;
               }
-              else {
+              else
+              {
                 colPart = false;
                 fixedRow = true;
               }
             }
-            else if (c == ':') {
+            else if (c == ':')
+            {
               break;
             }
-            else {
+            else
+            {
               row = 0;
               col = 0;
-              if (throwException) {
+              if (throwException)
+              {
                 throw (new Exception(string.Format("Invalid Address format {0}", address)));
               }
-              else {
+              else
+              {
                 return false;
               }
             }
