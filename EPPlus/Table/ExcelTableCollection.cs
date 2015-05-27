@@ -93,6 +93,37 @@ namespace OfficeOpenXml.Table
             return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
         }
 
+        public void Delete(int Index)
+        {
+            Delete(this[Index]);
+        }
+
+        public void Delete(string Name)
+        {
+            Delete(this[Name]);
+        }
+
+        public void Delete(ExcelTable Table)
+        {
+            if (!this._tables.Contains(Table))
+            {
+                throw new ArgumentOutOfRangeException("Table", "Table does not exist in this collection");
+            }
+            lock (this)
+            {
+                _tables.Remove(Table);
+                foreach (var sheet in Table.WorkSheet.Workbook.Worksheets)
+                {
+                    foreach (var table in sheet.Tables)
+                    {
+                        if (table.Id > Table.Id) table.Id--;
+                    }
+                    Table.WorkSheet.Workbook._nextTableID--;
+                }
+            }
+
+        }
+
         internal string GetNewTableName()
         {
             string name = "Table1";
