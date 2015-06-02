@@ -918,6 +918,63 @@ namespace EPPlusTest
             tbl.ShowFilter = false;
             tbl.Columns[0].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
         }
+
+        [TestMethod]
+        public void TableDeleteTest()
+        {
+            using (var pkg = new ExcelPackage())
+            {
+                var wb = pkg.Workbook;
+                var sheets = new[]
+                {
+                    wb.Worksheets.Add("WorkSheet A"),
+                    wb.Worksheets.Add("WorkSheet B")
+                };
+                for (int i = 1; i <= 4; i++)
+                {
+                    var cell = sheets[0].Cells[1, i];
+                    cell.Value = cell.Address + "_";
+                    cell = sheets[1].Cells[1, i];
+                    cell.Value = cell.Address + "_";
+                }
+
+                for (int i = 6; i <= 11; i++)
+                {
+                    var cell = sheets[0].Cells[3, i];
+                    cell.Value = cell.Address + "_";
+                    cell = sheets[1].Cells[3, i];
+                    cell.Value = cell.Address + "_";
+                }
+                var tables = new[]
+                {
+                    sheets[1].Tables.Add(sheets[1].Cells["A1:D73"], "Tablea"),
+                    sheets[0].Tables.Add(sheets[0].Cells["A1:D73"], "Table2"),
+                    sheets[1].Tables.Add(sheets[1].Cells["F3:K10"], "Tableb"),
+                    sheets[0].Tables.Add(sheets[0].Cells["F3:K10"], "Table3"),
+                };
+                Assert.AreEqual(5, wb._nextTableID);
+                Assert.AreEqual(1, tables[0].Id);
+                Assert.AreEqual(2, tables[1].Id);
+                try
+                {
+                    sheets[0].Tables.Delete("Tablea");
+                    Assert.Fail("ArgumentException should have been thrown.");
+                }
+                catch (ArgumentOutOfRangeException) { }
+                sheets[1].Tables.Delete("Tablea");
+                Assert.AreEqual(1, tables[1].Id);
+                Assert.AreEqual(2, tables[2].Id);
+                
+                try
+                {
+                    sheets[1].Tables.Delete(4);
+                    Assert.Fail("ArgumentException should have been thrown.");
+                }
+                catch (ArgumentOutOfRangeException) { }
+                sheets[0].Tables.Delete(1);
+            }
+        }
+
         //[Ignore]
         //[TestMethod]
         public void CopyTable()

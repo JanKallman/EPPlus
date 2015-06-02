@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -75,6 +76,11 @@ namespace OfficeOpenXml.Table
         /// <returns>The table object</returns>
         public ExcelTable Add(ExcelAddressBase Range, string Name)
         {
+            if (Range.WorkSheet != null && Range.WorkSheet != _ws.Name)
+            {
+                throw new ArgumentException("Range does not belong to worksheet", "Range");
+            }
+            
             if (string.IsNullOrEmpty(Name))
             {
                 Name = GetNewTableName();
@@ -100,17 +106,23 @@ namespace OfficeOpenXml.Table
 
         public void Delete(string Name)
         {
+            if (this[Name] == null)
+            {
+                throw new ArgumentOutOfRangeException(string.Format("Cannot delete non-existant table {0} in sheet {1}.", Name, _ws.Name));
+            }
             Delete(this[Name]);
         }
+
 
         public void Delete(ExcelTable Table)
         {
             if (!this._tables.Contains(Table))
             {
-                throw new ArgumentOutOfRangeException("Table", "Table does not exist in this collection");
+                throw new ArgumentOutOfRangeException("Table", String.Format("Table {0} does not exist in this collection", Table.Name));
             }
             lock (this)
             {
+                _tableNames.Remove(Table.Name);
                 _tables.Remove(Table);
                 foreach (var sheet in Table.WorkSheet.Workbook.Worksheets)
                 {

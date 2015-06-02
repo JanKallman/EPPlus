@@ -37,9 +37,9 @@ namespace EPPlusTest
 		[TestMethod]
 		public void DeleteByNameWhereWorkSheetExists()
 		{
-			workbook.Worksheets.Add("NEW2");
+		    workbook.Worksheets.Add("NEW2");
 			workbook.Worksheets.Delete("NEW2");
-		}
+        }
 
 		[TestMethod, ExpectedException(typeof(ArgumentException))]
 		public void DeleteByNameWhereWorkSheetDoesNotExist()
