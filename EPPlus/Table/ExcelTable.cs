@@ -110,7 +110,7 @@ namespace OfficeOpenXml.Table
     /// <summary>
     /// An Excel Table
     /// </summary>
-    public class ExcelTable : XmlHelper
+    public class ExcelTable : XmlHelper, IEqualityComparer<ExcelTable>
     {
         internal ExcelTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
@@ -624,6 +624,16 @@ namespace OfficeOpenXml.Table
                 }
 
             }
+        }
+
+        public bool Equals(ExcelTable x, ExcelTable y)
+        {
+            return x.WorkSheet == y.WorkSheet && x.Id == y.Id && x.TableXml.OuterXml == y.TableXml.OuterXml;
+        }
+
+        public int GetHashCode(ExcelTable obj)
+        {
+            return obj.TableXml.OuterXml.GetHashCode();
         }
     }
 }
