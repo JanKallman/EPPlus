@@ -971,7 +971,12 @@ namespace EPPlusTest
                     Assert.Fail("ArgumentException should have been thrown.");
                 }
                 catch (ArgumentOutOfRangeException) { }
-                sheets[0].Tables.Delete(1);
+                var range = sheets[0].Cells[sheets[0].Tables[1].Address.Address];
+                sheets[0].Tables.Delete(1, true);
+                foreach (var cell in range)
+                {
+                    Assert.IsNull(cell.Value);
+                }
             }
         }
 

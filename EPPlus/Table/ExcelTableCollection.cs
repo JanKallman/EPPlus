@@ -99,22 +99,22 @@ namespace OfficeOpenXml.Table
             return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
         }
 
-        public void Delete(int Index)
+        public void Delete(int Index, bool ClearRange = false)
         {
-            Delete(this[Index]);
+            Delete(this[Index], ClearRange);
         }
 
-        public void Delete(string Name)
+        public void Delete(string Name, bool ClearRange = false)
         {
             if (this[Name] == null)
             {
                 throw new ArgumentOutOfRangeException(string.Format("Cannot delete non-existant table {0} in sheet {1}.", Name, _ws.Name));
             }
-            Delete(this[Name]);
+            Delete(this[Name], ClearRange);
         }
 
 
-        public void Delete(ExcelTable Table)
+        public void Delete(ExcelTable Table, bool ClearRange = false)
         {
             if (!this._tables.Contains(Table))
             {
@@ -122,6 +122,7 @@ namespace OfficeOpenXml.Table
             }
             lock (this)
             {
+                var range = _ws.Cells[Table.Address.Address];
                 _tableNames.Remove(Table.Name);
                 _tables.Remove(Table);
                 foreach (var sheet in Table.WorkSheet.Workbook.Worksheets)
@@ -131,6 +132,10 @@ namespace OfficeOpenXml.Table
                         if (table.Id > Table.Id) table.Id--;
                     }
                     Table.WorkSheet.Workbook._nextTableID--;
+                }
+                if (ClearRange)
+                {
+                    range.Clear();
                 }
             }
 
