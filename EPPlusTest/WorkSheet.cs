@@ -653,6 +653,8 @@ namespace EPPlusTest
 
             ws.Cells["A10"].LoadFromCollection(listDTO, true, OfficeOpenXml.Table.TableStyles.Light1, BindingFlags.Instance | BindingFlags.Instance, new MemberInfo[] { typeof(TestDTO).GetMethod("GetNameID"), typeof(TestDTO).GetField("NameVar") });
             ws.Cells["A15"].LoadFromCollection(from l in listDTO where l.Boolean orderby l.Date select new { Name = l.Name, Id = l.Id, Date = l.Date, NameVariable = l.NameVar }, true, OfficeOpenXml.Table.TableStyles.Dark4);
+
+            ws.Cells["A20"].LoadFromCollection(listDTO, false);
         }
         [TestMethod]
         public void LoadFromOneCollectionTest()
@@ -1234,6 +1236,21 @@ namespace EPPlusTest
 
             ws.Tables[0].Columns[1].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
             ws.Tables[0].ShowTotal = true;
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void LoadEmptyDataTable()
+        {
+            if (_pck == null) _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Loaded Empty DataTable");
+
+            var dt = new DataTable();
+            dt.Columns.Add(new DataColumn("col1"));
+            dt.Columns.Add(new DataColumn("col2"));
+            ws.Cells["A1"].LoadFromDataTable(dt, true);
+
+            ws.Cells["D1"].LoadFromDataTable(dt, false);
         }
 
         [TestMethod]
