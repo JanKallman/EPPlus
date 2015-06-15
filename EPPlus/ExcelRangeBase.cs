@@ -1919,6 +1919,10 @@ namespace OfficeOpenXml
 				row++;
 				col = _fromCol;
 			}
+            else if (Table.Rows.Count == 0)
+            {
+                return null;
+            }
 			foreach (DataRow dr in Table.Rows)
 			{
 				foreach (object value in dr.ItemArray)
@@ -2057,6 +2061,11 @@ namespace OfficeOpenXml
 				}
 				row++;
 			}
+
+		    if (!Collection.Any() && (Members.Length == 0 || PrintHeaders == false))
+		    {
+		        return null;
+		    }
 
 			if (Members.Length == 0)
 			{
