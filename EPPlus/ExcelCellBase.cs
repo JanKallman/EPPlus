@@ -531,10 +531,6 @@ namespace OfficeOpenXml
                 fixedRow = true;
               }
             }
-            else if (c == ':')
-            {
-              break;
-            }
             else
             {
               row = 0;
