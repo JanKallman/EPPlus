@@ -1099,19 +1099,22 @@ namespace OfficeOpenXml
             _nextPivotTableID = 1;
             foreach (var ws in Worksheets)
             {
-                foreach (var tbl in ws.Tables)
+                if (!(ws is ExcelChartsheet)) //Fixes 15273. Chartsheets should be ignored.
                 {
-                    if (tbl.Id >= _nextTableID)
+                    foreach (var tbl in ws.Tables)
                     {
-                        _nextTableID = tbl.Id+1;
+                        if (tbl.Id >= _nextTableID)
+                        {
+                            _nextTableID = tbl.Id + 1;
+                        }
                     }
-                }
-                foreach (var pt in ws.PivotTables)
-                {
-                    if (pt.CacheID >= _nextPivotTableID)
+                    foreach (var pt in ws.PivotTables)
                     {
-                        _nextPivotTableID = pt.CacheID + 1;
-                    }                    
+                        if (pt.CacheID >= _nextPivotTableID)
+                        {
+                            _nextPivotTableID = pt.CacheID + 1;
+                        }
+                    }
                 }
             }
         }

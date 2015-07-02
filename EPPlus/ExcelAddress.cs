@@ -498,6 +498,11 @@ namespace OfficeOpenXml
                     SetAddress(ref fullAddress, ref second, ref hasSheet);
                     return true;
                 }
+                else if (fullAddress.StartsWith("!"))
+                {
+                    // invalid address!
+                    return false;
+                }
                 for (int i = 0; i < fullAddress.Length; i++)
                 {
                     var c = fullAddress[i];
