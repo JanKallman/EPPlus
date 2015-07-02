@@ -6,6 +6,7 @@ using OfficeOpenXml;
 using System.IO;
 using OfficeOpenXml.Drawing;
 using System.Drawing;
+using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Style;
@@ -61,11 +62,52 @@ namespace EPPlusTest
             CreatePivotTable();
             SetBackground();
             SetHeaderFooterImage();
+            AddChartSheet();
 
             SaveWorksheet("Worksheet.xlsx");
 
             ReadWorkSheet();
             ReadStreamSaveAsStream();
+        }
+
+        private void AddChartSheet()
+        {
+            var chart = _pck.Workbook.Worksheets.AddChart("ChartSheet",eChartType.ColumnClustered);
+            foreach (var _n in _pck.Workbook.Names)
+            {
+                
+            }
+            //Iterate all collection and make sure no exception is thrown.
+            foreach (var worksheet in _pck.Workbook.Worksheets)
+            {
+                if (!(worksheet is ExcelChartsheet))
+                {
+                    foreach (var d in worksheet.Drawings)
+                    {
+
+                    }
+                    foreach (var d in worksheet.Tables)
+                    {
+
+                    }
+                    foreach (var d in worksheet.PivotTables)
+                    {
+
+                    }
+                    foreach (var d in worksheet.Names)
+                    {
+
+                    }
+                    foreach (var d in worksheet.Comments)
+                    {
+
+                    }
+                    foreach (var d in worksheet.ConditionalFormatting)
+                    {
+
+                    }
+                }
+            }
         }
         //[Ignore]
         //[TestMethod]

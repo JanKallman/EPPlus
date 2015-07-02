@@ -50,17 +50,18 @@ namespace OfficeOpenXml.Drawing.Vml
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };
         }   
         internal ExcelRangeBase Range { get; set; }
-        //public string Id 
-        //{
-        //    get
-        //    {
-        //        return GetXmlNodeString("@id");
-        //    }
-        //    set
-        //    {
-        //        SetXmlNodeString("@id",value);
-        //    }
-        //}
+
+        /// <summary>
+        /// Address in the worksheet
+        /// </summary>
+        public string Address
+        {
+            get
+            {
+                return Range.Address;
+            }
+        }
+
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
         /// <summary>
         /// Vertical alignment for text
