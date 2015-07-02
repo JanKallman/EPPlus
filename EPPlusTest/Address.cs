@@ -104,5 +104,35 @@ namespace EPPlusTest
             var a13 = new ExcelAddress("Table1[[#All],[Freight]]");
             var a14 = new ExcelAddress("SalesData!$N$5+'test''1'!$J$33");
         }
+
+        [TestMethod]
+        public void IsValidCellAdress()
+        {
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1048576"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1048576"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1048576"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1"));
+          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:A1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:XFD1"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1048576:XFD1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD1:XFD1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:A1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:XFD1"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1048576:XFD1048576"));
+          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
+        }
+
     }
 }

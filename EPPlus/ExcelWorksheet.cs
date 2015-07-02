@@ -111,7 +111,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an Excel worksheet and provides access to its properties and methods
 	/// </summary>
-    public class ExcelWorksheet : XmlHelper, IDisposable
+    public class ExcelWorksheet : XmlHelper, IEqualityComparer<ExcelWorksheet>, IDisposable
 	{
         internal class Formulas
         {
@@ -1648,6 +1648,7 @@ namespace OfficeOpenXml
              }
             return column;
 		}
+
         /// <summary>
         /// Returns the name of the worksheet
         /// </summary>
@@ -4155,5 +4156,15 @@ namespace OfficeOpenXml
             return c;
 
         }
-    }  // END class Worksheet
+
+        public bool Equals(ExcelWorksheet x, ExcelWorksheet y)
+        {
+            return x.Name == y.Name && x.SheetID == y.SheetID && x.WorksheetXml.OuterXml == y.WorksheetXml.OuterXml;
+        }
+
+        public int GetHashCode(ExcelWorksheet obj)
+        {
+            return obj.WorksheetXml.OuterXml.GetHashCode();
+        }
+	}  // END class Worksheet
 }
