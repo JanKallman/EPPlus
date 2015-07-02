@@ -209,7 +209,7 @@ namespace OfficeOpenXml.Table
                     toRow=_tbl.Address._toRow - (_tbl.ShowTotal?1:0),
                     col=_tbl.Address._fromCol+Position;
 
-                if (fromRow < toRow)
+                if (fromRow <= toRow)
                 {
                     _tbl.WorkSheet.Cells[fromRow, col, toRow, col].StyleName = value;
                 }
