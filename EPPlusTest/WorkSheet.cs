@@ -904,6 +904,46 @@ namespace EPPlusTest
             ws.PivotTables.Add(ws.Cells["G1"], ws.Cells["A1:D4"], "PivotTable");
             Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable"].StyleName);
         }
+
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestTableNameCanNotStartsWithNumber()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            var tbl = ws.Tables.Add(ws.Cells["A1"], "5TestTable");
+         
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void TestTableNameCanNotContainWhiteSpaces()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            var tbl = ws.Tables.Add(ws.Cells["A1"], "Test Table");
+
+        }
+
+        [TestMethod]
+        public void TestTableNameCanStartsWithBackSlash()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            var tbl = ws.Tables.Add(ws.Cells["A1"], "\\TestTable");
+
+        }
+
+        [TestMethod]
+        public void TestTableNameCanStartsWithUnderscore()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            var tbl = ws.Tables.Add(ws.Cells["A1"], "_TestTable");
+
+        }
+
         //[Ignore]
         //[TestMethod]
         public void TableTest()

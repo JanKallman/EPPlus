@@ -89,6 +89,9 @@ namespace OfficeOpenXml.Table
             {
                 throw (new ArgumentException("Tablename is not unique"));
             }
+
+            ValidateTableName(Name);
+
             foreach (var t in _tables)
             {
                 if (t.Address.Collide(Range) != ExcelAddressBase.eAddressCollition.No)
@@ -97,6 +100,26 @@ namespace OfficeOpenXml.Table
                 }
             }
             return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
+        }
+
+        private void ValidateTableName(string Name)
+        {
+            if (string.IsNullOrEmpty(Name))
+            {
+                throw new ArgumentException("Tablename is null or empty");
+            }
+
+            char firstLetterOfName = Name[0];
+            if (Char.IsLetter(firstLetterOfName) == false && firstLetterOfName != '_' && firstLetterOfName != '\\')
+            {
+                throw new ArgumentException("Tablename start with invalid character");
+            }
+
+            if (Name.Contains(" "))
+            {
+                throw new ArgumentException("Tablename has spaces");
+            }
+
         }
 
         public void Delete(int Index, bool ClearRange = false)
