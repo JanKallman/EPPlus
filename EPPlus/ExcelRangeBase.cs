@@ -2707,7 +2707,7 @@ namespace OfficeOpenXml
             }
             else
             {
-                fromCol = Range._fromRow;
+                fromCol = Range._fromCol;
             }
 
             var rows = Range._toRow - fromRow + 1;
