@@ -100,7 +100,19 @@ namespace EPPlusTest
 			CompareOrderOfWorksheetsAfterSaving(package);
 		}
 
-		private static void CompareOrderOfWorksheetsAfterSaving(ExcelPackage editedPackage)
+        [TestMethod]
+        public void RangeClearMethodShouldNotClearSurroundingCells()
+        {
+            var wks  = workbook.Worksheets.Add("test");
+            wks.Cells[2, 2].Value = "something";
+            wks.Cells[2, 3].Value = "something";
+
+            wks.Cells[2, 3].Clear();
+
+            Assert.IsNotNull(wks.Cells[2, 2].Value);
+        }
+
+        private static void CompareOrderOfWorksheetsAfterSaving(ExcelPackage editedPackage)
 		{
 			var packageStream = new MemoryStream();
 			editedPackage.SaveAs(packageStream);
