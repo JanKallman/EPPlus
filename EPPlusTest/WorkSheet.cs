@@ -8,7 +8,6 @@ using OfficeOpenXml.Drawing;
 using System.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Drawing.Vml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table.PivotTable;
@@ -22,8 +21,6 @@ namespace EPPlusTest
         [TestMethod]
         public void RunWorksheetTests()
         {
-            InitBase();
-
             InsertDeleteTestRows();
             InsertDeleteTestColumns();
             LoadData();
@@ -60,8 +57,6 @@ namespace EPPlusTest
             TableTest();
             DefinedName();
             CreatePivotTable();
-            SetBackground();
-            SetHeaderFooterImage();
             AddChartSheet();
 
             SaveWorksheet("Worksheet.xlsx");
@@ -133,9 +128,11 @@ namespace EPPlusTest
                 ws = pck.Workbook.Worksheets["RichText"];
                 Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
 
-                ws = pck.Workbook.Worksheets["HeaderImage"];
-
-                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+                if (GetClipartPath() != "")
+                {
+                    ws = pck.Workbook.Worksheets["HeaderImage"];
+                    Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
+                }
 
                 ws = pck.Workbook.Worksheets["newsheet"];
                 Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine, true);
@@ -1807,19 +1804,22 @@ namespace EPPlusTest
             pck.Save();
         }
         //[Ignore]
-        //[TestMethod]
+        [TestMethod]
         public void SetBackground()
         {
+            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
             var ws = _pck.Workbook.Worksheets.Add("backimg");
 
             ws.BackgroundImage.Image = Properties.Resources.Test1;
             ws = _pck.Workbook.Worksheets.Add("backimg2");
-            ws.BackgroundImage.SetFromFile(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"));
+            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")));
         }
         //[Ignore]
-        //[TestMethod]
+        [TestMethod]
         public void SetHeaderFooterImage()
         {
+
+            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
             var ws = _pck.Workbook.Worksheets.Add("HeaderImage");
             ws.HeaderFooter.OddHeader.CenteredText = "Before ";
             var img=ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
@@ -1838,10 +1838,10 @@ namespace EPPlusTest
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
 
-            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"), PictureAlignment.Left);
+            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")), PictureAlignment.Left);
             img.Title = "DiskFile";
 
-            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WING1.WMF"), PictureAlignment.Right);
+            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"WING1.WMF")), PictureAlignment.Right);
             img.Title = "DiskFile2";
             ws.Cells["A1:A400"].Value = 1;
 
