@@ -1,15 +1,14 @@
 ﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using System.Linq;
+using System.Drawing;
+using System.IO;
+using System.Xml;
+using EPPlusTest.Properties;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
-using System.IO;
-using System.Drawing;
 using OfficeOpenXml.Style;
-using System.Xml;
+
 namespace EPPlusTest
 {
     /// <summary>
@@ -21,8 +20,6 @@ namespace EPPlusTest
         [TestMethod]
         public void RunDrawingTests()
         {
-            InitBase();
-
             BarChart();
             Column();
             Cone();
@@ -30,7 +27,6 @@ namespace EPPlusTest
             Drawings();
             Line();
             LineMarker();
-            Picture();
             PieChart();
             PieChart3D();
             Pyramid();
@@ -41,7 +37,6 @@ namespace EPPlusTest
             Line2Test();
             MultiChartSeries();
             DrawingSizingAndPositioning();
-            DrawingWorksheetCopy();
             DeleteDrawing();
             
             SaveWorksheet("Drawing.xlsx");
@@ -64,36 +59,37 @@ namespace EPPlusTest
                 Assert.AreEqual(cht.Title.Text, "Test");
             }
         }
-        //[TestMethod]
-        //[Ignore]
+        
+        [TestMethod]
         public void Picture()
          {
-             var ws = _pck.Workbook.Worksheets.Add("Picture");
-             ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
+            var ws = _pck.Workbook.Worksheets.Add("Picture");
+            var pic = ws.Drawings.AddPicture("Pic1", Resources.Test1);
 
-             pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
-             pic.SetPosition(150, 200);
-             pic.Border.LineStyle = eLineStyle.Solid;
-             pic.Border.Fill.Color = Color.DarkCyan;
-             pic.Fill.Style = eFillStyle.SolidFill;
-             pic.Fill.Color = Color.White;
-             pic.Fill.Transparancy = 50;
+            pic = ws.Drawings.AddPicture("Pic2", Resources.Test1);
+            pic.SetPosition(150, 200);
+            pic.Border.LineStyle = eLineStyle.Solid;
+            pic.Border.Fill.Color = Color.DarkCyan;
+            pic.Fill.Style = eFillStyle.SolidFill;
+            pic.Fill.Color = Color.White;
+            pic.Fill.Transparancy = 50;
 
-             pic = ws.Drawings.AddPicture("Pic3", Properties.Resources.Test1);
-             pic.SetPosition(400, 200);
-             pic.SetSize(150);
+            pic = ws.Drawings.AddPicture("Pic3", Resources.Test1);
+            pic.SetPosition(400, 200);
+            pic.SetSize(150);
 
-             pic = ws.Drawings.AddPicture("Pic4", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\WHIRL1.WMF"));
-             pic = ws.Drawings.AddPicture("Pic5", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
-             pic.SetPosition(400, 200);
-             pic.SetSize(150);
+            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")));
+            pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(GetClipartPath(),"AG00004_.GIF")));
+            pic.SetPosition(400, 200);
+            pic.SetSize(150);
 
-             ws.Column(1).Width = 53;
-             ws.Column(4).Width = 58;
+            ws.Column(1).Width = 53;
+            ws.Column(4).Width = 58;
 
-             pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00004_.GIF"));
-             pic.SetPosition(400, 400);
-             pic.SetSize(100);
+            pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(GetClipartPath(),"AG00004_.GIF")));
+            pic.SetPosition(400, 400);
+            pic.SetSize(100);
          }
          //[TestMethod]
          //[Ignore]
@@ -101,14 +97,14 @@ namespace EPPlusTest
          {
              var ws = _pck.Workbook.Worksheets.Add("DrawingPosSize");
 
-             var pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+             var pic = ws.Drawings.AddPicture("Pic1", Resources.Test1);
              pic.SetPosition(1, 0, 1, 0);
 
-             pic = ws.Drawings.AddPicture("Pic2", Properties.Resources.Test1);
+             pic = ws.Drawings.AddPicture("Pic2", Resources.Test1);
              pic.EditAs = eEditAs.Absolute;
              pic.SetPosition(10, 5, 1, 4);
 
-             pic = ws.Drawings.AddPicture("Pic3", Properties.Resources.Test1);
+             pic = ws.Drawings.AddPicture("Pic3", Resources.Test1);
              pic.EditAs = eEditAs.TwoCell;
              pic.SetPosition(20, 5, 2, 4);
 
@@ -593,8 +589,8 @@ namespace EPPlusTest
             (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
 
         }
-        //[TestMethod]
-        //[Ignore]
+        [TestMethod]
+        [Ignore]
         public void DrawingWorksheetCopy()
         {
             var wsShapes = _pck.Workbook.Worksheets.Add("Copy Shapes", _pck.Workbook.Worksheets["Shapes"]);
@@ -710,7 +706,7 @@ namespace EPPlusTest
             var chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
             var chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
             var shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
-            var pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            var pic1 = ws.Drawings.AddPicture("Pic1", Resources.Test1);
             ws.Drawings.Remove(2);
             ws.Drawings.Remove(chart2);
             ws.Drawings.Remove("Pic1");
@@ -719,7 +715,7 @@ namespace EPPlusTest
             chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
             chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
             shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
-            pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            pic1 = ws.Drawings.AddPicture("Pic1", Resources.Test1);
 
             ws.Drawings.Remove("chart1");
 
@@ -727,7 +723,7 @@ namespace EPPlusTest
             chart1 = ws.Drawings.AddChart("Chart1", eChartType.Line);
             chart2 = ws.Drawings.AddChart("Chart2", eChartType.Line);
             shape1 = ws.Drawings.AddShape("Shape1", eShapeStyle.ActionButtonBackPrevious);
-            pic1 = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            pic1 = ws.Drawings.AddPicture("Pic1", Resources.Test1);
             ws.Drawings.Clear();
         }
         //[TestMethod]
@@ -862,7 +858,7 @@ namespace EPPlusTest
 
             XmlDocument drawingsXml = new XmlDocument();
             drawingsXml.PreserveWhitespace = false;
-            OfficeOpenXml.XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
+            XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
 
             // Verify that there are the correct # of drawings:
             Assert.AreEqual(drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", xmlNsm).Count, 5);
@@ -883,7 +879,7 @@ namespace EPPlusTest
 
             drawingsXml = new XmlDocument();
             drawingsXml.PreserveWhitespace = false;
-            OfficeOpenXml.XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
+            XmlHelper.LoadXmlSafe(drawingsXml, _pck.Package.GetPart(partUri).GetStream());
 
             // Verify that there are the correct # of drawings:
             Assert.AreEqual(drawingsXml.SelectNodes("//*[self::xdr:twoCellAnchor or self::xdr:oneCellAnchor or self::xdr:absoluteAnchor]", xmlNsm).Count, 5);
