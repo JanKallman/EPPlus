@@ -31,23 +31,16 @@
  * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
-using System.Runtime.Remoting.Messaging;
-using System.Windows.Navigation;
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-using System.Security;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
-using System.Drawing;
 using OfficeOpenXml.Utils;
 using System.Windows.Media;
 using System.Windows;
-using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
-using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 namespace OfficeOpenXml
