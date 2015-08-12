@@ -58,6 +58,7 @@ namespace EPPlusTest
             DefinedName();
             CreatePivotTable();
             AddChartSheet();
+            if(GetClipartPath() != "")SetHeaderFooterImage();
 
             SaveWorksheet("Worksheet.xlsx");
 
@@ -1256,7 +1257,7 @@ namespace EPPlusTest
 
                 using (var reader = dt.CreateDataReader())
                 {
-                    range = ws.Cells["A5"].LoadFromDataReader(reader, false, "My Table2",
+                    range = ws.Cells["A5"].LoadFromDataReader(reader, false, "My_Table2",
                                                               OfficeOpenXml.Table.TableStyles.Medium5);
                 }
                 Assert.AreEqual(1, range.Start.Column);
