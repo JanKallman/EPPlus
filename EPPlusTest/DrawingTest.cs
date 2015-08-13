@@ -79,15 +79,15 @@ namespace EPPlusTest
             pic.SetPosition(400, 200);
             pic.SetSize(150);
 
-            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")));
-            pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(GetClipartPath(),"AG00004_.GIF")));
+            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")));
+            pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(GetClipartPath(),"BitmapImage.gif")));
             pic.SetPosition(400, 200);
             pic.SetSize(150);
 
             ws.Column(1).Width = 53;
             ws.Column(4).Width = 58;
 
-            pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(GetClipartPath(),"AG00004_.GIF")));
+            pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(GetClipartPath(),"BitmapImage.gif")));
             pic.SetPosition(400, 400);
             pic.SetSize(100);
          }
