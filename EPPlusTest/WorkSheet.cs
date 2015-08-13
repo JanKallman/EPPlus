@@ -1845,7 +1845,7 @@ namespace EPPlusTest
 
             ws.BackgroundImage.Image = Properties.Resources.Test1;
             ws = _pck.Workbook.Worksheets.Add("backimg2");
-            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")));
+            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")));
         }
         //[Ignore]
         [TestMethod]
@@ -1871,10 +1871,10 @@ namespace EPPlusTest
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
 
-            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"WHIRL1.WMF")), PictureAlignment.Left);
+            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")), PictureAlignment.Left);
             img.Title = "DiskFile";
 
-            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"WING1.WMF")), PictureAlignment.Right);
+            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(), "Vector Drawing2.WMF")), PictureAlignment.Right);
             img.Title = "DiskFile2";
             ws.Cells["A1:A400"].Value = 1;
 
