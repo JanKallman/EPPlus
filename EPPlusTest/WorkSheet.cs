@@ -58,7 +58,7 @@ namespace EPPlusTest
             DefinedName();
             CreatePivotTable();
             AddChartSheet();
-            if(GetClipartPath() != "")SetHeaderFooterImage();
+            SetHeaderFooterImage();
 
             SaveWorksheet("Worksheet.xlsx");
 
@@ -129,11 +129,8 @@ namespace EPPlusTest
                 ws = pck.Workbook.Worksheets["RichText"];
                 Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
 
-                if (GetClipartPath() != "")
-                {
-                    ws = pck.Workbook.Worksheets["HeaderImage"];
-                    Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
-                }
+                ws = pck.Workbook.Worksheets["HeaderImage"];
+                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
 
                 ws = pck.Workbook.Worksheets["newsheet"];
                 Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine, true);
@@ -1840,19 +1837,17 @@ namespace EPPlusTest
         [TestMethod]
         public void SetBackground()
         {
-            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
             var ws = _pck.Workbook.Worksheets.Add("backimg");
 
             ws.BackgroundImage.Image = Properties.Resources.Test1;
             ws = _pck.Workbook.Worksheets.Add("backimg2");
-            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")));
+            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(_clipartPath,"Vector Drawing.wmf")));
         }
         //[Ignore]
         [TestMethod]
         public void SetHeaderFooterImage()
         {
 
-            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
             var ws = _pck.Workbook.Worksheets.Add("HeaderImage");
             ws.HeaderFooter.OddHeader.CenteredText = "Before ";
             var img=ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
@@ -1871,10 +1866,10 @@ namespace EPPlusTest
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
 
-            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")), PictureAlignment.Left);
+            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(_clipartPath,"Vector Drawing.wmf")), PictureAlignment.Left);
             img.Title = "DiskFile";
 
-            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(GetClipartPath(), "Vector Drawing2.WMF")), PictureAlignment.Right);
+            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing2.WMF")), PictureAlignment.Right);
             img.Title = "DiskFile2";
             ws.Cells["A1:A400"].Value = 1;
 
