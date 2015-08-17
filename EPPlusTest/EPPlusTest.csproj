@@ -209,13 +209,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\Test1.jpg" />
-    <Content Include="Vector Drawing.wmf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <None Include="Vector Drawing2.wmf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <EmbeddedResource Include="Resources\Vector Drawing.wmf" />
+    <EmbeddedResource Include="Resources\Vector Drawing2.wmf" />
     <None Include="Workbooks\FormulaTest.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -256,9 +251,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BitmapImage.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Resources\BitmapImage.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Test1.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

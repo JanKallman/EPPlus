@@ -63,7 +63,6 @@ namespace EPPlusTest
         [TestMethod]
         public void Picture()
          {
-            if (GetClipartPath() == "") Assert.Inconclusive("No clipart present.");
             var ws = _pck.Workbook.Worksheets.Add("Picture");
             var pic = ws.Drawings.AddPicture("Pic1", Resources.Test1);
 
@@ -79,15 +78,15 @@ namespace EPPlusTest
             pic.SetPosition(400, 200);
             pic.SetSize(150);
 
-            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(GetClipartPath(),"Vector Drawing.wmf")));
-            pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(GetClipartPath(),"BitmapImage.gif")));
+            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
+            pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(_clipartPath,"BitmapImage.gif")));
             pic.SetPosition(400, 200);
             pic.SetSize(150);
 
             ws.Column(1).Width = 53;
             ws.Column(4).Width = 58;
 
-            pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(GetClipartPath(),"BitmapImage.gif")));
+            pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(_clipartPath, "BitmapImage.gif")));
             pic.SetPosition(400, 400);
             pic.SetSize(100);
          }

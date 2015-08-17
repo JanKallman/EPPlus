@@ -2,14 +2,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
-using System.Linq;
+using System.Reflection;
 
 namespace EPPlusTest
 {
     [TestClass]
     public abstract class TestBase
     {
-        protected ExcelPackage _pck;        
+        protected ExcelPackage _pck;
+        protected string _clipartPath="";
         protected string _worksheetPath="";
         public TestContext TestContext { get; set; }
         
@@ -17,7 +18,33 @@ namespace EPPlusTest
         public void InitBase()
         {
 
-            _worksheetPath = AppDomain.CurrentDomain.BaseDirectory + @"\..\..\worksheets";
+            _clipartPath = Path.Combine(Path.GetTempPath(), @"EPPlus clipart");
+            if (!Directory.Exists(_clipartPath))
+            {
+                Directory.CreateDirectory(_clipartPath);
+            }
+            var asm = Assembly.GetExecutingAssembly();
+            var validExtensions = new[]
+                {
+                    ".gif", ".wmf"
+                };
+            foreach (var name in asm.GetManifestResourceNames())
+            {
+                foreach (var ext in validExtensions)
+                {
+                    if (name.EndsWith(ext, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        string fileName = name.Replace("EPPlusTest.Resources.", "");
+                        using (var stream = asm.GetManifestResourceStream(name))
+                        using (var file = File.Create(Path.Combine(_clipartPath, fileName)))
+                        {
+                            stream.CopyTo(file);
+                        }
+                        break;
+                    }
+                }
+            }
+            _worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
             if (!Directory.Exists(_worksheetPath))
             {
                 Directory.CreateDirectory(_worksheetPath);
@@ -26,12 +53,14 @@ namespace EPPlusTest
             _worksheetPath = di.FullName + "\\";
 
             _pck = new ExcelPackage();
-        }        
+        }
+
         protected void OpenPackage(string name)
         {
             var fi = new FileInfo(_worksheetPath + name);
             _pck = new ExcelPackage(fi);
         }
+        
         protected void SaveWorksheet(string name)
         {
             if (_pck.Workbook.Worksheets.Count == 0) return;
@@ -41,13 +70,6 @@ namespace EPPlusTest
                 fi.Delete();
             }
             _pck.SaveAs(fi);
-        }
-
-        /// <returns>The path to the Microsoft Office Clipart directory or an empty string if that isn't found.</returns>
-        [Obsolete("Create some clipart")]
-        protected string GetClipartPath()
-        {
-            return Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
     }
 }
