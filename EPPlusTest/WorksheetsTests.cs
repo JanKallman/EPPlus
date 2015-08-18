@@ -110,6 +110,8 @@ namespace EPPlusTest
             wks.Cells[2, 3].Clear();
 
             Assert.IsNotNull(wks.Cells[2, 2].Value);
+            Assert.AreEqual("something", wks.Cells[2, 2].Value);
+            Assert.IsNull(wks.Cells[2, 3].Value);
         }
 
         private static void CompareOrderOfWorksheetsAfterSaving(ExcelPackage editedPackage)
