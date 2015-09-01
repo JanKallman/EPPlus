@@ -37,6 +37,7 @@ using System.Text;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
@@ -72,7 +73,7 @@ namespace OfficeOpenXml
                 {
                     string name = sheetNode.Attributes["name"].Value;
                     //Get the relationship id
-                    string relId = sheetNode.Attributes["r:id"].Value;
+                        string relId = sheetNode.Attributes["r:id"].Value;
                     int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
                     //Hidden property
@@ -455,7 +456,7 @@ namespace OfficeOpenXml
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
         {
-            if (Copy._headerFooter == null) return;
+            if (Copy.TopNode != null && Copy.TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager)==null) return;
             //Copy the texts
             CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
             CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
@@ -469,7 +470,8 @@ namespace OfficeOpenXml
             {
                 Uri source = Copy.HeaderFooter.Pictures.Uri;
                 Uri dest = XmlHelper.GetNewUri(_pck.Package, @"/xl/drawings/vmlDrawing{0}.vml");
-                
+                added.DeleteNode("d:legacyDrawingHF");
+
                 //var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
                 foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
                 {
@@ -693,11 +695,22 @@ namespace OfficeOpenXml
                             var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionLevel.None);
                             pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), pic.ImageFormat);
                         }
-
-                        var prevRelID = draw.TopNode.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", Copy.Drawings.NameSpaceManager).Value;
+                        
                         var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
-                        XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//xdr:pic/xdr:blipFill/a:blip/@r:embed[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
-                        relAtt.Value = rel.Id;
+                        //Fixes problem with invalid image when the same image is used more than once.
+                        XmlNode relAtt =
+                            drawXml.SelectSingleNode(
+                                string.Format(
+                                    "//xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name[.='{0}']/../../../xdr:blipFill/a:blip/@r:embed",
+                                    pic.Name), Copy.Drawings.NameSpaceManager);
+                        if(relAtt!=null)
+                        {
+                            relAtt.Value = rel.Id;
+                        }
+                        if (_pck._images.ContainsKey(pic.ImageHash))
+                        {
+                            _pck._images[pic.ImageHash].RefCount++;
+                        }
                     }
                 }
                 //rewrite the drawing xml with the new relID's
@@ -921,7 +934,10 @@ namespace OfficeOpenXml
             for(int i=0;i<rels.Count;i++)
             {
                 var rel = rels[i];
-                DeleteRelationsAndParts(_pck.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri)));
+                if (rel.RelationshipType != ExcelPackage.schemaImage)
+                {
+                    DeleteRelationsAndParts(_pck.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri)));
+                }
                 part.DeleteRelationship(rel.Id);
             }            
             _pck.Package.DeletePart(part.Uri);
