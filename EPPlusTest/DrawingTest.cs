@@ -91,7 +91,15 @@ namespace EPPlusTest
             pic.SetSize(100);
 
              var ws2 = _pck.Workbook.Worksheets.Add("Picture2");
-             pic = ws2.Drawings.AddPicture("Pic7", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00021_.GIF"));
+            var fi = new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00021_.GIF");
+            if (fi.Exists)
+            {
+                pic = ws2.Drawings.AddPicture("Pic7", fi);
+            }
+            else
+            {
+                TestContext.WriteLine("AG00021_.GIF does not exists. Skiping Pic7.");
+            }
 
             var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
             _pck.Workbook.Worksheets.Delete(ws2);

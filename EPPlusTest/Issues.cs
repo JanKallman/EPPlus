@@ -908,7 +908,7 @@ namespace EPPlusTest
 
         }
         [TestMethod, Ignore]
-        public static string Issue15247(DirectoryInfo outputDir)
+        public string Issue15247(DirectoryInfo outputDir)
         {
             FileInfo templateFile = new FileInfo(outputDir.FullName + @"\diagonal.xlsx");
             FileInfo newFile = new FileInfo(outputDir.FullName + @"\sampleDiagonal.xlsx");
