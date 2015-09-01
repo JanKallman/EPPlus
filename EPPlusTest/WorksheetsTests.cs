@@ -2,6 +2,7 @@
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
+using System.Reflection;
 
 namespace EPPlusTest
 {
@@ -99,6 +100,155 @@ namespace EPPlusTest
 
 			CompareOrderOfWorksheetsAfterSaving(package);
 		}
+        #region Delete Column with Save Tests
+
+        private const string OutputDirectory = @"d:\temp\";
+
+        [TestMethod]
+        public void DeleteFirstColumnInRangeColumnShouldBeDeleted()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(1);
+            pck.SaveAs(new FileInfo(OutputDirectory + "AfterDeleteColumn.xlsx"));
+
+            // Assert
+            Assert.AreEqual("Title", wsData.Cells["A1"].Text);
+            Assert.AreEqual("First Name", wsData.Cells["B1"].Text);
+            Assert.AreEqual("Family Name", wsData.Cells["C1"].Text);
+        }
+
+
+        [TestMethod]
+        public void DeleteLastColumnInRangeColumnShouldBeDeleted()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(4);
+            pck.SaveAs(new FileInfo(OutputDirectory + "AfterDeleteColumn.xlsx"));
+
+            // Assert
+            Assert.AreEqual("Id", wsData.Cells["A1"].Text);
+            Assert.AreEqual("Title", wsData.Cells["B1"].Text);
+            Assert.AreEqual("First Name", wsData.Cells["C1"].Text);
+        }
+
+        [TestMethod]
+        public void DeleteColumnAfterNormalRangeSheetShouldRemainUnchanged()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(5);
+            pck.SaveAs(new FileInfo(OutputDirectory + "AfterDeleteColumn.xlsx"));
+
+            // Assert
+            Assert.AreEqual("Id", wsData.Cells["A1"].Text);
+            Assert.AreEqual("Title", wsData.Cells["B1"].Text);
+            Assert.AreEqual("First Name", wsData.Cells["C1"].Text);
+            Assert.AreEqual("Family Name", wsData.Cells["D1"].Text);
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void DeleteColumnBeforeRangeMimitThrowsArgumentException()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(0);
+
+            // Assert
+            Assert.Fail();
+
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void DeleteColumnAfterRangeLimitThrowsArgumentException()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(16385);
+
+            // Assert
+            Assert.Fail();
+
+        }
+
+        [TestMethod]
+        public void DeleteFirstTwoColumnsFromRangeColumnsShouldBeDeleted()
+        {
+            // Arrange
+            ExcelPackage pck = new ExcelPackage();
+            using (
+                Stream file =
+                    Assembly.GetExecutingAssembly()
+                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+            {
+                pck.Load(file);
+            }
+            var wsData = pck.Workbook.Worksheets[1];
+
+            // Act
+            wsData.DeleteColumn(1, 2);
+            pck.SaveAs(new FileInfo(OutputDirectory + "AfterDeleteColumn.xlsx"));
+
+            // Assert
+            Assert.AreEqual("First Name", wsData.Cells["A1"].Text);
+            Assert.AreEqual("Family Name", wsData.Cells["B1"].Text);
+
+        }
+        #endregion
 
         [TestMethod]
         public void RangeClearMethodShouldNotClearSurroundingCells()
@@ -127,7 +277,5 @@ namespace EPPlusTest
 				positionId++;
 			}
 		}
-
-
 	}
 }

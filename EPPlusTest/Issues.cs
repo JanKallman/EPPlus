@@ -944,5 +944,52 @@ namespace EPPlusTest
                 exfile.SaveAs(new FileInfo(@"c:\temp\bug\Boldtextcopy2.xlsx"));
             }
         }
+        [TestMethod, Ignore]
+        public void issue15300()
+        {
+            using (var exfile = new ExcelPackage(new FileInfo(@"c:\temp\bug\headfootpic.xlsx")))
+            {
+                exfile.Workbook.Worksheets.Copy("sheet1","copiedSheet");
+                exfile.SaveAs(new FileInfo(@"c:\temp\bug\headfootpic_save.xlsx"));
+            }
+            
+        }
+        [TestMethod, Ignore]
+        public void issue15295()
+        {
+            using (var exfile = new ExcelPackage(new FileInfo(@"C:\temp\bug\pivot issue\input.xlsx")))
+            {
+                exfile.SaveAs(new FileInfo(@"C:\temp\bug\pivot issue\pivotcoldup.xlsx"));
+            }
+
+        }
+        [TestMethod, Ignore]
+        public void issue15282()
+        {
+            using (var exfile = new ExcelPackage(new FileInfo(@"C:\temp\bug\pivottable-table.xlsx")))
+            {
+                exfile.SaveAs(new FileInfo(@"C:\temp\bug\pivot issue\pivottab-tab-save.xlsx"));
+            }
+
+        }
+
+        [TestMethod, Ignore]
+        public void Issues14699()
+        {
+            FileInfo newFile = new FileInfo(string.Format("c:\\temp\\bug\\EPPlus_Issue14699.xlsx", System.IO.Directory.GetCurrentDirectory()));
+            OfficeOpenXml.ExcelPackage pkg = new ExcelPackage(newFile);
+            ExcelWorksheet wksheet = pkg.Workbook.Worksheets.Add("Issue14699");
+            // Initialize a small range
+            for (int row = 1; row < 11; row++)
+            {
+                for (int col = 1; col < 11; col++)
+                {
+                    wksheet.Cells[row, col].Value = string.Format("{0}{1}", "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[col - 1], row);
+                }
+            }
+            wksheet.View.FreezePanes(3, 3);
+            pkg.Save();
+
+        }
     }
 }    

@@ -1088,7 +1088,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="input"></param>
+        /// <param name="input"></param>    
         /// <param name="output"></param>
         /// <param name="Password"></param>
         private void Load(Stream input, Stream output, string Password)

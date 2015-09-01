@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Text;
 using System.Xml;
 using System.Linq;
@@ -168,6 +169,7 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         
         const string _sourceWorksheetPath="d:cacheSource/d:worksheetSource/@sheet";
+        const string _sourceNamePath = "d:cacheSource/d:worksheetSource/@name";
         const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
         internal ExcelRangeBase _sourceRange = null;
         /// <summary>
@@ -184,7 +186,35 @@ namespace OfficeOpenXml.Table.PivotTable
                     if (CacheSource == eSourceType.Worksheet)
                     {
                         var ws = PivotTable.WorkSheet.Workbook.Worksheets[GetXmlNodeString(_sourceWorksheetPath)];
-                        if (ws != null)
+                        if (ws == null) //Not worksheet, check name or table name
+                        {
+                            var name = GetXmlNodeString(_sourceNamePath);
+                            foreach (var n in PivotTable.WorkSheet.Workbook.Names)
+                            {
+                                if(name.Equals(n.Name,StringComparison.InvariantCultureIgnoreCase))
+                                {
+                                    _sourceRange = n;
+                                    return _sourceRange;
+                                }
+                            }
+                            foreach (var w in PivotTable.WorkSheet.Workbook.Worksheets)
+                            {
+                                if (w.Tables._tableNames.ContainsKey(name))
+                                {
+                                    _sourceRange = w.Cells[w.Tables[name].Address.Address];
+                                    break;
+                                }
+                                foreach (var n in w.Names)
+                                {
+                                    if (name.Equals(n.Name, StringComparison.InvariantCultureIgnoreCase))
+                                    {
+                                        _sourceRange = n;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
                         {
                             _sourceRange = ws.Cells[GetXmlNodeString(_sourceAddressPath)];
                         }
