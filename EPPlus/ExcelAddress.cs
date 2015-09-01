@@ -261,7 +261,8 @@ namespace OfficeOpenXml
 
         protected internal void SetAddress(string address)
         {
-            if(address.StartsWith("'"))
+            address = address.Trim();
+            if (address.StartsWith("'"))
             {
                 int pos = address.IndexOf("'", 1);
                 while (pos < address.Length && address[pos + 1] == '\'')
