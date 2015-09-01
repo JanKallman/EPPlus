@@ -31,8 +31,8 @@
  * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
+using System.Linq;
 using System.Runtime.Remoting.Messaging;
-using System.Windows.Navigation;
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
@@ -43,13 +43,12 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
 using System.Drawing;
 using OfficeOpenXml.Utils;
-using System.Windows.Media;
-using System.Windows;
 using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -340,32 +339,29 @@ namespace OfficeOpenXml
 					var font = Styles.Fonts[0];
                     try
                     {
-                        //Font f = new Font(font.Name, font.Size);
+                        var f = new Font(font.Name, font.Size);
                         _standardFontWidth = 0;
-                        _fontID = font.Id;                        
-                        Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
-                                                     (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
-                                                     (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
-                                                     FontStretches.Normal);
-                        for(int i=0;i<10;i++)
-                        {
-                            var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), System.Windows.Media.Brushes.Black);
-                            var width=(int)Math.Round(ft.Width,0);   
-                            if(width>_standardFontWidth)
-                            {
-                                _standardFontWidth = width;
-                            }
-                        }
-                         
-                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
+                        _fontID = font.Id;
+                 
+                        //Remove the PresentaionCore Dependencey. This might effect components running under Azure not having support for GDI+
 
-                        //using (Bitmap b = new Bitmap(1, 1))
+                        //Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
+                        ////                             (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
+                        //                             (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
+                        //                             FontStretches.Normal);
+                        //for(int i=0;i<10;i++)
                         //{
-                        //    using (Graphics g = Graphics.FromImage(b))
+                        //    var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), new DrawingBrush());
+                        //    var width=(int)Math.Round(ft.Width,0);   
+                        //    if(width>_standardFontWidth)
                         //    {
-                        //        _standardFontWidth = (decimal)Math.Truncate(g.MeasureString("00", f).Width - g.MeasureString("0", f).Width);
+                        //        _standardFontWidth = width;
                         //    }
                         //}
+
+                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
+
+                        _standardFontWidth = GetWidthPixels(f,"1234567890");
                         if (_standardFontWidth <= 0) //No GDI?
                         {
                             _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox. for Calibri.
@@ -383,7 +379,35 @@ namespace OfficeOpenXml
                 _standardFontWidth = value;
             }
 		}
-		ExcelProtection _protection = null;
+
+	    internal static decimal GetWidthPixels(Font f, string s)
+	    {
+	        var ret = 0M;
+            using (var b = new Bitmap(1, 1))
+	        {
+	            using (Graphics g = Graphics.FromImage(b))
+	            {
+	                g.PageUnit = GraphicsUnit.Pixel;
+
+	                for (int i = 0; i < s.Length; i++)
+	                {
+	                    var c = s[i];
+	                    var width =
+	                        (decimal)
+	                            Math.Truncate(
+	                                g.MeasureString(new string(c, 2), f, 1000, StringFormat.GenericTypographic).Width -
+	                                g.MeasureString(new string(c, 1), f, 1000, StringFormat.GenericTypographic).Width);
+                        if (width > ret)
+	                    {
+                            ret = width;
+	                    }
+	                }
+	            }
+	        }
+	        return ret;
+	    }
+
+	    ExcelProtection _protection = null;
 		/// <summary>
 		/// Access properties to protect or unprotect a workbook
 		/// </summary>
@@ -869,7 +893,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					if (t.Length>0 && (t[0] == ' ' || t[t.Length-1] == ' ' || t.Contains("  ") || t.Contains("\t")))
+                    if (t.Length > 0 && (t[0] == ' ' || t[t.Length - 1] == ' ' || t.Contains("  ") || t.Contains("\t") || t.Contains("\n") || t.Contains("\n")))   //Fixes issue 14849
 					{
                         cache.Append("<si><t xml:space=\"preserve\">");
 					}

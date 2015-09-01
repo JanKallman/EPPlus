@@ -43,7 +43,7 @@ namespace OfficeOpenXml.Table
     public class ExcelTableCollection : IEnumerable<ExcelTable>
     {
         List<ExcelTable> _tables = new List<ExcelTable>();
-        internal Dictionary<string, int> _tableNames = new Dictionary<string, int>();
+        internal Dictionary<string, int> _tableNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         ExcelWorksheet _ws;        
         internal ExcelTableCollection(ExcelWorksheet ws)
         {
