@@ -89,6 +89,12 @@ namespace EPPlusTest
             pic = ws.Drawings.AddPicture("Pic6öäå", new FileInfo(Path.Combine(_clipartPath, "BitmapImage.gif")));
             pic.SetPosition(400, 400);
             pic.SetSize(100);
+
+             var ws2 = _pck.Workbook.Worksheets.Add("Picture2");
+             pic = ws2.Drawings.AddPicture("Pic7", new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00021_.GIF"));
+
+            var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
+            _pck.Workbook.Worksheets.Delete(ws2);
          }
          //[TestMethod]
          //[Ignore]

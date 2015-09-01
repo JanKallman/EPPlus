@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
 using System.Data;
+using System.Threading;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Style;
 using System.Xml;
@@ -865,8 +866,8 @@ namespace OfficeOpenXml
 			{
 				using (var g = Graphics.FromImage(b))
 				{
-					var normalSize = (float)Math.Truncate(g.MeasureString("00", nfont).Width - g.MeasureString("0", nfont).Width);
-					g.PageUnit = GraphicsUnit.Pixel;
+                    g.PageUnit = GraphicsUnit.Pixel;
+                    var normalSize = (float)Math.Truncate(g.MeasureString("00", nfont, 10000, StringFormat.GenericTypographic).Width - g.MeasureString("0", nfont, 10000, StringFormat.GenericTypographic).Width);
 					foreach (var cell in this)
 					{
 						if (cell.Merge == true || cell.Style.WrapText) continue;
@@ -890,7 +891,7 @@ namespace OfficeOpenXml
 
 						//Truncate(({pixels}-5)/{Maximum Digit Width} * 100+0.5)/100
 
-                        var size = g.MeasureString(cell.TextForWidth, f);
+                        var size = g.MeasureString(cell.TextForWidth, f, 10000, StringFormat.GenericTypographic);
                         double width;
                         double r = styles.CellXfs[cell.StyleID].TextRotation;
                         if (r <= 0 )
@@ -2338,7 +2339,11 @@ namespace OfficeOpenXml
 		/// <returns>A reference comment of the top left cell</returns>
 		public ExcelComment AddComment(string Text, string Author)
 		{
-			//Check if any comments exists in the range and throw an exception
+		    if (string.IsNullOrEmpty(Author))
+		    {
+		        Author = Thread.CurrentPrincipal.Identity.Name;
+		    }
+            //Check if any comments exists in the range and throw an exception
 			_changePropMethod(Exists_Comment, null);
 			//Create the comments
 			_changePropMethod(Set_Comment, new string[] { Text, Author });

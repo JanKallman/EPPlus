@@ -3005,11 +3005,11 @@ namespace OfficeOpenXml
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
                         }                        
                         colVal.Add(n);
-                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
-                        //if (tbl.ShowHeader)
-                        //{
-                        //    _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
-                        //}
+                        col.Name = ConvertUtil.ExcelEncodeString(col.Name);
+                        if (tbl.ShowHeader)
+                        {
+                            _values.SetValue(tbl.Address._fromRow, colNum, col.Name);
+                        }
                         if (tbl.ShowTotal)
                         {
                             SetTableTotalFunction(tbl, col, colNum);
@@ -3159,17 +3159,23 @@ namespace OfficeOpenXml
                 int ix = 0;
                 if (fields != null)
                 {
+                    var flds = new HashSet<string>();
                     foreach (XmlElement node in fields)
                     {
                         if (ix >= pt.CacheDefinition.SourceRange.Columns) break;
-                        if (t == null)
+                        var fldName = node.GetAttribute("name");                        //Fixes issue 15295 dup name error
+                        if (string.IsNullOrEmpty(fldName))
                         {
-                            node.SetAttribute("name", pt.CacheDefinition.SourceRange.Offset(0, ix++,1,1).Value.ToString());
+                            fldName = (t == null
+                                ? pt.CacheDefinition.SourceRange.Offset(0, ix++, 1, 1).Value.ToString()
+                                : t.Columns[ix++].Name);
                         }
-                        else
-                        {
-                            node.SetAttribute("name", t.Columns[ix++].Name);
+                        if (flds.Contains(fldName))
+                        {                            
+                            fldName = GetNewName(flds, fldName);
                         }
+                        flds.Add(fldName);
+                        node.SetAttribute("name", fldName);
                     }
                     foreach (var df in pt.DataFields)
                     {
@@ -3199,6 +3205,17 @@ namespace OfficeOpenXml
                 pt.CacheDefinition.CacheDefinitionXml.Save(pt.CacheDefinition.Part.GetStream(FileMode.Create));
             }
         }
+
+        private string GetNewName(HashSet<string> flds, string fldName)
+        {
+            int ix = 2;
+            while (flds.Contains(fldName + ix.ToString(CultureInfo.InvariantCulture)))
+            {
+                ix++;
+            }
+            return fldName + ix.ToString(CultureInfo.InvariantCulture);
+        }
+
         private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
         {
             return string.Format("SUBTOTAL({0},{1}[{2}])", FunctionNum, col._tbl.Name, col.Name);
