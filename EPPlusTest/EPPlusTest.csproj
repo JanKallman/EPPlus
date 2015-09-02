@@ -134,6 +134,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\LogicalFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\MathFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\NumberFunctionsTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ChooseTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\IndexTests.cs" />
