@@ -21,7 +21,7 @@
  * Author							Change						Date
  *******************************************************************************
  * Mats Alm   		                Added		                2013-12-03
- * Eric Beiler                      Enable Multiple Selections  2015-08-31
+ * Eric Beiler                      Enable Multiple Selections  2015-09-01
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
