@@ -1353,7 +1353,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + SecurityElement.Escape(v.ToString()) + "</d:t></d:r></d:si>");
+					xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + OfficeOpenXml.Utils.ConvertUtil.ExcelEscapeString(v.ToString()) + "</d:t></d:r></d:si>");
 				}
 			}
 			else

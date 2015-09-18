@@ -52,8 +52,13 @@ namespace OfficeOpenXml.ConditionalFormatting
 		{
 			Require.Argument(type);
       Require.Argument(address).IsNotNull("address");
-      Require.Argument(priority).IsInRange(1, int.MaxValue, "priority");
-			Require.Argument(worksheet).IsNotNull("worksheet");
+
+	  // While MSDN states that 1 is the "highest priority," it also defines this
+	  // field as W3C XML Schema int, which would allow values less than 1. Excel
+	  // itself will, on occasion, use a value of 0, so this check will allow a 0.
+      Require.Argument(priority).IsInRange(0, int.MaxValue, "priority");
+
+      Require.Argument(worksheet).IsNotNull("worksheet");
 			
 			// According the conditional formatting rule type
 			switch (type)
