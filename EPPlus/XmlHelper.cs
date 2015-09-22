@@ -719,7 +719,7 @@ namespace OfficeOpenXml
 			else
 			{
 				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                if (TryParseDoubleFromString(s, out v))
 				{
 					return v;
 				}
@@ -729,7 +729,13 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		internal double GetXmlNodeDouble(string path)
+
+        private static bool TryParseDoubleFromString(string s, out double v)
+        {
+            return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out v);
+        }
+		
+        internal double GetXmlNodeDouble(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -738,7 +744,8 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				double v;
+                double v;
+                // TODO: Use TryParseDoubleFromString here for the 'right' number style?
 				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
@@ -749,6 +756,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
     internal string GetXmlNodeString(XmlNode node, string path)
     {
       if (node == null)
