@@ -56,10 +56,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 
             var fromRow = adr._fromRow + rowOffset;
             var fromCol = adr._fromCol + colOffset;
-            //var toRow = (height != 0 ? height : adr._toRow) + rowOffset;
-            //var toCol = (width != 0 ? width : adr._toCol) + colOffset;
-            var toRow = (height != 0 ? fromRow + height : adr._toRow + rowOffset);
-            var toCol = (width != 0 ? fromCol + width : adr._toCol + colOffset);
+            var toRow = (height != 0 ? height : adr._toRow) + rowOffset;
+            var toCol = (width != 0 ? width : adr._toCol) + colOffset;
+            //var toRow = (height != 0 ? fromRow + height : adr._toRow + rowOffset);
+            //var toCol = (width != 0 ? fromCol + width : adr._toCol + colOffset);
 
             var newRange = context.ExcelDataProvider.GetRange(ws, fromRow, fromCol, toRow, toCol);
             if (!newRange.IsMulti)
