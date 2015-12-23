@@ -73,25 +73,29 @@ namespace OfficeOpenXml.Drawing.Chart
            foreach(XmlNode n in node.SelectNodes("c:ser",ns))
            {
                ExcelChartSerie s;
-               if (chart.ChartNode.LocalName == "scatterChart")
-               {
-                   s = new ExcelScatterChartSerie(this, ns, n, isPivot);
-               }
-               else if (chart.ChartNode.LocalName == "lineChart")
-               {
-                   s = new ExcelLineChartSerie(this, ns, n, isPivot);
-               }
-               else if (chart.ChartNode.LocalName == "pieChart" ||
-                        chart.ChartNode.LocalName == "ofPieChart" ||
-                        chart.ChartNode.LocalName == "pie3DChart" ||
-                        chart.ChartNode.LocalName == "doughnutChart")                                                                       
-               {
-                   s = new ExcelPieChartSerie(this, ns, n, isPivot);
-               }
-               else
-               {
-                   s = new ExcelChartSerie(this, ns, n, isPivot);
-               }
+                if (chart.ChartNode.LocalName == "scatterChart")
+                {
+                    s = new ExcelScatterChartSerie(this, ns, n, isPivot);
+                }
+                else if (chart.ChartNode.LocalName == "lineChart")
+                {
+                    s = new ExcelLineChartSerie(this, ns, n, isPivot);
+                }
+                else if (chart.ChartNode.LocalName == "pieChart" ||
+                         chart.ChartNode.LocalName == "ofPieChart" ||
+                         chart.ChartNode.LocalName == "pie3DChart" ||
+                         chart.ChartNode.LocalName == "doughnutChart")
+                {
+                    s = new ExcelPieChartSerie(this, ns, n, isPivot);
+                }
+                else if (chart.ChartNode.LocalName == "bubbleChart")
+                {
+                    s = new ExcelBubbleChartSerie(this, ns, n, isPivot);
+                }
+                else
+                {
+                    s = new ExcelChartSerie(this, ns, n, isPivot);
+                }
                _list.Add(s);
            }
        }

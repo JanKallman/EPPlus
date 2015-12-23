@@ -916,6 +916,17 @@ namespace OfficeOpenXml
             }
         }
         const int BLOCKSIZE=8192;
+        /// <summary>
+        /// Extracts the workbook XML without the sheetData-element (containing all cell data).
+        /// Xml-Cell data can be extreemly large (GB), so we find the sheetdata element in the streem (position start) and 
+        /// then tries to find the </sheetData> element from the end-parameter.
+        /// This approach is to avoid out of memory exceptions reading large packages
+        /// </summary>
+        /// <param name="stream">the worksheet stream</param>
+        /// <param name="start">Position from previous reading where we found the sheetData element</param>
+        /// <param name="end">End position, where </sheetData> or <sheetData /> is found</param>
+        /// <param name="encoding">Encoding</param>
+        /// <returns>The worksheet xml, with an empty sheetdata. (Sheetdata is in memory in the worksheet)</returns>
         private string GetWorkSheetXml(Stream stream, long start, long end, out Encoding encoding)
         {
             StreamReader sr = new StreamReader(stream);
@@ -932,7 +943,7 @@ namespace OfficeOpenXml
                 sb.Append(block,0,pos);
                 length += size;
             }
-            while (length < start + 20 && length < end);
+            while (length < start + 20 && length < end);    //the  start-pos contains the stream position of the sheetData element. Add 20 (with some safty for whitespace, streampointer diff etc, just so be sure). 
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
@@ -943,13 +954,13 @@ namespace OfficeOpenXml
             {
                 string s = sb.ToString();
                 string xml = s.Substring(0, startmMatch.Index); 
-                if(startmMatch.Value.EndsWith("/>"))
+                if(startmMatch.Value.EndsWith("/>"))        //Empty sheetdata
                 {
                     xml += s.Substring(startmMatch.Index, s.Length - startmMatch.Index);
                 }
                 else
                 {
-                    if (sr.Peek() != -1)
+                    if (sr.Peek() != -1)        //Now find the end tag </sheetdata> so we can add the end of the xml document
                     {
                         /**** Fixes issue 14788. Fix by Philip Garrett ****/
                         long endSeekStart = end;
@@ -1135,9 +1146,6 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadCells(XmlTextReader xr)
         {
-            //var cellList=new List<IRangeID>();
-            //var rowList = new List<IRangeID>();
-            //var formulaList = new List<IRangeID>();
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelAddressBase address=null;
             string type="";
@@ -1277,7 +1285,19 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        _values.SetValue(address._fromRow, address._fromCol, xr.ReadOuterXml());
+                        if(xr.LocalName == "r")
+                        {
+                            var rXml = xr.ReadOuterXml();
+                            while (xr.LocalName == "r")
+                            {
+                                rXml+= xr.ReadOuterXml();
+                            }
+                            _values.SetValue(address._fromRow, address._fromCol, rXml);
+                        }
+                        else
+                        {
+                            _values.SetValue(address._fromRow, address._fromCol, xr.ReadOuterXml());
+                        }
                         _types.SetValue(address._fromRow, address._fromCol, "rt");
                         _flags.SetFlagValue(address._fromRow, address._fromCol, true, CellFlags.RichText);
                         //cell.IsRichText = true;
@@ -1629,22 +1649,9 @@ namespace OfficeOpenXml
                         return CopyColumn(column, col, col);
                     }
                 }
-                //foreach (ExcelColumn checkColumn in _columns)
-                //{
-                //    if (col > checkColumn.ColumnMin && col <= checkColumn.ColumnMax)
-                //    {
-                //        int maxCol = checkColumn.ColumnMax;
-                //        checkColumn.ColumnMax = col - 1;
-                //        if (maxCol > col)
-                //        {
-                //            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
-                //        }
-                //        return CopyColumn(checkColumn, col,col);                        
-                //    }
-                //}
+
                 column = new ExcelColumn(this, col);
                 _values.SetValue(0, col, column);
-                //_columns.Add(column);
              }
             return column;
 		}
@@ -1865,6 +1872,13 @@ namespace OfficeOpenXml
                 throw (new ArgumentOutOfRangeException("Can't insert. Columns will be shifted outside the boundries of the worksheet."));
             }
 
+            //Get the styleID from the copied Column
+            int copyStyleId = 0;
+            if (copyStylesFromColumn > 0)
+            {
+                copyStyleId = this.Column(copyStylesFromColumn).StyleID;
+            }
+
             lock (this)
             {
                 _values.Insert(0, columnFrom, 0, columns);
@@ -1950,7 +1964,7 @@ namespace OfficeOpenXml
                     for (var c = 0; c < columns; c++)
                     {
                         var col = this.Column(columnFrom + c);
-                        col.StyleID = this.Column(copyStylesFromColumn).StyleID;
+                        col.StyleID = copyStyleId;
                     }
                 }
                 //Adjust tables
@@ -2669,7 +2683,7 @@ namespace OfficeOpenXml
                         toType = Nullable.GetUnderlyingType(toType);
                         if (cnv.CanConvertTo(toType))
                         {
-                            return (T)cnv.ConvertTo(v, typeof(T));
+                            return (T)cnv.ConvertTo(v, toType); //Fixes issue 15377
                         }
                     }
 
