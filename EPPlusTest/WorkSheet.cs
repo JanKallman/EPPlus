@@ -1991,6 +1991,8 @@ namespace EPPlusTest
             ws.Cells["G1"].Style.TextRotation = 135;
             ws.Cells["H1"].Style.TextRotation = 180;
             ws.Cells["A1:H1"].AutoFitColumns(0);
+
+            ws.Column(40).AutoFit();
         }
 
         [TestMethod, Ignore]
@@ -2231,6 +2233,16 @@ namespace EPPlusTest
 
             Assert.AreEqual(dateTest1, w3.Cells[1, 1].Value);
             Assert.AreEqual(dateTest2, w3.Cells[2, 1].Value);
+        }
+        [TestMethod]
+        public void ValueText()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("TestFormat");
+            ws.Cells[1, 1].Value = 25.96;
+            ws.Cells[1, 1].Style.Numberformat.Format = "#,##0.00;(#,##0.00)";
+
+            var s = ws.Cells[1, 1].Text;
         }
         [TestMethod, Ignore]
         public void SaveToStream()

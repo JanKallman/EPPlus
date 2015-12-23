@@ -382,9 +382,28 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 SetXmlNodeString(_formatPath,value);
+                if(string.IsNullOrEmpty(value))
+                {
+                    SourceLinked = true;
+                }
+                else
+                {
+                    SourceLinked = false;
+                }
             }
         }
-
+        const string _sourceLinkedPath = "c:numFmt/@sourceLinked";
+        public bool SourceLinked
+        {
+            get
+            {
+                return GetXmlNodeBool(_sourceLinkedPath);
+            }
+            set
+            {
+                SetXmlNodeBool(_sourceLinkedPath, value);
+            }
+        }
         const string _lblPos = "c:tickLblPos/@val";
         /// <summary>
         /// Position of the labels

@@ -295,6 +295,12 @@ namespace OfficeOpenXml
                 return added;
             }
         }
+        /// <summary>
+        /// Adds a chartsheet to the workbook.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="chartType"></param>
+        /// <returns></returns>
         public ExcelChartsheet AddChart(string Name, eChartType chartType)
         {
             return (ExcelChartsheet)AddSheet(Name, true, chartType);
