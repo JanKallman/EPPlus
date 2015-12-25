@@ -50,6 +50,16 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         }
 
         [TestMethod]
+        public void ShouldHandleWhitespaceCorrectly()
+        {
+            var input = @"""          """;
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(3, tokens.Count());
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+            Assert.AreEqual(10, tokens.ElementAt(1).Value.Length);
+        }
+
+        [TestMethod]
         public void ShouldCreateTokensForFunctionCorrectly()
         {
             var input = "Text(2)";
