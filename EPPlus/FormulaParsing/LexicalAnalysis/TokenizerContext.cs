@@ -85,7 +85,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool CurrentTokenHasValue
         {
-            get { return !string.IsNullOrEmpty(CurrentToken.Trim()); }
+            get { return !string.IsNullOrEmpty(IsInString ? CurrentToken : CurrentToken.Trim()); }
         }
 
         public void NewToken()
