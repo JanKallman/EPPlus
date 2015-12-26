@@ -1027,7 +1027,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					double d = (new DateTime(((TimeSpan)v).Ticks)).ToOADate();
+					double d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
 					if (string.IsNullOrEmpty(nf.FractionFormat))
 					{
 						return d.ToString(format, nf.Culture);
