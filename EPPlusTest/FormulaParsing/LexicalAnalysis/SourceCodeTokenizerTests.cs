@@ -43,7 +43,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldTokenizeStringCorrectly()
         {
-            var input = "'ab(c)d'";
+            var input = "\"ab(c)d\"";
             var tokens = _tokenizer.Tokenize(input);
 
             Assert.AreEqual(3, tokens.Count());
@@ -147,6 +147,7 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var input = "'A-B'!A1";
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(1, tokens.Count());
+            Assert.AreEqual(TokenType.ExcelAddress, tokens.ElementAt(0).TokenType);
         }
 
         [TestMethod]

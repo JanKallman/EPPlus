@@ -67,9 +67,20 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             private set;
         }
 
+        public bool IsInSheetName
+        {
+            get;
+            private set;
+        }
+
         public void ToggleIsInString()
         {
             IsInString = !IsInString;
+        }
+
+        public void ToggleIsInSheetName()
+        {
+            IsInSheetName = !IsInSheetName;
         }
 
         internal int BracketCount
