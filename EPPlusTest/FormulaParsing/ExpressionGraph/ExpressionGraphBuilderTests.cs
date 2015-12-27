@@ -282,5 +282,17 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var tokenizer = new SourceCodeTokenizer(ctx.Configuration.FunctionRepository, ctx.NameValueProvider);
             var tokens = tokenizer.Tokenize(formula).ToList();
         }
+
+        [TestMethod]
+        public void BuildExcelAddressExpressionSimple()
+        {
+            var tokens = new List<Token>
+            {
+                new Token("A1", TokenType.ExcelAddress)
+            };
+
+            var result = _graphBuilder.Build(tokens);
+            Assert.IsInstanceOfType(result.Expressions.First(), typeof(ExcelAddressExpression));
+        }
     }
 }

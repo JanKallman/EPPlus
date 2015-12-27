@@ -101,6 +101,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     break;
                 }
+                else if(token.TokenType == TokenType.WorksheetName)
+                {
+                    var sb = new StringBuilder();
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex].Value);
+                    var t = new Token(sb.ToString(), TokenType.ExcelAddress);
+                    CreateAndAppendExpression(ref parent, t);
+                }
                 else if (token.TokenType == TokenType.Negator)
                 {
                     _negateNextExpression = true;

@@ -556,6 +556,14 @@
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\FormulaParserManager.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ITokenIndexProvider.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\BracketHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\MultipleCharSeparatorHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\SeparatorHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\SheetnameHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\TokenSeparatorHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\StringHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenHandler.cs" />
     <Compile Include="FormulaParsing\Logging\IFormulaParserLogger.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />
     <Compile Include="FormulaParsing\IParsingLifetimeEventHandler.cs" />

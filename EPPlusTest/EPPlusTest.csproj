@@ -158,6 +158,7 @@
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DateAndTimeFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\MathExcelRangeTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\TextExcelRangeTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\WorksheetRefsTest.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\InformationFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\LogicalFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\MathFunctionsTests.cs" />
@@ -173,10 +174,12 @@
     <Compile Include="FormulaParsing\IntegrationTests\CalcExtensionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\FormulaErrorHandlingTestBase.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\OperatorsTests.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\CharHandlerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\NegationTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\TokenFactoryTests.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenHandlerTests.cs" />
     <Compile Include="FormulaParsing\NameValueProviderTests.cs" />
     <Compile Include="FormulaParsing\ParsingContextTests.cs" />
     <Compile Include="FormulaParsing\ParsingScopesTest.cs" />
