@@ -230,6 +230,17 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         }
 
         [TestMethod]
+        public void SumProductShouldWorkWithSingleCellArray()
+        {
+            _worksheet.Cells["A1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 2;
+            _worksheet.Cells["A4"].Formula = "SUMPRODUCT(A1:A1, A2:A2)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(2d, result);
+        }
+
+        [TestMethod]
         public void ShouldIgnoreNullValues()
         {
             _worksheet.Cells["B3"].Formula = "C4 + D4";
