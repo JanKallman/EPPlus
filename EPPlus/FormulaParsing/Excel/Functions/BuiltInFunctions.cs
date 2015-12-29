@@ -183,6 +183,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["eomonth"] = new Eomonth();
             Functions["isoweeknum"] = new IsoWeekNum();
             Functions["workday"] = new Workday();
+            Functions["datevalue"] = new DateValue();
+            Functions["timevalue"] = new TimeValue();
             // Database
             Functions["dget"] = new Dget();
             Functions["dcount"] = new Dcount();

@@ -908,34 +908,7 @@ namespace EPPlusTest
             }
 
         }
-        [TestMethod, Ignore]
-        public string Issue15247(DirectoryInfo outputDir)
-        {
-            FileInfo templateFile = new FileInfo(outputDir.FullName + @"\diagonal.xlsx");
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sampleDiagonal.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(outputDir.FullName + @"\sampleDiagonal.xlsx");
-            }
-            using (ExcelPackage package = new ExcelPackage(newFile, templateFile))
-            {
-                //Open worksheet 1
-                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
-
-                Debug.WriteLine(worksheet.Cells["A1"].Style.Border.DiagonalUp);
-                Debug.WriteLine(worksheet.Cells["A1"].Style.Border.DiagonalDown);
-
-
-                //worksheet.Cells["A1"].Style.Border.DiagonalUp = true;
-                //worksheet.Cells["A1"].Style.Border.DiagonalDown = true;
-
-                // save our new workbook and we are done!
-                package.Save();
-            }
-
-            return newFile.FullName;
-        }
+ 
         [TestMethod, Ignore]
         public void issue15249()
         {
