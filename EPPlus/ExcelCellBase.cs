@@ -854,7 +854,13 @@ namespace OfficeOpenXml
                 {
                     if (t.TokenType == TokenType.ExcelAddress)
                     {
-                        var a = new ExcelAddressBase(t.Value);                        
+                        var a = new ExcelAddressBase(t.Value);
+                        if (!string.IsNullOrEmpty(a._ws) || !string.IsNullOrEmpty(a._wb))
+                        {
+                            // This address is in a different worksheet or workbook, thus no update is required
+                            f += a.Address;
+                            continue;
+                        }                       
                         if (rowIncrement > 0)
                         {
                             a = a.AddRow(afterRow, rowIncrement, setFixed);
