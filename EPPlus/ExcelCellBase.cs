@@ -118,7 +118,7 @@ namespace OfficeOpenXml
             for (int pos = 0; pos < value.Length; pos++)
             {
                 char c = value[pos];
-                if (c == '"' || c=='\'')
+                if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
                 {
                     if (isText == false && part != "" && prevTQ==c)
                     {
@@ -126,8 +126,8 @@ namespace OfficeOpenXml
                         part = "";
                         prevTQ = (char)0;
                     }
-                    prevTQ = c;
                     isText = !isText;
+                    prevTQ = c;
                     ret += c;
                 }
                 else if (isText)
