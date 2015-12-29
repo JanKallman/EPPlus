@@ -104,7 +104,7 @@ namespace EPPlusTest
 
         private const string OutputDirectory = @"d:\temp\";
 
-        [TestMethod]
+        [TestMethod,Ignore]
         public void DeleteFirstColumnInRangeColumnShouldBeDeleted()
         {
             // Arrange
@@ -129,7 +129,7 @@ namespace EPPlusTest
         }
 
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void DeleteLastColumnInRangeColumnShouldBeDeleted()
         {
             // Arrange
@@ -153,7 +153,7 @@ namespace EPPlusTest
             Assert.AreEqual("First Name", wsData.Cells["C1"].Text);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void DeleteColumnAfterNormalRangeSheetShouldRemainUnchanged()
         {
             // Arrange
@@ -179,7 +179,7 @@ namespace EPPlusTest
 
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         [ExpectedException(typeof(ArgumentException))]
         public void DeleteColumnBeforeRangeMimitThrowsArgumentException()
         {
@@ -202,7 +202,7 @@ namespace EPPlusTest
 
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         [ExpectedException(typeof(ArgumentException))]
         public void DeleteColumnAfterRangeLimitThrowsArgumentException()
         {
@@ -225,7 +225,7 @@ namespace EPPlusTest
 
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void DeleteFirstTwoColumnsFromRangeColumnsShouldBeDeleted()
         {
             // Arrange
