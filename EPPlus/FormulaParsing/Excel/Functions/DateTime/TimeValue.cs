@@ -6,7 +6,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
-    // <summary>
+    /// <summary>
     /// Simple implementation of TimeValue function, just using .NET built-in
     /// function System.DateTime.TryParse, based on current culture
     /// </summary>
