@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style;
@@ -64,7 +65,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private ExcelBorderStyle GetBorderStyle(string style)
         {
             if(style=="") return ExcelBorderStyle.None;
-            string sInStyle = style.Substring(0, 1).ToUpper() + style.Substring(1, style.Length - 1);
+            string sInStyle = style.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + style.Substring(1, style.Length - 1);
             try
             {
                 return (ExcelBorderStyle)Enum.Parse(typeof(ExcelBorderStyle), sInStyle);
@@ -149,7 +150,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private string SetBorderString(ExcelBorderStyle Style)
         {
             string newName=Enum.GetName(typeof(ExcelBorderStyle), Style);
-            return newName.Substring(0, 1).ToLower() + newName.Substring(1, newName.Length - 1);
+            return newName.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + newName.Substring(1, newName.Length - 1);
         }
         public bool Exists { get; private set; }
     }

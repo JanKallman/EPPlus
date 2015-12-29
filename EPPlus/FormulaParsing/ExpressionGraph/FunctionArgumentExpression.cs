@@ -40,6 +40,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         private readonly Expression _function;
 
         public FunctionArgumentExpression(Expression function)
+            : base(false)
         {
             _function = function;
         }

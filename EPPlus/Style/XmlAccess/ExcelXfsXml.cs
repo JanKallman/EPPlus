@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Drawing;
@@ -84,7 +85,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private ExcelHorizontalAlignment GetHorizontalAlign(string align)
         {
             if (align == "") return ExcelHorizontalAlignment.General;
-            align = align.Substring(0, 1).ToUpper() + align.Substring(1, align.Length - 1);
+            align = align.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + align.Substring(1, align.Length - 1);
             try
             {
                 return (ExcelHorizontalAlignment)Enum.Parse(typeof(ExcelHorizontalAlignment), align);
@@ -98,7 +99,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private ExcelVerticalAlignment GetVerticalAlign(string align)
         {
             if (align == "") return ExcelVerticalAlignment.Bottom;
-            align = align.Substring(0, 1).ToUpper() + align.Substring(1, align.Length - 1);
+            align = align.Substring(0, 1).ToUpper(CultureInfo.InvariantCulture) + align.Substring(1, align.Length - 1);
             try
             {
                 return (ExcelVerticalAlignment)Enum.Parse(typeof(ExcelVerticalAlignment), align);
@@ -792,7 +793,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     fnt.Color.Rgb=value.ToString();
                     break;
                 case eStyleProperty.VerticalAlign:
-                    fnt.VerticalAlign = ((ExcelVerticalAlignmentFont)value) == ExcelVerticalAlignmentFont.None ? "" : value.ToString().ToLower();
+                    fnt.VerticalAlign = ((ExcelVerticalAlignmentFont)value) == ExcelVerticalAlignmentFont.None ? "" : value.ToString().ToLower(CultureInfo.InvariantCulture);
                     break;
                 default:
                     throw (new Exception("Invalid property for class Font"));
@@ -853,7 +854,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         private string SetAlignString(Enum align)
         {
             string newName = Enum.GetName(align.GetType(), align);
-            return newName.Substring(0, 1).ToLower() + newName.Substring(1, newName.Length - 1);
+            return newName.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + newName.Substring(1, newName.Length - 1);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var text = ArgToString(arguments, 0).ToLower();
+            var text = ArgToString(arguments, 0).ToLower(CultureInfo.InvariantCulture);
             var sb = new StringBuilder();
             var previousChar = '.';
             foreach (var ch in text)

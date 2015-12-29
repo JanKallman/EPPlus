@@ -259,10 +259,15 @@ namespace OfficeOpenXml.FormulaParsing
 
                     if (name != null)
                     {
+        
                         if (string.IsNullOrEmpty(name.NameFormula))
                         {
-                            f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, name.Start.Row, name.Start.Column, name.End.Row, name.End.Column);
-                            goto iterateCells;
+                            if (name.NameValue == null)
+                            {
+                                f.iterator = new CellsStoreEnumerator<object>(f.ws._formulas, name.Start.Row,
+                                    name.Start.Column, name.End.Row, name.End.Column);
+                                goto iterateCells;
+                            }
                         }
                         else
                         {
@@ -272,7 +277,8 @@ namespace OfficeOpenXml.FormulaParsing
                             {
                                 var rf = new FormulaCell() { SheetID = name.LocalSheetId, Row = name.Index, Column = 0 };
                                 rf.Formula = name.NameFormula;
-                                rf.Tokens = lexer.Tokenize(rf.Formula, wb.Worksheets.GetBySheetID(name.LocalSheetId).Name).ToList();
+                                rf.Tokens = name.LocalSheetId == -1 ? lexer.Tokenize(rf.Formula).ToList() : lexer.Tokenize(rf.Formula, wb.Worksheets.GetBySheetID(name.LocalSheetId).Name).ToList();
+                                
                                 depChain.Add(rf);
                                 stack.Push(f);
                                 f = rf;
@@ -306,7 +312,7 @@ namespace OfficeOpenXml.FormulaParsing
             return;
         iterateCells:
 
-            while (f.iterator.Next())
+            while (f.iterator != null && f.iterator.Next())
             {
                 var v = f.iterator.Value;
                 if (v == null || v.ToString().Trim() == "") continue;

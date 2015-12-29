@@ -32,10 +32,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.Xml;
 using System.Text;
 using System.Xml;
 using System.IO;
 using System.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
@@ -67,30 +69,33 @@ namespace OfficeOpenXml
 
             foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
-				string name = sheetNode.Attributes["name"].Value;
-				//Get the relationship id
-				string relId = sheetNode.Attributes["r:id"].Value;
-				int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
-                
-                //Hidden property
-                eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
-				XmlNode attr = sheetNode.Attributes["state"];
-				if (attr != null)
-					hidden = TranslateHidden(attr.Value);
+                if (sheetNode.NodeType == XmlNodeType.Element)
+                {
+                    string name = sheetNode.Attributes["name"].Value;
+                    //Get the relationship id
+                        string relId = sheetNode.Attributes["r:id"].Value;
+                    int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
-				var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
-				Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
-				
-				//add the worksheet
-                if(sheetRelation.RelationshipType.EndsWith("chartsheet"))
-                {
-                    _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    //Hidden property
+                    eWorkSheetHidden hidden = eWorkSheetHidden.Visible;
+                    XmlNode attr = sheetNode.Attributes["state"];
+                    if (attr != null)
+                        hidden = TranslateHidden(attr.Value);
+
+                    var sheetRelation = pck.Workbook.Part.GetRelationship(relId);
+                    Uri uriWorksheet = UriHelper.ResolvePartUri(pck.Workbook.WorkbookUri, sheetRelation.TargetUri);
+
+                    //add the worksheet
+                    if (sheetRelation.RelationshipType.EndsWith("chartsheet"))
+                    {
+                        _worksheets.Add(positionID, new ExcelChartsheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    else
+                    {
+                        _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
+                    }
+                    positionID++;
                 }
-                else
-                {
-                    _worksheets.Add(positionID, new ExcelWorksheet(_namespaceManager, _pck, relId, uriWorksheet, name, sheetID, positionID, hidden));
-                }
-				positionID++;
 			}
 		}
 
@@ -152,9 +157,10 @@ namespace OfficeOpenXml
             Uri uriWorksheet;
             lock (_worksheets)
             {
-                if (GetByName(ValidateFixSheetName(Name)) != null)
+                Name = ValidateFixSheetName(Name);
+                if (GetByName(Name) != null)
                 {
-                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET));
+                    throw (new InvalidOperationException(ERR_DUP_WORKSHEET + " : " + Name));
                 }
                 GetSheetURI(ref Name, out sheetID, out uriWorksheet, isChart);
                 Packaging.ZipPackagePart worksheetPart = _pck.Package.CreatePart(uriWorksheet, isChart ? CHARTSHEET_CONTENTTYPE : WORKSHEET_CONTENTTYPE, _pck.Compression);
@@ -179,13 +185,15 @@ namespace OfficeOpenXml
                 }
 
                 _worksheets.Add(positionID, worksheet);
+#if !MONO
                 if (_pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
-                    worksheet.CodeModuleName = Name;
+                    worksheet.CodeModuleName = name;
 
                 }
+#endif
                 return worksheet;
             }
         }
@@ -260,6 +268,16 @@ namespace OfficeOpenXml
                 //Copy all cells
                 CloneCells(Copy, added);
 
+                //Copy the VBA code
+#if !MONO
+                if (_pck.Workbook.VbaProject != null)
+                {
+                    var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(added);
+                    _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(added.CodeNameChange) { Name = name, Code = Copy.CodeModule.Code, Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Copy.CodeModuleName = name;
+                }
+#endif
+
                 _worksheets.Add(_worksheets.Count + 1, added);
 
                 //Remove any relation to printersettings.
@@ -277,6 +295,12 @@ namespace OfficeOpenXml
                 return added;
             }
         }
+        /// <summary>
+        /// Adds a chartsheet to the workbook.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="chartType"></param>
+        /// <returns></returns>
         public ExcelChartsheet AddChart(string Name, eChartType chartType)
         {
             return (ExcelChartsheet)AddSheet(Name, true, chartType);
@@ -438,7 +462,7 @@ namespace OfficeOpenXml
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
         {
-            if (Copy._headerFooter == null) return;
+            if (Copy.TopNode != null && Copy.TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager)==null) return;
             //Copy the texts
             CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
             CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
@@ -452,7 +476,8 @@ namespace OfficeOpenXml
             {
                 Uri source = Copy.HeaderFooter.Pictures.Uri;
                 Uri dest = XmlHelper.GetNewUri(_pck.Package, @"/xl/drawings/vmlDrawing{0}.vml");
-                
+                added.DeleteNode("d:legacyDrawingHF");
+
                 //var part = _pck.Package.CreatePart(dest, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
                 foreach (ExcelVmlDrawingPicture pic in Copy.HeaderFooter.Pictures)
                 {
@@ -676,11 +701,22 @@ namespace OfficeOpenXml
                             var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionLevel.None);
                             pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), pic.ImageFormat);
                         }
-
-                        var prevRelID = draw.TopNode.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", Copy.Drawings.NameSpaceManager).Value;
+                        
                         var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
-                        XmlAttribute relAtt = drawXml.SelectSingleNode(string.Format("//xdr:pic/xdr:blipFill/a:blip/@r:embed[.='{0}']", prevRelID), Copy.Drawings.NameSpaceManager) as XmlAttribute;
-                        relAtt.Value = rel.Id;
+                        //Fixes problem with invalid image when the same image is used more than once.
+                        XmlNode relAtt =
+                            drawXml.SelectSingleNode(
+                                string.Format(
+                                    "//xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name[.='{0}']/../../../xdr:blipFill/a:blip/@r:embed",
+                                    pic.Name), Copy.Drawings.NameSpaceManager);
+                        if(relAtt!=null)
+                        {
+                            relAtt.Value = rel.Id;
+                        }
+                        if (_pck._images.ContainsKey(pic.ImageHash))
+                        {
+                            _pck._images[pic.ImageHash].RefCount++;
+                        }
                     }
                 }
                 //rewrite the drawing xml with the new relID's
@@ -855,21 +891,16 @@ namespace OfficeOpenXml
             }
 
             //Remove all comments
-            if (worksheet.Comments.Count > 0)
+            if (!(worksheet is ExcelChartsheet) && worksheet.Comments.Count > 0)
             {
                 worksheet.Comments.Clear();
             }
-            
-            
-            /*** Delete the drawings part   /Thanks to esowers... Pullrequest - Delete drawing part from package ***/
-             var _uriDrawing = new Uri(string.Format("/xl/drawings/drawing{0}.xml", worksheet.SheetID), UriKind.Relative);
-             if (_pck.Package.PartExists(_uriDrawing))
-             {
-                 _pck.Package.DeletePart(_uriDrawing);
-             }
+                        
+		    //Delete any parts still with relations to the Worksheet.
+            DeleteRelationsAndParts(worksheet.Part);
+
 
             //Delete the worksheet part and relation from the package 
-			_pck.Package.DeletePart(worksheet.WorksheetUri);
 			_pck.Workbook.Part.DeleteRelationship(worksheet.RelationshipID);
 
             //Delete worksheet from the workbook XML
@@ -898,6 +929,21 @@ namespace OfficeOpenXml
                 _pck.Workbook.Worksheets[1].View.TabSelected = true;
             }
             worksheet = null;
+        }
+
+        private void DeleteRelationsAndParts(Packaging.ZipPackagePart part)
+        {
+            var rels = part.GetRelationships().ToList();
+            for(int i=0;i<rels.Count;i++)
+            {
+                var rel = rels[i];
+                if (rel.RelationshipType != ExcelPackage.schemaImage)
+                {
+                    DeleteRelationsAndParts(_pck.Package.GetPart(UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri)));
+                }
+                part.DeleteRelationship(rel.Id);
+            }            
+            _pck.Package.DeletePart(part.Uri);
         }
 
 		/// <summary>
@@ -950,7 +996,14 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                return (_worksheets[PositionID]);
+			    if (_worksheets.ContainsKey(PositionID))
+			    {
+			        return _worksheets[PositionID];
+			    }
+			    else
+			    {
+			        throw (new IndexOutOfRangeException("Worksheet position out of range."));
+			    }
 			}
 		}
 
@@ -999,7 +1052,7 @@ namespace OfficeOpenXml
             ExcelWorksheet xlWorksheet = null;
             foreach (ExcelWorksheet worksheet in _worksheets.Values)
             {
-                if (worksheet.Name.ToLower() == Name.ToLower())
+                if (worksheet.Name.Equals(Name, StringComparison.InvariantCultureIgnoreCase))
                     xlWorksheet = worksheet;
             }
             return (xlWorksheet);

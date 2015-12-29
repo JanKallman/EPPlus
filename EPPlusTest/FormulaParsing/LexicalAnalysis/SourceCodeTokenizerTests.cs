@@ -1,8 +1,10 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing;
@@ -41,10 +43,20 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         [TestMethod]
         public void ShouldTokenizeStringCorrectly()
         {
-            var input = "'ab(c)d'";
+            var input = "\"ab(c)d\"";
             var tokens = _tokenizer.Tokenize(input);
 
-            Assert.AreEqual(5, tokens.Count());
+            Assert.AreEqual(3, tokens.Count());
+        }
+
+        [TestMethod]
+        public void ShouldHandleWhitespaceCorrectly()
+        {
+            var input = @"""          """;
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(3, tokens.Count());
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+            Assert.AreEqual(10, tokens.ElementAt(1).Value.Length);
         }
 
         [TestMethod]
@@ -107,6 +119,55 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
             var tokens = _tokenizer.Tokenize(input);
             Assert.AreEqual(3, tokens.Count());
             Assert.AreEqual("hello\"world", tokens.ElementAt(1).Value);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreTwoSubsequentStringIdentifyers2()
+        {
+            //using (var pck = new ExcelPackage(new FileInfo("c:\\temp\\QuoteIssue2.xlsx")))
+            //{
+            //    pck.Workbook.Worksheets.First().Calculate();
+            //}
+            var input = "\"\"\"\"\"\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+        }
+
+        [TestMethod]
+        public void TokenizerShouldIgnoreOperatorInString()
+        {
+            var input = "\"*\"";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(TokenType.StringContent, tokens.ElementAt(1).TokenType);
+        }
+
+        [TestMethod]
+        public void TokenizerShouldHandleWorksheetNameWithMinus()
+        {
+            var input = "'A-B'!A1";
+            var tokens = _tokenizer.Tokenize(input);
+            Assert.AreEqual(1, tokens.Count());
+            Assert.AreEqual(TokenType.ExcelAddress, tokens.ElementAt(0).TokenType);
+        }
+
+        [TestMethod]
+        public void TestBug9_12_14()
+        {
+            //(( W60 -(- W63 )-( W29 + W30 + W31 ))/( W23 + W28 + W42 - W51 )* W4 )
+            using (var pck = new ExcelPackage())
+            {
+                var ws1 = pck.Workbook.Worksheets.Add("test");
+                for (var x = 1; x <= 10; x++)
+                {
+                    ws1.Cells[x, 1].Value = x;
+                }
+
+                ws1.Cells["A11"].Formula = "(( A1 -(- A2 )-( A3 + A4 + A5 ))/( A6 + A7 + A8 - A9 )* A5 )";
+                //ws1.Cells["A11"].Formula = "(-A2 + 1 )";
+                ws1.Calculate();
+                var result = ws1.Cells["A11"].Value;
+                Assert.AreEqual(-3.75, result);
+            }
         }
     }
 }

@@ -51,6 +51,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Result = result;
             DataType = dataType;
         }
+
+        public CompileResult(eErrorType errorType)
+        {
+            Result = ExcelErrorValue.Create(errorType);
+            DataType = DataType.ExcelError;
+        }
+
+        public CompileResult(ExcelErrorValue errorValue)
+        {
+            Require.Argument(errorValue).IsNotNull("errorValue");
+            Result = errorValue;
+            DataType = DataType.ExcelError;
+        }
         public object Result
         {
             get;
@@ -85,7 +98,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if(Result is TimeSpan)
                 {
-                    return new DateTime(((TimeSpan)Result).Ticks).ToOADate();
+                    return DateTime.FromOADate(0).Add((TimeSpan)Result).ToOADate();
                 }
                 else if (IsNumericString)
                 {

@@ -36,6 +36,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using System.Globalization;
 
 namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
@@ -705,8 +706,8 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                                                       string pattern,
                                                       string replacement)
         {
-            string upperString = original.ToUpper();
-            string upperPattern = pattern.ToUpper();
+            string upperString = original.ToUpper(CultureInfo.InvariantCulture);
+            string upperPattern = pattern.ToUpper(CultureInfo.InvariantCulture);
             int p1 = upperString.IndexOf(upperPattern);
             if (p1 != 0) return original;
             return replacement + original.Substring(upperPattern.Length);

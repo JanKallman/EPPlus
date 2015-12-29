@@ -5,6 +5,7 @@ using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using Rhino.Mocks;
+using Rhino.Mocks.Constraints;
 
 namespace EPPlusTest.FormulaParsing.TestHelpers
 {
@@ -18,6 +19,11 @@ namespace EPPlusTest.FormulaParsing.TestHelpers
                 list.Add(new FunctionArgument(arg));
             }
             return list;
+        }
+
+        public static IEnumerable<FunctionArgument> Empty()
+        {
+            return new List<FunctionArgument>() {new FunctionArgument(null)};
         }
     }
 }

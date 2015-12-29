@@ -123,6 +123,10 @@
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParserFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersImplementationsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\CriteriaTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcherTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTimeFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunctionTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgumentTests.cs" />
@@ -130,11 +134,13 @@
     <Compile Include="FormulaParsing\Excel\Functions\LogicalFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\MathFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\NumberFunctionsTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\ChooseTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\IndexTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\SumIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TextFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TimeStringParserTests.cs" />
     <Compile Include="FormulaParsing\Excel\OperatorsTests.cs" />
@@ -152,22 +158,28 @@
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DateAndTimeFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\MathExcelRangeTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\TextExcelRangeTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\ExcelRanges\WorksheetRefsTest.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\InformationFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\LogicalFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\MathFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\StringFunctionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\TextFunctionsTests.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\BuiltInFunctions\DatabaseTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\SumTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ExcelDataProviderTests\ExcelDataProviderIntegrationTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\FormulaParserTestBase.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\PrecedenceTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\CalcExtensionsTests.cs" />
     <Compile Include="FormulaParsing\IntegrationTests\ErrorHandling\FormulaErrorHandlingTestBase.cs" />
+    <Compile Include="FormulaParsing\IntegrationTests\OperatorsTests.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\CharHandlerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\NegationTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SourceCodeTokenizerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\SyntacticAnalyzerTests.cs" />
     <Compile Include="FormulaParsing\LexicalAnalysis\TokenFactoryTests.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenHandlerTests.cs" />
     <Compile Include="FormulaParsing\NameValueProviderTests.cs" />
     <Compile Include="FormulaParsing\ParsingContextTests.cs" />
     <Compile Include="FormulaParsing\ParsingScopesTest.cs" />
@@ -185,6 +197,8 @@
     <Compile Include="TestDTO.cs" />
     <Compile Include="CellStoreTest.cs" />
     <Compile Include="Issues.cs" />
+    <Compile Include="LoadFromCollectionTests.cs" />
+    <Compile Include="CommentsTest.cs" />
     <Compile Include="Utils\AddressUtilityTests.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="Utils\SqRefUtilityTests.cs" />
@@ -199,7 +213,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
     </None>
-    <None Include="Resources\Test1.jpg" />
+    <EmbeddedResource Include="Resources\Vector Drawing.wmf" />
+    <EmbeddedResource Include="Resources\Vector Drawing2.wmf" />
     <None Include="Workbooks\FormulaTest.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -238,6 +253,12 @@
       <Project>{7b288026-5502-4a39-bf41-77e086f3e4a3}</Project>
       <Name>EPPlus</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BitmapImage.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\Test1.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

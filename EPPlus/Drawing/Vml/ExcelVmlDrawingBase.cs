@@ -91,6 +91,20 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetXmlNodeString("@id",value);
             }
         }
+        /// <summary>
+        /// Alternative text to be displayed instead of a graphic.
+        /// </summary>
+        public string AlternativeText
+        {
+            get
+            {
+                return GetXmlNodeString("@alt");
+            }
+            set
+            {
+                SetXmlNodeString("@alt", value);
+            }
+        }
         #region "Style Handling methods"
         protected bool GetStyle(string style, string key, out string value)
         {

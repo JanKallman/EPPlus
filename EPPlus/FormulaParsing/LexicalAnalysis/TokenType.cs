@@ -50,6 +50,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         SemiColon,
         String,
         StringContent,
+        WorksheetName,
+        WorksheetNameContent,
         Integer,
         Boolean,
         Decimal,

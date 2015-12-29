@@ -206,7 +206,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     NetTextFormat = NetTextFormatForWidth = "";
                     DataType = eFormatType.DateTime;
                 }
-                else if (format.ToLower() == "general")
+                else if (format.Equals("general",StringComparison.InvariantCultureIgnoreCase))
                 {
                     NetFormat = NetFormatForWidth = "0.#####";
                     NetTextFormat = NetTextFormatForWidth = "";
@@ -303,11 +303,11 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     }
                                     if (li.Length > 1)
                                     {
-                                        if (li[1].ToLower() == "f800")
+                                        if (li[1].Equals("f800", StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             specialDateFormat = "D";
                                         }
-                                        else if (li[1].ToLower() == "f400")
+                                        else if (li[1].Equals("f400", StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             specialDateFormat = "T";
                                         }
@@ -354,6 +354,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 secCount++;
                                 if (DataType == eFormatType.DateTime || secCount == 3)
                                 {
+                                    //Add qoutes
+                                    if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
+                                    lstDec = new List<int>();
                                     format = sb.ToString();
                                     sb = new StringBuilder();
                                 }
@@ -364,7 +367,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                             }
                             else
                             {
-                                clc = c.ToString().ToLower()[0];  //Lowercase character
+                                clc = c.ToString().ToLower(CultureInfo.InvariantCulture)[0];  //Lowercase character
                                 //Set the datetype
                                 if (DataType == eFormatType.Unknown)
                                 {
@@ -380,6 +383,10 @@ namespace OfficeOpenXml.Style.XmlAccess
 
                                 if (prevBslsh)
                                 {
+                                    if (c == '.' || c == ',')
+                                    {
+                                        sb.Append('\\');
+                                    }                                    
                                     sb.Append(c);
                                     prevBslsh = false;
                                 }
@@ -493,14 +500,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 }
 
                 //Add qoutes
-                if(lstDec.Count>1)
-                {
-                    for(int i=lstDec.Count-1;i>=0;i--)
-                    {
-                        sb.Insert(lstDec[i] + 1,'\'');
-                        sb.Insert(lstDec[i],'\'');
-                    }
-                }
+                if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
 
                 // AM/PM format
                 if (containsAmPm)
@@ -533,6 +533,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                     Culture = CultureInfo.CurrentCulture;
                 }
             }
+
+            private static void SetDecimal(List<int> lstDec, StringBuilder sb)
+            {
+                if (lstDec.Count > 1)
+                {
+                    for (int i = lstDec.Count - 1; i >= 0; i--)
+                    {
+                        sb.Insert(lstDec[i] + 1, '\'');
+                        sb.Insert(lstDec[i], '\'');
+                    }
+                }
+            }
+
             internal string FormatFraction(double d)
             {
                 int numerator, denomerator;

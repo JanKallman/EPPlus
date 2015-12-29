@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
@@ -109,7 +110,7 @@ namespace OfficeOpenXml.Table
     /// <summary>
     /// An Excel Table
     /// </summary>
-    public class ExcelTable : XmlHelper
+    public class ExcelTable : XmlHelper, IEqualityComparer<ExcelTable>
     {
         internal ExcelTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
@@ -266,15 +267,25 @@ namespace OfficeOpenXml.Table
             get;
             set;
         }
+
+        private ExcelAddressBase _address = null;
         /// <summary>
         /// The address of the table
         /// </summary>
         public ExcelAddressBase Address
         {
-            get;
-            internal set;
+            get
+            {
+                return _address;
+            }
+            internal set
+            {
+                _address = value;
+                SetXmlNodeString("@ref",value.Address);
+                WriteAutoFilter(ShowTotal);
+            }
         }
-        ExcelTableColumnCollection _cols = null;
+        internal ExcelTableColumnCollection _cols = null;
         /// <summary>
         /// Collection of the columns in the table
         /// </summary>
@@ -613,6 +624,16 @@ namespace OfficeOpenXml.Table
                 }
 
             }
-        }        
+        }
+
+        public bool Equals(ExcelTable x, ExcelTable y)
+        {
+            return x.WorkSheet == y.WorkSheet && x.Id == y.Id && x.TableXml.OuterXml == y.TableXml.OuterXml;
+        }
+
+        public int GetHashCode(ExcelTable obj)
+        {
+            return obj.TableXml.OuterXml.GetHashCode();
+        }
     }
 }

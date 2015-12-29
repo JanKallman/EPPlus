@@ -50,17 +50,18 @@ namespace OfficeOpenXml.Drawing.Vml
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };
         }   
         internal ExcelRangeBase Range { get; set; }
-        //public string Id 
-        //{
-        //    get
-        //    {
-        //        return GetXmlNodeString("@id");
-        //    }
-        //    set
-        //    {
-        //        SetXmlNodeString("@id",value);
-        //    }
-        //}
+
+        /// <summary>
+        /// Address in the worksheet
+        /// </summary>
+        public string Address
+        {
+            get
+            {
+                return Range.Address;
+            }
+        }
+
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
         /// <summary>
         /// Vertical alignment for text
@@ -153,6 +154,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 }                
             }
         }
+
         const string BACKGROUNDCOLOR_PATH = "@fillcolor";
         const string BACKGROUNDCOLOR2_PATH = "v:fill/@color2";
         /// <summary>
@@ -229,7 +231,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 else
                 {
                     string v = value.ToString();
-                    v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                    v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                     SetXmlNodeString(LINESTYLE_PATH, v);
                     DeleteNode(ENDCAP_PATH);
                 }

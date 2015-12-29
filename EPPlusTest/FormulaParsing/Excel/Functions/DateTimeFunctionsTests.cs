@@ -443,6 +443,18 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(expectedDate, result.Result);
         }
 
+        [TestMethod, Ignore]
+        public void WorkdayShouldReturnCorrectResultWithNegativeArg()
+        {
+            var inputDate = new DateTime(2014, 8, 27).ToOADate();
+            var expectedDate = new DateTime(2014, 8, 25).ToOADate();
+
+            var func = new Workday();
+            var args = FunctionsHelper.CreateArgs(inputDate, -2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(DateTime.FromOADate(expectedDate), DateTime.FromOADate((double)result.Result));
+        }
+
         [TestMethod]
         public void WorkdayShouldReturnCorrectResultWithFourDaysSupplied()
         {

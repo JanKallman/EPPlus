@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 
@@ -42,7 +43,7 @@ namespace OfficeOpenXml.Table
     public class ExcelTableCollection : IEnumerable<ExcelTable>
     {
         List<ExcelTable> _tables = new List<ExcelTable>();
-        internal Dictionary<string, int> _tableNames = new Dictionary<string, int>();
+        internal Dictionary<string, int> _tableNames = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         ExcelWorksheet _ws;        
         internal ExcelTableCollection(ExcelWorksheet ws)
         {
@@ -52,7 +53,6 @@ namespace OfficeOpenXml.Table
             {
                 var rel = ws.Part.GetRelationship(node.GetAttribute("id",ExcelPackage.schemaRelationships));
                 var tbl = new ExcelTable(rel, ws);
-                if (tbl.Id + 1 > _ws.Workbook._nextTableID) _ws.Workbook._nextTableID = tbl.Id + 1;
                 _tableNames.Add(tbl.Name, _tables.Count);
                 _tables.Add(tbl);
             }
@@ -76,6 +76,11 @@ namespace OfficeOpenXml.Table
         /// <returns>The table object</returns>
         public ExcelTable Add(ExcelAddressBase Range, string Name)
         {
+            if (Range.WorkSheet != null && Range.WorkSheet != _ws.Name)
+            {
+                throw new ArgumentException("Range does not belong to worksheet", "Range");
+            }
+            
             if (string.IsNullOrEmpty(Name))
             {
                 Name = GetNewTableName();
@@ -84,6 +89,9 @@ namespace OfficeOpenXml.Table
             {
                 throw (new ArgumentException("Tablename is not unique"));
             }
+
+            ValidateTableName(Name);
+
             foreach (var t in _tables)
             {
                 if (t.Address.Collide(Range) != ExcelAddressBase.eAddressCollition.No)
@@ -92,6 +100,68 @@ namespace OfficeOpenXml.Table
                 }
             }
             return Add(new ExcelTable(_ws, Range, Name, _ws.Workbook._nextTableID));
+        }
+
+        private void ValidateTableName(string Name)
+        {
+            if (string.IsNullOrEmpty(Name))
+            {
+                throw new ArgumentException("Tablename is null or empty");
+            }
+
+            char firstLetterOfName = Name[0];
+            if (Char.IsLetter(firstLetterOfName) == false && firstLetterOfName != '_' && firstLetterOfName != '\\')
+            {
+                throw new ArgumentException("Tablename start with invalid character");
+            }
+
+            if (Name.Contains(" "))
+            {
+                throw new ArgumentException("Tablename has spaces");
+            }
+
+        }
+
+        public void Delete(int Index, bool ClearRange = false)
+        {
+            Delete(this[Index], ClearRange);
+        }
+
+        public void Delete(string Name, bool ClearRange = false)
+        {
+            if (this[Name] == null)
+            {
+                throw new ArgumentOutOfRangeException(string.Format("Cannot delete non-existant table {0} in sheet {1}.", Name, _ws.Name));
+            }
+            Delete(this[Name], ClearRange);
+        }
+
+
+        public void Delete(ExcelTable Table, bool ClearRange = false)
+        {
+            if (!this._tables.Contains(Table))
+            {
+                throw new ArgumentOutOfRangeException("Table", String.Format("Table {0} does not exist in this collection", Table.Name));
+            }
+            lock (this)
+            {
+                var range = _ws.Cells[Table.Address.Address];
+                _tableNames.Remove(Table.Name);
+                _tables.Remove(Table);
+                foreach (var sheet in Table.WorkSheet.Workbook.Worksheets)
+                {
+                    foreach (var table in sheet.Tables)
+                    {
+                        if (table.Id > Table.Id) table.Id--;
+                    }
+                    Table.WorkSheet.Workbook._nextTableID--;
+                }
+                if (ClearRange)
+                {
+                    range.Clear();
+                }
+            }
+
         }
 
         internal string GetNewTableName()

@@ -67,9 +67,20 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             private set;
         }
 
+        public bool IsInSheetName
+        {
+            get;
+            private set;
+        }
+
         public void ToggleIsInString()
         {
             IsInString = !IsInString;
+        }
+
+        public void ToggleIsInSheetName()
+        {
+            IsInSheetName = !IsInSheetName;
         }
 
         internal int BracketCount
@@ -85,7 +96,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool CurrentTokenHasValue
         {
-            get { return !string.IsNullOrEmpty(CurrentToken.Trim()); }
+            get { return !string.IsNullOrEmpty(IsInString ? CurrentToken : CurrentToken.Trim()); }
         }
 
         public void NewToken()
@@ -108,11 +119,17 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _result.Last().Append(stringToAppend);
         }
 
+        public void SetLastTokenType(TokenType type)
+        {
+            _result.Last().TokenType = type;
+        }
+
         public void ReplaceLastToken(Token newToken)
         {
-            if (_result.Count > 0)
+            var count = _result.Count;
+            if (count > 0)
             {
-                _result.RemoveAt(_result.Count - 1);   
+                _result.RemoveAt(count - 1);   
             }
             _result.Add(newToken);
         }

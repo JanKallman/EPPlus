@@ -375,7 +375,9 @@ namespace OfficeOpenXml.VBA
         /// The verifier
         /// </summary>
         public SignedCms Verifier { get; internal set; }
+#if !MONO
         internal CompoundDocument Signature { get; set; }
+#endif
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }

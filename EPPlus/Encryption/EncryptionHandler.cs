@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
@@ -41,11 +42,13 @@ using comTypes = System.Runtime.InteropServices.ComTypes;
 
 namespace OfficeOpenXml.Encryption
 {
+
     /// <summary>
     /// Handels encrypted Excel documents 
     /// </summary>
     internal class EncryptedPackageHandler
     {
+#if !MONO
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -88,6 +91,7 @@ namespace OfficeOpenXml.Encryption
         /// <param name="stream">The memory stream. </param>
         /// <param name="encryption">The encryption object from the Package</param>
         /// <returns></returns>
+        [SecuritySafeCritical]
         internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
         {
             //Create the lockBytes object.
@@ -614,7 +618,7 @@ namespace OfficeOpenXml.Encryption
                 }
                 else
                 {
-                    throw (new UnauthorizedAccessException("Invalid password"));
+                    throw (new SecurityException("Invalid password"));
                 }
             }
             return null;
@@ -889,6 +893,7 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
+
         /// <summary>
         /// Create the hash.
         /// This method is written with the help of Lyquidity library, many thanks for this nice sample
@@ -912,8 +917,8 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-
-        private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
+#endif
+			private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

@@ -23,6 +23,8 @@ namespace OfficeOpenXml.FormulaParsing
             ExcelAddressBase Address { get; }
             object GetValue(int row, int col);
             object GetOffset(int rowOffset, int colOffset);
+
+            ExcelWorksheet Worksheet { get; }
         }
         /// <summary>
         /// Information and help methods about a cell
@@ -99,6 +101,13 @@ namespace OfficeOpenXml.FormulaParsing
         //public abstract void SetCellValue(string address, object value);
 
         /// <summary>
+        /// Returns the address of the lowest rightmost cell on the worksheet.
+        /// </summary>
+        /// <param name="worksheet"></param>
+        /// <returns></returns>
+        public abstract ExcelCellAddress GetDimensionEnd(string worksheet);
+
+        /// <summary>
         /// Use this method to free unmanaged resources.
         /// </summary>
         public abstract void Dispose();
@@ -117,5 +126,6 @@ namespace OfficeOpenXml.FormulaParsing
         public abstract string GetFormat(object value, string format);
 
         public abstract void Reset();
+        public abstract IRangeInfo GetRange(string worksheet, int fromRow, int fromCol, int toRow, int toCol);
     }
 }

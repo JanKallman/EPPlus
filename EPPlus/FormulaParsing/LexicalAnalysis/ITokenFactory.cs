@@ -39,5 +39,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
     {
         Token Create(IEnumerable<Token> tokens, string token);
         Token Create(IEnumerable<Token> tokens, string token, string worksheet);
+        Token Create(string token, TokenType explicitTokenType);
     }
 }

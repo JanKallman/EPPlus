@@ -65,6 +65,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
             }
+            if (obj == null) return false;
             return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
         }
 
@@ -112,7 +113,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     retVal += candidate;
                 }
             }
-            return retVal / nMatches;
+            return Divide(retVal, nMatches);
         }
 
         private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
@@ -129,7 +130,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                     nMatches++;
                 }
             }
-            return retVal / nMatches;
+            return Divide(retVal, nMatches);
         }
 
         private double Calculate(FunctionArgument arg, string expression)

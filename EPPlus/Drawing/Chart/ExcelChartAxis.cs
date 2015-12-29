@@ -204,7 +204,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                SetXmlNodeString( _majorTickMark, value.ToString().ToLower() );
+                SetXmlNodeString( _majorTickMark, value.ToString().ToLower(CultureInfo.InvariantCulture) );
             }
         }
 
@@ -236,7 +236,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                SetXmlNodeString(_minorTickMark, value.ToString().ToLower());
+                SetXmlNodeString(_minorTickMark, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
          /// <summary>
@@ -278,7 +278,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                SetXmlNodeString(AXIS_POSITION_PATH, value.ToString().ToLower().Substring(0,1));
+                SetXmlNodeString(AXIS_POSITION_PATH, value.ToString().ToLower(CultureInfo.InvariantCulture).Substring(0,1));
             }
         }
         const string _crossesPath = "c:crosses/@val";
@@ -309,7 +309,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 var v = value.ToString();
-                v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                 SetXmlNodeString(_crossesPath, v);
             }
 
@@ -342,7 +342,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 var v = value.ToString();
-                v = v.Substring(0, 1).ToLower() + v.Substring(1);
+                v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1);
                 SetXmlNodeString(_crossBetweenPath, v);
             }
         }
@@ -382,9 +382,28 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 SetXmlNodeString(_formatPath,value);
+                if(string.IsNullOrEmpty(value))
+                {
+                    SourceLinked = true;
+                }
+                else
+                {
+                    SourceLinked = false;
+                }
             }
         }
-
+        const string _sourceLinkedPath = "c:numFmt/@sourceLinked";
+        public bool SourceLinked
+        {
+            get
+            {
+                return GetXmlNodeBool(_sourceLinkedPath);
+            }
+            set
+            {
+                SetXmlNodeBool(_sourceLinkedPath, value);
+            }
+        }
         const string _lblPos = "c:tickLblPos/@val";
         /// <summary>
         /// Position of the labels
@@ -413,7 +432,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 string lp = value.ToString();
-                SetXmlNodeString(_lblPos, lp.Substring(0, 1).ToLower() + lp.Substring(1, lp.Length - 1));
+                SetXmlNodeString(_lblPos, lp.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + lp.Substring(1, lp.Length - 1));
             }
         }
         ExcelDrawingFill _fill = null;
@@ -501,7 +520,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 string v = value.ToString();
-                v=v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                v=v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                 SetXmlNodeString(_ticLblPos_Path,v);
             }
         }
@@ -753,7 +772,7 @@ namespace OfficeOpenXml.Drawing.Chart
             set
             {
                 string s=value.ToString();
-                s=s.Substring(0,1).ToLower() + s.Substring(1,s.Length-1);
+                s=s.Substring(0,1).ToLower(CultureInfo.InvariantCulture) + s.Substring(1,s.Length-1);
                 SetXmlNodeString(_orientationPath, s);
             }
         }

@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
@@ -62,9 +63,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             _family = GetXmlNodeIntNull(familyPath)??int.MinValue;
             _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
-            _bold = (topNode.SelectSingleNode(boldPath, NameSpaceManager) != null);
-            _italic = (topNode.SelectSingleNode(italicPath, NameSpaceManager) != null);
-            _strike = (topNode.SelectSingleNode(strikePath, NameSpaceManager) != null);
+            _bold = GetBoolValue(topNode, boldPath);
+            _italic = GetBoolValue(topNode, italicPath);
+            _strike = GetBoolValue(topNode, strikePath);
             _verticalAlign = GetXmlNodeString(verticalAlignPath);
             if (topNode.SelectSingleNode(underLinedPath, NameSpaceManager) != null)
             {
@@ -83,6 +84,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _underlineType = ExcelUnderLineType.None;
             }
         }
+
         internal override string Id
         {
             get
@@ -311,7 +313,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 var v=_underlineType.ToString();
-                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower() + v.Substring(1));
+                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1));
             }
 
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
