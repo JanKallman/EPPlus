@@ -611,6 +611,12 @@ namespace EPPlusTest
 
             (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
 
+            (ws.Drawings["shape120"] as ExcelShape).Ends.TailEnd = eEndStyle.Oval;
+            (ws.Drawings["shape120"] as ExcelShape).Ends.TailEndSizeWidth = eEndSize.Large;
+            (ws.Drawings["shape120"] as ExcelShape).Ends.TailEndSizeHeight = eEndSize.Large;
+            (ws.Drawings["shape120"] as ExcelShape).Ends.HeadEnd = eEndStyle.Arrow;
+            (ws.Drawings["shape120"] as ExcelShape).Ends.HeadEndSizeHeight = eEndSize.Small;
+            (ws.Drawings["shape120"] as ExcelShape).Ends.HeadEndSizeWidth = eEndSize.Small;
         }
         [TestMethod]
         [Ignore]
