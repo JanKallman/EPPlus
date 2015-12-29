@@ -16,7 +16,7 @@ namespace EPPlusTest
         public void DeleteWorksheetWithReferencedImage()
         {
             var ms = new MemoryStream();
-            using (var pck = new ExcelPackage(ms))
+            using (var pck = new ExcelPackage())
             {
                 var ws = pck.Workbook.Worksheets.Add("original");
                 ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);

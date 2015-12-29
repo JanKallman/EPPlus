@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -79,7 +80,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         /// <param name="behaviour"></param>
         public virtual void ToColAndRow(string address, out int col, out int row, RangeCalculationBehaviour behaviour)
         {
-            address = address.ToUpper();
+            address = address.ToUpper(CultureInfo.InvariantCulture);
             var alphaPart = GetAlphaPart(address);
             col = 0;
             var nLettersInAlphabet = 26;

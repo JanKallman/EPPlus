@@ -86,6 +86,7 @@ namespace OfficeOpenXml
                 {
                     base.Address = Address;
                 }
+                _rtc = null;
                 return this;
             }
         }
@@ -123,6 +124,7 @@ namespace OfficeOpenXml
                 _fromRow = Row;
                 _toCol = Col;
                 _toRow = Row;
+                _rtc = null;
                 base.Address = GetAddress(_fromRow, _fromCol);
                 return this;
             }
@@ -146,6 +148,7 @@ namespace OfficeOpenXml
                 _fromRow = FromRow;
                 _toCol = ToCol;
                 _toRow = ToRow;
+                _rtc = null;
                 base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
                 return this;
             }

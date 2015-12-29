@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
 using Rhino.Mocks;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
@@ -144,8 +145,8 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(5, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void HLookupShouldThrowIfNoMatchingRecordIsFoundWhenRangeLookupIsFalse()
+        [TestMethod]
+        public void HLookupShouldReturnNaErrorIfNoMatchingRecordIsFoundWhenRangeLookupIsFalse()
         {
             var func = new HLookup();
             var args = FunctionsHelper.CreateArgs(2, "A1:B2", 2, false);
@@ -161,6 +162,8 @@ namespace EPPlusTest.Excel.Functions
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
+            var expectedResult = ExcelErrorValue.Create(eErrorType.NA);
+            Assert.AreEqual(expectedResult, result.Result);
         }
 
         [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
@@ -373,13 +376,6 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
-        public void HyperlinkShouldReturnUriIfNoNameIsSupplied()
-        {
-            var func = new Hyperlink();
-            var parsingContext = ParsingContext.Create();
-        }
-
-        [TestMethod]
         public void ColumnShouldReturnRowFromCurrentScopeIfNoAddressIsSupplied()
         {
             var func = new Column();
@@ -468,7 +464,7 @@ namespace EPPlusTest.Excel.Functions
             var parsingContext = ParsingContext.Create();
             parsingContext.ExcelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
             parsingContext.ExcelDataProvider.Stub(x => x.ExcelMaxRows).Return(10);
-            var result = func.Execute(FunctionsHelper.CreateArgs(1, 2, (int)ExcelReferenceType.RelativeRowAndColumn, "Worksheet1"), parsingContext);
+            var result = func.Execute(FunctionsHelper.CreateArgs(1, 2, (int)ExcelReferenceType.RelativeRowAndColumn, true, "Worksheet1"), parsingContext);
             Assert.AreEqual("Worksheet1!B1", result.Result);
         }
 

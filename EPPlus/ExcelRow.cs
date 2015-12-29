@@ -146,7 +146,7 @@ namespace OfficeOpenXml
                 var r = GetRowInternal();
                 if (_worksheet._package.DoAdjustDrawings)
                 {
-                    var pos = _worksheet.Drawings.GetDrawingWidths();
+                    var pos = _worksheet.Drawings.GetDrawingHeight();   //Fixes issue 14846
                     r.Height = value;
                     _worksheet.Drawings.AdjustHeight(pos);
                 }
@@ -314,7 +314,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet.Workbook.Styles.GetStyleObject(StyleID,_worksheet.PositionID ,Row.ToString()+":"+Row.ToString());                
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID,_worksheet.PositionID ,Row.ToString() + ":" + Row.ToString());                
             }
         }
         /// <summary>

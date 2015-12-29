@@ -31,8 +31,10 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
 {
@@ -99,7 +101,7 @@ namespace OfficeOpenXml.Table
                 {
                     if (_tbl.ShowHeader)
                     {
-                        n = _tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position);
+                        n = ConvertUtil.ExcelDecodeString(_tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position));
                     }
                     else
                     {
@@ -110,7 +112,12 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                SetXmlNodeString("@name", value);
+                var v = ConvertUtil.ExcelEncodeString(value);
+                SetXmlNodeString("@name", v);
+                if (_tbl.ShowHeader)
+                {
+                    _tbl.WorkSheet.SetValue(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position, value);
+                }
                 _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
@@ -153,7 +160,7 @@ namespace OfficeOpenXml.Table
                     throw(new Exception("Use the TotalsRowFormula-property to set a custom table formula"));
                 }
                 string s = value.ToString();
-                s = s.Substring(0, 1).ToLower() + s.Substring(1, s.Length - 1);
+                s = s.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + s.Substring(1, s.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", s);
                 _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
@@ -202,7 +209,7 @@ namespace OfficeOpenXml.Table
                     toRow=_tbl.Address._toRow - (_tbl.ShowTotal?1:0),
                     col=_tbl.Address._fromCol+Position;
 
-                if (fromRow < toRow)
+                if (fromRow <= toRow)
                 {
                     _tbl.WorkSheet.Cells[fromRow, col, toRow, col].StyleName = value;
                 }

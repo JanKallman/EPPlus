@@ -32,24 +32,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class TokenSeparatorProvider : ITokenSeparatorProvider
     {
-        public TokenSeparatorProvider ()
-	    {
-            if(!_isInitialized)
-            {
-                Init();
-                _isInitialized = true;
-            }
-	    }
-        private bool _isInitialized = false;
+       private static readonly Dictionary<string, Token> _tokens;
 
-        private static void Init()
+        static TokenSeparatorProvider()
         {
-            _tokens.Clear();
+            _tokens = new Dictionary<string, Token>();
             _tokens.Add("+", new Token("+", TokenType.Operator));
             _tokens.Add("-", new Token("-", TokenType.Operator));
             _tokens.Add("*", new Token("*", TokenType.Operator));
@@ -66,7 +59,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add(")", new Token(")", TokenType.ClosingParenthesis));
             _tokens.Add("{", new Token("{", TokenType.OpeningEnumerable));
             _tokens.Add("}", new Token("}", TokenType.ClosingEnumerable));
-            //_tokens.Add("'", new Token("'", TokenType.String));
+            _tokens.Add("'", new Token("'", TokenType.WorksheetName));
             _tokens.Add("\"", new Token("\"", TokenType.String));
             _tokens.Add(",", new Token(",", TokenType.Comma));
             _tokens.Add(";", new Token(";", TokenType.SemiColon));
@@ -75,8 +68,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             _tokens.Add("%", new Token("%", TokenType.Percent));
         }
 
-        private static Dictionary<string, Token> _tokens = new Dictionary<string, Token>();
-
         IDictionary<string, Token> ITokenSeparatorProvider.Tokens
         {
             get { return _tokens; }
@@ -84,7 +75,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool IsOperator(string item)
         {
-            return _tokens.ContainsKey(item) && _tokens[item].TokenType == TokenType.Operator;
+            Token token;
+            if (_tokens.TryGetValue(item, out token))
+            {
+                if (token.TokenType == TokenType.Operator)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public bool IsPossibleLastPartOfMultipleCharOperator(string part)

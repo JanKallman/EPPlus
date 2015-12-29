@@ -24,6 +24,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
@@ -37,7 +38,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     /// </summary>
     public class FunctionRepository : IFunctionNameProvider
     {
-        private Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>();
+        private Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>(StringComparer.InvariantCulture);
 
         private FunctionRepository()
         {
@@ -59,19 +60,20 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             foreach (var key in module.Functions.Keys)
             {
-                var lowerKey = key.ToLower();
+                var lowerKey = key.ToLower(CultureInfo.InvariantCulture);
                 _functions[lowerKey] = module.Functions[key];
             }
         }
 
         public virtual ExcelFunction GetFunction(string name)
         {
-            if(!_functions.ContainsKey(name.ToLower()))
+            if(!_functions.ContainsKey(name.ToLower(CultureInfo.InvariantCulture)))
             {
                 //throw new InvalidOperationException("Non supported function: " + name);
-                throw new ExcelErrorValueException("Non supported function: " + name, ExcelErrorValue.Create(eErrorType.Name));
+                //throw new ExcelErrorValueException("Non supported function: " + name, ExcelErrorValue.Create(eErrorType.Name));
+                return null;
             }
-            return _functions[name.ToLower()];
+            return _functions[name.ToLower(CultureInfo.InvariantCulture)];
         }
 
         /// <summary>
@@ -89,7 +91,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <returns></returns>
         public bool IsFunctionName(string name)
         {
-            return _functions.ContainsKey(name.ToLower());
+            return _functions.ContainsKey(name.ToLower(CultureInfo.InvariantCulture));
         }
 
         /// <summary>
@@ -109,7 +111,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             Require.That(functionName).Named("functionName").IsNotNullOrEmpty();
             Require.That(functionImpl).Named("functionImpl").IsNotNull();
-            var fName = functionName.ToLower();
+            var fName = functionName.ToLower(CultureInfo.InvariantCulture);
             if (_functions.ContainsKey(fName))
             {
                 _functions.Remove(fName);

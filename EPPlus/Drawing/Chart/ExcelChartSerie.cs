@@ -129,9 +129,9 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                if (value._fromCol != value._toCol || value._fromRow != value._toRow || value.Addresses != null)
+                if ((value._fromCol != value._toCol && value._fromRow != value._toRow) || value.Addresses != null) //Single cell removed, allow row & column --> issue 15102. 
                 {
-                    throw (new Exception("Address must be a single cell"));
+                    throw (new ArgumentException("Address must be a row, column or single cell"));
                 }
 
                 Cleartx();
@@ -152,10 +152,6 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               //if (_chartSeries.Chart.ChartType == eChartType.Bubble)
-               //{
-               //    throw(new Exception("Bubble charts is not supported yet"));
-               //}
                CreateNode(_seriesPath,true);
                SetXmlNodeString(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
                

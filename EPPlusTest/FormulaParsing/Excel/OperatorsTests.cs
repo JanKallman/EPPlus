@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
@@ -12,10 +13,11 @@ namespace EPPlusTest.Excel
     [TestClass]
     public class OperatorsTests
     {
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        [TestMethod]
         public void OperatorPlusShouldThrowExceptionIfNonNumericOperand()
         {
-            Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            var result = Operator.Plus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            Assert.AreEqual(ExcelErrorValue.Create(eErrorType.Value), result.Result);
         }
 
         [TestMethod]
@@ -25,10 +27,11 @@ namespace EPPlusTest.Excel
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        [TestMethod]
         public void OperatorMinusShouldThrowExceptionIfNonNumericOperand()
         {
-            Operator.Minus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            var result = Operator.Minus.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            Assert.AreEqual(ExcelErrorValue.Create(eErrorType.Value), result.Result);
         }
 
         [TestMethod]
@@ -38,10 +41,11 @@ namespace EPPlusTest.Excel
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void OperatorDivideShouldThrowDivideByZeroExceptionIfRightOperandIsZero()
+        [TestMethod]
+        public void OperatorDivideShouldReturnDivideByZeroIfRightOperandIsZero()
         {
-            Operator.Divide.Apply(new CompileResult(1d, DataType.Decimal), new CompileResult(0d, DataType.Decimal));
+            var result = Operator.Divide.Apply(new CompileResult(1d, DataType.Decimal), new CompileResult(0d, DataType.Decimal));
+            Assert.AreEqual(ExcelErrorValue.Create(eErrorType.Div0), result.Result);
         }
 
         [TestMethod]
@@ -51,10 +55,11 @@ namespace EPPlusTest.Excel
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void OperatorDivideShouldThrowExceptionIfNonNumericOperand()
+        [TestMethod]
+        public void OperatorDivideShouldReturnValueErrorIfNonNumericOperand()
         {
-            Operator.Divide.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            var result = Operator.Divide.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));
+            Assert.AreEqual(ExcelErrorValue.Create(eErrorType.Value), result.Result);
         }
 
         [TestMethod]
@@ -64,7 +69,7 @@ namespace EPPlusTest.Excel
             Assert.AreEqual(3d, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
+        [TestMethod]
         public void OperatorMultiplyShouldThrowExceptionIfNonNumericOperand()
         {
             Operator.Multiply.Apply(new CompileResult(1, DataType.Integer), new CompileResult("a", DataType.String));

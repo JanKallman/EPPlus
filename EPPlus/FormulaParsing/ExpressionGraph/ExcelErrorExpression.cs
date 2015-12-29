@@ -47,6 +47,12 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             _error = error;
         }
 
+        public ExcelErrorExpression(ExcelErrorValue error)
+            : this(error.ToString(), error)
+        {
+            
+        }
+
         public override bool IsGroupedExpression
         {
             get { return false; }

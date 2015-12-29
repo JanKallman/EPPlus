@@ -184,7 +184,10 @@ namespace OfficeOpenXml
         public string LastModifiedBy
         {
             get { return _coreHelper.GetXmlNodeString(LastModifiedByPath); }
-            set { _coreHelper.SetXmlNodeString(LastModifiedByPath, value); }
+            set
+            {
+                _coreHelper.SetXmlNodeString(LastModifiedByPath, value);
+            }
         }
 
         const string LastPrintedPath = "cp:lastPrinted";
@@ -213,6 +216,7 @@ namespace OfficeOpenXml
 	        {
 	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
 	            _coreHelper.SetXmlNodeString(CreatedPath, dateString);
+                _coreHelper.SetXmlNodeString(CreatedPath + "/@xsi:type", "dcterms:W3CDTF");
 	        }
 	    }
 
@@ -262,11 +266,12 @@ namespace OfficeOpenXml
 
         const string ApplicationPath = "xp:Properties/xp:Application";
         /// <summary>
-        /// Gets the Application property of the document (extended property)
+        /// Gets/Set the Application property of the document (extended property)
         /// </summary>
         public string Application
         {
             get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
+            set { _extendedHelper.SetXmlNodeString(ApplicationPath, value); }
         }
 
         const string HyperlinkBasePath = "xp:Properties/xp:HyperlinkBase";
@@ -281,11 +286,12 @@ namespace OfficeOpenXml
 
         const string AppVersionPath = "xp:Properties/xp:AppVersion";
         /// <summary>
-        /// Gets the AppVersion property of the document (extended property)
+        /// Gets/Set the AppVersion property of the document (extended property)
         /// </summary>
         public string AppVersion
         {
             get { return _extendedHelper.GetXmlNodeString(AppVersionPath); }
+            set { _extendedHelper.SetXmlNodeString(AppVersionPath, value); }
         }
         const string CompanyPath = "xp:Properties/xp:Company";
 
@@ -323,6 +329,7 @@ namespace OfficeOpenXml
 	        {
 	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
 	            _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
+                _coreHelper.SetXmlNodeString(ModifiedPath + "/@xsi:type", "dcterms:W3CDTF");
 	        }
 	    }
 
@@ -475,7 +482,7 @@ namespace OfficeOpenXml
             if (value is bool)
             {
                 valueElem = CustomPropertiesXml.CreateElement("vt", "bool", ExcelPackage.schemaVt);
-                valueElem.InnerText = value.ToString().ToLower();
+                valueElem.InnerText = value.ToString().ToLower(CultureInfo.InvariantCulture);
             }
             else if (value is DateTime)
             {

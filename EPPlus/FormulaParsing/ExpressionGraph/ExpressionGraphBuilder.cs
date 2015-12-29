@@ -101,6 +101,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 {
                     break;
                 }
+                else if(token.TokenType == TokenType.WorksheetName)
+                {
+                    var sb = new StringBuilder();
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex++].Value);
+                    sb.Append(tokens[_tokenIndex].Value);
+                    var t = new Token(sb.ToString(), TokenType.ExcelAddress);
+                    CreateAndAppendExpression(ref parent, t);
+                }
                 else if (token.TokenType == TokenType.Negator)
                 {
                     _negateNextExpression = true;
@@ -207,14 +217,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             if (parent == null)
             {
-                _graph.Add(new GroupExpression());
+                _graph.Add(new GroupExpression(_negateNextExpression));
+                _negateNextExpression = false;
                 BuildUp(tokens, _graph.Current);
             }
             else
             {
                 if (parent.IsGroupedExpression || parent is FunctionArgumentExpression)
                 {
-                    var newGroupExpression = new GroupExpression();
+                    var newGroupExpression = new GroupExpression(_negateNextExpression);
+                    _negateNextExpression = false;
                     parent.AddChild(newGroupExpression);
                     BuildUp(tokens, newGroupExpression);
                 }

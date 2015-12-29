@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Style.XmlAccess;
@@ -200,7 +201,7 @@ namespace OfficeOpenXml.Table.PivotTable
                         v="stdDevP";
                         break;
                     default:
-                        v=value.ToString().ToLower();
+                        v=value.ToString().ToLower(CultureInfo.InvariantCulture);
                         break;
                 }                
                 SetXmlNodeString("@subtotal", v);

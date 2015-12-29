@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
 
@@ -11,11 +7,6 @@ namespace EPPlusTest
     [TestClass]
     public class Encrypt : TestBase
     {
-        [ClassInitialize()]
-        public void ClassInit(TestContext testContext)
-        {
-            InitBase();
-        }
         [TestMethod]
         [Ignore]
         public void ReadWriteEncrypt()

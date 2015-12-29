@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.Linq;
@@ -53,7 +54,7 @@ namespace OfficeOpenXml
         }
         public XmlNode TopNode { get; set; }
         internal List<T> _list = new List<T>();
-        Dictionary<string, int> _dic = new Dictionary<string, int>();
+        Dictionary<string, int> _dic = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
         internal int NextId=0;
         #region IEnumerable<T> Members
 
@@ -93,7 +94,7 @@ namespace OfficeOpenXml
         internal int Add(string key, T item)
         {
             _list.Add(item);
-            if (!_dic.ContainsKey(key.ToLower())) _dic.Add(key.ToLower(), _list.Count - 1);
+            if (!_dic.ContainsKey(key.ToLower(CultureInfo.InvariantCulture))) _dic.Add(key.ToLower(CultureInfo.InvariantCulture), _list.Count - 1);
             if (_setNextIdManual) NextId++;
             return _list.Count-1;
         }
@@ -105,9 +106,9 @@ namespace OfficeOpenXml
         /// <returns>True if found</returns>
         internal bool FindByID(string key, ref T obj)
         {
-            if (_dic.ContainsKey(key.ToLower()))
+            if (_dic.ContainsKey(key))
             {
-                obj = _list[_dic[key.ToLower()]];
+                obj = _list[_dic[key.ToLower(CultureInfo.InvariantCulture)]];
                 return true;
             }
             else
@@ -122,9 +123,9 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal int FindIndexByID(string key)
         {
-            if (_dic.ContainsKey(key.ToLower()))
+            if (_dic.ContainsKey(key))
             {
-                return _dic[key.ToLower()];
+                return _dic[key];
             }
             else
             {
@@ -133,7 +134,7 @@ namespace OfficeOpenXml
         }
         internal bool ExistsKey(string key)
         {
-            return _dic.ContainsKey(key.ToLower());
+            return _dic.ContainsKey(key);
         }
         internal void Sort(Comparison<T> c)
         {

@@ -92,7 +92,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                SetXmlNodeString(markerPath, value.ToString().ToLower());
+                SetXmlNodeString(markerPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string MARKERSIZE_PATH = "c:marker/c:size/@val";

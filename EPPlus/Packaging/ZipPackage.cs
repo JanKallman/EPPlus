@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -103,18 +104,18 @@ namespace OfficeOpenXml.Packaging
                         {
                             var b = new byte[e.UncompressedSize];
                             var size = zip.Read(b, 0, (int)e.UncompressedSize);
-                            if (e.FileName.ToLower() == "[content_types].xml")
+                            if (e.FileName.Equals("[content_types].xml", StringComparison.InvariantCultureIgnoreCase))
                             {
                                 AddContentTypes(Encoding.UTF8.GetString(b));
                                 hasContentTypeXml = true;
                             }
-                            else if (e.FileName.ToLower() == "_rels/.rels")
+                            else if (e.FileName.Equals("_rels/.rels", StringComparison.InvariantCultureIgnoreCase)) 
                             {
                                 ReadRelation(Encoding.UTF8.GetString(b), "");
                             }
                             else
                             {
-                                if (e.FileName.ToLower().EndsWith(".rels"))
+                                if (e.FileName.EndsWith(".rels", StringComparison.InvariantCultureIgnoreCase))
                                 {
                                     rels.Add(GetUriKey(e.FileName), Encoding.UTF8.GetString(b));
                                 }
@@ -135,8 +136,9 @@ namespace OfficeOpenXml.Packaging
 
                     foreach (var p in Parts)
                     {
-                        FileInfo fi = new FileInfo(p.Key);
-                        string relFile = string.Format("{0}_rels/{1}.rels", p.Key.Substring(0, p.Key.Length - fi.Name.Length), fi.Name);
+                        string name = Path.GetFileName(p.Key);
+                        string extension = Path.GetExtension(p.Key);
+                        string relFile = string.Format("{0}_rels/{1}.rels", p.Key.Substring(0, p.Key.Length - name.Length), name);
                         if (rels.ContainsKey(relFile))
                         {
                             p.Value.ReadRelation(rels[relFile], p.Value.Uri.OriginalString);
@@ -145,18 +147,18 @@ namespace OfficeOpenXml.Packaging
                         {
                             p.Value.ContentType = _contentTypes[p.Key].Name;
                         }
-                        else if (fi.Extension.Length > 1 && _contentTypes.ContainsKey(fi.Extension.Substring(1)))
+                        else if (extension.Length > 1 && _contentTypes.ContainsKey(extension.Substring(1)))
                         {
-                            p.Value.ContentType = _contentTypes[fi.Extension.Substring(1)].Name;
+                            p.Value.ContentType = _contentTypes[extension.Substring(1)].Name;
                         }
                     }
                     if (!hasContentTypeXml)
                     {
-                        throw (new FileFormatException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
+                        throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
                     if (!hasContentTypeXml)
                     {
-                        throw (new FileFormatException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
+                        throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
                     zip.Close();
                 }
@@ -204,7 +206,7 @@ namespace OfficeOpenXml.Packaging
         {
             if (PartExists(partUri))
             {
-                return Parts.Single(x => x.Key.ToLower() == GetUriKey(partUri.OriginalString.ToLower())).Value;
+                return Parts.Single(x => x.Key.Equals(GetUriKey(partUri.OriginalString),StringComparison.InvariantCultureIgnoreCase)).Value;
             }
             else
             {
@@ -223,8 +225,8 @@ namespace OfficeOpenXml.Packaging
         }
         internal bool PartExists(Uri partUri)
         {
-            var uriKey = GetUriKey(partUri.OriginalString.ToLower());
-            return Parts.Keys.Any(x => x.ToLower() == uriKey);
+            var uriKey = GetUriKey(partUri.OriginalString.ToLower(CultureInfo.InvariantCulture));
+            return Parts.Keys.Any(x => x.Equals(uriKey, StringComparison.InvariantCultureIgnoreCase));
         }
         #endregion
 
@@ -235,7 +237,7 @@ namespace OfficeOpenXml.Packaging
             {
                 foreach (var r in p.GetRelationships())
                 {
-                    if (UriHelper.ResolvePartUri(p.Uri, r.TargetUri).OriginalString == Uri.OriginalString)
+                    if (UriHelper.ResolvePartUri(p.Uri, r.TargetUri).OriginalString.Equals(Uri.OriginalString, StringComparison.InvariantCultureIgnoreCase))
                     {                        
                         delList.Add(new object[]{r.Id, p});
                     }

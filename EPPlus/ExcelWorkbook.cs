@@ -31,23 +31,19 @@
  * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
+using System.Linq;
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
-using System.Security;
 using System.Globalization;
-using System.Text.RegularExpressions;
 using OfficeOpenXml.VBA;
-using System.Drawing;
 using OfficeOpenXml.Utils;
-using System.Windows.Media;
-using System.Windows;
-using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing;
-using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using System.Drawing;
+
 namespace OfficeOpenXml
 {
 	#region Public Enum ExcelCalcMode
@@ -111,6 +107,7 @@ namespace OfficeOpenXml
 			_namespaceManager = namespaceManager;
 			TopNode = WorkbookXml.DocumentElement;
 			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
+		    FullCalcOnLoad = true;  //Full calculation on load by default, for both new workbooks and templates.
 			GetSharedStrings();
 		}
 		#endregion
@@ -119,8 +116,8 @@ namespace OfficeOpenXml
 		internal List<SharedStringItem> _sharedStringsList = new List<SharedStringItem>(); //Used when reading cells.
 		internal ExcelNamedRangeCollection _names;
 		internal int _nextDrawingID = 0;
-		internal int _nextTableID = 1;
-		internal int _nextPivotTableID = 1;
+		internal int _nextTableID = int.MinValue;
+        internal int _nextPivotTableID = int.MinValue;
 		internal XmlNamespaceManager _namespaceManager;
         internal FormulaParser _formulaParser = null;
 	    internal FormulaParserManager _parserManager;
@@ -142,7 +139,7 @@ namespace OfficeOpenXml
 						XmlNode n = node.SelectSingleNode("d:t", NameSpaceManager);
 						if (n != null)
 						{
-							_sharedStringsList.Add(new SharedStringItem() { Text = ExcelDecodeString(n.InnerText) });
+                            _sharedStringsList.Add(new SharedStringItem() { Text = ConvertUtil.ExcelDecodeString(n.InnerText) });
 						}
 						else
 						{
@@ -153,7 +150,7 @@ namespace OfficeOpenXml
                 //Delete the shared string part, it will be recreated when the package is saved.
                 foreach (var rel in Part.GetRelationships())
                 {
-                    if (rel.TargetUri.OriginalString.ToLower().EndsWith("sharedstrings.xml"))
+                    if (rel.TargetUri.OriginalString.EndsWith("sharedstrings.xml", StringComparison.InvariantCultureIgnoreCase))
                     {
                         Part.DeleteRelationship(rel.Id);
                         break;
@@ -337,32 +334,29 @@ namespace OfficeOpenXml
 					var font = Styles.Fonts[0];
                     try
                     {
-                        //Font f = new Font(font.Name, font.Size);
+                        var f = new Font(font.Name, font.Size);
                         _standardFontWidth = 0;
-                        _fontID = font.Id;                        
-                        Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
-                                                     (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
-                                                     (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
-                                                     FontStretches.Normal);
-                        for(int i=0;i<10;i++)
-                        {
-                            var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), System.Windows.Media.Brushes.Black);
-                            var width=(int)Math.Round(ft.Width,0);   
-                            if(width>_standardFontWidth)
-                            {
-                                _standardFontWidth = width;
-                            }
-                        }
-                         
-                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
+                        _fontID = font.Id;
+                 
+                        //Remove the PresentaionCore Dependencey. This might effect components running under Azure not having support for GDI+
 
-                        //using (Bitmap b = new Bitmap(1, 1))
+                        //Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
+                        ////                             (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
+                        //                             (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
+                        //                             FontStretches.Normal);
+                        //for(int i=0;i<10;i++)
                         //{
-                        //    using (Graphics g = Graphics.FromImage(b))
+                        //    var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), new DrawingBrush());
+                        //    var width=(int)Math.Round(ft.Width,0);   
+                        //    if(width>_standardFontWidth)
                         //    {
-                        //        _standardFontWidth = (decimal)Math.Truncate(g.MeasureString("00", f).Width - g.MeasureString("0", f).Width);
+                        //        _standardFontWidth = width;
                         //    }
                         //}
+
+                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
+
+                        _standardFontWidth = GetWidthPixels(f,"1234567890");
                         if (_standardFontWidth <= 0) //No GDI?
                         {
                             _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox. for Calibri.
@@ -380,7 +374,35 @@ namespace OfficeOpenXml
                 _standardFontWidth = value;
             }
 		}
-		ExcelProtection _protection = null;
+
+	    internal static decimal GetWidthPixels(Font f, string s)
+	    {
+	        var ret = 0M;
+            using (var b = new Bitmap(1, 1))
+	        {
+	            using (Graphics g = Graphics.FromImage(b))
+	            {
+	                g.PageUnit = GraphicsUnit.Pixel;
+
+	                for (int i = 0; i < s.Length; i++)
+	                {
+	                    var c = s[i];
+	                    var width =
+	                        (decimal)
+	                            Math.Truncate(
+	                                g.MeasureString(new string(c, 2), f, 1000, StringFormat.GenericTypographic).Width -
+	                                g.MeasureString(new string(c, 1), f, 1000, StringFormat.GenericTypographic).Width);
+                        if (width > ret)
+	                    {
+                            ret = width;
+	                    }
+	                }
+	            }
+	        }
+	        return ret;
+	    }
+
+	    ExcelProtection _protection = null;
 		/// <summary>
 		/// Access properties to protect or unprotect a workbook
 		/// </summary>
@@ -431,11 +453,13 @@ namespace OfficeOpenXml
                 return _vba;
             }
         }
+
         /// <summary>
         /// Create an empty VBA project.
         /// </summary>
         public void CreateVBAProject()
         {
+#if !MONO
             if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 throw (new InvalidOperationException("VBA project already exists."));
@@ -443,7 +467,11 @@ namespace OfficeOpenXml
                         
             _vba = new ExcelVbaProject(this);
             _vba.Create();
-        }
+#endif
+#if MONO
+            throw new NotSupportedException("Creating a VBA project is not supported under Mono.");
+#endif
+				}
 		/// <summary>
 		/// URI to the workbook inside the package
 		/// </summary>
@@ -681,7 +709,7 @@ namespace OfficeOpenXml
 						return ExcelCalcMode.Manual;
 					default:
 						return ExcelCalcMode.Automatic;
-
+                        
 				}
 			}
 			set
@@ -702,6 +730,23 @@ namespace OfficeOpenXml
 			}
 			#endregion
 		}
+
+        private const string FULL_CALC_ON_LOAD_PATH = "d:calcPr/@fullCalcOnLoad";
+        /// <summary>
+        /// Should Excel do a full calculation after the workbook has been loaded?
+        /// <remarks>This property is always true for both new workbooks and loaded templates(on load). If this is not the wanted behavior set this property to false.</remarks>
+        /// </summary>
+        public bool FullCalcOnLoad
+	    {
+	        get
+	        {
+                return GetXmlNodeBool(FULL_CALC_ON_LOAD_PATH);   
+	        }
+	        set
+	        {
+                SetXmlNodeBool(FULL_CALC_ON_LOAD_PATH, value);
+	        }
+	    }
 		#endregion
 		#region Workbook Private Methods
 			
@@ -773,7 +818,9 @@ namespace OfficeOpenXml
             //VBA
             if (_vba!=null)
             {
+#if !MONO
                 VbaProject.Save();
+#endif
             }
 
 		}
@@ -827,7 +874,7 @@ namespace OfficeOpenXml
             stream.PutNextEntry(fileName);
 
             var cache = new StringBuilder();            
-            StreamWriter sw = new StreamWriter(stream);
+            var sw = new StreamWriter(stream);
             cache.AppendFormat("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?><sst xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" count=\"{0}\" uniqueCount=\"{0}\">", _sharedStrings.Count);
 			foreach (string t in _sharedStrings.Keys)
 			{
@@ -836,12 +883,12 @@ namespace OfficeOpenXml
 				if (ssi.isRichText)
 				{
                     cache.Append("<si>");
-                    ExcelEncodeString(cache, t);
+                    ConvertUtil.ExcelEncodeString(cache, t);
                     cache.Append("</si>");
 				}
 				else
 				{
-					if (t.Length>0 && (t[0] == ' ' || t[t.Length-1] == ' ' || t.Contains("  ") || t.Contains("\t")))
+                    if (t.Length > 0 && (t[0] == ' ' || t[t.Length - 1] == ' ' || t.Contains("  ") || t.Contains("\t") || t.Contains("\n") || t.Contains("\n")))   //Fixes issue 14849
 					{
                         cache.Append("<si><t xml:space=\"preserve\">");
 					}
@@ -849,7 +896,7 @@ namespace OfficeOpenXml
 					{
                         cache.Append("<si><t>");
 					}
-					ExcelEncodeString(cache, ExcelEscapeString(t));
+                    ConvertUtil.ExcelEncodeString(cache, ConvertUtil.ExcelEscapeString(t));
                     cache.Append("</t></si>");
 				}
                 if (cache.Length > 0x600000)
@@ -862,117 +909,6 @@ namespace OfficeOpenXml
             sw.Write(cache.ToString());
             sw.Flush();
             Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
-		}
-
-		/// <summary>
-		/// OOXML requires that "," , and &amp; be escaped, but ' and " should *not* be escaped, nor should
-		/// any extended Unicode characters. This function only encodes the required characters.
-		/// System.Security.SecurityElement.Escape() escapes ' and " as  &apos; and &quot;, so it cannot
-		/// be used reliably. System.Web.HttpUtility.HtmlEncode overreaches as well and uses the numeric
-		/// escape equivalent.
-		/// </summary>
-		/// <param name="s"></param>
-		/// <returns></returns>
-		private static string ExcelEscapeString(string s) {
-			return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
-		}
-
-		/// <summary>
-		/// Return true if preserve space attribute is set.
-		/// </summary>
-		/// <param name="sw"></param>
-		/// <param name="t"></param>
-		/// <returns></returns>
-		internal static void ExcelEncodeString(StreamWriter sw, string t)
-		{
-			if(Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-			{
-				var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-				int indexAdd = 0;
-				while (match.Success)
-				{
-					t=t.Insert(match.Index + indexAdd, "_x005F");
-					indexAdd += 6;
-					match = match.NextMatch();
-				}
-			}
-			for (int i=0;i<t.Length;i++)
-			{
-				if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-				{
-					sw.Write("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));                    
-				}
-				else
-				{
-					sw.Write(t[i]);
-				}
-			}
-
-		}
-        /// <summary>
-        /// Return true if preserve space attribute is set.
-        /// </summary>
-        /// <param name="sb"></param>
-        /// <param name="t"></param>
-        /// <returns></returns>
-        internal static void ExcelEncodeString(StringBuilder sb, string t)
-        {
-            if (Regex.IsMatch(t, "(_x[0-9A-F]{4,4}_)"))
-            {
-                var match = Regex.Match(t, "(_x[0-9A-F]{4,4}_)");
-                int indexAdd = 0;
-                while (match.Success)
-                {
-                    t = t.Insert(match.Index + indexAdd, "_x005F");
-                    indexAdd += 6;
-                    match = match.NextMatch();
-                }
-            }
-            for (int i = 0; i < t.Length; i++)
-            {
-                if (t[i] <= 0x1f && t[i] != '\t' && t[i] != '\n' && t[i] != '\r') //Not Tab, CR or LF
-                {
-                    sb.AppendFormat("_x00{0}_", (t[i] < 0xa ? "0" : "") + ((int)t[i]).ToString("X"));
-                }
-                else
-                {
-                    sb.Append(t[i]);
-                }
-            }
-
-        }
-        internal static string ExcelDecodeString(string t)
-		{
-			var match = Regex.Match(t, "(_x005F|_x[0-9A-F]{4,4}_)");
-			if(!match.Success) return t;
-
-			bool useNextValue = false;
-			StringBuilder ret=new StringBuilder();
-			int prevIndex=0;
-			while(match.Success)
-			{
-				if (prevIndex < match.Index) ret.Append(t.Substring(prevIndex, match.Index - prevIndex));
-				if (!useNextValue && match.Value == "_x005F")
-				{
-					useNextValue = true;
-				}
-				else
-				{
-					if (useNextValue)
-					{
-						ret.Append(match.Value);
-						useNextValue=false;
-					}
-					else
-					{
-						ret.Append((char)int.Parse(match.Value.Substring(2,4),NumberStyles.AllowHexSpecifier));
-					}
-				}
-				prevIndex=match.Index+match.Length;
-				match = match.NextMatch();
-			}
-			ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
-			return ret.ToString();
 		}
 		private void UpdateDefinedNamesXml()
 		{
@@ -1150,11 +1086,16 @@ namespace OfficeOpenXml
 
         public void Dispose()
         {
-            _sharedStrings.Clear();
-            _sharedStringsList.Clear();
-            
-            _sharedStrings = null;
-            _sharedStringsList = null;
+            if (_sharedStrings != null)
+            {
+                _sharedStrings.Clear();
+                _sharedStrings = null;
+            }
+            if (_sharedStringsList != null)
+            {
+                _sharedStringsList.Clear();
+                _sharedStringsList = null;
+            }
             _vba = null;
             if (_worksheets != null)
             {
@@ -1163,7 +1104,38 @@ namespace OfficeOpenXml
             }
             _package = null;
             _properties = null;
-            _formulaParser = null;
+            if (_formulaParser != null)
+            {
+                _formulaParser.Dispose();
+                _formulaParser = null;
+            }   
+        }
+
+        internal void ReadAllTables()
+        {
+            if (_nextTableID > 0) return;
+            _nextTableID = 1;
+            _nextPivotTableID = 1;
+            foreach (var ws in Worksheets)
+            {
+                if (!(ws is ExcelChartsheet)) //Fixes 15273. Chartsheets should be ignored.
+                {
+                    foreach (var tbl in ws.Tables)
+                    {
+                        if (tbl.Id >= _nextTableID)
+                        {
+                            _nextTableID = tbl.Id + 1;
+                        }
+                    }
+                    foreach (var pt in ws.PivotTables)
+                    {
+                        if (pt.CacheID >= _nextPivotTableID)
+                        {
+                            _nextPivotTableID = pt.CacheID + 1;
+                        }
+                    }
+                }
+            }
         }
     } // end Workbook
 }

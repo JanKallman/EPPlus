@@ -99,7 +99,7 @@ namespace OfficeOpenXml.Packaging
                 var rel = new ZipPackageRelationship();
                 rel.Id = c.GetAttribute("Id");
                 rel.RelationshipType = c.GetAttribute("Type");
-                rel.TargetMode = c.GetAttribute("TargetMode").ToLower() == "external" ? TargetMode.External : TargetMode.Internal;
+                rel.TargetMode = c.GetAttribute("TargetMode").Equals("external",StringComparison.InvariantCultureIgnoreCase) ? TargetMode.External : TargetMode.Internal;
                 try
                 {
                     rel.TargetUri = new Uri(c.GetAttribute("Target"), UriKind.RelativeOrAbsolute);
@@ -113,7 +113,7 @@ namespace OfficeOpenXml.Packaging
                 {
                     rel.SourceUri = new Uri(source, UriKind.Relative);
                 }
-                if (rel.Id.ToLower().StartsWith("rid"))
+                if (rel.Id.StartsWith("rid", StringComparison.InvariantCultureIgnoreCase))
                 {
                     int id;
                     if (int.TryParse(rel.Id.Substring(3), out id))

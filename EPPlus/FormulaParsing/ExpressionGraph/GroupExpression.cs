@@ -37,23 +37,30 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class GroupExpression : Expression
     {
-        public GroupExpression()
-            : this(new ExpressionCompiler())
+        public GroupExpression(bool isNegated)
+            : this(isNegated, new ExpressionCompiler())
         {
 
         }
 
-        public GroupExpression(IExpressionCompiler expressionCompiler)
+        public GroupExpression(bool isNegated, IExpressionCompiler expressionCompiler)
         {
             _expressionCompiler = expressionCompiler;
+            _isNegated = isNegated;
         }
 
         private readonly IExpressionCompiler _expressionCompiler;
+        private readonly bool _isNegated;
 
 
         public override CompileResult Compile()
         {
-            return _expressionCompiler.Compile(Children);
+            var result =  _expressionCompiler.Compile(Children);
+            if (result.IsNumeric && _isNegated)
+            {
+                return new CompileResult(result.ResultNumeric * -1, result.DataType);
+            }
+            return result;
         }
 
         public override bool IsGroupedExpression

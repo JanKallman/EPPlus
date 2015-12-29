@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using System.IO;
@@ -146,6 +147,7 @@ namespace OfficeOpenXml.Drawing
                 var rel = _drawings.Part.GetRelationship(relID);
                 UriPic = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             }
+            ImageHash = ii.Hash;
             SetPosDefaults(Image);
             //Create relationship
             node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
@@ -154,7 +156,7 @@ namespace OfficeOpenXml.Drawing
 
         internal static string GetContentType(string extension)
         {
-            switch (extension.ToLower())
+            switch (extension.ToLower(CultureInfo.InvariantCulture))
             {
                 case ".bmp":
                     return  "image/bmp";
@@ -200,6 +202,7 @@ namespace OfficeOpenXml.Drawing
             byte[] img = (byte[])ic.ConvertTo(image, typeof(byte[]));
             var ii = _drawings._package.AddImage(img);
 
+            ImageHash = ii.Hash;
             if (_drawings._hashes.ContainsKey(ii.Hash))
             {
                 var relID = _drawings._hashes[ii.Hash];
@@ -210,6 +213,7 @@ namespace OfficeOpenXml.Drawing
             else
             {
                 UriPic = ii.Uri;
+                ImageHash = ii.Hash;
             }
 
             //Set the Image and save it to the package.
@@ -217,7 +221,6 @@ namespace OfficeOpenXml.Drawing
             
             //AddNewPicture(img, picRelation.Id);
             _drawings._hashes.Add(ii.Hash, RelPic.Id);
-            ImageHash = ii.Hash;
 
             return RelPic.Id;
         }

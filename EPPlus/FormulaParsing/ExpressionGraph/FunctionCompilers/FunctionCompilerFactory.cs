@@ -39,12 +39,29 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 {
     public class FunctionCompilerFactory
     {
+        private readonly Dictionary<Type, FunctionCompiler> _specialCompilers = new Dictionary<Type, FunctionCompiler>();
+
+        public FunctionCompilerFactory(FunctionRepository repository)
+        {
+            _specialCompilers.Add(typeof(If), new IfFunctionCompiler(repository.GetFunction("if")));
+            _specialCompilers.Add(typeof(IfError), new IfErrorFunctionCompiler(repository.GetFunction("iferror")));
+            _specialCompilers.Add(typeof(IfNa), new IfNaFunctionCompiler(repository.GetFunction("ifna")));
+        }
+
+        private FunctionCompiler GetCompilerByType(ExcelFunction function)
+        {
+            var funcType = function.GetType();
+            if (_specialCompilers.ContainsKey(funcType))
+            {
+                return _specialCompilers[funcType];
+            }
+            return new DefaultCompiler(function);
+        }
         public virtual FunctionCompiler Create(ExcelFunction function)
         {
             if (function.IsLookupFuction) return new LookupFunctionCompiler(function);
             if (function.IsErrorHandlingFunction) return new ErrorHandlingFunctionCompiler(function);
-            if(function is If) return new IfFunctionCompiler(function);
-            return new DefaultCompiler(function);
+            return GetCompilerByType(function);
         }
     }
 }

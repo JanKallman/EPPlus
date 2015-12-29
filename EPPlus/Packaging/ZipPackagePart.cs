@@ -154,8 +154,8 @@ namespace OfficeOpenXml.Packaging
             if (_rels.Count > 0)
             {
                 string f = Uri.OriginalString;
-                var fi = new FileInfo(f);
-                _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - fi.Name.Length), fi.Name)));
+                var name = Path.GetFileName(f);
+                _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - name.Length), name)));
             }
             b = null;
         }

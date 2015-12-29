@@ -44,7 +44,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
                 var v = arg.ValueFirst;
                 if (v != null)
                 {
-                    sb.Append(v.ToString());
+                    sb.Append(v);
                 }
             }
             return CreateResult(sb.ToString(), DataType.String);

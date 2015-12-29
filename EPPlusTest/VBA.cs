@@ -15,7 +15,7 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
-        [Ignore]
+#if !MONO
         [TestMethod]
         public void Compression()
         {
@@ -32,6 +32,7 @@ namespace EPPlusTest
             decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
         }
+#endif
         [Ignore]
         [TestMethod]
         public void ReadVBA()
@@ -116,6 +117,7 @@ namespace EPPlusTest
 
             package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
         }
+        [Ignore]        
         [TestMethod]
         public void VbaError()
         {
@@ -192,8 +194,27 @@ namespace EPPlusTest
             using ( var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\outfile.xlsm")))
             {
                 Console.WriteLine(package.Workbook.CodeModule.Code.Length);
-                package.SaveAs(new FileInfo(@"c:\temp\bug\outfile.xlsm"));
+                package.Workbook.Worksheets[1].CodeModule.Code = "Private Sub Worksheet_SelectionChange(ByVal Target As Range)\r\n\r\nEnd Sub";
+                package.Workbook.Worksheets.Add("TestCopy",package.Workbook.Worksheets[1]);
+                package.SaveAs(new FileInfo(@"c:\temp\bug\outfile2.xlsm"));
             }   
+        }
+        [TestMethod]
+        public void DecompressionChunkGreaterThan4k()
+        {
+            // This is a test for Issue 15026: VBA decompression encounters index out of range
+            // on the decompression buffer.
+            var workbookDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
+            var path = Path.Combine(workbookDir, "VBADecompressBug.xlsm");
+            var f = new FileInfo(path);
+            if (f.Exists)
+            {
+                using (var package = new ExcelPackage(f))
+                {
+                    // Reading the Workbook.CodeModule.Code will cause an IndexOutOfRange if the problem hasn't been fixed.
+                    Assert.IsTrue(package.Workbook.CodeModule.Code.Length > 0);
+                }
+            }
         }
     }
 }
