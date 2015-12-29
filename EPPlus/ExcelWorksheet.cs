@@ -1872,13 +1872,6 @@ namespace OfficeOpenXml
                 throw (new ArgumentOutOfRangeException("Can't insert. Columns will be shifted outside the boundries of the worksheet."));
             }
 
-            //Get the styleID from the copied Column
-            int copyStyleId = 0;
-            if (copyStylesFromColumn > 0)
-            {
-                copyStyleId = this.Column(copyStylesFromColumn).StyleID;
-            }
-
             lock (this)
             {
                 _values.Insert(0, columnFrom, 0, columns);
@@ -1959,13 +1952,41 @@ namespace OfficeOpenXml
                 }
 
 
+                //Copy style from another column?
                 if (copyStylesFromColumn > 0)
                 {
-                    for (var c = 0; c < columns; c++)
+                    if (copyStylesFromColumn >= columnFrom)
                     {
-                        var col = this.Column(columnFrom + c);
-                        col.StyleID = copyStyleId;
+                        copyStylesFromColumn += columns;
                     }
+
+                    //Get styles to a cached list, 
+                    var l = new List<int[]>();
+                    var sce = new CellsStoreEnumerator<int>(_styles, 0, copyStylesFromColumn, ExcelPackage.MaxRows, copyStylesFromColumn);
+                    lock (sce)
+                    {
+                        while (sce.Next())
+                        {
+                            l.Add(new int[] { sce.Row, sce.Value });
+                        }
+                    }
+
+                    //Set the style id's from the list.
+                    foreach (var sc in l)
+                    {
+                        for (var c = 0; c < columns; c++)
+                        {
+                            if (sc[0] == 0)
+                            {
+                                var col = Column(columnFrom + c);   //Create the column
+                                col.StyleID = sc[1];
+                            }
+                            else
+                            {
+                                _styles.SetValue(sc[0], columnFrom + c, sc[1]);
+                            }
+                        }                        
+                    }                    
                 }
                 //Adjust tables
                 foreach (var tbl in Tables)
@@ -1979,7 +2000,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
         {
             var node = tbl.Columns[0].TopNode.ParentNode;

@@ -1040,5 +1040,44 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\rt.xlsx"));
             }
         }
+        [TestMethod]
+        public void IssueTranslate()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Trans");
+                ws.Cells["A1:A2"].Formula = "IF(1=1, \"A's B C\",\"D\") ";
+                var fr = ws.Cells["A1:A2"].FormulaR1C1;
+                ws.Cells["A1:A2"].FormulaR1C1=fr;
+                Assert.AreEqual("IF(1=1, \"A's B C\",\"D\")", ws.Cells["A2"].Formula);
+            }
+        }
+        [TestMethod]
+        public void Issue   ()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var workSheet = p.Workbook.Worksheets.Add("styleerror");
+                workSheet.Cells["F:G"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                workSheet.Cells["F:G"].Style.Fill.BackgroundColor.SetColor(Color.Red);
+
+                workSheet.Cells["A:A,C:C"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                workSheet.Cells["A:A,C:C"].Style.Fill.BackgroundColor.SetColor(Color.Red);
+
+                //And then: 
+
+                workSheet.Cells["A:H"].Style.Font.Color.SetColor(Color.Blue);
+
+                workSheet.Cells["I:I"].Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                workSheet.Cells["I:I"].Style.Fill.BackgroundColor.SetColor(Color.Red);
+                workSheet.Cells["I2"].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                workSheet.Cells["I4"].Style.Fill.BackgroundColor.SetColor(Color.Blue);
+                workSheet.Cells["I9"].Style.Fill.BackgroundColor.SetColor(Color.Pink);
+
+                workSheet.InsertColumn(2, 2, 9);
+
+                p.SaveAs(new FileInfo(@"c:\temp\styleerror.xlsx"));
+            }
+        }
     }
 }
