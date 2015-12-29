@@ -349,12 +349,14 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Eomonth.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Minute.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Month.cs" />
