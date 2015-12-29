@@ -1049,11 +1049,11 @@ namespace EPPlusTest
                 ws.Cells["A1:A2"].Formula = "IF(1=1, \"A's B C\",\"D\") ";
                 var fr = ws.Cells["A1:A2"].FormulaR1C1;
                 ws.Cells["A1:A2"].FormulaR1C1=fr;
-                Assert.AreEqual("IF(1=1, \"A's B C\",\"D\")", ws.Cells["A2"].Formula);
+                Assert.AreEqual("IF(1=1,\"A's B C\",\"D\")", ws.Cells["A2"].Formula);
             }
         }
         [TestMethod]
-        public void Issue   ()
+        public void Issue15397()
         {
             using (var p = new ExcelPackage())
             {
@@ -1075,7 +1075,8 @@ namespace EPPlusTest
                 workSheet.Cells["I9"].Style.Fill.BackgroundColor.SetColor(Color.Pink);
 
                 workSheet.InsertColumn(2, 2, 9);
-
+                workSheet.Column(45).Width = 0;
+                
                 p.SaveAs(new FileInfo(@"c:\temp\styleerror.xlsx"));
             }
         }
