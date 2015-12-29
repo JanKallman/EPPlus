@@ -1874,13 +1874,6 @@ namespace OfficeOpenXml
                 throw (new ArgumentOutOfRangeException("Can't insert. Columns will be shifted outside the boundries of the worksheet."));
             }
 
-            //Get the styleID from the copied Column
-            int copyStyleId = 0;
-            if (copyStylesFromColumn > 0)
-            {
-                copyStyleId = this.Column(copyStylesFromColumn).StyleID;
-            }
-
             lock (this)
             {
                 _values.Insert(0, columnFrom, 0, columns);
@@ -1961,13 +1954,41 @@ namespace OfficeOpenXml
                 }
 
 
+                //Copy style from another column?
                 if (copyStylesFromColumn > 0)
                 {
-                    for (var c = 0; c < columns; c++)
+                    if (copyStylesFromColumn >= columnFrom)
                     {
-                        var col = this.Column(columnFrom + c);
-                        col.StyleID = copyStyleId;
+                        copyStylesFromColumn += columns;
                     }
+
+                    //Get styles to a cached list, 
+                    var l = new List<int[]>();
+                    var sce = new CellsStoreEnumerator<int>(_styles, 0, copyStylesFromColumn, ExcelPackage.MaxRows, copyStylesFromColumn);
+                    lock (sce)
+                    {
+                        while (sce.Next())
+                        {
+                            l.Add(new int[] { sce.Row, sce.Value });
+                        }
+                    }
+
+                    //Set the style id's from the list.
+                    foreach (var sc in l)
+                    {
+                        for (var c = 0; c < columns; c++)
+                        {
+                            if (sc[0] == 0)
+                            {
+                                var col = Column(columnFrom + c);   //Create the column
+                                col.StyleID = sc[1];
+                            }
+                            else
+                            {
+                                _styles.SetValue(sc[0], columnFrom + c, sc[1]);
+                            }
+                        }                        
+                    }                    
                 }
                 //Adjust tables
                 foreach (var tbl in Tables)
@@ -1981,7 +2002,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
         {
             var node = tbl.Columns[0].TopNode.ParentNode;
@@ -3373,21 +3393,7 @@ namespace OfficeOpenXml
         /// </summary>
         private void UpdateColumnData(StreamWriter sw)
         {
-            //ExcelColumn prevCol = null;   //commented out 11/1-12 JK 
-            //foreach (ExcelColumn col in _columns)
-            //{                
-            //    if (prevCol != null)
-            //    {
-            //        if(prevCol.ColumnMax != col.ColumnMin-1)
-            //        {
-            //            prevCol._columnMax=col.ColumnMin-1;
-            //        }
-            //    }
-            //    prevCol = col;
-            //}
             var cse = new CellsStoreEnumerator<object>(_values, 0, 1, 0, ExcelPackage.MaxColumns);
-            //sw.Write("<cols>");
-            //foreach (ExcelColumn col in _columns)
             bool first = true;
             while(cse.Next())
             {
@@ -3402,7 +3408,6 @@ namespace OfficeOpenXml
                 sw.Write("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
                 if (col.Hidden == true)
                 {
-                    //sbXml.Append(" width=\"0\" hidden=\"1\" customWidth=\"1\"");
                     sw.Write(" hidden=\"1\"");
                 }
                 else if (col.BestFit)
@@ -3410,6 +3415,7 @@ namespace OfficeOpenXml
                     sw.Write(" bestFit=\"1\"");
                 }
                 sw.Write(string.Format(CultureInfo.InvariantCulture, " width=\"{0}\" customWidth=\"1\"", col.Width));
+
                 if (col.OutlineLevel > 0)
                 {                    
                     sw.Write(" outlineLevel=\"{0}\" ", col.OutlineLevel);
@@ -3436,11 +3442,6 @@ namespace OfficeOpenXml
                     sw.Write(" style=\"{0}\"", styleID);
                 }
                 sw.Write(" />");
-
-                //if (col.PageBreak)
-                //{
-                //    colBreaks.Add(col.ColumnMin);
-                //}
             }
             if (!first)
             {
