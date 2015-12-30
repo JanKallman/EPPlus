@@ -73,7 +73,7 @@ namespace OfficeOpenXml
                 {
                     string name = sheetNode.Attributes["name"].Value;
                     //Get the relationship id
-                        string relId = sheetNode.Attributes["r:id"].Value;
+                    string relId = sheetNode.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships).Value;
                     int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
                     //Hidden property
@@ -464,12 +464,12 @@ namespace OfficeOpenXml
         {
             if (Copy.TopNode != null && Copy.TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager)==null) return;
             //Copy the texts
-            CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
-            CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
-            CopyText(Copy.HeaderFooter._evenHeader, added.HeaderFooter.EvenHeader);
-            CopyText(Copy.HeaderFooter._evenFooter, added.HeaderFooter.EvenFooter);
-            CopyText(Copy.HeaderFooter._firstHeader, added.HeaderFooter.FirstHeader);
-            CopyText(Copy.HeaderFooter._firstFooter, added.HeaderFooter.FirstFooter);
+            if(Copy.HeaderFooter._oddHeader!=null) CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
+            if (Copy.HeaderFooter._oddFooter != null) CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
+            if (Copy.HeaderFooter._evenHeader != null) CopyText(Copy.HeaderFooter._evenHeader, added.HeaderFooter.EvenHeader);
+            if (Copy.HeaderFooter._evenFooter != null) CopyText(Copy.HeaderFooter._evenFooter, added.HeaderFooter.EvenFooter);
+            if (Copy.HeaderFooter._firstHeader != null) CopyText(Copy.HeaderFooter._firstHeader, added.HeaderFooter.FirstHeader);
+            if (Copy.HeaderFooter._firstFooter != null) CopyText(Copy.HeaderFooter._firstFooter, added.HeaderFooter.FirstFooter);
             
             //Copy any images;
             if (Copy.HeaderFooter.Pictures.Count > 0)
@@ -493,7 +493,6 @@ namespace OfficeOpenXml
 
         private void CopyText(ExcelHeaderFooterText from, ExcelHeaderFooterText to)
         {
-            if (from == null) return;
             to.LeftAlignedText=from.LeftAlignedText;
             to.CenteredText = from.CenteredText;
             to.RightAlignedText = from.RightAlignedText;

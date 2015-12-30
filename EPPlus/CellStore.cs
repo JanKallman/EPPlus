@@ -750,7 +750,7 @@ internal class IndexBase : IComparable<IndexBase>
         {
             lock (_columnIndex)
             {
-                if (columns > 0 && fromRow == 1 && rows >= ExcelPackage.MaxRows)
+                if (columns > 0 && fromRow == 0 && rows >= ExcelPackage.MaxRows)
                 {
                     DeleteColumns(fromCol, columns, shift);
                 }

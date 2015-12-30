@@ -156,7 +156,7 @@ namespace OfficeOpenXml
 
             ImageConverter ic = new ImageConverter();
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
-            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/"+PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
+            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
             byte[] imgBytes = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
             var ii = _ws.Workbook._package.AddImage(imgBytes, uriPic, contentType);
 
