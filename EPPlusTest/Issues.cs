@@ -1053,5 +1053,21 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\styleerror.xlsx"));
             }
         }
+        [TestMethod]
+        public void Issuer14801()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var workSheet = p.Workbook.Worksheets.Add("rterror");
+                var cell = workSheet.Cells["A1"];
+                cell.RichText.Add("toto: ");
+                cell.RichText[0].PreserveSpace = true;
+                cell.RichText[0].Bold = true;
+                cell.RichText.Add("tata");
+                cell.RichText[1].Bold = false;
+                cell.RichText[1].Color = Color.Green;
+                p.SaveAs(new FileInfo(@"c:\temp\rtpreserve.xlsx"));
+            }
+        }
     }
 }
