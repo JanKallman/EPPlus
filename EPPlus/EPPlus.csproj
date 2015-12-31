@@ -509,6 +509,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Substitute.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\T.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Upper.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Value.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\IOperator.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\Operator.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\Operators.cs" />

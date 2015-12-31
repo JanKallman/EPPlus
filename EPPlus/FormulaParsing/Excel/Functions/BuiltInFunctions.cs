@@ -60,6 +60,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
             Functions["hyperlink"] = new Hyperlink();
+            Functions["value"] = new Value();
             // Numbers
             Functions["int"] = new CInt();
             // Math
