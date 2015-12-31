@@ -16,6 +16,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 1);
             var dateString = ArgToString(arguments, 0);
+            return Execute(dateString);
+        }
+
+        internal CompileResult Execute(string dateString)
+        {
             System.DateTime result;
             System.DateTime.TryParse(dateString, out result);
             return result != System.DateTime.MinValue ?
