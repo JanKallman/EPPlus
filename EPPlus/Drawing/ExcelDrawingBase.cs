@@ -604,9 +604,9 @@ namespace OfficeOpenXml.Drawing
         /// Set the top left corner of a drawing. 
         /// Note that resizing columns / rows after using this function will effect the position of the drawing
         /// </summary>
-        /// <param name="Row">Start row</param>
+        /// <param name="Row">Start row - 0-based index.</param>
         /// <param name="RowOffsetPixels">Offset in pixels</param>
-        /// <param name="Column">Start Column</param>
+        /// <param name="Column">Start Column - 0-based index.</param>
         /// <param name="ColumnOffsetPixels">Offset in pixels</param>
         public void SetPosition(int Row, int RowOffsetPixels, int Column, int ColumnOffsetPixels)
         {
