@@ -148,7 +148,9 @@ namespace OfficeOpenXml
                     if (token.TokenType == TokenType.ExcelAddress)
                     {
                         var a = new ExcelFormulaAddress(token.Value);
-                        f += a.GetOffset(row - StartRow, column - StartCol);
+                        f += !string.IsNullOrEmpty(a._wb) || !string.IsNullOrEmpty(a._ws)
+                            ? token.Value
+                            : a.GetOffset(row - StartRow, column - StartCol);
                     }
                     else
                     {
@@ -916,6 +918,17 @@ namespace OfficeOpenXml
             }
         }
         const int BLOCKSIZE=8192;
+        /// <summary>
+        /// Extracts the workbook XML without the sheetData-element (containing all cell data).
+        /// Xml-Cell data can be extreemly large (GB), so we find the sheetdata element in the streem (position start) and 
+        /// then tries to find the </sheetData> element from the end-parameter.
+        /// This approach is to avoid out of memory exceptions reading large packages
+        /// </summary>
+        /// <param name="stream">the worksheet stream</param>
+        /// <param name="start">Position from previous reading where we found the sheetData element</param>
+        /// <param name="end">End position, where </sheetData> or <sheetData /> is found</param>
+        /// <param name="encoding">Encoding</param>
+        /// <returns>The worksheet xml, with an empty sheetdata. (Sheetdata is in memory in the worksheet)</returns>
         private string GetWorkSheetXml(Stream stream, long start, long end, out Encoding encoding)
         {
             StreamReader sr = new StreamReader(stream);
@@ -932,7 +945,7 @@ namespace OfficeOpenXml
                 sb.Append(block,0,pos);
                 length += size;
             }
-            while (length < start + 20 && length < end);
+            while (length < start + 20 && length < end);    //the  start-pos contains the stream position of the sheetData element. Add 20 (with some safty for whitespace, streampointer diff etc, just so be sure). 
             startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
             if (!startmMatch.Success) //Not found
             {
@@ -943,13 +956,13 @@ namespace OfficeOpenXml
             {
                 string s = sb.ToString();
                 string xml = s.Substring(0, startmMatch.Index); 
-                if(startmMatch.Value.EndsWith("/>"))
+                if(startmMatch.Value.EndsWith("/>"))        //Empty sheetdata
                 {
                     xml += s.Substring(startmMatch.Index, s.Length - startmMatch.Index);
                 }
                 else
                 {
-                    if (sr.Peek() != -1)
+                    if (sr.Peek() != -1)        //Now find the end tag </sheetdata> so we can add the end of the xml document
                     {
                         /**** Fixes issue 14788. Fix by Philip Garrett ****/
                         long endSeekStart = end;
@@ -1135,9 +1148,6 @@ namespace OfficeOpenXml
         /// <param name="xr">The reader</param>
         private void LoadCells(XmlTextReader xr)
         {
-            //var cellList=new List<IRangeID>();
-            //var rowList = new List<IRangeID>();
-            //var formulaList = new List<IRangeID>();
             ReadUntil(xr, "sheetData", "mergeCells", "hyperlinks", "rowBreaks", "colBreaks");
             ExcelAddressBase address=null;
             string type="";
@@ -1277,7 +1287,19 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        _values.SetValue(address._fromRow, address._fromCol, xr.ReadOuterXml());
+                        if(xr.LocalName == "r")
+                        {
+                            var rXml = xr.ReadOuterXml();
+                            while (xr.LocalName == "r")
+                            {
+                                rXml+= xr.ReadOuterXml();
+                            }
+                            _values.SetValue(address._fromRow, address._fromCol, rXml);
+                        }
+                        else
+                        {
+                            _values.SetValue(address._fromRow, address._fromCol, xr.ReadOuterXml());
+                        }
                         _types.SetValue(address._fromRow, address._fromCol, "rt");
                         _flags.SetFlagValue(address._fromRow, address._fromCol, true, CellFlags.RichText);
                         //cell.IsRichText = true;
@@ -1629,22 +1651,9 @@ namespace OfficeOpenXml
                         return CopyColumn(column, col, col);
                     }
                 }
-                //foreach (ExcelColumn checkColumn in _columns)
-                //{
-                //    if (col > checkColumn.ColumnMin && col <= checkColumn.ColumnMax)
-                //    {
-                //        int maxCol = checkColumn.ColumnMax;
-                //        checkColumn.ColumnMax = col - 1;
-                //        if (maxCol > col)
-                //        {
-                //            ExcelColumn newC = CopyColumn(checkColumn, col + 1, maxCol);
-                //        }
-                //        return CopyColumn(checkColumn, col,col);                        
-                //    }
-                //}
+
                 column = new ExcelColumn(this, col);
                 _values.SetValue(0, col, column);
-                //_columns.Add(column);
              }
             return column;
 		}
@@ -1945,13 +1954,41 @@ namespace OfficeOpenXml
                 }
 
 
+                //Copy style from another column?
                 if (copyStylesFromColumn > 0)
                 {
-                    for (var c = 0; c < columns; c++)
+                    if (copyStylesFromColumn >= columnFrom)
                     {
-                        var col = this.Column(columnFrom + c);
-                        col.StyleID = this.Column(copyStylesFromColumn).StyleID;
+                        copyStylesFromColumn += columns;
                     }
+
+                    //Get styles to a cached list, 
+                    var l = new List<int[]>();
+                    var sce = new CellsStoreEnumerator<int>(_styles, 0, copyStylesFromColumn, ExcelPackage.MaxRows, copyStylesFromColumn);
+                    lock (sce)
+                    {
+                        while (sce.Next())
+                        {
+                            l.Add(new int[] { sce.Row, sce.Value });
+                        }
+                    }
+
+                    //Set the style id's from the list.
+                    foreach (var sc in l)
+                    {
+                        for (var c = 0; c < columns; c++)
+                        {
+                            if (sc[0] == 0)
+                            {
+                                var col = Column(columnFrom + c);   //Create the column
+                                col.StyleID = sc[1];
+                            }
+                            else
+                            {
+                                _styles.SetValue(sc[0], columnFrom + c, sc[1]);
+                            }
+                        }                        
+                    }                    
                 }
                 //Adjust tables
                 foreach (var tbl in Tables)
@@ -1965,7 +2002,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
         {
             var node = tbl.Columns[0].TopNode.ParentNode;
@@ -2669,7 +2705,7 @@ namespace OfficeOpenXml
                         toType = Nullable.GetUnderlyingType(toType);
                         if (cnv.CanConvertTo(toType))
                         {
-                            return (T)cnv.ConvertTo(v, typeof(T));
+                            return (T)cnv.ConvertTo(v, toType); //Fixes issue 15377
                         }
                     }
 
@@ -3357,21 +3393,7 @@ namespace OfficeOpenXml
         /// </summary>
         private void UpdateColumnData(StreamWriter sw)
         {
-            //ExcelColumn prevCol = null;   //commented out 11/1-12 JK 
-            //foreach (ExcelColumn col in _columns)
-            //{                
-            //    if (prevCol != null)
-            //    {
-            //        if(prevCol.ColumnMax != col.ColumnMin-1)
-            //        {
-            //            prevCol._columnMax=col.ColumnMin-1;
-            //        }
-            //    }
-            //    prevCol = col;
-            //}
             var cse = new CellsStoreEnumerator<object>(_values, 0, 1, 0, ExcelPackage.MaxColumns);
-            //sw.Write("<cols>");
-            //foreach (ExcelColumn col in _columns)
             bool first = true;
             while(cse.Next())
             {
@@ -3386,7 +3408,6 @@ namespace OfficeOpenXml
                 sw.Write("<col min=\"{0}\" max=\"{1}\"", col.ColumnMin, col.ColumnMax);
                 if (col.Hidden == true)
                 {
-                    //sbXml.Append(" width=\"0\" hidden=\"1\" customWidth=\"1\"");
                     sw.Write(" hidden=\"1\"");
                 }
                 else if (col.BestFit)
@@ -3394,6 +3415,7 @@ namespace OfficeOpenXml
                     sw.Write(" bestFit=\"1\"");
                 }
                 sw.Write(string.Format(CultureInfo.InvariantCulture, " width=\"{0}\" customWidth=\"1\"", col.Width));
+
                 if (col.OutlineLevel > 0)
                 {                    
                     sw.Write(" outlineLevel=\"{0}\" ", col.OutlineLevel);
@@ -3420,11 +3442,6 @@ namespace OfficeOpenXml
                     sw.Write(" style=\"{0}\"", styleID);
                 }
                 sw.Write(" />");
-
-                //if (col.PageBreak)
-                //{
-                //    colBreaks.Add(col.ColumnMin);
-                //}
             }
             if (!first)
             {
@@ -3625,7 +3642,7 @@ namespace OfficeOpenXml
                 }
                 else if (v is TimeSpan)
                 {
-                    s = new DateTime(((TimeSpan)v).Ticks).ToOADate().ToString(CultureInfo.InvariantCulture); ;
+                    s = DateTime.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
                 }
                 else if(v.GetType().IsPrimitive || v is double || v is decimal)
                 {

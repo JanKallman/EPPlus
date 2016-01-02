@@ -21,6 +21,7 @@
  * Author							Change						Date
  *******************************************************************************
  * Mats Alm   		                Added		                2013-12-03
+ * Eric Beiler                      Enable Multiple Selections  2015-09-01
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -35,13 +36,103 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
-            var index = ArgToInt(arguments, 0);
-            var items = new List<string>();
+            var items = new List<object>();
             for (int x = 0; x < arguments.Count(); x++)
             {
-                items.Add(arguments.ElementAt(x).ValueFirst.ToString());
+                items.Add(arguments.ElementAt(x).ValueFirst);
             }
-            return CreateResult(items[index], DataType.String);
+
+            var chooseIndeces = arguments.ElementAt(0).ValueFirst as IEnumerable<FunctionArgument>;
+            if (chooseIndeces != null && chooseIndeces.Count() > 1)
+            {
+                IntArgumentParser intParser = new IntArgumentParser();
+                object[] values = chooseIndeces.Select(chosenIndex => items[(int)intParser.Parse(chosenIndex.ValueFirst)]).ToArray();
+                return CreateResult(values, DataType.Enumerable);
+            }
+            else
+            {
+                var index = ArgToInt(arguments, 0);
+                return CreateResult(items[index].ToString(), DataType.String);
+            }
+        }
+    }
+
+    public class ChoosenInfo : ExcelDataProvider.IRangeInfo
+    {
+        private string[] chosenIndeces = null;
+
+        public ChoosenInfo(string[] chosenIndeces)
+        {
+            this.chosenIndeces = chosenIndeces;
+        }
+
+        public bool IsEmpty
+        {
+            get { return false; }
+        }
+
+        public bool IsMulti
+        {
+            get { return true; }
+        }
+
+        public int GetNCells()
+        {
+            return 0;
+        }
+
+        public ExcelAddressBase Address
+        {
+            get { return null; }
+        }
+
+        public object GetValue(int row, int col)
+        {
+            return null;
+        }
+
+        public object GetOffset(int rowOffset, int colOffset)
+        {
+            return null;
+        }
+
+        public ExcelWorksheet Worksheet
+        {
+            get { return null; }
+        }
+
+        public ExcelDataProvider.ICellInfo Current
+        {
+            get { return null; }
+        }
+
+        public void Dispose()
+        {
+        }
+
+        object System.Collections.IEnumerator.Current
+        {
+            get { return chosenIndeces[0]; }
+        }
+
+        public bool MoveNext()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerator<ExcelDataProvider.ICellInfo> GetEnumerator()
+        {
+            throw new NotImplementedException();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        {
+            throw new NotImplementedException();
         }
     }
 }

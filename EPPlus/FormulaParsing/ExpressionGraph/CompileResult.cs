@@ -98,7 +98,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
                 else if(Result is TimeSpan)
                 {
-                    return new DateTime(((TimeSpan)Result).Ticks).ToOADate();
+                    return DateTime.FromOADate(0).Add((TimeSpan)Result).ToOADate();
                 }
                 else if (IsNumericString)
                 {

@@ -138,6 +138,7 @@ namespace EPPlusTest
             chrt.VaryColors = true;
             chrt.XAxis.Orientation = eAxisOrientation.MaxMin;
             chrt.XAxis.MajorTickMark = eAxisTickMark.In;
+            chrt.XAxis.Format = "yyyy-MM";
             chrt.YAxis.Orientation = eAxisOrientation.MaxMin;
             chrt.YAxis.MinorTickMark = eAxisTickMark.Out;
             chrt.ShowHiddenData = true;
@@ -171,6 +172,14 @@ namespace EPPlusTest
             ws.Cells["V22"].Value = 103;
             ws.Cells["V23"].Value = 105;
             ws.Cells["V24"].Value = 104;
+
+            ws.Cells["W19"].Value = 105;
+            ws.Cells["W20"].Value = 108;
+            ws.Cells["W21"].Value = 104;
+            ws.Cells["W22"].Value = 121;
+            ws.Cells["W23"].Value = 103;
+            ws.Cells["W24"].Value = 109;
+
 
             ws.Cells["X19"].Value = "öäå";
             ws.Cells["X20"].Value = "ÖÄÅ";
@@ -234,7 +243,7 @@ namespace EPPlusTest
             r1.Bold = true;
             var r2=chrt.Title.RichText.Add("  Text");
             r2.UnderLine = eUnderLineType.WavyHeavy;
-
+            
             chrt.Title.Fill.Style = eFillStyle.SolidFill;
             chrt.Title.Fill.Color = Color.LightBlue;
             chrt.Title.Fill.Transparancy = 50;
@@ -251,7 +260,7 @@ namespace EPPlusTest
             chrt.Series[0].Header = "Test serie";
             chrt = ws.Drawings.AddChart("ScatterChart2", eChartType.XYScatterSmooth) as ExcelScatterChart;
             chrt.Series.Add("U19:U24", "V19:V24");
-
+            
             chrt.From.Column = 0;
             chrt.From.Row=25;
             chrt.To.Row = 53;
@@ -341,6 +350,7 @@ namespace EPPlusTest
 
             var chrt = ws.Drawings.AddChart("Surface1", eChartType.Surface) as ExcelSurfaceChart;
             var s = chrt.Series.Add("V19:V24", "U19:U24");
+            var s2 = chrt.Series.Add("W19:W24", "U19:U24");
             s.Header = "serie1";
             // chrt.Series[0].Marker = eMarkerStyle.Diamond;
             chrt.From.Row = 23;
@@ -601,6 +611,12 @@ namespace EPPlusTest
 
             (ws.Drawings["shape9"] as ExcelShape).TextAlignment = eTextAlignment.Right;
 
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEnd = eEndStyle.Oval;
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeWidth = eEndSize.Large;
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.TailEndSizeHeight = eEndSize.Large;
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEnd = eEndStyle.Arrow;
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeHeight = eEndSize.Small;
+            (ws.Drawings["shape120"] as ExcelShape).LineEnds.HeadEndSizeWidth = eEndSize.Small;
         }
         [TestMethod]
         [Ignore]

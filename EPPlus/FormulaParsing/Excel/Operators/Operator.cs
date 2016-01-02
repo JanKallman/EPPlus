@@ -236,10 +236,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                //return new Operator(Operators.GreaterThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) > 0, DataType.Boolean));
                 return _greaterThan ??
                        (_greaterThan =
-                           new Operator(Operators.LessThanOrEqual, PrecedenceComparison,
+                           new Operator(Operators.GreaterThan, PrecedenceComparison,
                                (l, r) => Compare(l, r, (compRes) => compRes > 0)));
             }
         }
@@ -249,10 +248,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                //return new Operator(Operators.Equals, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) == 0, DataType.Boolean));
                 return _eq ??
                        (_eq =
-                           new Operator(Operators.LessThanOrEqual, PrecedenceComparison,
+                           new Operator(Operators.Equals, PrecedenceComparison,
                                (l, r) => Compare(l, r, (compRes) => compRes == 0)));
             }
         }
@@ -262,10 +260,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                //return new Operator(Operators.NotEqualTo, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) != 0, DataType.Boolean));
                 return _notEqualsTo ??
                        (_notEqualsTo =
-                           new Operator(Operators.LessThanOrEqual, PrecedenceComparison,
+                           new Operator(Operators.NotEqualTo, PrecedenceComparison,
                                (l, r) => Compare(l, r, (compRes) => compRes != 0)));
             }
         }
@@ -275,10 +272,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                //return new Operator(Operators.GreaterThanOrEqual, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) >= 0, DataType.Boolean));
                 return _greaterThanOrEqual ??
                        (_greaterThanOrEqual =
-                           new Operator(Operators.LessThanOrEqual, PrecedenceComparison,
+                           new Operator(Operators.GreaterThanOrEqual, PrecedenceComparison,
                                (l, r) => Compare(l, r, (compRes) => compRes >= 0)));
             }
         }
@@ -288,10 +284,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             get
             {
-                //return new Operator(Operators.LessThan, PrecedenceComparison, (l, r) => new CompileResult(Compare(l, r) < 0, DataType.Boolean));
                 return _lessThan ??
                        (_lessThan =
-                           new Operator(Operators.LessThanOrEqual, PrecedenceComparison,
+                           new Operator(Operators.LessThan, PrecedenceComparison,
                                (l, r) => Compare(l, r, (compRes) => compRes < 0)));
             }
         }

@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Xml;
+using System.Drawing;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -106,5 +107,127 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeBool(smoothPath, value);
             }
         }
+
+        //new properties for excel line charts: LineColor, MarkerSize, LineWidth and MarkerLineColor 
+        //implemented according to https://epplus.codeplex.com/discussions/287917
+        string LINECOLOR_PATH = "c:spPr/a:ln/a:solidFill/a:srgbClr/@val";
+        /// <summary>
+        /// Line color.
+        /// </summary>
+        ///
+        /// <value>
+        /// The color of the line.
+        /// </value>
+        public Color LineColor
+        {
+            get
+            {
+                string color = GetXmlNodeString(LINECOLOR_PATH);
+                if (color == "")
+                {
+                    return Color.Black;
+                }
+                else
+                {
+                    return Color.FromArgb(Convert.ToInt32(color, 16));
+                }
+            }
+            set
+            {
+                SetXmlNodeString(LINECOLOR_PATH, value.ToArgb().ToString("X").Substring(2), true);
+            }
+        }
+        string MARKERSIZE_PATH = "c:marker/c:size/@val";
+        /// <summary>
+        /// Gets or sets the size of the marker.
+        /// </summary>
+        ///
+        /// <remarks>
+        /// value between 2 and 72.
+        /// </remarks>
+        ///
+        /// <value>
+        /// The size of the marker.
+        /// </value>
+        public int MarkerSize
+        {
+            get
+            {
+                string size = GetXmlNodeString(MARKERSIZE_PATH);
+                if (size == "")
+                {
+                    return 5;
+                }
+                else
+                {
+                    return Int32.Parse(GetXmlNodeString(MARKERSIZE_PATH));
+                }
+            }
+            set
+            {
+                int size = value;
+                size = Math.Max(2, size);
+                size = Math.Min(72, size);
+                SetXmlNodeString(MARKERSIZE_PATH, size.ToString(), true);
+            }
+        }
+        string LINEWIDTH_PATH = "c:spPr/a:ln/@w";
+        /// <summary>
+        /// Gets or sets the width of the line in pt.
+        /// </summary>
+        ///
+        /// <value>
+        /// The width of the line.
+        /// </value>
+        public double LineWidth
+        {
+            get
+            {
+                string size = GetXmlNodeString(LINEWIDTH_PATH);
+                if (size == "")
+                {
+                    return 2.25;
+                }
+                else
+                {
+                    return double.Parse(GetXmlNodeString(LINEWIDTH_PATH)) / 12700;
+                }
+            }
+            set
+            {
+                SetXmlNodeString(LINEWIDTH_PATH, (( int )(12700 * value)).ToString(), true);
+            }
+        }
+        //marker line color
+        string MARKERLINECOLOR_PATH = "c:marker/c:spPr/a:ln/a:solidFill/a:srgbClr/@val";
+        /// <summary>
+        /// Marker Line color. 
+        /// (not to be confused with LineColor)
+        /// </summary>
+        ///
+        /// <value>
+        /// The color of the Marker line.
+        /// </value>
+        public Color MarkerLineColor
+        {
+            get
+            {
+                string color = GetXmlNodeString(MARKERLINECOLOR_PATH);
+                if (color == "")
+                {
+                    return Color.Black;
+                }
+                else
+                {
+                    return Color.FromArgb(Convert.ToInt32(color, 16));
+                }
+            }
+            set
+            {
+                SetXmlNodeString(MARKERLINECOLOR_PATH, value.ToArgb().ToString("X").Substring(2), true);
+            }
+        }
+
+
     }
 }

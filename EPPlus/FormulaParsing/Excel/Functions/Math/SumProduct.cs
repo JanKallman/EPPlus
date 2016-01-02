@@ -64,6 +64,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                         }
                     }
                 }
+                else if(IsNumeric(arg.Value))
+                {
+                    AddValue(arg.Value, currentResult);
+                }
             }
             // Validate that all supplied lists have the same length
             var arrayLength = results.First().Count;

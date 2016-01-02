@@ -118,7 +118,7 @@ namespace OfficeOpenXml
             for (int pos = 0; pos < value.Length; pos++)
             {
                 char c = value[pos];
-                if (c == '"' || c=='\'')
+                if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
                 {
                     if (isText == false && part != "" && prevTQ==c)
                     {
@@ -126,8 +126,8 @@ namespace OfficeOpenXml
                         part = "";
                         prevTQ = (char)0;
                     }
-                    prevTQ = c;
                     isText = !isText;
+                    prevTQ = c;
                     ret += c;
                 }
                 else if (isText)
@@ -854,7 +854,13 @@ namespace OfficeOpenXml
                 {
                     if (t.TokenType == TokenType.ExcelAddress)
                     {
-                        var a = new ExcelAddressBase(t.Value);                        
+                        var a = new ExcelAddressBase(t.Value);
+                        if (!string.IsNullOrEmpty(a._ws) || !string.IsNullOrEmpty(a._wb))
+                        {
+                            // This address is in a different worksheet or workbook, thus no update is required
+                            f += a.Address;
+                            continue;
+                        }                       
                         if (rowIncrement > 0)
                         {
                             a = a.AddRow(afterRow, rowIncrement, setFixed);

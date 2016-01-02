@@ -13,6 +13,7 @@ namespace OfficeOpenXml
         internal ExcelProtectedRangeCollection(XmlNamespaceManager nsm, XmlNode topNode, ExcelWorksheet ws)
             : base(nsm, topNode)
         {
+            SchemaNodeOrder = ws.SchemaNodeOrder; //Fixed issue 15385
             foreach (XmlNode protectedRangeNode in topNode.SelectNodes("d:protectedRanges/d:protectedRange", nsm))
             {
                 if (!(protectedRangeNode is XmlElement))
@@ -26,7 +27,9 @@ namespace OfficeOpenXml
         public ExcelProtectedRange Add(string name, ExcelAddress address)
         {
             if (!ExistNode("d:protectedRanges"))
+            {
                 CreateNode("d:protectedRanges");
+            }
             
             var newNode = CreateNode("d:protectedRanges/d:protectedRange");
             var item = new ExcelProtectedRange(name, address, base.NameSpaceManager, newNode);

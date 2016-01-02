@@ -26,43 +26,23 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ * Mats Alm   		                Added       		        2015-12-28
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
+namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers
 {
-    public enum TokenType
+    public abstract class SeparatorHandler
     {
-        Operator,
-        Negator,
-        OpeningParenthesis,
-        ClosingParenthesis,
-        OpeningEnumerable,
-        ClosingEnumerable,
-        OpeningBracket,
-        ClosingBracket,        
-        Enumerable,
-        Comma,
-        SemiColon,
-        String,
-        StringContent,
-        WorksheetName,
-        WorksheetNameContent,
-        Integer,
-        Boolean,
-        Decimal,
-        Percent,
-        Function,
-        ExcelAddress,
-        NameValue,
-        InvalidReference,
-        NumericError,
-        ValueDataTypeError,
-        Null,
-        Unrecognized
+        protected bool IsDoubleQuote(Token tokenSeparator, int formulaCharIndex, TokenizerContext context)
+        {
+            return tokenSeparator.TokenType == TokenType.String && formulaCharIndex + 1 < context.FormulaChars.Length && context.FormulaChars[formulaCharIndex + 1] == '\"';
+        }
+
+        public abstract bool Handle(char c, Token tokenSeparator, TokenizerContext context, ITokenIndexProvider tokenIndexProvider);
+
     }
 }
