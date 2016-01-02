@@ -70,6 +70,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevTest|AnyCPU'">
+    <OutputPath>bin\DevTest\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core">
@@ -261,6 +264,7 @@
     <Compile Include="Drawing\Chart\ExcelBubbleChart.cs" />
     <Compile Include="Drawing\Chart\ExcelChartSurface.cs" />
     <Compile Include="Drawing\ExcelDrawingBase.cs" />
+    <Compile Include="Drawing\ExcelDrawingLineEnd.cs" />
     <Compile Include="Drawing\ExcelPicture.cs" />
     <Compile Include="Drawing\Chart\ExcelRadarChartSerie.cs" />
     <Compile Include="Drawing\Vml\ExcelVmlDrawingPictureCollection.cs" />
@@ -345,12 +349,14 @@
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Day.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Days360.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Edate.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Eomonth.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Hour.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\IsoWeekNum.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\TimeValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Weeknum.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Minute.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Month.cs" />
@@ -503,6 +509,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Substitute.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\T.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Upper.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Value.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\IOperator.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\Operator.cs" />
     <Compile Include="FormulaParsing\Excel\Operators\Operators.cs" />
@@ -553,6 +560,14 @@
     <Compile Include="FormulaParsing\ExpressionGraph\StringExpression.cs" />
     <Compile Include="FormulaParsing\FormulaParser.cs" />
     <Compile Include="FormulaParsing\FormulaParserManager.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\ITokenIndexProvider.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\BracketHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\MultipleCharSeparatorHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\SeparatorHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\SheetnameHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\StringHandler.cs" />
+    <Compile Include="FormulaParsing\LexicalAnalysis\TokenSeparatorHandlers\TokenSeparatorHandler.cs" />
     <Compile Include="FormulaParsing\Logging\IFormulaParserLogger.cs" />
     <Compile Include="FormulaParsing\INameValueProvider.cs" />
     <Compile Include="FormulaParsing\IParsingLifetimeEventHandler.cs" />

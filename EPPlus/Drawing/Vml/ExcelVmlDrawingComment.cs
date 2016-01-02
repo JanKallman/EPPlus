@@ -154,6 +154,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 }                
             }
         }
+
         const string BACKGROUNDCOLOR_PATH = "@fillcolor";
         const string BACKGROUNDCOLOR2_PATH = "v:fill/@color2";
         /// <summary>

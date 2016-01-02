@@ -444,12 +444,17 @@ namespace EPPlusTest
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("InsertDeleteColumns");
             //ws.Cells.Value = 0;
-            ws.Cells["A1:C5"].Value = 1;
-            Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 1);
+            ws.Cells["A1:C1"].Value = 1;
+            ws.Cells["A2:C2"].Value = 2;
+            ws.Cells["A3:C3"].Value = 3;
+            ws.Cells["A4:C4"].Value = 4;
+            ws.Cells["A5:C5"].Value = 5;
+            Assert.AreEqual(((object[,])ws.Cells["A1:C5"].Value)[1, 1], 2);
             ws.Cells["A1:B3"].Merge = true;
             ws.Cells["D3"].Formula = "A2+C5";
             ws.InsertColumn(1, 1);
 
+            //ws.DeleteColumn(3, 2);
             ws.Cells["K10:M15"].Value = 1;
             ws.Cells["K11:L13"].Merge = true;
             ws.DeleteColumn(12, 1);
@@ -1590,6 +1595,7 @@ namespace EPPlusTest
             var wsPivot7 = _pck.Workbook.Worksheets.Add("Rows/Page-Data on Columns");
             var wsPivot8 = _pck.Workbook.Worksheets.Add("Pivot-Group Date");
             var wsPivot9 = _pck.Workbook.Worksheets.Add("Pivot-Group Number");
+            var wsPivot10 = _pck.Workbook.Worksheets.Add("Pivot-Many RowFields");
 
             var ws = _pck.Workbook.Worksheets.Add("Data");
             ws.Cells["K1"].Value = "Item";
@@ -1764,6 +1770,16 @@ namespace EPPlusTest
             pt.DataFields.Add(pt.Fields[3]);
             pt.DataFields.Add(pt.Fields[2]);
             pt.DataOnRows = true;
+
+            pt = wsPivot10.PivotTables.Add(wsPivot10.Cells["A1"], ws.Cells["K1:O11"], "Pivottable10");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.RowFields.Add(pt.Fields[0]);
+            pt.RowFields.Add(pt.Fields[3]);
+            pt.RowFields.Add(pt.Fields[2]);
+            pt.RowFields.Add(pt.Fields[4]);
+            pt.DataOnRows = true;
+            //wsPivot10.Drawings.AddChart("Pivotchart10", OfficeOpenXml.Drawing.Chart.eChartType.BarStacked3D, pt);
+
         }
         [Ignore]
         [TestMethod]
@@ -1852,10 +1868,10 @@ namespace EPPlusTest
             ws.HeaderFooter.OddHeader.CenteredText = "Before ";
             var img = ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
             img.Title = "Renamed Image";
-            img.GrayScale = true;
-            img.BiLevel = true;
-            img.Gain = .5;
-            img.Gamma = .35;
+            //img.GrayScale = true;
+            //img.BiLevel = true;
+            //img.Gain = .5;
+            //img.Gamma = .35;
 
             Assert.AreEqual(img.Width, 426);
             img.Width /= 4;
@@ -1866,11 +1882,11 @@ namespace EPPlusTest
             ws.HeaderFooter.OddHeader.CenteredText += " After";
 
 
-            img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(_clipartPath,"Vector Drawing.wmf")), PictureAlignment.Left);
-            img.Title = "DiskFile";
+            //img = ws.HeaderFooter.EvenFooter.InsertPicture(new FileInfo(Path.Combine(_clipartPath,"Vector Drawing.wmf")), PictureAlignment.Left);
+            //img.Title = "DiskFile";
 
-            img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing2.WMF")), PictureAlignment.Right);
-            img.Title = "DiskFile2";
+            //img = ws.HeaderFooter.FirstHeader.InsertPicture(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing2.WMF")), PictureAlignment.Right);
+            //img.Title = "DiskFile2";
             ws.Cells["A1:A400"].Value = 1;
 
             _pck.Workbook.Worksheets.Copy(ws.Name, "Copied HeaderImage");
@@ -1991,6 +2007,8 @@ namespace EPPlusTest
             ws.Cells["G1"].Style.TextRotation = 135;
             ws.Cells["H1"].Style.TextRotation = 180;
             ws.Cells["A1:H1"].AutoFitColumns(0);
+
+            ws.Column(40).AutoFit();
         }
 
         [TestMethod, Ignore]
@@ -2231,6 +2249,16 @@ namespace EPPlusTest
 
             Assert.AreEqual(dateTest1, w3.Cells[1, 1].Value);
             Assert.AreEqual(dateTest2, w3.Cells[2, 1].Value);
+        }
+        [TestMethod]
+        public void ValueText()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("TestFormat");
+            ws.Cells[1, 1].Value = 25.96;
+            ws.Cells[1, 1].Style.Numberformat.Format = "#,##0.00;(#,##0.00)";
+
+            var s = ws.Cells[1, 1].Text;
         }
         [TestMethod, Ignore]
         public void SaveToStream()

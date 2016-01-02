@@ -126,7 +126,8 @@ namespace OfficeOpenXml.Drawing
                 switch(node.LocalName)
                 {
                     case "oneCellAnchor":
-                        dr = new ExcelDrawing(this, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name");
+                        //dr = new ExcelDrawing(this, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name");                        
+                        dr = ExcelDrawing.GetDrawing(this, node); //Issue 15373
                         break;
                     case "twoCellAnchor":
                         dr = ExcelDrawing.GetDrawing(this, node);

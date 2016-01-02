@@ -67,9 +67,20 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             private set;
         }
 
+        public bool IsInSheetName
+        {
+            get;
+            private set;
+        }
+
         public void ToggleIsInString()
         {
             IsInString = !IsInString;
+        }
+
+        public void ToggleIsInSheetName()
+        {
+            IsInSheetName = !IsInSheetName;
         }
 
         internal int BracketCount
@@ -85,7 +96,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         public bool CurrentTokenHasValue
         {
-            get { return !string.IsNullOrEmpty(CurrentToken.Trim()); }
+            get { return !string.IsNullOrEmpty(IsInString ? CurrentToken : CurrentToken.Trim()); }
         }
 
         public void NewToken()

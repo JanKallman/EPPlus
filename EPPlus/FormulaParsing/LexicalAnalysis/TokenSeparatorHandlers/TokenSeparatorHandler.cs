@@ -26,43 +26,47 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ * Mats Alm   		                Added       		        2015-12-28
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
+namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers
 {
-    public enum TokenType
+    /// <summary>
+    /// This class provides access to <see cref="SeparatorHandler"/>s - classes that exposes functionatlity
+    /// needed when parsing strings to tokens.
+    /// </summary>
+    public static class TokenSeparatorHandler
     {
-        Operator,
-        Negator,
-        OpeningParenthesis,
-        ClosingParenthesis,
-        OpeningEnumerable,
-        ClosingEnumerable,
-        OpeningBracket,
-        ClosingBracket,        
-        Enumerable,
-        Comma,
-        SemiColon,
-        String,
-        StringContent,
-        WorksheetName,
-        WorksheetNameContent,
-        Integer,
-        Boolean,
-        Decimal,
-        Percent,
-        Function,
-        ExcelAddress,
-        NameValue,
-        InvalidReference,
-        NumericError,
-        ValueDataTypeError,
-        Null,
-        Unrecognized
+        private static SeparatorHandler[] _handlers = new SeparatorHandler[]
+        { 
+            new StringHandler(),
+            new BracketHandler(),
+            new SheetnameHandler(),
+            new MultipleCharSeparatorHandler()
+        };
+
+        /// <summary>
+        /// Handles a tokenseparator.
+        /// </summary>
+        /// <param name="c"></param>
+        /// <param name="tokenSeparator"></param>
+        /// <param name="context"></param>
+        /// <param name="tokenIndexProvider"></param>
+        /// <returns>Returns true if the tokenseparator was handled.</returns>
+        public static bool Handle(char c, Token tokenSeparator, TokenizerContext context, ITokenIndexProvider tokenIndexProvider)
+        {
+            foreach(var handler in _handlers)
+            {
+                if(handler.Handle(c, tokenSeparator, context, tokenIndexProvider))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 }

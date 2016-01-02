@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
@@ -8,6 +9,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using Rhino.Mocks;
 using System.IO;
+using System.Threading;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
 {
@@ -213,6 +215,85 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             ws.Cells["B1"].Formula = "SECOND(A1)";
             ws.Calculate();
             Assert.AreEqual(12, ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void DateValueTest1()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            ws.Cells["A1"].Value = "21 JAN 2015";
+            ws.Cells["B1"].Formula = "DateValue(A1)";
+            ws.Calculate();
+            Assert.AreEqual(new DateTime(2015, 1, 21).ToOADate(), ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void DateValueTestWithoutYear()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            var currentYear = DateTime.Now.Year;
+            ws.Cells["A1"].Value = "21 JAN";
+            ws.Cells["B1"].Formula = "DateValue(A1)";
+            ws.Calculate();
+            Assert.AreEqual(new DateTime(currentYear, 1, 21).ToOADate(), ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void DateValueTestWithTwoDigitYear()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            var expectedYear = 1930;
+            ws.Cells["A1"].Value = "01/01/30";
+            ws.Cells["B1"].Formula = "DateValue(A1)";
+            ws.Calculate();
+            Assert.AreEqual(new DateTime(expectedYear, 1, 1).ToOADate(), ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void DateValueTestWithTwoDigitYear2()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            var expectedYear = 2029;
+            ws.Cells["A1"].Value = "01/01/29";
+            ws.Cells["B1"].Formula = "DateValue(A1)";
+            ws.Calculate();
+            Assert.AreEqual(new DateTime(expectedYear, 1, 1).ToOADate(), ws.Cells["B1"].Value);
+        }
+
+        [TestMethod]
+        public void TimeValueTestPm()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            var currentYear = DateTime.Now.Year;
+            ws.Cells["A1"].Value = "2:23 pm";
+            ws.Cells["B1"].Formula = "TimeValue(A1)";
+            ws.Calculate();
+            var result = (double) ws.Cells["B1"].Value;
+            Assert.AreEqual(0.599, Math.Round(result, 3));
+        }
+
+        [TestMethod]
+        public void TimeValueTestFullDate()
+        {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+            var pck = new ExcelPackage();
+            var ws = pck.Workbook.Worksheets.Add("Calc1");
+            var currentYear = DateTime.Now.Year;
+            ws.Cells["A1"].Value = "01/01/2011 02:23";
+            ws.Cells["B1"].Formula = "TimeValue(A1)";
+            ws.Calculate();
+            var result = (double)ws.Cells["B1"].Value;
+            Assert.AreEqual(0.099, Math.Round(result, 3));
         }
     }
 }

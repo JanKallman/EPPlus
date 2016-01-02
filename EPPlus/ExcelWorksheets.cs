@@ -73,7 +73,7 @@ namespace OfficeOpenXml
                 {
                     string name = sheetNode.Attributes["name"].Value;
                     //Get the relationship id
-                        string relId = sheetNode.Attributes["r:id"].Value;
+                    string relId = sheetNode.Attributes.GetNamedItem("id", ExcelPackage.schemaRelationships).Value;
                     int sheetID = Convert.ToInt32(sheetNode.Attributes["sheetId"].Value);
 
                     //Hidden property
@@ -295,6 +295,12 @@ namespace OfficeOpenXml
                 return added;
             }
         }
+        /// <summary>
+        /// Adds a chartsheet to the workbook.
+        /// </summary>
+        /// <param name="Name"></param>
+        /// <param name="chartType"></param>
+        /// <returns></returns>
         public ExcelChartsheet AddChart(string Name, eChartType chartType)
         {
             return (ExcelChartsheet)AddSheet(Name, true, chartType);
@@ -458,12 +464,12 @@ namespace OfficeOpenXml
         {
             if (Copy.TopNode != null && Copy.TopNode.SelectSingleNode("d:headerFooter", NameSpaceManager)==null) return;
             //Copy the texts
-            CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
-            CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
-            CopyText(Copy.HeaderFooter._evenHeader, added.HeaderFooter.EvenHeader);
-            CopyText(Copy.HeaderFooter._evenFooter, added.HeaderFooter.EvenFooter);
-            CopyText(Copy.HeaderFooter._firstHeader, added.HeaderFooter.FirstHeader);
-            CopyText(Copy.HeaderFooter._firstFooter, added.HeaderFooter.FirstFooter);
+            if(Copy.HeaderFooter._oddHeader!=null) CopyText(Copy.HeaderFooter._oddHeader, added.HeaderFooter.OddHeader);
+            if (Copy.HeaderFooter._oddFooter != null) CopyText(Copy.HeaderFooter._oddFooter, added.HeaderFooter.OddFooter);
+            if (Copy.HeaderFooter._evenHeader != null) CopyText(Copy.HeaderFooter._evenHeader, added.HeaderFooter.EvenHeader);
+            if (Copy.HeaderFooter._evenFooter != null) CopyText(Copy.HeaderFooter._evenFooter, added.HeaderFooter.EvenFooter);
+            if (Copy.HeaderFooter._firstHeader != null) CopyText(Copy.HeaderFooter._firstHeader, added.HeaderFooter.FirstHeader);
+            if (Copy.HeaderFooter._firstFooter != null) CopyText(Copy.HeaderFooter._firstFooter, added.HeaderFooter.FirstFooter);
             
             //Copy any images;
             if (Copy.HeaderFooter.Pictures.Count > 0)
@@ -487,7 +493,6 @@ namespace OfficeOpenXml
 
         private void CopyText(ExcelHeaderFooterText from, ExcelHeaderFooterText to)
         {
-            if (from == null) return;
             to.LeftAlignedText=from.LeftAlignedText;
             to.CenteredText = from.CenteredText;
             to.RightAlignedText = from.RightAlignedText;
@@ -761,31 +766,28 @@ namespace OfficeOpenXml
             TopNode.AppendChild(worksheetNode);
             return rel.Id;
         }
+
         private void GetSheetURI(ref string Name, out int sheetID, out Uri uriWorksheet, bool isChart)
         {
             Name = ValidateFixSheetName(Name);
+            sheetID = this.Any() ? this.Max(ws => ws.SheetID) + 1 : 1;
+            var uriId = sheetID;
 
-            //First find maximum existing sheetID
-            sheetID = 0;
-            foreach(var ws in this)
-            {                
-                if (ws.SheetID > sheetID)
+
+            // get the next available worhsheet uri
+            do
+            {
+                if (isChart)
                 {
-                    sheetID = ws.SheetID;
+                    uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + uriId + ".xml", UriKind.Relative);
                 }
-            }
-            // we now have the max existing values, so add one
-            sheetID++;
+                else
+                {
+                    uriWorksheet = new Uri("/xl/worksheets/sheet" + uriId + ".xml", UriKind.Relative);
+                }
 
-            // add the new worksheet to the package
-            if (isChart)
-            {
-                uriWorksheet = new Uri("/xl/chartsheets/chartsheet" + sheetID.ToString() + ".xml", UriKind.Relative);
-            }
-            else
-            {
-                uriWorksheet = new Uri("/xl/worksheets/sheet" + sheetID.ToString() + ".xml", UriKind.Relative);
-            }
+                uriId++;
+            } while (_pck.Package.PartExists(uriWorksheet));
         }
 
         internal string ValidateFixSheetName(string Name)

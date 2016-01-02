@@ -173,6 +173,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal int PropertyChange(StyleBase sender, Style.StyleChangeEventArgs e)
         {
+            List<int[,]> pos=null;
             var address = new ExcelAddressBase(e.Address);
             var ws = _wb.Worksheets[e.PositionID];
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
@@ -191,7 +192,6 @@ namespace OfficeOpenXml
             }
             return 0;
         }
-
         private void SetStyleAddress(StyleBase sender, Style.StyleChangeEventArgs e, ExcelAddressBase address, ExcelWorksheet ws, ref Dictionary<int, int> styleCashe)
         {
             if (address.Start.Column == 0 || address.Start.Row == 0)
@@ -203,42 +203,54 @@ namespace OfficeOpenXml
             {
                 ExcelColumn column;
                 int col = address.Start.Column, row = 0;
+                bool isNew;
                 //Get the startcolumn
                 if (!ws._values.Exists(0, address.Start.Column))
                 {
                     column = ws.Column(address.Start.Column);
+                    isNew = true;
                 }
                 else
                 {
                     column = (ExcelColumn)ws._values.GetValue(0, address.Start.Column);
+                    isNew = false;
                 }
-
-
+                var prevColumMax = column.ColumnMax;
                 while (column.ColumnMin <= address.End.Column)
                 {
+                    if(column.ColumnMin > prevColumMax+1)
+                    {
+                        var newColumn = ws.Column(prevColumMax + 1);
+                        newColumn.ColumnMax = column.ColumnMin-1;
+                        AddNewStyleColumn(sender, e, ws, styleCashe, newColumn, newColumn.StyleID);
+                    }
                     if (column.ColumnMax > address.End.Column)
                     {
                         var newCol = ws.CopyColumn(column, address.End.Column + 1, column.ColumnMax);
                         column.ColumnMax = address.End.Column;
                     }
                     var s = ws._styles.GetValue(0, column.ColumnMin);
-                    if (styleCashe.ContainsKey(s))
-                    {
-                        ws.SetStyle(0, column.ColumnMin, styleCashe[s]);
-                    }
-                    else
-                    {
-                        ExcelXfs st = CellXfs[s];
-                        int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
-                        styleCashe.Add(s, newId);
-                        ws.SetStyle(0, column.ColumnMin, newId);
-                    }
+                    AddNewStyleColumn(sender, e, ws, styleCashe, column, s);
 
                     //index++;
-
+                    prevColumMax = column.ColumnMax;
                     if (!ws._values.NextCell(ref row, ref col) || row > 0)
                     {
-                        column._columnMax = address.End.Column;
+                        if(column._columnMax == address.End.Column)
+                        {
+                            break;
+                        }
+
+                        if (isNew)
+                        {
+                            column._columnMax = address.End.Column;
+                        }
+                        else
+                        {
+                            var newColumn = ws.Column(column._columnMax + 1);
+                            newColumn.ColumnMax = address.End.Column;
+                            AddNewStyleColumn(sender, e, ws, styleCashe, newColumn, newColumn.StyleID);
+                        }
                         break;
                     }
                     else
@@ -290,24 +302,27 @@ namespace OfficeOpenXml
                     }
                 }
 
-                //Update cells with styled columns
-                cse = new CellsStoreEnumerator<int>(ws._styles, 1, 0, address._toRow, 0);
-                while (cse.Next())
+                if (!(address._fromCol == 1 && address._toCol == ExcelPackage.MaxColumns))
                 {
-                    for (int c = address._fromRow; c <= address._toCol; c++)
+                    //Update cells with styled columns
+                    cse = new CellsStoreEnumerator<int>(ws._styles, 1, 0, address._toRow, 0);
+                    while (cse.Next())
                     {
-                        if (!ws._styles.Exists(cse.Row, c))
+                        for (int c = address._fromRow; c <= address._toCol; c++)
                         {
-                            if (styleCashe.ContainsKey(cse.Value))
+                            if (!ws._styles.Exists(cse.Row, c))
                             {
-                                ws.SetStyle(cse.Row, c, styleCashe[cse.Value]);
-                            }
-                            else
-                            {
-                                ExcelXfs st = CellXfs[cse.Value];
-                                int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
-                                styleCashe.Add(cse.Value, newId);
-                                ws.SetStyle(cse.Row, c, newId);
+                                if (styleCashe.ContainsKey(cse.Value))
+                                {
+                                    ws.SetStyle(cse.Row, c, styleCashe[cse.Value]);
+                                }
+                                else
+                                {
+                                    ExcelXfs st = CellXfs[cse.Value];
+                                    int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                                    styleCashe.Add(cse.Value, newId);
+                                    ws.SetStyle(cse.Row, c, newId);
+                                }
                             }
                         }
                     }
@@ -421,6 +436,20 @@ namespace OfficeOpenXml
             }
         }
 
+        private void AddNewStyleColumn(StyleBase sender, StyleChangeEventArgs e, ExcelWorksheet ws, Dictionary<int, int> styleCashe, ExcelColumn column, int s)
+        {
+            if (styleCashe.ContainsKey(s))
+            {
+                ws.SetStyle(0, column.ColumnMin, styleCashe[s]);
+            }
+            else
+            {
+                ExcelXfs st = CellXfs[s];
+                int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
+                styleCashe.Add(s, newId);
+                ws.SetStyle(0, column.ColumnMin, newId);
+            }
+        }
         internal int GetStyleId(ExcelWorksheet ws, int row, int col)
         {
             int v=0;

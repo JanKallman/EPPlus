@@ -26,43 +26,48 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
+ * Mats Alm   		                Added       		        2015-12-28
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
+namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers
 {
-    public enum TokenType
+    public class SheetnameHandler : SeparatorHandler
     {
-        Operator,
-        Negator,
-        OpeningParenthesis,
-        ClosingParenthesis,
-        OpeningEnumerable,
-        ClosingEnumerable,
-        OpeningBracket,
-        ClosingBracket,        
-        Enumerable,
-        Comma,
-        SemiColon,
-        String,
-        StringContent,
-        WorksheetName,
-        WorksheetNameContent,
-        Integer,
-        Boolean,
-        Decimal,
-        Percent,
-        Function,
-        ExcelAddress,
-        NameValue,
-        InvalidReference,
-        NumericError,
-        ValueDataTypeError,
-        Null,
-        Unrecognized
+        public override bool Handle(char c, Token tokenSeparator, TokenizerContext context, ITokenIndexProvider tokenIndexProvider)
+        {
+            if (context.IsInSheetName)
+            {
+                if (IsDoubleQuote(tokenSeparator, tokenIndexProvider.Index, context))
+                {
+                    tokenIndexProvider.MoveIndexPointerForward();
+                    context.AppendToCurrentToken(c);
+                    return true;
+                }
+                if (tokenSeparator.TokenType != TokenType.WorksheetName)
+                {
+                    context.AppendToCurrentToken(c);
+                    return true;
+                }
+            }
+
+            if (tokenSeparator.TokenType == TokenType.WorksheetName)
+            {
+                if (context.LastToken != null && context.LastToken.TokenType == TokenType.WorksheetName)
+                {
+                    context.AddToken(!context.CurrentTokenHasValue
+                        ? new Token(string.Empty, TokenType.WorksheetNameContent)
+                        : new Token(context.CurrentToken, TokenType.WorksheetNameContent));
+                }
+                context.AddToken(new Token("'", TokenType.WorksheetName));
+                context.ToggleIsInSheetName();
+                context.NewToken();
+                return true;
+            }
+            return false;
+        }
     }
 }
