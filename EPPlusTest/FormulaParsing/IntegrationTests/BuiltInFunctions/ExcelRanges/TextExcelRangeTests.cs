@@ -14,10 +14,12 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
     {
         private ExcelPackage _package;
         private ExcelWorksheet _worksheet;
+        private CultureInfo _currentCulture;
 
         [TestInitialize]
         public void Initialize()
         {
+            _currentCulture = CultureInfo.CurrentCulture;
             _package = new ExcelPackage();
             _worksheet = _package.Workbook.Worksheets.Add("Test");
 
@@ -30,6 +32,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         public void Cleanup()
         {
             _package.Dispose();
+            Thread.CurrentThread.CurrentCulture = _currentCulture;
         }
 
         [TestMethod]

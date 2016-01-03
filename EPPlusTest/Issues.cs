@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Linq;
 using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
@@ -11,7 +10,6 @@ using OfficeOpenXml.FormulaParsing.Logging;
 using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table;
-using Rhino.Mocks.Constraints;
 using System.Collections.Generic;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;

@@ -54,7 +54,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
 
         private void Initialize()
         {
-            var fo = 1;
             for (var x = _fromCol; x <= _toCol; x++)
             {
                 var fieldObj = _dataProvider.GetCellValue(_worksheet, _fieldRow, x);

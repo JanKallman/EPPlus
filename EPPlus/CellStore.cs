@@ -1424,7 +1424,7 @@ internal class IndexBase : IComparable<IndexBase>
         {
             get
             {
-                return ((ulong)_row << 32) | (uint)(_columnIndex[_colPos].Index);
+                return ((ulong)_row << 32) | (ulong)(long)(_columnIndex[_colPos].Index);
             }
         }
 

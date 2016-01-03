@@ -840,6 +840,7 @@ namespace OfficeOpenXml
         /// <param name="colIncrement">The amount to increment the cell reference by</param>
         /// <param name="afterRow">Only change rows after this row</param>
         /// <param name="afterColumn">Only change columns after this column</param>
+        /// <param name="setFixed">Fixed address</param>
         /// <returns></returns>
         internal static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn, bool setFixed=false)
         {
