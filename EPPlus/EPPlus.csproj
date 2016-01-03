@@ -54,8 +54,7 @@
     <DocumentationFile>bin\Debug\EPPlus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <NoWarn>
-    </NoWarn>
+    <NoWarn>15191, CS1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
