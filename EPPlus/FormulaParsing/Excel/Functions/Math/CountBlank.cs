@@ -17,7 +17,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var result = arg.ValueAsRangeInfo.GetNCells();
             foreach (var cell in arg.ValueAsRangeInfo)
             {
-                if (!(cell.Value == null || cell.Value == string.Empty))
+                if (!(cell.Value == null || cell.Value.ToString() == string.Empty))
                 {
                     result--;
                 }
