@@ -1260,7 +1260,6 @@ namespace OfficeOpenXml
     }
     public class ExcelFormulaAddress : ExcelAddressBase
     {
-        bool _fromRowFixed, _toRowFixed, _fromColFixed, _toColFixed;
         internal ExcelFormulaAddress()
             : base()
         {

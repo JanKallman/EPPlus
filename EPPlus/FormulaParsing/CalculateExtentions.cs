@@ -157,7 +157,7 @@ namespace OfficeOpenXml
                 {
                     throw (fe);
                 }
-                catch (Exception e)
+                catch 
                 {
                     var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
                     SetValue(wb, item, error);

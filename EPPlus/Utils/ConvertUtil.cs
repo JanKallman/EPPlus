@@ -119,6 +119,7 @@ namespace OfficeOpenXml.Utils
         /// </summary>
         /// <param name="sb"></param>
         /// <param name="t"></param>
+        /// <param name="encodeTabCRLF"></param>
         /// <returns></returns>
         internal static void ExcelEncodeString(StringBuilder sb, string t, bool encodeTabCRLF=false)
         {
@@ -149,7 +150,6 @@ namespace OfficeOpenXml.Utils
         /// <summary>
         /// Return true if preserve space attribute is set.
         /// </summary>
-        /// <param name="sb"></param>
         /// <param name="t"></param>
         /// <returns></returns>
         internal static string ExcelEncodeString(string t)

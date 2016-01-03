@@ -921,12 +921,12 @@ namespace OfficeOpenXml
         /// <summary>
         /// Extracts the workbook XML without the sheetData-element (containing all cell data).
         /// Xml-Cell data can be extreemly large (GB), so we find the sheetdata element in the streem (position start) and 
-        /// then tries to find the </sheetData> element from the end-parameter.
+        /// then tries to find the &lt;/sheetData&gt; element from the end-parameter.
         /// This approach is to avoid out of memory exceptions reading large packages
         /// </summary>
         /// <param name="stream">the worksheet stream</param>
         /// <param name="start">Position from previous reading where we found the sheetData element</param>
-        /// <param name="end">End position, where </sheetData> or <sheetData /> is found</param>
+        /// <param name="end">End position, where &lt;/sheetData&gt; or &lt;sheetData/&gt; is found</param>
         /// <param name="encoding">Encoding</param>
         /// <returns>The worksheet xml, with an empty sheetdata. (Sheetdata is in memory in the worksheet)</returns>
         private string GetWorkSheetXml(Stream stream, long start, long end, out Encoding encoding)

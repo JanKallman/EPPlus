@@ -709,7 +709,7 @@ namespace OfficeOpenXml
 			toRow = addr._toRow > d._toRow ? d._toRow : addr._toRow;
 			toCol = addr._toCol > d._toCol ? d._toCol : addr._toCol;
 
-			if (addr._fromCol == fromRow && addr._fromCol == addr._fromCol && addr._toRow == toRow && addr._toCol == _toCol)
+			if (addr._fromRow == fromRow && addr._fromCol == fromCol && addr._toRow == toRow && addr._toCol == _toCol)
 			{
 				return addr;
 			}

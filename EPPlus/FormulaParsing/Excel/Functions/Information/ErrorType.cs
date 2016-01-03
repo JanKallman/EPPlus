@@ -43,7 +43,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Information
                 return CreateResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
             }
             var errorType = error.ValueAsExcelErrorValue;
-            int retValue;
             switch (errorType.Type)
             {
                 case eErrorType.Null:
