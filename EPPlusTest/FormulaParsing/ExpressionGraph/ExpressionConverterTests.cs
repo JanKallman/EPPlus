@@ -5,6 +5,8 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
+using System.Globalization;
+using System.Threading;
 
 namespace EPPlusTest.FormulaParsing.ExpressionGraph
 {
@@ -43,7 +45,7 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
             var decimalExpression = new DecimalExpression("2.5");
             var result = _converter.ToStringExpression(decimalExpression);
             Assert.IsInstanceOfType(result, typeof(StringExpression));
-            Assert.AreEqual("2,5", result.Compile().Result);
+            Assert.AreEqual($"2{CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator}5", result.Compile().Result);
         }
 
         [TestMethod]

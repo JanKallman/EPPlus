@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 }
 
             }
-            catch (ExcelErrorValueException ex)
+            catch (ExcelErrorValueException)
             {
                 args.Add(new FunctionArgument(lastChild.Compile().Result));
             }
