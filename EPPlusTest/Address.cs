@@ -134,5 +134,20 @@ namespace EPPlusTest
           Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
         }
 
+        [TestMethod]
+        public void NamedRangeMovesDownIfRowInsertedAbove()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var namedRange = sheet.Cells[2, 1, 3, 3];
+                sheet.Names.Add("NewNamedRange", namedRange);
+
+                sheet.InsertRow(1, 1);
+
+                Assert.AreEqual("A3:C4", namedRange.Address);
+            }
+        }
+
     }
 }
