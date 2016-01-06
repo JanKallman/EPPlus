@@ -125,6 +125,18 @@ namespace OfficeOpenXml
             AddName(Name, item);
             return item;
         }
+        internal void Insert(int rowFrom, int colFrom, int rows, int cols)
+        {
+            for(int i = 0; i < _list.Count; i++)
+            {
+                var namedRange = _list[i];
+                if (rows > 0)
+                {
+                    var newRange = namedRange.Offset(rows,0);
+                    _list[i] = new ExcelNamedRange(namedRange.Name, namedRange.LocalSheet, namedRange.Worksheet, newRange.Address, namedRange.Index);
+                }
+            }
+        }
         /// <summary>
         /// Remove a defined name from the collection
         /// </summary>
@@ -218,5 +230,7 @@ namespace OfficeOpenXml
                 Remove(_list[0].Name);
             }
         }
+
+
     }
 }
