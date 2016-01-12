@@ -140,12 +140,87 @@ namespace EPPlusTest
             using (var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("NEW");
-                var namedRange = sheet.Cells[2, 1, 3, 3];
-                sheet.Names.Add("NewNamedRange", namedRange);
+                var range = sheet.Cells[2, 1, 3, 3];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
 
                 sheet.InsertRow(1, 1);
 
                 Assert.AreEqual("A3:C4", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeDoesNotChangeIfRowInsertedBelow()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 1, 3, 3];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.InsertRow(4, 1);
+
+                Assert.AreEqual("A2:C3", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeExpandsDownIfRowInsertedWithin()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 1, 3, 3];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.InsertRow(3, 1);
+
+                Assert.AreEqual("A2:C4", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeMovesRightIfColInsertedBefore()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 2, 3, 4];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.InsertColumn(1, 1);
+
+                Assert.AreEqual("C2:E3", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeUnchangedIfColInsertedAfter()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 2, 3, 4];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.InsertColumn(5, 1);
+
+                Assert.AreEqual("B2:D3", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeExpandsIfColInsertedWithin()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 2, 3, 4];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.InsertColumn(5, 1);
+
+                Assert.AreEqual("B2:D3", namedRange.Address);
             }
         }
 

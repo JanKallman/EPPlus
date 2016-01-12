@@ -127,16 +127,47 @@ namespace OfficeOpenXml
         }
         internal void Insert(int rowFrom, int colFrom, int rows, int cols)
         {
-            for(int i = 0; i < _list.Count; i++)
+            foreach(var namedRange in _list)
             {
-                var namedRange = _list[i];
-                if (rows > 0)
+                InsertRows(rowFrom, rows, namedRange);
+                InsertColumns(colFrom, cols, namedRange);
+            }
+        }
+
+        private void InsertColumns(int colFrom, int cols, ExcelNamedRange namedRange)
+        {
+            if (colFrom > 0)
+            {
+                if (colFrom <= namedRange.Start.Column)
                 {
-                    var newRange = namedRange.Offset(rows,0);
-                    _list[i] = new ExcelNamedRange(namedRange.Name, namedRange.LocalSheet, namedRange.Worksheet, newRange.Address, namedRange.Index);
+                    var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column +cols, namedRange.End.Row, namedRange.End.Column + cols);
+                    namedRange.Address = newAddress;
+                }
+                else if (colFrom <= namedRange.End.Column)
+                {
+                    var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column, namedRange.End.Row, namedRange.End.Column + cols);
+                    namedRange.Address = newAddress;
                 }
             }
         }
+
+        private void InsertRows(int rowFrom, int rows, ExcelNamedRange namedRange)
+        {
+            if (rows > 0)
+            {
+                if (rowFrom <= namedRange.Start.Row)
+                {
+                    var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row + rows, namedRange.Start.Column, namedRange.End.Row + rows, namedRange.End.Column);
+                    namedRange.Address = newAddress;
+                }
+                else if (rowFrom <= namedRange.End.Row)
+                {
+                    var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column, namedRange.End.Row + rows, namedRange.End.Column);
+                    namedRange.Address = newAddress;
+                }
+            }
+        }
+
         /// <summary>
         /// Remove a defined name from the collection
         /// </summary>
