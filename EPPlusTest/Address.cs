@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace EPPlusTest
 {
@@ -210,7 +211,7 @@ namespace EPPlusTest
         }
 
         [TestMethod]
-        public void NamedRangeExpandsIfColInsertedWithin()
+        public void NamedRangeExpandsToRightIfColInsertedWithin()
         {
             using (var package = new ExcelPackage())
             {
@@ -223,6 +224,56 @@ namespace EPPlusTest
                 Assert.AreEqual("B2:D3", namedRange.Address);
             }
         }
+
+        [TestMethod]
+        public void NamedRangeWithWorkbookScopeIsMovedDownIfRowInsertedAbove()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var workbook = package.Workbook;
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 1, 3, 3];
+                var namedRange = workbook.Names.Add("NewNamedRange", range);
+
+                sheet.InsertRow(1, 1);
+
+                Assert.AreEqual("A3:C4", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeWithWorkbookScopeIsMovedRightIfColInsertedBefore()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var workbook = package.Workbook;
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 2, 3, 3];
+                var namedRange = workbook.Names.Add("NewNamedRange", range);
+
+                sheet.InsertColumn(1, 1);
+
+                Assert.AreEqual("C2:D3", namedRange.Address);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeIsUnchangedForOutOfScopeSheet()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var workbook = package.Workbook;
+                var sheet1 = package.Workbook.Worksheets.Add("NEW");
+                var sheet2 = package.Workbook.Worksheets.Add("NEW2");
+                var range = sheet2.Cells[2, 2, 3, 3];
+                var namedRange = workbook.Names.Add("NewNamedRange", range);
+
+                sheet1.InsertColumn(1, 1);
+
+                Assert.AreEqual("B2:C3", namedRange.Address);
+            }
+        }
+        
 
     }
 }
