@@ -90,6 +90,8 @@ namespace OfficeOpenXml
                 }
             }
         }
+        internal ExcelWorksheet LocalSheet => _sheet;
+
         internal int Index
         {
             get;
