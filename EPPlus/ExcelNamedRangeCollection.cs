@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using System.Linq;
 
 namespace OfficeOpenXml
 {
@@ -125,14 +126,23 @@ namespace OfficeOpenXml
             AddName(Name, item);
             return item;
         }
+
         internal void Insert(int rowFrom, int colFrom, int rows, int cols)
         {
-            foreach(var namedRange in _list)
+            Insert(rowFrom, colFrom, rows, cols, n => true);
+        }
+
+        internal void Insert(int rowFrom, int colFrom, int rows, int cols, Func<ExcelNamedRange, bool> filter)
+        {
+            var namedRanges = this._list.Where(filter);
+            foreach(var namedRange in namedRanges)
             {
                 InsertRows(rowFrom, rows, namedRange);
                 InsertColumns(colFrom, cols, namedRange);
             }
         }
+
+        
 
         private void InsertColumns(int colFrom, int cols, ExcelNamedRange namedRange)
         {
@@ -261,7 +271,6 @@ namespace OfficeOpenXml
                 Remove(_list[0].Name);
             }
         }
-
 
     }
 }
