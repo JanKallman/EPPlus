@@ -378,11 +378,16 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		#region Public Properties
-		/// <summary>
-		/// The styleobject for the range.
-		/// </summary>
-		public ExcelStyle Style
+        internal void UpdateAddress(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        #region Public Properties
+        /// <summary>
+        /// The styleobject for the range.
+        /// </summary>
+        public ExcelStyle Style
 		{
 			get
 			{
