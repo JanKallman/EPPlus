@@ -140,13 +140,16 @@ namespace EPPlusTest
         {
             LoadData(ws, 1000);
         }
-        private void LoadData(ExcelWorksheet ws, int rows, int cols=1)
+        private void LoadData(ExcelWorksheet ws, int rows, int cols=1, bool isNumeric = false)
         {
             for (int r = 0; r < rows; r++)
             {
                 for (int c = 0; c < cols; c++)
                 {
-                    ws.SetValue(r+1, c+1, r.ToString()+","+c.ToString());
+                    if (isNumeric)
+                        ws.SetValue(r + 1, c + 1, r + c);
+                    else
+                        ws.SetValue(r+1, c+1, r.ToString()+","+c.ToString());
                 }
             }
         }
@@ -164,6 +167,23 @@ namespace EPPlusTest
                 Assert.AreEqual((i-1).ToString()+",0", ws.GetValue(r+i,1).ToString());
                 r+=i+1;
             }
+        }
+        [TestMethod]
+        public void CopyCellsTest()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("CopyCells");
+
+            LoadData(ws, 100, isNumeric: true);
+            ws.Cells["B1"].Formula = "SUM(A1:A500)";
+            ws.Calculate();
+            ws.Cells["B1"].Copy(ws.Cells["C1"]);
+            ws.Cells["B1"].Copy(ws.Cells["D1"], ExcelRangeCopyOptionFlags.ExcludeFormulas);
+
+            Assert.AreEqual(ws.Cells["B1"].Value, ws.Cells["C1"].Value);
+            Assert.AreEqual("SUM(B1:B500)", ws.Cells["C1"].Formula);
+
+            Assert.AreEqual(ws.Cells["B1"].Value, ws.Cells["D1"].Value);
+            Assert.AreNotEqual(ws.Cells["B1"].Formula, ws.Cells["D1"].Formula);
         }
     }
 }
