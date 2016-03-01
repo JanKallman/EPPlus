@@ -111,6 +111,7 @@
     <Compile Include="DataValidation\ValidationTestBase.cs" />
     <Compile Include="DTS_FailingTests.cs" />
     <Compile Include="Encrypt.cs" />
+    <Compile Include="ExcelRangeBaseTest.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslatorTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\CellReferenceProviderTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressInfoTests.cs" />

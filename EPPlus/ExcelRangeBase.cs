@@ -2321,11 +2321,9 @@ namespace OfficeOpenXml
                     //Destination._worksheet._hyperLinks.SetValue(row, col, hl);
                     cell.HyperLink=hl;
                 }
-
-                if(_worksheet._commentsStore.Exists(row, col, ref comment))
-                {
-                    cell.Comment=comment;
-                }
+                
+                // Will just be null if no comment exists.
+                cell.Comment = _worksheet.Cells[cse.Row, cse.Column].Comment;
 
                 if (_worksheet._flags.Exists(row, col, ref flag))
                 {
@@ -2432,7 +2430,7 @@ namespace OfficeOpenXml
 
                 if (cell.Comment != null)
                 {
-                    //Destination._worksheet._commentsStore.SetValue(cell.Row, cell.Column, cell.Comment);
+                    Destination.Worksheet.Cells[cell.Row, cell.Column].AddComment(cell.Comment.Text, cell.Comment.Author);
                 }
                 if (cell.Flag != 0)
                 {

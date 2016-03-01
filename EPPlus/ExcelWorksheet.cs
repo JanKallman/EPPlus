@@ -1798,6 +1798,7 @@ namespace OfficeOpenXml
                 _commentsStore.Insert(rowFrom, 0, rows, 0);
                 _hyperLinks.Insert(rowFrom, 0, rows, 0);
                 _flags.Insert(rowFrom, 0, rows, 0);
+                Comments.Insert(rowFrom, 0, rows, 0);
 
                 foreach (var f in _sharedFormulas.Values)
                 {
@@ -1883,6 +1884,7 @@ namespace OfficeOpenXml
                 _commentsStore.Insert(0, columnFrom, 0, columns);
                 _hyperLinks.Insert(0, columnFrom, 0, columns);
                 _flags.Insert(0, columnFrom, 0, columns);
+                Comments.Insert(0, columnFrom, 0, columns);
 
                 foreach (var f in _sharedFormulas.Values)
                 {
