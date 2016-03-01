@@ -1,0 +1,154 @@
+﻿Public Const board1 = "{5}"
+Public Const board2 = "{6}"
+
+Public Const userShip1 = "{0}"
+Public Const userShip2 = "{1}"
+Public Const userShip3 = "{2}"
+Public Const userShip4 = "{3}"
+Public Const userShip5 = "{4}"
+
+Global g_logRow As Integer
+Global g_gameEnded As Boolean
+Global g_Ships As Collection
+Global g_userShips As Collection
+Public Function Collide(r1 As Range, r2 As Range) As Boolean
+If r1.row + r1.Rows.Count > r2.row And r1.row < r2.row + r2.Rows.Count And _
+      r1.column + r1.Columns.Count > r2.column And r1.column < r2.column + r2.Columns.Count Then
+      Collide = True
+Else
+    Collide = False
+End If
+End Function
+Public Sub AddShips(board As Range)
+    Set g_Ships = New Collection
+    
+    Dim s1 As New Ship
+    
+    s1.Size = 5
+    Set s1.Position = GetShipPos(board, s1.Size)
+    g_Ships.Add s1, "carrier"
+    
+    Dim s2 As New Ship
+    s2.Size = 4
+    Set s2.Position = GetShipPos(board, s2.Size)
+    g_Ships.Add s2, "battleship"
+
+    Dim s3 As New Ship
+    s3.Size = 3
+    Set s3.Position = GetShipPos(board, s3.Size)
+    g_Ships.Add s3, "sub"
+
+    Dim s4 As New Ship
+    s4.Size = 3
+    Set s4.Position = GetShipPos(board, s4.Size)
+    g_Ships.Add s4, "cruiser"
+
+    Dim s5 As New Ship
+    s5.Size = 2
+    Set s5.Position = GetShipPos(board, s5.Size)
+    g_Ships.Add s5, "destroyer"
+End Sub
+Public Sub AddUserShips(board As Range)
+    Set g_userShips = New Collection
+    
+    Dim s1 As New Ship
+    
+    s1.Size = 5
+    Set s1.Position = Battleship.Range(userShip1)
+    g_userShips.Add s1, "carrier"
+    
+    Dim s2 As New Ship
+    s2.Size = 4
+    Set s2.Position = Battleship.Range(userShip2)
+    g_userShips.Add s2, "battleship"
+
+    Dim s3 As New Ship
+    s3.Size = 3
+    Set s3.Position = Battleship.Range(userShip3)
+    g_userShips.Add s3, "sub"
+
+    Dim s4 As New Ship
+    s4.Size = 3
+    Set s4.Position = Battleship.Range(userShip4)
+    g_userShips.Add s4, "cruiser"
+
+    Dim s5 As New Ship
+    s5.Size = 2
+    Set s5.Position = Battleship.Range(userShip5)
+    g_userShips.Add s5, "destroyer"
+End Sub
+Public Function GetShipPos(board As Range, ByVal Size As Integer) As Range
+    Dim row As Integer, column As Integer
+    Dim Horizontal As Integer
+    
+    Do
+        Randomize
+        row = (Rnd * (board.Rows.Count - 1)) + 1
+        column = (Rnd * (board.Rows.Count - 1)) + 1
+        Horizontal = Rnd
+    
+        If Horizontal = 1 Then
+            If column - Size > 0 And column + Size < 10 Then
+                If Rnd = 0 Then
+                        Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
+                Else
+                        Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
+                End If
+            ElseIf column - Size > 0 Then
+                Set GetShipPos = board.Range(Cells(row, column - Size + 1), Cells(row, column))
+            Else
+                Set GetShipPos = board.Range(Cells(row, column), Cells(row, column + Size - 1))
+            End If
+        Else
+            If row - Size > 0 And row + Size < 10 Then
+                If Rnd = 0 Then
+                        Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
+                Else
+                        Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
+                End If
+            ElseIf row - Size > 0 Then
+                Set GetShipPos = board.Range(Cells(row - Size + 1, column), Cells(row, column))
+            Else
+                Set GetShipPos = board.Range(Cells(row, column), Cells(row + Size - 1, column))
+            End If
+        End If
+    Loop Until ValidSpot(GetShipPos)
+End Function
+'Make sure the spot isn't occupied
+Private Function ValidSpot(r As Range) As Boolean
+    Dim oShip As Ship
+    For Each oShip In g_Ships
+        If Code.Collide(r, oShip.Position) Then
+            ValidSpot = False
+            Exit Function
+        End If
+    Next
+    ValidSpot = True
+End Function
+
+Public Sub SetHit(Target As Range)
+    Target.Worksheet.Unprotect
+    With Target.Borders(xlDiagonalDown)
+     .LineStyle = xlContinuous
+     .Color = ColorConstants.vbBlack
+     .TintAndShade = 0
+     .Weight = xlMedium
+    End With
+    With Target.Borders(xlDiagonalUp)
+     .LineStyle = xlContinuous
+     .Color = ColorConstants.vbBlack
+     .TintAndShade = 0
+     .Weight = xlMedium
+    End With
+    Target.Worksheet.Protect ""
+End Sub
+Public Function CheckWinner(ships As Collection) As Boolean
+    Dim oShip As Ship
+    For Each oShip In ships
+        If oShip.Hits.Count < oShip.Position.Cells.Count Then
+            CheckWinner = False
+            Exit Function
+        End If
+    Next
+    CheckWinner = True
+End Function
