@@ -457,7 +457,7 @@ namespace OfficeOpenXml.Drawing
         private decimal GetColumnWidth(int col)
         {
             ExcelWorksheet ws = _drawings.Worksheet;
-            var column = ws._values.GetValue(0, col) as ExcelColumn;
+            var column = ws.GetValueInner(0, col) as ExcelColumn;
             if (column == null)   //Check that the column exists
             {
                 return (decimal)ws.DefaultColWidth;
@@ -471,7 +471,7 @@ namespace OfficeOpenXml.Drawing
         {
             ExcelWorksheet ws = _drawings.Worksheet;
             object o = null;
-            if (ws._values.Exists(row, 0, ref o) && o != null)   //Check that the row exists
+            if (ws.ExistsValueInner(row, 0, ref o) && o != null)   //Check that the row exists
             {
                 var internalRow = (RowInternal)o;
                 if (internalRow.Height >= 0)

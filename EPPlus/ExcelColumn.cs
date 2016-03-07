@@ -81,10 +81,10 @@ namespace OfficeOpenXml
                     throw new Exception("ColumnMax out of range");
                 }
 
-                var cse = new CellsStoreEnumerator<object>(_worksheet._values, 0, 0, 0, ExcelPackage.MaxColumns);
+                var cse = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 0, 0, 0, ExcelPackage.MaxColumns);
                 while(cse.Next())
                 {
-                    var c = cse.Value as ExcelColumn;
+                    var c = cse.Value._value as ExcelColumn;
                     if (cse.Column > _columnMin && c.ColumnMax <= value && cse.Column!=_columnMin)
                     {
                         throw new Exception(string.Format("ColumnMax can not span over existing column {0}.",c.ColumnMin));
@@ -234,11 +234,11 @@ namespace OfficeOpenXml
         {
             get
             {
-                return _worksheet._styles.GetValue(0, ColumnMin);
+                return _worksheet.GetStyleInner(0, ColumnMin);
             }
             set
             {
-                _worksheet._styles.SetValue(0, ColumnMin, value);
+                _worksheet.SetStyleInner(0, ColumnMin, value);
             }
         }
         /// <summary>

@@ -215,7 +215,7 @@ namespace OfficeOpenXml
 							namedRange = nameWorksheet.Names.Add(elem.GetAttribute("name"), range);
 						}
 						
-						if (fullAddress.StartsWith("\"")) //String value
+						if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(fullAddress, "\"")) //String value
 						{
 							namedRange.NameValue = fullAddress.Substring(1,fullAddress.Length-2);
 						}
@@ -538,6 +538,7 @@ namespace OfficeOpenXml
 
         const string date1904Path = "d:workbookPr/@date1904";
         internal const double date1904Offset = 365.5 * 4;  // offset to fix 1900 and 1904 differences, 4 OLE years
+        private bool? date1904Cache = null;
         /// <summary>
         /// The date systems used by Microsoft Excel can be based on one of two different dates. By default, a serial number of 1 in Microsoft Excel represents January 1, 1900.
         /// The default for the serial number 1 can be changed to represent January 2, 1904.
@@ -547,8 +548,12 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNodeBool(date1904Path, false);
-               
+                //return GetXmlNodeBool(date1904Path, false);
+                if (date1904Cache == null)
+                {
+                    date1904Cache = GetXmlNodeBool(date1904Path, false);
+                }
+                return date1904Cache.Value;
             }
             set
             {
@@ -560,7 +565,7 @@ namespace OfficeOpenXml
                         item.UpdateCellsWithDate1904Setting();
                     }
                 }
-
+                date1904Cache = value;
                 SetXmlNodeBool(date1904Path, value, false);
             }
         }

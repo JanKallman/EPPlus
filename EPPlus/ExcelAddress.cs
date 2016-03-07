@@ -262,7 +262,7 @@ namespace OfficeOpenXml
         protected internal void SetAddress(string address)
         {
             address = address.Trim();
-            if (address.StartsWith("'"))
+            if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "'"))
             {
                 int pos = address.IndexOf("'", 1);
                 while (pos < address.Length && address[pos + 1] == '\'')
@@ -273,7 +273,7 @@ namespace OfficeOpenXml
                 SetWbWs(wbws);
                 _address = address.Substring(pos + 2);
             }
-            else if (address.StartsWith("[")) //Remove any external reference
+            else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "[")) //Remove any external reference
             {
                 SetWbWs(address);
             }
@@ -499,7 +499,7 @@ namespace OfficeOpenXml
                     SetAddress(ref fullAddress, ref second, ref hasSheet);
                     return true;
                 }
-                else if (fullAddress.StartsWith("!"))
+                else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(fullAddress, "!"))
                 {
                     // invalid address!
                     return false;

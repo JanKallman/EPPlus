@@ -192,5 +192,10 @@ namespace OfficeOpenXml.Utils
             ret.Append(t.Substring(prevIndex, t.Length - prevIndex));
             return ret.ToString();
         }
+
+        #region internal cache objects
+        internal static TextInfo _invariantTextInfo = CultureInfo.InvariantCulture.TextInfo;
+        internal static CompareInfo _invariantCompareInfo = CompareInfo.GetCompareInfo(CultureInfo.InvariantCulture.LCID);
+        #endregion
     }
 }

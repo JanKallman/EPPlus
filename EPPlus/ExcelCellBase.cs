@@ -185,7 +185,7 @@ namespace OfficeOpenXml
                     Ret += string.Format("[{0}]", addrRow - row);
                 }
 
-                if (part.StartsWith("$"))
+                if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(part, "$"))
                 {
                     return Ret + "C" + addrCol;
                 }
@@ -214,7 +214,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
-            string check = part.ToUpper(CultureInfo.InvariantCulture);
+            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
 
             int rStart = check.IndexOf("R");
             if (rStart != 0)
@@ -284,7 +284,7 @@ namespace OfficeOpenXml
                     fromRow = fromRow + rowIncr;
                 }
 
-                if (colIncr != 0 && col != 0 && fromCol >= col && Address.StartsWith("$") == false)
+                if (colIncr != 0 && col != 0 && fromCol >= col && Utils.ConvertUtil._invariantCompareInfo.IsPrefix(Address, "$") == false)
                 {
                     if (fromCol < col - colIncr)
                     {
@@ -294,7 +294,7 @@ namespace OfficeOpenXml
                     fromCol = fromCol + colIncr;
                 }
 
-                Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol, Address.StartsWith("$"));
+                Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol, Utils.ConvertUtil._invariantCompareInfo.IsPrefix(Address, "$"));
             }
             return Address;
         }
@@ -414,7 +414,7 @@ namespace OfficeOpenXml
                 return false;
             }
 
-            CellAddress = CellAddress.ToUpper(CultureInfo.InvariantCulture);
+            CellAddress = Utils.ConvertUtil._invariantTextInfo.ToUpper(CellAddress);
             //This one can be removed when the worksheet Select format is fixed
             if (CellAddress.IndexOf(' ') > 0)
             {
@@ -490,7 +490,7 @@ namespace OfficeOpenXml
           fixedRow = false;
           fixedCol = false;
 
-          if (address.EndsWith("#REF!"))
+          if (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(address, "#REF!"))
           {
             row = 0;
             col = 0;
@@ -502,7 +502,7 @@ namespace OfficeOpenXml
           {
             colStartIx = sheetMarkerIndex + 1;
           }
-          address = address.ToUpper(CultureInfo.InvariantCulture);
+          address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
           for (int i = colStartIx; i < address.Length; i++)
           {
             char c = address[i];
@@ -727,7 +727,7 @@ namespace OfficeOpenXml
         #region IsValidCellAddress
         public static bool IsValidAddress(string address)
         {
-            address = address.ToUpper(CultureInfo.InvariantCulture);
+            address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
             string r1 = "", c1 = "", r2 = "", c2 = "";
             bool isSecond = false;
             for (int i = 0; i < address.Length; i++)

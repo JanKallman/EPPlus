@@ -228,12 +228,12 @@ namespace OfficeOpenXml
 		#region Set property methods
 		private void Set_StyleID(object value, int row, int col)
 		{
-            _worksheet._styles.SetValue(row, col, (int)value);
+            _worksheet.SetStyleInner(row, col, (int)value);
 		}
 		private void Set_StyleName(object value, int row, int col)
 		{
 			//_worksheet.Cell(row, col).SetNewStyleName(value.ToString(), _styleID);
-            _worksheet._styles.SetValue(row, col, _styleID);
+            _worksheet.SetStyleInner(row, col, _styleID);
 		}
 		private void Set_Value(object value, int row, int col)
 		{
@@ -244,7 +244,7 @@ namespace OfficeOpenXml
                 SplitFormulas(_worksheet.Cells[row, col]);                
             }
             if (sfi != null) _worksheet._formulas.SetValue(row, col, string.Empty);
-			_worksheet._values.SetValue(row, col, value);
+			_worksheet.SetValueInner(row, col, value);
 		}
 		private void Set_Formula(object value, int row, int col)
 		{
@@ -261,7 +261,7 @@ namespace OfficeOpenXml
 			{
 				if (formula[0] == '=') value = formula.Substring(1, formula.Length - 1); // remove any starting equalsign.
                 _worksheet._formulas.SetValue(row, col, formula);
-                _worksheet._values.SetValue(row, col, null);
+                _worksheet.SetValueInner(row, col, null);
             }
 		}
 		/// <summary>
@@ -300,7 +300,7 @@ namespace OfficeOpenXml
 				{
 					//_worksheet.Cell(row, col).SharedFormulaID = f.Index;
                     _worksheet._formulas.SetValue(row, col, f.Index);
-                    _worksheet._values.SetValue(row, col, null);
+                    _worksheet.SetValueInner(row, col, null);
 				}
 			}
 		}
@@ -312,17 +312,17 @@ namespace OfficeOpenXml
 
                 if (value is ExcelHyperLink)
                 {
-                    _worksheet._values.SetValue(row, col, ((ExcelHyperLink)value).Display);
+                    _worksheet.SetValueInner(row, col, ((ExcelHyperLink)value).Display);
                 }
                 else
                 {
-                   _worksheet._values.SetValue(row, col, ((Uri)value).OriginalString);
+                   _worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
                 }                    
             }
             else
             {
                 _worksheet._hyperLinks.SetValue(row, col, (Uri)null);
-                _worksheet._values.SetValue(row, col, (Uri)null);
+                _worksheet.SetValueInner(row, col, (Uri)null);
             }
         }
 		private void Set_IsRichText(object value, int row, int col)
@@ -388,9 +388,9 @@ namespace OfficeOpenXml
 			{
 				IsRangeValid("styling");
                 int s=0;
-                if(!_worksheet._styles.Exists(_fromRow,_fromCol, ref s)) //Cell exists
+                if(!_worksheet.ExistsStyleInner(_fromRow,_fromCol, ref s)) //Cell exists
                 {
-                    if(!_worksheet._styles.Exists(_fromRow,0, ref s)) //No, check Row style
+                    if(!_worksheet.ExistsStyleInner(_fromRow,0, ref s)) //No, check Row style
                     {
                         var c = Worksheet.GetColumn(_fromCol);
                         if (c == null)
@@ -422,7 +422,7 @@ namespace OfficeOpenXml
                 else if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns)
                 {
                     xfId = 0;
-                    if (!_worksheet._styles.Exists(_fromRow, 0, ref xfId))
+                    if (!_worksheet.ExistsStyleInner(_fromRow, 0, ref xfId))
                     {
                         xfId = GetColumnStyle(_fromCol);
                     }
@@ -430,9 +430,9 @@ namespace OfficeOpenXml
                 else
                 {
                     xfId = 0;
-                    if(!_worksheet._styles.Exists(_fromRow, _fromCol, ref xfId))
+                    if(!_worksheet.ExistsStyleInner(_fromRow, _fromCol, ref xfId))
                     {
-                        if (!_worksheet._styles.Exists(_fromRow, 0, ref xfId))
+                        if (!_worksheet.ExistsStyleInner(_fromRow, 0, ref xfId))
                         {
                             xfId = GetColumnStyle(_fromCol);
                         }
@@ -477,7 +477,7 @@ namespace OfficeOpenXml
                     column.StyleName = value;
                     column.StyleID = _styleID;
 
-                    var cols = new CellsStoreEnumerator<object>(_worksheet._values, 0, _fromCol + 1, 0, _toCol);
+                    var cols = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 0, _fromCol + 1, 0, _toCol);
                     if (cols.Next())
                     {
                         col = _fromCol;
@@ -492,13 +492,13 @@ namespace OfficeOpenXml
                             column._styleName = value;
                             column.StyleID = _styleID;
 
-                            if (cols.Value == null)
+                            if (cols.Value._value == null)
                             {
                                 break;
                             }
                             else
                             {
-                                var nextCol = (ExcelColumn)cols.Value;
+                                var nextCol = (ExcelColumn)cols.Value._value;
                                 if(column.ColumnMax < nextCol.ColumnMax-1)
                                 {
                                     column.ColumnMax = nextCol.ColumnMax - 1;
@@ -515,11 +515,11 @@ namespace OfficeOpenXml
 
                     if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns) //FullRow
                     {
-                        var rows = new CellsStoreEnumerator<object>(_worksheet._values, 1, 0, ExcelPackage.MaxRows, 0);
+                        var rows = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 1, 0, ExcelPackage.MaxRows, 0);
                         rows.Next();
-                        while(rows.Value!=null)
+                        while(rows.Value._value != null)
                         {
-                            _worksheet._styles.SetValue(rows.Row, 0, _styleID);
+                            _worksheet.SetStyleInner(rows.Row, 0, _styleID);
                             if (!rows.Next())
                             {
                                 break;
@@ -542,16 +542,17 @@ namespace OfficeOpenXml
                     {
                         for (int r = _fromRow; r <= _toRow; r++)
                         {
-                            _worksheet._styles.SetValue(r, c, _styleID);
+                            _worksheet.SetStyleInner(r, c, _styleID);
                         }
                     }
                 }
                 else //Only set name on created cells. (uncreated cells is set on full row or full column).
                 {
-                    var cells = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
+                    var cells = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
                     while (cells.Next())
                     {
-                        _worksheet._styles.SetValue(cells.Row, cells.Column, _styleID);
+                        _worksheet.SetStyleInner(cells.Row, cells.Column, _styleID);
+                        //cells.Value._styleId = _styleID;
                     }
                 }
                 //_changePropMethod(Set_StyleName, value);
@@ -561,7 +562,7 @@ namespace OfficeOpenXml
         private int GetColumnStyle(int col)
         {
             object c=null;
-            if (_worksheet._values.Exists(0, col, ref c))
+            if (_worksheet.ExistsValueInner(0, col, ref c))
             {
                 return (c as ExcelColumn).StyleID;
             }
@@ -570,10 +571,10 @@ namespace OfficeOpenXml
                 int row = 0;
                 if (_worksheet._values.PrevCell(ref row, ref col))
                 {
-                    var column=_worksheet._values.GetValue(row,col) as ExcelColumn;
+                    var column=_worksheet.GetValueInner(row,col) as ExcelColumn;
                     if(column.ColumnMax>=col)
                     {
-                        return _worksheet._styles.GetValue(row, col);
+                        return _worksheet.GetStyleInner(row, col);
                     }
                 }
             }
@@ -589,11 +590,11 @@ namespace OfficeOpenXml
 			get
 			{
                 int s=0;
-                if(!_worksheet._styles.Exists(_fromRow, _fromCol, ref s))
+                if(!_worksheet.ExistsStyleInner(_fromRow, _fromCol, ref s))
                 {
-                    if (!_worksheet._styles.Exists(_fromRow, 0, ref s))
+                    if (!_worksheet.ExistsStyleInner(_fromRow, 0, ref s))
                     {
-                        s = _worksheet._styles.GetValue(0, _fromCol);
+                        s = _worksheet.GetStyleInner(0, _fromCol);
                     }
                 }
                 return s;
@@ -684,7 +685,8 @@ namespace OfficeOpenXml
 			{
 				for (int row = addr._fromRow; row <= addr._toRow; row++)
 				{
-					if (_worksheet._values.Exists(row,col))
+                    object o = null;
+					if (_worksheet.ExistsValueInner(row, col, ref o))
 					{
                         if (_worksheet._flags.GetFlagValue(row, col, CellFlags.RichText))
 						{
@@ -692,7 +694,7 @@ namespace OfficeOpenXml
 						}
 						else
 						{
-							v[row - addr._fromRow, col - addr._fromCol] = _worksheet._values.GetValue(row, col);
+							v[row - addr._fromRow, col - addr._fromCol] = o;
 						}
 					}
 				}
@@ -734,7 +736,7 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				return _worksheet._values.GetValue(_fromRow, _fromCol);
+				return _worksheet.GetValueInner(_fromRow, _fromCol);
 			}
 		}
 		/// <summary>
@@ -910,10 +912,11 @@ namespace OfficeOpenXml
 
         private void SetMinWidth(double minimumWidth, int fromCol, int toCol)
         {
-            var iterator = new CellsStoreEnumerator<object>(_worksheet._values, 0, fromCol, 0, toCol);
+            var iterator = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 0, fromCol, 0, toCol);
             var prevCol = fromCol;
-            foreach (ExcelColumn col in iterator)
+            foreach (ExcelCoreValue val in iterator)
             {
+                var col = (ExcelColumn)val._value;
                 col.Width = minimumWidth;
                 if (_worksheet.DefaultColWidth > minimumWidth && col.ColumnMin > prevCol)
                 {
@@ -1296,7 +1299,7 @@ namespace OfficeOpenXml
 		private ExcelRichTextCollection GetRichText(int row, int col)
 		{
 			XmlDocument xml = new XmlDocument();
-            var v = _worksheet._values.GetValue(row, col);
+            var v = _worksheet.GetValueInner(row, col);
             var isRt = _worksheet._flags.GetFlagValue(row, col, CellFlags.RichText);
             if (v != null)
 			{
@@ -1743,7 +1746,7 @@ namespace OfficeOpenXml
 	            for (int i = 0; i < fieldCount; i++)
 	            {
 	                // If no caption is set, the ColumnName property is called implicitly.
-	                _worksheet._values.SetValue(row, col++, Reader.GetName(i));
+	                _worksheet.SetValueInner(row, col++, Reader.GetName(i));
 	            }
 	            row++;
 	            col = _fromCol;
@@ -1752,7 +1755,7 @@ namespace OfficeOpenXml
 	        {
 	            for (int i = 0; i < fieldCount; i++)
 	            {
-	                _worksheet._values.SetValue(row, col++, Reader.GetValue(i));
+	                _worksheet.SetValueInner(row, col++, Reader.GetValue(i));
 	            }
 	            row++;
 	            col = _fromCol;
@@ -1800,7 +1803,7 @@ namespace OfficeOpenXml
 				foreach (DataColumn dc in Table.Columns)
 				{
                     // If no caption is set, the ColumnName property is called implicitly.
-					_worksheet._values.SetValue(row, col++, dc.Caption);
+					_worksheet.SetValueInner(row, col++, dc.Caption);
 				}
 				row++;
 				col = _fromCol;
@@ -1815,7 +1818,7 @@ namespace OfficeOpenXml
 				{
                     if (value != null && value != DBNull.Value && !string.IsNullOrEmpty(value.ToString()))
                     {
-                        _worksheet._values.SetValue(row, col++, value);
+                        _worksheet.SetValueInner(row, col++, value);
                     }
                     else
                     {
@@ -1846,7 +1849,7 @@ namespace OfficeOpenXml
 				column = _fromCol;
 				foreach (var cellData in rowData)
 				{
-					_worksheet._values.SetValue(row, column, cellData);
+					_worksheet.SetValueInner(row, column, cellData);
 					column += 1;
 				}
 				row += 1;
@@ -1943,7 +1946,7 @@ namespace OfficeOpenXml
                             header = t.Name.Replace('_', ' ');
                         }
                     }
-                    _worksheet._values.SetValue(row, col++, header);
+                    _worksheet.SetValueInner(row, col++, header);
 				}
 				row++;
 			}
@@ -2106,7 +2109,7 @@ namespace OfficeOpenXml
                     if (lineQCount % 2 == 1)
                         throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
 
-                    _worksheet._values.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                    _worksheet.SetValueInner(row, col, ConvertData(Format, v, col - _fromCol, isText));
                     if (col > maxCol) maxCol = col;
                     row++;
                 }
@@ -2258,7 +2261,7 @@ namespace OfficeOpenXml
             Uri hl = null;
             ExcelComment comment=null;
 
-            var cse = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
+            var cse = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
             var copiedValue = new List<CopiedCell>();
             while (cse.Next())
             {
@@ -2268,16 +2271,16 @@ namespace OfficeOpenXml
                 {
                     Row = Destination._fromRow + (row - _fromRow),
                     Column = Destination._fromCol + (col - _fromCol),
-                    Value=cse.Value
+                    Value=cse.Value._value
                 };
 
-                //Destination._worksheet._values.SetValue(row, col, cse.Value);
+                //Destination._worksheet.SetValueInner(row, col, cse.Value);
 
-                if (_worksheet._types.Exists(row, col, ref s))
-                {
-                    //Destination._worksheet._types.SetValue(row, col,s);
-                    cell.Type=s;
-                }
+                //if (_worksheet._types.Exists(row, col, ref s))
+                //{
+                //    //Destination._worksheet._types.SetValue(row, col,s);
+                //    cell.Type=s;
+                //}
 
                 if (_worksheet._formulas.Exists(row, col, ref o))
                 {
@@ -2292,11 +2295,11 @@ namespace OfficeOpenXml
                         cell.Formula=o;
                     }
                 }
-                if(_worksheet._styles.Exists(row, col, ref i))
+                if(_worksheet.ExistsStyleInner(row, col, ref i))
                 {
                     if (sameWorkbook)
                     {
-                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID=i;
                     }
                     else
@@ -2311,7 +2314,7 @@ namespace OfficeOpenXml
                             i = styles.CloneStyle(sourceStyles, i);
                             styleCashe.Add(oldStyleID, i);
                         }
-                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID=i;
                     }
                 }
@@ -2335,10 +2338,10 @@ namespace OfficeOpenXml
             }
 
             //Copy styles with no cell value
-            var cses = new CellsStoreEnumerator<int>(_worksheet._styles, _fromRow, _fromCol, _toRow, _toCol);
+            var cses = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
             while (cses.Next())
             {
-                if (!_worksheet._values.Exists(cses.Row, cses.Column))
+                if (!_worksheet.ExistsValueInner(cses.Row, cses.Column))
                 {
                     var row = Destination._fromRow + (cses.Row - _fromRow);
                     var col = Destination._fromCol + (cses.Column - _fromCol);
@@ -2349,7 +2352,7 @@ namespace OfficeOpenXml
                         Value = null
                     };
 
-                    i = cses.Value;
+                    i = cses.Value._styleId;
                     if (sameWorkbook)
                     {
                         cell.StyleID = i;
@@ -2366,7 +2369,7 @@ namespace OfficeOpenXml
                             i = styles.CloneStyle(sourceStyles, i);
                             styleCashe.Add(oldStyleID, i);
                         }
-                        //Destination._worksheet._styles.SetValue(row, col, i);
+                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID = i;
                     }
                     copiedValue.Add(cell);
@@ -2400,24 +2403,24 @@ namespace OfficeOpenXml
 
             Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            //Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
+            //Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._commentsStore.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
            
             foreach(var cell in copiedValue)
             {
-                Destination._worksheet._values.SetValue(cell.Row, cell.Column, cell.Value);
+                Destination._worksheet.SetValueInner(cell.Row, cell.Column, cell.Value);
 
-                if(cell.Type!=null)
-                {
-                    Destination._worksheet._types.SetValue(cell.Row, cell.Column, cell.Type);
-                }
+                //if(cell.Type!=null)
+                //{
+                //    Destination._worksheet._types.SetValue(cell.Row, cell.Column, cell.Type);
+                //}
 
                 if(cell.StyleID!=null)
                 {
-                    Destination._worksheet._styles.SetValue(cell.Row, cell.Column, cell.StyleID.Value);
+                    Destination._worksheet.SetStyleInner(cell.Row, cell.Column, cell.StyleID.Value);
                 }
 
                 if(cell.Formula!=null)
@@ -2501,8 +2504,8 @@ namespace OfficeOpenXml
             var cols = Range._toCol - fromCol + 1;
             
             _worksheet._values.Delete(fromRow, fromCol, rows, cols, shift);
-            _worksheet._types.Delete(fromRow, fromCol, rows, cols, shift);
-            _worksheet._styles.Delete(fromRow, fromCol, rows, cols, shift);
+            //_worksheet._types.Delete(fromRow, fromCol, rows, cols, shift);
+            //_worksheet._styles.Delete(fromRow, fromCol, rows, cols, shift);
             _worksheet._formulas.Delete(fromRow, fromCol, rows, cols, shift);
             _worksheet._hyperLinks.Delete(fromRow, fromCol, rows, cols, shift);
             _worksheet._flags.Delete(fromRow, fromCol, rows, cols, shift);
@@ -2551,7 +2554,7 @@ namespace OfficeOpenXml
 
 		#endregion
 		#region "Enumerator"
-        CellsStoreEnumerator<object> cellEnum;
+        CellsStoreEnumerator<ExcelCoreValue> cellEnum;
 		public IEnumerator<ExcelRangeBase> GetEnumerator()
 		{
 			Reset();
@@ -2598,7 +2601,7 @@ namespace OfficeOpenXml
                 _enumAddressIx++;
                 if (_enumAddressIx < _addresses.Count)
                 {
-                    cellEnum = new CellsStoreEnumerator<object>(_worksheet._values, 
+                    cellEnum = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 
                         _addresses[_enumAddressIx]._fromRow, 
                         _addresses[_enumAddressIx]._fromCol, 
                         _addresses[_enumAddressIx]._toRow, 
@@ -2616,7 +2619,7 @@ namespace OfficeOpenXml
 		public void Reset()
 		{
             _enumAddressIx = -1;
-            cellEnum = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
+            cellEnum = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
         }
     #endregion
     }

@@ -178,9 +178,9 @@ namespace OfficeOpenXml
             }
             _comments.Add(comment);
             //Check if a value exists otherwise add one so it is saved when the cells collection is iterated
-            if (!Worksheet._values.Exists(cell._fromRow, cell._fromCol))
+            if (!Worksheet.ExistsValueInner(cell._fromRow, cell._fromCol))
             {
-                Worksheet._values.SetValue(cell._fromRow, cell._fromCol, null);
+                Worksheet.SetValueInner(cell._fromRow, cell._fromCol, null);
             }
             return comment;
         }
