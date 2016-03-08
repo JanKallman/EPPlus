@@ -4145,7 +4145,7 @@ namespace OfficeOpenXml
                         sdv += offset;
 
                         //cse.Value._value = DateTime.FromOADate(sdv);
-                        SetValueInner(cse.Row, cse.Column, sdv);
+                        SetValueInner(cse.Row, cse.Column, DateTime.FromOADate(sdv));
                     }
                     catch
                     {
