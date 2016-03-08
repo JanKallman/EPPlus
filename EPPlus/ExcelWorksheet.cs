@@ -3476,15 +3476,15 @@ namespace OfficeOpenXml
             var cache = new StringBuilder();
             cache.Append("<sheetData>");
             
-            //Set a value for cells with style and no value set.
-            var cseStyle = new CellsStoreEnumerator<ExcelCoreValue>(_values, 0, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
-            foreach (var s in cseStyle)
-            {
-                if(!_values.Exists(cseStyle.Row, cseStyle.Column))
-                {
-                    SetValueInner(cseStyle.Row, cseStyle.Column, null);
-                }
-            }
+            ////Set a value for cells with style and no value set.
+            //var cseStyle = new CellsStoreEnumerator<ExcelCoreValue>(_values, 0, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
+            //foreach (var s in cseStyle)
+            //{
+            //    if(!ExistsValueInner(cseStyle.Row, cseStyle.Column))
+            //    {
+            //        SetValueInner(cseStyle.Row, cseStyle.Column, null);
+            //    }
+            //}
 
             columnStyles = new Dictionary<int, int>();
             var cse = new CellsStoreEnumerator<ExcelCoreValue>(_values, 1, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
