@@ -215,13 +215,21 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				for (int col = address.Start.Column; col <= address.End.Column; col++)
-				{
-					for (int row = address.Start.Row; row <= address.End.Row; row++)
-					{
-						valueMethod(value, row, col);
-					}
-				}
+                if (value is object[,] && valueMethod == Set_Value)
+                {
+                    // only simple set value is supported for bulk copy
+                    _worksheet.SetRangeValueInner(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column, (object[,])value);
+                }
+                else
+                {
+                    for (int col = address.Start.Column; col <= address.End.Column; col++)
+                    {
+                        for (int row = address.Start.Row; row <= address.End.Row; row++)
+                        {
+                            valueMethod(value, row, col);
+                        }
+                    }
+                }
 			}
 		}
 		#endregion
@@ -1792,44 +1800,39 @@ namespace OfficeOpenXml
 		/// <returns>The filled range</returns>
 		public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders)
 		{
-			if (Table == null)
-			{
-				throw (new ArgumentNullException("Table can't be null"));
-			}
+            if (Table == null)
+            {
+                throw (new ArgumentNullException("Table can't be null"));
+            }
 
-			int col = _fromCol, row = _fromRow;
-			if (PrintHeaders)
-			{
-				foreach (DataColumn dc in Table.Columns)
-				{
-                    // If no caption is set, the ColumnName property is called implicitly.
-					_worksheet.SetValueInner(row, col++, dc.Caption);
-				}
-				row++;
-				col = _fromCol;
-			}
-            else if (Table.Rows.Count == 0)
+            if (Table.Rows.Count == 0)
             {
                 return null;
             }
-			foreach (DataRow dr in Table.Rows)
-			{
-				foreach (object value in dr.ItemArray)
-				{
-                    if (value != null && value != DBNull.Value && !string.IsNullOrEmpty(value.ToString()))
+            var rowArray = new List<object[]>();
+            if (PrintHeaders)
+            {
+                rowArray.Add(Table.Columns.Cast<DataColumn>().Select((dc) => { return dc.Caption; }).ToArray());
+            }
+            foreach (DataRow dr in Table.Rows)
+            {
+                rowArray.Add(dr.ItemArray);
+            }
+            _worksheet._values.SetRangeValueSpecial(_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + Table.Columns.Count - 1,
+                (List<ExcelCoreValue> list, int index, int rowIx, int columnIx, object value) =>
+                {
+                    rowIx -= _fromRow;
+                    columnIx -= _fromCol;
+
+                    var val = ((List<object[]>)value)[rowIx][columnIx];
+                    if (val != null && val != DBNull.Value && !string.IsNullOrEmpty(val.ToString()))
                     {
-                        _worksheet.SetValueInner(row, col++, value);
+                        list[index] = new ExcelCoreValue { _value = val, _styleId = list[index]._styleId };
                     }
-                    else
-                    {
-                        col++;
-                    }
-                }
-				row++;
-				col = _fromCol;
-			}
-            return _worksheet.Cells[_fromRow, _fromCol, (row == _fromRow ? _fromRow : row - 1), _fromCol + Table.Columns.Count - 1];
-		}
+                }, rowArray);
+
+            return _worksheet.Cells[_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + Table.Columns.Count - 1];
+        }
 		#endregion
 		#region LoadFromArrays
 		/// <summary>
@@ -1839,23 +1842,36 @@ namespace OfficeOpenXml
 		/// <param name="Data">The data.</param>
 		public ExcelRangeBase LoadFromArrays(IEnumerable<object[]> Data)
 		{
-			//thanx to Abdullin for the code contribution
-			if (Data == null) throw new ArgumentNullException("data");
+            //thanx to Abdullin for the code contribution
+            if (Data == null) throw new ArgumentNullException("data");
 
-			int column = _fromCol, row = _fromRow;
+            var rowArray = new List<object[]>();
+            var maxColumn = 0;
+            foreach (object[] item in Data)
+            {
+                rowArray.Add(item);
+                if (maxColumn < item.Length) maxColumn = item.Length;
+            }
+            _worksheet._values.SetRangeValueSpecial(_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + maxColumn - 1,
+                (List<ExcelCoreValue> list, int index, int rowIx, int columnIx, object value) =>
+                {
+                    rowIx -= _fromRow;
+                    columnIx -= _fromCol;
 
-			foreach (var rowData in Data)
-			{
-				column = _fromCol;
-				foreach (var cellData in rowData)
-				{
-					_worksheet.SetValueInner(row, column, cellData);
-					column += 1;
-				}
-				row += 1;
-			}
-			return _worksheet.Cells[_fromRow, _fromCol, row - 1, column - 1];
-		}
+                    var values = ((List<object[]>)value);
+                    if (values.Count <= rowIx) return;
+                    var item = values[rowIx];
+                    if (item.Length <= columnIx) return;
+
+                    var val = item[columnIx];
+                    if (val != null && val != DBNull.Value && !string.IsNullOrEmpty(val.ToString()))
+                    {
+                        list[index] = new ExcelCoreValue { _value = val, _styleId = list[index]._styleId };
+                    }
+                }, rowArray);
+
+            return _worksheet.Cells[_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + maxColumn - 1];
+        }
 		#endregion
 		#region LoadFromCollection
 		/// <summary>
@@ -1921,13 +1937,16 @@ namespace OfficeOpenXml
 				}
 			}
 
-			int col = _fromCol, row = _fromRow;
-			if (Members.Length > 0 && PrintHeaders)
-			{
-				foreach (var t in Members)
-				{
+            // create buffer
+            object[,] values = new object[(PrintHeaders ? Collection.Count() + 1 : Collection.Count()), Members.Count()];
+
+            int col = 0, row = 0;
+            if (Members.Length > 0 && PrintHeaders)
+            {
+                foreach (var t in Members)
+                {
                     var descriptionAttribute = t.GetCustomAttributes(typeof(DescriptionAttribute), false).FirstOrDefault() as DescriptionAttribute;
-				    var header = string.Empty;
+                    var header = string.Empty;
                     if (descriptionAttribute != null)
                     {
                         header = descriptionAttribute.Description;
@@ -1946,8 +1965,9 @@ namespace OfficeOpenXml
                             header = t.Name.Replace('_', ' ');
                         }
                     }
-                    _worksheet.SetValueInner(row, col++, header);
-				}
+                    //_worksheet.SetValueInner(row, col++, header);
+                    values[row, col++] = header;
+                }
 				row++;
 			}
 
@@ -1960,17 +1980,19 @@ namespace OfficeOpenXml
 			{
 				foreach (var item in Collection)
 				{
-					_worksheet.Cells[row++, col].Value = item;
-				}
+					//_worksheet.Cells[row++, col].Value = item;
+                    values[row, col++] = item;
+                }
 			}
 			else
 			{
 				foreach (var item in Collection)
 				{
-					col = _fromCol;
+					col = 0;
                     if (item is string || item is decimal || item is DateTime || item.GetType().IsPrimitive)
                     {
-                        _worksheet.Cells[row, col++].Value = item;
+                        //_worksheet.Cells[row, col++].Value = item;
+                        values[row, col++] = item;
                     }
                     else
                     {
@@ -1978,15 +2000,18 @@ namespace OfficeOpenXml
                         {
                             if (t is PropertyInfo)
                             {
-                                _worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
+                                //_worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
+                                values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
                             }
                             else if (t is FieldInfo)
                             {
-                                _worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
+                                //_worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
+                                values[row, col++] = ((FieldInfo)t).GetValue(item);
                             }
                             else if (t is MethodInfo)
                             {
-                                _worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                                //_worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
+                                values[row, col++] = ((MethodInfo)t).Invoke(item, null);
                             }
                         }
                     }
@@ -1994,12 +2019,9 @@ namespace OfficeOpenXml
 				}
 			}
 
-            if (_fromRow == row-1 && PrintHeaders)
-            {
-                row++;
-            }
+            _worksheet.SetRangeValueInner(_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1, values);
 
-            var r = _worksheet.Cells[_fromRow, _fromCol, row - 1, Members.Length==0 ? col : col - 1];
+            var r = _worksheet.Cells[_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1];
 
 			if (TableStyle != TableStyles.None)
 			{
@@ -2040,15 +2062,19 @@ namespace OfficeOpenXml
 
             string splitRegex = String.Format("{0}(?=(?:[^{1}]*{1}[^{1}]*{1})*[^{1}]*$)", Format.EOL, Format.TextQualifier);
             string[] lines = Regex.Split(Text, splitRegex);
-            int row = _fromRow;
-            int col = _fromCol;
+            int row = 0;
+            int col = 0;
             int maxCol = col;
             int lineNo = 1;
+            var values = new List<object>[lines.Length];
             foreach (string line in lines)
             {
+                var items = new List<object>();
+                values[row] = items;
+
                 if (lineNo > Format.SkipLinesBeginning && lineNo <= lines.Length - Format.SkipLinesEnd)
                 {
-                    col = _fromCol;
+                    col = 0;
                     string v = "";
                     bool isText = false, isQualifier = false;
                     int QCount = 0;
@@ -2085,7 +2111,8 @@ namespace OfficeOpenXml
                             {
                                 if (c == Format.Delimiter)
                                 {
-                                    _worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                                    //_worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                                    items.Add(ConvertData(Format, v, col, isText));
                                     v = "";
                                     isText = false;
                                     col++;
@@ -2109,13 +2136,26 @@ namespace OfficeOpenXml
                     if (lineQCount % 2 == 1)
                         throw (new Exception(string.Format("Text delimiter is not closed in line : {0}", line)));
 
-                    _worksheet.SetValueInner(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                    //_worksheet.SetValueInner(row, col, ConvertData(Format, v, col - _fromCol, isText));
+                    items.Add(ConvertData(Format, v, col, isText));
                     if (col > maxCol) maxCol = col;
                     row++;
                 }
                 lineNo++;
             }
-            return _worksheet.Cells[_fromRow, _fromCol, row - 1, maxCol];
+            // flush
+            _worksheet._values.SetRangeValueSpecial(_fromRow, _fromCol, _fromRow + values.Length - 1, _fromCol + maxCol,
+                (List<ExcelCoreValue> list, int index, int rowIx, int columnIx, object value) =>
+                {
+                    rowIx -= _fromRow;
+                    columnIx -= _fromCol;
+                    var item = values[rowIx];
+                    if (item == null || item.Count <= columnIx) return;
+
+                    list[index] = new ExcelCoreValue { _value = item[columnIx], _styleId = list[index]._styleId };
+                }, values);
+
+            return _worksheet.Cells[_fromRow, _fromCol, _fromRow + row, _fromCol + maxCol];
         }
 		/// <summary>
 		/// Loads a CSV text into a range starting from the top left cell.
