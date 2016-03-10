@@ -674,6 +674,100 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                 }
             }
         }
+
+        internal delegate void SetRangeValueDelegate(List<T> list, int index, int row, int column, object value);
+        /// <summary>
+        /// Set Value for Range
+        /// </summary>
+        /// <param name="fromRow"></param>
+        /// <param name="fromColumn"></param>
+        /// <param name="toRow"></param>
+        /// <param name="toColumn"></param>
+        /// <param name="Updater"></param>
+        /// <param name="Value"></param>
+        internal void SetRangeValueSpecial(int fromRow, int fromColumn, int toRow, int toColumn, SetRangeValueDelegate Updater, object Value)
+        {
+            lock (_columnIndex)
+            {
+                // split row to page groups (pageIndex to RowNo List)
+                Dictionary<short, List<int>> pages = new Dictionary<short, List<int>>();
+                for (int rowIx = fromRow; rowIx <= toRow; rowIx++)
+                {
+                    var pageIx = (short)(rowIx >> pageBits);
+                    if (!pages.ContainsKey(pageIx)) pages.Add(pageIx, new List<int>());
+                    pages[pageIx].Add(rowIx);
+                }
+
+                for (int colIx = fromColumn; colIx <= toColumn; colIx++)
+                {
+                    var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(colIx) });
+
+                    foreach (var pair in pages)
+                    {
+                        short page = pair.Key;
+                        foreach (var rowIx in pair.Value)
+                        {
+                            if (col >= 0)
+                            {
+                                //var pos = Array.BinarySearch(_columnIndex[col].Pages, 0, _columnIndex[col].Count, new IndexBase() { Index = page });
+                                var pos = _columnIndex[col].GetPosition(rowIx);
+                                if (pos < 0)
+                                {
+                                    pos = ~pos;
+                                    if (pos - 1 < 0 || _columnIndex[col]._pages[pos - 1].IndexOffset + PageSize - 1 < rowIx)
+                                    {
+                                        AddPage(_columnIndex[col], pos, page);
+                                    }
+                                    else
+                                    {
+                                        pos--;
+                                    }
+                                }
+                                if (pos >= _columnIndex[col].PageCount)
+                                {
+                                    AddPage(_columnIndex[col], pos, page);
+                                }
+                                var pageItem = _columnIndex[col]._pages[pos];
+                                if (pageItem.IndexOffset > rowIx)
+                                {
+                                    pos--;
+                                    page--;
+                                    if (pos < 0)
+                                    {
+                                        throw (new Exception("Unexpected error when setting value"));
+                                    }
+                                    pageItem = _columnIndex[col]._pages[pos];
+                                }
+
+                                short ix = (short)(rowIx - ((pageItem.Index << pageBits) + pageItem.Offset));
+                                _searchItem.Index = ix;
+                                var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchItem);
+                                if (cellPos < 0)
+                                {
+                                    cellPos = ~cellPos;
+                                    AddCell(_columnIndex[col], pos, cellPos, ix, default(T));
+                                    Updater(_values, pageItem.Rows[cellPos].IndexPointer, rowIx, colIx, Value);
+                                }
+                                else
+                                {
+                                    Updater(_values, pageItem.Rows[cellPos].IndexPointer, rowIx, colIx, Value);
+                                }
+                            }
+                            else //Column does not exist
+                            {
+                                col = ~col;
+                                AddColumn(col, colIx);
+                                AddPage(_columnIndex[col], 0, page);
+                                short ix = (short)(rowIx - (page << pageBits));
+                                AddCell(_columnIndex[col], 0, 0, ix, default(T));
+                                Updater(_values, _columnIndex[col]._pages[0].Rows[0].IndexPointer, rowIx, colIx, Value);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         internal delegate void SetValueDelegate(List<T> list, int index, object value);
         // Set object's property atomically
         internal void SetValueSpecial(int Row, int Column, SetValueDelegate Updater, object Value)

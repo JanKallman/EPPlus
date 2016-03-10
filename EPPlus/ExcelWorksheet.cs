@@ -4291,7 +4291,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="row">row</param>
         /// <param name="col">column</param>
-        /// <param name="value"></param>
+        /// <param name="value">value</param>
         internal void SetValueInner(int row, int col, object value)
         {
             _values.SetValueSpecial(row, col, (CellStore<ExcelCoreValue>.SetValueDelegate)SetValueInnerUpdate, value);
@@ -4305,7 +4305,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="row">row</param>
         /// <param name="col">column</param>
-        /// <param name="styleId"></param>
+        /// <param name="styleId">styleId</param>
         internal void SetStyleInner(int row, int col, int styleId)
         {
             _values.SetValueSpecial(row, col, (CellStore<ExcelCoreValue>.SetValueDelegate)SetStyleInnerUpdate, styleId);
@@ -4313,6 +4313,34 @@ namespace OfficeOpenXml
         void SetStyleInnerUpdate(List<ExcelCoreValue> list, int index, object styleId)
         {
             list[index] = new ExcelCoreValue { _value = list[index]._value, _styleId = (int)styleId };
+        }
+
+        /// <summary>
+        /// Bulk(Range) set accessor of sheet value, for value array
+        /// </summary>
+        /// <param name="fromRow">start row</param>
+        /// <param name="fromColumn">start column</param>
+        /// <param name="toRow">end row</param>
+        /// <param name="toColumn">end column</param>
+        /// <param name="values">set values</param>
+        internal void SetRangeValueInner(int fromRow, int fromColumn, int toRow, int toColumn, object[,] values)
+        {
+            var rowBound = values.GetUpperBound(0);
+            var colBound = values.GetUpperBound(1);
+            _values.SetRangeValueSpecial(fromRow, fromColumn, toRow, toColumn,
+                (List<ExcelCoreValue> list, int index, int row, int column, object value) => {
+                    object val = null;
+                    if (rowBound >= row - fromRow && colBound >= column - fromColumn)
+                    {
+                        val = ((object[,])values)[row - fromRow, column - fromColumn];
+                    }
+                    list[index] = new ExcelCoreValue { _value = val, _styleId = list[index]._styleId };
+                },
+                values);
+        }
+        private void SetRangeValueUpdate(List<ExcelCoreValue> list, int index, int row, int column, object values)
+        {
+            list[index] = new ExcelCoreValue { _value = ((object[,])values)[row, column], _styleId = list[index]._styleId };
         }
 
         /// <summary>

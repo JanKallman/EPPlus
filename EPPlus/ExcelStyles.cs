@@ -419,24 +419,58 @@ namespace OfficeOpenXml
             }
             else             //Cellrange
             {
-                for (int col = address.Start.Column; col <= address.End.Column; col++)
-                {
-                    for (int row = address.Start.Row; row <= address.End.Row; row++)
+                var tmpCache = styleCashe;
+                var rowCache = new Dictionary<int, int>(address.End.Row - address.Start.Row + 1);
+                var colCache = new Dictionary<int, ExcelCoreValue>(address.End.Column - address.Start.Column + 1);
+                ws._values.SetRangeValueSpecial(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column,
+                    (List<ExcelCoreValue> list, int index, int row, int column, object args) =>
                     {
-                        var s = GetStyleId(ws, row, col);
-                        if (styleCashe.ContainsKey(s))
+                        // Optimized GetStyleID
+                        var s = list[index]._styleId;
+                        if (s == 0 && !ws.ExistsStyleInner(row, 0, ref s))
                         {
-                            ws.SetStyleInner(row, col, styleCashe[s]);
+                            // get row styleId with cache
+                            if (!rowCache.ContainsKey(row)) rowCache.Add(row, ws._values.GetValue(row, 0)._styleId);
+                            s = rowCache[row];
+                            if (s == 0)
+                            {
+                                // get column styleId with cache
+                                if (!colCache.ContainsKey(column)) colCache.Add(column, ws._values.GetValue(0, column));
+                                s = colCache[column]._styleId;
+                                if (s == 0)
+                                {
+                                    int r = 0, c = column;
+                                    if (ws._values.PrevCell(ref r, ref c))
+                                    {
+                                        //var val = ws._values.GetValue(0, c);
+                                        if (!colCache.ContainsKey(c)) colCache.Add(c, ws._values.GetValue(0, c));
+                                        var val = colCache[c];
+                                        var colObj = (ExcelColumn)(val._value);
+                                        if (colObj != null && colObj.ColumnMax >= column) //Fixes issue 15174
+                                        {
+                                            s = val._styleId;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (tmpCache.ContainsKey(s))
+                        {
+                            //ws.SetStyleInner(row, column, tmpCache[s]);
+                            list[index] = new ExcelCoreValue { _value = list[index]._value, _styleId = tmpCache[s] };
                         }
                         else
                         {
                             ExcelXfs st = CellXfs[s];
                             int newId = st.GetNewID(CellXfs, sender, e.StyleClass, e.StyleProperty, e.Value);
-                            styleCashe.Add(s, newId);
-                            ws.SetStyleInner(row, col, newId);
+                            tmpCache.Add(s, newId);
+                            //ws.SetStyleInner(row, column, newId);
+                            list[index] = new ExcelCoreValue { _value = list[index]._value, _styleId = newId };
                         }
-                    }
-                }
+                    },
+                    e);
+
             }
         }
 
