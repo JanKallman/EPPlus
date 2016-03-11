@@ -94,11 +94,12 @@ namespace OfficeOpenXml
 			_worksheet = xlWorksheet;
 			_ws = _worksheet.Name;
             _workbook = _worksheet.Workbook;
-            this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);
 			SetDelegate();
-		}
-
-        void ExcelRangeBase_AddressChange(object sender, EventArgs e)
+        }
+        /// <summary>
+        /// On change address handler
+        /// </summary>
+        protected internal override void ChangeAddress()
         {
             if (Table != null)
             {
@@ -113,7 +114,6 @@ namespace OfficeOpenXml
             _workbook = _worksheet.Workbook;
             base.SetRCFromTable(_worksheet._package, null);
 			if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
-            this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);
             SetDelegate();
 		}
 		internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
@@ -123,13 +123,8 @@ namespace OfficeOpenXml
             _worksheet = xlWorksheet;
 			_workbook = wb;
 			if (string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
-            this.AddressChange += new EventHandler(ExcelRangeBase_AddressChange);
             SetDelegate();
 		}
-        ~ExcelRangeBase()
-        {
-            this.AddressChange -= new EventHandler(ExcelRangeBase_AddressChange);
-        }
 		#endregion
 		#region Set Value Delegates
         private void SetDelegate()
