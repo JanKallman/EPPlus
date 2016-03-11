@@ -1067,5 +1067,30 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\rtpreserve.xlsx"));
             }
         }
+        [TestMethod]
+        public void Issue15252()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var path1 = @"c:\temp\saveerror1.xlsx";
+                var path2 = @"c:\temp\saveerror2.xlsx";
+                var workSheet = p.Workbook.Worksheets.Add("saveerror");
+                workSheet.Cells["A1"].Value = "test";
+
+                // double save OK?
+                p.SaveAs(new FileInfo(path1));
+                p.SaveAs(new FileInfo(path2));
+
+                // files are identical?
+                var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                using (var fs1 = new FileStream(path1, FileMode.Open))
+                using (var fs2 = new FileStream(path2, FileMode.Open))
+                {
+                    var hash1 = String.Join("", md5.ComputeHash(fs1).Select((x) => { return x.ToString(); }));
+                    var hash2 = String.Join("", md5.ComputeHash(fs2).Select((x) => { return x.ToString(); }));
+                    Assert.AreEqual(hash1, hash2);
+                }
+            }
+        }
     }
 }
