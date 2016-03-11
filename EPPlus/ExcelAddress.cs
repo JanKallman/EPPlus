@@ -58,7 +58,6 @@ namespace OfficeOpenXml
         internal protected string _wb;
         internal protected string _ws;
         internal protected string _address;
-        internal protected event EventHandler AddressChange;
 
         internal enum eAddressCollition
         {
@@ -297,12 +296,8 @@ namespace OfficeOpenXml
             _address = address;
             Validate();
         }
-        internal void ChangeAddress()
+        internal protected virtual void ChangeAddress()
         {
-            if (AddressChange != null)
-            {
-                AddressChange(this, new EventArgs());
-            }
         }
         private void SetWbWs(string address)
         {
