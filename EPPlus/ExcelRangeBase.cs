@@ -848,8 +848,10 @@ namespace OfficeOpenXml
 				using (var g = Graphics.FromImage(b))
 				{
                     g.PageUnit = GraphicsUnit.Pixel;
-                    var normalSize = (float)Math.Truncate(g.MeasureString("00", nfont, 10000, StringFormat.GenericTypographic).Width - g.MeasureString("0", nfont, 10000, StringFormat.GenericTypographic).Width);
-					foreach (var cell in this)
+                    //var normalSize = (float)Math.Truncate(g.MeasureString("00", nfont, 10000, StringFormat.GenericDefault).Width - g.MeasureString("0", nfont, 10000, StringFormat.GenericDefault).Width);
+                    var normalSize = Convert.ToSingle(ExcelWorkbook.GetWidthPixels(nf.Name, nf.Size));
+
+                    foreach (var cell in this)
 					{
                         if (_worksheet.Column(cell.Start.Column).Hidden)    //Issue 15338
                             continue;
@@ -872,10 +874,9 @@ namespace OfficeOpenXml
 							f = new Font(fnt.Name, fnt.Size, fs);
 							fontCache.Add(fntID, f);
 						}
-
-						//Truncate(({pixels}-5)/{Maximum Digit Width} * 100+0.5)/100
-
-                        var size = g.MeasureString(cell.TextForWidth, f, 10000, StringFormat.GenericTypographic);
+                        var ind = styles.CellXfs[cell.StyleID].Indent;
+                        var t = cell.TextForWidth + (ind > 0 ? new string('_',ind*2) : "");
+                        var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
                         double width;
                         double r = styles.CellXfs[cell.StyleID].TextRotation;
                         if (r <= 0 )
@@ -885,7 +886,7 @@ namespace OfficeOpenXml
                         else
                         {
                             r = (r <= 90 ? r : r - 90);
-                            width = (((size.Width - size.Height) * Math.Abs(System.Math.Cos(System.Math.PI * r / 180.0)) + size.Height) + 5) / normalSize;
+                            width = (((size.Width - size.Height) * Math.Abs(Math.Cos(Math.PI * r / 180.0)) + size.Height) + 5) / normalSize;
                         }
 
 						foreach (var a in afAddr)
@@ -1608,7 +1609,7 @@ namespace OfficeOpenXml
 		}
 		private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
 		{
-			if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return v;
+			if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return string.IsNullOrEmpty(v) ? null : v;
 
 			double d;
 			DateTime dt;
@@ -1667,9 +1668,10 @@ namespace OfficeOpenXml
 						{
 							return v;
 						}
-
-					default:
-						return v;
+                    case eDataTypes.String:
+                        return v;
+                    default:
+						return string.IsNullOrEmpty(v) ? null : v;
 
 				}
 			}

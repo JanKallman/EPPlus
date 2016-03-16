@@ -509,6 +509,7 @@ namespace OfficeOpenXml.Drawing.Chart
                string serieXML = GetChartSerieStartXml(type, int.Parse(topChart.Axis[0].Id), int.Parse(topChart.Axis[1].Id), topChart.Axis.Length>2?int.Parse(topChart.Axis[2].Id) : -1);
                _chartNode.InnerXml = serieXML;
            }
+            GetPositionSize();
        }
        private void LoadAxis()
        {

@@ -464,7 +464,7 @@ namespace OfficeOpenXml
                     XmlNode node = TopNode.SelectSingleNode("d:sheetViews/d:sheetView", NameSpaceManager);
                     if (node == null)
                     {
-                        CreateNode("d:sheetViews/d:sheetView"); //this one shouls always exist. but check anyway
+                        CreateNode("d:sheetViews/d:sheetView");     //this one shouls always exist. but check anyway
                         node = TopNode.SelectSingleNode("d:sheetViews/d:sheetView", NameSpaceManager);
                     }
                     _sheetView = new ExcelWorksheetView(NameSpaceManager, node, this);
@@ -575,31 +575,66 @@ namespace OfficeOpenXml
 			get 
 			{
                 CheckSheetType();
-                if (double.IsNaN(_defaultRowHeight))
-                {
-                    _defaultRowHeight = GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight");
-                    if(double.IsNaN(_defaultRowHeight))
+                _defaultRowHeight = GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight");
+                if (double.IsNaN(_defaultRowHeight) || CustomHeight==false)
+                 {
+                    var ix = Workbook.Styles.NamedStyles.FindIndexByID("Normal");
+                    if (ix>=0)
                     {
-                        _defaultRowHeight = 15; // Excel default height
+                        var f = Workbook.Styles.NamedStyles[ix].Style.Font;
+                        _defaultRowHeight = ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
                     }
-                }
-				return _defaultRowHeight;
+                    else
+                    {
+                        _defaultRowHeight = 15;   //Default Calibri 11
+                    }
+                 }
+				 return _defaultRowHeight;
 			}
 			set
 			{
                 CheckSheetType();
                 _defaultRowHeight = value;
-                SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
-                SetXmlNodeBool("d:sheetFormatPr/@customHeight", value != 15);
-
-                if (double.IsNaN(GetXmlNodeDouble("d:sheetFormatPr/@defaultColWidth")))
+                if (double.IsNaN(value))
                 {
-                    DefaultColWidth = 9.140625;
+                    DeleteNode("d:sheetFormatPr/@defaultRowHeight");
+                }
+                else
+                {
+                    SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
+                    //Check if this is the default width for the normal style
+                    var ix = Workbook.Styles.NamedStyles.FindIndexByID("Normal");
+                    double defHeight;
+                    if (ix >= 0)
+                    {
+                        var f = Workbook.Styles.NamedStyles[ix].Style.Font;
+                        defHeight =ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
+                    }
+                    else
+                    {
+                        defHeight = 15;   //Default Calibri 11
+                    }
+
+                    if (value!= defHeight)
+                    {
+                        CustomHeight = true;
+                    }
                 }
 			}
 		}
+        internal bool CustomHeight
+        {
+            get
+            {
+                return GetXmlNodeBool("d:sheetFormatPr/@customHeight");
+            }
+            set
+            {
+                SetXmlNodeBool("d:sheetFormatPr/@customHeight", value);
+            }
+        }
         /// <summary>
-        /// Get/set the default width of all rows in the worksheet
+        /// Get/set the default width of all columns in the worksheet
         /// </summary>
         public double DefaultColWidth
         {
@@ -609,7 +644,17 @@ namespace OfficeOpenXml
                 double ret = GetXmlNodeDouble("d:sheetFormatPr/@defaultColWidth");
                 if (double.IsNaN(ret))
                 {
-                    ret = 9.140625; // Excel's default width
+                    var mfw = Convert.ToDouble(Workbook.MaxFontWidth);
+                    var widthPx = mfw*7;
+                    var margin = Math.Truncate(mfw / 4 + 0.999)*2+1;
+                    if (margin < 5) margin = 5;
+                    while(Math.Truncate((widthPx - margin) / mfw * 100 + 0.5) / 100 < 8)
+                    {
+                        widthPx++;
+                    }
+                    widthPx = widthPx % 8==0 ? widthPx : 8 - widthPx % 8 + widthPx;
+                    var width = Math.Truncate((widthPx - margin) / mfw * 100 + 0.5) / 100;
+                    return Math.Truncate((width * mfw + margin) / mfw * 256) / 256;
                 }
                 return ret;
             }
@@ -2836,18 +2881,19 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        Packaging.ZipPackagePart partPack = Drawings.Part;
-                        Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
                         foreach (ExcelDrawing d in Drawings)
                         {
+                            d.AdjustPositionAndSize();
                             if (d is ExcelChart)
                             {
                                 ExcelChart c = (ExcelChart)d;
                                 c.ChartXml.Save(c.Part.GetStream(FileMode.Create, FileAccess.Write));
                             }
                         }
-                    }
+                        Packaging.ZipPackagePart partPack = Drawings.Part;
+                        Drawings.DrawingXml.Save(partPack.GetStream(FileMode.Create, FileAccess.Write));
                 }
+            }
         }
         internal void SaveHandler(ZipOutputStream stream, CompressionLevel compressionLevel, string fileName)
         {

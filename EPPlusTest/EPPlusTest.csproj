@@ -250,16 +250,16 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EPPlus\EPPlus.csproj">
-      <Project>{7b288026-5502-4a39-bf41-77e086f3e4a3}</Project>
-      <Name>EPPlus</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Resources\BitmapImage.gif" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Test1.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EPPlus\EPPlus.csproj">
+      <Project>{be4a6343-f411-44a3-8d6f-f40747ed7ba5}</Project>
+      <Name>EPPlus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

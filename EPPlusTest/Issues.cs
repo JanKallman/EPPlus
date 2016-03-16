@@ -1067,5 +1067,29 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\rtpreserve.xlsx"));
             }
         }
+        [TestMethod, Ignore]
+        public void Issue15429()
+        {
+            FileInfo file = new FileInfo(@"c:\temp\original.xlsx");
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet 1");
+                var equalsRule = worksheet.ConditionalFormatting.AddEqual(new ExcelAddress(2, 3, 6, 3));
+                equalsRule.Formula = "0";
+                equalsRule.Style.Fill.BackgroundColor.Color = Color.Blue;
+                worksheet.ConditionalFormatting.AddDatabar(new ExcelAddress(4, 4, 4, 4), Color.Red);
+                excelPackage.Save();
+            }
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets["Sheet 1"];
+                int i = 0;
+                foreach (var conditionalFormat in worksheet.ConditionalFormatting)
+                {
+                    conditionalFormat.Address = new ExcelAddress(5 + i++, 5, 6, 6);
+                }
+                excelPackage.SaveAs(new FileInfo(@"c:\temp\error.xlsx"));
+            }
+        }
     }
 }
