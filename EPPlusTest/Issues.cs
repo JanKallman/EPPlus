@@ -1091,5 +1091,18 @@ namespace EPPlusTest
                 excelPackage.SaveAs(new FileInfo(@"c:\temp\error.xlsx"));
             }
         }
+        [TestMethod, Ignore]
+        public void Issue15436()
+        {
+            FileInfo file = new FileInfo(@"c:\temp\incorrect value.xlsx");
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                Assert.AreEqual(excelPackage.Workbook.Worksheets[1].Cells["A1"].Value, 19120072);
+            }
+        }
+        public void Issuer15435()
+        {
+
+        }
     }
 }

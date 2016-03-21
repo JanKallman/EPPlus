@@ -672,8 +672,10 @@ namespace OfficeOpenXml
                 XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
-                foreach (ExcelDrawing draw in Copy.Drawings)
+                for(int i=0;i<Copy.Drawings.Count;i++)
                 {
+                    ExcelDrawing draw = Copy.Drawings[i];
+                    draw.AdjustPositionAndSize();       //Adjust position for any change in normal style font/row size etc.
                     if (draw is ExcelChart)
                     {
                         ExcelChart chart = draw as ExcelChart;
@@ -724,7 +726,19 @@ namespace OfficeOpenXml
                // streamDrawing.Close();
                 streamDrawing.Flush();
 
-            //}
+            //Copy the size variables to the copy.
+            for (int i=0;i<Copy.Drawings.Count;i++)
+            {
+                var draw = Copy.Drawings[i];
+                var c = workSheet.Drawings[i];
+                if (c != null)
+                {
+                    c._left = draw._left;
+                    c._top = draw._top;
+                    c._height = draw._height;
+                    c._width = draw._width;
+                }
+            }
         }
 
 		private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)

@@ -577,19 +577,10 @@ namespace OfficeOpenXml
                 CheckSheetType();
                 _defaultRowHeight = GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight");
                 if (double.IsNaN(_defaultRowHeight) || CustomHeight==false)
-                 {
-                    var ix = Workbook.Styles.NamedStyles.FindIndexByID("Normal");
-                    if (ix>=0)
-                    {
-                        var f = Workbook.Styles.NamedStyles[ix].Style.Font;
-                        _defaultRowHeight = ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
-                    }
-                    else
-                    {
-                        _defaultRowHeight = 15;   //Default Calibri 11
-                    }
-                 }
-				 return _defaultRowHeight;
+                {
+                    _defaultRowHeight=GetRowHeightFromNormalStyle();
+                }
+                return _defaultRowHeight;
 			}
 			set
 			{
@@ -603,26 +594,31 @@ namespace OfficeOpenXml
                 {
                     SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", value.ToString(CultureInfo.InvariantCulture));
                     //Check if this is the default width for the normal style
-                    var ix = Workbook.Styles.NamedStyles.FindIndexByID("Normal");
-                    double defHeight;
-                    if (ix >= 0)
-                    {
-                        var f = Workbook.Styles.NamedStyles[ix].Style.Font;
-                        defHeight =ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
-                    }
-                    else
-                    {
-                        defHeight = 15;   //Default Calibri 11
-                    }
-
-                    if (value!= defHeight)
-                    {
-                        CustomHeight = true;
-                    }
+                    double defHeight=GetRowHeightFromNormalStyle();
+                    CustomHeight = true;
                 }
 			}
 		}
-        internal bool CustomHeight
+
+        private double GetRowHeightFromNormalStyle()
+        {
+            var ix = Workbook.Styles.NamedStyles.FindIndexByID("Normal");
+            if (ix >= 0)
+            {
+                var f = Workbook.Styles.NamedStyles[ix].Style.Font;
+                return ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
+            }
+            else
+            {
+                return 15;   //Default Calibri 11
+            }
+        }
+
+        /// <summary>
+        /// 'True' if defaultRowHeight value has been manually set, or is different from the default value.
+        /// Is automaticlly set to 'True' when assigning the DefaultRowHeight property
+        /// </summary>
+        public bool CustomHeight
         {
             get
             {
@@ -665,7 +661,7 @@ namespace OfficeOpenXml
 
                 if (double.IsNaN(GetXmlNodeDouble("d:sheetFormatPr/@defaultRowHeight")))
                 {
-                    DefaultRowHeight = 15;
+                    SetXmlNodeString("d:sheetFormatPr/@defaultRowHeight", GetRowHeightFromNormalStyle().ToString(CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -1476,12 +1472,12 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            _values.SetValue(row, col, "");
+                            _values.SetValue(row, col, res);
                         } 
                     }
                     else
                     {
-                        _values.SetValue(row, col, "");
+                        _values.SetValue(row, col, v);
                     }
                 }
                 else
