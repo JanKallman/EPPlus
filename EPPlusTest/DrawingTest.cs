@@ -103,7 +103,7 @@ namespace EPPlusTest
             }
             else
             {
-                TestContext.WriteLine("AG00021_.GIF does not exists. Skiping Pic7.");
+                TestContext.WriteLine("AG00021_.GIF does not exists. Skipping Pic7.");
             }
 
             var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);

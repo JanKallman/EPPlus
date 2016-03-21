@@ -506,7 +506,7 @@ namespace OfficeOpenXml.Drawing
             if (ws._values.Exists(row, 0, ref o) && o != null)   //Check that the row exists
             {
                 var internalRow = (RowInternal)o;
-                if (internalRow.Height >= 0)
+                if (internalRow.Height >= 0 && internalRow.CustomHeight)
                 {
                     return internalRow.Height;
                 }

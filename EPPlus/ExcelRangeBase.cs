@@ -298,7 +298,6 @@ namespace OfficeOpenXml
 			{
 				for (int row = address.Start.Row; row <= address.End.Row; row++)
 				{
-					//_worksheet.Cell(row, col).SharedFormulaID = f.Index;
                     _worksheet._formulas.SetValue(row, col, f.Index);
                     _worksheet._values.SetValue(row, col, null);
 				}
@@ -316,7 +315,11 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                   _worksheet._values.SetValue(row, col, ((Uri)value).OriginalString);
+                    var v = _worksheet._values.GetValue(row, col);
+                    if (v == null || v.ToString() == "")
+                    {
+                        _worksheet._values.SetValue(row, col, ((Uri)value).OriginalString);
+                    }
                 }                    
             }
             else

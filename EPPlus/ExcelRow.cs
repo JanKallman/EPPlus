@@ -159,7 +159,7 @@ namespace OfficeOpenXml
                 {
                     Hidden = false;
                 }
-                r.CustomHeight = (value != _worksheet.DefaultRowHeight);
+                r.CustomHeight = true;
             }
         }
         /// <summary>
@@ -382,6 +382,7 @@ namespace OfficeOpenXml
             ExcelRow newRow = added.Row(Row);
             newRow.Collapsed = Collapsed;
             newRow.Height = Height;
+            newRow.CustomHeight = newRow.CustomHeight;
             newRow.Hidden = Hidden;
             newRow.OutlineLevel = OutlineLevel;
             newRow.PageBreak = PageBreak;
