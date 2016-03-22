@@ -838,6 +838,11 @@ namespace OfficeOpenXml
                             fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
                         }
                         fi.Close();
+
+                        // Issue15252: clear output buffer
+                        _stream.Close();
+                        _stream.Dispose();
+                        _stream = new MemoryStream();
                     }
                     else
                     {
