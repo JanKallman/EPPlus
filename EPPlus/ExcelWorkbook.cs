@@ -803,9 +803,19 @@ namespace OfficeOpenXml
                 worksheet.Part.SaveHandler = worksheet.SaveHandler;
 			}
 
-            var part = _package.Package.CreatePart(SharedStringsUri, ExcelPackage.contentTypeSharedString, _package.Compression);
+            // Issue 15252: save SharedStrings only once
+            Packaging.ZipPackagePart part;
+            if (_package.Package.PartExists(SharedStringsUri))
+            {
+                part = _package.Package.GetPart(SharedStringsUri);
+            }
+            else
+            {
+                part = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
+                Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            }
+
             part.SaveHandler = SaveSharedStringHandler;
-            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
             //UpdateSharedStringsXml();
 			
 			// Data validation
@@ -904,7 +914,8 @@ namespace OfficeOpenXml
             cache.Append("</sst>");
             sw.Write(cache.ToString());
             sw.Flush();
-            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            // Issue 15252: Save SharedStrings only once
+            //Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 		}
 		private void UpdateDefinedNamesXml()
 		{
