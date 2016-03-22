@@ -770,7 +770,7 @@ namespace OfficeOpenXml
             int xfix = 0;
             foreach (ExcelXfs xf in CellXfs)
             {
-                if (xf.useCnt > 0 && !(normalIx >= 0 && NamedStyles[normalIx].XfId == xfix))
+                if (xf.useCnt > 0 && !(normalIx >= 0 && NamedStyles[normalIx].StyleXfId == xfix))
                 {
                     cellXfsNode.AppendChild(xf.CreateXmlNode(_styleXml.CreateElement("xf", ExcelPackage.schemaMain)));
                     xf.newID = count;
