@@ -518,7 +518,7 @@ namespace OfficeOpenXml
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
             //Cells
             int row,col;
-            var val = new CellsStoreEnumerator<object>(Copy._values);
+            var val = new CellsStoreEnumerator<ExcelCoreValue>(Copy._values);
             //object f=null;
             //foreach (var addr in val)
             while(val.Next())
@@ -531,12 +531,12 @@ namespace OfficeOpenXml
                 int styleID=0;
                 if (row == 0) //Column
                 {
-                    var c = Copy._values.GetValue(row, col) as ExcelColumn;
+                    var c = Copy.GetValueInner(row, col) as ExcelColumn;
                     if (c != null)
                     {
                         var clone = c.Clone(added, c.ColumnMin);
                         clone.StyleID = c.StyleID;
-                        added._values.SetValue(row, col, clone);
+                        added.SetValueInner(row, col, clone);
                         styleID = c.StyleID;
                     }
                 }
@@ -547,7 +547,7 @@ namespace OfficeOpenXml
                     {
                         r.Clone(added);
                         styleID = r.StyleID;
-                        //added._values.SetValue(row, col, r.Clone(added));                                                
+                        //added.SetValueInner(row, col, r.Clone(added));                                                
                     }
                     
                 }
@@ -559,13 +559,13 @@ namespace OfficeOpenXml
                 {
                     if (styleCashe.ContainsKey(styleID))
                     {
-                        added._styles.SetValue(row, col, styleCashe[styleID]);
+                        added.SetStyleInner(row, col, styleCashe[styleID]);
                     }
                     else
                     {
                         var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
                         styleCashe.Add(styleID, s);
-                        added._styles.SetValue(row, col, s);
+                        added.SetStyleInner(row, col, s);
                     }
                 }
             }
@@ -574,12 +574,12 @@ namespace OfficeOpenXml
 
         private int CopyValues(ExcelWorksheet Copy, ExcelWorksheet added, int row, int col)
         {
-            added._values.SetValue(row, col, Copy._values.GetValue(row, col));
-            var t = Copy._types.GetValue(row, col);
-            if (t != null)
-            {
-                added._types.SetValue(row, col, t);
-            }
+            added.SetValueInner(row, col, Copy.GetValueInner(row, col));
+            //var t = Copy._types.GetValue(row, col);
+            //if (t != null)
+            //{
+            //    added._types.SetValue(row, col, t);
+            //}
             byte fl=0;
             if (Copy._flags.Exists(row,col,ref fl))
             {
@@ -591,10 +591,10 @@ namespace OfficeOpenXml
             {
                 added.SetFormula(row, col, v);
             }
-            var s = Copy._styles.GetValue(row, col);
+            var s = Copy.GetStyleInner(row, col);
             if (s != 0)
             {
-                added._styles.SetValue(row, col, s);
+                added.SetStyleInner(row, col, s);
             }
             var f = Copy._formulas.GetValue(row, col);
             if (f != null)

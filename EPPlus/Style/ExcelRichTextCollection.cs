@@ -157,7 +157,7 @@ namespace OfficeOpenXml.Style
             if (Count == 1 && isRt == false)
             {
                 _cells.Worksheet._flags.SetFlagValue(_cells._fromRow, _cells._fromCol, true, CellFlags.RichText);
-                var s = _cells.Worksheet._styles.GetValue(_cells._fromRow, _cells._fromCol);
+                var s = _cells.Worksheet.GetStyleInner(_cells._fromRow, _cells._fromCol);
                 //var fnt = cell.Style.Font;
                 var fnt = _cells.Worksheet.Workbook.Styles.GetStyleObject(s, _cells.Worksheet.PositionID, ExcelAddressBase.GetAddress(_cells._fromRow, _cells._fromCol)).Font;
                 this[0].PreserveSpace = true;

@@ -87,7 +87,7 @@ namespace EPPlusTest
 
             LoadData(ws, 5000);
 
-            var o = new CellsStoreEnumerator<object>(ws._values, 2, 1, 5, 3);
+            var o = new CellsStoreEnumerator<ExcelCoreValue>(ws._values, 2, 1, 5, 3);
             foreach (var i in o)
             {
                 Console.WriteLine(i);

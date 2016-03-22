@@ -257,7 +257,7 @@ namespace EPPlusTest
                             if (!string.IsNullOrEmpty(cell.Formula))
                             {
                                 fr.Add(ws.PositionID.ToString() + "," + cell.Address, cell.Value);
-                                ws._values.SetValue(cell.Start.Row, cell.Start.Column, null);
+                                ws.SetValueInner(cell.Start.Row, cell.Start.Column, null);
                             }
                         }
                     }
