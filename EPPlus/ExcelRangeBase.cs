@@ -2247,6 +2247,16 @@ namespace OfficeOpenXml
         /// <param name="Destination">The start cell where the range will be copied.</param>
         public void Copy(ExcelRangeBase Destination)
         {
+            Copy(Destination, null);
+        }
+
+        /// <summary>
+        /// Copies the range of cells to an other range
+        /// </summary>
+        /// <param name="Destination">The start cell where the range will be copied.</param>
+        /// <param name="excelRangeCopyOptionFlags">Cell parts that will not be copied. If Formulas are specified, the formulas will NOT be copied.</param>
+        public void Copy(ExcelRangeBase Destination, ExcelRangeCopyOptionFlags? excelRangeCopyOptionFlags)
+        {
             bool sameWorkbook = Destination._worksheet.Workbook == _worksheet.Workbook;
             ExcelStyles sourceStyles = _worksheet.Workbook.Styles,
                         styles = Destination._worksheet.Workbook.Styles;
@@ -2262,6 +2272,8 @@ namespace OfficeOpenXml
             byte flag=0;
             Uri hl = null;
             ExcelComment comment=null;
+
+            var excludeFormulas = excelRangeCopyOptionFlags.HasValue && (excelRangeCopyOptionFlags.Value & ExcelRangeCopyOptionFlags.ExcludeFormulas) == ExcelRangeCopyOptionFlags.ExcludeFormulas;
 
             var cse = new CellsStoreEnumerator<object>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
             var copiedValue = new List<CopiedCell>();
@@ -2284,7 +2296,7 @@ namespace OfficeOpenXml
                     cell.Type=s;
                 }
 
-                if (_worksheet._formulas.Exists(row, col, ref o))
+                if (!excludeFormulas && _worksheet._formulas.Exists(row, col, ref o))
                 {
                     if (o is int)
                     {
