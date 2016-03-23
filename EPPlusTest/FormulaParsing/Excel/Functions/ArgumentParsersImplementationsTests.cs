@@ -104,5 +104,12 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(3.3d, result);
         }
 
+        [TestMethod]
+        public void DoubleParserConvertDateStringToDouble()
+        {
+            var parser = new DoubleArgumentParser();
+            var result = parser.Parse("3.3.2015");
+            Assert.AreEqual(new DateTime(2015,3,3).ToOADate(), result);
+        }
     }
 }
