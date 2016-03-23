@@ -1100,7 +1100,7 @@ namespace EPPlusTest
                 Assert.AreEqual(excelPackage.Workbook.Worksheets[1].Cells["A1"].Value, 19120072);
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue15252()
         {
             using (var p = new ExcelPackage())
