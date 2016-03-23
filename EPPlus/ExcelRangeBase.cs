@@ -318,10 +318,10 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    var v = _worksheet._values.GetValue(row, col);
+                    var v = _worksheet.GetValueInner(row, col);
                     if (v == null || v.ToString() == "")
                     {
-                        _worksheet._values.SetValueInner(row, col, ((Uri)value).OriginalString);
+                        _worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
                     }
                 }                    
             }
@@ -2294,7 +2294,6 @@ namespace OfficeOpenXml
             int toRow = _toRow - _fromRow + 1,
                 toCol = _toCol - _fromCol + 1;
 
-            string s = "";
             int i=0;
             object o = null;
             byte flag=0;

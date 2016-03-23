@@ -531,11 +531,11 @@ namespace OfficeOpenXml.Drawing
             {
                 var height = dh;
 
-                var cse = new CellsStoreEnumerator<int>(_drawings.Worksheet._styles, row, 0, row, ExcelPackage.MaxColumns);
+                var cse = new CellsStoreEnumerator<ExcelCoreValue>(_drawings.Worksheet._values, row, 0, row, ExcelPackage.MaxColumns);
                 var styles = _drawings.Worksheet.Workbook.Styles;
                 while (cse.Next())
                 {
-                    var xfs = styles.CellXfs[cse.Value];
+                    var xfs = styles.CellXfs[cse.Value._styleId];
                     var f = styles.Fonts[xfs.FontId];
                     var rh = ExcelFontXml.GetFontHeight(f.Name, f.Size) * 0.75;
                     if (rh > height)

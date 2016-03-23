@@ -1481,12 +1481,12 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            _values.SetValueInner(row, col, res);
+                           SetValueInner(row, col, res);
                         } 
                     }
                     else
                     {
-                        _values.SetValueInner(row, col, v);
+                        SetValueInner(row, col, v);
                     }
                 }
                 else
