@@ -282,6 +282,7 @@
     <Compile Include="ExcelEncryption.cs" />
     <Compile Include="ExcelProtectedRange.cs" />
     <Compile Include="ExcelProtectedRangeCollection.cs" />
+    <Compile Include="ExcelRangeCopyOptionFlags.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
     <Compile Include="ExcelColumn.cs" />
     <Compile Include="Drawing\ExcelDrawings.cs" />
