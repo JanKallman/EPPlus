@@ -8,6 +8,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
+using System.Diagnostics;
 
 namespace EPPlusTest
 {
@@ -36,6 +37,8 @@ namespace EPPlusTest
             Surface();
             Line2Test();
             MultiChartSeries();
+            Picture();
+            DrawingRowheightDynamic();
             DrawingSizingAndPositioning();
             DeleteDrawing();
             
@@ -60,7 +63,6 @@ namespace EPPlusTest
             }
         }
         
-        [TestMethod]
         public void Picture()
          {
             var ws = _pck.Workbook.Worksheets.Add("Picture");
@@ -78,7 +80,7 @@ namespace EPPlusTest
             pic.SetPosition(400, 200);
             pic.SetSize(150);
 
-            pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
+            //pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
             pic = ws.Drawings.AddPicture("Pic5", new FileInfo(Path.Combine(_clipartPath,"BitmapImage.gif")));
             pic.SetPosition(400, 200);
             pic.SetSize(150);
@@ -90,19 +92,22 @@ namespace EPPlusTest
             pic.SetPosition(400, 400);
             pic.SetSize(100);
 
-             var ws2 = _pck.Workbook.Worksheets.Add("Picture2");
-            var fi = new FileInfo(@"C:\Program Files (x86)\Microsoft Office\CLIPART\PUB60COR\AG00021_.GIF");
+            pic = ws.Drawings.AddPicture("PicPixelSized", Resources.Test1);
+            pic.SetPosition(800, 800);
+            pic.SetSize(568*2, 66*2);
+            var ws2 = _pck.Workbook.Worksheets.Add("Picture2");
+            var fi = new FileInfo(Path.Combine(_clipartPath, "BitmapImage.gif"));
             if (fi.Exists)
             {
                 pic = ws2.Drawings.AddPicture("Pic7", fi);
             }
             else
             {
-                TestContext.WriteLine("AG00021_.GIF does not exists. Skiping Pic7.");
+                TestContext.WriteLine("AG00021_.GIF does not exists. Skipping Pic7.");
             }
 
             var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
-            _pck.Workbook.Worksheets.Delete(ws2);
+            //_pck.Workbook.Worksheets.Delete(ws2);
          }
          //[TestMethod]
          //[Ignore]
@@ -916,6 +921,27 @@ namespace EPPlusTest
             Assert.IsNotNull(_pck.Workbook.Worksheets["NewWorksheet"]);
             // Cleanup:
             File.Delete(savedPath);
+        }
+        public void DrawingRowheightDynamic()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("PicResize");
+            ws.Cells["A1"].Value = "test";
+            ws.Cells["A1"].Style.Font.Name = "Symbol";
+            ws.Cells["A1"].Style.Font.Size = 39;
+            ws.Workbook.Styles.NamedStyles[0].Style.Font.Name = "Symbol";
+            ws.Workbook.Styles.NamedStyles[0].Style.Font.Size = 16;
+            var pic = ws.Drawings.AddPicture("Pic1", Resources.Test1);
+            pic.SetPosition(10,12);
+        }
+        [TestMethod]
+        public void DrawingWidthAdjust()
+        {
+            //using (var p = new ExcelPackage(new FileInfo(@"C:\build\AIM\projects\aimweb\Web\ExcelTemplates\MainTemplate.xlsx")))
+            //{
+            //    var ws = p.Workbook.Worksheets[2];
+            //    ws.Column(4).Width = 40;
+            //    p.SaveAs(new FileInfo(@"c:\temp\colwidthAdjust.xlsx"));
+            //}
         }
     }
 }

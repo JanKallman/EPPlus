@@ -197,7 +197,7 @@ namespace OfficeOpenXml
             else
             {
                 var sheet = workbook.Worksheets.GetBySheetID(item.SheetID);
-                sheet._values.SetValue(item.Row, item.Column, v);
+                sheet.SetValueInner(item.Row, item.Column, v);
             }
         }
     }

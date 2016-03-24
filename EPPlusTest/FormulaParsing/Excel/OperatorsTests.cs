@@ -184,19 +184,20 @@ namespace EPPlusTest.Excel
 		[TestMethod]
 		public void OperatorsActingOnDateStrings()
 		{
-			DateTime date1 = new DateTime(2015, 2, 20);
-			DateTime date2 = new DateTime(2015, 12, 1);
-			var numericDate1 = date1.ToOADate();
-			var numericDate2 = date2.ToOADate();
-			CompileResult result1 = new CompileResult(date1.ToString("d"), DataType.String); // 2/20/2015
-			CompileResult result2 = new CompileResult(date2.ToString("d"), DataType.String); // 12/1/2015
-			var operatorResult = Operator.Concat.Apply(result1, result2);
-			Assert.AreEqual($"{date1.ToString("d")}{date2.ToString("d")}", operatorResult.Result);
-			operatorResult = Operator.Divide.Apply(result1, result2);
-			Assert.AreEqual(numericDate1 / numericDate2, operatorResult.Result);
-			operatorResult = Operator.Exp.Apply(result1, result2);
-			Assert.AreEqual(Math.Pow(numericDate1, numericDate2), operatorResult.Result);
-			operatorResult = Operator.Minus.Apply(result1, result2);
+            const string dateFormat = "M-dd-yyyy";
+            DateTime date1 = new DateTime(2015, 2, 20);
+            DateTime date2 = new DateTime(2015, 12, 1);
+            var numericDate1 = date1.ToOADate();
+            var numericDate2 = date2.ToOADate();
+            CompileResult result1 = new CompileResult(date1.ToString(dateFormat), DataType.String); // 2/20/2015
+            CompileResult result2 = new CompileResult(date2.ToString(dateFormat), DataType.String); // 12/1/2015
+            var operatorResult = Operator.Concat.Apply(result1, result2);
+            Assert.AreEqual($"{date1.ToString(dateFormat)}{date2.ToString(dateFormat)}", operatorResult.Result);
+            operatorResult = Operator.Divide.Apply(result1, result2);
+            Assert.AreEqual(numericDate1 / numericDate2, operatorResult.Result);
+            operatorResult = Operator.Exp.Apply(result1, result2);
+            Assert.AreEqual(Math.Pow(numericDate1, numericDate2), operatorResult.Result);
+            operatorResult = Operator.Minus.Apply(result1, result2);
 			Assert.AreEqual(numericDate1 - numericDate2, operatorResult.Result);
 			operatorResult = Operator.Multiply.Apply(result1, result2);
 			Assert.AreEqual(numericDate1 * numericDate2, operatorResult.Result);

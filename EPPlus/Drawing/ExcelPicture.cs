@@ -66,6 +66,8 @@ namespace OfficeOpenXml.Drawing
                 var ii = _drawings._package.LoadImage(iby, UriPic, Part);
                 ImageHash = ii.Hash;
 
+                //_height = _image.Height;
+                //_width = _image.Width;
                 string relID = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@r:id");
                 if (!string.IsNullOrEmpty(relID))
                 {
@@ -81,10 +83,6 @@ namespace OfficeOpenXml.Drawing
                     ((ExcelHyperLink)_hyperlink).ToolTip = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@tooltip");
                 }
             }
-        }
-        internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image) :
-           this(drawings, node, image, null)
-        {
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image, Uri hyperlink) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
@@ -103,13 +101,10 @@ namespace OfficeOpenXml.Drawing
 
             //Create relationship
             node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
-
+            _height = image.Height;
+            _width = image.Width;
             SetPosDefaults(image);
             package.Flush();
-        }
-        internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile) :
-           this(drawings,node,imageFile,null)
-        {
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile, Uri hyperlink) :
             base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
@@ -148,6 +143,8 @@ namespace OfficeOpenXml.Drawing
                 UriPic = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
             }
             ImageHash = ii.Hash;
+            _height = Image.Height;
+            _width = Image.Width;
             SetPosDefaults(Image);
             //Create relationship
             node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip/@r:embed", NameSpaceManager).Value = relID;
@@ -187,7 +184,29 @@ namespace OfficeOpenXml.Drawing
 
             }
         }
-        //Add a new image to the compare collection
+        internal static ImageFormat GetImageFormat(string contentType)
+        {
+            switch (contentType.ToLower(CultureInfo.InvariantCulture))
+            {
+                case "image/bmp":
+                    return ImageFormat.Bmp;
+                case "image/jpeg":
+                    return ImageFormat.Jpeg;
+                case "image/gif":
+                    return ImageFormat.Gif;
+                case "image/png":
+                    return ImageFormat.Png;
+                case "image/x-emf":
+                    return ImageFormat.Emf;
+                case "image/x-tiff":
+                    return ImageFormat.Tiff;
+                case "image/x-wmf":
+                    return ImageFormat.Wmf;
+                default:
+                    return ImageFormat.Jpeg;
+
+            }
+        }        //Add a new image to the compare collection
         private void AddNewPicture(byte[] img, string relID)
         {
             var newPic = new ExcelDrawings.ImageCompare();
@@ -331,14 +350,14 @@ namespace OfficeOpenXml.Drawing
             }
             else
             {
-                int width = Image.Width;
-                int height = Image.Height;
+                _width = Image.Width;
+                _height = Image.Height;
 
-                width = (int)(width * ((decimal)Percent / 100));
-                height = (int)(height * ((decimal)Percent / 100));
+                _width = (int)(_width * ((decimal)Percent / 100));
+                _height = (int)(_height * ((decimal)Percent / 100));
 
-                SetPixelWidth(width, Image.HorizontalResolution);
-                SetPixelHeight(height, Image.VerticalResolution);
+                SetPixelWidth(_width, Image.HorizontalResolution);
+                SetPixelHeight(_height, Image.VerticalResolution);
             }
         }
         internal Uri UriPic { get; set; }

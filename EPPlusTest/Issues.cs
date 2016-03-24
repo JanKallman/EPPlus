@@ -1067,5 +1067,63 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\rtpreserve.xlsx"));
             }
         }
+        [TestMethod, Ignore]
+        public void Issue15429()
+        {
+            FileInfo file = new FileInfo(@"c:\temp\original.xlsx");
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Sheet 1");
+                var equalsRule = worksheet.ConditionalFormatting.AddEqual(new ExcelAddress(2, 3, 6, 3));
+                equalsRule.Formula = "0";
+                equalsRule.Style.Fill.BackgroundColor.Color = Color.Blue;
+                worksheet.ConditionalFormatting.AddDatabar(new ExcelAddress(4, 4, 4, 4), Color.Red);
+                excelPackage.Save();
+            }
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets["Sheet 1"];
+                int i = 0;
+                foreach (var conditionalFormat in worksheet.ConditionalFormatting)
+                {
+                    conditionalFormat.Address = new ExcelAddress(5 + i++, 5, 6, 6);
+                }
+                excelPackage.SaveAs(new FileInfo(@"c:\temp\error.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15436()
+        {
+            FileInfo file = new FileInfo(@"c:\temp\incorrect value.xlsx");
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                Assert.AreEqual(excelPackage.Workbook.Worksheets[1].Cells["A1"].Value, 19120072);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15252()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var path1 = @"c:\temp\saveerror1.xlsx";
+                var path2 = @"c:\temp\saveerror2.xlsx";
+                var workSheet = p.Workbook.Worksheets.Add("saveerror");
+                workSheet.Cells["A1"].Value = "test";
+
+                // double save OK?
+                p.SaveAs(new FileInfo(path1));
+                p.SaveAs(new FileInfo(path2));
+
+                // files are identical?
+                var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+                using (var fs1 = new FileStream(path1, FileMode.Open))
+                using (var fs2 = new FileStream(path2, FileMode.Open))
+                {
+                    var hash1 = String.Join("", md5.ComputeHash(fs1).Select((x) => { return x.ToString(); }));
+                    var hash2 = String.Join("", md5.ComputeHash(fs2).Select((x) => { return x.ToString(); }));
+                    Assert.AreEqual(hash1, hash2);
+                }
+            }
+        }
     }
 }

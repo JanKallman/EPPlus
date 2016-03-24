@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.Text;
 using System.Xml;
@@ -278,6 +279,50 @@ namespace OfficeOpenXml.Style.XmlAccess
             UnderLine=Font.Underline;
             Italic=Font.Italic;
         }
+        public static float GetFontHeight(string name, float size)
+        {
+            name = name.StartsWith("@") ? name.Substring(1) : name;
+            if (FontSize.FontHeights.ContainsKey(name))
+            {
+                return GetHeightByName(name, size);
+            }
+            else
+            {
+                return GetHeightByName("Calibri", size);
+            }
+        }
+
+        private static float GetHeightByName(string name, float size)
+        {
+            if (FontSize.FontHeights[name].ContainsKey(size))
+            {
+                return FontSize.FontHeights[name][size].Height;
+            }
+            else
+            {
+                float min = -1, max = 500;
+                foreach (var h in FontSize.FontHeights[name])
+                {
+                    if (min < h.Key && h.Key < size)
+                    {
+                        min = h.Key;
+                    }
+                    if (max > h.Key && h.Key > size)
+                    {
+                        max = h.Key;
+                    }
+                }
+                if (min == max)
+                {
+                    return Convert.ToSingle(FontSize.FontHeights[name][min].Height);
+                }
+                else
+                {
+                    return Convert.ToSingle(FontSize.FontHeights[name][min].Height  + (FontSize.FontHeights[name][max].Height - FontSize.FontHeights[name][min].Height) * ((size - min) / (max - min)));
+                }
+            }
+        }
+
         internal ExcelFontXml Copy()
         {
             ExcelFontXml newFont = new ExcelFontXml(NameSpaceManager);
