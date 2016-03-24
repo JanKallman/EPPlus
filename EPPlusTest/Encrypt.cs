@@ -95,6 +95,16 @@ namespace EPPlusTest
         
         }
         [TestMethod]
+        public void DecrypTestBug()
+        {
+            var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\TestExcel_2040.xlsx"), "");
+
+            var n = p.Workbook.Worksheets[1].Name;
+            p.Encryption.Password = null;
+            p.SaveAs(new FileInfo(@"c:\temp\encrNew.xlsx"));
+
+        }
+        [TestMethod]
         [Ignore]
         public void EncrypTest()
         {

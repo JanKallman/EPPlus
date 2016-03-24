@@ -918,7 +918,7 @@ namespace OfficeOpenXml.Encryption
             }
         }
 #endif
-			private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
+		private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

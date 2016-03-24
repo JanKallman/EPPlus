@@ -56,7 +56,8 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 
         public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
         {
-            if(children.Count() < 3) throw new ExcelErrorValueException(eErrorType.Value);
+            // 2 is allowed, Excel returns FALSE if false is the outcome of the expression
+            if(children.Count() < 2) throw new ExcelErrorValueException(eErrorType.Value);
             var args = new List<FunctionArgument>();
             Function.BeforeInvoke(context);
             var firstChild = children.ElementAt(0);
@@ -104,7 +105,17 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             }
             else
             {
-                var val = children.ElementAt(2).Compile().Result;
+                object val;
+                var child = children.ElementAtOrDefault(2);
+                if (child == null)
+                {
+                    // if no false expression given, Excel returns false
+                    val = false;
+                }
+                else
+                {
+                    val = child.Compile().Result;
+                }
                 args.Add(new FunctionArgument(null));
                 args.Add(new FunctionArgument(val));
             }

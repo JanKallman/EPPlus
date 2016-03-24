@@ -59,7 +59,7 @@ namespace OfficeOpenXml.ConditionalFormatting
           ExcelConditionalFormattingConstants.Errors.CommaSeparatedAddresses);
       }
 
-      address = address.ToUpper(CultureInfo.InvariantCulture);
+      address = ConvertUtil._invariantTextInfo.ToUpper(address);
 
       if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
       {
