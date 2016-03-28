@@ -57,6 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["find"] = new Find();
             Functions["fixed"] = new Fixed();
             Functions["proper"] = new Proper();
+            Functions["search"] = new Search();
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
             Functions["hyperlink"] = new Hyperlink();

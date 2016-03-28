@@ -46,14 +46,25 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         }
 
         [TestMethod]
-        public void FindShouldReturnIndex()
+        public void FindShouldReturnIndexCaseSensitive()
         {
-            _worksheet.Cells["A1"].Value = "hopp";
-            _worksheet.Cells["A2"].Value = "hej hopp";
+            _worksheet.Cells["A1"].Value = "h";
+            _worksheet.Cells["A2"].Value = "Hej hopp";
             _worksheet.Cells["A4"].Formula = "Find(A1,A2)";
             _worksheet.Calculate();
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(5, result);
+        }
+
+        [TestMethod]
+        public void SearchShouldReturnIndexCaseInSensitive()
+        {
+            _worksheet.Cells["A1"].Value = "h";
+            _worksheet.Cells["A2"].Value = "Hej hopp";
+            _worksheet.Cells["A4"].Formula = "Search(A1,A2)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(1, result);
         }
 
         [TestMethod]
