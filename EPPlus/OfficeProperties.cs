@@ -334,7 +334,7 @@ namespace OfficeOpenXml
 	    }
 
         #region Get and Set Extended Properties
-        private string GetExtendedPropertyValue(string propertyName)
+        public string GetExtendedPropertyValue(string propertyName)
         {
             string retValue = null;
             string searchString = string.Format("xp:Properties/xp:{0}", propertyName);
@@ -344,6 +344,11 @@ namespace OfficeOpenXml
                 retValue = node.InnerText;
             }
             return retValue;
+        }
+
+        public void SetExtendedPropertyValue(string propertyName, string value){
+            string propertyPath = string.Format("xp:Properties/xp:{0}", propertyName);
+            _extendedHelper.SetXmlNodeString(propertyPath, value);
         }
         #endregion
         #endregion
