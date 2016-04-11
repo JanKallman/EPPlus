@@ -230,6 +230,21 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _DataLabel;
             }
         }
+        string _gapWidthPath = "c:gapWidth/@val";
+        /// <summary>
+        /// The size of the gap between two adjacent bars/columns
+        /// </summary>
+        public int GapWidth
+        {
+            get
+            {
+                return Int32.Parse(_chartXmlHelper.GetXmlNodeString(_gapWidthPath));
+            }
+            set
+            {
+                _chartXmlHelper.SetXmlNodeString(_gapWidthPath, value.ToString());
+            }
+        }
         #endregion
         #region "Direction Enum Traslation"
         private string GetDirectionText(eDirection direction)
