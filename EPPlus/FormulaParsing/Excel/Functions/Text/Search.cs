@@ -20,18 +20,17 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Mats Alm   		                Added		                2013-12-03
+ * Mats Alm   		                Added		                2016-03-28
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
 {
-    public class Find : ExcelFunction
+    public class Search : ExcelFunction
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
@@ -44,7 +43,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             {
                 startIndex = ArgToInt(functionArguments, 2);
             }
-            var result = searchIn.IndexOf(search, startIndex, System.StringComparison.Ordinal);
+            var result = searchIn.IndexOf(search, startIndex, System.StringComparison.OrdinalIgnoreCase);
             if (result == -1)
             {
                 return CreateResult(ExcelErrorValue.Create(eErrorType.Value), DataType.ExcelError);

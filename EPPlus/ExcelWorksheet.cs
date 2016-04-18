@@ -4098,6 +4098,12 @@ namespace OfficeOpenXml
                 return _dataValidation;
             }
         }
+
+        internal void ClearValidations()
+        {
+            _dataValidation = null;
+        }
+
         ExcelBackgroundImage _backgroundImage = null;
         /// <summary>
         /// An image displayed as the background of the worksheet.

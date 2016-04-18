@@ -94,6 +94,10 @@
     <Compile Include="Address.cs" />
     <Compile Include="Calculation.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageATests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
+    <Compile Include="Utils\ConvertUtilTest.cs" />
     <Compile Include="DataValidation\CustomValidationTests.cs" />
     <Compile Include="DataValidation\DataValidationTests.cs" />
     <Compile Include="DataValidation\DecimaDataValidationTests.cs" />

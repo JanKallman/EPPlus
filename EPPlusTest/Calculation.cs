@@ -87,17 +87,14 @@ namespace EPPlusTest
             ws.SetFormula(1, 5, "Row(a3)");
             ws.Calculate();
         }
-        [Ignore]
         [TestMethod]
         public void Calulation4()
         {
-            //C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx
-            var pck = new ExcelPackage(new FileInfo(@"C:\Development\epplus formulas\EPPlusTest\Workbooks\FormulaTest.xlsx"));
-            //var pck = new ExcelPackage(new FileInfo(AppDomain.CurrentDomain.BaseDirectory + "..\\..\\..\\..\\EPPlusTest\\workbooks\\FormulaTest.xlsx"));
+			var dir = AppDomain.CurrentDomain.BaseDirectory;
+			var pck = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "FormulaTest.xlsx")));
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
-        [Ignore]
         [TestMethod]
         public void CalulationValidationExcel()
         {
@@ -144,7 +141,7 @@ namespace EPPlusTest
                     nErrors++;
                 }
             }
-        }
+		}
         [Ignore]
         [TestMethod]
         public void TestOneCell()
@@ -154,7 +151,6 @@ namespace EPPlusTest
             pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Calculate();
             Assert.AreEqual(0d, pck.Workbook.Worksheets["Räntebärande formaterat utland"].Cells["M13"].Value);  
         }
-
         [Ignore]
         [TestMethod]
         public void TestPrecedence()
@@ -278,7 +274,6 @@ namespace EPPlusTest
             Assert.AreEqual(31, ws.Cells["A7"].Value);
             Assert.AreEqual(31, ws.Cells["A8"].Value);
         }
-        [TestMethod, Ignore]
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();
@@ -297,8 +292,38 @@ namespace EPPlusTest
                 throw(new Exception("Test failed with\r\n\r\n" + sb.ToString()));
 
             }
-        }        
-        private string GetOutput(string file)
+        }
+		[TestMethod]
+		public void CalculateDateMath()
+		{
+			using (ExcelPackage package = new ExcelPackage())
+			{
+				var worksheet = package.Workbook.Worksheets.Add("Test");
+				var dateCell = worksheet.Cells[2, 2];
+				var date = new DateTime(2013, 1, 1);
+				dateCell.Value = date;
+				var quotedDateCell = worksheet.Cells[2, 3];
+				quotedDateCell.Formula = $"\"{date.ToString("d")}\"";
+				var dateFormula = "B2";
+				var dateFormulaWithMath = "B2+1";
+				var quotedDateFormulaWithMath = $"\"{date.ToString("d")}\"+1";
+				var quotedDateReferenceFormulaWithMath = "C2+1";
+				var expectedDate = 41275.0; // January 1, 2013
+				var expectedDateWithMath = 41276.0; // January 2, 2013
+				Assert.AreEqual(expectedDate, worksheet.Calculate(dateFormula));
+				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(dateFormulaWithMath));
+				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateFormulaWithMath));
+				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateReferenceFormulaWithMath));
+				var formulaCell = worksheet.Cells[2, 4];
+				formulaCell.Formula = dateFormulaWithMath;
+				formulaCell.Calculate();
+				Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
+				formulaCell.Formula = quotedDateReferenceFormulaWithMath;
+				formulaCell.Calculate();
+				Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
+			}
+		}
+		private string GetOutput(string file)
         {
             using (var pck = new ExcelPackage(new FileInfo(file)))
             {
