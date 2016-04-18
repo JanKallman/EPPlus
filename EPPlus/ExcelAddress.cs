@@ -1249,7 +1249,7 @@ namespace OfficeOpenXml
             set
             {                
                 SetAddress(value);
-                base.ChangeAddress();
+                ChangeAddress();
             }
         }
     }
@@ -1340,7 +1340,7 @@ namespace OfficeOpenXml
             set
             {                
                 SetAddress(value);
-                base.ChangeAddress();
+                ChangeAddress();
                 SetFixed();
             }
         }

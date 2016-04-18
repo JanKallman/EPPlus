@@ -2011,7 +2011,6 @@ namespace EPPlusTest
 
             ws.Column(40).AutoFit();
         }
-
         [TestMethod, Ignore]
         public void Moveissue()
         {
