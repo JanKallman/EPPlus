@@ -37,6 +37,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Globalization;
 using OfficeOpenXml.Utils;
 using System.Xml;
 using OfficeOpenXml.DataValidation.Contracts;
@@ -119,10 +120,29 @@ namespace OfficeOpenXml.DataValidation
 
         private void OnValidationCountChanged()
         {
+
             //if (TopNode != null)
             //{
             //    SetXmlNodeString("@count", _validations.Count.ToString());
             //}
+            var dvNode = GetRootNode();
+            if (_validations.Count == 0)
+            {
+                if (dvNode != null)
+                {
+                    _worksheet.WorksheetXml.DocumentElement.RemoveChild(dvNode);
+                }
+                _worksheet.ClearValidations();
+            }
+            else
+            {
+                var attr = _worksheet.WorksheetXml.DocumentElement.SelectSingleNode(DataValidationPath + "[@count]", _worksheet.NameSpaceManager);
+                if (attr == null)
+                {
+                    dvNode.Attributes.Append(_worksheet.WorksheetXml.CreateAttribute("count"));
+                }
+                dvNode.Attributes["count"].Value = _validations.Count.ToString(CultureInfo.InvariantCulture);
+            }
         }
 
         private XmlNode GetRootNode()
@@ -308,7 +328,9 @@ namespace OfficeOpenXml.DataValidation
                 throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
             }
             Require.Argument(item).IsNotNull("item");
-            TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
+            //TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
+            var dvNode = _worksheet.WorksheetXml.DocumentElement.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager);
+            dvNode?.RemoveChild(((ExcelDataValidation)item).TopNode);
             var retVal = _validations.Remove(item);
             if (retVal) OnValidationCountChanged();
             return retVal;

@@ -41,10 +41,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
     public class CompileResult
     {
         private static CompileResult _empty = new CompileResult(null, DataType.Empty);
+
         public static CompileResult Empty
         {
             get { return _empty; }
         }
+
+		private double? _ResultNumeric;
 
         public CompileResult(object result, DataType dataType)
         {
@@ -64,11 +67,13 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             Result = errorValue;
             DataType = DataType.ExcelError;
         }
+
         public object Result
         {
             get;
             private set;
         }
+
         public object ResultValue
         {
             get
@@ -84,42 +89,46 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                 }
             }
         }
+
         public double ResultNumeric
         {
             get
             {
-                if (IsNumeric)
-                {
-                    return Result == null ? 0 :  Convert.ToDouble(Result);
-                }
-                else if(Result is DateTime)
-                {
-                    return ((DateTime)Result).ToOADate();
-                }
-                else if(Result is TimeSpan)
-                {
-                    return DateTime.FromOADate(0).Add((TimeSpan)Result).ToOADate();
-                }
-                else if (IsNumericString)
-                {
-                    return double.Parse(Result.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture);
-                }
-                else if (Result is ExcelDataProvider.IRangeInfo)
-                {
-                    var c = ((ExcelDataProvider.IRangeInfo)Result).FirstOrDefault();
-                    if (c == null)
-                    {
-                        return 0;
-                    }
-                    else
-                    {
-                        return c.ValueDoubleLogical;
-                    }
-                }
-                else
-                {
-                    return 0;
-                }
+				// We assume that Result does not change unless it is a range.
+				if (_ResultNumeric == null)
+				{
+					if (IsNumeric)
+					{
+						_ResultNumeric = Result == null ? 0 : Convert.ToDouble(Result);
+					}
+					else if (Result is DateTime)
+					{
+						_ResultNumeric = ((DateTime)Result).ToOADate();
+					}
+					else if (Result is TimeSpan)
+					{
+						_ResultNumeric = DateTime.FromOADate(0).Add((TimeSpan)Result).ToOADate();
+					}
+					else if (Result is ExcelDataProvider.IRangeInfo)
+					{
+						var c = ((ExcelDataProvider.IRangeInfo)Result).FirstOrDefault();
+						if (c == null)
+						{
+							return 0;
+						}
+						else
+						{
+							return c.ValueDoubleLogical;
+						}
+					}
+					// The IsNumericString and IsDateString properties will set _ResultNumeric for efficiency so we just need
+					// to check them here.
+					else if (!IsNumericString && !IsDateString)
+					{
+						_ResultNumeric = 0;
+					}
+				}
+				return _ResultNumeric.Value;
             }
         }
 
@@ -141,11 +150,31 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             get
             {
-                return DataType == DataType.String && ConvertUtil.IsNumericString(Result);
+				double result;
+				if (DataType == DataType.String && ConvertUtil.TryParseNumericString(Result, out result))
+				{
+					_ResultNumeric = result;
+					return true;
+				}
+				return false;
             }
         }
 
-        public bool IsResultOfSubtotal { get; set; }
+		public bool IsDateString
+		{
+			get
+			{
+				DateTime result;
+				if (DataType == DataType.String && ConvertUtil.TryParseDateString(Result, out result))
+				{
+					_ResultNumeric = result.ToOADate();
+					return true;
+				}
+				return false;
+			}
+		}
+
+		public bool IsResultOfSubtotal { get; set; }
 
         public bool IsHiddenCell { get; set; }
     }

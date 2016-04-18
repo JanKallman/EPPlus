@@ -503,6 +503,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Rept.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Search.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Text.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />
