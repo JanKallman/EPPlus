@@ -1101,6 +1101,15 @@ namespace EPPlusTest
             }
         }
         [TestMethod, Ignore]
+        public void Issue13128()
+        {
+            FileInfo file = new FileInfo(@"c:\temp\students.xlsx");
+            using (ExcelPackage excelPackage = new ExcelPackage(file))
+            {
+                Assert.AreNotEqual(((ExcelChart)excelPackage.Workbook.Worksheets[1].Drawings[0]).Series[0].XSeries, null);
+            }
+        }
+        [TestMethod, Ignore]
         public void Issue15252()
         {
             using (var p = new ExcelPackage())
