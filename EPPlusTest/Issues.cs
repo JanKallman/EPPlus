@@ -1067,6 +1067,18 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"c:\temp\rtpreserve.xlsx"));
             }
         }
+        [TestMethod]
+        public void Issuer15445()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws1 = p.Workbook.Worksheets.Add("ws1");
+                var ws2 = p.Workbook.Worksheets.Add("ws2");
+                ws2.View.SelectedRange = "A1:B3 D12:D15";
+                ws2.View.ActiveCell = "D15";
+                p.SaveAs(new FileInfo(@"c:\temp\activeCell.xlsx"));
+            }
+        }
         [TestMethod, Ignore]
         public void Issue15429()
         {

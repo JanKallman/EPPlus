@@ -192,7 +192,8 @@ namespace OfficeOpenXml
         #endregion
         #region Public Methods & Properties
         /// <summary>
-        /// The active cell.
+        /// The active cell. Single Cell address.                
+        /// This cell must be inside the selected range. If not, the selected range is set to the active cell address
         /// </summary>
         public string ActiveCell
         {
@@ -200,13 +201,29 @@ namespace OfficeOpenXml
             {
                 return Panes[Panes.GetUpperBound(0)].ActiveCell;
             }
-            set 
+            set
             {
+                var ac = new ExcelAddressBase(value);
+                if (ac.IsSingleCell==false)
+                {
+                    throw (new InvalidOperationException("ActiveCell must be a single cell."));
+                }
+
+                /*** Active cell must be inside SelectedRange ***/
+                var sd = new ExcelAddressBase(SelectedRange.Replace(" ",","));
                 Panes[Panes.GetUpperBound(0)].ActiveCell = value;
+
+                if (IsActiveCellInSelection(ac, sd)==false)
+                {
+                    SelectedRange = value;
+                }
             }
         }
+
         /// <summary>
-        /// Selected Cells in the worksheet.Used in combination with ActiveCell
+        /// Selected Cells in the worksheet. Used in combination with ActiveCell.
+        /// If the active cell is not inside the selected range, the active cell will be set to the first cell in the selected range.
+        /// If the selected range has multiple adresses, these are separated with space. If the active cell is not within the first address in this list, the attribute ActiveCellId must be set (not supported, so it must be set via the XML).
         /// </summary>
         public string SelectedRange
         {
@@ -216,8 +233,41 @@ namespace OfficeOpenXml
             }
             set
             {
+                var ac = new ExcelAddressBase(ActiveCell);
+
+                /*** Active cell must be inside SelectedRange ***/
+                var sd = new ExcelAddressBase(value.Replace(" ",","));      //Space delimitered here, replace
+
                 Panes[Panes.GetUpperBound(0)].SelectedRange = value;
+                if (IsActiveCellInSelection(ac, sd)==false)
+                {
+                    ActiveCell = new ExcelCellAddress(sd._fromRow, sd._fromCol).Address;
+                }
             }
+        }
+
+        private bool IsActiveCellInSelection(ExcelAddressBase ac, ExcelAddressBase sd)
+        {
+            var c = sd.Collide(ac);
+            if (c == ExcelAddressBase.eAddressCollition.Equal || c == ExcelAddressBase.eAddressCollition.Inside)
+            {
+                return true;
+            }
+            else
+            {
+                if (sd.Addresses != null)
+                {
+                    foreach (var sds in sd.Addresses)
+                    {
+                        c = sds.Collide(ac);
+                        if (c == ExcelAddressBase.eAddressCollition.Equal || c == ExcelAddressBase.eAddressCollition.Inside)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
         /// <summary>
         /// Indicates if the worksheet is selected within the workbook

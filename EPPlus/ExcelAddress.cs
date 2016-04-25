@@ -1076,9 +1076,12 @@ namespace OfficeOpenXml
             }
         }
 
-        internal bool IsMultiCell()
+        internal bool IsSingleCell
         {
-            return (_fromRow < _fromCol || _fromCol < _toCol);
+            get
+            {
+                return (_fromRow == _toRow && _fromCol == _toCol);
+            }
         }
         internal static String GetWorkbookPart(string address)
         {
