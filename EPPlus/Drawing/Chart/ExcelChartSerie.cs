@@ -86,7 +86,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             else
             {
-                _xSeriesPath = sp;
+                _xSeriesPath = np;
             }
         }
        internal void SetID(string id)
