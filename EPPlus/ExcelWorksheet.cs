@@ -57,6 +57,8 @@ using Ionic.Zip;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using System.Linq;
+
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -1863,17 +1865,16 @@ namespace OfficeOpenXml
                         a._toRow += rows;
                     }
                     f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
-                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, 0, rowFrom, 0);
+                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, 0, rowFrom, 0, this.Name, this.Name);
                 }
                 var cse = new CellsStoreEnumerator<object>(_formulas);
                 while (cse.Next())
                 {
                     if (cse.Value is string)
                     {
-                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, 0, rowFrom, 0);
+                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, 0, rowFrom, 0, this.Name, this.Name);
                     }
                 }
-
                 FixMergedCellsRow(rowFrom, rows, false);
                 if (copyStylesFromRow > 0)
                 {
@@ -1891,6 +1892,12 @@ namespace OfficeOpenXml
                 {
                     tbl.Address = tbl.Address.AddRow(rowFrom, rows);
                 }
+            }
+
+            // Update cross-sheet references.
+            foreach(var sheet in Workbook.Worksheets.Where(sheet => sheet != this))
+            {
+                sheet.UpdateCrossSheetReferences(this.Name, rowFrom, rows, 0, 0);
             }
         }
         /// <summary>
@@ -1949,7 +1956,7 @@ namespace OfficeOpenXml
                         a._toCol += columns;
                     }
                     f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
-                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, 0, columns, 0, columnFrom);
+                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, 0, columns, 0, columnFrom, this.Name, this.Name);
                 }
 
                 var cse = new CellsStoreEnumerator<object>(_formulas);
@@ -1957,7 +1964,7 @@ namespace OfficeOpenXml
                 {
                     if (cse.Value is string)
                     {
-                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, columns, 0, columnFrom);
+                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, columns, 0, columnFrom, this.Name, this.Name);
                     }
                 }
 
@@ -2053,6 +2060,11 @@ namespace OfficeOpenXml
 
                     tbl.Address=tbl.Address.AddColumn(columnFrom, columns);
                 }
+            }
+            // Update cross-sheet references.
+            foreach (var sheet in Workbook.Worksheets.Where(sheet => sheet != this))
+            {
+                sheet.UpdateCrossSheetReferences(this.Name, 0, 0, columnFrom, columns);
             }
         }
         private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
@@ -2308,12 +2320,12 @@ namespace OfficeOpenXml
                     string currentFormulaR1C1;
                     if (rows > 0 || row < startRow)
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0, this.Name, this.Name);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     else
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0, this.Name, this.Name);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     if (currentFormulaR1C1 != prevFormualR1C1) //newFormula.Contains("#REF!"))
@@ -2530,7 +2542,7 @@ namespace OfficeOpenXml
                     if (sf.StartRow > rowFrom)
                     {
                         var r = Math.Min(sf.StartRow - rowFrom, rows);
-                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -r, 0, rowFrom, 0);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -r, 0, rowFrom, 0, this.Name, this.Name);
                         sf.StartRow -= r;
                     }
                 }
@@ -2545,7 +2557,7 @@ namespace OfficeOpenXml
             {
                 if (cse.Value is string)
                 {
-                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), -rows, 0, rowFrom, 0);
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), -rows, 0, rowFrom, 0, this.Name, this.Name);
                 }
             }
         }
@@ -2566,7 +2578,7 @@ namespace OfficeOpenXml
                     if (sf.StartCol > columnFrom)
                     {
                         var c = Math.Min(sf.StartCol - columnFrom, columns);
-                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, 1);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, 1, this.Name, this.Name);
                         sf.StartCol-= c;
                     }
 
@@ -2588,7 +2600,7 @@ namespace OfficeOpenXml
             {
                 if (cse.Value is string)
                 {
-                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, -columns, 0, columnFrom);
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, -columns, 0, columnFrom, this.Name, this.Name);
                 }
             }
         }
@@ -2808,6 +2820,33 @@ namespace OfficeOpenXml
                 throw new ArgumentOutOfRangeException("Address is invalid or out of range");
             }
             SetValueInner(row, col, Value);           
+        }
+
+        /// <summary>
+        /// Update formulas on this worksheet that reference the <paramref name="sheetWhoseReferencesShouldBeUpdated"/>.
+        /// </summary>
+        /// <param name="sheetWhoseReferencesShouldBeUpdated">The sheet where rows or columns are being modified.</param>
+        /// <param name="rowFrom">The first row being modified.</param>
+        /// <param name="rows">How many rows are being added or removed.</param>
+        /// <param name="columnFrom">The first column bieng modified.</param>
+        /// <param name="columns">How many columns to add or remove.</param>
+        public void UpdateCrossSheetReferences(string sheetWhoseReferencesShouldBeUpdated, int rowFrom, int rows, int columnFrom, int columns)
+        {
+            lock (this)
+            {
+                foreach (var f in _sharedFormulas.Values)
+                {
+                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+                }
+                var cse = new CellsStoreEnumerator<object>(_formulas);
+                while (cse.Next())
+                {
+                    if (cse.Value is string)
+                    {
+                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+                    }
+                }
+            }
         }
 
         #region MergeCellId

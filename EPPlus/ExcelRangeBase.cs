@@ -2507,7 +2507,7 @@ namespace OfficeOpenXml
 
                 if(cell.Formula!=null)
                 {
-                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, true);
+                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, Destination.WorkSheet, Destination.WorkSheet, true);
                     Destination._worksheet._formulas.SetValue(cell.Row, cell.Column, cell.Formula);
                 }
                 if(cell.HyperLink!=null)

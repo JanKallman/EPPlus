@@ -94,6 +94,7 @@
     <Compile Include="Address.cs" />
     <Compile Include="Calculation.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
+    <Compile Include="ExcelCellBaseTest.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageATests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
