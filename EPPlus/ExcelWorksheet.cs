@@ -31,38 +31,33 @@
  * Jan Källman		    License changed GPL-->LGPL  2011-12-27
  *******************************************************************************/
 using System;
-using System.Xml;
 using System.Collections.Generic;
-using System.IO;
-using System.Configuration;
-using OfficeOpenXml.Drawing;
-using System.Diagnostics;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
-using OfficeOpenXml.Style;
-using System.Globalization;
-using System.Text;
-using System.Security;
-using OfficeOpenXml.Drawing.Chart;
-using OfficeOpenXml.Style.XmlAccess;
-using System.Text.RegularExpressions;
-using OfficeOpenXml.Drawing.Vml;
-using OfficeOpenXml.Table;
-using OfficeOpenXml.DataValidation;
-using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 using OfficeOpenXml.ConditionalFormatting;
-using OfficeOpenXml.Utils;
-using Ionic.Zip;
+using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Table;
+using OfficeOpenXml.Table.PivotTable;
+using OfficeOpenXml.Utils;
+
 namespace OfficeOpenXml
 {
-    /// <summary>
-    /// Worksheet hidden enumeration
-    /// </summary>
-    public enum eWorkSheetHidden
+  /// <summary>
+  /// Worksheet hidden enumeration
+  /// </summary>
+  public enum eWorkSheetHidden
     {
         /// <summary>
         /// The worksheet is visible
@@ -3600,6 +3595,16 @@ namespace OfficeOpenXml
                         }
                         else if(v != null)
                         {
+                            // Fix for issue 15460
+                            var enumerableResult = v as System.Collections.IEnumerable;
+                            if (enumerableResult != null && !(v is string))
+                            {
+                              var enumerator = enumerableResult.GetEnumerator();
+                              if (enumerator.MoveNext() && enumerator.Current != null)
+                                v = enumerator.Current;
+                              else
+                                v = string.Empty;
+                            }
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
                                 //string sv = GetValueForXml(v);
@@ -3608,15 +3613,16 @@ namespace OfficeOpenXml
                             }
                             else
                             {
+                                var vString = Convert.ToString(v);
                                 int ix;
-                                if (!ss.ContainsKey(v.ToString()))
+                                if (!ss.ContainsKey(vString))
                                 {
                                     ix = ss.Count;
-                                    ss.Add(v.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
+                                    ss.Add(vString, new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
                                 }
                                 else
                                 {
-                                    ix = ss[v.ToString()].pos;
+                                    ix = ss[vString].pos;
                                 }
                                 cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
                                 cache.AppendFormat("<v>{0}</v></c>", ix);
