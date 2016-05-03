@@ -3161,10 +3161,10 @@ namespace OfficeOpenXml
                     case RowFunctions.Average:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "101"));
                         break;
-                    case RowFunctions.Count:
+                    case RowFunctions.CountNums:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "102"));
                         break;
-                    case RowFunctions.CountNums:
+                    case RowFunctions.Count:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "103"));
                         break;
                     case RowFunctions.Max:
