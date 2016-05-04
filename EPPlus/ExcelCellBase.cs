@@ -892,6 +892,10 @@ namespace OfficeOpenXml
                         }
                         else
                         {
+                          var address = a.Address.Split('!');
+                          if (address.Length > 1)
+                            f += address[1];
+                          else
                             f += a.Address;
                         }
 
