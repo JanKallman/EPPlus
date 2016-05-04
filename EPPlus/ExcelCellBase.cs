@@ -859,7 +859,7 @@ namespace OfficeOpenXml
                         var a = new ExcelAddressBase(t.Value);
                         var referencesModifiedWorksheet = (string.IsNullOrEmpty(a._ws) && currentSheet.Equals(modifiedSheet, StringComparison.CurrentCultureIgnoreCase)) || modifiedSheet.Equals(a._ws, StringComparison.CurrentCultureIgnoreCase);
 
-                        if (!string.IsNullOrEmpty(a._wb) || !referencesModifiedWorksheet)
+                        if (!setFixed && (!string.IsNullOrEmpty(a._wb) || !referencesModifiedWorksheet))
                         {
                             // This address is in a different worksheet or workbook; no update is required.
                             f += a.Address;
