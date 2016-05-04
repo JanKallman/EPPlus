@@ -1056,6 +1056,27 @@ namespace EPPlusTest
             }
         }
 
+        [TestMethod]
+        public void TableWithSubtotalsParensInColumnName()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Table");
+            ws.Cells["B2"].Value = "Header 1";
+            ws.Cells["C2"].Value = "Header (2)";
+            ws.Cells["B3"].Value = 1;
+            ws.Cells["B4"].Value = 2;
+            ws.Cells["C3"].Value = 3;
+            ws.Cells["C4"].Value = 4;
+            var table = ws.Tables.Add(ws.Cells["B2:C4"], "TestTable");
+            table.ShowTotal = true;
+            table.ShowHeader = true;
+            table.Columns[0].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
+            table.Columns[1].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
+            ws.Cells["B5"].Calculate();
+            Assert.AreEqual(3.0, ws.Cells["B5"].Value);
+            ws.Cells["C5"].Calculate();
+            Assert.AreEqual(7.0, ws.Cells["C5"].Value);
+        }
+
         //[Ignore]
         //[TestMethod]
         public void CopyTable()
