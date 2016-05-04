@@ -1043,7 +1043,7 @@ namespace OfficeOpenXml
                 else
                 {
                     // Table references use [ ] around column names and since table column names can also contain unescaped formula characters,
-                    // we need to check that this is not a table column reference in order to avoid false positives.  Since funcion names and
+                    // we need to check that this is not a table column reference in order to avoid false positives.  Since function names and
                     // formulas cannot contain [ ], we should be safe doing this check.
                     if (addressChar == '[' || addressChar == ']')
                         return false;
