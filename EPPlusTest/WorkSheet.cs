@@ -2189,9 +2189,39 @@ namespace EPPlusTest
                 Assert.AreEqual("'Sheet2'!M3", sheet1.Cells[2, 2].Formula);
                 Assert.AreEqual("Hello, world!", sheet1.Cells[2, 2].Value);
             }
-        }
+    }
 
-        [TestMethod]
+    [TestMethod]
+    public void CrossSheetInsertRowAfterReferencesHasNoEffect()
+    {
+      FileInfo file = new FileInfo("report.xlsx");
+      using (ExcelPackage package = new ExcelPackage(file))
+      {
+        var sheet = package.Workbook.Worksheets.Add("New Sheet");
+        var otherSheet = package.Workbook.Worksheets.Add("Other Sheet");
+        sheet.Cells[3, 3].Formula = "'Other Sheet'!C3";
+        otherSheet.Cells[3, 3].Formula = "45";
+        otherSheet.InsertRow(5, 1);
+        Assert.AreEqual("'Other Sheet'!C3", sheet.Cells[3, 3].Formula);
+      }
+    }
+
+    [TestMethod]
+    public void CrossSheetInsertColumnAfterReferencesHasNoEffect()
+    {
+      FileInfo file = new FileInfo("report.xlsx");
+      using (ExcelPackage package = new ExcelPackage(file))
+      {
+        var sheet = package.Workbook.Worksheets.Add("New Sheet");
+        var otherSheet = package.Workbook.Worksheets.Add("Other Sheet");
+        sheet.Cells[3, 3].Formula = "'Other Sheet'!C3";
+        otherSheet.Cells[3, 3].Formula = "45";
+        otherSheet.InsertColumn(5, 1);
+        Assert.AreEqual("'Other Sheet'!C3", sheet.Cells[3, 3].Formula);
+      }
+    }
+
+    [TestMethod]
         public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
         {
           using (var package = new ExcelPackage())
