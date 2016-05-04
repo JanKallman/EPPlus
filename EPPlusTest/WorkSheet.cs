@@ -12,6 +12,7 @@ using OfficeOpenXml.Style;
 using System.Data;
 using OfficeOpenXml.Table.PivotTable;
 using System.Reflection;
+using OfficeOpenXml.Table;
 
 namespace EPPlusTest
 {
@@ -934,6 +935,21 @@ namespace EPPlusTest
         {
             var ws = _pck.Workbook.Worksheets.Add("Table");
             var tbl = ws.Tables.Add(ws.Cells["A1"], "_TestTable");
+        }
+
+        [TestMethod]
+        public void TableTotalsRowFunctionEscapesSpecialCharactersInColumnName()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("TotalsFormulaTest");
+                ws.Cells["B1"].Value = "Column1";
+                ws.Cells["C1"].Value = "[#'Column'2]";
+                var tbl = ws.Tables.Add(ws.Cells["B1:C2"], "TestTable");
+                tbl.ShowTotal = true;
+                tbl.Columns[1].TotalsRowFunction = RowFunctions.Sum;
+                Assert.AreEqual("SUBTOTAL(109,TestTable['['#''Column''2']])", ws.Cells["C3"].Formula);
+            }
         }
 
         //[Ignore]

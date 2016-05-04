@@ -3307,10 +3307,12 @@ namespace OfficeOpenXml
             return fldName + ix.ToString(CultureInfo.InvariantCulture);
         }
 
-        private static string GetTotalFunction(ExcelTableColumn col,string FunctionNum)
+        private static string GetTotalFunction(ExcelTableColumn col, string FunctionNum)
         {
-            return string.Format("SUBTOTAL({0},{1}[{2}])", FunctionNum, col._tbl.Name, col.Name);
+            string escapedColumn = Regex.Replace(col.Name, @"[\[\]#']", new MatchEvaluator(m => "'" + m.Value));
+            return string.Format("SUBTOTAL({0},{1}[{2}])", FunctionNum, col._tbl.Name, escapedColumn);
         }
+
         private void SaveXml(Stream stream)
         {
             //Create the nodes if they do not exist.
