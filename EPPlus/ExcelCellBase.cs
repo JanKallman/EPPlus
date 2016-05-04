@@ -892,6 +892,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
+                          // If the address was not shifted, then a.Address will still have the sheet name.
                           var address = a.Address.Split('!');
                           if (address.Length > 1)
                             f += address[1];
