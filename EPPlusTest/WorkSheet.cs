@@ -2190,6 +2190,95 @@ namespace EPPlusTest
                 Assert.AreEqual("Hello, world!", sheet1.Cells[2, 2].Value);
             }
         }
+
+        [TestMethod]
+        public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
+        {
+          using (var package = new ExcelPackage())
+          {
+            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+            sheet1.Cells[3, 3].Formula = "Sheet2!C3";
+            sheet2.Cells[3, 3].Value = "Hello, world!";
+            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+            sheet2.Cells[4, 3].Value = "Goodbye, world!";
+            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+            package.Workbook.Calculate();
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+            package.Workbook.Calculate();
+            Assert.AreEqual("'Sheet2'!D4", sheet1.Cells[4, 4].Formula, true);
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            Assert.AreEqual("Goodbye, WORLD!", sheet1.Cells[4, 4].Value);
+          }
+        }
+
+        [TestMethod]
+        public void CopyCellUpdatesAbsoluteCrossSheetReferencesCorrectly()
+        {
+          using (var package = new ExcelPackage())
+          {
+            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+            sheet1.Cells[3, 3].Formula = "Sheet2!$C$3";
+            sheet2.Cells[3, 3].Value = "Hello, world!";
+            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+            sheet2.Cells[4, 3].Value = "Goodbye, world!";
+            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+            package.Workbook.Calculate();
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+            package.Workbook.Calculate();
+            Assert.AreEqual("'Sheet2'!$C$3", sheet1.Cells[4, 4].Formula, true);
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            Assert.AreEqual("Hello, world!", sheet1.Cells[4, 4].Value);
+          }
+        }
+
+        [TestMethod]
+        public void CopyCellUpdatesRowAbsoluteCrossSheetReferencesCorrectly()
+        {
+          using (var package = new ExcelPackage())
+          {
+            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+            sheet1.Cells[3, 3].Formula = "Sheet2!C$3";
+            sheet2.Cells[3, 3].Value = "Hello, world!";
+            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+            sheet2.Cells[4, 3].Value = "Goodbye, world!";
+            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+            package.Workbook.Calculate();
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+            package.Workbook.Calculate();
+            Assert.AreEqual("'Sheet2'!D$3", sheet1.Cells[4, 4].Formula, true);
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            Assert.AreEqual("Hello, WORLD!", sheet1.Cells[4, 4].Value);
+          }
+        }
+
+        [TestMethod]
+        public void CopyCellUpdatesColumnAbsoluteCrossSheetReferencesCorrectly()
+        {
+          using (var package = new ExcelPackage())
+          {
+            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+            sheet1.Cells[3, 3].Formula = "Sheet2!$C3";
+            sheet2.Cells[3, 3].Value = "Hello, world!";
+            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+            sheet2.Cells[4, 3].Value = "Goodbye, world!";
+            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+            package.Workbook.Calculate();
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+            package.Workbook.Calculate();
+            Assert.AreEqual("'Sheet2'!$C4", sheet1.Cells[4, 4].Formula, true);
+            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+            Assert.AreEqual("Goodbye, world!", sheet1.Cells[4, 4].Value);
+          }
+        }
+
         #region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()
