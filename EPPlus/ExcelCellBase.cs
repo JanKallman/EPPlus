@@ -914,8 +914,51 @@ namespace OfficeOpenXml
                 return formula;
             }
         }
-        #endregion
-        #endregion
-        #endregion
+    
+    /// <summary>
+    /// Updates all the references to a renamed sheet in a formula.
+    /// </summary>
+    /// <param name="formula">The formula to updated.</param>
+    /// <param name="oldSheetName">The old sheet name.</param>
+    /// <param name="newSheetName">The new sheet name.</param>
+    /// <returns>The formula with all cross-sheet references updated.</returns>
+    internal static string UpdateFormulaSheetReferences(string formula, string oldSheetName, string newSheetName)
+    {
+      var d = new Dictionary<string, object>();
+      try
+      {
+        var sct = new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty);
+        var tokens = sct.Tokenize(formula);
+        String f = "";
+        foreach (var t in tokens)
+        {
+          if (t.TokenType == TokenType.ExcelAddress)
+          {
+            var a = new ExcelAddressBase(t.Value);
+            if (a == null || !a.IsValidRowCol())
+            {
+              f += "#REF!";
+            }
+            else
+            {
+              a.ChangeWorksheet(oldSheetName, newSheetName);
+              f += a.Address;
+            }
+          }
+          else
+          {
+            f += t.Value;
+          }
+        }
+        return f;
+      }
+      catch //Invalid formula, skip updating addresses
+      {
+        return formula;
+      }
     }
+    #endregion
+    #endregion
+    #endregion
+  }
 }

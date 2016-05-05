@@ -2222,6 +2222,21 @@ namespace EPPlusTest
     }
 
     [TestMethod]
+    public void CrossSheetReferenceIsUpdatedWhenSheetIsRenamed()
+    {
+      FileInfo file = new FileInfo("report.xlsx");
+      using (ExcelPackage package = new ExcelPackage(file))
+      {
+        var sheet = package.Workbook.Worksheets.Add("New Sheet");
+        var otherSheet = package.Workbook.Worksheets.Add("Other Sheet");
+        sheet.Cells[3, 3].Formula = "'Other Sheet'!C3";
+        otherSheet.Cells[3, 3].Formula = "45";
+        otherSheet.Name = "New Name";
+        Assert.AreEqual("'New Name'!C3", sheet.Cells[3, 3].Formula);
+      }
+    }
+
+    [TestMethod]
         public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
         {
           using (var package = new ExcelPackage())
@@ -2307,7 +2322,29 @@ namespace EPPlusTest
             Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
             Assert.AreEqual("Goodbye, world!", sheet1.Cells[4, 4].Value);
           }
-        }
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ExcelWorksheetRenameWithStartApostropheThrowsException()
+    {
+      using (var package = new ExcelPackage())
+      {
+        var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+        sheet1.Name = "'New Name";
+      }
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void ExcelWorksheetRenameWithEndApostropheThrowsException()
+    {
+      using (var package = new ExcelPackage())
+      {
+        var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+        sheet1.Name = "New Name'";
+      }
+    }
 
         #region Date1904 Test Cases
         [TestMethod]

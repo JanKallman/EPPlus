@@ -48,6 +48,15 @@ namespace EPPlusTest
             var result = ExcelCellBase.UpdateFormulaReferences("'boring sheet'!C3", 3, 3, 2, 2, "boring sheet", "updated sheet");
             Assert.AreEqual("'boring sheet'!C3", result);
         }
-        #endregion
+    #endregion
+
+    #region UpdateCrossSheetReferenceNames Tests
+    [TestMethod]
+    public void UpdateFormulaSheetReferences()
+    {
+      var result = ExcelCellBase.UpdateFormulaSheetReferences("5+'OldSheet'!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", "OldSheet", "NewSheet");
+      Assert.AreEqual("5+'NewSheet'!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", result);
     }
+    #endregion
+  }
 }
