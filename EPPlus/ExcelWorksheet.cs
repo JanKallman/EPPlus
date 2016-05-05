@@ -2823,57 +2823,6 @@ namespace OfficeOpenXml
             SetValueInner(row, col, Value);           
         }
 
-        /// <summary>
-        /// Update formulas on this worksheet that reference the <paramref name="sheetWhoseReferencesShouldBeUpdated"/>.
-        /// </summary>
-        /// <param name="sheetWhoseReferencesShouldBeUpdated">The sheet where rows or columns are being modified.</param>
-        /// <param name="rowFrom">The first row being modified.</param>
-        /// <param name="rows">How many rows are being added or removed.</param>
-        /// <param name="columnFrom">The first column bieng modified.</param>
-        /// <param name="columns">How many columns to add or remove.</param>
-        public void UpdateCrossSheetReferences(string sheetWhoseReferencesShouldBeUpdated, int rowFrom, int rows, int columnFrom, int columns)
-        {
-            lock (this)
-            {
-                foreach (var f in _sharedFormulas.Values)
-                {
-                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
-                }
-                var cse = new CellsStoreEnumerator<object>(_formulas);
-                while (cse.Next())
-                {
-                    if (cse.Value is string)
-                    {
-                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
-                    }
-                }
-            }
-        }
-
-    /// <summary>
-    /// Updates formulas that referenced <paramref name="oldName"/> to use <paramref name="newName"/>.
-    /// </summary>
-    /// <param name="oldName">The old sheet name.</param>
-    /// <param name="newName">The new sheet name.</param>
-    public void UpdateCrossSheetReferenceNames(string oldName, string newName)
-    {
-      lock (this)
-      {
-        foreach (var f in _sharedFormulas.Values)
-        {
-          f.Formula = ExcelCellBase.UpdateFormulaSheetReferences(f.Formula, oldName, newName);
-        }
-        var cse = new CellsStoreEnumerator<object>(_formulas);
-        while (cse.Next())
-        {
-          if (cse.Value is string)
-          {
-            cse.Value = ExcelCellBase.UpdateFormulaSheetReferences(cse.Value.ToString(), oldName, newName);
-          }
-        }
-      }
-    }
-
         #region MergeCellId
 
         /// <summary>
@@ -2903,11 +2852,51 @@ namespace OfficeOpenXml
         }
 
         #endregion
-		#endregion // END Worksheet Public Methods
+        #endregion // END Worksheet Public Methods
 
-		#region Worksheet Private Methods
+        #region Worksheet Private Methods
+        private void UpdateCrossSheetReferences(string sheetWhoseReferencesShouldBeUpdated, int rowFrom, int rows, int columnFrom, int columns)
+        {
+          lock (this)
+          {
+            foreach (var f in _sharedFormulas.Values)
+            {
+              f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+            }
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+              if (cse.Value is string)
+              {
+                cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+              }
+            }
+          }
+        }
 
-		#region Worksheet Save
+        private void UpdateCrossSheetReferenceNames(string oldName, string newName)
+        {
+          if (string.IsNullOrEmpty(oldName))
+            throw new ArgumentNullException(nameof(oldName));
+          if (string.IsNullOrEmpty(newName))
+            throw new ArgumentNullException(nameof(newName));
+          lock (this)
+          {
+            foreach (var f in _sharedFormulas.Values)
+            {
+              f.Formula = ExcelCellBase.UpdateFormulaSheetReferences(f.Formula, oldName, newName);
+            }
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+              if (cse.Value is string)
+              {
+                cse.Value = ExcelCellBase.UpdateFormulaSheetReferences(cse.Value.ToString(), oldName, newName);
+              }
+            }
+          }
+        }
+        #region Worksheet Save
         internal void Save()
         {
                 DeletePrinterSettings();
