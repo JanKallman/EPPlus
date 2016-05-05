@@ -2850,6 +2850,11 @@ namespace OfficeOpenXml
             }
         }
 
+    /// <summary>
+    /// Updates formulas that referenced <paramref name="oldName"/> to use <paramref name="newName"/>.
+    /// </summary>
+    /// <param name="oldName">The old sheet name.</param>
+    /// <param name="newName">The new sheet name.</param>
     public void UpdateCrossSheetReferenceNames(string oldName, string newName)
     {
       lock (this)
