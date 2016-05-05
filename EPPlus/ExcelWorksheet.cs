@@ -529,6 +529,7 @@ namespace OfficeOpenXml
                             n.ChangeWorksheet(_name, value);
                         }
                     }
+                    ws.UpdateCrossSheetReferenceNames(_name, value);
                 }
             }
         }
@@ -2848,6 +2849,25 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+    public void UpdateCrossSheetReferenceNames(string oldName, string newName)
+    {
+      lock (this)
+      {
+        foreach (var f in _sharedFormulas.Values)
+        {
+          f.Formula = ExcelCellBase.UpdateFormulaSheetReferences(f.Formula, oldName, newName);
+        }
+        var cse = new CellsStoreEnumerator<object>(_formulas);
+        while (cse.Next())
+        {
+          if (cse.Value is string)
+          {
+            cse.Value = ExcelCellBase.UpdateFormulaSheetReferences(cse.Value.ToString(), oldName, newName);
+          }
+        }
+      }
+    }
 
         #region MergeCellId
 
