@@ -61,20 +61,6 @@ namespace EPPlusTest
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
-        public void UpdateFormulaSheetReferencesNullFormulaThrowsException()
-        {
-          ExcelCellBase.UpdateFormulaSheetReferences(null, "sheet1", "sheet2");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void UpdateFormulaSheetReferencesEmptyFormulaThrowsException()
-        {
-          ExcelCellBase.UpdateFormulaSheetReferences(string.Empty, "sheet1", "sheet2");
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
         public void UpdateFormulaSheetReferencesNullOldSheetThrowsException()
         {
           ExcelCellBase.UpdateFormulaSheetReferences("formula", null, "sheet2");

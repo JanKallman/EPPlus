@@ -924,8 +924,6 @@ namespace OfficeOpenXml
         /// <returns>The formula with all cross-sheet references updated.</returns>
         internal static string UpdateFormulaSheetReferences(string formula, string oldSheetName, string newSheetName)
         {
-          if (string.IsNullOrEmpty(formula))
-            throw new ArgumentNullException(nameof(formula));
           if (string.IsNullOrEmpty(oldSheetName))
             throw new ArgumentNullException(nameof(oldSheetName));
           if (string.IsNullOrEmpty(newSheetName))
