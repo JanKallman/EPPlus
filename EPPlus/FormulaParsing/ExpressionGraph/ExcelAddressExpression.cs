@@ -42,6 +42,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
     public class ExcelAddressExpression : AtomicExpression
     {
+        /// <summary>
+        /// Gets or sets a value that indicates whether or not to resolve directly to an <see cref="ExcelDataProvider.IRangeInfo"/>
+        /// </summary>
+        public bool ResolveAsRange { get; set; }
+
         private readonly ExcelDataProvider _excelDataProvider;
         private readonly ParsingContext _parsingContext;
         private readonly RangeAddressFactory _rangeAddressFactory;
@@ -91,12 +96,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         {
             var c = this._parsingContext.Scopes.Current;
             var result = _excelDataProvider.GetRange(c.Address.Worksheet, c.Address.FromRow, c.Address.FromCol, ExpressionString);
-            
-            if (result == null || result.IsEmpty)
-            {
+            if (result == null)
                 return CompileResult.Empty;
-            }
-            if (result.Address.Rows > 1 || result.Address.Columns > 1)
+            if (this.ResolveAsRange || result.Address.Rows > 1 || result.Address.Columns > 1)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
@@ -108,7 +110,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         private CompileResult CompileSingleCell(ExcelDataProvider.IRangeInfo result)
         {
-            var cell = result.First();
+            var cell = result.FirstOrDefault();
+            if (cell == null)
+                return CompileResult.Empty;
             var factory = new CompileResultFactory();
             var compileResult = factory.Create(cell.Value);
             if (_negate && compileResult.IsNumeric)
