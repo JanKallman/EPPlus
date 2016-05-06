@@ -61,8 +61,8 @@ namespace EPPlusSamples
     {
         public MyFunctionModule()
         {
-          base.Functions.Add("sum.addtwo", new SumAddTwo());
-          base.Functions.Add("seanconneryfy", new SeanConneryfy());
+            base.Functions.Add("sum.addtwo", new SumAddTwo());
+            base.Functions.Add("seanconneryfy", new SeanConneryfy());
         }
     }
 
