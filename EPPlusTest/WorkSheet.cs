@@ -2322,6 +2322,7 @@ namespace EPPlusTest
                 var sheet2 = workbook.Worksheets.Copy(sheet1.Name, "Sheet2");
                 sheet1.InsertColumn(3, 1);
                 // Inserting a column on sheet1 should modify the shared formula on sheet1, but not sheet2.
+                Assert.AreEqual("SUM(B2:D2)", sheet1.Cells["E2"].Formula);
                 Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
             }
         }
