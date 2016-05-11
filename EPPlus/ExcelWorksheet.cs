@@ -167,6 +167,18 @@ namespace OfficeOpenXml
                 }
                 return f;
             }
+
+            public Formulas Clone()
+            {
+                var formulas = new Formulas(this._tokenizer);
+                formulas.Index = this.Index;
+                formulas.Address = (string)this.Address.Clone();
+                formulas.IsArray = this.IsArray;
+                formulas.Formula = (string)this.Formula.Clone();
+                formulas.StartRow = this.StartRow;
+                formulas.StartCol = this.StartCol;
+                return formulas;
+            }
         }
         /// <summary>
         /// Collection containing merged cell addresses

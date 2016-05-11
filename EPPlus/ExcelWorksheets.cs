@@ -512,7 +512,7 @@ namespace OfficeOpenXml
             //Shared Formulas
             foreach (int key in Copy._sharedFormulas.Keys)
             {
-                added._sharedFormulas.Add(key, Copy._sharedFormulas[key]);
+                added._sharedFormulas.Add(key, Copy._sharedFormulas[key].Clone());
             }
             
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();

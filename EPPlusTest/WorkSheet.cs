@@ -2308,5 +2308,22 @@ namespace EPPlusTest
             pck.Save();
         }
         #endregion
+
+        [TestMethod]
+        public void CopySheetWithSharedFormula()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var workbook = package.Workbook;
+                var sheet1 = workbook.Worksheets.Add("Sheet1");
+                sheet1.Cells[2, 2, 5, 2].Value = new object[,] { { 1 }, { 2 }, { 3 }, { 4 } };
+                // Creates a shared formula.
+                sheet1.Cells["D2:D5"].Formula = "SUM(B2:C2)";
+                var sheet2 = workbook.Worksheets.Copy(sheet1.Name, "Sheet2");
+                sheet1.InsertColumn(3, 1);
+                // Inserting a column on sheet1 should modify the shared formula on sheet1, but not sheet2.
+                Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
+            }
         }
     }
+}
