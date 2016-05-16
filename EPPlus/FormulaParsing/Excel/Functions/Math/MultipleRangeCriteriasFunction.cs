@@ -37,21 +37,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
     public abstract class MultipleRangeCriteriasFunction : ExcelFunction
     {
 
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         protected MultipleRangeCriteriasFunction()
-            :this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
+            :this(new ExpressionEvaluator())
         {
             
         }
 
-        protected MultipleRangeCriteriasFunction(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
+        protected MultipleRangeCriteriasFunction(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(wildCardValueMatcher).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
+            _expressionEvaluator = evaluator;
         }
 
         protected bool Evaluate(object obj, object expression)
@@ -61,12 +58,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 candidate = ConvertUtil.GetValueDouble(obj);
             }
-            if (candidate.HasValue && expression is string)
+            if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression.ToString());
+                return _expressionEvaluator.Evaluate(candidate.Value, expression.ToString());
             }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
+            return _expressionEvaluator.Evaluate(obj, expression.ToString());
         }
 
         protected List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, object searched)

@@ -37,21 +37,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class AverageIf : HiddenValuesHandlingFunction
     {
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         public AverageIf()
-            : this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
+            : this(new ExpressionEvaluator())
         {
 
         }
 
-        public AverageIf(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
+        public AverageIf(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(evaluator).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
+            _expressionEvaluator = evaluator;
         }
 
         private bool Evaluate(object obj, string expression)
@@ -63,10 +60,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
+            return _expressionEvaluator.Evaluate(obj, expression);
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -136,7 +132,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         private double Calculate(FunctionArgument arg, string expression)
         {
             var retVal = 0d;
-            if (ShouldIgnore(arg) || !_numericExpressionEvaluator.Evaluate(arg.Value, expression))
+            if (ShouldIgnore(arg) || !_expressionEvaluator.Evaluate(arg.Value, expression))
             {
                 return retVal;
             }

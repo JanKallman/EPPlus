@@ -52,6 +52,18 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
         }
 
         [TestMethod]
+        public void DELME()
+        {
+            _worksheet.Cells["A1"].Value = 1;
+            _worksheet.Cells["A2"].Value = 1;
+            _worksheet.Cells["A3"].Value = 2;
+            _worksheet.Cells["B1"].Value = 1;
+            _worksheet.Cells["A4"].Formula = "COUNTIF(A1:A3, B1)";
+            _worksheet.Calculate();
+            Assert.AreEqual(2d, _worksheet.Cells["A4"].Value);
+        }
+
+        [TestMethod]
         public void ShouldHandleSingleNumericWildcardCriteria()
         {
             _worksheet.Cells["A1"].Value = 1;
@@ -90,7 +102,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = 1;
             _worksheet.Cells["A3"].Value = null;
-            _worksheet.Cells["A4"].Formula = "COUNTIFS(A1:A3, B1)";
+            _worksheet.Cells["A4"].Formula = "COUNTIF(A1:A3, B1)";
             _worksheet.Calculate();
             Assert.AreEqual(0d, _worksheet.Cells["A4"].Value);
         }

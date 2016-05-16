@@ -36,15 +36,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class SumIf : HiddenValuesHandlingFunction
     {
-        private readonly NumericExpressionEvaluator _evaluator;
+        private readonly ExpressionEvaluator _evaluator;
 
         public SumIf()
-            : this(new NumericExpressionEvaluator())
+            : this(new ExpressionEvaluator())
         {
 
         }
 
-        public SumIf(NumericExpressionEvaluator evaluator)
+        public SumIf(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
             _evaluator = evaluator;

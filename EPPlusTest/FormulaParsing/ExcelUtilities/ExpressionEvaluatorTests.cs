@@ -8,14 +8,14 @@ using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 namespace EPPlusTest
 {
     [TestClass]
-    public class NumericExpressionEvaluatorTests
+    public class ExpressionEvaluatorTests
     {
-        private NumericExpressionEvaluator _evaluator;
+        private ExpressionEvaluator _evaluator;
 
         [TestInitialize]
         public void Setup()
         {
-            _evaluator = new NumericExpressionEvaluator();
+            _evaluator = new ExpressionEvaluator();
         }
 
         [TestMethod]

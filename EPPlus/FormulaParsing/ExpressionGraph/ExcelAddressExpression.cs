@@ -92,7 +92,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             var c = this._parsingContext.Scopes.Current;
             var result = _excelDataProvider.GetRange(c.Address.Worksheet, c.Address.FromRow, c.Address.FromCol, ExpressionString);
             
-            if (result == null || result.IsEmpty)
+            if (result == null)
             {
                 return CompileResult.Empty;
             }
@@ -100,10 +100,11 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
-            else
+            if (result.IsEmpty)
             {
-                return CompileSingleCell(result);
+                return CompileResult.Empty;
             }
+            return CompileSingleCell(result);
         }
 
         private CompileResult CompileSingleCell(ExcelDataProvider.IRangeInfo result)
