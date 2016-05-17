@@ -95,11 +95,14 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             if (result == null)
             {
                 return CompileResult.Empty;
-            }
+            }          
             if (result.Address.Rows > 1 || result.Address.Columns > 1)
             {
                 return new CompileResult(result, DataType.Enumerable);
             }
+            // A range of blank cells is compiled as an enumerable result instead of
+            // an empty result to allow conditional aggregates such as COUNTIF to
+            // evaluate the cells in the range like Excel does.
             if (result.IsEmpty)
             {
                 return CompileResult.Empty;

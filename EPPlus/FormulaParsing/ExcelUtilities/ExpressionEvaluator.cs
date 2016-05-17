@@ -114,7 +114,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                     {
                         return op.Operator == Operators.Equals;
                     }
-                    if (left == null || right == string.Empty)
+                    if (left == null ^ right == string.Empty)
                     {
                         return op.Operator == Operators.NotEqualTo;
                     }

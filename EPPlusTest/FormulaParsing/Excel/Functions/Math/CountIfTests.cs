@@ -150,7 +150,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void CountIfLesserThanZero()
+        public void CountIfLessThanZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -163,7 +163,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void CountIfLesserThanOrEqualToZero()
+        public void CountIfLessThanOrEqualToZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -176,7 +176,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void CountIfLesserThanCharacter()
+        public void CountIfLessThanCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -189,7 +189,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void CountIfLesserThanOrEqualToCharacter()
+        public void CountIfLessThanOrEqualToCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;

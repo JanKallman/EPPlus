@@ -186,7 +186,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void AverageIfLesserThanZero()
+        public void AverageIfLessThanZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -203,7 +203,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void AverageIfLesserThanOrEqualToZero()
+        public void AverageIfLessThanOrEqualToZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -220,7 +220,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void AverageIfLesserThanCharacter()
+        public void AverageIfLessThanCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -237,7 +237,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void AverageIfLesserThanOrEqualToCharacter()
+        public void AverageIfLessThanOrEqualToCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
