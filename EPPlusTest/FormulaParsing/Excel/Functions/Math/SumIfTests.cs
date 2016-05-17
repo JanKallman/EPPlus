@@ -186,7 +186,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void SumIfLesserThanZero()
+        public void SumIfLessThanZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -203,7 +203,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void SumIfLesserThanOrEqualToZero()
+        public void SumIfLessThanOrEqualToZero()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -220,7 +220,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void SumIfLesserThanCharacter()
+        public void SumIfLessThanCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
@@ -237,7 +237,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void SumIfLesserThanOrEqualToCharacter()
+        public void SumIfLessThanOrEqualToCharacter()
         {
             _worksheet.Cells["A1"].Value = null;
             _worksheet.Cells["A2"].Value = string.Empty;
