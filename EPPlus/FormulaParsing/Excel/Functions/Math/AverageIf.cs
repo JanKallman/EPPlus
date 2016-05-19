@@ -74,8 +74,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 args = new List<FunctionArgument>(){ firstArg };
             }
-            var criteria = arguments.ElementAt(1).Value;
-            ThrowExcelErrorValueExceptionIf(() => criteria == null || criteria.ToString().Length > 255, eErrorType.Value);
+            var criteria = arguments.ElementAt(1).ValueFirst != null ? ArgToString(arguments, 1) : null;
             var retVal = 0d;
             if (arguments.Count() > 2)
             {
@@ -85,11 +84,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     lookupRange = new List<FunctionArgument>() {secondArg};
                 }
-                retVal = CalculateWithLookupRange(args, criteria.ToString(), lookupRange, context);
+                retVal = CalculateWithLookupRange(args, criteria, lookupRange, context);
             }
             else
             {
-                retVal = CalculateSingleRange(args, criteria.ToString(), context);
+                retVal = CalculateSingleRange(args, criteria, context);
             }
             return CreateResult(retVal, DataType.Decimal);
         }
@@ -103,7 +102,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             for (var x = 0; x < flattenedRange.Count(); x++)
             {
                 var candidate = flattenedSumRange.ElementAt(x);
-                if (Evaluate(flattenedRange.ElementAt(x), criteria))
+                if (criteria != null && Evaluate(flattenedRange.ElementAt(x), criteria))
                 {
                     nMatches++;
                     retVal += candidate;
@@ -120,38 +119,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var candidates = flattendedRange as double[] ?? flattendedRange.ToArray();
             foreach (var candidate in candidates)
             {
-                if (Evaluate(candidate, expression))
+                if (expression != null && Evaluate(candidate, expression))
                 {
                     retVal += candidate;
                     nMatches++;
                 }
             }
             return Divide(retVal, nMatches);
-        }
-
-        private double Calculate(FunctionArgument arg, string expression)
-        {
-            var retVal = 0d;
-            if (ShouldIgnore(arg) || !_expressionEvaluator.Evaluate(arg.Value, expression))
-            {
-                return retVal;
-            }
-            if (IsNumeric(arg.Value))
-            {
-                retVal += ConvertUtil.GetValueDouble(arg.Value);
-            }
-            //else if (arg.Value is System.DateTime)
-            //{
-            //    retVal += Convert.ToDateTime(arg.Value).ToOADate();
-            //}
-            else if (arg.Value is IEnumerable<FunctionArgument>)
-            {
-                foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
-                {
-                    retVal += Calculate(item, expression);
-                }
-            }
-            return retVal;
         }
     }
 }

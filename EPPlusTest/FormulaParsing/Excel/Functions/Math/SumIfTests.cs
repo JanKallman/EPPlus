@@ -67,6 +67,19 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
+        public void SumIfNumericExpression()
+        {
+            _worksheet.Cells["A1"].Value = null;
+            _worksheet.Cells["A2"].Value = 1d;
+            _worksheet.Cells["A3"].Value = "Not Empty";
+            var func = new SumIf();
+            IRangeInfo range = _provider.GetRange(_worksheet.Name, 1, 1, 3, 1);
+            var args = FunctionsHelper.CreateArgs(range, 1d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+        [TestMethod]
         public void SumIfEqualToEmptyString()
         {
             _worksheet.Cells["A1"].Value = null;

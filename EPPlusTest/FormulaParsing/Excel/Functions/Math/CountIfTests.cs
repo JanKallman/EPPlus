@@ -58,7 +58,34 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
             Assert.AreEqual(2d, result.Result);
         }
 
+        public void CountIfNullExpression()
+        {
+            _worksheet.Cells["A1"].Value = null;
+            _worksheet.Cells["A2"].Value = 1d;
+            _worksheet.Cells["A3"].Value = null;
+            _worksheet.Cells["B2"].Value = null;
+            var func = new CountIf();
+            IRangeInfo range1 = _provider.GetRange(_worksheet.Name, 1, 1, 3, 1);
+            IRangeInfo range2 = _provider.GetRange(_worksheet.Name, 2, 2, 2, 2);
+            var args = FunctionsHelper.CreateArgs(range1, range2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(0d, result.Result);
+        }
+
         [TestMethod]
+        public void CountIfNumericExpression()
+        {
+            _worksheet.Cells["A1"].Value = null;
+            _worksheet.Cells["A2"].Value = 1d;
+            _worksheet.Cells["A3"].Value = "Not Empty";
+            var func = new CountIf();
+            IRangeInfo range = _provider.GetRange(_worksheet.Name, 1, 1, 3, 1);
+            var args = FunctionsHelper.CreateArgs(range, 1d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(1d, result.Result);
+        }
+
+[TestMethod]
         public void CountIfEqualToEmptyString()
         {
             _worksheet.Cells["A1"].Value = null;
