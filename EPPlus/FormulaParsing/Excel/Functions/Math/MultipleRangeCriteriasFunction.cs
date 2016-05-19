@@ -51,7 +51,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             _expressionEvaluator = evaluator;
         }
 
-        protected bool Evaluate(object obj, object expression)
+        protected bool Evaluate(object obj, string expression)
         {
             double? candidate = default(double?);
             if (IsNumeric(obj))
@@ -60,12 +60,12 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             if (candidate.HasValue)
             {
-                return _expressionEvaluator.Evaluate(candidate.Value, expression.ToString());
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            return _expressionEvaluator.Evaluate(obj, expression.ToString());
+            return _expressionEvaluator.Evaluate(obj, expression);
         }
 
-        protected List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, object searched)
+        protected List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, string searched)
         {
             var result = new List<int>();
             var internalIndex = 0;
@@ -74,7 +74,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 for (var col = rangeInfo.Address._fromCol; col <= rangeInfo.Address._toCol; col++)
                 {
                     var candidate = rangeInfo.GetValue(row, col);
-                    if (Evaluate(candidate, searched))
+                    if (searched != null && Evaluate(candidate, searched))
                     {
                         result.Add(internalIndex);
                     }
