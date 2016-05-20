@@ -99,19 +99,6 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void CountIfEqualToEscapedEmptyString()
-        {
-            _worksheet.Cells["A1"].Value = null;
-            _worksheet.Cells["A2"].Value = string.Empty;
-            _worksheet.Cells["A3"].Value = "Not Empty";
-            var func = new CountIf();
-            IRangeInfo range = _provider.GetRange(_worksheet.Name, 1, 1, 3, 1);
-            var args = FunctionsHelper.CreateArgs(range, "\"\"");
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(1d, result.Result);
-        }
-
-        [TestMethod]
         public void CountIfNotEqualToNull()
         {
             _worksheet.Cells["A1"].Value = null;

@@ -79,13 +79,6 @@ namespace EPPlusTest
 
         #region Quotes Expression Tests
         [TestMethod]
-        public void EvaluateQuotesExpressionEqualsEmptyString()
-        {
-            var result = _evaluator.Evaluate(string.Empty, "\"\"");
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
         public void EvaluateQuotesExpressionEqualsNull()
         {
             var result = _evaluator.Evaluate(null, "\"\"");
