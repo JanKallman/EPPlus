@@ -99,10 +99,6 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             {
                 return left == null;
             }
-            if (expression.Trim('"') == string.Empty)
-            {
-                return left as string == string.Empty;
-            }
             var operatorCandidate = GetNonAlphanumericStartChars(expression);
             if (!string.IsNullOrEmpty(operatorCandidate))
             {
