@@ -3096,15 +3096,15 @@ namespace OfficeOpenXml
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
                         }                        
                         colVal.Add(n);
-                        col.Name = ConvertUtil.ExcelEncodeString(col.Name);
-                        if (tbl.ShowHeader)
-                        {
-                            SetValueInner(tbl.Address._fromRow, colNum, col.Name);
-                        }
-                        if (tbl.ShowTotal)
-                        {
-                            SetTableTotalFunction(tbl, col, colNum);
-                        }
+                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
+                        //if (tbl.ShowHeader)
+                        //{
+                        //    SetValueInner(tbl.Address._fromRow, colNum, col.Name);
+                        //}
+                        //if (tbl.ShowTotal)
+                        //{
+                        //    SetTableTotalFunction(tbl, col, colNum);
+                        //}
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
                             int fromRow = tbl.ShowHeader ? tbl.Address._fromRow + 1 : tbl.Address._fromRow;
