@@ -159,35 +159,6 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
-        public void SumIfShouldCalculateMatchingValuesOnly()
-        {
-            var func = new SumIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), "4");
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(4d, result.Result);
-        }
-
-        [TestMethod]
-        public void SumIfShouldCalculateWithExpression()
-        {
-            var func = new SumIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), ">3");
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(9d, result.Result);
-        }
-
-
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void SumIfShouldThrowIfCriteriaIsLargerThan255Chars()
-        {
-            var longString = "a";
-            for (var x = 0; x < 256; x++) { longString = string.Concat(longString, "a"); }
-            var func = new SumIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(3, 4, 5), longString, (FunctionsHelper.CreateArgs(3, 2, 1)));
-            var result = func.Execute(args, _parsingContext);
-        }
-
-        [TestMethod]
         public void SumSqShouldCalculateArray()
         {
             var func = new Sumsq();
@@ -565,24 +536,6 @@ namespace EPPlusTest.Excel.Functions
             func.IgnoreHiddenValues = true;
             var args = FunctionsHelper.CreateArgs(1d, FunctionsHelper.CreateArgs(12, 13));
             args.ElementAt(0).SetExcelStateFlag(ExcelCellState.HiddenCell);
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(2d, result.Result);
-        }
-
-        [TestMethod]
-        public void CountIfShouldReturnNbrOfNumericItemsThatMatch()
-        {
-            var func = new CountIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs(1d, 2d, 3d), ">1");
-            var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(2d, result.Result);
-        }
-
-        [TestMethod]
-        public void CountIfShouldReturnNbrOfAlphaNumItemsThatMatch()
-        {
-            var func = new CountIf();
-            var args = FunctionsHelper.CreateArgs(FunctionsHelper.CreateArgs("Monday", "Tuesday", "Thursday"), "T*day");
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(2d, result.Result);
         }
