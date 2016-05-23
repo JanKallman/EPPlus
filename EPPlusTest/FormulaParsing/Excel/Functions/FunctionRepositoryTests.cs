@@ -21,6 +21,8 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
             functionRepository.LoadModule(new TestFunctionModule());
             Assert.IsTrue(functionRepository.IsFunctionName(MyFunction.Name));
             Assert.IsTrue(functionRepository.CustomCompilers.ContainsKey(typeof(MyFunction)));
+            // Make sure reloading the module overwrites previous functions and compilers
+            functionRepository.LoadModule(new TestFunctionModule());
         }
         #endregion
 

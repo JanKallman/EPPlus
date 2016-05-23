@@ -76,7 +76,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             }
             foreach (var key in module.CustomCompilers.Keys)
             {
-              this.CustomCompilers.Add(key, module.CustomCompilers[key]);
+              this.CustomCompilers[key] = module.CustomCompilers[key];
             }
         }
 
