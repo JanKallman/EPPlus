@@ -3120,7 +3120,9 @@ namespace OfficeOpenXml
                 }                
                 if (tbl.Part == null)
                 {
-                    tbl.TableUri = GetNewUri(_package.Package, @"/xl/tables/table{0}.xml", tbl.Id);
+                    var id = tbl.Id;
+                    tbl.TableUri = GetNewUri(_package.Package, @"/xl/tables/table{0}.xml", ref id);
+                    tbl.Id = id;
                     tbl.Part = _package.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
