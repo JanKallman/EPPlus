@@ -719,7 +719,7 @@ namespace OfficeOpenXml
 			else
 			{
 				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -728,8 +728,8 @@ namespace OfficeOpenXml
 					return null;
 				}
 			}
-		}
-		internal double GetXmlNodeDouble(string path)
+		}		
+        internal double GetXmlNodeDouble(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -738,8 +738,8 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                double v;
+				if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -749,6 +749,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
     internal string GetXmlNodeString(XmlNode node, string path)
     {
       if (node == null)
