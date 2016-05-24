@@ -154,6 +154,14 @@ namespace OfficeOpenXml.Style
             _parent.Index = index;
         }
         /// <summary>
+        /// Return the RGB value for the Indexed or Tint property
+        /// </summary>
+        /// <returns>The RGB color starting with a #</returns>
+        public string LookupColor()
+        {
+            return LookupColor(this);
+        }
+        /// <summary>
         /// Return the RGB value for the color object that uses the Indexed or Tint property
         /// </summary>
         /// <param name="theColor">The color object</param>
@@ -164,7 +172,7 @@ namespace OfficeOpenXml.Style
             int iTint = 0;
             string translatedRGB = "";
 
-            // reference extracted from ECMA-376, Part 4, Section 3.8.26
+            // reference extracted from ECMA-376, Part 4, Section 3.8.26 or 18.8.27 SE Part 1
             string[] rgbLookup =
             {
                 "#FF000000", // 0

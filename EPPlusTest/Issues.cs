@@ -906,7 +906,7 @@ namespace EPPlusTest
             }
 
         }
- 
+
         [TestMethod, Ignore]
         public void issue15249()
         {
@@ -996,7 +996,7 @@ namespace EPPlusTest
             {
                 var ws = p.Workbook.Worksheets.Add("ws1");
                 ws.Cells["A1"].Value = (double?)1;
-                var v = ws.GetValue<double?>(1,1);
+                var v = ws.GetValue<double?>(1, 1);
             }
         }
         [TestMethod]
@@ -1019,7 +1019,7 @@ namespace EPPlusTest
                 var ws = p.Workbook.Worksheets.Add("Trans");
                 ws.Cells["A1:A2"].Formula = "IF(1=1, \"A's B C\",\"D\") ";
                 var fr = ws.Cells["A1:A2"].FormulaR1C1;
-                ws.Cells["A1:A2"].FormulaR1C1=fr;
+                ws.Cells["A1:A2"].FormulaR1C1 = fr;
                 Assert.AreEqual("IF(1=1,\"A's B C\",\"D\")", ws.Cells["A2"].Formula);
             }
         }
@@ -1047,7 +1047,7 @@ namespace EPPlusTest
 
                 workSheet.InsertColumn(2, 2, 9);
                 workSheet.Column(45).Width = 0;
-                
+
                 p.SaveAs(new FileInfo(@"c:\temp\styleerror.xlsx"));
             }
         }
@@ -1144,6 +1144,26 @@ namespace EPPlusTest
                     var hash2 = String.Join("", md5.ComputeHash(fs2).Select((x) => { return x.ToString(); }));
                     Assert.AreEqual(hash1, hash2);
                 }
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15469()
+        {
+            ExcelPackage excelPackage = new ExcelPackage(new FileInfo(@"c:\temp\bug\EPPlus-Bug.xlsx"), true);
+            using (FileStream fs = new FileStream(@"c:\temp\bug\EPPlus-Bug-new.xlsx", FileMode.Create))
+            {
+                excelPackage.SaveAs(fs);
+            }
+        }
+        [TestMethod]
+        public void Issue15438()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Test");
+                var c = ws.Cells["A1"].Style.Font.Color;
+                c.Indexed = 3;
+                Assert.AreEqual(c.LookupColor(c), "#FF00FF00");
             }
         }
     }
