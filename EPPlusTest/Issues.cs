@@ -1166,5 +1166,40 @@ namespace EPPlusTest
                 Assert.AreEqual(c.LookupColor(c), "#FF00FF00");
             }
         }
+        [TestMethod, Ignore]
+        public void Issue15097()
+        {
+            using (var pkg = new ExcelPackage())
+            {
+                var templateFile = ReadTemplateFile(@"c:\temp\bug\test_vorlage3.xlsx");
+                using (var ms = new System.IO.MemoryStream(templateFile))
+                {
+                    using (var tempPkg = new ExcelPackage(ms))
+                    {
+                        tempPkg.Workbook.Worksheets.Copy(tempPkg.Workbook.Worksheets.First().Name, "Demo");
+                    }
+                }
+            }
+        }
+        public static byte[] ReadTemplateFile(string templateName)
+        {
+            byte[] templateFIle;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                using (var sw = new System.IO.FileStream(templateName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = sw.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, bytesRead);
+                    }
+                }
+                ms.Position = 0;
+                templateFIle = ms.ToArray();
+            }
+            return templateFIle;
+
+        }
     }
 }
