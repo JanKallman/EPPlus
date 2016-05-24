@@ -154,12 +154,12 @@ namespace OfficeOpenXml.Style.XmlAccess
             NumberFormats.Add("h:mm AM/PM", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 18, Format = "h:mm AM/PM" });
             NumberFormats.Add("h:mm:ss AM/PM", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 19, Format = "h:mm:ss AM/PM" });
             NumberFormats.Add("h:mm", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 20, Format = "h:mm" });
-            NumberFormats.Add("h:mm:dd", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 21, Format = "h:mm:dd" });
+            NumberFormats.Add("h:mm:ss", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 21, Format = "h:mm:ss" });
             NumberFormats.Add("m/d/yy h:mm", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 22, Format = "m/d/yy h:mm" });
             NumberFormats.Add("#,##0 ;(#,##0)", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 37, Format = "#,##0 ;(#,##0)" });
             NumberFormats.Add("#,##0 ;[Red](#,##0)", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 38, Format = "#,##0 ;[Red](#,##0)" });
             NumberFormats.Add("#,##0.00;(#,##0.00)", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 39, Format = "#,##0.00;(#,##0.00)" });
-            NumberFormats.Add("#,##0.00;[Red](#,#)", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 40, Format = "#,##0.00;[Red](#,#)" });
+            NumberFormats.Add("#,##0.00;[Red](#,##0.00)", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 40, Format = "#,##0.00;[Red](#,#)" });
             NumberFormats.Add("mm:ss", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 45, Format = "mm:ss" });
             NumberFormats.Add("[h]:mm:ss", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 46, Format = "[h]:mm:ss" });
             NumberFormats.Add("mmss.0", new ExcelNumberFormatXml(NameSpaceManager, true) { NumFmtId = 47, Format = "mmss.0" });
@@ -206,7 +206,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     NetTextFormat = NetTextFormatForWidth = "";
                     DataType = eFormatType.DateTime;
                 }
-                else if (format.ToLower() == "general")
+                else if (format.Equals("general",StringComparison.InvariantCultureIgnoreCase))
                 {
                     NetFormat = NetFormatForWidth = "0.#####";
                     NetTextFormat = NetTextFormatForWidth = "";
@@ -258,7 +258,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 int fractionPos = -1;
                 string specialDateFormat = "";
                 bool containsAmPm = ExcelFormat.Contains("AM/PM");
-
+                List<int> lstDec=new List<int>();
                 StringBuilder sb = new StringBuilder();
                 Culture = null;
                 var format = "";
@@ -303,11 +303,11 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     }
                                     if (li.Length > 1)
                                     {
-                                        if (li[1].ToLower() == "f800")
+                                        if (li[1].Equals("f800", StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             specialDateFormat = "D";
                                         }
-                                        else if (li[1].ToLower() == "f400")
+                                        else if (li[1].Equals("f400", StringComparison.InvariantCultureIgnoreCase))
                                         {
                                             specialDateFormat = "T";
                                         }
@@ -324,6 +324,14 @@ namespace OfficeOpenXml.Style.XmlAccess
                                             }
                                         }
                                     }
+                                }
+                                else if(bracketText[0]=='t')
+                                {
+                                    sb.Append("hh"); //TODO:This will not be correct for dates over 24H.
+                                }
+                                else if (bracketText[0] == 'h')
+                                {
+                                    specialDateFormat = "hh"; //TODO:This will not be correct for dates over 24H.
                                 }
                             }
                             else
@@ -346,6 +354,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 secCount++;
                                 if (DataType == eFormatType.DateTime || secCount == 3)
                                 {
+                                    //Add qoutes
+                                    if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
+                                    lstDec = new List<int>();
                                     format = sb.ToString();
                                     sb = new StringBuilder();
                                 }
@@ -356,7 +367,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                             }
                             else
                             {
-                                clc = c.ToString().ToLower()[0];  //Lowercase character
+                                clc = c.ToString().ToLower(CultureInfo.InvariantCulture)[0];  //Lowercase character
                                 //Set the datetype
                                 if (DataType == eFormatType.Unknown)
                                 {
@@ -372,6 +383,10 @@ namespace OfficeOpenXml.Style.XmlAccess
 
                                 if (prevBslsh)
                                 {
+                                    if (c == '.' || c == ',')
+                                    {
+                                        sb.Append('\\');
+                                    }                                    
                                     sb.Append(c);
                                     prevBslsh = false;
                                 }
@@ -393,6 +408,10 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     clc == 's')
                                 {
                                     sb.Append(c);
+                                    if(c=='.')
+                                    {
+                                        lstDec.Add(sb.Length - 1);
+                                    }
                                 }
                                 else if (clc == 'h')
                                 {
@@ -480,6 +499,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                     }
                 }
 
+                //Add qoutes
+                if (DataType == eFormatType.DateTime) SetDecimal(lstDec, sb); //Remove?
+
                 // AM/PM format
                 if (containsAmPm)
                 {
@@ -511,6 +533,19 @@ namespace OfficeOpenXml.Style.XmlAccess
                     Culture = CultureInfo.CurrentCulture;
                 }
             }
+
+            private static void SetDecimal(List<int> lstDec, StringBuilder sb)
+            {
+                if (lstDec.Count > 1)
+                {
+                    for (int i = lstDec.Count - 1; i >= 0; i--)
+                    {
+                        sb.Insert(lstDec[i] + 1, '\'');
+                        sb.Insert(lstDec[i], '\'');
+                    }
+                }
+            }
+
             internal string FormatFraction(double d)
             {
                 int numerator, denomerator;

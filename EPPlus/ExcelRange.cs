@@ -86,8 +86,27 @@ namespace OfficeOpenXml
                 {
                     base.Address = Address;
                 }
+                _rtc = null;
                 return this;
             }
+        }
+
+        private ExcelRange GetTableAddess(ExcelWorksheet _worksheet, string address)
+        {
+            int ixStart = address.IndexOf('[');
+            if (ixStart == 0) //External Address
+            {
+                int ixEnd = address.IndexOf(']',ixStart+1);
+                if (ixStart >= 0 & ixEnd >= 0)
+                {
+                    var external = address.Substring(ixStart + 1, ixEnd - 1);
+                    //if (Worksheet.Workbook._externalReferences.Count < external)
+                    //{
+                    //foreach(var 
+                    //}
+                }
+            }
+            return null;
         }
         /// <summary>
         /// Access a single cell
@@ -105,6 +124,7 @@ namespace OfficeOpenXml
                 _fromRow = Row;
                 _toCol = Col;
                 _toRow = Row;
+                _rtc = null;
                 base.Address = GetAddress(_fromRow, _fromCol);
                 return this;
             }
@@ -128,6 +148,7 @@ namespace OfficeOpenXml
                 _fromRow = FromRow;
                 _toCol = ToCol;
                 _toRow = ToRow;
+                _rtc = null;
                 base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
                 return this;
             }

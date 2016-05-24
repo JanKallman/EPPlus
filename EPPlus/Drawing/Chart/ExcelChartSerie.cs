@@ -33,7 +33,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
-using System.IO.Packaging;
 using System.Collections;
 
 namespace OfficeOpenXml.Drawing.Chart
@@ -59,13 +58,15 @@ namespace OfficeOpenXml.Drawing.Chart
            _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
-           SchemaNodeOrder = new string[] { "idx", "order", "tx", "marker","trendline", "explosion", "dLbls", "cat", "val", "yVal","xVal", "smooth" };
+           SchemaNodeOrder = new string[] { "idx", "order","spPr", "tx", "marker", "trendline", "explosion","invertIfNegative", "dLbls", "cat", "val", "xVal", "yVal", "bubbleSize", "bubble3D", "smooth" };
 
            if (chartSeries.Chart.ChartType == eChartType.XYScatter ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLinesNoMarkers ||
                chartSeries.Chart.ChartType == eChartType.XYScatterSmooth ||
-               chartSeries.Chart.ChartType == eChartType.XYScatterSmoothNoMarkers)
+               chartSeries.Chart.ChartType == eChartType.XYScatterSmoothNoMarkers ||
+               chartSeries.Chart.ChartType == eChartType.Bubble ||
+               chartSeries.Chart.ChartType == eChartType.Bubble3DEffect)
            {
                _seriesTopPath = "c:yVal";
                _xSeriesTopPath = "c:xVal";
@@ -76,8 +77,18 @@ namespace OfficeOpenXml.Drawing.Chart
                _xSeriesTopPath = "c:cat";
            }
            _seriesPath = string.Format(_seriesPath, _seriesTopPath);
-           _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:numRef");
-       }
+
+            var np = string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:numRef");
+            var sp= string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:strRef");
+            if(ExistNode(sp))
+            {
+                _xSeriesPath = sp;
+            }
+            else
+            {
+                _xSeriesPath = np;
+            }
+        }
        internal void SetID(string id)
        {
            SetXmlNodeString("c:idx/@val",id);
@@ -128,13 +139,13 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                if (value._fromCol != value._toCol || value._fromRow != value._toRow || value.Addresses != null)
+                if ((value._fromCol != value._toCol && value._fromRow != value._toRow) || value.Addresses != null) //Single cell removed, allow row & column --> issue 15102. 
                 {
-                    throw (new Exception("Address must be a single cell"));
+                    throw (new ArgumentException("Address must be a row, column or single cell"));
                 }
 
                 Cleartx();
-                SetXmlNodeString(headerAddressPath, ExcelCell.GetFullAddress(value.WorkSheet, value.Address));
+                SetXmlNodeString(headerAddressPath, ExcelCellBase.GetFullAddress(value.WorkSheet, value.Address));
                 SetXmlNodeString("c:tx/c:strRef/c:strCache/c:ptCount/@val", "0");
             }
         }        
@@ -143,7 +154,7 @@ namespace OfficeOpenXml.Drawing.Chart
        /// <summary>
        /// Set this to a valid address or the drawing will be invalid.
        /// </summary>
-       public string Series
+       public virtual string Series
        {
            get
            {
@@ -151,14 +162,10 @@ namespace OfficeOpenXml.Drawing.Chart
            }
            set
            {
-               if (_chartSeries.Chart.ChartType == eChartType.Bubble)
-               {
-                   throw(new Exception("Bubble charts is not supported yet"));
-               }
                CreateNode(_seriesPath,true);
                SetXmlNodeString(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
-               
-               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
+
+                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
                if (cache != null)
                {
                    cache.ParentNode.RemoveChild(cache);
@@ -182,7 +189,7 @@ namespace OfficeOpenXml.Drawing.Chart
        /// <summary>
        /// Set an address for the horisontal labels
        /// </summary>
-       public string XSeries
+       public virtual string XSeries
        {
            get
            {
@@ -193,18 +200,35 @@ namespace OfficeOpenXml.Drawing.Chart
                CreateNode(_xSeriesPath, true);
                SetXmlNodeString(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
-               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_xSeriesTopPath), _ns);
-               if (cache != null)
-               {
-                   cache.ParentNode.RemoveChild(cache);
-               }
+                if(_xSeriesPath.IndexOf("c:numRef")>0)
+                {
+                    XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache", _xSeriesTopPath), _ns);
+                    if (cache != null)
+                    {
+                        cache.ParentNode.RemoveChild(cache);
+                    }
 
-               XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_xSeriesTopPath), _ns);
-               if (lit != null)
-               {
-                   lit.ParentNode.RemoveChild(lit);
-               }
-           }
+                    XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit", _xSeriesTopPath), _ns);
+                    if (lit != null)
+                    {
+                        lit.ParentNode.RemoveChild(lit);
+                    }
+                }
+                else
+                {
+                    XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:strRef/c:strCache", _xSeriesTopPath), _ns);
+                    if (cache != null)
+                    {
+                        cache.ParentNode.RemoveChild(cache);
+                    }
+
+                    XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:strLit", _xSeriesTopPath), _ns);
+                    if (lit != null)
+                    {
+                        lit.ParentNode.RemoveChild(lit);
+                    }
+                }
+            }
        }
        ExcelChartTrendlineCollection _trendLines = null;
        /// <summary>

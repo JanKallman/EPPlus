@@ -87,7 +87,7 @@ namespace EPPlusSamples
             sb.AppendLine("Dim co As ChartObject");
             sb.AppendLine("Set co = Inventory.ChartObjects.Add(10, 100, 400, 200)");
             sb.AppendLine("co.Chart.SetSourceData Source:=Range(\"'Inventory'!$B$1:$E$5\")");
-            sb.AppendLine("co.Chart.ChartType = xlBubble3DEffect         'Type currently not supported by EPPlus");
+            sb.AppendLine("co.Chart.ChartType = xlBubble3DEffect         'Add a bubblechart");
             sb.AppendLine("End Sub");
 
             //Create a new module and set the code
@@ -203,7 +203,7 @@ namespace EPPlusSamples
             //If you have a valid certificate for code signing you can use this code to set it.
             ///*** Try to find a cert valid for signing... ***/
             //X509Store store = new X509Store(StoreLocation.CurrentUser);
-            //store.Open(OpenFlags.ReadOnly);
+            //store.Open(OpenFlags.ReadOnly);   
             //foreach (var cert in store.Certificates)
             //{
             //    if (cert.HasPrivateKey && cert.NotBefore <= DateTime.Today && cert.NotAfter >= DateTime.Today)

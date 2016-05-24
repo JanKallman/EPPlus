@@ -42,6 +42,11 @@ namespace OfficeOpenXml.DataValidation
     public interface IRangeDataValidation
     {
         /// <summary>
+        /// Adds a <see cref="IExcelDataValidationAny"/> to the range.
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationAny"/> that can be configured for any validation</returns>
+        IExcelDataValidationAny AddAnyDataValidation();
+        /// <summary>
         /// Adds a <see cref="IExcelDataValidationInt"/> to the range
         /// </summary>
         /// <returns>A <see cref="ExcelDataValidationInt"/> that can be configured for integer data validation</returns>

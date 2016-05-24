@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Collections;
-using System.IO.Packaging;
 
 namespace OfficeOpenXml.Drawing.Vml
 {
@@ -64,7 +63,7 @@ namespace OfficeOpenXml.Drawing.Vml
         internal XmlDocument VmlDrawingXml { get; set; }
         internal Uri Uri { get; set; }
         internal string RelId { get; set; }
-        internal PackagePart Part { get; set; }
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal XmlNamespaceManager NameSpaceManager { get; set; }
     }
 }

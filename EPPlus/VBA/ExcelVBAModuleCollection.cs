@@ -60,7 +60,7 @@ namespace OfficeOpenXml.VBA
         {
             get
             {
-                return _list.Find((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
+                return _list.Find((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().Equals(Name,StringComparison.InvariantCultureIgnoreCase));
             }
         }
         /// <summary>
@@ -89,7 +89,7 @@ namespace OfficeOpenXml.VBA
         /// <returns>True if the name exists</returns>
         public bool Exists(string Name)
         {
-            return _list.Exists((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
+            return _list.Exists((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().Equals(Name,StringComparison.InvariantCultureIgnoreCase));
         }
         /// <summary>
         /// Removes the item
@@ -134,6 +134,10 @@ namespace OfficeOpenXml.VBA
         /// <returns>The module object</returns>
         public ExcelVBAModule AddModule(string Name)
         {
+            if (this[Name] != null)
+            {
+                throw(new ArgumentException("Vba modulename already exist."));
+            }
             var m = new ExcelVBAModule();
             m.Name = Name;
             m.Type = eModuleType.Module;

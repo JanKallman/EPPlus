@@ -36,11 +36,13 @@ using System.Text;
 using System.Runtime.InteropServices;
 using comTypes = System.Runtime.InteropServices.ComTypes;
 using System.IO;
+using System.Security;
 
 namespace OfficeOpenXml.Utils
 {
+#if !MONO
     internal class CompoundDocument
-    {
+    {        
         internal class StoragePart
         {
             public StoragePart()
@@ -53,8 +55,27 @@ namespace OfficeOpenXml.Utils
         internal StoragePart Storage = null;
         internal CompoundDocument()
         {
+            Storage = new CompoundDocument.StoragePart();
+        }
+        internal CompoundDocument(FileInfo fi)
+        {
+            Read(fi);
+        }
+        internal CompoundDocument(ILockBytes lb)
+        {
+            Read(lb);
         }
         internal CompoundDocument(byte[] doc)
+        {
+            Read(doc);
+        }
+        internal void Read(FileInfo fi)
+        {
+            var b = File.ReadAllBytes(fi.FullName);
+            Read(b);
+        }
+        [SecuritySafeCritical]
+        internal void Read(byte[] doc)
         {
             ILockBytes lb;
             var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
@@ -65,6 +86,12 @@ namespace OfficeOpenXml.Utils
             lb.WriteAt(0, buffer, doc.Length, out readSize);
             Marshal.FreeHGlobal(buffer);
 
+            Read(lb);
+        }
+
+        [SecuritySafeCritical]
+        internal void Read(ILockBytes lb)
+        {
             if (StgIsStorageILockBytes(lb) == 0)
             {
                 IStorage storage = null;
@@ -153,7 +180,7 @@ namespace OfficeOpenXml.Utils
                             {
                                 int length = 1;
 
-                                while (buffer.Length > dPos + length && buffer[candidate + length] == buffer[dPos + length] && length < lengthMask)
+                                while (buffer.Length > dPos + length && buffer[candidate + length] == buffer[dPos + length] && length < lengthMask && dPos+length < dEnd)
                                 {
                                     length++;
                                 }
@@ -219,24 +246,18 @@ namespace OfficeOpenXml.Utils
                 return null;
             }
             MemoryStream ms = new MemoryStream(4096);
-            BinaryWriter br=new BinaryWriter(ms);
-            int compressPos = startPos+1;
-            while(compressPos<part.Length-1)
+            int compressPos = startPos + 1;
+            while(compressPos < part.Length-1)
             {
-                byte[] chunk = GetChunk(part, ref compressPos);
-                if (chunk != null)
-                {
-                    br.Write(chunk);
-                }
+                DecompressChunk(ms, part, ref compressPos);
             }
-            br.Flush();
             return ms.ToArray();
         }
-        private static byte[] GetChunk(byte[] compBuffer, ref int pos)
+        private static void DecompressChunk(MemoryStream ms, byte[] compBuffer, ref int pos)
         {
             ushort header = BitConverter.ToUInt16(compBuffer, pos);
             int  decomprPos=0;
-            byte[] buffer = new byte[4098];
+            byte[] buffer = new byte[4198]; //Add an extra 100 byte. Some workbooks have overflowing worksheets.
             int size = (int)(header & 0xFFF)+3;
             int endPos = pos+size;
             int a = (int)(header & 0x7000) >> 12;
@@ -255,6 +276,7 @@ namespace OfficeOpenXml.Utils
                         //Literal token
                         if ((token & (1 << i)) == 0)
                         {
+                            ms.WriteByte(compBuffer[pos]);  
                             buffer[decomprPos++] = compBuffer[pos++];
                         }
                         else //copy token
@@ -267,8 +289,24 @@ namespace OfficeOpenXml.Utils
                             var length = (lengthMask & t) + 3;
                             var offset = (offsetMask & t) >> (bitCount);
                             int source = decomprPos - offset - 1;
+                            if (decomprPos + length >= buffer.Length)
+                            {
+                                // Be lenient on decompression, so extend our decompression
+                                // buffer. Excel generated VBA projects do encounter this issue.
+                                // One would think (not surprisingly that the VBA project spec)
+                                // over emphasizes the size restrictions of a DecompressionChunk.
+                                var largerBuffer = new byte[buffer.Length + 4098];
+                                Array.Copy(buffer, largerBuffer, decomprPos);
+                                buffer = largerBuffer;
+                            }
+                            
+                            // Even though we've written to the MemoryStream,
+                            // We still should decompress the token into this buffer
+                            // in case a later token needs to use the bytes we're
+                            // about to decompress.
                             for (int c = 0; c < length; c++)
                             {
+                                ms.WriteByte(buffer[source]); //Must copy byte-wise because copytokens can overlap compressed buffer.
                                 buffer[decomprPos++] = buffer[source++];
                             }
 
@@ -279,23 +317,13 @@ namespace OfficeOpenXml.Utils
                             break;
                     }
                 }
-                if (decomprPos > 0)
-                {
-                    byte[] ret = new byte[decomprPos];
-                    Array.Copy(buffer, ret, decomprPos);
-                    return ret;
-                }
-                else
-                {
-                    return null;
-                }
+                return;
             }
             else //Raw chunk
             {
-                byte[] ret = new byte[size];
-                Array.Copy(compBuffer, pos, ret,0, size);
+                ms.Write(compBuffer, pos, size);
                 pos += size;
-                return ret;
+                return;
             }
         }
         private static int GetLengthBits(int decompPos)
@@ -498,6 +526,7 @@ namespace OfficeOpenXml.Utils
             STGTY_LOCKBYTES = 3,
             STGTY_PROPERTY = 4
         }
+
         [DllImport("ole32.dll")]
         private static extern int StgIsStorageFile(
             [MarshalAs(UnmanagedType.LPWStr)] string pwcsName);
@@ -531,28 +560,34 @@ namespace OfficeOpenXml.Utils
 
         [DllImport("ole32.dll")]
         static extern int StgCreateDocfileOnILockBytes(ILockBytes plkbyt, STGM grfMode, int reserved, out IStorage ppstgOpen);
-        
+
         #endregion
+        [SecuritySafeCritical]
         internal static int IsStorageFile(string Name)
         {
             return StgIsStorageFile(Name);
         }
+        [SecuritySafeCritical]
         internal static int IsStorageILockBytes(ILockBytes lb)
         {
             return StgIsStorageILockBytes(lb);
         }
-        internal ILockBytes GetLockbyte(MemoryStream stream)
+        [SecuritySafeCritical]
+        internal static ILockBytes GetLockbyte(MemoryStream stream)
         {
             ILockBytes lb;
             var iret = CreateILockBytesOnHGlobal(IntPtr.Zero, true, out lb);
             byte[] docArray = stream.GetBuffer();
+
             IntPtr buffer = Marshal.AllocHGlobal(docArray.Length);
             Marshal.Copy(docArray, 0, buffer, docArray.Length);
             UIntPtr readSize;
             lb.WriteAt(0, buffer, docArray.Length, out readSize);
             Marshal.FreeHGlobal(buffer);
+
             return lb;
         }
+        [SecuritySafeCritical]
         private MemoryStream ReadParts(IStorage storage, StoragePart storagePart)
         {
             MemoryStream ret = null;
@@ -635,6 +670,7 @@ namespace OfficeOpenXml.Utils
         /// <param name="storage"></param>
         /// <param name="statstg"></param>
         /// <returns></returns>
+        [SecuritySafeCritical]
         private byte[] GetOleStream(IStorage storage, comTypes.STATSTG statstg)
         {
             comTypes.IStream pIStream;
@@ -650,6 +686,8 @@ namespace OfficeOpenXml.Utils
 
             return data;
         }
+
+        [SecuritySafeCritical]
         internal byte[] Save()
         {
             ILockBytes lb;
@@ -711,6 +749,7 @@ namespace OfficeOpenXml.Utils
             }
             subStorage.Commit(0);
         }
-
+			
     }
+#endif
 }

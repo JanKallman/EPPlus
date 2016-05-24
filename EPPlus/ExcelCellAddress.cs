@@ -136,6 +136,20 @@ namespace OfficeOpenXml
                 return _row <= 0;
             }
         }
+
+        /// <summary>
+        /// Returns the letter corresponding to the supplied 1-based column index.
+        /// </summary>
+        /// <param name="column">Index of the column (1-based)</param>
+        /// <returns>The corresponding letter, like A for 1.</returns>
+        public static string GetColumnLetter(int column)
+        {
+            if (column > ExcelPackage.MaxColumns || column < 1)
+            {
+                throw new InvalidOperationException("Invalid 1-based column index: " + column + ". Valid range is 1 to " + ExcelPackage.MaxColumns);
+            }
+            return ExcelCellBase.GetColumnLetter(column);
+        }
     }
 }
 

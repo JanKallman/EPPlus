@@ -205,7 +205,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    return GetXmlNodeString("@name");
+                    return v;
                 }
             }
             set
@@ -287,7 +287,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    SetXmlNodeString("@sortType", value.ToString().ToLower());
+                    SetXmlNodeString("@sortType", value.ToString().ToLower(CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -367,7 +367,7 @@ namespace OfficeOpenXml.Table.PivotTable
                         if ((value & e) == e)
                         {
                             var newTotalType = e.ToString();
-                            var totalType = char.ToLower(newTotalType[0]) + newTotalType.Substring(1);
+                            var totalType = char.ToLower(newTotalType[0], CultureInfo.InvariantCulture) + newTotalType.Substring(1);
                             // add new attribute
                             SetXmlNodeBool("@" + totalType + "Subtotal", true);
                             innerXml += "<item t=\"" + totalType + "\" />";
@@ -590,12 +590,12 @@ namespace OfficeOpenXml.Table.PivotTable
                     {
                         return field;
                     }
-                    else if (fieldIndex > index)
-                    {
-                        newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
-                        newElement.SetAttribute(indexAttrText, index.ToString());
-                        rowsNode.InsertAfter(newElement, field);
-                    }
+                    //else if (fieldIndex > index)
+                    //{
+                    //    newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
+                    //    newElement.SetAttribute(indexAttrText, index.ToString());
+                    //    rowsNode.InsertAfter(newElement, field);
+                    //}
                 }
                 prevField=field;
             }
@@ -634,7 +634,7 @@ namespace OfficeOpenXml.Table.PivotTable
             _cacheFieldHelper.SetXmlNodeBool("d:sharedItems/@containsNonDate", false);
             _cacheFieldHelper.SetXmlNodeBool("d:sharedItems/@containsSemiMixedTypes", false);
 
-            group.TopNode.InnerXml += string.Format("<fieldGroup base=\"{0}\"><rangePr groupBy=\"{1}\" /><groupItems /></fieldGroup>", BaseIndex, GroupBy.ToString().ToLower());
+            group.TopNode.InnerXml += string.Format("<fieldGroup base=\"{0}\"><rangePr groupBy=\"{1}\" /><groupItems /></fieldGroup>", BaseIndex, GroupBy.ToString().ToLower(CultureInfo.InvariantCulture));
 
             if (StartDate.Year < 1900)
             {

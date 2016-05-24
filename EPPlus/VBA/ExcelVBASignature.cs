@@ -35,7 +35,6 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using OfficeOpenXml.Utils;
-using System.IO.Packaging;
 using System.IO;
 
 namespace OfficeOpenXml.VBA
@@ -46,8 +45,8 @@ namespace OfficeOpenXml.VBA
     public class ExcelVbaSignature
     {
         const string schemaRelVbaSignature = "http://schemas.microsoft.com/office/2006/relationships/vbaProjectSignature";
-        PackagePart _vbaPart = null;
-        internal ExcelVbaSignature(PackagePart vbaPart)
+        Packaging.ZipPackagePart _vbaPart = null;
+        internal ExcelVbaSignature(Packaging.ZipPackagePart vbaPart)
         {
             _vbaPart = vbaPart;
             GetSignature();
@@ -58,7 +57,7 @@ namespace OfficeOpenXml.VBA
             var rel = _vbaPart.GetRelationshipsByType(schemaRelVbaSignature).FirstOrDefault();
             if (rel != null)
             {
-                Uri = PackUriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
+                Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _vbaPart.Package.GetPart(Uri);
 
                 var stream = Part.GetStream();
@@ -144,17 +143,31 @@ namespace OfficeOpenXml.VBA
         //}
         internal void Save(ExcelVbaProject proj)
         {
-            if (Certificate == null || Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            if (Certificate == null)
             {
-                if (Part != null)
+                return;
+            }
+            
+            if (Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            {
+                var storeCert = GetCertFromStore(StoreLocation.CurrentUser);
+                if (storeCert == null)
+                {
+                    storeCert = GetCertFromStore(StoreLocation.LocalMachine);
+                }
+                if (storeCert != null && storeCert.HasPrivateKey == true)
+                {
+                    Certificate = storeCert;
+                }
+                else
                 {
                     foreach (var r in Part.GetRelationships())
                     {
                         Part.DeleteRelationship(r.Id);
                     }
                     Part.Package.DeletePart(Part.Uri);
+                    return;
                 }
-                return;
             }
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
@@ -195,10 +208,36 @@ namespace OfficeOpenXml.VBA
             }
             if (rel == null)
             {
-                proj.Part.CreateRelationship(PackUriHelper.ResolvePartUri(proj.Uri, Uri), TargetMode.Internal, schemaRelVbaSignature);                
+                proj.Part.CreateRelationship(UriHelper.ResolvePartUri(proj.Uri, Uri), Packaging.TargetMode.Internal, schemaRelVbaSignature);                
             }
             var b = ms.ToArray();
             Part.GetStream(FileMode.Create).Write(b, 0, b.Length);            
+        }
+
+        private X509Certificate2 GetCertFromStore(StoreLocation loc)
+        {
+            try
+            {
+                X509Store store = new X509Store(loc);
+                store.Open(OpenFlags.ReadOnly);
+                try
+                {
+                    var storeCert = store.Certificates.Find(
+                                    X509FindType.FindByThumbprint,
+                                    Certificate.Thumbprint,
+                                    true
+                                    ).OfType<X509Certificate2>().FirstOrDefault();
+                    return storeCert;
+                }
+                finally
+                {
+                    store.Close();
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private byte[] GetCertStore()
@@ -336,8 +375,10 @@ namespace OfficeOpenXml.VBA
         /// The verifier
         /// </summary>
         public SignedCms Verifier { get; internal set; }
+#if !MONO
         internal CompoundDocument Signature { get; set; }
-        internal PackagePart Part { get; set; }
+#endif
+        internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }
 }

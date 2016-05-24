@@ -102,7 +102,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 foreach (var field in _list)
                 {
-                    if (field.Name == name)
+                    if (field.Name.Equals(name,StringComparison.InvariantCultureIgnoreCase))
                     {
                         return field;
                     }
@@ -295,11 +295,10 @@ namespace OfficeOpenXml.Table.PivotTable
 
         internal bool ExistsDfName(string name, ExcelPivotTableDataField datafield)
         {
-            name = name.ToLower();
             foreach (var df in _list)
             {
-                if (((!string.IsNullOrEmpty(df.Name) && df.Name.ToLower() == name) ||
-                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.ToLower() == name)) && datafield != df)
+                if (((!string.IsNullOrEmpty(df.Name) && df.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) ||
+                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)))) && datafield != df)
                 {
                     return true;
                 }

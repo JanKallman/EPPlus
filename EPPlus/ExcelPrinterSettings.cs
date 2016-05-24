@@ -461,7 +461,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNodeString(_orientationPath, value.ToString().ToLower());
+                SetXmlNodeString(_orientationPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string _fitToWidthPath = "d:pageSetup/@fitToWidth";
@@ -557,11 +557,11 @@ namespace OfficeOpenXml
                     ExcelRangeBase r = _ws.Names["_xlnm.Print_Titles"] as ExcelRangeBase;
                     if (r.Start.Column == 1 && r.End.Column == ExcelPackage.MaxColumns)
                     {
-                        return r;
+                        return new ExcelAddress(r.FirstAddress);
                     }
-                    else if (r.Address != null && r.Addresses[0].Start.Column == 1 && r.Addresses[0].End.Column == ExcelPackage.MaxColumns)
+                    else if (r._addresses != null && r.Addresses[0].Start.Column == 1 && r.Addresses[0].End.Column == ExcelPackage.MaxColumns)
                     {
-                        return r.Addresses[0];
+                        return r._addresses[0];
                     }
                     else
                     {
@@ -579,7 +579,7 @@ namespace OfficeOpenXml
                 //Must span entire columns
                 if (!(value.Start.Column == 1 && value.End.Column == ExcelPackage.MaxColumns))
                 {
-                    throw new InvalidOperationException("Address must spann full columns only (for ex. Address=\"A:A\" for the first column).");
+                    throw new InvalidOperationException("Address must span full columns only (for ex. Address=\"A:A\" for the first column).");
                 }
 
                 var vertAddr = RepeatColumns;
@@ -617,7 +617,11 @@ namespace OfficeOpenXml
                     ExcelRangeBase r = _ws.Names["_xlnm.Print_Titles"] as ExcelRangeBase;
                     if (r.Start.Row == 1 && r.End.Row == ExcelPackage.MaxRows)
                     {
-                        return r;
+                        return new ExcelAddress(r.FirstAddress);
+                    }
+                    else if (r._addresses != null && (r._addresses[0].Start.Row == 1 && r._addresses[0].End.Row == ExcelPackage.MaxRows))
+                    {
+                        return r._addresses[0];
                     }
                     else
                     {
@@ -634,7 +638,7 @@ namespace OfficeOpenXml
                 //Must span entire rows
                 if (!(value.Start.Row == 1 && value.End.Row== ExcelPackage.MaxRows))
                 {
-                    throw new InvalidOperationException("Address must spann rows only (for ex. Address=\"1:1\" for the first row).");
+                    throw new InvalidOperationException("Address must span rows only (for ex. Address=\"1:1\" for the first row).");
                 }
 
                 var horAddr = RepeatRows;

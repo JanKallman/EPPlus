@@ -31,6 +31,8 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
@@ -59,12 +61,12 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             _name = GetXmlNodeString(namePath);
             _size = (float)GetXmlNodeDecimal(sizePath);
-            _family = GetXmlNodeInt(familyPath);
+            _family = GetXmlNodeIntNull(familyPath)??int.MinValue;
             _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
-            _bold = (topNode.SelectSingleNode(boldPath, NameSpaceManager) != null);
-            _italic = (topNode.SelectSingleNode(italicPath, NameSpaceManager) != null);
-            _strike = (topNode.SelectSingleNode(strikePath, NameSpaceManager) != null);
+            _bold = GetBoolValue(topNode, boldPath);
+            _italic = GetBoolValue(topNode, italicPath);
+            _strike = GetBoolValue(topNode, strikePath);
             _verticalAlign = GetXmlNodeString(verticalAlignPath);
             if (topNode.SelectSingleNode(underLinedPath, NameSpaceManager) != null)
             {
@@ -83,6 +85,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _underlineType = ExcelUnderLineType.None;
             }
         }
+
         internal override string Id
         {
             get
@@ -132,7 +135,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _family;
+                return (_family == int.MinValue ? 0 : _family); ;
             }
             set
             {
@@ -276,18 +279,62 @@ namespace OfficeOpenXml.Style.XmlAccess
             UnderLine=Font.Underline;
             Italic=Font.Italic;
         }
+        public static float GetFontHeight(string name, float size)
+        {
+            name = name.StartsWith("@") ? name.Substring(1) : name;
+            if (FontSize.FontHeights.ContainsKey(name))
+            {
+                return GetHeightByName(name, size);
+            }
+            else
+            {
+                return GetHeightByName("Calibri", size);
+            }
+        }
+
+        private static float GetHeightByName(string name, float size)
+        {
+            if (FontSize.FontHeights[name].ContainsKey(size))
+            {
+                return FontSize.FontHeights[name][size].Height;
+            }
+            else
+            {
+                float min = -1, max = 500;
+                foreach (var h in FontSize.FontHeights[name])
+                {
+                    if (min < h.Key && h.Key < size)
+                    {
+                        min = h.Key;
+                    }
+                    if (max > h.Key && h.Key > size)
+                    {
+                        max = h.Key;
+                    }
+                }
+                if (min == max)
+                {
+                    return Convert.ToSingle(FontSize.FontHeights[name][min].Height);
+                }
+                else
+                {
+                    return Convert.ToSingle(FontSize.FontHeights[name][min].Height  + (FontSize.FontHeights[name][max].Height - FontSize.FontHeights[name][min].Height) * ((size - min) / (max - min)));
+                }
+            }
+        }
+
         internal ExcelFontXml Copy()
         {
             ExcelFontXml newFont = new ExcelFontXml(NameSpaceManager);
-            newFont.Name = Name;
-            newFont.Size = Size;
-            newFont.Family = Family;
-            newFont.Scheme = Scheme;
-            newFont.Bold = Bold;
-            newFont.Italic = Italic;
-            newFont.UnderLineType = UnderLineType;
-            newFont.Strike = Strike;
-            newFont.VerticalAlign = VerticalAlign;
+            newFont.Name = _name;
+            newFont.Size = _size;
+            newFont.Family = _family;
+            newFont.Scheme = _scheme;
+            newFont.Bold = _bold;
+            newFont.Italic = _italic;
+            newFont.UnderLineType = _underlineType;
+            newFont.Strike = _strike;
+            newFont.VerticalAlign = _verticalAlign;
             newFont.Color = Color.Copy();
             return newFont;
         }
@@ -311,17 +358,17 @@ namespace OfficeOpenXml.Style.XmlAccess
             else
             {
                 var v=_underlineType.ToString();
-                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower() + v.Substring(1));
+                SetXmlNodeString(underLinedPath + "/@val", v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1));
             }
 
             if (_verticalAlign!="") SetXmlNodeString(verticalAlignPath, _verticalAlign.ToString());
-            SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            if(_size>0) SetXmlNodeString(sizePath, _size.ToString(System.Globalization.CultureInfo.InvariantCulture));
             if (_color.Exists)
             {
                 CreateNode(_colorPath);
                 TopNode.AppendChild(_color.CreateXmlNode(TopNode.SelectSingleNode(_colorPath, NameSpaceManager)));
             }
-            SetXmlNodeString(namePath, _name);
+            if(!string.IsNullOrEmpty(_name)) SetXmlNodeString(namePath, _name);
             if(_family>int.MinValue) SetXmlNodeString(familyPath, _family.ToString());
             if (_scheme != "") SetXmlNodeString(schemePath, _scheme.ToString());
 

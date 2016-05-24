@@ -11,7 +11,7 @@
         BACKGROUND-COLOR:#FFFFFF;
         COLOR: #111111;
         FONT-FAMILY: Arial;
-        font-size large;
+        font-size: large;
         margin-top: 1px
     }
     table
@@ -51,7 +51,7 @@ A:hover{color:#CC6699}
         <asp:HyperLink ID="sample3" runat="server" NavigateUrl="~/GetSample.aspx?Sample=3">Sample 3</asp:HyperLink>
         </td>
         <td>
-            This sample demonstrates how to use a template stored in the Application cashe.
+            This sample demonstrates how to use a template stored in the Application cache.
         </td>
         </tr>
         <tr>

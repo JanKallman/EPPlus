@@ -62,9 +62,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _exists = true;
                 _auto = GetXmlNodeBool("@auto");
                 _theme = GetXmlNodeString("@theme");
-                _tint = GetXmlNodeDecimal("@tint");
+                _tint = GetXmlNodeDecimalNull("@tint")??decimal.MinValue;
                 _rgb = GetXmlNodeString("@rgb");
-                _indexed = GetXmlNodeInt("@indexed");
+                _indexed = GetXmlNodeIntNull("@indexed") ?? int.MinValue;
             }
         }
         
@@ -84,10 +84,6 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             set
             {
-                if (value)
-                {
-
-                }
                 _auto = value;
                 _exists = true;
                 Clear();
@@ -112,7 +108,14 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-                return _tint;
+                if (_tint == decimal.MinValue)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return _tint;
+                }
             }
             set
             {
@@ -146,7 +149,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         {
             get
             {
-              return _indexed;
+                return (_indexed == int.MinValue ? 0 : _indexed);
             }
             set
             {
@@ -162,7 +165,7 @@ namespace OfficeOpenXml.Style.XmlAccess
         internal void Clear()
         {
             _theme = "";
-            _tint = decimal.MaxValue;
+            _tint = decimal.MinValue;
             _indexed = int.MinValue;
             _rgb = "";
             _auto = false;
@@ -175,7 +178,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
         internal ExcelColorXml Copy()
         {
-            return new ExcelColorXml(NameSpaceManager) {_indexed=Indexed, _tint=Tint, _rgb=Rgb, _theme=Theme, _auto=Auto, _exists=Exists };
+            return new ExcelColorXml(NameSpaceManager) {_indexed=_indexed, _tint=_tint, _rgb=_rgb, _theme=_theme, _auto=_auto, _exists=_exists };
         }
 
         internal override XmlNode CreateXmlNode(XmlNode topNode)
@@ -197,7 +200,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 SetXmlNodeString("@theme", _theme.ToString());
             }
-            if (_tint != decimal.MaxValue)
+            if (_tint != decimal.MinValue)
             {
                 SetXmlNodeString("@tint", _tint.ToString(CultureInfo.InvariantCulture));
             }

@@ -93,6 +93,7 @@ namespace OfficeOpenXml.Style
             if (parentNode == null)
             {
                 CreateNode(_path);
+                parentNode = TopNode.SelectSingleNode(_path, NameSpaceManager);
             }
             
             var node = doc.CreateElement("a", "r", ExcelPackage.schemaDrawings);

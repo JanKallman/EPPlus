@@ -31,10 +31,14 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using OfficeOpenXml.Style;
 using System.Text.RegularExpressions;
-
+using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using System.Linq;
+using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing;
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -114,7 +118,7 @@ namespace OfficeOpenXml
             for (int pos = 0; pos < value.Length; pos++)
             {
                 char c = value[pos];
-                if (c == '"' || c=='\'')
+                if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
                 {
                     if (isText == false && part != "" && prevTQ==c)
                     {
@@ -122,8 +126,8 @@ namespace OfficeOpenXml
                         part = "";
                         prevTQ = (char)0;
                     }
-                    prevTQ = c;
                     isText = !isText;
+                    prevTQ = c;
                     ret += c;
                 }
                 else if (isText)
@@ -181,7 +185,7 @@ namespace OfficeOpenXml
                     Ret += string.Format("[{0}]", addrRow - row);
                 }
 
-                if (part.StartsWith("$"))
+                if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(part, "$"))
                 {
                     return Ret + "C" + addrCol;
                 }
@@ -210,7 +214,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
-            string check = part.ToUpper();
+            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
 
             int rStart = check.IndexOf("R");
             if (rStart != 0)
@@ -280,7 +284,7 @@ namespace OfficeOpenXml
                     fromRow = fromRow + rowIncr;
                 }
 
-                if (colIncr != 0 && col != 0 && fromCol >= col && Address.StartsWith("$") == false)
+                if (colIncr != 0 && col != 0 && fromCol >= col && Utils.ConvertUtil._invariantCompareInfo.IsPrefix(Address, "$") == false)
                 {
                     if (fromCol < col - colIncr)
                     {
@@ -290,7 +294,7 @@ namespace OfficeOpenXml
                     fromCol = fromCol + colIncr;
                 }
 
-                Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol, Address.StartsWith("$"));
+                Address = GetAddress(fromRow, Address.IndexOf('$', 1) > -1, fromCol, Utils.ConvertUtil._invariantCompareInfo.IsPrefix(Address, "$"));
             }
             return Address;
         }
@@ -354,6 +358,10 @@ namespace OfficeOpenXml
         /// <returns>The letter representing the column</returns>
         protected internal static string GetColumnLetter(int iColumnNumber)
         {
+            return GetColumnLetter(iColumnNumber, false);
+        }
+        protected internal static string GetColumnLetter(int iColumnNumber, bool fixedCol)
+        {
 
             if (iColumnNumber < 1)
             {
@@ -368,9 +376,15 @@ namespace OfficeOpenXml
                 iColumnNumber = (iColumnNumber - ((iColumnNumber - 1) % 26)) / 26;
             }
             while (iColumnNumber > 0);
-            return sCol;
+            return fixedCol ? "$" + sCol : sCol;
         }
         #endregion
+
+        internal static bool GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
+        {
+            bool fixedFromRow, fixedFromColumn, fixedToRow, fixedToColumn;
+            return GetRowColFromAddress(CellAddress, out FromRow, out FromColumn, out ToRow, out ToColumn, out fixedFromRow, out fixedFromColumn, out fixedToRow, out fixedToColumn);
+        }
         /// <summary>
         /// Get the row/columns for a Cell-address
         /// </summary>
@@ -379,10 +393,28 @@ namespace OfficeOpenXml
         /// <param name="FromColumn">Returns the from column</param>
         /// <param name="ToRow">Returns the to row</param>
         /// <param name="ToColumn">Returns the from row</param>
-        internal static bool GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn)
+        /// <param name="fixedFromRow">Is the from row fixed?</param>
+        /// <param name="fixedFromColumn">Is the from column fixed?</param>
+        /// <param name="fixedToRow">Is the to row fixed?</param>
+        /// <param name="fixedToColumn">Is the to column fixed?</param>
+        /// <returns></returns>
+        internal static bool GetRowColFromAddress(string CellAddress, out int FromRow, out int FromColumn, out int ToRow, out int ToColumn, out bool fixedFromRow, out bool fixedFromColumn, out bool fixedToRow, out bool fixedToColumn)
         {
             bool ret;
-            CellAddress = CellAddress.ToUpper();
+            if (CellAddress.IndexOf('[') > 0) //External reference or reference to Table or Pivottable.
+            {
+                FromRow = -1;
+                FromColumn = -1;
+                ToRow = -1;
+                ToColumn = -1;
+                fixedFromRow = false;
+                fixedFromColumn = false;
+                fixedToRow= false;
+                fixedToColumn = false;
+                return false;
+            }
+
+            CellAddress = Utils.ConvertUtil._invariantTextInfo.ToUpper(CellAddress);
             //This one can be removed when the worksheet Select format is fixed
             if (CellAddress.IndexOf(' ') > 0)
             {
@@ -391,19 +423,21 @@ namespace OfficeOpenXml
 
             if (CellAddress.IndexOf(':') < 0)
             {
-                ret=GetRowColFromAddress(CellAddress, out FromRow, out FromColumn);
+                ret = GetRowColFromAddress(CellAddress, out FromRow, out FromColumn, out fixedFromRow, out fixedFromColumn);
                 ToColumn = FromColumn;
                 ToRow = FromRow;
+                fixedToRow = fixedFromRow;
+                fixedToColumn = fixedFromColumn;
             }
             else
             {
                 string[] cells = CellAddress.Split(':');
-                ret=GetRowColFromAddress(cells[0], out FromRow, out FromColumn);
+                ret = GetRowColFromAddress(cells[0], out FromRow, out FromColumn, out fixedFromRow, out fixedFromColumn);
                 if (ret)
-                    ret = GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+                    ret = GetRowColFromAddress(cells[1], out ToRow, out ToColumn, out fixedToRow, out fixedToColumn);
                 else
                 {
-                    GetRowColFromAddress(cells[1], out ToRow, out ToColumn);
+                    GetRowColFromAddress(cells[1], out ToRow, out ToColumn, out fixedToRow, out fixedToColumn);
                 }
 
                 if (FromColumn <= 0)
@@ -428,6 +462,11 @@ namespace OfficeOpenXml
         {
             return GetRowCol(CellAddress, out Row, out Column, true);
         }
+        internal static bool GetRowColFromAddress(string CellAddress, out int row, out int col, out bool fixedRow, out bool fixedCol)
+        {
+            return GetRowCol(CellAddress, out row, out col, true, out fixedRow, out fixedCol);
+        }
+
         /// <summary>
         /// Get the row/column for a Cell-address
         /// </summary>
@@ -438,84 +477,86 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal static bool GetRowCol(string address, out int row, out int col, bool throwException)
         {
-            bool colPart = true;
-            string sRow = "", sCol = "";
+            bool fixedRow, fixedCol;
+            return GetRowCol(address, out row, out col, throwException, out fixedRow, out fixedCol);
+        }
+        internal static bool GetRowCol(string address, out int row, out int col, bool throwException, out bool fixedRow, out bool fixedCol)
+        {
+          bool colPart = true;
+          int colStartIx = 0;
+          int colLength = 0;
+          col = 0;
+          row = 0;
+          fixedRow = false;
+          fixedCol = false;
+
+          if (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(address, "#REF!"))
+          {
+            row = 0;
             col = 0;
-            if (address.IndexOf(':') > 0)  //If it is a mult-cell address use 
-            {
-                address = address.Substring(0, address.IndexOf(':'));
-            }
-            if (address.EndsWith("#REF!"))
-            {
-                row = 0;
-                col = 0;
-                return true;
-            }
+            return true;
+          }
 
-            int sheetMarkerIndex = address.IndexOf('!');
-            if (sheetMarkerIndex >= 0)
+          int sheetMarkerIndex = address.IndexOf('!');
+          if (sheetMarkerIndex >= 0)
+          {
+            colStartIx = sheetMarkerIndex + 1;
+          }
+          address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
+          for (int i = colStartIx; i < address.Length; i++)
+          {
+            char c = address[i];
+            if (colPart && (c >= 'A' && c <= 'Z') && colLength <= 3)
             {
-                address = address.Substring(sheetMarkerIndex + 1);
+              col *= 26;
+              col += ((int)c) - 64;
+              colLength++;
             }
-
-            for (int i = 0; i < address.Length; i++)
+            else if (c >= '0' && c <= '9')
             {
-                if ((address[i] >= 'A' && address[i] <= 'Z') && colPart && sCol.Length <= 3)
-                {
-                    sCol += address[i];
-                }
-                else if (address[i] >= '0' && address[i] <= '9')
-                {
-                    sRow += address[i];
-                    colPart = false;
-                }
-                else if (address[i] != '$') // $ is ignored here
-                {
-                    if (throwException)
-                    {
-                        throw (new Exception(string.Format("Invalid Address format {0}", address)));
-                    }
-                    else
-                    {
-                        row = 0;
-                        col = 0;
-                        return false;
-                    }
-                }
+              row *= 10;
+              row += ((int)c) - 48;
+              colPart = false;
             }
-
-            // Get the column number
-            if (sCol != "")
+            else if (c == '$')
             {
-                int len = sCol.Length - 1;
-                for (int i = len; i >= 0; i--)
-                {
-                    col += (((int)sCol[i]) - 64) * (int)(Math.Pow(26, len - i));
-                }
+              if (i == colStartIx)
+              {
+                colStartIx++;
+                fixedCol = true;
+              }
+              else
+              {
+                colPart = false;
+                fixedRow = true;
+              }
             }
             else
             {
-                col = 0;
-                int.TryParse(sRow, out row);
-                return row>0;
+              row = 0;
+              col = 0;
+              if (throwException)
+              {
+                throw (new Exception(string.Format("Invalid Address format {0}", address)));
+              }
+              else
+              {
+                return false;
+              }
             }
-            // Get the row number
-            if (sRow == "") //Blank, fullRow
+          }
+          return row != 0 || col != 0;
+        }
+
+        private static int GetColumn(string sCol)
+        {
+            int col = 0;
+            int len = sCol.Length - 1;
+            for (int i = len; i >= 0; i--)
             {
-                //if (throwException)
-                //{
-                //    throw (new Exception(string.Format("Invalid Address format {0}", address)));
-                //}
-                //else
-                //{                    
-                row = 0;
-                return col > 0;
-                //}
+                col += (((int)sCol[i]) - 64) * (int)(Math.Pow(26, len - i));
             }
-            else
-            {
-                return int.TryParse(sRow, out row);
-            }
+            return col;
         }
         #region GetAddress
         /// <summary>
@@ -608,6 +649,40 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
+        /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
+        /// </summary>
+        /// <param name="FromRow">From row number</param>
+        /// <param name="FromColumn">From column number</param>
+        /// <param name="ToRow">To row number</param>
+        /// <param name="ToColumn">From column number</param>
+        /// <param name="FixedFromColumn"></param>
+        /// <param name="FixedFromRow"></param>
+        /// <param name="FixedToColumn"></param>
+        /// <param name="FixedToRow"></param>
+        /// <returns>The cell address in the format A1</returns>
+        public static string GetAddress(int FromRow, int FromColumn, int ToRow, int ToColumn, bool FixedFromRow, bool FixedFromColumn, bool FixedToRow, bool  FixedToColumn)
+        {
+            if (FromRow == ToRow && FromColumn == ToColumn)
+            {
+                return GetAddress(FromRow, FixedFromRow, FromColumn, FixedFromColumn);
+            }
+            else
+            {
+                if (FromRow == 1 && ToRow == ExcelPackage.MaxRows)
+                {
+                    return GetColumnLetter(FromColumn, FixedFromColumn) + ":" + GetColumnLetter(ToColumn, FixedToColumn);
+                }
+                else if (FromColumn == 1 && ToColumn == ExcelPackage.MaxColumns)
+                {                    
+                    return (FixedFromRow ? "$":"") + FromRow.ToString() + ":" + (FixedToRow ? "$":"") + ToRow.ToString();
+                }
+                else
+                {
+                    return GetAddress(FromRow, FixedFromRow, FromColumn, FixedFromColumn) + ":" + GetAddress(ToRow, FixedToRow, ToColumn, FixedToColumn);
+                }
+            }
+        }
+        /// <summary>
         /// Get the full address including the worksheet name
         /// </summary>
         /// <param name="worksheetName">The name of the worksheet</param>
@@ -650,6 +725,87 @@ namespace OfficeOpenXml
         }
         #endregion
         #region IsValidCellAddress
+        public static bool IsValidAddress(string address)
+        {
+            address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
+            string r1 = "", c1 = "", r2 = "", c2 = "";
+            bool isSecond = false;
+            for (int i = 0; i < address.Length; i++)
+            {
+                if (address[i] >= 'A' && address[i] <= 'Z')
+                {
+                    if (isSecond == false)
+                    {
+                        if (r1 != "") return false;
+                        c1 += address[i];
+                        if (c1.Length > 3) return false;
+                    }
+                    else
+                    {
+                        if (r2 != "") return false;
+                        c2 += address[i];
+                        if (c2.Length > 3) return false;
+                    }
+                }
+                else if (address[i] >= '0' && address[i] <= '9')
+                {
+                    if (isSecond == false)
+                    {
+                        r1 += address[i];
+                        if (r1.Length > 7) return false;
+                    }
+                    else
+                    {
+                        r2 += address[i];
+                        if (r2.Length > 7) return false;
+                    }
+                }
+                else if (address[i] == ':')
+                {
+                    isSecond=true;
+                }
+                else if (address[i] == '$')
+                {
+                    if (i == address.Length - 1 || address[i + 1] == ':')
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (r1!="" && c1!="" && r2 == "" && c2 == "")   //Single Cell
+            {
+                return (GetColumn(c1)<=ExcelPackage.MaxColumns && int.Parse(r1)<=ExcelPackage.MaxRows);   
+            }
+            else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
+            {
+                var iR2 = int.Parse(r2);
+                var iC2 = GetColumn(c2);
+
+                return GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
+                    iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
+                                                    
+            }
+            else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
+            {                
+                var c2n=GetColumn(c2);
+                return (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
+            }
+            else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
+            {
+                var iR2 = int.Parse(r2);
+
+                return int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
+            }
+            else
+            {
+                return false;
+            }
+        }
         /// <summary>
         /// Checks that a cell address (e.g. A5) is valid.
         /// </summary>
@@ -684,10 +840,66 @@ namespace OfficeOpenXml
         /// <param name="colIncrement">The amount to increment the cell reference by</param>
         /// <param name="afterRow">Only change rows after this row</param>
         /// <param name="afterColumn">Only change columns after this column</param>
+        /// <param name="setFixed">Fixed address</param>
         /// <returns></returns>
-        internal static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn)
+        internal static string UpdateFormulaReferences(string Formula, int rowIncrement, int colIncrement, int afterRow, int afterColumn, bool setFixed=false)
         {
-            return Translate(Formula, AddToRowColumnTranslator, afterRow, afterColumn, rowIncrement, colIncrement);
+            //return Translate(Formula, AddToRowColumnTranslator, afterRow, afterColumn, rowIncrement, colIncrement);
+            var d=new Dictionary<string, object>();
+            try
+            {
+                var sct = new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty);
+                var tokens = sct.Tokenize(Formula);
+                String f = "";
+                foreach (var t in tokens)
+                {
+                    if (t.TokenType == TokenType.ExcelAddress)
+                    {
+                        var a = new ExcelAddressBase(t.Value);
+                        if (!string.IsNullOrEmpty(a._ws) || !string.IsNullOrEmpty(a._wb))
+                        {
+                            // This address is in a different worksheet or workbook, thus no update is required
+                            f += a.Address;
+                            continue;
+                        }                       
+                        if (rowIncrement > 0)
+                        {
+                            a = a.AddRow(afterRow, rowIncrement, setFixed);
+                        }
+                        else if (rowIncrement < 0)
+                        {
+                            a = a.DeleteRow(afterRow, -rowIncrement, setFixed);
+                        }
+                        if (colIncrement > 0)
+                        {
+                            a = a.AddColumn(afterColumn, colIncrement, setFixed);
+                        }
+                        else if (colIncrement < 0)
+                        {
+                            a = a.DeleteColumn(afterColumn, -colIncrement, setFixed);
+                        }
+                        if (a == null || !a.IsValidRowCol())
+                        {
+                            f += "#REF!";
+                        }
+                        else
+                        {
+                            f += a.Address;
+                        }
+
+
+                    }
+                    else
+                    {
+                        f += t.Value;
+                    }
+                }
+                return f;
+            }
+            catch //Invalid formula, skip updateing addresses
+            {
+                return Formula;
+            }
         }
 
         #endregion
