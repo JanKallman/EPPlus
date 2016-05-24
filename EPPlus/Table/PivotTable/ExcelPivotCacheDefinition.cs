@@ -97,12 +97,12 @@ namespace OfficeOpenXml.Table.PivotTable
             //CacheDefinition
             CacheDefinitionXml = new XmlDocument();
             LoadXmlSafe(CacheDefinitionXml, GetStartXml(sourceAddress), Encoding.UTF8);
-            CacheDefinitionUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheDefinition{0}.xml", tblId); 
+            CacheDefinitionUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheDefinition{0}.xml", ref tblId); 
             Part = pck.CreatePart(CacheDefinitionUri, ExcelPackage.schemaPivotCacheDefinition);
             TopNode = CacheDefinitionXml.DocumentElement;
 
             //CacheRecord. Create an empty one.
-            CacheRecordUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheRecords{0}.xml", tblId); 
+            CacheRecordUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheRecords{0}.xml", ref tblId); 
             var cacheRecord = new XmlDocument();
             cacheRecord.LoadXml("<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />");
             var recPart = pck.CreatePart(CacheRecordUri, ExcelPackage.schemaPivotCacheRecords);

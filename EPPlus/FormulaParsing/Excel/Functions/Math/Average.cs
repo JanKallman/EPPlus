@@ -71,7 +71,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             else
             {
-				double numericString;
                 var numericValue = GetNumericValue(arg.Value, isInArray);
 				if (numericValue.HasValue)
 				{
