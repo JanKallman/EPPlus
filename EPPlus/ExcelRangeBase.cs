@@ -2538,7 +2538,7 @@ namespace OfficeOpenXml
             {
                 for (int r = 0; r < this.Rows; r++)
                 {
-                    var destinationRow = this.Worksheet.Row(Destination.Start.Row + r);
+                    var destinationRow = Destination.Worksheet.Row(Destination.Start.Row + r);
                     destinationRow.OutlineLevel = this.Worksheet.Row(_fromRow + r).OutlineLevel;
                 }
             }
@@ -2546,7 +2546,7 @@ namespace OfficeOpenXml
             {
                 for (int c = 0; c < this.Columns; c++)
                 {
-                    var destinationCol = this.Worksheet.Column(Destination.Start.Column + c);
+                    var destinationCol = Destination.Worksheet.Column(Destination.Start.Column + c);
                     destinationCol.OutlineLevel = this.Worksheet.Column(_fromCol + c).OutlineLevel;
                 }
             }

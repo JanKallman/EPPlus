@@ -995,6 +995,33 @@ namespace EPPlusTest
         }
 
         [TestMethod]
+        public void CopyRowCrossSheetSetsOutlineLevelsCorrectly()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Row(2).OutlineLevel = 1;
+                sheet1.Row(3).OutlineLevel = 1;
+                sheet1.Row(4).OutlineLevel = 0;
+
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                // Set outline levels on rows to be copied over.
+                sheet2.Row(6).OutlineLevel = 17;
+                sheet2.Row(7).OutlineLevel = 25;
+                sheet2.Row(8).OutlineLevel = 29;
+
+                sheet1.Cells["2:4"].Copy(sheet2.Cells["A6"]);
+                Assert.AreEqual(1, sheet1.Row(2).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Row(3).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Row(4).OutlineLevel);
+
+                Assert.AreEqual(1, sheet2.Row(6).OutlineLevel);
+                Assert.AreEqual(1, sheet2.Row(7).OutlineLevel);
+                Assert.AreEqual(0, sheet2.Row(8).OutlineLevel);
+            }
+        }
+
+        [TestMethod]
         public void CopyColumnSetsOutlineLevelsCorrectly()
         {
             using (var package = new ExcelPackage())
