@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Table.PivotTable;
+using System.Globalization;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -238,11 +239,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return Int32.Parse(_chartXmlHelper.GetXmlNodeString(_gapWidthPath));
+                return _chartXmlHelper.GetXmlNodeInt(_gapWidthPath);
             }
             set
             {
-                _chartXmlHelper.SetXmlNodeString(_gapWidthPath, value.ToString());
+                _chartXmlHelper.SetXmlNodeString(_gapWidthPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         #endregion
