@@ -225,6 +225,15 @@ namespace OfficeOpenXml.Drawing.Chart
         X,
     }
     /// <summary>
+    /// The time unit of major and minor datetime axis values
+    /// </summary>
+    public enum eTimeUnit
+    {        
+        Years,
+        Months,
+        Days,
+    }
+    /// <summary>
     /// The build in style of the chart.
     /// </summary>
     public enum eChartStyle

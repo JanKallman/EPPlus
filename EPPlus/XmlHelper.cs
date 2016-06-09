@@ -719,7 +719,7 @@ namespace OfficeOpenXml
 			else
 			{
 				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -728,8 +728,8 @@ namespace OfficeOpenXml
 					return null;
 				}
 			}
-		}
-		internal double GetXmlNodeDouble(string path)
+		}		
+        internal double GetXmlNodeDouble(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -738,8 +738,8 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                double v;
+				if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -749,6 +749,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
     internal string GetXmlNodeString(XmlNode node, string path)
     {
       if (node == null)
@@ -778,27 +779,27 @@ namespace OfficeOpenXml
 		{
             return GetXmlNodeString(TopNode, path);
 		}
-		internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
-		{
-			return GetNewUri(package, sUri, 1);
-		}
-        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, int id)
-		{
-			Uri uri;
-			do
-			{
-				uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
-			}
-			while (package.PartExists(uri));
-			return uri;
-		}
-		/// <summary>
-		/// Insert the new node before any of the nodes in the comma separeted list
-		/// </summary>
-		/// <param name="parentNode">Parent node</param>
-		/// <param name="beforeNodes">comma separated list containing nodes to insert after. Left to right order</param>
-		/// <param name="newNode">The new node to be inserterd</param>
-		internal void InserAfter(XmlNode parentNode, string beforeNodes, XmlNode newNode)
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
+        {
+            var id = 1;
+            return GetNewUri(package, sUri, ref id);
+        }
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, ref int id)
+        {
+            Uri uri = new Uri(string.Format(sUri, id), UriKind.Relative);
+            while (package.PartExists(uri))
+            {
+                uri = new Uri(string.Format(sUri, ++id), UriKind.Relative);
+            }
+            return uri;
+        }
+        /// <summary>
+        /// Insert the new node before any of the nodes in the comma separeted list
+        /// </summary>
+        /// <param name="parentNode">Parent node</param>
+        /// <param name="beforeNodes">comma separated list containing nodes to insert after. Left to right order</param>
+        /// <param name="newNode">The new node to be inserterd</param>
+        internal void InserAfter(XmlNode parentNode, string beforeNodes, XmlNode newNode)
 		{
 			string[] nodePaths = beforeNodes.Split(',');
 
