@@ -141,7 +141,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         context.Result.RemoveAt(i + 1);
                     }
                 }
-                // In here we're going to clean up leading '+' along with the following operator combinations: ++, --, +-, -+
+                // Clean up leading '+' along with the following operator combinations: ++, --, +-, -+
                 else if ((token.TokenType == TokenType.Operator || token.TokenType == TokenType.Negator) && i < context.Result.Count - 1 &&
                          (token.Value=="+" || token.Value=="-"))
                 {
