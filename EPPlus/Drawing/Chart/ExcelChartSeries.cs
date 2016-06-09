@@ -186,7 +186,7 @@ namespace OfficeOpenXml.Drawing.Chart
                }
                else
                {
-                   InserAfter(_node, "c:varyColors,c:grouping,c:barDir,c:scatterStyle", ser);
+                   InserAfter(_node, "c:varyColors,c:grouping,c:barDir,c:scatterStyle,c:ofPieType", ser);
                 }
                int idx = FindIndex();
                ser.InnerXml = string.Format("<c:idx val=\"{1}\" /><c:order val=\"{1}\" /><c:tx><c:strRef><c:f></c:f><c:strCache><c:ptCount val=\"1\" /></c:strCache></c:strRef></c:tx>{5}{0}{2}{3}{4}", AddExplosion(Chart.ChartType), idx, AddScatterPoint(Chart.ChartType), AddAxisNodes(Chart.ChartType), AddSmooth(Chart.ChartType), AddMarker(Chart.ChartType));
