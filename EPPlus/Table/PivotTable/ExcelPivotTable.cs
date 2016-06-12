@@ -134,7 +134,7 @@ namespace OfficeOpenXml.Table.PivotTable
             PivotTableXml = new XmlDocument();
             LoadXmlSafe(PivotTableXml, GetStartXml(name, tblId, address, sourceAddress), Encoding.UTF8);
             TopNode = PivotTableXml.DocumentElement;
-            PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", tblId);
+            PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", ref tblId);
             init();
 
             Part = pck.CreatePart(PivotTableUri, ExcelPackage.schemaPivotTable);

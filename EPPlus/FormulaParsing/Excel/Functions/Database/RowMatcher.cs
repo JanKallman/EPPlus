@@ -35,18 +35,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
     public class RowMatcher
     {
         private readonly WildCardValueMatcher _wildCardValueMatcher;
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         public RowMatcher()
-            : this(new WildCardValueMatcher(), new NumericExpressionEvaluator())
+            : this(new WildCardValueMatcher(), new ExpressionEvaluator())
         {
             
         }
 
-        public RowMatcher(WildCardValueMatcher wildCardValueMatcher, NumericExpressionEvaluator numericExpressionEvaluator)
+        public RowMatcher(WildCardValueMatcher wildCardValueMatcher, ExpressionEvaluator expressionEvaluator)
         {
             _wildCardValueMatcher = wildCardValueMatcher;
-            _numericExpressionEvaluator = numericExpressionEvaluator;
+            _expressionEvaluator = expressionEvaluator;
         }
 
         public bool IsMatch(ExcelDatabaseRow row, ExcelDatabaseCriteria criteria)
@@ -82,7 +82,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Database
             }
             if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
             return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
         }
