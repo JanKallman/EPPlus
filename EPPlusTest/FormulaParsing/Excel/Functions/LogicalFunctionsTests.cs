@@ -54,11 +54,50 @@ namespace EPPlusTest.Excel.Functions
         [TestMethod]
         public void NotShouldHandleExcelReference()
         {
-            using(var package = new ExcelPackage())
+            using (var package = new ExcelPackage())
             {
                 var sheet = package.Workbook.Worksheets.Add("sheet1");
                 sheet.Cells["A1"].Value = false;
                 sheet.Cells["A2"].Formula = "NOT(A1)";
+                sheet.Calculate();
+                Assert.IsTrue((bool)sheet.Cells["A2"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NotShouldHandleExcelReferenceToStringFalse()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("sheet1");
+                sheet.Cells["A1"].Value = "false";
+                sheet.Cells["A2"].Formula = "NOT(A1)";
+                sheet.Calculate();
+                Assert.IsTrue((bool)sheet.Cells["A2"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NotShouldHandleExcelReferenceToStringTrue()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("sheet1");
+                sheet.Cells["A1"].Value = "TRUE";
+                sheet.Cells["A2"].Formula = "NOT(A1)";
+                sheet.Calculate();
+                Assert.IsFalse((bool)sheet.Cells["A2"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void AndShouldHandleStringLiteralTrue()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("sheet1");
+                sheet.Cells["A1"].Value = "tRuE";
+                sheet.Cells["A2"].Formula = "AND(\"TRUE\", A1)";
                 sheet.Calculate();
                 Assert.IsTrue((bool)sheet.Cells["A2"].Value);
             }
@@ -105,6 +144,15 @@ namespace EPPlusTest.Excel.Functions
         {
             var func = new Or();
             var args = FunctionsHelper.CreateArgs(true, false, false);
+            var result = func.Execute(args, _parsingContext);
+            Assert.IsTrue((bool)result.Result);
+        }
+
+        [TestMethod]
+        public void OrShouldReturnTrueIfOneArgumentIsTrueString()
+        {
+            var func = new Or();
+            var args = FunctionsHelper.CreateArgs("true", "FALSE", false);
             var result = func.Execute(args, _parsingContext);
             Assert.IsTrue((bool)result.Result);
         }

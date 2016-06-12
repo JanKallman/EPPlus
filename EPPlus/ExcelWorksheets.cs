@@ -340,7 +340,6 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.Tables)
             {
                 string xml=tbl.TableXml.OuterXml;
-                int Id = _pck.Workbook._nextTableID++;
                 string name;
                 if (prevName == "")
                 {
@@ -355,6 +354,7 @@ namespace OfficeOpenXml
                         name = string.Format("Table{0}", ++ix);
                     }
                 }
+                int Id = _pck.Workbook._nextTableID++;
                 prevName = name;
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(xml);
@@ -363,7 +363,10 @@ namespace OfficeOpenXml
                 xmlDoc.SelectSingleNode("//d:table/@displayName", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
-                var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
+                //var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
+                var uriTbl = GetNewUri(_pck.Package, "/xl/tables/table{0}.xml", ref Id);
+                if (_pck.Workbook._nextTableID < Id) _pck.Workbook._nextTableID = Id;
+
                 var part = _pck.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
@@ -399,7 +402,6 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.PivotTables)
             {
                 string xml = tbl.PivotTableXml.OuterXml;
-                int Id = _pck.Workbook._nextPivotTableID++;
 
                 string name;
                 if (prevName == "")
@@ -424,20 +426,23 @@ namespace OfficeOpenXml
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
-                var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
+                int Id = _pck.Workbook._nextPivotTableID++;
+                //var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
+                var uriTbl = GetNewUri(_pck.Package, "/xl/pivotTables/pivotTable{0}.xml", ref Id);
+                if (_pck.Workbook._nextPivotTableID < Id) _pck.Workbook._nextPivotTableID = Id;
                 var partTbl = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(partTbl.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
                 //streamTbl.Close();
                 streamTbl.Flush();
 
-                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;                
-                var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
-                while (_pck.Package.PartExists(uriCd))
-                {
-                    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
-                }
-
+                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;
+                //var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
+                //while (_pck.Package.PartExists(uriCd))
+                //{
+                //    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
+                //}
+                var uriCd = GetNewUri(_pck.Package, "/xl/pivotCache/pivotcachedefinition{0}.xml", ref Id);
                 var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotCacheDefinition, _pck.Compression);
                 StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
                 streamCd.Write(xml);

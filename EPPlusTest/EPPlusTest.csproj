@@ -94,8 +94,15 @@
     <Compile Include="Address.cs" />
     <Compile Include="Calculation.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ExpressionEvaluatorTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageATests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\AverageIfTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\AverageTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\CountIfTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\SumIfTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\SumIfsTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
     <Compile Include="Utils\ConvertUtilTest.cs" />
     <Compile Include="DataValidation\CustomValidationTests.cs" />
@@ -113,13 +120,13 @@
     <Compile Include="DataValidation\RangeBaseTests.cs" />
     <Compile Include="DataValidation\ValidationCollectionTests.cs" />
     <Compile Include="DataValidation\ValidationTestBase.cs" />
+    <Compile Include="Drawing\Chart\ExcelChartAxisTest.cs" />
     <Compile Include="DTS_FailingTests.cs" />
     <Compile Include="Encrypt.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslatorTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\CellReferenceProviderTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressInfoTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\IndexToAddressTranslatorTests.cs" />
-    <Compile Include="FormulaParsing\ExcelUtilities\NumericExpressionEvaluatorTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressFactoryTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangesTest.cs" />
@@ -128,7 +135,6 @@
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParserFactoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersImplementationsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ArgumentParsersTests.cs" />
-    <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\CriteriaTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcherTests.cs" />
@@ -144,8 +150,6 @@
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\RefAndLookupTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\IndexTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\RefAndLookup\LookupNavigatorFactoryTests.cs" />
-    <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
-    <Compile Include="FormulaParsing\Excel\Functions\SumIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TextFunctionsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\TimeStringParserTests.cs" />
     <Compile Include="FormulaParsing\Excel\OperatorsTests.cs" />

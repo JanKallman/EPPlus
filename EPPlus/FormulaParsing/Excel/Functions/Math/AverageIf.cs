@@ -22,10 +22,8 @@
  *******************************************************************************
  * Mats Alm   		                Added		                2013-12-03
  *******************************************************************************/
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
@@ -37,21 +35,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class AverageIf : HiddenValuesHandlingFunction
     {
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         public AverageIf()
-            : this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
+            : this(new ExpressionEvaluator())
         {
 
         }
 
-        public AverageIf(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
+        public AverageIf(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(evaluator).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
+            _expressionEvaluator = evaluator;
         }
 
         private bool Evaluate(object obj, string expression)
@@ -63,99 +58,87 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
+            return _expressionEvaluator.Evaluate(obj, expression);
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
-            var firstArg = arguments.ElementAt(0);
-            var args = firstArg.Value as IEnumerable<FunctionArgument>;
-            if (args == null && firstArg.IsExcelRange)
-            {
-                args = new List<FunctionArgument>(){ firstArg };
-            }
-            var criteria = arguments.ElementAt(1).Value;
-            ThrowExcelErrorValueExceptionIf(() => criteria == null || criteria.ToString().Length > 255, eErrorType.Value);
+            var args = arguments.ElementAt(0).Value as ExcelDataProvider.IRangeInfo;
+            var criteria = arguments.ElementAt(1).ValueFirst != null ? ArgToString(arguments, 1) : null;
             var retVal = 0d;
-            if (arguments.Count() > 2)
+            if (args == null)
             {
-                var secondArg = arguments.ElementAt(2);
-                var lookupRange = secondArg.Value as IEnumerable<FunctionArgument>;
-                if (lookupRange == null && secondArg.IsExcelRange)
+                var val = arguments.ElementAt(0).Value;
+                if (criteria != null && Evaluate(val, criteria))
                 {
-                    lookupRange = new List<FunctionArgument>() {secondArg};
+                    var lookupRange = arguments.ElementAt(2).Value as ExcelDataProvider.IRangeInfo;
+                    retVal = arguments.Count() > 2
+                        ? lookupRange.First().ValueDouble
+                        : ConvertUtil.GetValueDouble(val, true);
                 }
-                retVal = CalculateWithLookupRange(args, criteria.ToString(), lookupRange, context);
+                else
+                {
+                    throw new ExcelErrorValueException(eErrorType.Div0);
+                }
+            }
+            else if (arguments.Count() > 2)
+            {
+                var lookupRange = arguments.ElementAt(2).Value as ExcelDataProvider.IRangeInfo;
+                retVal = CalculateWithLookupRange(args, criteria, lookupRange, context);
             }
             else
             {
-                retVal = CalculateSingleRange(args, criteria.ToString(), context);
+                retVal = CalculateSingleRange(args, criteria, context);
             }
             return CreateResult(retVal, DataType.Decimal);
         }
 
-        private double CalculateWithLookupRange(IEnumerable<FunctionArgument> range, string criteria, IEnumerable<FunctionArgument> sumRange, ParsingContext context)
+        private double CalculateWithLookupRange(ExcelDataProvider.IRangeInfo range, string criteria, ExcelDataProvider.IRangeInfo sumRange, ParsingContext context)
         {
             var retVal = 0d;
             var nMatches = 0;
-            var flattenedRange = ArgsToObjectEnumerable(false, range, context);
-            var flattenedSumRange = ArgsToDoubleEnumerable(sumRange, context);
-            for (var x = 0; x < flattenedRange.Count(); x++)
+            foreach (var cell in range)
             {
-                var candidate = flattenedSumRange.ElementAt(x);
-                if (Evaluate(flattenedRange.ElementAt(x), criteria))
+                if (criteria != null && Evaluate(cell.Value, criteria))
                 {
-                    nMatches++;
-                    retVal += candidate;
+                    var or = cell.Row - range.Address._fromRow;
+                    var oc = cell.Column - range.Address._fromCol;
+                    if (sumRange.Address._fromRow + or <= sumRange.Address._toRow &&
+                       sumRange.Address._fromCol + oc <= sumRange.Address._toCol)
+                    {
+                        var v = sumRange.GetOffset(or, oc);
+                        if (v is ExcelErrorValue)
+                        {
+                            throw (new ExcelErrorValueException((ExcelErrorValue)v));
+                        }
+                        nMatches++;
+                        retVal += ConvertUtil.GetValueDouble(v, true);
+                    }
                 }
             }
             return Divide(retVal, nMatches);
         }
 
-        private double CalculateSingleRange(IEnumerable<FunctionArgument> args, string expression, ParsingContext context)
+        private double CalculateSingleRange(ExcelDataProvider.IRangeInfo range, string expression, ParsingContext context)
         {
             var retVal = 0d;
             var nMatches = 0;
-            var flattendedRange = ArgsToDoubleEnumerable(args, context);
-            var candidates = flattendedRange as double[] ?? flattendedRange.ToArray();
-            foreach (var candidate in candidates)
+            foreach (var candidate in range)
             {
-                if (Evaluate(candidate, expression))
+                if (expression != null && IsNumeric(candidate.Value) && Evaluate(candidate.Value, expression))
                 {
-                    retVal += candidate;
+                    if (candidate.IsExcelError)
+                    {
+                        throw (new ExcelErrorValueException((ExcelErrorValue)candidate.Value));
+                    }
+                    retVal += candidate.ValueDouble;
                     nMatches++;
                 }
             }
             return Divide(retVal, nMatches);
-        }
-
-        private double Calculate(FunctionArgument arg, string expression)
-        {
-            var retVal = 0d;
-            if (ShouldIgnore(arg) || !_numericExpressionEvaluator.Evaluate(arg.Value, expression))
-            {
-                return retVal;
-            }
-            if (IsNumeric(arg.Value))
-            {
-                retVal += ConvertUtil.GetValueDouble(arg.Value);
-            }
-            //else if (arg.Value is System.DateTime)
-            //{
-            //    retVal += Convert.ToDateTime(arg.Value).ToOADate();
-            //}
-            else if (arg.Value is IEnumerable<FunctionArgument>)
-            {
-                foreach (var item in (IEnumerable<FunctionArgument>)arg.Value)
-                {
-                    retVal += Calculate(item, expression);
-                }
-            }
-            return retVal;
         }
     }
 }

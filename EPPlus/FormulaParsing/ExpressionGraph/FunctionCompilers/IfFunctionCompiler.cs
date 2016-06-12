@@ -83,7 +83,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             {
                 boolVal = (bool)v;
             }
-            else
+            else if(!Utils.ConvertUtil.TryParseBooleanString(v, out boolVal))
             {
                 if(OfficeOpenXml.Utils.ConvertUtil.IsNumeric(v))
                 {
