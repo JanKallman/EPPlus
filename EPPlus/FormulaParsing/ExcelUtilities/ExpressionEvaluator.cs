@@ -38,8 +38,8 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
 {
     public class ExpressionEvaluator
     {
-        private WildCardValueMatcher _wildCardValueMatcher;
-        private CompileResultFactory _compileResultFactory;
+        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly CompileResultFactory _compileResultFactory;
 
         public ExpressionEvaluator()
             : this(new WildCardValueMatcher(), new CompileResultFactory())
