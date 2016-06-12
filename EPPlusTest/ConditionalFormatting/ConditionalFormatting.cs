@@ -145,6 +145,19 @@ namespace EPPlusTest
         ws.SetValue(4, 1, 4);
         ws.SetValue(5, 1, 5);
     }
+    [TestMethod]   
+    public void DatabarChangingAddressAddsConditionalFormatNodeInSchemaOrder()
+    {   
+        var ws = _pck.Workbook.Worksheets.Add("DatabarAddressing");   
+        // Ensure there is at least one element that always exists below ConditionalFormatting nodes.   
+        ws.HeaderFooter.AlignWithMargins = true;   
+        var cf = ws.ConditionalFormatting.AddDatabar(ws.Cells["A1:A5"], Color.BlueViolet);   
+        Assert.AreEqual("sheetData", cf.Node.ParentNode.PreviousSibling.LocalName);   
+        Assert.AreEqual("headerFooter", cf.Node.ParentNode.NextSibling.LocalName);   
+        cf.Address = new ExcelAddress("C3");   
+        Assert.AreEqual("sheetData", cf.Node.ParentNode.PreviousSibling.LocalName);   
+        Assert.AreEqual("headerFooter", cf.Node.ParentNode.NextSibling.LocalName);   
+    }
     [TestMethod]
     public void IconSet()
     {
