@@ -47,6 +47,13 @@ namespace EPPlusTest
             Assert.IsTrue(result);
         }
 
+        [TestMethod]
+        public void EvaluateShouldHandleBooleanArg()
+        {
+            var result = _evaluator.Evaluate(true, "TRUE");
+            Assert.IsTrue(result);
+        }
+
         [TestMethod, ExpectedException(typeof(ArgumentException))]
         public void EvaluateShouldThrowIfOperatorIsNotBoolean()
         {

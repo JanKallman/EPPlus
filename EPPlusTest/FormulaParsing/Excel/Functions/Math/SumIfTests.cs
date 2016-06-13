@@ -282,5 +282,21 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(5d, result.Result);
         }
+
+        [TestMethod]
+        public void SumIfShouldHandleBooleanArg()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = true;
+                sheet.Cells["B1"].Value = 1;
+                sheet.Cells["A2"].Value = false;
+                sheet.Cells["B2"].Value = 1;
+                sheet.Cells["C1"].Formula = "SUMIF(A1:A2,TRUE,B1:B2)";
+                sheet.Calculate();
+                Assert.AreEqual(1d, sheet.Cells["C1"].Value);
+            }
+        }
     }
 }
