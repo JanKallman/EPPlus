@@ -872,6 +872,11 @@ namespace OfficeOpenXml
             Encoding encoding;
             xml = GetWorkSheetXml(stream, start, end, out encoding);
 
+            // now release stream buffer (already converted whole Xml into XmlDocument Object and String)
+            stream.Close();
+            stream.Dispose();
+            packPart.Stream = new MemoryStream();
+
             //first char is invalid sometimes?? 
             if (xml[0] != '<')
                 LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1), encoding);
