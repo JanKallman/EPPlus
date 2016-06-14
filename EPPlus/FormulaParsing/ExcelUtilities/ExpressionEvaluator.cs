@@ -100,7 +100,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                 return left == null;
             }
             var operatorCandidate = GetNonAlphanumericStartChars(expression);
-            if (!string.IsNullOrEmpty(operatorCandidate))
+            if (!string.IsNullOrEmpty(operatorCandidate) && operatorCandidate != "-")
             {
                 IOperator op;
                 if (OperatorsDict.Instance.TryGetValue(operatorCandidate, out op))

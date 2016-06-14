@@ -354,6 +354,22 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(1, result.Result);
         }
 
+        [TestMethod, Ignore]
+        public void MatchShouldHandleAddressOnOtherSheet()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells["A1"].Formula = "Match(10, Sheet2!A1:Sheet2!A3, 0)";
+                sheet2.Cells["A1"].Value = 9;
+                sheet2.Cells["A2"].Value = 10;
+                sheet2.Cells["A3"].Value = 11;
+                sheet1.Calculate();
+                Assert.AreEqual(2, sheet1.Cells["A1"].Value);
+            }    
+        }
+
         [TestMethod]
         public void RowShouldReturnRowFromCurrentScopeIfNoAddressIsSupplied()
         {

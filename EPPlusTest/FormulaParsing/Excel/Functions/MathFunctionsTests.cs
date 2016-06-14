@@ -1005,5 +1005,19 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(2.5d, result.Result);
         }
+
+        [TestMethod]
+        public void CountIfShouldHandleNegativeCriteria()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("test");
+                sheet1.Cells["A1"].Value = -1;
+                sheet1.Cells["A2"].Value = -2;
+                sheet1.Cells["A3"].Formula = "CountIf(A1:A2,\"-1\")";
+                sheet1.Calculate();
+                Assert.AreEqual(1d, sheet1.Cells["A3"].Value);
+            }
+        }
     }
 }
