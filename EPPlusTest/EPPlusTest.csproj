@@ -106,6 +106,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\SumIfTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\SubtotalTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\SumIfsTests.cs" />
+    <Compile Include="FormulaParsing\ExpressionGraph\CompileResultFactoryTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactoryTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserManagerTests.cs" />

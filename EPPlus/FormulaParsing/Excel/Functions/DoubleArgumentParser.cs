@@ -52,7 +52,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 if (double.TryParse(str, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                     return d;
 
-                return System.DateTime.Parse(str, CultureInfo.InvariantCulture, DateTimeStyles.None).ToOADate();
+                return System.DateTime.Parse(str, CultureInfo.CurrentCulture, DateTimeStyles.None).ToOADate();
             }
             catch// (Exception e)
             {
