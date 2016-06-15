@@ -3786,11 +3786,12 @@ namespace OfficeOpenXml
             if (currRow != null)
             {
 
+                // if hidden, add hidden attribute and preserve ht/customHeight (Excel compatible)
                 if (currRow.Hidden == true)
                 {
-                    cache.Append(" ht=\"0\" hidden=\"1\"");
+                    cache.Append(" hidden=\"1\"");
                 }
-                else if (currRow.Height != DefaultRowHeight && currRow.Height>=0)
+                if (currRow.Height >= 0)
                 {
                     cache.AppendFormat(string.Format(CultureInfo.InvariantCulture, " ht=\"{0}\"", currRow.Height));
                     if (currRow.CustomHeight)
@@ -3834,12 +3835,13 @@ namespace OfficeOpenXml
             RowInternal currRow = GetValueInner(row, 0) as RowInternal;
             if (currRow!=null)
             {
-                
+
+                // if hidden, add hidden attribute and preserve ht/customHeight (Excel compatible)
                 if (currRow.Hidden == true)
                 {
-                    sw.Write(" ht=\"0\" hidden=\"1\"");
+                    sw.Write(" hidden=\"1\"");
                 }
-                else if (currRow.Height != DefaultRowHeight)
+                if (currRow.Height >= 0)
                 {
                     sw.Write(string.Format(CultureInfo.InvariantCulture, " ht=\"{0}\"", currRow.Height));
                     if (currRow.CustomHeight)
