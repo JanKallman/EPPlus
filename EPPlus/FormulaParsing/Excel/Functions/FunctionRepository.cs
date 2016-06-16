@@ -30,6 +30,7 @@ using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -38,7 +39,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     /// </summary>
     public class FunctionRepository : IFunctionNameProvider
     {
+        private Dictionary<Type, FunctionCompiler> _customCompilers = new Dictionary<Type, FunctionCompiler>();
+
         private Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>(StringComparer.InvariantCulture);
+        
+        /// <summary>
+        /// Gets a <see cref="Dictionary{Type, FunctionCompiler}" /> of custom <see cref="FunctionCompiler"/>s.
+        /// </summary>
+        public Dictionary<Type, FunctionCompiler> CustomCompilers
+        {
+            get { return _customCompilers; }
+        }
 
         private FunctionRepository()
         {
@@ -55,13 +66,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <summary>
         /// Loads a module of <see cref="ExcelFunction"/>s to the function repository.
         /// </summary>
-        /// <param name="module">A <see cref="IFunctionModule"/> that can be used for adding functions</param>
+        /// <param name="module">A <see cref="IFunctionModule"/> that can be used for adding functions and custom function compilers.</param>
         public virtual void LoadModule(IFunctionModule module)
         {
             foreach (var key in module.Functions.Keys)
             {
                 var lowerKey = key.ToLower(CultureInfo.InvariantCulture);
                 _functions[lowerKey] = module.Functions[key];
+            }
+            foreach (var key in module.CustomCompilers.Keys)
+            {
+              this.CustomCompilers[key] = module.CustomCompilers[key];
             }
         }
 

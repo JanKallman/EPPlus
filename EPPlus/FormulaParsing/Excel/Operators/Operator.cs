@@ -370,7 +370,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
         {
             var sl = (l ?? "").ToString();
             var sr = (r ?? "").ToString();
-            return System.String.Compare(sl, sr, System.StringComparison.Ordinal);
+            return System.String.Compare(sl, sr, System.StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool  EitherIsError(CompileResult l, CompileResult r, out ExcelErrorValue errorVal)

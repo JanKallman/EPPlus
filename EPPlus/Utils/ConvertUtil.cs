@@ -36,6 +36,19 @@ namespace OfficeOpenXml.Utils
 			return false;
 		}
 		/// <summary>
+		/// Tries to parse a boolean value from the specificed <paramref name="candidate"/>.
+		/// </summary>
+		/// <param name="candidate">The value to check for boolean-ness.</param>
+		/// <param name="result">The boolean value parsed from the specified <paramref name="candidate"/>.</param>
+		/// <returns>True if <paramref name="candidate"/> could be parsed </returns>
+		internal static bool TryParseBooleanString(object candidate, out bool result)
+		{
+			if (candidate != null)
+				return bool.TryParse(candidate.ToString(), out result);
+			result = false;
+			return false;
+		}
+		/// <summary>
 		/// Tries to parse a <see cref="DateTime"/> from the specified <paramref name="candidate"/> which is expected to be a string value.
 		/// </summary>
 		/// <param name="candidate">The string value.</param>
