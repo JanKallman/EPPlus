@@ -124,7 +124,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
             provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
             provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
             provider.Stub(x => x.GetCellValue(WorksheetName, 3, 3)).Return(4);
-            var args = new LookupArguments(3, "A1:A4", 3, 2, false);
+            var args = new LookupArguments(3, "A1:A4", 3, 2, false,null);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(4, navigator.GetLookupValue());
         }

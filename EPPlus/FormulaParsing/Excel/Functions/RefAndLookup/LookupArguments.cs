@@ -82,10 +82,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
         }
 
-        public LookupArguments(object searchedValue, string rangeAddress, int lookupIndex, int lookupOffset, bool rangeLookup)
+        public LookupArguments(object searchedValue, string rangeAddress, int lookupIndex, int lookupOffset, bool rangeLookup, ExcelDataProvider.IRangeInfo rangeInfo)
         {
             SearchedValue = searchedValue;
             RangeAddress = rangeAddress;
+            RangeInfo = rangeInfo;
             LookupIndex = lookupIndex;
             LookupOffset = lookupOffset;
             RangeLookup = rangeLookup;

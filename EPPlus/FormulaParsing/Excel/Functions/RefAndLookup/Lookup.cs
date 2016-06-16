@@ -67,7 +67,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 lookupIndex = nRows + 1;
                 lookupDirection = LookupDirection.Horizontal;
             }
-            var lookupArgs = new LookupArguments(searchedValue, firstAddress, lookupIndex, 0, true);
+            var lookupArgs = new LookupArguments(searchedValue, firstAddress, lookupIndex, 0, true, arguments.ElementAt(1).ValueAsRangeInfo);
             var navigator = LookupNavigatorFactory.Create(lookupDirection, lookupArgs, context);
             return Lookup(navigator, lookupArgs);
         }
@@ -90,7 +90,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 lookupIndex = (address2.FromRow - address1.FromRow) + 1;
                 lookupOffset = address2.FromCol - address1.FromCol;
             }
-            var lookupArgs = new LookupArguments(searchedValue, firstAddress, lookupIndex, lookupOffset,  true);
+            var lookupArgs = new LookupArguments(searchedValue, firstAddress, lookupIndex, lookupOffset,  true, arguments.ElementAt(1).ValueAsRangeInfo);
             var navigator = LookupNavigatorFactory.Create(lookupDirection, lookupArgs, context);
             return Lookup(navigator, lookupArgs);
         }
