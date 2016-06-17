@@ -4344,9 +4344,10 @@ namespace OfficeOpenXml
         /// <param name="value">value</param>
         internal void SetValueInner(int row, int col, object value)
         {
-            _values.SetValueSpecial(row, col, (CellStore<ExcelCoreValue>.SetValueDelegate)SetValueInnerUpdate, value);
+            _values.SetValueSpecial(row, col, _setValueInnerUpdateDelegate, value);
         }
-        void SetValueInnerUpdate(List<ExcelCoreValue> list, int index, object value)
+        private static CellStore<ExcelCoreValue>.SetValueDelegate _setValueInnerUpdateDelegate = SetValueInnerUpdate;
+        private static void SetValueInnerUpdate(List<ExcelCoreValue> list, int index, object value)
         {
             list[index] = new ExcelCoreValue { _value = value, _styleId = list[index]._styleId };
         }

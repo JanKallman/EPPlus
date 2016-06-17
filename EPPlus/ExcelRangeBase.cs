@@ -69,9 +69,9 @@ namespace OfficeOpenXml
 		/// </summary>
 		protected ExcelWorksheet _worksheet;
 		internal ExcelWorkbook _workbook = null;
-		private delegate void _changeProp(_setValue method, object value);
-		private delegate void _setValue(object value, int row, int col);
-		private _changeProp _changePropMethod;
+		private delegate void _changeProp(ExcelRangeBase range, _setValue method, object value);
+		private delegate void _setValue(ExcelRangeBase range, object value, int row, int col);
+        private _changeProp _changePropMethod;
 		private int _styleID;
         private class CopiedCell
         {
@@ -127,10 +127,14 @@ namespace OfficeOpenXml
 			_workbook = wb;
 			if (string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
             SetDelegate();
-		}
+        }
 		#endregion
-		#region Set Value Delegates
-        private void SetDelegate()
+		#region Set Value Delegates        
+		private static _changeProp _setUnknownProp = SetUnknown;
+		private static _changeProp _setSingleProp = SetSingle;
+		private static _changeProp _setRangeProp = SetRange;
+		private static _changeProp _setMultiProp = SetMultiRange;
+		private void SetDelegate()
 		{
 			if (_fromRow == -1)
 			{
@@ -152,50 +156,54 @@ namespace OfficeOpenXml
 				_changePropMethod = SetMultiRange;
 			}
 		}
-        /// <summary>
+		/// <summary>
 		/// We dont know the address yet. Set the delegate first time a property is set.
 		/// </summary>
+		/// <param name="range"></param>
 		/// <param name="valueMethod"></param>
 		/// <param name="value"></param>
-		private void SetUnknown(_setValue valueMethod, object value)
+		private static void SetUnknown(ExcelRangeBase range, _setValue valueMethod, object value)
 		{
 			//Address is not set use, selected range
-			if (_fromRow == -1)
+			if (range._fromRow == -1)
 			{
-				SetToSelectedRange();
+				range.SetToSelectedRange();
 			}
-			SetDelegate();
-			_changePropMethod(valueMethod, value);
+			range.SetDelegate();
+			range._changePropMethod(range, valueMethod, value);
 		}
 		/// <summary>
 		/// Set a single cell
 		/// </summary>
+		/// <param name="range"></param>
 		/// <param name="valueMethod"></param>
 		/// <param name="value"></param>
-		private void SetSingle(_setValue valueMethod, object value)
+		private static void SetSingle(ExcelRangeBase range, _setValue valueMethod, object value)
 		{
-			valueMethod(value, _fromRow, _fromCol);
+			valueMethod(range, value, range._fromRow, range._fromCol);
 		}
 		/// <summary>
 		/// Set a range
 		/// </summary>
+		/// <param name="range"></param>
 		/// <param name="valueMethod"></param>
 		/// <param name="value"></param>
-		private void SetRange(_setValue valueMethod, object value)
+		private static void SetRange(ExcelRangeBase range, _setValue valueMethod, object value)
 		{
-			SetValueAddress(this, valueMethod, value);
+			range.SetValueAddress(range, valueMethod, value);
 		}
 		/// <summary>
 		/// Set a multirange (A1:A2,C1:C2)
 		/// </summary>
+		/// <param name="range"></param>
 		/// <param name="valueMethod"></param>
 		/// <param name="value"></param>
-		private void SetMultiRange(_setValue valueMethod, object value)
+		private static void SetMultiRange(ExcelRangeBase range, _setValue valueMethod, object value)
 		{
-			SetValueAddress(this, valueMethod, value);
-			foreach (var address in Addresses)
+			range.SetValueAddress(range, valueMethod, value);
+			foreach (var address in range.Addresses)
 			{
-				SetValueAddress(address, valueMethod, value);
+				range.SetValueAddress(address, valueMethod, value);
 			}
 		}
 		/// <summary>
@@ -224,51 +232,58 @@ namespace OfficeOpenXml
                     {
                         for (int row = address.Start.Row; row <= address.End.Row; row++)
                         {
-                            valueMethod(value, row, col);
+                            valueMethod(this, value, row, col);
                         }
                     }
                 }
 			}
-		}
+        }
 		#endregion
 		#region Set property methods
-		private void Set_StyleID(object value, int row, int col)
+		private static _setValue _setStyleIdDelegate = Set_StyleID;
+		private static _setValue _setValueDelegate = Set_Value;
+		private static _setValue _setHyperLinkDelegate = Set_HyperLink;
+		private static _setValue _setIsRichTextDelegate = Set_IsRichText;
+		private static _setValue _setExistsCommentDelegate = Exists_Comment;
+		private static _setValue _setCommentDelegate = Set_Comment;
+
+		private static void Set_StyleID(ExcelRangeBase range, object value, int row, int col)
 		{
-            _worksheet.SetStyleInner(row, col, (int)value);
+			range._worksheet.SetStyleInner(row, col, (int)value);
 		}
-		private void Set_StyleName(object value, int row, int col)
+		private static void Set_StyleName(ExcelRangeBase range, object value, int row, int col)
 		{
 			//_worksheet.Cell(row, col).SetNewStyleName(value.ToString(), _styleID);
-            _worksheet.SetStyleInner(row, col, _styleID);
+			range._worksheet.SetStyleInner(row, col, range._styleID);
 		}
-		private void Set_Value(object value, int row, int col)
+		private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
 		{
 			//ExcelCell c = _worksheet.Cell(row, col);
-            var sfi = _worksheet._formulas.GetValue(row, col);
-            if (sfi is int)
-            {
-                SplitFormulas(_worksheet.Cells[row, col]);                
-            }
-            if (sfi != null) _worksheet._formulas.SetValue(row, col, string.Empty);
-			_worksheet.SetValueInner(row, col, value);
+			var sfi = range._worksheet._formulas.GetValue(row, col);
+			if (sfi is int)
+			{
+				range.SplitFormulas(range._worksheet.Cells[row, col]);                
+			}
+			if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
+			range._worksheet.SetValueInner(row, col, value);
 		}
-		private void Set_Formula(object value, int row, int col)
+		private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
 		{
 			//ExcelCell c = _worksheet.Cell(row, col);
-            var f = _worksheet._formulas.GetValue(row, col);
-            if (f is int && (int)f >= 0) SplitFormulas(_worksheet.Cells[row, col]);
+			var f = range._worksheet._formulas.GetValue(row, col);
+			if (f is int && (int)f >= 0) range.SplitFormulas(range._worksheet.Cells[row, col]);
 
 			string formula = (value == null ? string.Empty : value.ToString());
 			if (formula == string.Empty)
 			{
-                _worksheet._formulas.SetValue(row, col, string.Empty);
+                range._worksheet._formulas.SetValue(row, col, string.Empty);
 			}
 			else
 			{
 				if (formula[0] == '=') value = formula.Substring(1, formula.Length - 1); // remove any starting equalsign.
-                _worksheet._formulas.SetValue(row, col, formula);
-                _worksheet.SetValueInner(row, col, null);
-            }
+				range._worksheet._formulas.SetValue(row, col, formula);
+				range._worksheet.SetValueInner(row, col, null);
+			}
 		}
 		/// <summary>
 		/// Handles shared formulas
@@ -276,82 +291,82 @@ namespace OfficeOpenXml
 		/// <param name="value">The  formula</param>
 		/// <param name="address">The address of the formula</param>
 		/// <param name="IsArray">If the forumla is an array formula.</param>
-		private void Set_SharedFormula(string value, ExcelAddress address, bool IsArray)
+		private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddress address, bool IsArray)
 		{
-			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
+			if (range._fromRow == 1 && range._fromCol == 1 && range._toRow == ExcelPackage.MaxRows && range._toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
 			{
 				throw (new InvalidOperationException("Can't set a formula for the entire worksheet"));
 			}
 			else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column && !IsArray)             //is it really a shared formula? Arrayformulas can be one cell only
 			{
 				//Nope, single cell. Set the formula
-				Set_Formula(value, address.Start.Row, address.Start.Column);
+				Set_Formula(range, value, address.Start.Row, address.Start.Column);
 				return;
 			}
 			//RemoveFormuls(address);
-			CheckAndSplitSharedFormula(address);
+			range.CheckAndSplitSharedFormula(address);
 			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 			f.Formula = value;
-			f.Index = _worksheet.GetMaxShareFunctionIndex(IsArray);
+			f.Index = range._worksheet.GetMaxShareFunctionIndex(IsArray);
 			f.Address = address.FirstAddress;
 			f.StartCol = address.Start.Column;
 			f.StartRow = address.Start.Row;
 			f.IsArray = IsArray;
 
-			_worksheet._sharedFormulas.Add(f.Index, f);
+			range._worksheet._sharedFormulas.Add(f.Index, f);
 
 			for (int col = address.Start.Column; col <= address.End.Column; col++)
 			{
 				for (int row = address.Start.Row; row <= address.End.Row; row++)
 				{
-                    _worksheet._formulas.SetValue(row, col, f.Index);
-                    _worksheet.SetValueInner(row, col, null);
+					range._worksheet._formulas.SetValue(row, col, f.Index);
+					range._worksheet.SetValueInner(row, col, null);
 				}
 			}
 		}
-		private void Set_HyperLink(object value, int row, int col)
+		private static void Set_HyperLink(ExcelRangeBase range, object value, int row, int col)
 		{
-            if (value is Uri)
-            {
-                _worksheet._hyperLinks.SetValue(row, col, (Uri)value);
+			if (value is Uri)
+			{
+				range._worksheet._hyperLinks.SetValue(row, col, (Uri)value);
 
-                if (value is ExcelHyperLink)
-                {
-                    _worksheet.SetValueInner(row, col, ((ExcelHyperLink)value).Display);
-                }
-                else
-                {
-                    var v = _worksheet.GetValueInner(row, col);
-                    if (v == null || v.ToString() == "")
-                    {
-                        _worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
-                    }
-                }                    
-            }
-            else
-            {
-                _worksheet._hyperLinks.SetValue(row, col, (Uri)null);
-                _worksheet.SetValueInner(row, col, (Uri)null);
-            }
-        }
-		private void Set_IsRichText(object value, int row, int col)
+				if (value is ExcelHyperLink)
+				{
+					range._worksheet.SetValueInner(row, col, ((ExcelHyperLink)value).Display);
+				}
+				else
+				{
+					var v = range._worksheet.GetValueInner(row, col);
+					if (v == null || v.ToString() == "")
+					{
+						range._worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
+					}
+				}
+			}
+			else
+			{
+				range._worksheet._hyperLinks.SetValue(row, col, (Uri)null);
+				range._worksheet.SetValueInner(row, col, (Uri)null);
+			}
+		}
+		private static void Set_IsRichText(ExcelRangeBase range, object value, int row, int col)
 		{
 			//_worksheet.Cell(row, col).IsRichText = (bool)value;
-            _worksheet._flags.SetFlagValue(row, col, (bool)value, CellFlags.RichText);
+			range._worksheet._flags.SetFlagValue(row, col, (bool)value, CellFlags.RichText);
 		}
-		private void Exists_Comment(object value, int row, int col)
+		private static void Exists_Comment(ExcelRangeBase range, object value, int row, int col)
 		{
-			ulong cellID = GetCellID(_worksheet.SheetID, row, col);
-			if (_worksheet.Comments._comments.ContainsKey(cellID))
+			ulong cellID = GetCellID(range._worksheet.SheetID, row, col);
+			if (range._worksheet.Comments._comments.ContainsKey(cellID))
 			{
 				throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
 			}
 
 		}
-		private void Set_Comment(object value, int row, int col)
+		private static void Set_Comment(ExcelRangeBase range, object value, int row, int col)
 		{
 			string[] v = (string[])value;
-			Worksheet.Comments.Add(new ExcelRangeBase(_worksheet, GetAddress(_fromRow, _fromCol)), v[0], v[1]);
+			range._worksheet.Comments.Add(new ExcelRangeBase(range._worksheet, GetAddress(range._fromRow, range._fromCol)), v[0], v[1]);
 			//   _worksheet.Cell(row, col).Comment = comment;
 		}
 		#endregion
@@ -610,7 +625,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				_changePropMethod(Set_StyleID, value);
+				_changePropMethod(this, _setStyleIdDelegate, value);
 			}
 		}
 		/// <summary>
@@ -658,23 +673,23 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					_changePropMethod(Set_Value, value);
+					_changePropMethod(this, _setValueDelegate, value);
 				}
 			}
 		}
 
-        private bool IsInfinityValue(object value)
-        {
-            double? valueAsDouble = value as double?;
+		private bool IsInfinityValue(object value)
+		{
+			double? valueAsDouble = value as double?;
 
-            if(valueAsDouble.HasValue && 
-                (double.IsNegativeInfinity(valueAsDouble.Value) || double.IsPositiveInfinity(valueAsDouble.Value)))
-            {
-                return true;
-            }
+			if(valueAsDouble.HasValue && 
+				(double.IsNegativeInfinity(valueAsDouble.Value) || double.IsPositiveInfinity(valueAsDouble.Value)))
+			{
+				return true;
+			}
 
-            return false;
-        }
+			return false;
+		}
 
 		private object GetValueArray()
 		{
@@ -1132,16 +1147,16 @@ namespace OfficeOpenXml
                     }                    
                     else if (_fromRow == _toRow && _fromCol == _toCol)
 					{
-						Set_Formula(value, _fromRow, _fromCol);
+						Set_Formula(this, value, _fromRow, _fromCol);
 					}
 					else
 					{
-						Set_SharedFormula(value, this, false);
+						Set_SharedFormula(this, value, this, false);
 						if (Addresses != null)
 						{
 							foreach (var address in Addresses)
 							{
-								Set_SharedFormula(value, address, false);
+								Set_SharedFormula(this, value, address, false);
 							}
 						}
 					}
@@ -1170,14 +1185,14 @@ namespace OfficeOpenXml
                 }
 				else if (Addresses == null)
 				{
-					Set_SharedFormula(ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), this, false);
+					Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), this, false);
 				}
 				else
 				{
-					Set_SharedFormula(ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(WorkSheet, FirstAddress), false);
+					Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(WorkSheet, FirstAddress), false);
 					foreach (var address in Addresses)
 					{
-						Set_SharedFormula(ExcelCellBase.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address, false);
+						Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address, false);
 					}
 				}
 			}
@@ -1194,7 +1209,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				_changePropMethod(Set_HyperLink, value);
+				_changePropMethod(this, _setHyperLinkDelegate, value);
 			}
 		}
 		/// <summary>
@@ -1297,7 +1312,7 @@ namespace OfficeOpenXml
 			}
 			set
 			{
-				_changePropMethod(Set_IsRichText, value);
+				_changePropMethod(this, _setIsRichTextDelegate, value);
 			}
 		}
 		/// <summary>
@@ -2304,9 +2319,9 @@ namespace OfficeOpenXml
 		        Author = Thread.CurrentPrincipal.Identity.Name;
 		    }
             //Check if any comments exists in the range and throw an exception
-			_changePropMethod(Exists_Comment, null);
+			_changePropMethod(this, _setExistsCommentDelegate, null);
 			//Create the comments
-			_changePropMethod(Set_Comment, new string[] { Text, Author });
+			_changePropMethod(this, _setCommentDelegate, new string[] { Text, Author });
 
 			return _worksheet.Comments[new ExcelCellAddress(_fromRow, _fromCol)];
 		}
@@ -2553,7 +2568,7 @@ namespace OfficeOpenXml
 			{
 				throw (new Exception("An Arrayformula can not have more than one address"));
 			}
-			Set_SharedFormula(ArrayFormula, this, true);
+			Set_SharedFormula(this, ArrayFormula, this, true);
 		}
         //private void Clear(ExcelAddressBase Range)
         //{

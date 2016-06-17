@@ -358,9 +358,8 @@ namespace OfficeOpenXml
             adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
             return adr;
         }
-
-        ExcelCellAddress _start = null;
         #endregion
+        protected ExcelCellAddress _start = null;
         /// <summary>
         /// Gets the row and column of the top left cell.
         /// </summary>
@@ -376,7 +375,7 @@ namespace OfficeOpenXml
                 return _start;
             }
         }
-        ExcelCellAddress _end = null;
+        protected ExcelCellAddress _end = null;
         /// <summary>
         /// Gets the row and column of the bottom right cell.
         /// </summary>
@@ -392,7 +391,7 @@ namespace OfficeOpenXml
                 return _end;
             }
         }
-        ExcelTableAddress _table=null;
+        protected ExcelTableAddress _table = null;
         public ExcelTableAddress Table
         {
             get
