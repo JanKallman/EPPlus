@@ -896,7 +896,8 @@ namespace OfficeOpenXml
                     fontCache.Add(fntID, f);
 				}
                 var ind = styles.CellXfs[cell.StyleID].Indent;
-                var t = cell.TextForWidth + (ind > 0 ? new string('_',ind*2) : "");
+                var textForWidth = cell.TextForWidth;
+                var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind*2) : "");
                 var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
 
                 //var ft = new wm.FormattedText(t, CultureInfo.CurrentCulture, w.FlowDirection.LeftToRight,

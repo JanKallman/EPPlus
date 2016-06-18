@@ -84,32 +84,36 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      // Create the <colorScale> node inside the <cfRule> node
-      var colorScaleNode = CreateComplexNode(
-        Node,
-        ExcelConditionalFormattingConstants.Paths.ColorScale);
+            // If the node is not null, parse values out of it instead of clobbering it.
+            if (itemElementNode == null)
+            {
+                // Create the <colorScale> node inside the <cfRule> node
+                var colorScaleNode = CreateComplexNode(
+                  Node,
+                  ExcelConditionalFormattingConstants.Paths.ColorScale);
 
-      // LowValue default
-      LowValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.Low,
-        eExcelConditionalFormattingValueObjectType.Min,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
-        eExcelConditionalFormattingRuleType.TwoColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+                // LowValue default
+                LowValue = new ExcelConditionalFormattingColorScaleValue(
+                  eExcelConditionalFormattingValueObjectPosition.Low,
+                  eExcelConditionalFormattingValueObjectType.Min,
+                  ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
+                  eExcelConditionalFormattingRuleType.TwoColorScale,
+                  address,
+                  priority,
+                  worksheet,
+                  NameSpaceManager);
 
-      // HighValue default
-      HighValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.High,
-        eExcelConditionalFormattingValueObjectType.Max,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
-        eExcelConditionalFormattingRuleType.TwoColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+                // HighValue default
+                HighValue = new ExcelConditionalFormattingColorScaleValue(
+                  eExcelConditionalFormattingValueObjectPosition.High,
+                  eExcelConditionalFormattingValueObjectType.Max,
+                  ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
+                  eExcelConditionalFormattingRuleType.TwoColorScale,
+                  address,
+                  priority,
+                  worksheet,
+                  NameSpaceManager);
+        }
     }
 
     /// <summary>

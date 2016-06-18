@@ -36,6 +36,19 @@ namespace OfficeOpenXml.Utils
 			return false;
 		}
 		/// <summary>
+		/// Tries to parse a boolean value from the specificed <paramref name="candidate"/>.
+		/// </summary>
+		/// <param name="candidate">The value to check for boolean-ness.</param>
+		/// <param name="result">The boolean value parsed from the specified <paramref name="candidate"/>.</param>
+		/// <returns>True if <paramref name="candidate"/> could be parsed </returns>
+		internal static bool TryParseBooleanString(object candidate, out bool result)
+		{
+			if (candidate != null)
+				return bool.TryParse(candidate.ToString(), out result);
+			result = false;
+			return false;
+		}
+		/// <summary>
 		/// Tries to parse a <see cref="DateTime"/> from the specified <paramref name="candidate"/> which is expected to be a string value.
 		/// </summary>
 		/// <param name="candidate">The string value.</param>
@@ -59,8 +72,9 @@ namespace OfficeOpenXml.Utils
 		/// </summary>
 		/// <param name="v"></param>
 		/// <param name="ignoreBool"></param>
+        /// <param name="retNaN">Return NaN if invalid double otherwise 0</param>
 		/// <returns></returns>
-		internal static double GetValueDouble(object v, bool ignoreBool = false)
+		internal static double GetValueDouble(object v, bool ignoreBool = false, bool retNaN=false)
         {
             double d;
             try
@@ -86,13 +100,13 @@ namespace OfficeOpenXml.Utils
                 }
                 else
                 {
-                    d = 0;
+                    d = retNaN ? double.NaN : 0;
                 }
             }
 
             catch
             {
-                d = 0;
+                d = retNaN ? double.NaN : 0;
             }
             return d;
         }
