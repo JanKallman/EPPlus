@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
@@ -22,6 +23,16 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(true, "A", "B");
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual("A", result.Result);
+        }
+
+        [TestMethod]
+        public void IfShouldIgnoreCase()
+        {
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\book1.xlsx")))
+            {
+                pck.Workbook.Calculate();
+                Assert.AreEqual("Sant", pck.Workbook.Worksheets.First().Cells["C3"].Value);
+            }
         }
 
         [TestMethod]

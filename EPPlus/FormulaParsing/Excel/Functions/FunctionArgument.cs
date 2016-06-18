@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -34,6 +35,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         public FunctionArgument(object val)
         {
             Value = val;
+            DataType = DataType.Unknown;
+        }
+
+        public FunctionArgument(object val, DataType dataType)
+            :this(val)
+        {
+            DataType = dataType;
         }
 
         private ExcelCellState _excelCellState;
@@ -49,6 +57,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         }
 
         public object Value { get; private set; }
+
+        public DataType DataType { get; }
 
         public Type Type
         {
