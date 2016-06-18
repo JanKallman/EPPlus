@@ -19,7 +19,7 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         private LookupArguments GetArgs(params object[] args)
         {
             var lArgs = FunctionsHelper.CreateArgs(args);
-            return new LookupArguments(lArgs);
+            return new LookupArguments(lArgs, ParsingContext.Create());
         }
 
         private ParsingContext GetContext(ExcelDataProvider provider)

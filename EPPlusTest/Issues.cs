@@ -1201,5 +1201,25 @@ namespace EPPlusTest
             return templateFIle;
 
         }
+
+        [TestMethod]
+        public void Issue15455()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                    
+                var sheet1 = pck.Workbook.Worksheets.Add("sheet1");
+                var sheet2 = pck.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells["C2"].Value = 3;
+                sheet1.Cells["C3"].Formula = "VLOOKUP(E1, Sheet2!A1:D6, C2, 0)";
+                sheet1.Cells["E1"].Value = "d";
+
+                sheet2.Cells["A1"].Value = "d";
+                sheet2.Cells["C1"].Value = "dg";
+                pck.Workbook.Calculate();
+                var c3 = sheet1.Cells["C3"].Value;
+                Assert.AreEqual("dg", c3);
+            }
+        }
     }
 }
