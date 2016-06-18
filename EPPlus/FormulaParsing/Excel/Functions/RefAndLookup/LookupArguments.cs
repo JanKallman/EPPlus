@@ -38,13 +38,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             DataArray
         }
 
-        public LookupArguments(IEnumerable<FunctionArgument> arguments)
-            : this(arguments, new ArgumentParsers())
+        public LookupArguments(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+            : this(arguments, new ArgumentParsers(), context)
         {
 
         }
 
-        public LookupArguments(IEnumerable<FunctionArgument> arguments, ArgumentParsers argumentParsers)
+        public LookupArguments(IEnumerable<FunctionArgument> arguments, ArgumentParsers argumentParsers, ParsingContext context)
         {
             _argumentParsers = argumentParsers;
             SearchedValue = arguments.ElementAt(0).Value;
@@ -71,7 +71,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                     ArgumentDataType = LookupArgumentDataType.ExcelRange;
                 }  
             }
-            LookupIndex = (int)_argumentParsers.GetParser(DataType.Integer).Parse(arguments.ElementAt(2).Value);
+            var indexVal = arguments.ElementAt(2);
+
+            if (indexVal.DataType == DataType.ExcelAddress)
+            {
+                var address = new ExcelAddress(indexVal.Value.ToString());
+                var indexObj = context.ExcelDataProvider.GetRangeValue(address.WorkSheet, address._fromRow, address._fromCol);
+                LookupIndex = (int) _argumentParsers.GetParser(DataType.Integer).Parse(indexObj);
+            }
+            else
+            {
+                LookupIndex = (int)_argumentParsers.GetParser(DataType.Integer).Parse(arguments.ElementAt(2).Value);
+            }
+            
             if (arguments.Count() > 3)
             {
                 RangeLookup = (bool)_argumentParsers.GetParser(DataType.Boolean).Parse(arguments.ElementAt(3).Value);
