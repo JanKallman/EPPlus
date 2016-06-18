@@ -52,7 +52,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
             Function = function;
         }
 
-        protected void BuildFunctionArguments(object result, List<FunctionArgument> args)
+        protected void BuildFunctionArguments(object result, DataType dataType, List<FunctionArgument> args)
         {
             if (result is IEnumerable<object> && !(result is ExcelDataProvider.IRangeInfo))
             {
@@ -60,14 +60,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 var objects = result as IEnumerable<object>;
                 foreach (var arg in objects)
                 {
-                    BuildFunctionArguments(arg, argList);
+                    BuildFunctionArguments(arg, dataType, argList);
                 }
                 args.Add(new FunctionArgument(argList));
             }
             else
             {
-                args.Add(new FunctionArgument(result));
+                args.Add(new FunctionArgument(result, dataType));
             }
+        }
+
+        protected void BuildFunctionArguments(object result, List<FunctionArgument> args)
+        {
+            BuildFunctionArguments(result, DataType.Unknown, args);
         }
 
         public abstract CompileResult Compile(IEnumerable<Expression> children, ParsingContext context);

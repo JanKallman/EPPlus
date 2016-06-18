@@ -414,6 +414,13 @@ namespace OfficeOpenXml
                 return _address;
             }
         }        
+        internal string FullAddress
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_ws) ? _ws : "[" + _ws + "]!" + Address;
+            }
+        }
         /// <summary>
         /// If the address is a defined name
         /// </summary>
