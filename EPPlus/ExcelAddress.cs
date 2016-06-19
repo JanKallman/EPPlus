@@ -560,6 +560,13 @@ namespace OfficeOpenXml
                         }
                         else if (c == '!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
                         {
+                            // the following is to handle addresses that specifies the
+                            // same worksheet twice: Sheet1!A1:Sheet1:A3
+                            // They will be converted to: Sheet1!A1:A3
+                            if (hasSheet && second != null && second.ToLower().EndsWith(first.ToLower()))
+                            {
+                                second = Regex.Replace(second, $"{first}$", string.Empty);
+                            }
                             hasSheet = true;
                         }
                         else if (c == ',' && !isText)
