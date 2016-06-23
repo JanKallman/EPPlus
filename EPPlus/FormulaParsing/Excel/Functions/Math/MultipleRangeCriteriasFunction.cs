@@ -37,39 +37,35 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
     public abstract class MultipleRangeCriteriasFunction : ExcelFunction
     {
 
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         protected MultipleRangeCriteriasFunction()
-            :this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
+            :this(new ExpressionEvaluator())
         {
             
         }
 
-        protected MultipleRangeCriteriasFunction(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
+        protected MultipleRangeCriteriasFunction(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(wildCardValueMatcher).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
+            _expressionEvaluator = evaluator;
         }
 
-        protected bool Evaluate(object obj, object expression)
+        protected bool Evaluate(object obj, string expression)
         {
             double? candidate = default(double?);
             if (IsNumeric(obj))
             {
                 candidate = ConvertUtil.GetValueDouble(obj);
             }
-            if (candidate.HasValue && expression is string)
+            if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression.ToString());
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
+            return _expressionEvaluator.Evaluate(obj, expression);
         }
 
-        protected List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, object searched)
+        protected List<int> GetMatchIndexes(ExcelDataProvider.IRangeInfo rangeInfo, string searched)
         {
             var result = new List<int>();
             var internalIndex = 0;
@@ -78,7 +74,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 for (var col = rangeInfo.Address._fromCol; col <= rangeInfo.Address._toCol; col++)
                 {
                     var candidate = rangeInfo.GetValue(row, col);
-                    if (Evaluate(candidate, searched))
+                    if (searched != null && Evaluate(candidate, searched))
                     {
                         result.Add(internalIndex);
                     }

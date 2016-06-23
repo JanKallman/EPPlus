@@ -134,5 +134,14 @@ namespace EPPlusTest
           Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
         }
 
+        [TestMethod]
+        public void ShouldHandleWorksheetSpec()
+        {
+            var address = "Sheet1!A1:Sheet1!A2";
+            var excelAddress = new ExcelAddress(address);
+            Assert.AreEqual("Sheet1", excelAddress.WorkSheet);
+            Assert.AreEqual(1, excelAddress._fromRow);
+            Assert.AreEqual(2, excelAddress._toRow);
+        }
     }
 }

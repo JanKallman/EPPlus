@@ -30,6 +30,7 @@ namespace EPPlusTest
             LineMarker();
             PieChart();
             PieChart3D();
+            PieOfChart();
             Pyramid();
             Scatter();
             Bubble();
@@ -149,6 +150,7 @@ namespace EPPlusTest
             chrt.ShowHiddenData = true;
             chrt.DisplayBlanksAs = eDisplayBlanksAs.Zero;
             chrt.Title.RichText.Text = "Barchart Test";
+            chrt.GapWidth = 5;
             Assert.IsTrue(chrt.ChartType == eChartType.BarClustered, "Invalid Charttype");
             Assert.IsTrue(chrt.Direction == eDirection.Bar, "Invalid Bardirection");
             Assert.IsTrue(chrt.Grouping == eGrouping.Clustered, "Invalid Grouping");
@@ -211,6 +213,23 @@ namespace EPPlusTest
             chrt.Legend.Position = eLegendPosition.TopRight;
             Assert.IsTrue(chrt.ChartType == eChartType.Pie, "Invalid Charttype");
             Assert.IsTrue(chrt.VaryColors);
+            chrt.Title.Text = "Piechart";
+        }
+        public void PieOfChart()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("PieOfChart");
+            var chrt = ws.Drawings.AddChart("pieOfChart", eChartType.BarOfPie) as ExcelOfPieChart;
+
+            AddTestSerie(ws, chrt);
+
+            chrt.To.Row = 25;
+            chrt.To.Column = 12;
+
+            chrt.DataLabel.ShowPercent = true;
+            chrt.Legend.Font.Color = Color.SteelBlue;
+            chrt.Title.Border.Fill.Style = eFillStyle.SolidFill;
+            chrt.Legend.Position = eLegendPosition.TopRight;
+            Assert.IsTrue(chrt.ChartType == eChartType.BarOfPie, "Invalid Charttype");
             chrt.Title.Text = "Piechart";
         }
         //[TestMethod]
