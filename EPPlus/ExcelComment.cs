@@ -147,5 +147,13 @@ namespace OfficeOpenXml
            get; 
            set; 
         }
-    }
+
+		/// <summary>
+		/// Reference
+		/// </summary>
+		public string Reference
+		{
+			get { return _commentHelper.GetXmlNodeString("@ref"); }
+		}
+	}
 }

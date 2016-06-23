@@ -206,6 +206,34 @@ namespace OfficeOpenXml
             }
         }
 
+        /// <summary>
+        /// Shifts all comments based on their address and the location of inserted rows and columns.
+        /// </summary>
+        /// <param name="fromRow">The start row.</param>
+        /// <param name="fromCol">The start column.</param>
+        /// <param name="rows">The number of rows to insert.</param>
+        /// <param name="columns">The number of columns to insert.</param>
+        public void Insert(int fromRow, int fromCol, int rows, int columns)
+        {
+          List<ExcelComment> commentsToShift = new List<ExcelComment>();
+          foreach (ExcelComment comment in _comments)
+          {
+            var address = new ExcelAddressBase(comment.Reference);
+            if (address._fromRow >= fromRow || address._fromCol >= fromCol)
+              commentsToShift.Add(comment);
+          }
+          foreach (ExcelComment comment in commentsToShift)
+          {
+            Remove(comment);
+            var address = new ExcelAddressBase(comment.Reference);
+            if (address._fromRow >= fromRow)
+              address._fromRow += rows;
+            if (address._fromCol >= fromCol)
+              address._fromCol += columns;
+            Add(Worksheet.Cells[address._fromRow, address._fromCol], comment.Text, comment.Author);
+          }
+        }
+
         void IDisposable.Dispose() 
         { 
             if (_comments != null) 
