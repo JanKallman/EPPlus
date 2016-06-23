@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus\EPPlus.csproj">
-      <Project>{7B288026-5502-4A39-BF41-77E086F3E4A3}</Project>
+      <Project>{be4a6343-f411-44a3-8d6f-f40747ed7ba5}</Project>
       <Name>EPPlus</Name>
     </ProjectReference>
   </ItemGroup>

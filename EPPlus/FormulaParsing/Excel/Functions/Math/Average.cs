@@ -64,7 +64,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 {
                     if (ShouldIgnore(c, context)) continue;
                     CheckForAndHandleExcelError(c);
-                    if (!IsNumeric(c.Value)) continue;
+                    if (!IsNumeric(c.Value) || c.Value is bool) continue;
                     nValues++;
                     retVal += c.ValueDouble;
                 }
@@ -72,36 +72,42 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             else
             {
                 var numericValue = GetNumericValue(arg.Value, isInArray);
-                if (numericValue.HasValue)
-                {
-                    nValues++;
-                    retVal += numericValue.Value;
-                }
-                else if ((arg.Value is string) && !ConvertUtil.IsNumericString(arg.Value))
-                {
-                    if (!isInArray)
-                    {
-                        ThrowExcelErrorValueException(eErrorType.Value);
-                    }
-                }
+				if (numericValue.HasValue)
+				{
+					nValues++;
+					retVal += numericValue.Value;
+				}
+				else if (arg.Value is string && !isInArray)
+				{
+					ThrowExcelErrorValueException(eErrorType.Value);
+				}
             }
             CheckForAndHandleExcelError(arg);
         }
 
         private double? GetNumericValue(object obj, bool isInArray)
         {
-            if (IsNumeric(obj))
+            if (IsNumeric(obj) && !(obj is bool))
             {
                 return ConvertUtil.GetValueDouble(obj);
             }
-            else if ((obj is bool) && !isInArray)
-            {
-                return ConvertUtil.GetValueDouble(obj);
-            }
-            else if (ConvertUtil.IsNumericString(obj))
-            {
-                return double.Parse(obj.ToString(), CultureInfo.InvariantCulture);
-            }
+			if (!isInArray)
+			{
+				double number;
+				System.DateTime date;
+				if (obj is bool)
+				{
+					return ConvertUtil.GetValueDouble(obj);
+				}
+				else if (ConvertUtil.TryParseNumericString(obj, out number))
+				{
+					return number;
+				}
+				else if (ConvertUtil.TryParseDateString(obj, out date))
+				{
+					return date.ToOADate();
+				}
+			}
             return default(double?);
         }
     }

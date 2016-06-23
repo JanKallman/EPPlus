@@ -88,7 +88,8 @@ namespace EPPlusSamples
                 // get the handle to the existing worksheet
                 var wsData = pck.Workbook.Worksheets.Add("SalesData");
 
-                var dataRange = wsData.Cells["A1"].LoadFromCollection(
+                var dataRange = wsData.Cells["A1"].LoadFromCollection
+                    (
                     from s in list 
                     orderby s.LastName, s.FirstName 
                     select s, 

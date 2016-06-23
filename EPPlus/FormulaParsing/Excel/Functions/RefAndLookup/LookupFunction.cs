@@ -76,7 +76,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             int? lastMatchResult = null;
             if (lookupArgs.SearchedValue == null)
             {
-                return new CompileResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
+                return new CompileResult(eErrorType.NA);
             }
             do
             {
@@ -84,21 +84,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 if (matchResult != 0)
                 {
                     if (lastValue != null && navigator.CurrentValue == null) break;
-                    
-                    if (lookupArgs.RangeLookup)
+
+                    if (!lookupArgs.RangeLookup) continue;
+                    if (lastValue == null && matchResult > 0)
                     {
-                        if (lastValue == null && matchResult > 0)
-                        {
-                            ThrowExcelErrorValueException(eErrorType.NA);
-                        }
-                        if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
-                        {
-                            return _compileResultFactory.Create(lastLookupValue);
-                        }
-                        lastMatchResult = matchResult;
-                        lastValue = navigator.CurrentValue;
-                        lastLookupValue = navigator.GetLookupValue();
+                        return new CompileResult(eErrorType.NA);
                     }
+                    if (lastValue != null && matchResult > 0 && lastMatchResult < 0)
+                    {
+                        return _compileResultFactory.Create(lastLookupValue);
+                    }
+                    lastMatchResult = matchResult;
+                    lastValue = navigator.CurrentValue;
+                    lastLookupValue = navigator.GetLookupValue();
                 }
                 else
                 {
@@ -107,11 +105,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             }
             while (navigator.MoveNext());
 
-            if (lookupArgs.RangeLookup)
-            {
-                return _compileResultFactory.Create(lastLookupValue);
-            }
-            return new CompileResult(ExcelErrorValue.Create(eErrorType.NA), DataType.ExcelError);
+            return lookupArgs.RangeLookup ? _compileResultFactory.Create(lastLookupValue) : new CompileResult(eErrorType.NA);
         }
     }
 }

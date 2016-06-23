@@ -31,7 +31,6 @@
  * Richard Tallent		Fix escaping of quotes					2012-10-31
  *******************************************************************************/
 using System;
-using System.Linq;
 using System.Xml;
 using System.IO;
 using System.Collections.Generic;
@@ -43,6 +42,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
+using OfficeOpenXml.Style;
 
 namespace OfficeOpenXml
 {
@@ -215,7 +215,7 @@ namespace OfficeOpenXml
 							namedRange = nameWorksheet.Names.Add(elem.GetAttribute("name"), range);
 						}
 						
-						if (fullAddress.StartsWith("\"")) //String value
+						if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(fullAddress, "\"")) //String value
 						{
 							namedRange.NameValue = fullAddress.Substring(1,fullAddress.Length-2);
 						}
@@ -320,7 +320,6 @@ namespace OfficeOpenXml
 	            return _parserManager;
 	        }
 	    }
-
         /// <summary>
 		/// Max font width for the workbook
         /// <remarks>This method uses GDI. If you use Asure or another environment that does not support GDI, you have to set this value manually if you don't use the standard Calibri font</remarks>
@@ -329,45 +328,28 @@ namespace OfficeOpenXml
 		{
 			get
 			{
-                if (_standardFontWidth == decimal.MinValue || _fontID != Styles.Fonts[0].Id)
-				{
-					var font = Styles.Fonts[0];
-                    try
-                    {
-                        var f = new Font(font.Name, font.Size);
-                        _standardFontWidth = 0;
-                        _fontID = font.Id;
-                 
-                        //Remove the PresentaionCore Dependencey. This might effect components running under Azure not having support for GDI+
-
-                        //Typeface tf = new Typeface(new System.Windows.Media.FontFamily(font.Name),
-                        ////                             (font.Italic) ? FontStyles.Normal : FontStyles.Italic,
-                        //                             (font.Bold) ? FontWeights.Bold : FontWeights.Normal,
-                        //                             FontStretches.Normal);
-                        //for(int i=0;i<10;i++)
-                        //{
-                        //    var ft = new System.Windows.Media.FormattedText("0123456789".Substring(i,1), CultureInfo.InvariantCulture, System.Windows.FlowDirection.LeftToRight, tf, font.Size * (96D / 72D), new DrawingBrush());
-                        //    var width=(int)Math.Round(ft.Width,0);   
-                        //    if(width>_standardFontWidth)
-                        //    {
-                        //        _standardFontWidth = width;
-                        //    }
-                        //}
-
-                        //var size = new System.Windows.Size { Width = ft.WidthIncludingTrailingWhitespace, Height = ft.Height };
-
-                        _standardFontWidth = GetWidthPixels(f,"1234567890");
-                        if (_standardFontWidth <= 0) //No GDI?
+                var ix = Styles.NamedStyles.FindIndexByID("Normal");
+                if (ix >= 0)
+                {
+                    if (_standardFontWidth == decimal.MinValue || _fontID != Styles.NamedStyles[ix].Style.Font.Id)
+				    {
+                        var font = Styles.NamedStyles[ix].Style.Font;
+                        try
                         {
-                            _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox. for Calibri.
+                            _standardFontWidth = GetWidthPixels(font.Name, font.Size);
+                            _fontID = Styles.NamedStyles[ix].Style.Font.Id;
+                        }
+                        catch   //Error, Font missing and Calibri removed in dictionary
+                        {
+                            _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox for Calibri.
                         }
                     }
-                    catch   //Error, set default value
-                    {
-                        _standardFontWidth = (int)(font.Size * (2D / 3D)); //Aprox for Calibri.
-                    }
-				}
-				return _standardFontWidth;
+                }
+                else
+                {
+                    _standardFontWidth = 7; //Calibri 11
+                }
+                return _standardFontWidth;
 			}
             set
             {
@@ -375,32 +357,46 @@ namespace OfficeOpenXml
             }
 		}
 
-	    internal static decimal GetWidthPixels(Font f, string s)
+	    internal static decimal GetWidthPixels(string fontName, float fontSize)
 	    {
-	        var ret = 0M;
-            using (var b = new Bitmap(1, 1))
-	        {
-	            using (Graphics g = Graphics.FromImage(b))
-	            {
-	                g.PageUnit = GraphicsUnit.Pixel;
+            Dictionary<float, FontSizeInfo> font;
+            if (FontSize.FontHeights.ContainsKey(fontName))
+            {
+                font = FontSize.FontHeights[fontName];
+            }
+            else
+            {
+                font = FontSize.FontHeights["Calibri"];
+            }
 
-	                for (int i = 0; i < s.Length; i++)
-	                {
-	                    var c = s[i];
-	                    var width =
-	                        (decimal)
-	                            Math.Truncate(
-	                                g.MeasureString(new string(c, 2), f, 1000, StringFormat.GenericTypographic).Width -
-	                                g.MeasureString(new string(c, 1), f, 1000, StringFormat.GenericTypographic).Width);
-                        if (width > ret)
-	                    {
-                            ret = width;
-	                    }
-	                }
-	            }
-	        }
-	        return ret;
-	    }
+            if (font.ContainsKey(fontSize))
+            {
+                return Convert.ToDecimal(font[fontSize].Width);
+            }
+            else
+            {
+                float min = -1, max = 500;
+                foreach (var size in font)
+                {
+                    if (min < size.Key && size.Key < fontSize)
+                    {
+                        min = size.Key;
+                    }
+                    if (max > size.Key && size.Key > fontSize)
+                    {
+                        max = size.Key;
+                    }
+                }
+                if (min == max)
+                {
+                    return Convert.ToDecimal(font[min].Width);
+                }
+                else
+                {
+                    return Convert.ToDecimal(font[min].Height + (font[max].Height - font[min].Height) * ((fontSize - min) / (max - min)));
+                }
+            }
+        }
 
 	    ExcelProtection _protection = null;
 		/// <summary>
@@ -538,6 +534,7 @@ namespace OfficeOpenXml
 
         const string date1904Path = "d:workbookPr/@date1904";
         internal const double date1904Offset = 365.5 * 4;  // offset to fix 1900 and 1904 differences, 4 OLE years
+        private bool? date1904Cache = null;
         /// <summary>
         /// The date systems used by Microsoft Excel can be based on one of two different dates. By default, a serial number of 1 in Microsoft Excel represents January 1, 1900.
         /// The default for the serial number 1 can be changed to represent January 2, 1904.
@@ -547,8 +544,12 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNodeBool(date1904Path, false);
-               
+                //return GetXmlNodeBool(date1904Path, false);
+                if (date1904Cache == null)
+                {
+                    date1904Cache = GetXmlNodeBool(date1904Path, false);
+                }
+                return date1904Cache.Value;
             }
             set
             {
@@ -560,7 +561,7 @@ namespace OfficeOpenXml
                         item.UpdateCellsWithDate1904Setting();
                     }
                 }
-
+                date1904Cache = value;
                 SetXmlNodeBool(date1904Path, value, false);
             }
         }
@@ -807,9 +808,19 @@ namespace OfficeOpenXml
                 worksheet.Part.SaveHandler = worksheet.SaveHandler;
 			}
 
-            var part = _package.Package.CreatePart(SharedStringsUri, ExcelPackage.contentTypeSharedString, _package.Compression);
+            // Issue 15252: save SharedStrings only once
+            Packaging.ZipPackagePart part;
+            if (_package.Package.PartExists(SharedStringsUri))
+            {
+                part = _package.Package.GetPart(SharedStringsUri);
+            }
+            else
+            {
+                part = _package.Package.CreatePart(SharedStringsUri, @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml", _package.Compression);
+                Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            }
+
             part.SaveHandler = SaveSharedStringHandler;
-            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
             //UpdateSharedStringsXml();
 			
 			// Data validation
@@ -908,7 +919,8 @@ namespace OfficeOpenXml
             cache.Append("</sst>");
             sw.Write(cache.ToString());
             sw.Flush();
-            Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
+            // Issue 15252: Save SharedStrings only once
+            //Part.CreateRelationship(UriHelper.GetRelativeUri(WorkbookUri, SharedStringsUri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/sharedStrings");
 		}
 		private void UpdateDefinedNamesXml()
 		{

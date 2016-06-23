@@ -58,7 +58,6 @@ namespace OfficeOpenXml
         internal protected string _wb;
         internal protected string _ws;
         internal protected string _address;
-        internal protected event EventHandler AddressChange;
 
         internal enum eAddressCollition
         {
@@ -262,7 +261,7 @@ namespace OfficeOpenXml
         protected internal void SetAddress(string address)
         {
             address = address.Trim();
-            if (address.StartsWith("'"))
+            if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "'"))
             {
                 int pos = address.IndexOf("'", 1);
                 while (pos < address.Length && address[pos + 1] == '\'')
@@ -273,7 +272,7 @@ namespace OfficeOpenXml
                 SetWbWs(wbws);
                 _address = address.Substring(pos + 2);
             }
-            else if (address.StartsWith("[")) //Remove any external reference
+            else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "[")) //Remove any external reference
             {
                 SetWbWs(address);
             }
@@ -297,12 +296,8 @@ namespace OfficeOpenXml
             _address = address;
             Validate();
         }
-        internal void ChangeAddress()
+        internal protected virtual void ChangeAddress()
         {
-            if (AddressChange != null)
-            {
-                AddressChange(this, new EventArgs());
-            }
         }
         private void SetWbWs(string address)
         {
@@ -351,16 +346,19 @@ namespace OfficeOpenXml
         private string GetAddress()
         {
             var adr = "";
-            if (string.IsNullOrEmpty(_wb))
+            if (!string.IsNullOrEmpty(_wb))
             {
                 adr = "[" + _wb + "]";
             }
 
-            if (string.IsNullOrEmpty(_ws))
+            if (!string.IsNullOrEmpty(_ws))
             {
                 adr += string.Format("'{0}'!", _ws);
             }
-            adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+            if (IsName)
+              adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+            else
+              adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             return adr;
         }
 
@@ -416,6 +414,13 @@ namespace OfficeOpenXml
                 return _address;
             }
         }        
+        internal string FullAddress
+        {
+            get
+            {
+                return string.IsNullOrEmpty(_ws) ? _ws : "[" + _ws + "]!" + Address;
+            }
+        }
         /// <summary>
         /// If the address is a defined name
         /// </summary>
@@ -499,7 +504,7 @@ namespace OfficeOpenXml
                     SetAddress(ref fullAddress, ref second, ref hasSheet);
                     return true;
                 }
-                else if (fullAddress.StartsWith("!"))
+                else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(fullAddress, "!"))
                 {
                     // invalid address!
                     return false;
@@ -555,6 +560,13 @@ namespace OfficeOpenXml
                         }
                         else if (c == '!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
                         {
+                            // the following is to handle addresses that specifies the
+                            // same worksheet twice: Sheet1!A1:Sheet1:A3
+                            // They will be converted to: Sheet1!A1:A3
+                            if (hasSheet && second != null && second.ToLower().EndsWith(first.ToLower()))
+                            {
+                                second = Regex.Replace(second, $"{first}$", string.Empty);
+                            }
                             hasSheet = true;
                         }
                         else if (c == ',' && !isText)
@@ -1081,9 +1093,12 @@ namespace OfficeOpenXml
             }
         }
 
-        internal bool IsMultiCell()
+        internal bool IsSingleCell
         {
-            return (_fromRow < _fromCol || _fromCol < _toCol);
+            get
+            {
+                return (_fromRow == _toRow && _fromCol == _toCol);
+            }
         }
         internal static String GetWorkbookPart(string address)
         {
@@ -1254,7 +1269,7 @@ namespace OfficeOpenXml
             set
             {                
                 SetAddress(value);
-                base.ChangeAddress();
+                ChangeAddress();
             }
         }
     }
@@ -1345,7 +1360,7 @@ namespace OfficeOpenXml
             set
             {                
                 SetAddress(value);
-                base.ChangeAddress();
+                ChangeAddress();
                 SetFixed();
             }
         }

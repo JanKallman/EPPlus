@@ -43,7 +43,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 sw.Start();
             }
             ValidateArguments(arguments, 3);
-            var lookupArgs = new LookupArguments(arguments);
+            var lookupArgs = new LookupArguments(arguments, context);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, lookupArgs, context);
             var result = Lookup(navigator, lookupArgs);
             if (context.Debug)

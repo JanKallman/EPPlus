@@ -131,7 +131,7 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         protected string SetStyle(string style, string key, string value)
         {
-            string[] styles = style.Split(';');
+            string[] styles = style.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             string newStyle="";
             bool changed = false;
             foreach (string s in styles)
@@ -157,7 +157,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             else
             {
-                newStyle = style.Substring(0, style.Length - 1);
+                newStyle = newStyle.Substring(0, newStyle.Length - 1);
             }
             return newStyle;
         }

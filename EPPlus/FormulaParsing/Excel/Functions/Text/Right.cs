@@ -38,6 +38,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             var str = ArgToString(arguments, 0);
             var length = ArgToInt(arguments, 1);
             var startIx = str.Length - length;
+            if (startIx < 0)
+                startIx = 0;
             return CreateResult(str.Substring(startIx, str.Length - startIx), DataType.String);
         }
     }
