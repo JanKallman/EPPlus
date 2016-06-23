@@ -896,7 +896,8 @@ namespace OfficeOpenXml
                     fontCache.Add(fntID, f);
 				}
                 var ind = styles.CellXfs[cell.StyleID].Indent;
-                var t = cell.TextForWidth + (ind > 0 ? new string('_',ind*2) : "");
+                var textForWidth = cell.TextForWidth;
+                var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind*2) : "");
                 var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
 
                 //var ft = new wm.FormattedText(t, CultureInfo.CurrentCulture, w.FlowDirection.LeftToRight,
@@ -2507,7 +2508,7 @@ namespace OfficeOpenXml
 
                 if(cell.Formula!=null)
                 {
-                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, true);
+                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, Destination.WorkSheet, Destination.WorkSheet, true);
                     Destination._worksheet._formulas.SetValue(cell.Row, cell.Column, cell.Formula);
                 }
                 if(cell.HyperLink!=null)

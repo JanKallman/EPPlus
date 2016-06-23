@@ -906,7 +906,7 @@ namespace EPPlusTest
             }
 
         }
- 
+
         [TestMethod, Ignore]
         public void issue15249()
         {
@@ -996,7 +996,7 @@ namespace EPPlusTest
             {
                 var ws = p.Workbook.Worksheets.Add("ws1");
                 ws.Cells["A1"].Value = (double?)1;
-                var v = ws.GetValue<double?>(1,1);
+                var v = ws.GetValue<double?>(1, 1);
             }
         }
         [TestMethod]
@@ -1019,7 +1019,7 @@ namespace EPPlusTest
                 var ws = p.Workbook.Worksheets.Add("Trans");
                 ws.Cells["A1:A2"].Formula = "IF(1=1, \"A's B C\",\"D\") ";
                 var fr = ws.Cells["A1:A2"].FormulaR1C1;
-                ws.Cells["A1:A2"].FormulaR1C1=fr;
+                ws.Cells["A1:A2"].FormulaR1C1 = fr;
                 Assert.AreEqual("IF(1=1,\"A's B C\",\"D\")", ws.Cells["A2"].Formula);
             }
         }
@@ -1047,7 +1047,7 @@ namespace EPPlusTest
 
                 workSheet.InsertColumn(2, 2, 9);
                 workSheet.Column(45).Width = 0;
-                
+
                 p.SaveAs(new FileInfo(@"c:\temp\styleerror.xlsx"));
             }
         }
@@ -1146,5 +1146,161 @@ namespace EPPlusTest
                 }
             }
         }
+        [TestMethod, Ignore]
+        public void Issue15469()
+        {
+            ExcelPackage excelPackage = new ExcelPackage(new FileInfo(@"c:\temp\bug\EPPlus-Bug.xlsx"), true);
+            using (FileStream fs = new FileStream(@"c:\temp\bug\EPPlus-Bug-new.xlsx", FileMode.Create))
+            {
+                excelPackage.SaveAs(fs);
+            }
+        }
+        [TestMethod]
+        public void Issue15438()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Test");
+                var c = ws.Cells["A1"].Style.Font.Color;
+                c.Indexed = 3;
+                Assert.AreEqual(c.LookupColor(c), "#FF00FF00");
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue15097()
+        {
+            using (var pkg = new ExcelPackage())
+            {
+                var templateFile = ReadTemplateFile(@"c:\temp\bug\test_vorlage3.xlsx");
+                using (var ms = new System.IO.MemoryStream(templateFile))
+                {
+                    using (var tempPkg = new ExcelPackage(ms))
+                    {
+                        tempPkg.Workbook.Worksheets.Copy(tempPkg.Workbook.Worksheets.First().Name, "Demo");
+                    }
+                }
+            }
+        }
+        public static byte[] ReadTemplateFile(string templateName)
+        {
+            byte[] templateFIle;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                using (var sw = new System.IO.FileStream(templateName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = sw.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, bytesRead);
+                    }
+                }
+                ms.Position = 0;
+                templateFIle = ms.ToArray();
+            }
+            return templateFIle;
+
+        }
+
+        [TestMethod]
+        public void Issue15455()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                    
+                var sheet1 = pck.Workbook.Worksheets.Add("sheet1");
+                var sheet2 = pck.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells["C2"].Value = 3;
+                sheet1.Cells["C3"].Formula = "VLOOKUP(E1, Sheet2!A1:D6, C2, 0)";
+                sheet1.Cells["E1"].Value = "d";
+
+                sheet2.Cells["A1"].Value = "d";
+                sheet2.Cells["C1"].Value = "dg";
+                pck.Workbook.Calculate();
+                var c3 = sheet1.Cells["C3"].Value;
+                Assert.AreEqual("dg", c3);
+            }
+        }
+
+		[TestMethod]
+		public void Issue15460WithString()
+		{
+			FileInfo file = new FileInfo("report.xlsx");
+			try
+			{
+				if (file.Exists)
+					file.Delete();
+				using (ExcelPackage package = new ExcelPackage(file))
+				{
+					var sheet = package.Workbook.Worksheets.Add("New Sheet");
+					sheet.Cells[3, 3].Value = new[] { "value1", "value2", "value3" };
+					package.Save();
+				}
+				using (ExcelPackage package = new ExcelPackage(file))
+				{
+					var sheet = package.Workbook.Worksheets["New Sheet"];
+					Assert.AreEqual("value1", sheet.Cells[3, 3].Value);
+				}
+			}
+			finally
+			{
+				if (file.Exists)
+					file.Delete();
+			}
     }
+
+    [TestMethod]
+    public void Issue15460WithNull()
+    {
+      FileInfo file = new FileInfo("report.xlsx");
+      try
+      {
+        if (file.Exists)
+          file.Delete();
+        using (ExcelPackage package = new ExcelPackage(file))
+        {
+          var sheet = package.Workbook.Worksheets.Add("New Sheet");
+          sheet.Cells[3, 3].Value = new[] { null, "value2", "value3" };
+          package.Save();
+        }
+        using (ExcelPackage package = new ExcelPackage(file))
+        {
+          var sheet = package.Workbook.Worksheets["New Sheet"];
+          Assert.AreEqual(string.Empty, sheet.Cells[3, 3].Value);
+        }
+      }
+      finally
+      {
+        if (file.Exists)
+          file.Delete();
+      }
+    }
+
+    [TestMethod]
+    public void Issue15460WithNonStringPrimitive()
+    {
+      FileInfo file = new FileInfo("report.xlsx");
+      try
+      {
+        if (file.Exists)
+          file.Delete();
+        using (ExcelPackage package = new ExcelPackage(file))
+        {
+          var sheet = package.Workbook.Worksheets.Add("New Sheet");
+          sheet.Cells[3, 3].Value = new[] { 5, 6, 7 };
+          package.Save();
+        }
+        using (ExcelPackage package = new ExcelPackage(file))
+        {
+          var sheet = package.Workbook.Worksheets["New Sheet"];
+          Assert.AreEqual((double)5, sheet.Cells[3, 3].Value);
+        }
+      }
+      finally
+      {
+        if (file.Exists)
+          file.Delete();
+      }
+    }
+  }
 }
