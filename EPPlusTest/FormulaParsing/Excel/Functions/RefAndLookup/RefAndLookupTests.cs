@@ -11,6 +11,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using AddressFunction = OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup.Address;
 
 namespace EPPlusTest.Excel.Functions
@@ -23,7 +24,7 @@ namespace EPPlusTest.Excel.Functions
         public void LookupArgumentsShouldSetSearchedValue()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2);
-            var lookupArgs = new LookupArguments(args);
+            var lookupArgs = new LookupArguments(args, ParsingContext.Create());
             Assert.AreEqual(1, lookupArgs.SearchedValue);
         }
 
@@ -31,7 +32,7 @@ namespace EPPlusTest.Excel.Functions
         public void LookupArgumentsShouldSetRangeAddress()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2);
-            var lookupArgs = new LookupArguments(args);
+            var lookupArgs = new LookupArguments(args, ParsingContext.Create());
             Assert.AreEqual("A:B", lookupArgs.RangeAddress);
         }
 
@@ -39,7 +40,7 @@ namespace EPPlusTest.Excel.Functions
         public void LookupArgumentsShouldSetColIndex()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2);
-            var lookupArgs = new LookupArguments(args);
+            var lookupArgs = new LookupArguments(args, ParsingContext.Create());
             Assert.AreEqual(2, lookupArgs.LookupIndex);
         }
 
@@ -47,7 +48,7 @@ namespace EPPlusTest.Excel.Functions
         public void LookupArgumentsShouldSetRangeLookupToTrueAsDefaultValue()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2);
-            var lookupArgs = new LookupArguments(args);
+            var lookupArgs = new LookupArguments(args, ParsingContext.Create());
             Assert.IsTrue(lookupArgs.RangeLookup);
         }
 
@@ -55,7 +56,7 @@ namespace EPPlusTest.Excel.Functions
         public void LookupArgumentsShouldSetRangeLookupToTrueWhenTrueIsSupplied()
         {
             var args = FunctionsHelper.CreateArgs(1, "A:B", 2, true);
-            var lookupArgs = new LookupArguments(args);
+            var lookupArgs = new LookupArguments(args, ParsingContext.Create());
             Assert.IsTrue(lookupArgs.RangeLookup);
         }
 
@@ -166,8 +167,8 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(expectedResult, result.Result);
         }
 
-        [TestMethod, ExpectedException(typeof(ExcelErrorValueException))]
-        public void HLookupShouldThrowIfNoMatchingRecordIsFoundWhenRangeLookupIsTrue()
+        [TestMethod]
+        public void HLookupShouldReturnErrorIfNoMatchingRecordIsFoundWhenRangeLookupIsTrue()
         {
             var func = new HLookup();
             var args = FunctionsHelper.CreateArgs(1, "A1:B2", 2, true);
@@ -183,6 +184,7 @@ namespace EPPlusTest.Excel.Functions
 
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
+            Assert.AreEqual(result.DataType, DataType.ExcelError);
         }
 
         [TestMethod]
@@ -352,6 +354,22 @@ namespace EPPlusTest.Excel.Functions
             parsingContext.ExcelDataProvider = provider;
             var result = func.Execute(args, parsingContext);
             Assert.AreEqual(1, result.Result);
+        }
+
+        [TestMethod, Ignore]
+        public void MatchShouldHandleAddressOnOtherSheet()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells["A1"].Formula = "Match(10, Sheet2!A1:Sheet2!A3, 0)";
+                sheet2.Cells["A1"].Value = 9;
+                sheet2.Cells["A2"].Value = 10;
+                sheet2.Cells["A3"].Value = 11;
+                sheet1.Calculate();
+                Assert.AreEqual(2, sheet1.Cells["A1"].Value);
+            }    
         }
 
         [TestMethod]

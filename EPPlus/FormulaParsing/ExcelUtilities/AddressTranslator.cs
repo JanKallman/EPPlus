@@ -80,7 +80,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
         /// <param name="behaviour"></param>
         public virtual void ToColAndRow(string address, out int col, out int row, RangeCalculationBehaviour behaviour)
         {
-            address = address.ToUpper(CultureInfo.InvariantCulture);
+            address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
             var alphaPart = GetAlphaPart(address);
             col = 0;
             var nLettersInAlphabet = 26;

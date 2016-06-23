@@ -762,6 +762,7 @@ namespace OfficeOpenXml
                 _workbook = null;
                 _stream = null;
                 _workbook = null;
+                GC.Collect();
             }
 		}
 		#endregion
@@ -776,6 +777,14 @@ namespace OfficeOpenXml
         {
             try
             {
+                if (_stream is MemoryStream && _stream.Length > 0)
+                {
+                    //Close any open memorystream and "renew" then. This can occure if the package is saved twice. 
+                    //The stream is left open on save to enable the user to read the stream-property.
+                    //Non-memorystream streams will leave the closing to the user before saving a second time.
+                    CloseStream();
+                }
+
                 Workbook.Save();
                 if (File == null)
                 {
@@ -860,7 +869,7 @@ namespace OfficeOpenXml
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
-        /// The package is closed after it ha
+        /// The package is closed after it has ben saved
         /// d to encrypt the workbook with. 
         /// </summary>
         /// <param name="password">This parameter overrides the Workbook.Encryption.Password.</param>
@@ -953,6 +962,20 @@ namespace OfficeOpenXml
             {
                 _file = value;
             }
+        }
+        /// <summary>
+        /// Close the internal stream
+        /// </summary>
+        internal void CloseStream()
+        {
+            // Issue15252: Clear output buffer
+            if (_stream != null)
+            {
+                _stream.Close();
+                _stream.Dispose();
+            }
+
+            _stream = new MemoryStream();
         }
         /// <summary>
         /// The output stream. This stream is the not the encrypted package.

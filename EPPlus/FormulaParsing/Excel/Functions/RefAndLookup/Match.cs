@@ -51,11 +51,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             ValidateArguments(arguments, 2);
 
             var searchedValue = arguments.ElementAt(0).Value;
-            var address = ArgToString(arguments, 1);
+            var address =  arguments.ElementAt(1).IsExcelRange ? arguments.ElementAt(1).ValueAsRangeInfo.Address.FullAddress : ArgToString(arguments, 1);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var rangeAddress = rangeAddressFactory.Create(address);
             var matchType = GetMatchType(arguments);
-            var args = new LookupArguments(searchedValue, address, 0, 0, false);
+            var args = new LookupArguments(searchedValue, address, 0, 0, false, arguments.ElementAt(1).ValueAsRangeInfo);
             var lookupDirection = GetLookupDirection(rangeAddress);
             var navigator = LookupNavigatorFactory.Create(lookupDirection, args, context);
             int? lastMatchResult = default(int?);

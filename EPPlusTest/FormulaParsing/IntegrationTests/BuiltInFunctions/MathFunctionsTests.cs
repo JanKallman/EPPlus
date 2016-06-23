@@ -86,13 +86,6 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
-        public void SumIfShouldReturnCorrectResult()
-        {
-            var result = _parser.Parse("sumIf({1;2;3;2}, 2)");
-            Assert.AreEqual(4d, result);
-        }
-
-        [TestMethod]
         public void SubtotalShouldNegateExpression()
         {
             var result = _parser.Parse("-subtotal(2;{1;2})");

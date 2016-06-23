@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{7B288026-5502-4A39-BF41-77E086F3E4A3}</ProjectGuid>
+    <ProjectGuid>{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OfficeOpenXml</RootNamespace>
@@ -54,8 +54,7 @@
     <DocumentationFile>bin\Debug\EPPlus.XML</DocumentationFile>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <NoWarn>
-    </NoWarn>
+    <NoWarn>15191, CS1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -70,17 +69,11 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release 4.0|AnyCPU'">
-    <OutputPath>bin\Release 4.0\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <DocumentationFile>bin\Release 4.0\EPPlus.XML</DocumentationFile>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevTest|AnyCPU'">
+    <OutputPath>bin\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
@@ -218,6 +211,7 @@
     </Compile>
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
+    <Compile Include="FontSize.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationAny.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationCustom.cs" />
@@ -289,6 +283,7 @@
     <Compile Include="ExcelEncryption.cs" />
     <Compile Include="ExcelProtectedRange.cs" />
     <Compile Include="ExcelProtectedRangeCollection.cs" />
+    <Compile Include="ExcelRangeCopyOptionFlags.cs" />
     <Compile Include="ExcelStyleCollection.cs" />
     <Compile Include="ExcelColumn.cs" />
     <Compile Include="Drawing\ExcelDrawings.cs" />
@@ -313,12 +308,12 @@
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressInfo.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressUtil.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelReferenceType.cs" />
+    <Compile Include="FormulaParsing\ExcelUtilities\ExpressionEvaluator.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependencies.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependency.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\FormulaDependencyFactory.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\IndexToAddressTranslator.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\LookupValueMatcher.cs" />
-    <Compile Include="FormulaParsing\ExcelUtilities\NumericExpressionEvaluator.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddress.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\RangeAddressFactory.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ValueMatcher.cs" />
@@ -450,6 +445,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Math\Power.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Product.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Quotient.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Math\Rank.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Rand.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RandBetween.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\Round.cs" />
@@ -508,6 +504,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Text\Len.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Lower.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Rept.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Text\Search.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Text.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Mid.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Text\Proper.cs" />

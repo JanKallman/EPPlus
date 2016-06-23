@@ -340,7 +340,6 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.Tables)
             {
                 string xml=tbl.TableXml.OuterXml;
-                int Id = _pck.Workbook._nextTableID++;
                 string name;
                 if (prevName == "")
                 {
@@ -355,6 +354,7 @@ namespace OfficeOpenXml
                         name = string.Format("Table{0}", ++ix);
                     }
                 }
+                int Id = _pck.Workbook._nextTableID++;
                 prevName = name;
                 XmlDocument xmlDoc = new XmlDocument();
                 xmlDoc.LoadXml(xml);
@@ -363,7 +363,10 @@ namespace OfficeOpenXml
                 xmlDoc.SelectSingleNode("//d:table/@displayName", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
-                var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
+                //var uriTbl = new Uri(string.Format("/xl/tables/table{0}.xml", Id), UriKind.Relative);
+                var uriTbl = GetNewUri(_pck.Package, "/xl/tables/table{0}.xml", ref Id);
+                if (_pck.Workbook._nextTableID < Id) _pck.Workbook._nextTableID = Id;
+
                 var part = _pck.Package.CreatePart(uriTbl, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
@@ -399,7 +402,6 @@ namespace OfficeOpenXml
             foreach (var tbl in Copy.PivotTables)
             {
                 string xml = tbl.PivotTableXml.OuterXml;
-                int Id = _pck.Workbook._nextPivotTableID++;
 
                 string name;
                 if (prevName == "")
@@ -424,20 +426,23 @@ namespace OfficeOpenXml
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
-                var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
+                int Id = _pck.Workbook._nextPivotTableID++;
+                //var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
+                var uriTbl = GetNewUri(_pck.Package, "/xl/pivotTables/pivotTable{0}.xml", ref Id);
+                if (_pck.Workbook._nextPivotTableID < Id) _pck.Workbook._nextPivotTableID = Id;
                 var partTbl = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(partTbl.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
                 //streamTbl.Close();
                 streamTbl.Flush();
 
-                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;                
-                var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
-                while (_pck.Package.PartExists(uriCd))
-                {
-                    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
-                }
-
+                xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;
+                //var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
+                //while (_pck.Package.PartExists(uriCd))
+                //{
+                //    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
+                //}
+                var uriCd = GetNewUri(_pck.Package, "/xl/pivotCache/pivotcachedefinition{0}.xml", ref Id);
                 var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotCacheDefinition, _pck.Compression);
                 StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
                 streamCd.Write(xml);
@@ -518,7 +523,7 @@ namespace OfficeOpenXml
             Dictionary<int, int> styleCashe = new Dictionary<int, int>();
             //Cells
             int row,col;
-            var val = new CellsStoreEnumerator<object>(Copy._values);
+            var val = new CellsStoreEnumerator<ExcelCoreValue>(Copy._values);
             //object f=null;
             //foreach (var addr in val)
             while(val.Next())
@@ -531,12 +536,12 @@ namespace OfficeOpenXml
                 int styleID=0;
                 if (row == 0) //Column
                 {
-                    var c = Copy._values.GetValue(row, col) as ExcelColumn;
+                    var c = Copy.GetValueInner(row, col) as ExcelColumn;
                     if (c != null)
                     {
                         var clone = c.Clone(added, c.ColumnMin);
                         clone.StyleID = c.StyleID;
-                        added._values.SetValue(row, col, clone);
+                        added.SetValueInner(row, col, clone);
                         styleID = c.StyleID;
                     }
                 }
@@ -547,7 +552,7 @@ namespace OfficeOpenXml
                     {
                         r.Clone(added);
                         styleID = r.StyleID;
-                        //added._values.SetValue(row, col, r.Clone(added));                                                
+                        //added.SetValueInner(row, col, r.Clone(added));                                                
                     }
                     
                 }
@@ -559,13 +564,13 @@ namespace OfficeOpenXml
                 {
                     if (styleCashe.ContainsKey(styleID))
                     {
-                        added._styles.SetValue(row, col, styleCashe[styleID]);
+                        added.SetStyleInner(row, col, styleCashe[styleID]);
                     }
                     else
                     {
                         var s = added.Workbook.Styles.CloneStyle(Copy.Workbook.Styles, styleID);
                         styleCashe.Add(styleID, s);
-                        added._styles.SetValue(row, col, s);
+                        added.SetStyleInner(row, col, s);
                     }
                 }
             }
@@ -574,12 +579,12 @@ namespace OfficeOpenXml
 
         private int CopyValues(ExcelWorksheet Copy, ExcelWorksheet added, int row, int col)
         {
-            added._values.SetValue(row, col, Copy._values.GetValue(row, col));
-            var t = Copy._types.GetValue(row, col);
-            if (t != null)
-            {
-                added._types.SetValue(row, col, t);
-            }
+            added.SetValueInner(row, col, Copy.GetValueInner(row, col));
+            //var t = Copy._types.GetValue(row, col);
+            //if (t != null)
+            //{
+            //    added._types.SetValue(row, col, t);
+            //}
             byte fl=0;
             if (Copy._flags.Exists(row,col,ref fl))
             {
@@ -591,10 +596,10 @@ namespace OfficeOpenXml
             {
                 added.SetFormula(row, col, v);
             }
-            var s = Copy._styles.GetValue(row, col);
+            var s = Copy.GetStyleInner(row, col);
             if (s != 0)
             {
-                added._styles.SetValue(row, col, s);
+                added.SetStyleInner(row, col, s);
             }
             var f = Copy._formulas.GetValue(row, col);
             if (f != null)
@@ -672,8 +677,10 @@ namespace OfficeOpenXml
                 XmlElement e = workSheet.WorksheetXml.SelectSingleNode("//d:drawing", _namespaceManager) as XmlElement;
                 e.SetAttribute("id",ExcelPackage.schemaRelationships, drawRelation.Id);
 
-                foreach (ExcelDrawing draw in Copy.Drawings)
+                for(int i=0;i<Copy.Drawings.Count;i++)
                 {
+                    ExcelDrawing draw = Copy.Drawings[i];
+                    draw.AdjustPositionAndSize();       //Adjust position for any change in normal style font/row size etc.
                     if (draw is ExcelChart)
                     {
                         ExcelChart chart = draw as ExcelChart;
@@ -698,7 +705,7 @@ namespace OfficeOpenXml
                         if(!workSheet.Workbook._package.Package.PartExists(uri))
                         {
                             var picPart = workSheet.Workbook._package.Package.CreatePart(uri, pic.ContentType, CompressionLevel.None);
-                            pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), pic.ImageFormat);
+                            pic.Image.Save(picPart.GetStream(FileMode.Create, FileAccess.Write), ExcelPicture.GetImageFormat(pic.ContentType));
                         }
                         
                         var rel = part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri, uri), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
@@ -724,7 +731,19 @@ namespace OfficeOpenXml
                // streamDrawing.Close();
                 streamDrawing.Flush();
 
-            //}
+            //Copy the size variables to the copy.
+            for (int i=0;i<Copy.Drawings.Count;i++)
+            {
+                var draw = Copy.Drawings[i];
+                var c = workSheet.Drawings[i];
+                if (c != null)
+                {
+                    c._left = draw._left;
+                    c._top = draw._top;
+                    c._height = draw._height;
+                    c._width = draw._width;
+                }
+            }
         }
 
 		private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)
@@ -806,6 +825,10 @@ namespace OfficeOpenXml
             if (Name.Trim() == "")
             {
                 throw new ArgumentException("The worksheet can not have an empty name");
+            }
+            if (Name.StartsWith("'") || Name.EndsWith("'"))
+            {
+              throw new ArgumentException("The worksheet name can not start or end with an apostrophe.");
             }
             if (Name.Length > 31) Name = Name.Substring(0, 31);   //A sheet can have max 31 char's            
             return Name;

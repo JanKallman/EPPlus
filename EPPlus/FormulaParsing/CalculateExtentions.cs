@@ -157,7 +157,7 @@ namespace OfficeOpenXml
                 {
                     throw (fe);
                 }
-                catch 
+                catch(Exception e)
                 {
                     var error = ExcelErrorValue.Parse(ExcelErrorValue.Values.Value);
                     SetValue(wb, item, error);
@@ -197,7 +197,7 @@ namespace OfficeOpenXml
             else
             {
                 var sheet = workbook.Worksheets.GetBySheetID(item.SheetID);
-                sheet._values.SetValue(item.Row, item.Column, v);
+                sheet.SetValueInner(item.Row, item.Column, v);
             }
         }
     }

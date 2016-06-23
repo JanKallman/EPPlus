@@ -12,21 +12,18 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class CountIf : ExcelFunction
     {
-        private readonly NumericExpressionEvaluator _numericExpressionEvaluator;
-        private readonly WildCardValueMatcher _wildCardValueMatcher;
+        private readonly ExpressionEvaluator _expressionEvaluator;
 
         public CountIf()
-            : this(new NumericExpressionEvaluator(), new WildCardValueMatcher())
+            : this(new ExpressionEvaluator())
         {
 
         }
 
-        public CountIf(NumericExpressionEvaluator evaluator, WildCardValueMatcher wildCardValueMatcher)
+        public CountIf(ExpressionEvaluator evaluator)
         {
             Require.That(evaluator).Named("evaluator").IsNotNull();
-            Require.That(wildCardValueMatcher).Named("wildCardValueMatcher").IsNotNull();
-            _numericExpressionEvaluator = evaluator;
-            _wildCardValueMatcher = wildCardValueMatcher;
+            _expressionEvaluator = evaluator;
         }
 
         private bool Evaluate(object obj, string expression)
@@ -38,10 +35,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             if (candidate.HasValue)
             {
-                return _numericExpressionEvaluator.Evaluate(candidate.Value, expression);
+                return _expressionEvaluator.Evaluate(candidate.Value, expression);
             }
-            if (obj == null) return false;
-            return _wildCardValueMatcher.IsMatch(expression, obj.ToString()) == 0;
+            return _expressionEvaluator.Evaluate(obj, expression);
         }
 
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
@@ -49,15 +45,19 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 2);
             var range = functionArguments.ElementAt(0);
-            var criteria = ArgToString(functionArguments, 1);
+            var criteria = functionArguments.ElementAt(1).ValueFirst != null ? ArgToString(functionArguments, 1) : null;
             double result = 0d;
             if (range.IsExcelRange)
             {
-                foreach (var cell in range.ValueAsRangeInfo)
+                ExcelDataProvider.IRangeInfo rangeInfo = range.ValueAsRangeInfo;
+                for (int row = rangeInfo.Address.Start.Row; row < rangeInfo.Address.End.Row + 1; row++)
                 {
-                    if (Evaluate(cell.Value, criteria))
+                    for (int col = rangeInfo.Address.Start.Column; col < rangeInfo.Address.End.Column + 1; col++)
                     {
-                        result++;
+                        if (criteria != null && Evaluate(rangeInfo.Worksheet.GetValue(row, col), criteria))
+                        {
+                            result++;
+                        }
                     }
                 }
             }

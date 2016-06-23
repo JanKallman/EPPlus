@@ -77,8 +77,18 @@ namespace OfficeOpenXml.Drawing.Chart
                _xSeriesTopPath = "c:cat";
            }
            _seriesPath = string.Format(_seriesPath, _seriesTopPath);
-           _xSeriesPath = string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:numRef");
-       }
+
+            var np = string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:numRef");
+            var sp= string.Format(_xSeriesPath, _xSeriesTopPath, isPivot ? "c:multiLvlStrRef" : "c:strRef");
+            if(ExistNode(sp))
+            {
+                _xSeriesPath = sp;
+            }
+            else
+            {
+                _xSeriesPath = np;
+            }
+        }
        internal void SetID(string id)
        {
            SetXmlNodeString("c:idx/@val",id);
@@ -154,8 +164,8 @@ namespace OfficeOpenXml.Drawing.Chart
            {
                CreateNode(_seriesPath,true);
                SetXmlNodeString(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
-               
-               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
+
+                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
                if (cache != null)
                {
                    cache.ParentNode.RemoveChild(cache);
@@ -190,18 +200,35 @@ namespace OfficeOpenXml.Drawing.Chart
                CreateNode(_xSeriesPath, true);
                SetXmlNodeString(_xSeriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
-               XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_xSeriesTopPath), _ns);
-               if (cache != null)
-               {
-                   cache.ParentNode.RemoveChild(cache);
-               }
+                if(_xSeriesPath.IndexOf("c:numRef")>0)
+                {
+                    XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache", _xSeriesTopPath), _ns);
+                    if (cache != null)
+                    {
+                        cache.ParentNode.RemoveChild(cache);
+                    }
 
-               XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_xSeriesTopPath), _ns);
-               if (lit != null)
-               {
-                   lit.ParentNode.RemoveChild(lit);
-               }
-           }
+                    XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit", _xSeriesTopPath), _ns);
+                    if (lit != null)
+                    {
+                        lit.ParentNode.RemoveChild(lit);
+                    }
+                }
+                else
+                {
+                    XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:strRef/c:strCache", _xSeriesTopPath), _ns);
+                    if (cache != null)
+                    {
+                        cache.ParentNode.RemoveChild(cache);
+                    }
+
+                    XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:strLit", _xSeriesTopPath), _ns);
+                    if (lit != null)
+                    {
+                        lit.ParentNode.RemoveChild(lit);
+                    }
+                }
+            }
        }
        ExcelChartTrendlineCollection _trendLines = null;
        /// <summary>
@@ -218,5 +245,29 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _trendLines;
             }
         }
-   }
+        ExcelDrawingFill _fill = null;
+        public ExcelDrawingFill Fill
+        {
+            get
+            {
+                if (_fill == null)
+                {
+                    _fill = new ExcelDrawingFill(NameSpaceManager, TopNode, "c:spPr");
+                }
+                return _fill;
+            }
+        }
+        ExcelDrawingBorder _border = null;
+        public ExcelDrawingBorder Border
+        {
+            get
+            {
+                if (_border == null)
+                {
+                    _border = new ExcelDrawingBorder(NameSpaceManager, TopNode, "c:spPr/a:ln");
+                }
+                return _border;
+            }
+        }
+    }
 }

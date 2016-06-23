@@ -16,7 +16,7 @@ namespace OfficeOpenXml.FormulaParsing
         public class RangeInfo : IRangeInfo
         {
             internal ExcelWorksheet _ws;
-            CellsStoreEnumerator<object> _values = null;
+            CellsStoreEnumerator<ExcelCoreValue> _values = null;
             int _fromRow, _toRow, _fromCol, _toCol;
             int _cellCount = 0;
             ExcelAddressBase _address;
@@ -31,7 +31,20 @@ namespace OfficeOpenXml.FormulaParsing
                 _toCol = toCol;
                 _address = new ExcelAddressBase(_fromRow, _fromCol, _toRow, _toCol);
                 _address._ws = ws.Name;
-                _values = new CellsStoreEnumerator<object>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
+                _values = new CellsStoreEnumerator<ExcelCoreValue>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
+                _cell = new CellInfo(_ws, _values);
+            }
+
+            public RangeInfo(ExcelWorksheet ws, ExcelAddressBase address)
+            {
+                _ws = ws;
+                _fromRow = address._fromRow;
+                _fromCol = address._fromCol;
+                _toRow = address._toRow;
+                _toCol = address._toCol;
+                _address = address;
+                _address._ws = ws.Name;
+                _values = new CellsStoreEnumerator<ExcelCoreValue>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
                 _cell = new CellInfo(_ws, _values);
             }
 
@@ -164,8 +177,8 @@ namespace OfficeOpenXml.FormulaParsing
         public class CellInfo : ICellInfo
         {
             ExcelWorksheet _ws;
-            CellsStoreEnumerator<object> _values;
-            internal CellInfo(ExcelWorksheet ws, CellsStoreEnumerator<object> values)
+            CellsStoreEnumerator<ExcelCoreValue> _values;
+            internal CellInfo(ExcelWorksheet ws, CellsStoreEnumerator<ExcelCoreValue> values)
             {
                 _ws = ws;
                 _values = values;
@@ -195,22 +208,22 @@ namespace OfficeOpenXml.FormulaParsing
 
             public object Value
             {
-                get { return _values.Value; }
+                get { return _values.Value._value; }
             }
             
             public double ValueDouble
             {
-                get { return ConvertUtil.GetValueDouble(_values.Value, true); }
+                get { return ConvertUtil.GetValueDouble(_values.Value._value, true); }
             }
             public double ValueDoubleLogical
             {
-                get { return ConvertUtil.GetValueDouble(_values.Value, false); }
+                get { return ConvertUtil.GetValueDouble(_values.Value._value, false); }
             }
             public bool IsHiddenRow
             {
                 get 
                 { 
-                    var row=_ws._values.GetValue(_values.Row, 0) as RowInternal;
+                    var row=_ws.GetValueInner(_values.Row, 0) as RowInternal;
                     if(row != null)
                     {
                         return row.Hidden || row.Height==0;
@@ -224,7 +237,7 @@ namespace OfficeOpenXml.FormulaParsing
 
             public bool IsExcelError
             {
-                get { return ExcelErrorValue.Values.IsErrorValue(_values.Value); }
+                get { return ExcelErrorValue.Values.IsErrorValue(_values.Value._value); }
             }
 
             public IList<Token> Tokens
@@ -294,7 +307,7 @@ namespace OfficeOpenXml.FormulaParsing
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
-            return new RangeInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
+            return new RangeInfo(ws, addr);
         }
         public override INameInfo GetName(string worksheet, string name)
         {
@@ -362,13 +375,13 @@ namespace OfficeOpenXml.FormulaParsing
             var addr = new ExcelAddress(address);
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
-            return (new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol));
+            return (IEnumerable<object>)(new CellsStoreEnumerator<ExcelCoreValue>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol));
         }
 
 
         public object GetValue(int row, int column)
         {
-            return _currentWorksheet._values.GetValue(row, column);
+            return _currentWorksheet.GetValueInner(row, column);
         }
 
         public bool IsMerged(int row, int column)
@@ -386,7 +399,7 @@ namespace OfficeOpenXml.FormulaParsing
         public override object GetCellValue(string sheetName, int row, int col)
         {
             SetCurrentWorksheet(sheetName);
-            return _currentWorksheet._values.GetValue(row, col);
+            return _currentWorksheet.GetValueInner(row, col);
         }
 
         public override ExcelCellAddress GetDimensionEnd(string worksheet)

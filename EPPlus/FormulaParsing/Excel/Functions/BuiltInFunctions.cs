@@ -57,6 +57,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["find"] = new Find();
             Functions["fixed"] = new Fixed();
             Functions["proper"] = new Proper();
+            Functions["search"] = new Search();
             Functions["text"] = new Text.Text();
             Functions["t"] = new T();
             Functions["hyperlink"] = new Hyperlink();
@@ -114,6 +115,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["roundup"] = new Roundup();
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
+            Functions["rank"] = new Rank();
             Functions["quotient"] = new Quotient();
             Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
