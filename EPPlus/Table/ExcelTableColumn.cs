@@ -113,7 +113,7 @@ namespace OfficeOpenXml.Table
             set
             {
                 var v = ConvertUtil.ExcelEncodeString(value);
-                SetXmlNodeString("@name", v);
+                SetXmlNodeString("@name", value);
                 if (_tbl.ShowHeader)
                 {
                     _tbl.WorkSheet.SetValue(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position, value);

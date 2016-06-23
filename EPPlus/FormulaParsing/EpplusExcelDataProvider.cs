@@ -35,6 +35,19 @@ namespace OfficeOpenXml.FormulaParsing
                 _cell = new CellInfo(_ws, _values);
             }
 
+            public RangeInfo(ExcelWorksheet ws, ExcelAddressBase address)
+            {
+                _ws = ws;
+                _fromRow = address._fromRow;
+                _fromCol = address._fromCol;
+                _toRow = address._toRow;
+                _toCol = address._toCol;
+                _address = address;
+                _address._ws = ws.Name;
+                _values = new CellsStoreEnumerator<ExcelCoreValue>(ws._values, _fromRow, _fromCol, _toRow, _toCol);
+                _cell = new CellInfo(_ws, _values);
+            }
+
             public int GetNCells()
             {
                 return ((_toRow - _fromRow) + 1) * ((_toCol - _fromCol) + 1);
@@ -294,7 +307,7 @@ namespace OfficeOpenXml.FormulaParsing
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
             var ws = _package.Workbook.Worksheets[wsName];
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
-            return new RangeInfo(ws, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
+            return new RangeInfo(ws, addr);
         }
         public override INameInfo GetName(string worksheet, string name)
         {

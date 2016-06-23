@@ -31,38 +31,35 @@
  * Jan Källman		    License changed GPL-->LGPL  2011-12-27
  *******************************************************************************/
 using System;
-using System.Xml;
 using System.Collections.Generic;
-using System.IO;
-using System.Configuration;
-using OfficeOpenXml.Drawing;
-using System.Diagnostics;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
-using OfficeOpenXml.Style;
-using System.Globalization;
-using System.Text;
-using System.Security;
-using OfficeOpenXml.Drawing.Chart;
-using OfficeOpenXml.Style.XmlAccess;
-using System.Text.RegularExpressions;
-using OfficeOpenXml.Drawing.Vml;
-using OfficeOpenXml.Table;
-using OfficeOpenXml.DataValidation;
-using OfficeOpenXml.Table.PivotTable;
 using System.ComponentModel;
 using System.Drawing;
+using System.Globalization;
+using System.IO;
+using System.Security;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
 using OfficeOpenXml.ConditionalFormatting;
-using OfficeOpenXml.Utils;
-using Ionic.Zip;
+using OfficeOpenXml.DataValidation;
+using OfficeOpenXml.Drawing;
+using OfficeOpenXml.Drawing.Chart;
+using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using OfficeOpenXml.Style.XmlAccess;
+using OfficeOpenXml.Table;
+using OfficeOpenXml.Table.PivotTable;
+using OfficeOpenXml.Utils;
+
+using System.Linq;
+
 namespace OfficeOpenXml
 {
-    /// <summary>
-    /// Worksheet hidden enumeration
-    /// </summary>
-    public enum eWorkSheetHidden
+  /// <summary>
+  /// Worksheet hidden enumeration
+  /// </summary>
+  public enum eWorkSheetHidden
     {
         /// <summary>
         /// The worksheet is visible
@@ -527,6 +524,7 @@ namespace OfficeOpenXml
                             n.ChangeWorksheet(_name, value);
                         }
                     }
+                    ws.UpdateCrossSheetReferenceNames(_name, value);
                 }
             }
         }
@@ -1863,17 +1861,16 @@ namespace OfficeOpenXml
                         a._toRow += rows;
                     }
                     f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
-                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, 0, rowFrom, 0);
+                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, 0, rowFrom, 0, this.Name, this.Name);
                 }
                 var cse = new CellsStoreEnumerator<object>(_formulas);
                 while (cse.Next())
                 {
                     if (cse.Value is string)
                     {
-                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, 0, rowFrom, 0);
+                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, 0, rowFrom, 0, this.Name, this.Name);
                     }
                 }
-
                 FixMergedCellsRow(rowFrom, rows, false);
                 if (copyStylesFromRow > 0)
                 {
@@ -1891,6 +1888,12 @@ namespace OfficeOpenXml
                 {
                     tbl.Address = tbl.Address.AddRow(rowFrom, rows);
                 }
+            }
+
+            // Update cross-sheet references.
+            foreach(var sheet in Workbook.Worksheets.Where(sheet => sheet != this))
+            {
+                sheet.UpdateCrossSheetReferences(this.Name, rowFrom, rows, 0, 0);
             }
         }
         /// <summary>
@@ -1949,7 +1952,7 @@ namespace OfficeOpenXml
                         a._toCol += columns;
                     }
                     f.Address = ExcelAddressBase.GetAddress(a._fromRow, a._fromCol, a._toRow, a._toCol);
-                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, 0, columns, 0, columnFrom);
+                    f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, 0, columns, 0, columnFrom, this.Name, this.Name);
                 }
 
                 var cse = new CellsStoreEnumerator<object>(_formulas);
@@ -1957,7 +1960,7 @@ namespace OfficeOpenXml
                 {
                     if (cse.Value is string)
                     {
-                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, columns, 0, columnFrom);
+                        cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, columns, 0, columnFrom, this.Name, this.Name);
                     }
                 }
 
@@ -2053,6 +2056,11 @@ namespace OfficeOpenXml
 
                     tbl.Address=tbl.Address.AddColumn(columnFrom, columns);
                 }
+            }
+            // Update cross-sheet references.
+            foreach (var sheet in Workbook.Worksheets.Where(sheet => sheet != this))
+            {
+                sheet.UpdateCrossSheetReferences(this.Name, 0, 0, columnFrom, columns);
             }
         }
         private static void InsertTableColumns(int columnFrom, int columns, ExcelTable tbl)
@@ -2308,12 +2316,12 @@ namespace OfficeOpenXml
                     string currentFormulaR1C1;
                     if (rows > 0 || row < startRow)
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row, col), rows, 0, startRow, 0, this.Name, this.Name);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     else
                     {
-                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0);
+                        newFormula = ExcelCellBase.UpdateFormulaReferences(ExcelCellBase.TranslateFromR1C1(formualR1C1, row-rows, col), rows, 0, startRow, 0, this.Name, this.Name);
                         currentFormulaR1C1 = ExcelRangeBase.TranslateToR1C1(newFormula, row, col);
                     }
                     if (currentFormulaR1C1 != prevFormualR1C1) //newFormula.Contains("#REF!"))
@@ -2530,7 +2538,7 @@ namespace OfficeOpenXml
                     if (sf.StartRow > rowFrom)
                     {
                         var r = Math.Min(sf.StartRow - rowFrom, rows);
-                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -r, 0, rowFrom, 0);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, -r, 0, rowFrom, 0, this.Name, this.Name);
                         sf.StartRow -= r;
                     }
                 }
@@ -2545,7 +2553,7 @@ namespace OfficeOpenXml
             {
                 if (cse.Value is string)
                 {
-                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), -rows, 0, rowFrom, 0);
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), -rows, 0, rowFrom, 0, this.Name, this.Name);
                 }
             }
         }
@@ -2566,7 +2574,7 @@ namespace OfficeOpenXml
                     if (sf.StartCol > columnFrom)
                     {
                         var c = Math.Min(sf.StartCol - columnFrom, columns);
-                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, 1);
+                        sf.Formula = ExcelCellBase.UpdateFormulaReferences(sf.Formula, 0, -c, 0, 1, this.Name, this.Name);
                         sf.StartCol-= c;
                     }
 
@@ -2588,7 +2596,7 @@ namespace OfficeOpenXml
             {
                 if (cse.Value is string)
                 {
-                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, -columns, 0, columnFrom);
+                    cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), 0, -columns, 0, columnFrom, this.Name, this.Name);
                 }
             }
         }
@@ -2839,11 +2847,51 @@ namespace OfficeOpenXml
         }
 
         #endregion
-		#endregion // END Worksheet Public Methods
+        #endregion // END Worksheet Public Methods
 
-		#region Worksheet Private Methods
+        #region Worksheet Private Methods
+        private void UpdateCrossSheetReferences(string sheetWhoseReferencesShouldBeUpdated, int rowFrom, int rows, int columnFrom, int columns)
+        {
+          lock (this)
+          {
+            foreach (var f in _sharedFormulas.Values)
+            {
+              f.Formula = ExcelCellBase.UpdateFormulaReferences(f.Formula, rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+            }
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+              if (cse.Value is string)
+              {
+                cse.Value = ExcelCellBase.UpdateFormulaReferences(cse.Value.ToString(), rows, columns, rowFrom, columnFrom, this.Name, sheetWhoseReferencesShouldBeUpdated);
+              }
+            }
+          }
+        }
 
-		#region Worksheet Save
+        private void UpdateCrossSheetReferenceNames(string oldName, string newName)
+        {
+          if (string.IsNullOrEmpty(oldName))
+            throw new ArgumentNullException(nameof(oldName));
+          if (string.IsNullOrEmpty(newName))
+            throw new ArgumentNullException(nameof(newName));
+          lock (this)
+          {
+            foreach (var f in _sharedFormulas.Values)
+            {
+              f.Formula = ExcelCellBase.UpdateFormulaSheetReferences(f.Formula, oldName, newName);
+            }
+            var cse = new CellsStoreEnumerator<object>(_formulas);
+            while (cse.Next())
+            {
+              if (cse.Value is string)
+              {
+                cse.Value = ExcelCellBase.UpdateFormulaSheetReferences(cse.Value.ToString(), oldName, newName);
+              }
+            }
+          }
+        }
+        #region Worksheet Save
         internal void Save()
         {
                 DeletePrinterSettings();
@@ -3096,15 +3144,15 @@ namespace OfficeOpenXml
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
                         }                        
                         colVal.Add(n);
-                        col.Name = ConvertUtil.ExcelEncodeString(col.Name);
-                        if (tbl.ShowHeader)
-                        {
-                            SetValueInner(tbl.Address._fromRow, colNum, col.Name);
-                        }
-                        if (tbl.ShowTotal)
-                        {
-                            SetTableTotalFunction(tbl, col, colNum);
-                        }
+                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
+                        //if (tbl.ShowHeader)
+                        //{
+                        //    SetValueInner(tbl.Address._fromRow, colNum, col.Name);
+                        //}
+                        //if (tbl.ShowTotal)
+                        //{
+                        //    SetTableTotalFunction(tbl, col, colNum);
+                        //}
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
                             int fromRow = tbl.ShowHeader ? tbl.Address._fromRow + 1 : tbl.Address._fromRow;
@@ -3120,7 +3168,9 @@ namespace OfficeOpenXml
                 }                
                 if (tbl.Part == null)
                 {
-                    tbl.TableUri = GetNewUri(_package.Package, @"/xl/tables/table{0}.xml", tbl.Id);
+                    var id = tbl.Id;
+                    tbl.TableUri = GetNewUri(_package.Package, @"/xl/tables/table{0}.xml", ref id);
+                    tbl.Id = id;
                     tbl.Part = _package.Package.CreatePart(tbl.TableUri, "application/vnd.openxmlformats-officedocument.spreadsheetml.table+xml", Workbook._package.Compression);
                     var stream = tbl.Part.GetStream(FileMode.Create);
                     tbl.TableXml.Save(stream);
@@ -3166,10 +3216,10 @@ namespace OfficeOpenXml
                     case RowFunctions.Average:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "101"));
                         break;
-                    case RowFunctions.Count:
+                    case RowFunctions.CountNums:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "102"));
                         break;
-                    case RowFunctions.CountNums:
+                    case RowFunctions.Count:
                         SetFormula(tbl.Address._toRow, colNum, GetTotalFunction(col, "103"));
                         break;
                     case RowFunctions.Max:
@@ -3602,6 +3652,16 @@ namespace OfficeOpenXml
                         }
                         else if(v != null)
                         {
+                            // Fix for issue 15460
+                            var enumerableResult = v as System.Collections.IEnumerable;
+                            if (enumerableResult != null && !(v is string))
+                            {
+                              var enumerator = enumerableResult.GetEnumerator();
+                              if (enumerator.MoveNext() && enumerator.Current != null)
+                                v = enumerator.Current;
+                              else
+                                v = string.Empty;
+                            }
                             if ((v.GetType().IsPrimitive || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
                                 //string sv = GetValueForXml(v);
@@ -3610,15 +3670,16 @@ namespace OfficeOpenXml
                             }
                             else
                             {
+                                var vString = Convert.ToString(v);
                                 int ix;
-                                if (!ss.ContainsKey(v.ToString()))
+                                if (!ss.ContainsKey(vString))
                                 {
                                     ix = ss.Count;
-                                    ss.Add(v.ToString(), new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
+                                    ss.Add(vString, new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
                                 }
                                 else
                                 {
-                                    ix = ss[v.ToString()].pos;
+                                    ix = ss[vString].pos;
                                 }
                                 cache.AppendFormat("<c r=\"{0}\" s=\"{1}\" t=\"s\">", cse.CellAddress, styleID < 0 ? 0 : styleID);
                                 cache.AppendFormat("<v>{0}</v></c>", ix);
