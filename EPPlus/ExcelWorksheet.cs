@@ -319,7 +319,7 @@ namespace OfficeOpenXml
                         var adr=new ExcelAddressBase(_list[v]);
                         if (!(Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr)==ExcelAddressBase.eAddressCollition.Equal))
                         {
-                            throw(new InvalidOperationException(string.Format("Can't delete merged cells. A range is partly merged with the deleted range. {0}", adr._address)));
+                            throw(new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", adr._address)));
                         }
                         used.Add(v);
                     }
