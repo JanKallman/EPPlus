@@ -1224,22 +1224,21 @@ namespace OfficeOpenXml
 			set
 			{
 				IsRangeValid("merging");
-				//SetMerge(value, FirstAddress);
-			    if (value)
+                _worksheet.MergedCells.Clear(this);
+                if (value)
 			    {
-			        _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
+                    _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
 			        if (Addresses != null)
 			        {
 			            foreach (var address in Addresses)
 			            {
-			                _worksheet.MergedCells.Add(address, true);
-			                //SetMerge(value, address._address);
+                            _worksheet.MergedCells.Clear(address); //Fixes issue 15482
+                            _worksheet.MergedCells.Add(address, true);
 			            }
 			        }
 			    }
 			    else
 			    {
-			        _worksheet.MergedCells.Clear(this);
                     if (Addresses != null)
 			        {
 			            foreach (var address in Addresses)
