@@ -215,7 +215,7 @@ namespace OfficeOpenXml.Style
         }
 
         /// <summary>
-        /// If true the formula has a quote prefix.
+        /// If true the cell has a quote prefix, which indicates the value of the cell is prefixed with a single quote.
         /// </summary>
         public bool QuotePrefix
         {
