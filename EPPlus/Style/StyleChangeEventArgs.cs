@@ -90,7 +90,8 @@ namespace OfficeOpenXml.Style
         GradientLeft,
         GradientRight,
         XfId,
-        Indent
+        Indent,
+        QuotePrefix
     }
     internal class StyleChangeEventArgs : EventArgs
     {
