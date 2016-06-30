@@ -411,7 +411,12 @@ namespace OfficeOpenXml.DataValidation
                 {
                     throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
                 }
-                TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(((ExcelDataValidation)m).TopNode);
+                TopNode.RemoveChild(((ExcelDataValidation)m).TopNode);
+                //var dvNode = TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager);
+                //if (dvNode != null)
+                //{
+                //    dvNode.RemoveChild(((ExcelDataValidation)m).TopNode);
+                //}
             }
             _validations.RemoveAll(match);
             OnValidationCountChanged();
