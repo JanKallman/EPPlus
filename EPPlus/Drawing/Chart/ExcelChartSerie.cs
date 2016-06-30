@@ -165,15 +165,14 @@ namespace OfficeOpenXml.Drawing.Chart
                CreateNode(_seriesPath,true);
                SetXmlNodeString(_seriesPath, ExcelCellBase.GetFullAddress(_chartSeries.Chart.WorkSheet.Name, value));
 
-                XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache",_seriesTopPath), _ns);
-               if (cache != null)
-               {
-                   cache.ParentNode.RemoveChild(cache);
-               }
-
                if (_chartSeries.Chart.PivotTableSource != null)
                {
-                   SetXmlNodeString(string.Format("{0}/c:numRef/c:numCache", _seriesTopPath), "General");
+                    XmlNode cache = TopNode.SelectSingleNode(string.Format("{0}/c:numRef/c:numCache", _seriesTopPath), _ns);
+                    if (cache != null)
+                    {
+                        cache.ParentNode.RemoveChild(cache);
+                    }
+                    SetXmlNodeString(string.Format("{0}/c:numRef/c:numCache", _seriesTopPath), "General");
                }
                
                XmlNode lit = TopNode.SelectSingleNode(string.Format("{0}/c:numLit",_seriesTopPath), _ns);
