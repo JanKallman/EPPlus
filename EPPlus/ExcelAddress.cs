@@ -501,7 +501,7 @@ namespace OfficeOpenXml
             {
                 if (fullAddress == "#REF!")
                 {
-                    SetAddress(ref fullAddress, ref second, ref hasSheet);
+                    SetAddress(ref fullAddress, ref second, ref hasSheet, false);
                     return true;
                 }
                 else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(fullAddress, "!"))
@@ -509,6 +509,7 @@ namespace OfficeOpenXml
                     // invalid address!
                     return false;
                 }
+                bool isMulti = false;
                 for (int i = 0; i < fullAddress.Length; i++)
                 {
                     var c = fullAddress[i];
@@ -571,7 +572,8 @@ namespace OfficeOpenXml
                         }
                         else if (c == ',' && !isText)
                         {
-                            SetAddress(ref first, ref second, ref hasSheet);
+                            isMulti = true;
+                            SetAddress(ref first, ref second, ref hasSheet, isMulti);
                         }
                         else
                         {
@@ -588,7 +590,7 @@ namespace OfficeOpenXml
                 }
                 if (Table == null)
                 {
-                    SetAddress(ref first, ref second, ref hasSheet);
+                    SetAddress(ref first, ref second, ref hasSheet, isMulti);
                 }
                 return true;
             }
@@ -790,7 +792,7 @@ namespace OfficeOpenXml
             return null;
         }
         #endregion
-        private void SetAddress(ref string first, ref string second, ref bool hasSheet)
+        private void SetAddress(ref string first, ref string second, ref bool hasSheet, bool isMulti)
         {
             string ws, address;
             if (hasSheet)
@@ -813,7 +815,7 @@ namespace OfficeOpenXml
                 _firstAddress = address;
                 GetRowColFromAddress(address, out _fromRow, out _fromCol, out _toRow, out  _toCol, out _fromRowFixed, out _fromColFixed, out _toRowFixed, out _toColFixed);
             }
-            else
+            if (isMulti)
             {
                 if (_addresses == null) _addresses = new List<ExcelAddress>();
                 _addresses.Add(new ExcelAddress(_ws, address));
