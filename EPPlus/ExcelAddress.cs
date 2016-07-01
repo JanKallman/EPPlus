@@ -820,6 +820,10 @@ namespace OfficeOpenXml
                 if (_addresses == null) _addresses = new List<ExcelAddress>();
                 _addresses.Add(new ExcelAddress(_ws, address));
             }
+            else
+            {
+                _addresses = null;
+            }
         }
         internal enum AddressType
         {
