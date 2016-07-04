@@ -162,17 +162,12 @@ namespace OfficeOpenXml
                 Range.Address = value;
                 _commentHelper.SetXmlNodeString("@ref", value);
 
-                if (rows != 0 && Row >= a.Start.Row)
-                {
-                    From.Row += rows;
-                    To.Row += rows;
-                }
+                From.Row += rows;
+                To.Row += rows;
 
-                if (cols != 0 && Column >= a.Start.Column)
-                {
-                    From.Column += cols;
-                    To.Column += cols;
-                }
+                From.Column += cols;
+                To.Column += cols;
+
                 Row = Range._fromRow - 1;
                 Column = Range._fromCol - 1;
             }

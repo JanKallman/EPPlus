@@ -172,9 +172,9 @@ namespace OfficeOpenXml
             var elem = CommentXml.CreateElement("comment", ExcelPackage.schemaMain);
             //int ix=_comments.IndexOf(ExcelAddress.GetCellID(Worksheet.SheetID, cell._fromRow, cell._fromCol));
             //Make sure the nodes come on order.
-            int row=0, column=0;
+            int row=cell.Start.Row, column= cell.Start.Column;
             ExcelComment nextComment = null;
-            if (Worksheet._commentsStore.NextCell(ref row, ref column, cell.Start.Row, cell.Start.Column,ExcelPackage.MaxRows, ExcelPackage.MaxColumns))
+            if (Worksheet._commentsStore.NextCell(ref row, ref column))
             {
                 nextComment = _list[Worksheet._commentsStore.GetValue(row, column)];
             }
