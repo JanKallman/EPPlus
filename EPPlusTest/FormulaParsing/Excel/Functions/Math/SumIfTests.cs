@@ -284,6 +284,23 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
+        public void SumIfHandleDates()
+        {
+            _worksheet.Cells["A1"].Value = null;
+            _worksheet.Cells["A2"].Value = string.Empty;
+            _worksheet.Cells["A3"].Value = "Not Empty";
+            _worksheet.Cells["B1"].Value = 1d;
+            _worksheet.Cells["B2"].Value = 3d;
+            _worksheet.Cells["B3"].Value = 5d;
+            var func = new SumIf();
+            IRangeInfo range1 = _provider.GetRange(_worksheet.Name, 1, 1, 3, 1);
+            IRangeInfo range2 = _provider.GetRange(_worksheet.Name, 1, 2, 3, 2);
+            var args = FunctionsHelper.CreateArgs(range1, ">=a", range2);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(5d, result.Result);
+        }
+
+        [TestMethod]
         public void SumIfShouldHandleBooleanArg()
         {
             using (var pck = new ExcelPackage())
