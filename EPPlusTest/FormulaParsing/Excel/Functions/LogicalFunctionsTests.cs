@@ -25,7 +25,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual("A", result.Result);
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void IfShouldIgnoreCase()
         {
             using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\book1.xlsx")))

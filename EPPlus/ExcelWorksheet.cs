@@ -3114,7 +3114,7 @@ namespace OfficeOpenXml
                         SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
-                    _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream());
+                    _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream(FileMode.Create));
                 }
             }
         }
