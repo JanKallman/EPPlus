@@ -148,12 +148,34 @@ namespace OfficeOpenXml
            set; 
         }
 
-		/// <summary>
-		/// Reference
-		/// </summary>
-		public string Reference
+        /// <summary>
+        /// Reference
+        /// </summary>
+        internal string Reference
 		{
 			get { return _commentHelper.GetXmlNodeString("@ref"); }
-		}
+            set
+            {
+                var a = new ExcelAddressBase(value);
+                var rows = a._fromRow - Range._fromRow;
+                var cols= a._fromCol - Range._fromCol;
+                Range.Address = value;
+                _commentHelper.SetXmlNodeString("@ref", value);
+
+                if (rows != 0 && Row >= a.Start.Row)
+                {
+                    From.Row += rows;
+                    To.Row += rows;
+                }
+
+                if (cols != 0 && Column >= a.Start.Column)
+                {
+                    From.Column += cols;
+                    To.Column += cols;
+                }
+                Row = Range._fromRow - 1;
+                Column = Range._fromCol - 1;
+            }
+        }
 	}
 }

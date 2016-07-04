@@ -341,8 +341,8 @@ namespace OfficeOpenXml
 		}
 		private void Exists_Comment(object value, int row, int col)
 		{
-			ulong cellID = GetCellID(_worksheet.SheetID, row, col);
-			if (_worksheet.Comments._comments.ContainsKey(cellID))
+			//ulong cellID = GetCellID(_worksheet.SheetID, row, col);
+			if (_worksheet._commentsStore.Exists(row,col))
 			{
 				throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
 			}
@@ -902,7 +902,7 @@ namespace OfficeOpenXml
 				}
                 var ind = styles.CellXfs[cell.StyleID].Indent;
                 var textForWidth = cell.TextForWidth;
-                var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind*2) : "");
+                var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind) : "");
                 var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
 
                 //var ft = new wm.FormattedText(t, CultureInfo.CurrentCulture, w.FlowDirection.LeftToRight,
@@ -1364,11 +1364,14 @@ namespace OfficeOpenXml
 			get
 			{
 				IsRangeValid("comments");
-				ulong cellID = GetCellID(_worksheet.SheetID, _fromRow, _fromCol);
-				if (_worksheet.Comments._comments.ContainsKey(cellID))
-				{
-					return _worksheet._comments._comments[cellID] as ExcelComment;
-				}
+                var i = -1;
+                if (_worksheet.Comments.Count > 0)
+                {
+                    if (_worksheet._commentsStore.Exists(_fromRow, _fromCol, ref i))
+                    {
+                        return _worksheet._comments[i] as ExcelComment;
+                    }
+                }
 				return null;
 			}
 		}
@@ -1413,7 +1416,14 @@ namespace OfficeOpenXml
 				{
 					foreach (var a in Addresses)
 					{
-						fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); ;
+                        if (a.Address == "#REF!")
+                        {
+                            fullAddress += "," + GetFullAddress(wbwsRef, "#REF!");
+                        }
+                        else
+                        {
+                            fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
+                        }
 					}
 				}
 				return fullAddress;
