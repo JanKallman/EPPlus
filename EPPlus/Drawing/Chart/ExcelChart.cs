@@ -225,6 +225,15 @@ namespace OfficeOpenXml.Drawing.Chart
         X,
     }
     /// <summary>
+    /// The time unit of major and minor datetime axis values
+    /// </summary>
+    public enum eTimeUnit
+    {        
+        Years,
+        Months,
+        Days,
+    }
+    /// <summary>
     /// The build in style of the chart.
     /// </summary>
     public enum eChartStyle
@@ -423,7 +432,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            //_chartXmlHelper = new XmlHelper(drawings.NameSpaceManager, chartNode);
            _chartXmlHelper = XmlHelperFactory.Create(drawings.NameSpaceManager, chartNode);
-           _chartXmlHelper.SchemaNodeOrder = new string[] { "title", "pivotFmt", "autoTitleDeleted", "view3D", "floor", "sideWall", "backWall", "plotArea", "wireframe", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "showDLblsOverMax", "overlap", "bandFmts", "axId", "spPr", "printSettings" };
+           _chartXmlHelper.SchemaNodeOrder = new string[] { "ofPieType", "title", "pivotFmt", "autoTitleDeleted", "view3D", "floor", "sideWall", "backWall", "plotArea", "wireframe", "barDir", "grouping", "scatterStyle", "radarStyle", "varyColors", "ser", "dLbls", "bubbleScale", "showNegBubbles", "dropLines", "upDownBars", "marker", "smooth", "shape", "legend", "plotVisOnly", "dispBlanksAs", "gapWidth", "showDLblsOverMax", "overlap", "bandFmts", "axId", "spPr", "printSettings" };
            WorkSheet = drawings.Worksheet;
        }
        #endregion
@@ -787,7 +796,7 @@ namespace OfficeOpenXml.Drawing.Chart
        private string AddVaryColors()
        {
            if (IsTypePieDoughnut())
-           {
+            {
                return "<c:varyColors val=\"1\" />";
            }
            else

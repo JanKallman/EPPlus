@@ -17,7 +17,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 
         public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
         {
-            if (children.Count() != 2) throw new ExcelErrorValueException(eErrorType.Value);
+            if (children.Count() != 2) return new CompileResult(eErrorType.Value);
             var args = new List<FunctionArgument>();
             Function.BeforeInvoke(context);
             var firstChild = children.First();
