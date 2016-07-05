@@ -3139,6 +3139,7 @@ namespace OfficeOpenXml
                             if (string.IsNullOrEmpty(n))
                             {
                                 n = col.Name.ToLower(CultureInfo.InvariantCulture);
+                                SetValueInner(tbl.Address._fromRow, colNum, ConvertUtil.ExcelDecodeString(col.Name));
                             }
                             else
                             {
@@ -3155,22 +3156,12 @@ namespace OfficeOpenXml
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
                         }                        
                         colVal.Add(n);
-                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
-                        //if (tbl.ShowHeader)
-                        //{
-                        //    SetValueInner(tbl.Address._fromRow, colNum, col.Name);
-                        //}
-                        //if (tbl.ShowTotal)
-                        //{
-                        //    SetTableTotalFunction(tbl, col, colNum);
-                        //}
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
                             int fromRow = tbl.ShowHeader ? tbl.Address._fromRow + 1 : tbl.Address._fromRow;
                             int toRow = tbl.ShowTotal ? tbl.Address._toRow - 1 : tbl.Address._toRow;
                             for (int row = fromRow; row <= toRow; row++)
                             {
-                                //Cell(row, colNum).Formula = col.CalculatedColumnFormula;
                                 SetFormula(row, colNum, col.CalculatedColumnFormula);
                             }                            
                         }
