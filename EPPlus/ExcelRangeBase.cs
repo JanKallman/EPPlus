@@ -341,8 +341,8 @@ namespace OfficeOpenXml
 		}
 		private void Exists_Comment(object value, int row, int col)
 		{
-			ulong cellID = GetCellID(_worksheet.SheetID, row, col);
-			if (_worksheet.Comments._comments.ContainsKey(cellID))
+			//ulong cellID = GetCellID(_worksheet.SheetID, row, col);
+			if (_worksheet._commentsStore.Exists(row,col))
 			{
 				throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
 			}
@@ -387,11 +387,16 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		#region Public Properties
-		/// <summary>
-		/// The styleobject for the range.
-		/// </summary>
-		public ExcelStyle Style
+        internal void UpdateAddress(string address)
+        {
+            throw new NotImplementedException();
+        }
+
+        #region Public Properties
+        /// <summary>
+        /// The styleobject for the range.
+        /// </summary>
+        public ExcelStyle Style
 		{
 			get
 			{
@@ -896,7 +901,8 @@ namespace OfficeOpenXml
                     fontCache.Add(fntID, f);
 				}
                 var ind = styles.CellXfs[cell.StyleID].Indent;
-                var t = cell.TextForWidth + (ind > 0 ? new string('_',ind*2) : "");
+                var textForWidth = cell.TextForWidth;
+                var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind) : "");
                 var size = g.MeasureString(t, f, 10000, StringFormat.GenericDefault);
 
                 //var ft = new wm.FormattedText(t, CultureInfo.CurrentCulture, w.FlowDirection.LeftToRight,
@@ -1223,22 +1229,21 @@ namespace OfficeOpenXml
 			set
 			{
 				IsRangeValid("merging");
-				//SetMerge(value, FirstAddress);
-			    if (value)
+                _worksheet.MergedCells.Clear(this);
+                if (value)
 			    {
-			        _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
+                    _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
 			        if (Addresses != null)
 			        {
 			            foreach (var address in Addresses)
 			            {
-			                _worksheet.MergedCells.Add(address, true);
-			                //SetMerge(value, address._address);
+                            _worksheet.MergedCells.Clear(address); //Fixes issue 15482
+                            _worksheet.MergedCells.Add(address, true);
 			            }
 			        }
 			    }
 			    else
 			    {
-			        _worksheet.MergedCells.Clear(this);
                     if (Addresses != null)
 			        {
 			            foreach (var address in Addresses)
@@ -1359,11 +1364,14 @@ namespace OfficeOpenXml
 			get
 			{
 				IsRangeValid("comments");
-				ulong cellID = GetCellID(_worksheet.SheetID, _fromRow, _fromCol);
-				if (_worksheet.Comments._comments.ContainsKey(cellID))
-				{
-					return _worksheet._comments._comments[cellID] as ExcelComment;
-				}
+                var i = -1;
+                if (_worksheet.Comments.Count > 0)
+                {
+                    if (_worksheet._commentsStore.Exists(_fromRow, _fromCol, ref i))
+                    {
+                        return _worksheet._comments[i] as ExcelComment;
+                    }
+                }
 				return null;
 			}
 		}
@@ -1408,7 +1416,14 @@ namespace OfficeOpenXml
 				{
 					foreach (var a in Addresses)
 					{
-						fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); ;
+                        if (a.Address == "#REF!")
+                        {
+                            fullAddress += "," + GetFullAddress(wbwsRef, "#REF!");
+                        }
+                        else
+                        {
+                            fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
+                        }
 					}
 				}
 				return fullAddress;
@@ -2406,11 +2421,9 @@ namespace OfficeOpenXml
                     //Destination._worksheet._hyperLinks.SetValue(row, col, hl);
                     cell.HyperLink=hl;
                 }
-
-                if(_worksheet._commentsStore.Exists(row, col, ref comment))
-                {
-                    cell.Comment=comment;
-                }
+                
+                // Will just be null if no comment exists.
+                cell.Comment = _worksheet.Cells[cse.Row, cse.Column].Comment;
 
                 if (_worksheet._flags.Exists(row, col, ref flag))
                 {
@@ -2507,7 +2520,7 @@ namespace OfficeOpenXml
 
                 if(cell.Formula!=null)
                 {
-                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, true);
+                    cell.Formula = UpdateFormulaReferences(cell.Formula.ToString(), Destination._fromRow - _fromRow, Destination._fromCol - _fromCol, 0, 0, Destination.WorkSheet, Destination.WorkSheet, true);
                     Destination._worksheet._formulas.SetValue(cell.Row, cell.Column, cell.Formula);
                 }
                 if(cell.HyperLink!=null)
@@ -2517,7 +2530,7 @@ namespace OfficeOpenXml
 
                 if (cell.Comment != null)
                 {
-                    //Destination._worksheet._commentsStore.SetValue(cell.Row, cell.Column, cell.Comment);
+                    Destination.Worksheet.Cells[cell.Row, cell.Column].AddComment(cell.Comment.Text, cell.Comment.Author);
                 }
                 if (cell.Flag != 0)
                 {

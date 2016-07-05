@@ -57,18 +57,13 @@ namespace EPPlusSamples
         }
     }
 
-    class MyFunctionModule : IFunctionModule
+    class MyFunctionModule : FunctionsModule
     {
         public MyFunctionModule()
         {
-            Functions = new Dictionary<string, ExcelFunction>()
-                {
-                    {"sum.addtwo", new SumAddTwo()},
-                    {"seanconneryfy", new SeanConneryfy()}
-                };    
+            base.Functions.Add("sum.addtwo", new SumAddTwo());
+            base.Functions.Add("seanconneryfy", new SeanConneryfy());
         }
-
-        public IDictionary<string, ExcelFunction> Functions { get; private set; }
     }
 
     /// <summary>
