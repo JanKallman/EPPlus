@@ -63,16 +63,6 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
         }
 
         [TestMethod]
-        public void ShouldHandleDateInSumRange()
-        {
-            _sheet.Cells["A2"].Formula = "DATE(2015;1;1)";
-            _sheet.Cells["A5"].Formula = "SUMIFS(A1:A4;B1:B5;\">5\";C1:C5;\">4\")";
-            _sheet.Calculate();
-
-            Assert.AreEqual(42012d, _sheet.Cells["A5"].Value);
-        }
-
-        [TestMethod]
         public void ShouldHandleExcelRangesInCriteria()
         {
             _sheet.Cells["D1"].Value = 6;

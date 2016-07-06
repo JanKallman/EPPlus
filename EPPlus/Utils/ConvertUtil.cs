@@ -72,8 +72,9 @@ namespace OfficeOpenXml.Utils
 		/// </summary>
 		/// <param name="v"></param>
 		/// <param name="ignoreBool"></param>
+        /// <param name="retNaN">Return NaN if invalid double otherwise 0</param>
 		/// <returns></returns>
-		internal static double GetValueDouble(object v, bool ignoreBool = false)
+		internal static double GetValueDouble(object v, bool ignoreBool = false, bool retNaN=false)
         {
             double d;
             try
@@ -99,13 +100,13 @@ namespace OfficeOpenXml.Utils
                 }
                 else
                 {
-                    d = 0;
+                    d = retNaN ? double.NaN : 0;
                 }
             }
 
             catch
             {
-                d = 0;
+                d = retNaN ? double.NaN : 0;
             }
             return d;
         }

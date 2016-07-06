@@ -93,7 +93,18 @@ namespace OfficeOpenXml.Style
         /// <param name="Text">The text to add</param>
         /// <returns></returns>
         public ExcelRichText Add(string Text)
-        {            
+        {
+            return Insert(_list.Count, Text);
+        }
+
+        /// <summary>
+        /// Insert a rich text string at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which rich text should be inserted.</param>
+        /// <param name="text">The text to insert.</param>
+        /// <returns></returns>
+        public ExcelRichText Insert(int index, string text)
+        {
             ConvertRichtext();
             XmlDocument doc;
             if (TopNode is XmlDocument)
@@ -105,11 +116,18 @@ namespace OfficeOpenXml.Style
                 doc = TopNode.OwnerDocument;
             }
             var node = doc.CreateElement("d", "r", ExcelPackage.schemaMain);
-            TopNode.AppendChild(node);
+            if (index < _list.Count)
+            {
+                TopNode.InsertBefore(node, TopNode.ChildNodes[index]);
+            }
+            else
+            {
+                TopNode.AppendChild(node);
+            }
             var rt = new ExcelRichText(NameSpaceManager, node, this);
             if (_list.Count > 0)
             {
-                ExcelRichText prevItem = _list[_list.Count - 1];
+                ExcelRichText prevItem = _list[index < _list.Count ? index : _list.Count - 1];
                 rt.FontName = prevItem.FontName;
                 rt.Size = prevItem.Size;
                 if (prevItem.Color.IsEmpty)
@@ -122,7 +140,7 @@ namespace OfficeOpenXml.Style
                 }
                 rt.PreserveSpace = rt.PreserveSpace;
                 rt.Bold = prevItem.Bold;
-                rt.Italic = prevItem.Italic;                
+                rt.Italic = prevItem.Italic;
                 rt.UnderLine = prevItem.UnderLine;
             }
             else if (_cells == null)
@@ -139,14 +157,14 @@ namespace OfficeOpenXml.Style
                 rt.Italic = style.Font.Italic;
                 _cells.IsRichText = true;
             }
-            rt.Text = Text;
+            rt.Text = text;
             rt.PreserveSpace = true;
-            if(_cells!=null) 
+            if (_cells != null)
             {
                 rt.SetCallback(UpdateCells);
                 UpdateCells();
             }
-            _list.Add(rt);
+            _list.Insert(index, rt);
             return rt;
         }
 

@@ -1019,5 +1019,41 @@ namespace EPPlusTest.Excel.Functions
                 Assert.AreEqual(1d, sheet1.Cells["A3"].Value);
             }
         }
+        [TestMethod]
+        public void Rank()
+        {
+            using (var p = new ExcelPackage())
+            {
+                var w = p.Workbook.Worksheets.Add("testsheet");
+                w.SetValue(1, 1, 1);
+                w.SetValue(2, 1, 1);
+                w.SetValue(3, 1, 2);
+                w.SetValue(4, 1, 2);
+                w.SetValue(5, 1, 4);
+
+                w.SetFormula(1, 2, "RANK(1,A1:A5)");
+                w.SetFormula(1, 3, "RANK(1,A1:A5,1)");
+
+                w.SetFormula(2, 2, "RANK(2,A1:A5)");
+                w.SetFormula(2, 3, "RANK(2,A1:A5,1)");
+
+                w.SetFormula(3, 2, "RANK(3,A1:A5)");
+                w.SetFormula(3, 3, "RANK(3,A1:A5,1)");
+
+                w.SetFormula(4, 2, "RANK(4,A1:A5)");
+                w.SetFormula(4, 3, "RANK(4,A1:A5,1)");
+
+                w.Calculate();
+
+                Assert.AreEqual(w.GetValue(1, 2), 4);
+                Assert.AreEqual(w.GetValue(1, 3), 1);
+                Assert.AreEqual(w.GetValue(2, 2), 2);
+                Assert.AreEqual(w.GetValue(2, 3), 3);
+                Assert.IsInstanceOfType(w.GetValue(3, 2), typeof(ExcelErrorValue));
+                Assert.IsInstanceOfType(w.GetValue(3, 3), typeof(ExcelErrorValue));
+                Assert.AreEqual(w.GetValue(4, 2), 1);
+                Assert.AreEqual(w.GetValue(4, 3), 5);                
+            }
+        }
     }
-}
+    }

@@ -1201,5 +1201,120 @@ namespace EPPlusTest
             return templateFIle;
 
         }
+
+        [TestMethod]
+        public void Issue15455()
+        {
+            using (var pck = new ExcelPackage())
+            {
+
+                var sheet1 = pck.Workbook.Worksheets.Add("sheet1");
+                var sheet2 = pck.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells["C2"].Value = 3;
+                sheet1.Cells["C3"].Formula = "VLOOKUP(E1, Sheet2!A1:D6, C2, 0)";
+                sheet1.Cells["E1"].Value = "d";
+
+                sheet2.Cells["A1"].Value = "d";
+                sheet2.Cells["C1"].Value = "dg";
+                pck.Workbook.Calculate();
+                var c3 = sheet1.Cells["C3"].Value;
+                Assert.AreEqual("dg", c3);
+            }
+        }
+
+        [TestMethod]
+        public void Issue15460WithString()
+        {
+            FileInfo file = new FileInfo("report.xlsx");
+            try
+            {
+                if (file.Exists)
+                    file.Delete();
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets.Add("New Sheet");
+                    sheet.Cells[3, 3].Value = new[] { "value1", "value2", "value3" };
+                    package.Save();
+                }
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets["New Sheet"];
+                    Assert.AreEqual("value1", sheet.Cells[3, 3].Value);
+                }
+            }
+            finally
+            {
+                if (file.Exists)
+                    file.Delete();
+            }
+        }
+
+        [TestMethod]
+        public void Issue15460WithNull()
+        {
+            FileInfo file = new FileInfo("report.xlsx");
+            try
+            {
+                if (file.Exists)
+                    file.Delete();
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets.Add("New Sheet");
+                    sheet.Cells[3, 3].Value = new[] { null, "value2", "value3" };
+                    package.Save();
+                }
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets["New Sheet"];
+                    Assert.AreEqual(string.Empty, sheet.Cells[3, 3].Value);
+                }
+            }
+            finally
+            {
+                if (file.Exists)
+                    file.Delete();
+            }
+        }
+
+        [TestMethod]
+        public void Issue15460WithNonStringPrimitive()
+        {
+            FileInfo file = new FileInfo("report.xlsx");
+            try
+            {
+                if (file.Exists)
+                    file.Delete();
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets.Add("New Sheet");
+                    sheet.Cells[3, 3].Value = new[] { 5, 6, 7 };
+                    package.Save();
+                }
+                using (ExcelPackage package = new ExcelPackage(file))
+                {
+                    var sheet = package.Workbook.Worksheets["New Sheet"];
+                    Assert.AreEqual((double)5, sheet.Cells[3, 3].Value);
+                }
+            }
+            finally
+            {
+                if (file.Exists)
+                    file.Delete();
+            }
+        }
+        [TestMethod]
+        public void MergeIssue()
+        {
+            var worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
+            FileInfo fi = new FileInfo(Path.Combine(worksheetPath, "Example.xlsx"));
+            fi.Delete();
+            using (ExcelPackage pckg = new ExcelPackage(fi))
+            {
+                var ws = pckg.Workbook.Worksheets.Add("Example");
+                ws.Cells[1, 1, 1, 3].Merge = true;
+                ws.Cells[1, 1, 1, 3].Merge = true;
+                pckg.Save();
+            }
+        }
     }
 }
