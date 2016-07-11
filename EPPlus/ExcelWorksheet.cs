@@ -1885,6 +1885,11 @@ namespace OfficeOpenXml
                             SetStyleInner(rowFrom + r, cseS.Column, cseS.Value._styleId);
                         }
                     }
+                    var newOutlineLevel = this.Row(copyStylesFromRow + rows).OutlineLevel;
+                    for (var r = 0; r < rows; r++)
+                    {
+                        this.Row(rowFrom + r).OutlineLevel = newOutlineLevel;
+                    }
                 }
                 foreach (var tbl in Tables)
                 {
@@ -2049,7 +2054,12 @@ namespace OfficeOpenXml
                                 SetStyleInner(sc[0], columnFrom + c, sc[1]);
                             }
                         }                        
-                    }                    
+                    }
+                    var newOutlineLevel = this.Column(copyStylesFromColumn).OutlineLevel;
+                    for (var c = 0; c < columns; c++)
+                    {
+                        this.Column(columnFrom + c).OutlineLevel = newOutlineLevel;
+                    }
                 }
                 //Adjust tables
                 foreach (var tbl in Tables)

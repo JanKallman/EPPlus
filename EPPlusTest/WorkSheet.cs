@@ -957,6 +957,116 @@ namespace EPPlusTest
                 Assert.AreEqual("SUBTOTAL(109,TestTable['['#''Column''2']])", ws.Cells["C3"].Formula);
             }
         }
+        [TestMethod]
+        public void InsertRowsSetsOutlineLevel()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Row(15).OutlineLevel = 1;
+                sheet1.InsertRow(2, 10, 15);
+                for (int i = 2; i < 12; i++)
+                {
+                    Assert.AreEqual(1, sheet1.Row(i).OutlineLevel, $"The outline level of row {i} is not set.");
+                }
+                Assert.AreEqual(1, sheet1.Row(25).OutlineLevel);
+            }
+        }
+
+        [TestMethod]
+        public void InsertColumnsSetsOutlineLevel()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Column(15).OutlineLevel = 1;
+                sheet1.InsertColumn(2, 10, 15);
+                for (int i = 2; i < 12; i++)
+                {
+                    Assert.AreEqual(1, sheet1.Column(i).OutlineLevel, $"The outline level of column {i} is not set.");
+                }
+                Assert.AreEqual(1, sheet1.Column(25).OutlineLevel);
+            }
+        }
+
+        [TestMethod]
+        public void CopyRowSetsOutlineLevelsCorrectly()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Row(2).OutlineLevel = 1;
+                sheet1.Row(3).OutlineLevel = 1;
+                sheet1.Row(4).OutlineLevel = 0;
+
+                // Set outline levels on rows to be copied over.
+                sheet1.Row(6).OutlineLevel = 17;
+                sheet1.Row(7).OutlineLevel = 25;
+                sheet1.Row(8).OutlineLevel = 29;
+
+                sheet1.Cells["2:4"].Copy(sheet1.Cells["A6"]);
+                Assert.AreEqual(1, sheet1.Row(2).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Row(3).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Row(4).OutlineLevel);
+
+                Assert.AreEqual(1, sheet1.Row(6).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Row(7).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Row(8).OutlineLevel);
+            }
+        }
+
+        [TestMethod]
+        public void CopyRowCrossSheetSetsOutlineLevelsCorrectly()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Row(2).OutlineLevel = 1;
+                sheet1.Row(3).OutlineLevel = 1;
+                sheet1.Row(4).OutlineLevel = 0;
+
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                // Set outline levels on rows to be copied over.
+                sheet2.Row(6).OutlineLevel = 17;
+                sheet2.Row(7).OutlineLevel = 25;
+                sheet2.Row(8).OutlineLevel = 29;
+
+                sheet1.Cells["2:4"].Copy(sheet2.Cells["A6"]);
+                Assert.AreEqual(1, sheet1.Row(2).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Row(3).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Row(4).OutlineLevel);
+
+                Assert.AreEqual(1, sheet2.Row(6).OutlineLevel);
+                Assert.AreEqual(1, sheet2.Row(7).OutlineLevel);
+                Assert.AreEqual(0, sheet2.Row(8).OutlineLevel);
+            }
+        }
+
+        [TestMethod]
+        public void CopyColumnSetsOutlineLevelsCorrectly()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Column(2).OutlineLevel = 1;
+                sheet1.Column(3).OutlineLevel = 1;
+                sheet1.Column(4).OutlineLevel = 0;
+
+                // Set outline levels on rows to be copied over.
+                sheet1.Column(6).OutlineLevel = 17;
+                sheet1.Column(7).OutlineLevel = 25;
+                sheet1.Column(8).OutlineLevel = 29;
+
+                sheet1.Cells["B:D"].Copy(sheet1.Cells["F1"]);
+                Assert.AreEqual(1, sheet1.Column(2).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Column(3).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Column(4).OutlineLevel);
+
+                Assert.AreEqual(1, sheet1.Column(6).OutlineLevel);
+                Assert.AreEqual(1, sheet1.Column(7).OutlineLevel);
+                Assert.AreEqual(0, sheet1.Column(8).OutlineLevel);
+            }
+        }
 
         //[Ignore]
         //[TestMethod]

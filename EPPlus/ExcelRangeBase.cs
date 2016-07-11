@@ -2546,12 +2546,29 @@ namespace OfficeOpenXml
                     Destination._worksheet.MergedCells.Add(m, true);
                 }
             }
+            if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns)
+            {
+                for (int r = 0; r < this.Rows; r++)
+                {
+                    var destinationRow = Destination.Worksheet.Row(Destination.Start.Row + r);
+                    destinationRow.OutlineLevel = this.Worksheet.Row(_fromRow + r).OutlineLevel;
+                }
+            }
+            if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)
+            {
+                for (int c = 0; c < this.Columns; c++)
+                {
+                    var destinationCol = Destination.Worksheet.Column(Destination.Start.Column + c);
+                    destinationCol.OutlineLevel = this.Worksheet.Column(_fromCol + c).OutlineLevel;
+                }
+            }
+
         }
 
-		/// <summary>
-		/// Clear all cells
-		/// </summary>
-		public void Clear()
+        /// <summary>
+        /// Clear all cells
+        /// </summary>
+        public void Clear()
 		{
 			Delete(this, false);
 		}
