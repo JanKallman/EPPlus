@@ -141,6 +141,108 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
                 Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
                 Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
+
+                Assert.AreEqual(ws.Cells["T20"].GetValue<string>(), 0.396180555555556d.ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(ws.Cells["T20"].GetValue<int>(), 0);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<int?>(), 0);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<double>(), 0.396180555555556d);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<double?>(), 0.396180555555556d);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<decimal>(), 0.396180555555556m);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<decimal?>(), 0.396180555555556m);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<bool?>(), true);
+                Assert.AreEqual(ws.Cells["T20"].GetValue<DateTime>(), new DateTime(1899, 12, 30, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T20"].GetValue<DateTime?>(), new DateTime(1899, 12, 30, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T20"].GetValue<TimeSpan>(), new TimeSpan(693593, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T20"].GetValue<TimeSpan?>(), new TimeSpan(693593, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T20"].Text, "09:30:30");
+
+                Assert.AreEqual(ws.Cells["T24"].GetValue<string>(), 1.39618055555556d.ToString(CultureInfo.CurrentCulture));
+                Assert.AreEqual(ws.Cells["T24"].GetValue<int>(), 1);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<int?>(), 1);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<double>(), 1.39618055555556d);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<double?>(), 1.39618055555556d);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<decimal>(), 1.39618055555556m);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<decimal?>(), 1.39618055555556m);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<bool?>(), true);
+                Assert.AreEqual(ws.Cells["T24"].GetValue<DateTime>(), new DateTime(1899, 12, 31, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T24"].GetValue<DateTime?>(), new DateTime(1899, 12, 31, 9, 30, 30));
+                Assert.AreEqual(ws.Cells["T24"].GetValue<TimeSpan>(), new TimeSpan(693593, 33, 30, 30));
+                Assert.AreEqual(ws.Cells["T24"].GetValue<TimeSpan?>(), new TimeSpan(693593, 33, 30, 30));
+                Assert.AreEqual(ws.Cells["T24"].Text, "09:30:30");
+
+                Assert.AreEqual(ws.Cells["U20"].GetValue<string>(), "40179");
+                Assert.AreEqual(ws.Cells["U20"].GetValue<int>(), 40179);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<int?>(), 40179);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<double>(), 40179d);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<double?>(), 40179d);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<decimal>(), 40179m);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<decimal?>(), 40179m);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<bool?>(), true);
+                Assert.AreEqual(ws.Cells["U20"].GetValue<DateTime>(), new DateTime(2010, 1, 1));
+                Assert.AreEqual(ws.Cells["U20"].GetValue<DateTime?>(), new DateTime(2010, 1, 1));
+                Assert.AreEqual(ws.Cells["U20"].Text, "2010-01-01");
+
+                Assert.AreEqual(ws.Cells["V20"].GetValue<string>(), "102");
+                Assert.AreEqual(ws.Cells["V20"].GetValue<int>(), 102);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<int?>(), 102);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<double>(), 102d);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<double?>(), 102d);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<decimal>(), 102m);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<decimal?>(), 102m);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<bool?>(), true);
+                Assert.AreEqual(ws.Cells["V20"].GetValue<DateTime>(), new DateTime(1900, 4, 11));
+                Assert.AreEqual(ws.Cells["V20"].GetValue<DateTime?>(), new DateTime(1900, 4, 11));
+                Assert.AreEqual(ws.Cells["V20"].Text,
+                    $"$102{CultureInfo.CurrentCulture.NumberFormat.CurrencyDecimalSeparator}00");
+
+                Assert.AreEqual(ws.Cells["W20"].GetValue<string>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<int>(), 0);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<int?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<double>(), 0d);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<double?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<decimal>(), 0m);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<decimal?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<bool>(), false);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<bool?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<DateTime>(), DateTime.MinValue);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<DateTime?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<TimeSpan>(), TimeSpan.Zero);
+                Assert.AreEqual(ws.Cells["W20"].GetValue<TimeSpan?>(), null);
+                Assert.AreEqual(ws.Cells["W20"].Text, string.Empty);
+
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<string>(), "True");
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<int>(), 0);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<int?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<double>(), 0d);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<double?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal>(), 0m);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<bool?>(), true);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<DateTime>(), DateTime.MinValue);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<DateTime?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<TimeSpan>(), TimeSpan.Zero);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<TimeSpan?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].Text, "1");
+
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<string>(), "Text2");
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<int>(), 0);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<int?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<double>(), 0d);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<double?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<decimal>(), 0m);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<decimal?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<bool>(), false);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<bool?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<DateTime>(), DateTime.MinValue);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<DateTime?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<TimeSpan>(), TimeSpan.Zero);
+                Assert.AreEqual(ws.Cells["Z20"].GetValue<TimeSpan?>(), null);
+                Assert.AreEqual(ws.Cells["Z20"].Text, "Text2");
             }
             instream.Close();
         }
@@ -208,6 +310,14 @@ namespace EPPlusTest
         public void LoadData()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("newsheet");
+            ws.Cells["T19"].Value = new TimeSpan(3, 30, 30);
+            ws.Cells["T20"].Value = new TimeSpan(9, 30, 30);
+            ws.Cells["T21"].Value = new TimeSpan(15, 30, 30);
+            ws.Cells["T22"].Value = new TimeSpan(21, 30, 30);
+            ws.Cells["T23"].Value = new TimeSpan(27, 30, 30);
+            ws.Cells["T24"].Value = new TimeSpan(33, 30, 30);
+            ws.Cells["T19:T24"].Style.Numberformat.Format = "hh:mm:ss";
+
             ws.Cells["U19"].Value = new DateTime(2009, 12, 31);
             ws.Cells["U20"].Value = new DateTime(2010, 1, 1);
             ws.Cells["U21"].Value = new DateTime(2010, 1, 2);
@@ -231,6 +341,20 @@ namespace EPPlusTest
             ws.Cells["X22"].Value = 123;
             ws.Cells["X23"].Value = 135;
             ws.Cells["X24"].Value = 134;
+
+            ws.Cells["Y19"].Value = true;
+            ws.Cells["Y20"].Value = true;
+            ws.Cells["Y21"].Value = true;
+            ws.Cells["Y22"].Value = false;
+            ws.Cells["Y23"].Value = false;
+            ws.Cells["Y24"].Value = false;
+
+            ws.Cells["Z19"].Value = "Text1";
+            ws.Cells["Z20"].Value = "Text2";
+            ws.Cells["Z21"].Value = "Text3";
+            ws.Cells["Z22"].Value = "Text4";
+            ws.Cells["Z23"].Value = "Text5";
+            ws.Cells["Z24"].Value = "Text6";
 
             // add autofilter
             ws.Cells["U19:X24"].AutoFilter = true;
