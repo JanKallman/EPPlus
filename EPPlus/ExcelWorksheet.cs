@@ -2697,12 +2697,15 @@ namespace OfficeOpenXml
             }
             Type fromType = v.GetType();
             Type toType = typeof(T);
-            if (fromType == toType)
+            Type toType2 = (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                ? Nullable.GetUnderlyingType(toType)
+                : null;
+            if (fromType == toType || fromType == toType2)
             {
                 return (T)v;
             }
             var cnv = TypeDescriptor.GetConverter(fromType);
-            if (toType == typeof(DateTime))    //Handle dates
+            if (toType == typeof(DateTime) || toType2 == typeof(DateTime))    //Handle dates
             {
                 if (fromType == typeof(TimeSpan))
                 {
@@ -2733,7 +2736,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            else if (toType == typeof(TimeSpan))    //Handle timespan
+            else if (toType == typeof(TimeSpan) || toType2 == typeof(TimeSpan))    //Handle timespan
             {
                 if (fromType == typeof(DateTime))
                 {
@@ -2744,7 +2747,7 @@ namespace OfficeOpenXml
                     TimeSpan ts;
                     if (TimeSpan.TryParse(v.ToString(), out ts))
                     {
-                        return (T)(object)(ts); 
+                        return (T)(object)(ts);
                     }
                     else
                     {
@@ -2783,16 +2786,16 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                    if (toType2 != null)
                     {
-                        toType = Nullable.GetUnderlyingType(toType);
+                        toType = toType2;
                         if (cnv.CanConvertTo(toType))
                         {
                             return (T)cnv.ConvertTo(v, toType); //Fixes issue 15377
                         }
                     }
 
-                    if(fromType==typeof(double) && toType==typeof(decimal))
+                    if (fromType == typeof(double) && toType == typeof(decimal))
                     {
                         return (T)(object)Convert.ToDecimal(v);
                     }
