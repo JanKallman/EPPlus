@@ -1626,7 +1626,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             return NextCell(ref row, ref col, 0,0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
         }
         internal bool NextCell(ref int row, ref int col, int minRow, int minColPos,int maxRow, int maxColPos)
-        {
+        {            
             if (minColPos >= ColumnCount)
             {
                 return false;
@@ -1657,7 +1657,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             else
             {
                 c=~c;
-                if (c > _columnIndex[c].Index)
+                if (c >= ColumnCount) c = ColumnCount - 1;
+                if (col > _columnIndex[c].Index)
                 {
                     if (col <= minColPos)
                     {
@@ -1668,7 +1669,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                 }
                 else
                 {                    
-                    var r=GetNextCell(ref c, ref row, minColPos, maxRow, maxColPos);
+                    var r=GetNextCell(ref row, ref c, minColPos, maxRow, maxColPos);
                     col = _columnIndex[c].Index;
                     return r;
                 }

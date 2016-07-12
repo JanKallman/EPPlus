@@ -125,7 +125,13 @@ namespace OfficeOpenXml
                 _toCol = Col;
                 _toRow = Row;
                 _rtc = null;
-                base.Address = GetAddress(_fromRow, _fromCol);
+                // avoid address re-calculation
+                //base.Address = GetAddress(_fromRow, _fromCol);
+                _start = null;
+                _end = null;
+                _addresses = null;
+                _address = GetAddress(_fromRow, _fromCol);
+                ChangeAddress();
                 return this;
             }
         }
@@ -149,7 +155,13 @@ namespace OfficeOpenXml
                 _toCol = ToCol;
                 _toRow = ToRow;
                 _rtc = null;
-                base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                // avoid address re-calculation
+                //base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                _start = null;
+                _end = null;
+                _addresses = null;
+                _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                ChangeAddress();
                 return this;
             }
         }
