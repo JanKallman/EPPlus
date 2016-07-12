@@ -141,8 +141,34 @@ namespace OfficeOpenXml
                 InsertColumns(colFrom, cols, namedRange);
             }
         }
-
-        
+        internal void Delete(int rowFrom, int colFrom, int rows, int cols)
+        {
+            Delete(rowFrom, colFrom, rows, cols, n => true);
+        }
+        internal void Delete(int rowFrom, int colFrom, int rows, int cols, Func<ExcelNamedRange, bool> filter)
+        {
+            var namedRanges = this._list.Where(filter);
+            foreach (var namedRange in namedRanges)
+            {
+                ExcelAddressBase adr;
+                if (rows==0)
+                {
+                    adr = namedRange.DeleteColumn(colFrom, cols);
+                }
+                else
+                {
+                    adr = namedRange.DeleteRow(rowFrom, rows);
+                }
+                if (adr == null)
+                {
+                    namedRange.Address = "#REF!";
+                }
+                else
+                {
+                    namedRange.Address = adr.Address;
+                }
+            }
+        }
 
         private void InsertColumns(int colFrom, int cols, ExcelNamedRange namedRange)
         {

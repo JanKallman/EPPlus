@@ -67,6 +67,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _textRotation = GetXmlNodeInt(textRotationPath);
             _hidden = GetXmlNodeBool(hiddenPath);
             _locked = GetXmlNodeBool(lockedPath,true);
+            _quotePrefix = GetXmlNodeBool(quotePrefixPath);
         }
 
         private ExcelReadingOrder GetReadingOrder(string value)
@@ -360,6 +361,22 @@ namespace OfficeOpenXml.Style.XmlAccess
                 _hidden = value;
             }
         }
+        const string quotePrefixPath = "@quotePrefix";
+        bool _quotePrefix = false;
+        /// <summary>
+        /// Prefix the formula with a quote.
+        /// </summary>
+        public bool QuotePrefix
+        {
+            get
+            {
+                return _quotePrefix;
+            }
+            set
+            {
+                _quotePrefix = value;
+            }
+        }
         const string readingOrderPath = "d:alignment/@readingOrder";
         ExcelReadingOrder _readingOrder = ExcelReadingOrder.ContextDependent;
         /// <summary>
@@ -418,7 +435,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
             get
             {
-                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString() + ShrinkToFit.ToString() + Indent.ToString(); 
+                return XfId + "|" + NumberFormatId.ToString() + "|" + FontId.ToString() + "|" + FillId.ToString() + "|" + BorderId.ToString() + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + isBuildIn.ToString() + TextRotation.ToString() + Locked.ToString() + Hidden.ToString() + ShrinkToFit.ToString() + Indent.ToString() + QuotePrefix.ToString(); 
                 //return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + VerticalAlignment.ToString() + "|" + HorizontalAlignment.ToString() + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString(); 
             }
         }
@@ -443,6 +460,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             newXF.TextRotation = _textRotation;
             newXF.Locked = _locked;
             newXF.Hidden = _hidden;
+            newXF.QuotePrefix = _quotePrefix;
             return newXF;
         }
 
@@ -514,6 +532,9 @@ namespace OfficeOpenXml.Style.XmlAccess
                             break;
                         case eStyleProperty.Hidden:
                             newXfs.Hidden = (bool)value;
+                            break;
+                        case eStyleProperty.QuotePrefix:
+                            newXfs.QuotePrefix = (bool)value;
                             break;
                         default:
                             throw (new Exception("Invalid property for class style."));
@@ -857,6 +878,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (_textRotation > 0) this.SetXmlNodeString(textRotationPath, _textRotation.ToString());
             if (!_locked) this.SetXmlNodeString(lockedPath, "0");
             if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
+            if (_quotePrefix) this.SetXmlNodeString(quotePrefixPath, "1");
             return TopNode;
         }
 
