@@ -226,10 +226,6 @@
   <ItemGroup>
     <None Include="EPPlusTest.snk" />
     <None Include="packages.config" />
-    <None Include="TestStart.orderedtest">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <EmbeddedResource Include="Resources\Vector Drawing.wmf" />
     <EmbeddedResource Include="Resources\Vector Drawing2.wmf" />
     <None Include="Workbooks\FormulaTest.xlsx">
