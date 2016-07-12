@@ -165,6 +165,18 @@ namespace OfficeOpenXml
                 }
                 return f;
             }
+
+            public Formulas Clone()
+            {
+                var formulas = new Formulas(this._tokenizer);
+                formulas.Index = this.Index;
+                formulas.Address = (string)this.Address.Clone();
+                formulas.IsArray = this.IsArray;
+                formulas.Formula = (string)this.Formula.Clone();
+                formulas.StartRow = this.StartRow;
+                formulas.StartCol = this.StartCol;
+                return formulas;
+            }
         }
         /// <summary>
         /// Collection containing merged cell addresses
@@ -342,7 +354,7 @@ namespace OfficeOpenXml
         internal CellStore<List<Token>> _formulaTokens;
 
         internal CellStore<Uri> _hyperLinks;
-        internal CellStore<ExcelComment> _commentsStore;
+        internal CellStore<int> _commentsStore;
 
         internal Dictionary<int, Formulas> _sharedFormulas = new Dictionary<int, Formulas>();
         internal int _minCol = ExcelPackage.MaxColumns;
@@ -390,7 +402,7 @@ namespace OfficeOpenXml
             //_styles = new CellStore<int>();
             _formulas = new CellStore<object>();
             _flags = new FlagCellStore();
-            _commentsStore = new CellStore<ExcelComment>();
+            _commentsStore = new CellStore<int>();
             _hyperLinks = new CellStore<Uri>();
             
             _names = new ExcelNamedRangeCollection(Workbook,this);
@@ -447,7 +459,14 @@ namespace OfficeOpenXml
             internal set
             {
                 CheckSheetType();
-                SetXmlNodeString("d:autoFilter/@ref", value.Address);
+                if (value == null)
+                {
+                    DeleteAllNode("d:autoFilter/@ref");
+                }
+                else
+                {
+                    SetXmlNodeString("d:autoFilter/@ref", value.Address);
+                }
             }
         }
 
@@ -870,6 +889,11 @@ namespace OfficeOpenXml
             stream.Seek(0, SeekOrigin.Begin);
             Encoding encoding;
             xml = GetWorkSheetXml(stream, start, end, out encoding);
+
+            // now release stream buffer (already converted whole Xml into XmlDocument Object and String)
+            stream.Close();
+            stream.Dispose();
+            packPart.Stream = new MemoryStream();
 
             //first char is invalid sometimes?? 
             if (xml[0] != '<')
@@ -1842,8 +1866,6 @@ namespace OfficeOpenXml
             {
                 _values.Insert(rowFrom, 0, rows, 0);
                 _formulas.Insert(rowFrom, 0, rows, 0);
-                //_styles.Insert(rowFrom, 0, rows, 0);
-                //_types.Insert(rowFrom, 0, rows, 0);
                 _commentsStore.Insert(rowFrom, 0, rows, 0);
                 _hyperLinks.Insert(rowFrom, 0, rows, 0);
                 _flags.Insert(rowFrom, 0, rows, 0);
@@ -1886,6 +1908,11 @@ namespace OfficeOpenXml
                         {
                             SetStyleInner(rowFrom + r, cseS.Column, cseS.Value._styleId);
                         }
+                    }
+                    var newOutlineLevel = this.Row(copyStylesFromRow + rows).OutlineLevel;
+                    for (var r = 0; r < rows; r++)
+                    {
+                        this.Row(rowFrom + r).OutlineLevel = newOutlineLevel;
                     }
                 }
                 foreach (var tbl in Tables)
@@ -2051,7 +2078,12 @@ namespace OfficeOpenXml
                                 SetStyleInner(sc[0], columnFrom + c, sc[1]);
                             }
                         }                        
-                    }                    
+                    }
+                    var newOutlineLevel = this.Column(copyStylesFromColumn).OutlineLevel;
+                    for (var c = 0; c < columns; c++)
+                    {
+                        this.Column(columnFrom + c).OutlineLevel = newOutlineLevel;
+                    }
                 }
                 //Adjust tables
                 foreach (var tbl in Tables)
@@ -2431,12 +2463,14 @@ namespace OfficeOpenXml
             lock (this)
             {
                 _values.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
-                //_types.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _formulas.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
-                //_styles.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _flags.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _commentsStore.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _hyperLinks.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                _names.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+
+                Comments.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
+                Workbook.Names.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns, n => n.Worksheet == this);
 
                 AdjustFormulasRow(rowFrom, rows);
                 FixMergedCellsRow(rowFrom, rows, true);
@@ -2490,6 +2524,10 @@ namespace OfficeOpenXml
                 _flags.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
                 _commentsStore.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
                 _hyperLinks.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+                _names.Delete(0, columnFrom, ExcelPackage.MaxRows, columns);
+
+                Comments.Delete(0, columnFrom, 0, columns);
+                Workbook.Names.Delete(0, columnFrom, ExcelPackage.MaxRows, columns, n => n.Worksheet == this);
 
                 AdjustFormulasColumn(columnFrom, columns);
                 FixMergedCellsColumn(columnFrom, columns, true);
@@ -2683,12 +2721,15 @@ namespace OfficeOpenXml
             }
             Type fromType = v.GetType();
             Type toType = typeof(T);
-            if (fromType == toType)
+            Type toType2 = (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                ? Nullable.GetUnderlyingType(toType)
+                : null;
+            if (fromType == toType || fromType == toType2)
             {
                 return (T)v;
             }
             var cnv = TypeDescriptor.GetConverter(fromType);
-            if (toType == typeof(DateTime))    //Handle dates
+            if (toType == typeof(DateTime) || toType2 == typeof(DateTime))    //Handle dates
             {
                 if (fromType == typeof(TimeSpan))
                 {
@@ -2719,7 +2760,7 @@ namespace OfficeOpenXml
                     }
                 }
             }
-            else if (toType == typeof(TimeSpan))    //Handle timespan
+            else if (toType == typeof(TimeSpan) || toType2 == typeof(TimeSpan))    //Handle timespan
             {
                 if (fromType == typeof(DateTime))
                 {
@@ -2730,7 +2771,7 @@ namespace OfficeOpenXml
                     TimeSpan ts;
                     if (TimeSpan.TryParse(v.ToString(), out ts))
                     {
-                        return (T)(object)(ts); 
+                        return (T)(object)(ts);
                     }
                     else
                     {
@@ -2769,16 +2810,16 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    if (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+                    if (toType2 != null)
                     {
-                        toType = Nullable.GetUnderlyingType(toType);
+                        toType = toType2;
                         if (cnv.CanConvertTo(toType))
                         {
                             return (T)cnv.ConvertTo(v, toType); //Fixes issue 15377
                         }
                     }
 
-                    if(fromType==typeof(double) && toType==typeof(decimal))
+                    if (fromType == typeof(double) && toType == typeof(decimal))
                     {
                         return (T)(object)Convert.ToDecimal(v);
                     }
@@ -3110,7 +3151,7 @@ namespace OfficeOpenXml
                         SetXmlNodeString("d:legacyDrawing/@r:id", rel.Id);
                         _vmlDrawings.RelId = rel.Id;
                     }
-                    _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream());
+                    _vmlDrawings.VmlDrawingXml.Save(_vmlDrawings.Part.GetStream(FileMode.Create));
                 }
             }
         }
@@ -3135,6 +3176,7 @@ namespace OfficeOpenXml
                             if (string.IsNullOrEmpty(n))
                             {
                                 n = col.Name.ToLower(CultureInfo.InvariantCulture);
+                                SetValueInner(tbl.Address._fromRow, colNum, ConvertUtil.ExcelDecodeString(col.Name));
                             }
                             else
                             {
@@ -3151,22 +3193,12 @@ namespace OfficeOpenXml
                             throw(new InvalidDataException(string.Format("Table {0} Column {1} does not have a unique name.", tbl.Name, col.Name)));
                         }                        
                         colVal.Add(n);
-                        //col.Name = ConvertUtil.ExcelEncodeString(col.Name);
-                        //if (tbl.ShowHeader)
-                        //{
-                        //    SetValueInner(tbl.Address._fromRow, colNum, col.Name);
-                        //}
-                        //if (tbl.ShowTotal)
-                        //{
-                        //    SetTableTotalFunction(tbl, col, colNum);
-                        //}
                         if (!string.IsNullOrEmpty(col.CalculatedColumnFormula))
                         {
                             int fromRow = tbl.ShowHeader ? tbl.Address._fromRow + 1 : tbl.Address._fromRow;
                             int toRow = tbl.ShowTotal ? tbl.Address._toRow - 1 : tbl.Address._toRow;
                             for (int row = fromRow; row <= toRow; row++)
                             {
-                                //Cell(row, colNum).Formula = col.CalculatedColumnFormula;
                                 SetFormula(row, colNum, col.CalculatedColumnFormula);
                             }                            
                         }
@@ -3854,11 +3886,12 @@ namespace OfficeOpenXml
             if (currRow != null)
             {
 
+                // if hidden, add hidden attribute and preserve ht/customHeight (Excel compatible)
                 if (currRow.Hidden == true)
                 {
-                    cache.Append(" ht=\"0\" hidden=\"1\"");
+                    cache.Append(" hidden=\"1\"");
                 }
-                else if (currRow.Height != DefaultRowHeight && currRow.Height>=0)
+                if (currRow.Height >= 0)
                 {
                     cache.AppendFormat(string.Format(CultureInfo.InvariantCulture, " ht=\"{0}\"", currRow.Height));
                     if (currRow.CustomHeight)
@@ -3902,12 +3935,13 @@ namespace OfficeOpenXml
             RowInternal currRow = GetValueInner(row, 0) as RowInternal;
             if (currRow!=null)
             {
-                
+
+                // if hidden, add hidden attribute and preserve ht/customHeight (Excel compatible)
                 if (currRow.Hidden == true)
                 {
-                    sw.Write(" ht=\"0\" hidden=\"1\"");
+                    sw.Write(" hidden=\"1\"");
                 }
-                else if (currRow.Height != DefaultRowHeight)
+                if (currRow.Height >= 0)
                 {
                     sw.Write(string.Format(CultureInfo.InvariantCulture, " ht=\"{0}\"", currRow.Height));
                     if (currRow.CustomHeight)
@@ -4412,9 +4446,10 @@ namespace OfficeOpenXml
         /// <param name="value">value</param>
         internal void SetValueInner(int row, int col, object value)
         {
-            _values.SetValueSpecial(row, col, (CellStore<ExcelCoreValue>.SetValueDelegate)SetValueInnerUpdate, value);
+            _values.SetValueSpecial(row, col, _setValueInnerUpdateDelegate, value);
         }
-        void SetValueInnerUpdate(List<ExcelCoreValue> list, int index, object value)
+        private static CellStore<ExcelCoreValue>.SetValueDelegate _setValueInnerUpdateDelegate = SetValueInnerUpdate;
+        private static void SetValueInnerUpdate(List<ExcelCoreValue> list, int index, object value)
         {
             list[index] = new ExcelCoreValue { _value = value, _styleId = list[index]._styleId };
         }

@@ -372,7 +372,7 @@ namespace OfficeOpenXml
             string sCol = "";
             do
             {
-                sCol = ((char)('A' + ((iColumnNumber - 1) % 26))) + sCol;
+                sCol = ((char)('A' + ((iColumnNumber - 1) % 26))).ToString() + sCol;
                 iColumnNumber = (iColumnNumber - ((iColumnNumber - 1) % 26)) / 26;
             }
             while (iColumnNumber > 0);
