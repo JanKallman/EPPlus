@@ -99,6 +99,11 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             {
                 return b1.CompareTo(Convert.ToBoolean(o2));
             }
+            DateTime dt1;
+            if (DateTime.TryParse(o1, out dt1))
+            {
+                return dt1.CompareTo(Convert.ToDateTime(o2));
+            }
             return IncompatibleOperands;
         }
 

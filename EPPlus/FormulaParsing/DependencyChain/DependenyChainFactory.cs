@@ -189,7 +189,7 @@ namespace OfficeOpenXml.FormulaParsing
                         adr.SetRCFromTable(ws._package, new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column));
                     }
 
-                    if (adr.WorkSheet == null && adr.Collide(new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column))!=ExcelAddressBase.eAddressCollition.No)
+                    if (adr.WorkSheet == null && adr.Collide(new ExcelAddressBase(f.Row, f.Column, f.Row, f.Column))!=ExcelAddressBase.eAddressCollition.No && !options.AllowCirculareReferences)
                     {
                         throw (new CircularReferenceException(string.Format("Circular Reference in cell {0}", ExcelAddressBase.GetAddress(f.Row, f.Column))));
                     }
@@ -291,7 +291,7 @@ namespace OfficeOpenXml.FormulaParsing
                                     //Check for circular references
                                     foreach (var par in stack)
                                     {
-                                        if (ExcelAddressBase.GetCellID(par.SheetID, par.Row, par.Column) == id)
+                                        if (ExcelAddressBase.GetCellID(par.SheetID, par.Row, par.Column) == id && !options.AllowCirculareReferences)
                                         {
                                             throw (new CircularReferenceException(string.Format("Circular Reference in name {0}", name.Name)));
                                         }
