@@ -641,9 +641,9 @@ namespace OfficeOpenXml
             }
         }
         #region Address manipulation methods
-        internal eAddressCollition Collide(ExcelAddressBase address)
+        internal eAddressCollition Collide(ExcelAddressBase address, bool ignoreWs=false)
         {
-            if (address.WorkSheet != WorkSheet && address.WorkSheet!=null)
+            if (ignoreWs==false && address.WorkSheet != WorkSheet && address.WorkSheet!=null)
             {
                 return eAddressCollition.No;
             }
