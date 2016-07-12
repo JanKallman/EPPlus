@@ -76,7 +76,20 @@ namespace OfficeOpenXml.FormulaParsing
         }
 
         /// <summary>
-        /// Returns an enumeration of all functions implemented, both the built in functions
+        /// Copies existing <see cref="ExcelFunction"/>´s from one workbook to another.
+        /// </summary>
+        /// <param name="otherWorkbook">The workbook containing the forumulas to be copied.</param>
+        public void CopyFunctionsFrom(ExcelWorkbook otherWorkbook)
+        {
+            var functions = otherWorkbook.FormulaParserManager.GetImplementedFunctions();
+            foreach (var func in functions)
+            {
+                AddOrReplaceFunction(func.Key, func.Value);
+            }
+        }
+
+        /// <summary>
+        /// Returns an enumeration of the names of all functions implemented, both the built in functions
         /// and functions added using the LoadFunctionModule method of this class.
         /// </summary>
         /// <returns>Function names in lower case</returns>
@@ -86,6 +99,23 @@ namespace OfficeOpenXml.FormulaParsing
             fnList.Sort((x, y) => String.Compare(x, y, System.StringComparison.Ordinal));
             return fnList;
         }
+
+        /// <summary>
+        /// Returns an enumeration of all implemented functions, including the implementing <see cref="ExcelFunction"/> instance.
+        /// </summary>
+        /// <returns>An enumeration of <see cref="KeyValuePair{String,ExcelFunction}"/>, where the key is the function name</returns>
+        public IEnumerable<KeyValuePair<string, ExcelFunction>> GetImplementedFunctions()
+        {
+            var functions = new List<KeyValuePair<string, ExcelFunction>>();
+            _parser.Configure(parsingConfiguration =>
+            {
+                foreach (var name in parsingConfiguration.FunctionRepository.FunctionNames)
+                {
+                    functions.Add(new KeyValuePair<string, ExcelFunction>(name, parsingConfiguration.FunctionRepository.GetFunction(name)));
+                }
+            });
+            return functions;
+        } 
 
         /// <summary>
         /// Parses the supplied <paramref name="formula"/> and returns the result.

@@ -90,7 +90,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             //var addressInfo = ExcelAddressInfo.Parse(address);
             var adr = new ExcelAddressBase(address);  
             var sheet = string.IsNullOrEmpty(adr.WorkSheet) ? worksheetName : adr.WorkSheet;
-            var dim = _excelDataProvider.GetDimensionEnd(adr.WorkSheet);
+            var dim = _excelDataProvider.GetDimensionEnd(sheet);
             var rangeAddress = new RangeAddress()
             {
                 Address = adr.Address,

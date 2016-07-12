@@ -342,14 +342,18 @@ namespace OfficeOpenXml.Table
                 {
                     DeleteNode(HEADERROWCOUNT_PATH);
                     WriteAutoFilter(ShowTotal);
-                    //for (int i = 0; i < Columns.Count; i++)
-                    //{
-                    //    var v = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol + i);
-                    //    if (!string.IsNullOrEmpty(v) || v != _cols[i].Name)
-                    //    {
-                    //        _cols[i].Name = v;
-                    //    }
-                    //}
+                    for (int i = 0; i < Columns.Count; i++)
+                    {
+                        var v = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol + i);
+                        if(string.IsNullOrEmpty(v))
+                        {
+                            WorkSheet.SetValue(Address._fromRow, Address._fromCol + i, _cols[i].Name);
+                        }
+                        else if (v != _cols[i].Name)
+                        {
+                            _cols[i].Name = v;
+                        }
+                    }
                 }
                 else
                 {

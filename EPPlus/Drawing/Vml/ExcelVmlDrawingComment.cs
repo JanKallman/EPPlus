@@ -60,6 +60,10 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 return Range.Address;
             }
+            internal set
+            {
+                Range.Address = value;
+            }
         }
 
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
@@ -428,6 +432,36 @@ namespace OfficeOpenXml.Drawing.Vml
                     _to = new ExcelVmlDrawingPosition(NameSpaceManager, TopNode.SelectSingleNode("x:ClientData", NameSpaceManager), 4);
                 }
                 return _to;
+            }
+        }
+        const string ROW_PATH = "x:ClientData/x:Row";
+        /// <summary>
+        /// Row position for a comment
+        /// </summary>
+        internal int Row
+        {
+            get
+            {
+                return GetXmlNodeInt(ROW_PATH);
+            }
+            set
+            {
+                SetXmlNodeString(ROW_PATH, value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        const string COLUMN_PATH = "x:ClientData/x:Column";
+        /// <summary>
+        /// Column position for a comment
+        /// </summary>
+        internal int Column
+        {
+            get
+            {
+                return GetXmlNodeInt(COLUMN_PATH);
+            }
+            set
+            {
+                SetXmlNodeString(COLUMN_PATH, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string STYLE_PATH = "@style";
