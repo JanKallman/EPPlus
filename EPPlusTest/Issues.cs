@@ -1181,6 +1181,17 @@ namespace EPPlusTest
                 }
             }
         }
+        [TestMethod]
+        public void Issue15485()
+        {
+            using (var pkg = new ExcelPackage(new FileInfo(@"c:\temp\bug\PivotChartSeriesIssue.xlsx")))
+            {
+                var ws = pkg.Workbook.Worksheets[1];
+                ws.InsertRow(1, 1);
+                ws.InsertColumn(1, 1);
+                pkg.Save();
+            }
+        }
         public static byte[] ReadTemplateFile(string templateName)
         {
             byte[] templateFIle;
