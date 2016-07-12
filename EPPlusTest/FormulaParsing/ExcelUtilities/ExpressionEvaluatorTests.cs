@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.Diagnostics.Design;
+using System.Globalization;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
@@ -58,6 +61,24 @@ namespace EPPlusTest
         public void EvaluateShouldThrowIfOperatorIsNotBoolean()
         {
             var result = _evaluator.Evaluate(1d, "+1");
+        }
+        #endregion
+
+        #region Date tests
+        [TestMethod]
+        public void EvaluateShouldHandleDateArg()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            var result = _evaluator.Evaluate(new DateTime(2016,6,28), "2016-06-28");
+            Assert.IsTrue(result);
+        }
+
+        [TestMethod]
+        public void EvaluateShouldHandleDateArgWithOperator()
+        {
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
+            var result = _evaluator.Evaluate(new DateTime(2016, 6, 28), ">2016-06-27");
+            Assert.IsTrue(result);
         }
         #endregion
 
