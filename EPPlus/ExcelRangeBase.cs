@@ -85,12 +85,6 @@ namespace OfficeOpenXml
             internal ExcelComment Comment { get; set; }
             internal Byte Flag { get; set; }
         }
-        //private class CopiedFlag
-        //{
-        //    internal int Row { get; set; }
-        //    internal int Column { get; set; }
-        //    internal Byte Flag { get; set; }
-        //}
         #region Constructors
 		internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
 		{
@@ -253,12 +247,10 @@ namespace OfficeOpenXml
 		}
 		private static void Set_StyleName(ExcelRangeBase range, object value, int row, int col)
 		{
-			//_worksheet.Cell(row, col).SetNewStyleName(value.ToString(), _styleID);
 			range._worksheet.SetStyleInner(row, col, range._styleID);
 		}
 		private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
 		{
-			//ExcelCell c = _worksheet.Cell(row, col);
 			var sfi = range._worksheet._formulas.GetValue(row, col);
 			if (sfi is int)
 			{
@@ -269,7 +261,6 @@ namespace OfficeOpenXml
 		}
 		private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
 		{
-			//ExcelCell c = _worksheet.Cell(row, col);
 			var f = range._worksheet._formulas.GetValue(row, col);
 			if (f is int && (int)f >= 0) range.SplitFormulas(range._worksheet.Cells[row, col]);
 
@@ -288,7 +279,8 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Handles shared formulas
 		/// </summary>
-		/// <param name="value">The  formula</param>
+		/// <param name="range">The range</param>
+        /// <param name="value">The  formula</param>
 		/// <param name="address">The address of the formula</param>
 		/// <param name="IsArray">If the forumla is an array formula.</param>
 		private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddress address, bool IsArray)
@@ -303,7 +295,6 @@ namespace OfficeOpenXml
 				Set_Formula(range, value, address.Start.Row, address.Start.Column);
 				return;
 			}
-			//RemoveFormuls(address);
 			range.CheckAndSplitSharedFormula(address);
 			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
 			f.Formula = value;
@@ -351,13 +342,11 @@ namespace OfficeOpenXml
 		}
 		private static void Set_IsRichText(ExcelRangeBase range, object value, int row, int col)
 		{
-			//_worksheet.Cell(row, col).IsRichText = (bool)value;
 			range._worksheet._flags.SetFlagValue(row, col, (bool)value, CellFlags.RichText);
 		}
 		private static void Exists_Comment(ExcelRangeBase range, object value, int row, int col)
 		{
-			//ulong cellID = GetCellID(_worksheet.SheetID, row, col);
-			if (_worksheet._commentsStore.Exists(row,col))
+			if (range._worksheet._commentsStore.Exists(row,col))
 			{
 				throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
 			}
@@ -367,7 +356,6 @@ namespace OfficeOpenXml
 		{
 			string[] v = (string[])value;
 			range._worksheet.Comments.Add(new ExcelRangeBase(range._worksheet, GetAddress(range._fromRow, range._fromCol)), v[0], v[1]);
-			//   _worksheet.Cell(row, col).Comment = comment;
 		}
 		#endregion
 		private void SetToSelectedRange()
@@ -581,10 +569,8 @@ namespace OfficeOpenXml
                     while (cells.Next())
                     {
                         _worksheet.SetStyleInner(cells.Row, cells.Column, _styleID);
-                        //cells.Value._styleId = _styleID;
                     }
                 }
-                //_changePropMethod(Set_StyleName, value);
 			}
 		}
 
@@ -1233,10 +1219,6 @@ namespace OfficeOpenXml
                         {
                             return false;
                         }
-                        //if (!_worksheet._flags.GetFlagValue(row, col, CellFlags.Merged))
-                        //{
-                        //    return false;
-                        //}
 					}
 				}
 				return true;
