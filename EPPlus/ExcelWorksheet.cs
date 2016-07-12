@@ -459,7 +459,14 @@ namespace OfficeOpenXml
             internal set
             {
                 CheckSheetType();
-                SetXmlNodeString("d:autoFilter/@ref", value.Address);
+                if (value == null)
+                {
+                    DeleteAllNode("d:autoFilter/@ref");
+                }
+                else
+                {
+                    SetXmlNodeString("d:autoFilter/@ref", value.Address);
+                }
             }
         }
 
