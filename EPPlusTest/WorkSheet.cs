@@ -27,6 +27,7 @@ namespace EPPlusTest
             InsertDeleteTestRows();
             InsertDeleteTestColumns();
             LoadData();
+            AutoFilter();
             StyleFill();
             Performance();
             RichTextCells();
@@ -67,6 +68,26 @@ namespace EPPlusTest
 
             ReadWorkSheet();
             ReadStreamSaveAsStream();
+        }
+        
+        private void AutoFilter()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("Autofilter");
+            ws.Cells["A1"].Value = "A1";
+            ws.Cells["B1"].Value = "B1";
+            ws.Cells["C1"].Value = "C1";
+            ws.Cells["D1"].Value = "D1";
+
+            ws.Cells["A2"].Value = 1;
+            ws.Cells["B2"].Value = 2;
+            ws.Cells["C2"].Value = 3;
+            ws.Cells["D2"].Value = 4;
+
+            ws.Cells["A1:D2"].AutoFilter = true;
+            ws.Cells["A1:D2"].AutoFilter = false;
+            ws.Cells["A1:D2"].AutoFilter = true;
+            ws.Cells["A1:D5"].AutoFilter = false;
+            ws.Cells["A1:D2"].AutoFilter = true;
         }
 
         private void AddChartSheet()

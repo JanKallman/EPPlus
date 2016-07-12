@@ -1277,13 +1277,28 @@ namespace OfficeOpenXml
 			set
 			{
 				IsRangeValid("autofilter");
-				_worksheet.AutoFilterAddress = this;
-				if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
-				{
-					_worksheet.Names.Remove("_xlnm._FilterDatabase");
-				}
-				var result = _worksheet.Names.Add("_xlnm._FilterDatabase", this);
-				result.IsNameHidden = true;
+                if (_worksheet.AutoFilterAddress != null)
+                {
+                    var c = this.Collide(_worksheet.AutoFilterAddress);
+                    if (value == false && (c == eAddressCollition.Partly || c == eAddressCollition.No))
+                    {
+                        throw (new InvalidOperationException("Can't remote Autofilter. Current autofilter does not match selected range."));
+                    }
+                }
+                if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
+                {
+                    _worksheet.Names.Remove("_xlnm._FilterDatabase");
+                }
+                if (value)
+                {
+                    _worksheet.AutoFilterAddress = this;
+                    var result = _worksheet.Names.Add("_xlnm._FilterDatabase", this);
+                    result.IsNameHidden = true;
+                }
+                else
+                {
+                    _worksheet.AutoFilterAddress = null;
+                }
 			}
 		}
 		/// <summary>
