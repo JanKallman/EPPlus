@@ -51,45 +51,36 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             ValidateArguments(arguments, 2);
 
             var searchedValue = arguments.ElementAt(0).Value;
-            var address = ArgToString(arguments, 1);
+            var address =  arguments.ElementAt(1).IsExcelRange ? arguments.ElementAt(1).ValueAsRangeInfo.Address.FullAddress : ArgToString(arguments, 1);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var rangeAddress = rangeAddressFactory.Create(address);
             var matchType = GetMatchType(arguments);
-            var args = new LookupArguments(searchedValue, address, 0, 0, false);
+            var args = new LookupArguments(searchedValue, address, 0, 0, false, arguments.ElementAt(1).ValueAsRangeInfo);
             var lookupDirection = GetLookupDirection(rangeAddress);
             var navigator = LookupNavigatorFactory.Create(lookupDirection, args, context);
-            int? lastMatchResult = default(int?);
+            int? lastValidIndex = null;
             do
             {
                 var matchResult = IsMatch(navigator.CurrentValue, searchedValue);
-                if (matchType == MatchType.ClosestBelow && matchResult >= 0)
-                {
-                    if (!lastMatchResult.HasValue && matchResult > 0)
-                    {
-                        // TODO: error handling. This happens only if the first item is
-                        // below the searched value.
-                    }
-                    var index = matchResult == 0 ? navigator.Index + 1 : navigator.Index;
-                    return CreateResult(index, DataType.Integer);
-                }
-                if (matchType == MatchType.ClosestAbove && matchResult <= 0)
-                {
-                    if (!lastMatchResult.HasValue && matchResult < 0)
-                    {
-                        // TODO: error handling. This happens only if the first item is
-                        // above the searched value
-                    }
-                    var index = matchResult == 0 ? navigator.Index + 1 : navigator.Index;
-                    return CreateResult(index, DataType.Integer);
-                }
-                if (matchType == MatchType.ExactMatch && matchResult == 0)
+
+                // For all match types, if the match result indicated equality, return the index (1 based)
+                if (matchResult == 0)
                 {
                     return CreateResult(navigator.Index + 1, DataType.Integer);
                 }
-                lastMatchResult = matchResult;
+
+                if ((matchType == MatchType.ClosestBelow && matchResult < 0) || (matchType == MatchType.ClosestAbove && matchResult > 0))
+                {
+                    lastValidIndex = navigator.Index + 1;
+                }
+                // If matchType is ClosestBelow or ClosestAbove and the match result test failed, no more searching is required
+                else if (matchType == MatchType.ClosestBelow || matchType == MatchType.ClosestAbove)
+                {
+                    break;
+                }
             }
             while (navigator.MoveNext());
-            return CreateResult(null, DataType.Integer);
+            return CreateResult(lastValidIndex, DataType.Integer);
         }
 
         private MatchType GetMatchType(IEnumerable<FunctionArgument> arguments)
