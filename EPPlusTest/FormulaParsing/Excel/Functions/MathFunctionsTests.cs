@@ -1030,29 +1030,56 @@ namespace EPPlusTest.Excel.Functions
                 w.SetValue(3, 1, 2);
                 w.SetValue(4, 1, 2);
                 w.SetValue(5, 1, 4);
+                w.SetValue(6, 1, 4);
 
                 w.SetFormula(1, 2, "RANK(1,A1:A5)");
                 w.SetFormula(1, 3, "RANK(1,A1:A5,1)");
+                w.SetFormula(1, 4, "RANK.AVG(1,A1:A5)");
+                w.SetFormula(1, 5, "RANK.AVG(1,A1:A5,1)");
 
-                w.SetFormula(2, 2, "RANK(2,A1:A5)");
-                w.SetFormula(2, 3, "RANK(2,A1:A5,1)");
+                w.SetFormula(2, 2, "RANK.EQ(2,A1:A5)");
+                w.SetFormula(2, 3, "RANK.EQ(2,A1:A5,1)");
+                w.SetFormula(2, 4, "RANK.AVG(2,A1:A5,1)");
+                w.SetFormula(2, 5, "RANK.AVG(2,A1:A5,0)");
 
                 w.SetFormula(3, 2, "RANK(3,A1:A5)");
                 w.SetFormula(3, 3, "RANK(3,A1:A5,1)");
+                w.SetFormula(3, 4, "RANK.AVG(3,A1:A5,1)");
+                w.SetFormula(3, 5, "RANK.AVG(3,A1:A5,0)");
 
-                w.SetFormula(4, 2, "RANK(4,A1:A5)");
-                w.SetFormula(4, 3, "RANK(4,A1:A5,1)");
+                w.SetFormula(4, 2, "RANK.EQ(4,A1:A5)");
+                w.SetFormula(4, 3, "RANK.EQ(4,A1:A5,1)");
+                w.SetFormula(4, 4, "RANK.AVG(4,A1:A5,1)");
+                w.SetFormula(4, 5, "RANK.AVG(4,A1:A5)");
+
+
+                w.SetFormula(5, 4, "RANK.AVG(4,A1:A6,1)");
+                w.SetFormula(5, 5, "RANK.AVG(4,A1:A6)");
 
                 w.Calculate();
 
-                Assert.AreEqual(w.GetValue(1, 2), 4);
-                Assert.AreEqual(w.GetValue(1, 3), 1);
-                Assert.AreEqual(w.GetValue(2, 2), 2);
-                Assert.AreEqual(w.GetValue(2, 3), 3);
+                Assert.AreEqual(w.GetValue(1, 2), 4D);
+                Assert.AreEqual(w.GetValue(1, 3), 1D);
+                Assert.AreEqual(w.GetValue(1, 4), 4.5D);
+                Assert.AreEqual(w.GetValue(1, 5), 1.5D);
+
+                Assert.AreEqual(w.GetValue(2, 2), 2D);
+                Assert.AreEqual(w.GetValue(2, 3), 3D);
+                Assert.AreEqual(w.GetValue(2, 4), 3.5D);
+                Assert.AreEqual(w.GetValue(2, 5), 2.5D);
+
                 Assert.IsInstanceOfType(w.GetValue(3, 2), typeof(ExcelErrorValue));
                 Assert.IsInstanceOfType(w.GetValue(3, 3), typeof(ExcelErrorValue));
-                Assert.AreEqual(w.GetValue(4, 2), 1);
-                Assert.AreEqual(w.GetValue(4, 3), 5);                
+                Assert.IsInstanceOfType(w.GetValue(3, 4), typeof(ExcelErrorValue));
+                Assert.IsInstanceOfType(w.GetValue(3, 5), typeof(ExcelErrorValue));
+
+                Assert.AreEqual(w.GetValue(4, 2), 1D);
+                Assert.AreEqual(w.GetValue(4, 3), 5D);
+                Assert.AreEqual(w.GetValue(4, 4), 5D);
+                Assert.AreEqual(w.GetValue(4, 5), 1D);
+
+                Assert.AreEqual(w.GetValue(5, 4), 5.5D);
+                Assert.AreEqual(w.GetValue(5, 5), 1.5D);
             }
         }
     }

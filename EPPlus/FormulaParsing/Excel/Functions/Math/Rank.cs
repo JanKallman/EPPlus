@@ -8,6 +8,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 {
     public class Rank : ExcelFunction
     {
+        bool _isAvg;
+        public Rank(bool isAvg=false)
+        {
+            _isAvg=isAvg;
+        }
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
@@ -29,14 +34,27 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
                 }
             }
             l.Sort();
-            int ix;
+            double ix;
             if (asc)
             {
                 ix = l.IndexOf(number)+1;
+                if(_isAvg)
+                {
+                    int st = Convert.ToInt32(ix);
+                    while (l.Count > st && l[st] == number) st++;
+                    if (st > ix) ix = ix + ((st - ix) / 2D);
+                }
             }
             else
             {
-                ix = l.Count-l.LastIndexOf(number);
+                ix = l.LastIndexOf(number);
+                if (_isAvg)
+                {
+                    int st = Convert.ToInt32(ix)-1;
+                    while (0 <= st && l[st] == number) st--;
+                    if (st+1 < ix) ix = ix - ((ix - st - 1) / 2D);
+                }
+                ix = l.Count - ix;
             }
             if (ix <= 0 || ix>l.Count)
             {
@@ -44,7 +62,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             }
             else
             {
-                return CreateResult(ix, DataType.Integer);
+                return CreateResult(ix, DataType.Decimal);
             }
         }
     }
