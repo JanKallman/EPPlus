@@ -116,6 +116,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["rand"] = new Rand();
             Functions["randbetween"] = new RandBetween();
             Functions["rank"] = new Rank();
+            Functions["rank.eq"] = new Rank();
+            Functions["rank.avg"] = new Rank(true);
             Functions["quotient"] = new Quotient();
             Functions["trunc"] = new Trunc();
             Functions["tan"] = new Tan();
