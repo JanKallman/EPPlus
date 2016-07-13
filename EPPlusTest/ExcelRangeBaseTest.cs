@@ -72,5 +72,22 @@ namespace EPPlusTest
             Assert.AreEqual("test1", destinationExcelRangeE5.Comment.Author);
             Assert.AreEqual("Testing comment 3", destinationExcelRangeE5.Comment.Text);
         }
+
+        [TestMethod]
+        public void SettingAddressHandlesMultiAddresses()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Sheet1");
+                var name = package.Workbook.Names.Add("Test", worksheet.Cells[3, 3]);
+                name.Address = "Sheet1!C3";
+                name.Address = "Sheet1!D3";
+                Assert.IsNull(name.Addresses);
+                name.Address = "C3:D3,E3:F3";
+                Assert.IsNotNull(name.Addresses);
+                name.Address = "Sheet1!C3";
+                Assert.IsNull(name.Addresses);
+            }
+        }
     }
 }
