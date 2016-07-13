@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Globalization;
+using System.Linq;
 
 namespace OfficeOpenXml
 {
@@ -559,9 +560,9 @@ namespace OfficeOpenXml
                     {
                         return new ExcelAddress(r.FirstAddress);
                     }
-                    else if (r._addresses != null && r.Addresses[0].Start.Column == 1 && r.Addresses[0].End.Column == ExcelPackage.MaxColumns)
+                    else if (r._addresses != null)
                     {
-                        return r._addresses[0];
+                        return r._addresses.FirstOrDefault(a => a.Start.Column == 1 && a.End.Column == ExcelPackage.MaxColumns);
                     }
                     else
                     {
@@ -615,13 +616,14 @@ namespace OfficeOpenXml
                 if (_ws.Names.ContainsKey("_xlnm.Print_Titles"))
                 {
                     ExcelRangeBase r = _ws.Names["_xlnm.Print_Titles"] as ExcelRangeBase;
+                    
                     if (r.Start.Row == 1 && r.End.Row == ExcelPackage.MaxRows)
                     {
                         return new ExcelAddress(r.FirstAddress);
                     }
-                    else if (r._addresses != null && (r._addresses[0].Start.Row == 1 && r._addresses[0].End.Row == ExcelPackage.MaxRows))
+                    else if (r._addresses != null)
                     {
-                        return r._addresses[0];
+                        return r._addresses.FirstOrDefault(a => a.Start.Row == 1 && a.End.Row == ExcelPackage.MaxRows);
                     }
                     else
                     {
