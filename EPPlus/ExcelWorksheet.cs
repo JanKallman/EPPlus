@@ -3370,8 +3370,13 @@ namespace OfficeOpenXml
                         parentNode.AppendChild(fieldNode);
                     }
                 }
+
+                //Rewrite the pivottable address again if any rows or columns have been inserted or deleted
                 pt.SetXmlNodeString("d:location/@ref", pt.Address.Address);
-                pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceWorksheetPath, pt.CacheDefinition.SourceRange.Address);
+                if (pt.CacheDefinition.SourceRange!=null && !pt.CacheDefinition.SourceRange.IsName)
+                {
+                    pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
+                }
 
                 var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
                 var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);

@@ -168,9 +168,9 @@ namespace OfficeOpenXml.Table.PivotTable
             private set;
         }
         
-        internal const string _sourceWorksheetPath="d:cacheSource/d:worksheetSource/@sheet";
+        const string _sourceWorksheetPath="d:cacheSource/d:worksheetSource/@sheet";
         const string _sourceNamePath = "d:cacheSource/d:worksheetSource/@name";
-        const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
+        internal const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
         internal ExcelRangeBase _sourceRange = null;
         /// <summary>
         /// The source data range when the pivottable has a worksheet datasource. 
