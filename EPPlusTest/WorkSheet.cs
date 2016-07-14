@@ -1038,8 +1038,6 @@ namespace EPPlusTest
 
             ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
         }
-
-
         [TestMethod]
         public void PivotTableTest()
         {
