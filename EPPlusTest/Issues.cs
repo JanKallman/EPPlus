@@ -1181,7 +1181,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue15485()
         {
             using (var pkg = new ExcelPackage(new FileInfo(@"c:\temp\bug\PivotChartSeriesIssue.xlsx")))
