@@ -30,12 +30,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime.Workdays
                 }
             }
             var range = _holidayArg.Value as ExcelDataProvider.IRangeInfo;
-            if (range == null) return;
+            if (range != null)
             {
                 foreach (var holidayDate in from cell in range where ConvertUtil.IsNumeric(cell.Value) select ConvertUtil.GetValueDouble(cell.Value) into dateSerial select System.DateTime.FromOADate(dateSerial))
                 {
                     _holidayDates.Add(holidayDate);
                 }
+            }
+            if (ConvertUtil.IsNumeric(_holidayArg.Value))
+            {
+                _holidayDates.Add(System.DateTime.FromOADate(ConvertUtil.GetValueDouble(_holidayArg.Value)));
             }
         }
     }

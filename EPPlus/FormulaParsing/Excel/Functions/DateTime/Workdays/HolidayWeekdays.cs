@@ -73,13 +73,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime.Workdays
             return resultDate;
         }
 
-        public System.DateTime GetNextWorkday(System.DateTime date, bool forward = true)
+        public System.DateTime GetNextWorkday(System.DateTime date, WorkdayCalculationDirection direction = WorkdayCalculationDirection.Forward)
         {
-            var changeParam = forward ? 1 : -1;
+            var changeParam = (int)direction;
             var tmpDate = date.AddDays(changeParam);
             while (IsHolidayWeekday(tmpDate))
             {
-                tmpDate.AddDays(changeParam);
+                tmpDate = tmpDate.AddDays(changeParam);
             }
             return tmpDate;
         }

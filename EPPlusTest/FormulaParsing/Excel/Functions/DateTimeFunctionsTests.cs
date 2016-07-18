@@ -497,8 +497,44 @@ namespace EPPlusTest.Excel.Functions
                 var expectedDate = new DateTime(2016, 6, 13).ToOADate();
                 var actualDate = ws.Cells["B3"].Value;
                 Assert.AreEqual(expectedDate, actualDate);
+            } 
+        }
+
+        [TestMethod]
+        public void NetworkdaysShouldReturnNumberOfDays()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS(DATE(2016,1,1), DATE(2016,1,20))";
+                ws.Calculate();
+                Assert.AreEqual(14, ws.Cells["A1"].Value);
             }
-            
+        }
+
+        [TestMethod]
+        public void NetworkdaysShouldReturnNumberOfDaysWithHolidayRange()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS(DATE(2016,1,1), DATE(2016,1,20),B1)";
+                ws.Cells["B1"].Formula = "DATE(2016,1,15)";
+                ws.Calculate();
+                Assert.AreEqual(13, ws.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NetworkdaysNegativeShouldReturnNumberOfDays()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS(DATE(2016,1,1), DATE(2015,12,20))";
+                ws.Calculate();
+                Assert.AreEqual(10, ws.Cells["A1"].Value);
+            }
         }
     }
 }
