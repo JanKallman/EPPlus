@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Threading;
@@ -515,6 +516,14 @@ namespace EPPlusTest.Excel.Functions
         [TestMethod]
         public void NetworkdaysShouldReturnNumberOfDaysWithHolidayRange()
         {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                // do something...
+                using (var package = new ExcelPackage())
+                {
+                    package.Load(ms);
+                }
+            }
             using (var package = new ExcelPackage())
             {
                 var ws = package.Workbook.Worksheets.Add("test");
@@ -534,6 +543,42 @@ namespace EPPlusTest.Excel.Functions
                 ws.Cells["A1"].Formula = "NETWORKDAYS(DATE(2016,1,1), DATE(2015,12,20))";
                 ws.Calculate();
                 Assert.AreEqual(10, ws.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NetworkdayIntlShouldUseWeekendArg()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS.INTL(DATE(2016,1,1), DATE(2016,1,20), 11)";
+                ws.Calculate();
+                Assert.AreEqual(17, ws.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NetworkdayIntlShouldUseWeekendStringArg()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS.INTL(DATE(2016,1,1), DATE(2016,1,20), \"0000011\")";
+                ws.Calculate();
+                Assert.AreEqual(14, ws.Cells["A1"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void NetworkdayIntlShouldReduceHoliday()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "NETWORKDAYS.INTL(DATE(2016,1,1), DATE(2016,1,20), \"0000011\", DATE(2016,1,4))";
+                ws.Calculate();
+                Assert.AreEqual(13, ws.Cells["A1"].Value);
             }
         }
     }

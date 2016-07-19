@@ -17,7 +17,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             var endDate = System.DateTime.FromOADate(ArgToInt(functionArguments, 1));
             var calculator = new WorkdayCalculator();
             var result = calculator.CalculateNumberOfWorkdays(startDate, endDate);
-            result = calculator.ReduceWorkdaysWithHolidays(result, functionArguments);
+            if (functionArguments.Length > 2)
+            {
+                result = calculator.ReduceWorkdaysWithHolidays(result, functionArguments[2]);
+            }
+            
             return new CompileResult(result.NumberOfWorkdays, DataType.Integer);
         }
     }
