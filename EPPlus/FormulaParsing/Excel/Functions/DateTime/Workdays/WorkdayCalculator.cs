@@ -79,14 +79,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime.Workdays
         }
 
         public WorkdayCalculatorResult ReduceWorkdaysWithHolidays(WorkdayCalculatorResult calculatedResult,
-            IEnumerable<FunctionArgument> arguments)
+            FunctionArgument holidayArgument)
         {
-            var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
-            if (functionArguments.Count() <= 2)
-                return calculatedResult;
             var startDate = calculatedResult.StartDate;
             var endDate = calculatedResult.EndDate;
-            var additionalDays = new AdditionalHolidayDays(functionArguments.ElementAt(2));
+            var additionalDays = new AdditionalHolidayDays(holidayArgument);
             System.DateTime calcStartDate;
             System.DateTime calcEndDate;
             if (startDate < endDate)
@@ -104,16 +101,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime.Workdays
         } 
 
         public WorkdayCalculatorResult AdjustResultWithHolidays(WorkdayCalculatorResult calculatedResult,
-                                                         IEnumerable<FunctionArgument> arguments)
+                                                         FunctionArgument holidayArgument)
         {
-            var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
-            if (functionArguments.Count() <= 2)
-                return calculatedResult;
             var startDate = calculatedResult.StartDate;
             var endDate = calculatedResult.EndDate;
             var direction = calculatedResult.Direction;
             var workdaysCounted = calculatedResult.NumberOfWorkdays;
-            var additionalDays = new AdditionalHolidayDays(functionArguments.ElementAt(2));
+            var additionalDays = new AdditionalHolidayDays(holidayArgument);
             foreach (var date in additionalDays.AdditionalDates)
             {
                 if (direction == WorkdayCalculationDirection.Forward && (date < startDate || date > endDate)) continue;

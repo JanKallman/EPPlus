@@ -189,6 +189,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["isoweeknum"] = new IsoWeekNum();
             Functions["workday"] = new Workday();
             Functions["networkdays"] = new Networkdays();
+            Functions["networkdays.intl"] = new NetworkdaysIntl();
             Functions["datevalue"] = new DateValue();
             Functions["timevalue"] = new TimeValue();
             // Database

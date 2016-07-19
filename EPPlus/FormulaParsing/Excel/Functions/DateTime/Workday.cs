@@ -20,7 +20,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             
             var calculator = new WorkdayCalculator();
             var result = calculator.CalculateWorkday(startDate, nWorkDays);
-            result = calculator.AdjustResultWithHolidays(result, functionArguments);
+            if (functionArguments.Length > 2)
+            {
+                result = calculator.AdjustResultWithHolidays(result, functionArguments[2]);
+            }
             return CreateResult(result.EndDate.ToOADate(), DataType.Date);
         }   
     }
