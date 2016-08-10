@@ -18,11 +18,12 @@
  *
  * Code change notes:
  * 
- * Author							Change						        Date
- *********************************************************************************
- * Mats Alm   		                Added		                        2013-12-03
- * Robert J. McKee                  Fix rounding with negative digits   2016-08-10
- *********************************************************************************/
+ * Author							Change						                Date
+ *****************************************************************************************
+ * Mats Alm   		                Added		                                2013-12-03
+ * Robert J. McKee                  Fix rounding with negative digits parameter 2016-08-10
+ *                                  Fix rounding of negative numbers            2016-08-10
+ *****************************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,9 +42,9 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             if (nDigits < 0)
             {
                 nDigits *= -1;
-                return CreateResult(System.Math.Round(number / System.Math.Pow(10, nDigits)) * System.Math.Pow(10, nDigits), DataType.Integer); 
+                return CreateResult(System.Math.Round(number / System.Math.Pow(10, nDigits),0, MidpointRounding.AwayFromZero) * System.Math.Pow(10, nDigits), DataType.Integer); 
             }
-            return CreateResult(System.Math.Round(number, nDigits), DataType.Decimal);
+            return CreateResult(System.Math.Round(number, nDigits, MidpointRounding.AwayFromZero), DataType.Decimal);
         }
     }
 }
