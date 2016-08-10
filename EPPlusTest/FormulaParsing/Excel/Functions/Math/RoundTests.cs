@@ -40,7 +40,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
         }
 
         [TestMethod]
-        public void RoundPositiveToTensDownLiteral()
+        public void RoundPositiveToTenthsDownLiteral()
         {
             Round round = new Round();
             double value1 = 123.44;
@@ -53,7 +53,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
             Assert.AreEqual(123.4D, result.Result);
         }
         [TestMethod]
-        public void RoundPositiveToTensUpLiteral()
+        public void RoundPositiveToTenthsUpLiteral()
         {
             Round round = new Round();
             double value1 = 123.456;
@@ -65,9 +65,61 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
             }, ParsingContext.Create());
             Assert.AreEqual(123.5D, result.Result);
         }
+        [TestMethod]
+        public void RoundPositiveToTensDownLiteral()
+        {
+            Round round = new Round();
+            double value1 = 124;
+            int digits = -1;
+            var result = round.Execute(new FunctionArgument[]
+            {
+                new FunctionArgument(value1),
+                new FunctionArgument(digits)
+            }, ParsingContext.Create());
+            Assert.AreEqual(120D, result.Result);
+        }
+        [TestMethod]
+        public void RoundPositiveToTensUpLiteral()
+        {
+            Round round = new Round();
+            double value1 = 125;
+            int digits = -1;
+            var result = round.Execute(new FunctionArgument[]
+            {
+                new FunctionArgument(value1),
+                new FunctionArgument(digits)
+            }, ParsingContext.Create());
+            Assert.AreEqual(126D, result.Result);
+        }
 
         [TestMethod]
         public void RoundNegativeToTensDownLiteral()
+        {
+            Round round = new Round();
+            double value1 = -124;
+            int digits = -1;
+            var result = round.Execute(new FunctionArgument[]
+            {
+                new FunctionArgument(value1),
+                new FunctionArgument(digits)
+            }, ParsingContext.Create());
+            Assert.AreEqual(-120D, result.Result);
+        }
+        [TestMethod]
+        public void RoundNegativeToTensUpLiteral()
+        {
+            Round round = new Round();
+            double value1 = -125;
+            int digits = -1;
+            var result = round.Execute(new FunctionArgument[]
+            {
+                new FunctionArgument(value1),
+                new FunctionArgument(digits)
+            }, ParsingContext.Create());
+            Assert.AreEqual(-130D, result.Result);
+        }
+        [TestMethod]
+        public void RoundNegativeToTenthsDownLiteral()
         {
             Round round = new Round();
             double value1 = -123.44;
@@ -80,7 +132,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
             Assert.AreEqual(-123.4D, result.Result);
         }
         [TestMethod]
-        public void RoundNegativeToTensUpLiteral()
+        public void RoundNegativeToTenthsUpLiteral()
         {
             Round round = new Round();
             double value1 = -123.456;
