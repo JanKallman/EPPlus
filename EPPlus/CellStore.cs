@@ -1971,20 +1971,19 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             _colPos = -1;            
             _row= 0;
         }
+    //public IEnumerator<ulong> GetEnumerator()
+    //{
+    //    this.Reset();
+    //    return this;
+    //}
 
-        //public IEnumerator<ulong> GetEnumerator()
-        //{
-        //    this.Reset();
-        //    return this;
-        //}
+    //IEnumerator IEnumerable.GetEnumerator()
+    //{
+    //    this.Reset();
+    //    return this;
+    //}
 
-        //IEnumerator IEnumerable.GetEnumerator()
-        //{
-        //    this.Reset();
-        //    return this;
-        //}
-
-    }
+}
     internal class CellsStoreEnumerator<T> : IEnumerable<T>, IEnumerator<T>
     {
         CellStore<T> _cellStore;

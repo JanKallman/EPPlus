@@ -90,6 +90,7 @@ namespace OfficeOpenXml
     {
         internal object _value;
         internal int _styleId;
+
     }
     /// <summary>
     /// Represents an Excel Chartsheet and provides access to its properties and methods
