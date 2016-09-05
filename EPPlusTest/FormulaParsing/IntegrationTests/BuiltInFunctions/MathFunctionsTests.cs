@@ -428,5 +428,18 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 Assert.AreEqual(4.5d, sheet.Cells["H9"].Value);
             }
         }
+
+        [TestMethod]
+        public void AbsShouldHandleEmptyCell()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Formula = "ABS(B1)";
+                sheet.Calculate();
+
+                Assert.AreEqual(0d, sheet.Cells["A1"].Value);
+            }
+        }
     }
 }
