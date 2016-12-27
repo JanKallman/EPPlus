@@ -310,7 +310,7 @@ namespace OfficeOpenXml
                     while (cse.Next())
                     {
                         if (cse.Value._styleId == 0) continue;
-                        for (int c = address._fromRow; c <= address._toCol; c++)
+                        for (int c = address._fromCol; c <= address._toCol; c++)
                         {
                             if (!ws.ExistsStyleInner(cse.Row, c))
                             {

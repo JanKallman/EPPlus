@@ -194,8 +194,7 @@ namespace OfficeOpenXml.DataValidation
             }
             private set
             {
-                var address = AddressUtility.ParseEntireColumnSelections(value.Address);
-                SetXmlNodeString(_sqrefPath, address);
+                SetAddress(value.Address);
             }
         }
         /// <summary>
@@ -394,6 +393,13 @@ namespace OfficeOpenXml.DataValidation
             }
             var stringValue = val.Value.ToString().Replace(',', '.');
             SetXmlNodeString(path, stringValue);
+        }
+
+        internal void SetAddress(string address)
+        {
+            var dvAddress = AddressUtility.ParseEntireColumnSelections(address);
+            SetXmlNodeString(_sqrefPath, dvAddress);
+            
         }
     }
 }

@@ -223,7 +223,7 @@ namespace OfficeOpenXml
 
                 Worksheet.VmlDrawingsComments._drawings.Delete(id);
                 _list.RemoveAt(i);                
-                Worksheet._commentsStore.Delete(comment.Range._fromRow, comment.Range._fromCol, 1, 1);
+                Worksheet._commentsStore.Delete(comment.Range._fromRow, comment.Range._fromCol, 1, 1, false);   //Issue 15549, Comments should not be shifted 
                 var ci = new CellsStoreEnumerator<int>(Worksheet._commentsStore);
                 while(ci.Next())
                 {

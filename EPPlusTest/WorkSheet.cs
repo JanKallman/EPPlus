@@ -2944,6 +2944,15 @@ namespace EPPlusTest
                 ws.Calculate();
 
                 ws.Cells["E1:H1000"].Sort(3);
+
+                ws.Cells["I5"].Value = 8;
+                ws.Cells["I6"].Value = 1;
+                ws.Cells["I7"].Value = "12";
+                ws.Cells["I8"].Value = "Test";
+                ws.Cells["I9"].Value = "aa";
+
+
+                ws.Cells["I:I"].Sort(0,true);
                 package.SaveAs(new FileInfo(@"c:\temp\sort.xlsx"));
             }
         }
