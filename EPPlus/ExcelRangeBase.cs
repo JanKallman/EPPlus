@@ -1424,18 +1424,24 @@ namespace OfficeOpenXml
 			get
 			{
 				string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
-				string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
-				if (Addresses != null)
+                string fullAddress;
+				if (Addresses == null)
+                {
+                    fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+                }
+                else
 				{
-					foreach (var a in Addresses)
+                    fullAddress = "";
+                    foreach (var a in Addresses)
 					{
+                        if (fullAddress != "") fullAddress += ",";
                         if (a.Address == "#REF!")
                         {
-                            fullAddress += "," + GetFullAddress(wbwsRef, "#REF!");
+                            fullAddress += GetFullAddress(wbwsRef, "#REF!");
                         }
                         else
                         {
-                            fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
+                            fullAddress += GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
                         }
 					}
 				}
@@ -1450,12 +1456,18 @@ namespace OfficeOpenXml
             get
             {
                 string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
-                string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true), false);
-                if (Addresses != null)
+                string fullAddress;
+                if (Addresses == null)
                 {
+                    fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true), false);
+                }
+                else
+                {
+                    fullAddress = "";
                     foreach (var a in Addresses)
                     {
-                        fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true),false); ;
+                        if (fullAddress != "") fullAddress += ",";
+                        fullAddress += GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true),false); ;
                     }
                 }
                 return fullAddress;
@@ -1471,19 +1483,11 @@ namespace OfficeOpenXml
 		{
 			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
 			{
-				//_worksheet.Cell(1, 1).SetValueRichText(value);
                 SetValue(value, 1, 1);
 			}
 			else
 			{
-                //for (int col = _fromCol; col <= _toCol; col++)
-                //{
-                //    for (int row = _fromRow; row <= _toRow; row++)
-                //    {
-						//_worksheet.Cell(row, col).SetValueRichText(value);
-                        SetValue(value, _fromRow,_fromCol);
-                    //}
-				//}
+                SetValue(value, _fromRow,_fromCol);
 			}
 		}
 
@@ -1981,7 +1985,11 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				foreach (var t in Members)
+                if(Members.Length==0)   //Fixes issue 15555
+                {
+                    throw (new ArgumentException("Parameter Members must have at least one property. Length is zero"));
+                }
+                foreach (var t in Members)
 				{
                     if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
 					{
@@ -2029,16 +2037,16 @@ namespace OfficeOpenXml
 		        return null;
 		    }
 
-			if (Members.Length == 0)
-			{
-				foreach (var item in Collection)
-				{
-					//_worksheet.Cells[row++, col].Value = item;
-                    values[row, col++] = item;
-                }
-			}
-			else
-			{
+			//if (Members.Length == 0)
+			//{
+			//	foreach (var item in Collection)
+			//	{
+			//		//_worksheet.Cells[row++, col].Value = item;
+   //                 values[row, col++] = item;
+   //             }
+			//}
+			//else
+			//{
 				foreach (var item in Collection)
 				{
 					col = 0;
@@ -2069,7 +2077,7 @@ namespace OfficeOpenXml
                         }
                     }
 					row++;
-				}
+				//}
 			}
 
             _worksheet.SetRangeValueInner(_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1, values);
@@ -2756,8 +2764,10 @@ namespace OfficeOpenXml
         }        
         private class Comp : IComparer<SortItem<ExcelCoreValue>>
         {
-            public static int[] columns;
-            public static bool[] descending;
+            public int[] columns;
+            public bool[] descending;
+            public CultureInfo cultureInfo=CultureInfo.CurrentCulture;
+            public CompareOptions compareOptions = CompareOptions.None;
             public int Compare(SortItem<ExcelCoreValue> x, SortItem<ExcelCoreValue> y)
             {
                 var ret = 0;
@@ -2778,18 +2788,18 @@ namespace OfficeOpenXml
                         if(double.IsNaN(d2))
                         {
                             d2 = double.MaxValue;
-                        }
+                        }                        
                         ret = d1 < d2 ? -1 : (d1 > d2 ? 1 : 0);
                     }
                     else if(isNumX==false && isNumY==false)   //String Compare
                     {
                         var s1 = x1 == null ? "" : x1.ToString();
                         var s2 = y1 == null ? "" : y1.ToString();
-                        ret = s1.CompareTo(s2);
+                        ret = string.Compare(s1, s2, cultureInfo, compareOptions);
                     }
                     else
                     {
-                        ret = isNumX ? 1 : -1;
+                        ret = isNumX ? -1 : 1;
                     }
                     if (ret != 0) return ret * (descending[i] ? -1 : 1);
                 }
@@ -2817,7 +2827,9 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="columns">The column(s) to sort by within the range. Zerobased</param>
         /// <param name="descending">Descending if true, otherwise Ascending. Default Ascending. Zerobased</param>
-        public void Sort(int[] columns, bool[] descending=null)
+        /// <param name="culture">The CultureInfo used to compare values. A null value means CurrentCulture</param>
+        /// <param name="compareOptions">String compare option</param>
+        public void Sort(int[] columns, bool[] descending=null, CultureInfo culture=null, CompareOptions compareOptions=CompareOptions.None)
         {
             if (columns==null)
             {
@@ -2855,8 +2867,10 @@ namespace OfficeOpenXml
             }
 
             var comp = new Comp();
-            Comp.columns = columns;
-            Comp.descending = descending;
+            comp.columns = columns;
+            comp.descending = descending;
+            comp.cultureInfo = culture ?? CultureInfo.CurrentCulture;
+            comp.compareOptions = compareOptions;
             l.Sort(comp);
 
             var flags = GetItems(_worksheet._flags, _fromRow, _fromCol, _toRow, _toCol);
@@ -2900,11 +2914,13 @@ namespace OfficeOpenXml
                             sf.Add(sfIx);
                         }
                     }
+
                     //Move hyperlinks
                     if (hyperLinks.ContainsKey(addr))
                     {
                         _worksheet._hyperLinks.SetValue(row, col, hyperLinks[addr]);
                     }
+
                     //Move comments
                     if (comments.ContainsKey(addr))
                     {

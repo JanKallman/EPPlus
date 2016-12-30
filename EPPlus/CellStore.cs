@@ -111,14 +111,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         res++;
                     }
                     while (res + 1 < PageCount && _pages[res + 1].MinIndex <= Row);
-                    //if (res + 1 < PageCount && _pages[res + 1].MaxIndex >= Row)
-                    //{
-                        return true;
-                    //}
-                    //else
-                    //{
-                    //    return false;
-                    //}
+                    return true;
                 }
                 else if (res - 1 >= 0 && _pages[res - 1].MaxIndex >= Row)
                 {
@@ -127,14 +120,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         res--;
                     }
                     while (res-1 > 0 && _pages[res-1].MaxIndex >= Row);
-                    //if (res > 0)
-                    //{
-                        return true;
-                    //}
-                    //else
-                    //{
-                    //    return false;
-                    //}
+                    return true;
                 }
                 return false;
             }
@@ -640,7 +626,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         AddPage(_columnIndex[col], pos, page);
                     }
                     var pageItem = _columnIndex[col]._pages[pos];
-                    if (pageItem.IndexOffset > Row)
+                    if (!(pageItem.MinIndex<=Row && pageItem.MaxIndex>=Row)  &&  pageItem.IndexExpanded > Row)   //TODO: Fix issue
                     {
                         pos--;
                         page--;
