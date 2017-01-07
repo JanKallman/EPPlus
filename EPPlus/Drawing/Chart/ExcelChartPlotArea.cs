@@ -60,6 +60,18 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _chartTypes;
             }
         }
+        ExcelChartDataTable _dataTable = null;
+        public ExcelChartDataTable DataTable
+        {
+            get
+            {
+                if (_dataTable == null)
+                {
+                    _dataTable = new ExcelChartDataTable(NameSpaceManager, TopNode);
+                }
+                return _dataTable;
+            }
+        }
         ExcelDrawingFill _fill = null;
         public ExcelDrawingFill Fill
         {
