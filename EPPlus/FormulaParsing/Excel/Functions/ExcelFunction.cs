@@ -332,7 +332,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <param name="arguments"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
+        protected virtual IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments,
                                                                      ParsingContext context)
         {
             return ArgsToDoubleEnumerable(false, arguments, context);
@@ -346,7 +346,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <param name="arguments"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        protected virtual IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerable(bool ignoreHiddenCells, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return _argumentCollectionUtil.ArgsToDoubleEnumerable(ignoreHiddenCells, ignoreErrors, arguments, context);
         }
@@ -358,9 +358,32 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// <param name="arguments"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        protected virtual IEnumerable<double> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        protected virtual IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerable(bool ignoreHiddenCells, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return ArgsToDoubleEnumerable(ignoreHiddenCells, true, arguments, context);
+        }
+
+        protected virtual IEnumerable<double> ArgsToDoubleEnumerableZeroPadded(bool ignoreHiddenCells, ExcelDataProvider.IRangeInfo rangeInfo, ParsingContext context)
+        {
+            var startRow = rangeInfo.Address.Start.Row;
+            var endRow = rangeInfo.Address.End.Row;
+            var funcArg = new FunctionArgument(rangeInfo);
+            var result = ArgsToDoubleEnumerable(ignoreHiddenCells, new List<FunctionArgument> { funcArg }, context);
+            var dict = new Dictionary<int, double>();
+            result.ToList().ForEach(x => dict.Add(x.CellRow.Value, x.Value));
+            var resultList = new List<double>();
+            for (var row = startRow; row <= endRow; row++)
+            {
+                if(dict.ContainsKey(row))
+                {
+                    resultList.Add(dict[row]);
+                }
+                else
+                {
+                    resultList.Add(0d);
+                }
+            }
+            return resultList;
         }
 
         /// <summary>

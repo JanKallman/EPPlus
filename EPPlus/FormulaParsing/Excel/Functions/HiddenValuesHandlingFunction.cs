@@ -44,16 +44,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             set;
         }
 
-        protected override IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        protected override IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return ArgsToDoubleEnumerable(arguments, context, true);
         }
 
-        protected IEnumerable<double> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context, bool ignoreErrors)
+        protected IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerable(IEnumerable<FunctionArgument> arguments, ParsingContext context, bool ignoreErrors)
         {
             if (!arguments.Any())
             {
-                return Enumerable.Empty<double>();
+                return Enumerable.Empty<ExcelDoubleCellValue>();
             }
             if (IgnoreHiddenValues)
             {

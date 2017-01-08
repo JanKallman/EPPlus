@@ -15,7 +15,7 @@ namespace EPPlusTest.Excel.Functions
     {
         private class ExcelFunctionTester : ExcelFunction
         {
-            public IEnumerable<double> ArgsToDoubleEnumerableImpl(IEnumerable<FunctionArgument> args)
+            public IEnumerable<ExcelDoubleCellValue> ArgsToDoubleEnumerableImpl(IEnumerable<FunctionArgument> args)
             {
                 return ArgsToDoubleEnumerable(args, ParsingContext.Create());
             }

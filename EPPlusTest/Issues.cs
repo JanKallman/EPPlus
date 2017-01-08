@@ -1489,5 +1489,57 @@ namespace EPPlusTest
             }
 
         }
+
+        [TestMethod]
+        public void Issue15548_SumIfsShouldHandleGaps()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var test = package.Workbook.Worksheets.Add("Test");
+
+                test.Cells["A1"].Value = 1;
+                test.Cells["B1"].Value = "A";
+
+                //test.Cells["A2"] is default
+                test.Cells["B2"].Value = "A";
+
+                test.Cells["A3"].Value = 1;
+                test.Cells["B4"].Value = "B";
+
+                test.Cells["D2"].Formula = "SUMIFS(A1:A3,B1:B3,\"A\")";
+
+                test.Calculate();
+
+                var result = test.Cells["D2"].GetValue<int>();
+
+                Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
+            }
+        }
+
+        [TestMethod]
+        public void Issue15548_SumIfsShouldHandleBadData()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var test = package.Workbook.Worksheets.Add("Test");
+
+                test.Cells["A1"].Value = 1;
+                test.Cells["B1"].Value = "A";
+
+                test.Cells["A2"].Value = "Not a number";
+                test.Cells["B2"].Value = "A";
+
+                test.Cells["A3"].Value = 1;
+                test.Cells["B4"].Value = "B";
+
+                test.Cells["D2"].Formula = "SUMIFS(A1:A3,B1:B3,\"A\")";
+
+                test.Calculate();
+
+                var result = test.Cells["D2"].GetValue<int>();
+
+                Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
+            }
+        }
     }
 }
