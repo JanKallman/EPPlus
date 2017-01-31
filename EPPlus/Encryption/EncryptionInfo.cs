@@ -237,7 +237,7 @@ namespace OfficeOpenXml.Encryption
                         return value.ToString();
                 }
             }
-            internal eChainingMode ChiptherChaining
+            internal eChainingMode CipherChaining
             {
                 get
                 {

@@ -167,7 +167,7 @@ namespace OfficeOpenXml.Encryption
             encr.KeyValue = new byte[encr.KeyBits / 8];
             rnd.GetBytes(encr.KeyValue);
 
-            //Get the passwork key.
+            //Get the password key.
             var hashProvider = GetHashProvider(encryptionInfo.KeyEncryptors[0]);
             var baseHash = GetPasswordHash(hashProvider, encr.SaltValue, encryption.Password, encr.SpinCount, encr.HashSize);
             var hashFinal = GetFinalHash(hashProvider, encr, BlockKey_KeyValue, baseHash);
@@ -759,7 +759,7 @@ namespace OfficeOpenXml.Encryption
             SymmetricAlgorithm decryptKey = GetEncryptionAlgorithm(encr);
             decryptKey.BlockSize = encr.BlockSize << 3;
             decryptKey.KeySize = encr.KeyBits;
-            decryptKey.Mode = encr.ChiptherChaining == eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
+            decryptKey.Mode = encr.CipherChaining == eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
             decryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform decryptor = decryptKey.CreateDecryptor(
@@ -801,7 +801,7 @@ namespace OfficeOpenXml.Encryption
             var encryptKey = GetEncryptionAlgorithm(encr);
             encryptKey.BlockSize = encr.BlockSize << 3;
             encryptKey.KeySize = encr.KeyBits;
-            encryptKey.Mode = encr.ChiptherChaining==eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
+            encryptKey.Mode = encr.CipherChaining==eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
             encryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform encryptor = encryptKey.CreateEncryptor(
