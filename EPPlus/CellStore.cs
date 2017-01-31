@@ -601,9 +601,10 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
         }
         internal void SetValue(int Row, int Column, T Value)
         {
-            lock (_columnIndex)
+            lock(_columnIndex)
             {
                 var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
+                
                 var page = (short)(Row >> pageBits);
                 if (col >= 0)
                 {
