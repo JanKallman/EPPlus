@@ -2282,7 +2282,7 @@ namespace OfficeOpenXml
 		/// <returns>The value. If the value can't be converted to the specified type, the default value will be returned</returns>
 		public T GetValue<T>()
 		{
-			return _worksheet.GetTypedValue<T>(Value);
+            return ConvertUtil.GetTypedCellValue<T>(Value);
 		}
 		#endregion
 		/// <summary>
