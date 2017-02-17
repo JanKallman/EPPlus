@@ -35,14 +35,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var address = ArgToString(arguments, 0);
+            var address = ArgToAddress(arguments, 0);
             var adr = new ExcelAddress(address);
             var ws = adr.WorkSheet;
             if (string.IsNullOrEmpty(ws))
             {
                 ws = context.Scopes.Current.Address.Worksheet;
             }
-            var result = context.ExcelDataProvider.GetRange(ws, adr._fromRow, adr._fromCol, address);
+            var result = context.ExcelDataProvider.GetRange(ws, address);
             if (result.IsEmpty)
             {
                 return CompileResult.Empty;

@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 3);
-            var startRange = ArgToString(functionArguments, 0);
+            var startRange = ArgToAddress(functionArguments, 0);
             var rowOffset = ArgToInt(functionArguments, 1);
             var colOffset = ArgToInt(functionArguments, 2);
             int width = 0, height = 0;
@@ -50,18 +50,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
                 width = ArgToInt(functionArguments, 4);
                 ThrowExcelErrorValueExceptionIf(() => width == 0, eErrorType.Ref);
             }
-
-            var adr = new ExcelAddress(startRange);
-            var ws = adr.WorkSheet;
+            var ws = context.Scopes.Current.Address.Worksheet;            
+            var r =context.ExcelDataProvider.GetRange(ws,startRange);
+            var adr = r.Address;
 
             var fromRow = adr._fromRow + rowOffset;
             var fromCol = adr._fromCol + colOffset;
-            var toRow = (height != 0 ? height : adr._toRow) + rowOffset;
-            var toCol = (width != 0 ? width : adr._toCol) + colOffset;
-            //var toRow = (height != 0 ? fromRow + height : adr._toRow + rowOffset);
-            //var toCol = (width != 0 ? fromCol + width : adr._toCol + colOffset);
+            var toRow = (height != 0 ? adr._fromRow + height - 1 : adr._toRow) + rowOffset;
+            var toCol = (width != 0 ? adr._fromCol + width - 1 : adr._toCol) + colOffset;
 
-            var newRange = context.ExcelDataProvider.GetRange(ws, fromRow, fromCol, toRow, toCol);
+            var newRange = context.ExcelDataProvider.GetRange(adr.WorkSheet, fromRow, fromCol, toRow, toCol);
             if (!newRange.IsMulti)
             {
                 if (newRange.IsEmpty) return CompileResult.Empty;

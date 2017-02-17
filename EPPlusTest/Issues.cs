@@ -13,6 +13,7 @@ using OfficeOpenXml.Table;
 using System.Collections.Generic;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;
+using System.Text;
 
 namespace EPPlusTest
 {
@@ -1541,5 +1542,27 @@ namespace EPPlusTest
                 Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
             }
         }
+        [TestMethod]
+        public void Issue_15585()
+        {
+            var excelFile = new FileInfo(@"c:\temp\bug\formula_value.xlsx");
+            using (var package = new ExcelPackage(excelFile))
+            {
+                // Output from the logger will be written to the following file
+                var logfile = new FileInfo(@"C:\temp\EpplusLogFile.txt");
+                // Attach the logger before the calculation is performed.
+                package.Workbook.FormulaParserManager.AttachLogger(logfile);
+                // Calculate - can also be executed on sheet- or range level.
+                package.Workbook.Calculate();
+
+                Console.WriteLine(String.Format("Country: \t\t\t{0}", package.Workbook.Worksheets[1].Cells["B1"].Value));
+                Console.WriteLine(String.Format("Phone Code - Direct Reference:\t{0}", package.Workbook.Worksheets[1].Cells["B2"].Value.ToString()));
+                Console.WriteLine(String.Format("Phone Code - Name Ranges:\t{0}", package.Workbook.Worksheets[1].Cells["B3"].Value.ToString()));
+                Console.WriteLine(String.Format("Phone Code - Table reference:\t{0}", package.Workbook.Worksheets[1].Cells["B4"].Value.ToString()));
+
+                // The following method removes any logger attached to the workbook.
+                package.Workbook.FormulaParserManager.DetachLogger();
+            }
+        }
     }
-}
+ }
