@@ -56,6 +56,7 @@ namespace OfficeOpenXml.FormulaParsing
         /// </summary>
         /// <returns></returns>
         public abstract ExcelNamedRangeCollection GetWorksheetNames(string worksheet);
+
         /// <summary>
         /// Returns all defined names in a workbook
         /// </summary>
@@ -70,6 +71,13 @@ namespace OfficeOpenXml.FormulaParsing
         /// <param name="address">The reference address</param>
         /// <returns></returns>
         public abstract IRangeInfo GetRange(string worksheetName, int row, int column, string address);
+        /// <summary>
+        /// Returns values from the required range.
+        /// </summary>
+        /// <param name="worksheetName">The name of the worksheet</param>
+        /// <param name="address">The reference address</param>
+        /// <returns></returns>
+        public abstract IRangeInfo GetRange(string worksheetName, string address);
         public abstract INameInfo GetName(string worksheet, string name);
 
         public abstract IEnumerable<object> GetRangeValues(string address);
