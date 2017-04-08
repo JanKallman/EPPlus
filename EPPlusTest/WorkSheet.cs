@@ -69,7 +69,7 @@ namespace EPPlusTest
             ReadWorkSheet();
             ReadStreamSaveAsStream();
         }
-        
+
         private void AutoFilter()
         {
             var ws = _pck.Workbook.Worksheets.Add("Autofilter");
@@ -2154,7 +2154,7 @@ namespace EPPlusTest
 
             ws.BackgroundImage.Image = Properties.Resources.Test1;
             ws = _pck.Workbook.Worksheets.Add("backimg2");
-            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(_clipartPath,"Vector Drawing.wmf")));
+            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
         }
         //[Ignore]
         [TestMethod]
@@ -2535,112 +2535,112 @@ namespace EPPlusTest
     [TestMethod]
         public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
         {
-          using (var package = new ExcelPackage())
-          {
-            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
-            sheet1.Cells[3, 3].Formula = "Sheet2!C3";
-            sheet2.Cells[3, 3].Value = "Hello, world!";
-            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
-            sheet2.Cells[4, 3].Value = "Goodbye, world!";
-            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
-            package.Workbook.Calculate();
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
-            package.Workbook.Calculate();
-            Assert.AreEqual("'Sheet2'!D4", sheet1.Cells[4, 4].Formula, true);
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            Assert.AreEqual("Goodbye, WORLD!", sheet1.Cells[4, 4].Value);
-          }
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells[3, 3].Formula = "Sheet2!C3";
+                sheet2.Cells[3, 3].Value = "Hello, world!";
+                sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+                sheet2.Cells[4, 3].Value = "Goodbye, world!";
+                sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+                package.Workbook.Calculate();
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+                package.Workbook.Calculate();
+                Assert.AreEqual("'Sheet2'!D4", sheet1.Cells[4, 4].Formula, true);
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                Assert.AreEqual("Goodbye, WORLD!", sheet1.Cells[4, 4].Value);
+            }
         }
 
         [TestMethod]
         public void CopyCellUpdatesAbsoluteCrossSheetReferencesCorrectly()
         {
-          using (var package = new ExcelPackage())
-          {
-            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
-            sheet1.Cells[3, 3].Formula = "Sheet2!$C$3";
-            sheet2.Cells[3, 3].Value = "Hello, world!";
-            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
-            sheet2.Cells[4, 3].Value = "Goodbye, world!";
-            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
-            package.Workbook.Calculate();
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
-            package.Workbook.Calculate();
-            Assert.AreEqual("'Sheet2'!$C$3", sheet1.Cells[4, 4].Formula, true);
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            Assert.AreEqual("Hello, world!", sheet1.Cells[4, 4].Value);
-          }
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells[3, 3].Formula = "Sheet2!$C$3";
+                sheet2.Cells[3, 3].Value = "Hello, world!";
+                sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+                sheet2.Cells[4, 3].Value = "Goodbye, world!";
+                sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+                package.Workbook.Calculate();
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+                package.Workbook.Calculate();
+                Assert.AreEqual("'Sheet2'!$C$3", sheet1.Cells[4, 4].Formula, true);
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                Assert.AreEqual("Hello, world!", sheet1.Cells[4, 4].Value);
+            }
         }
 
         [TestMethod]
         public void CopyCellUpdatesRowAbsoluteCrossSheetReferencesCorrectly()
         {
-          using (var package = new ExcelPackage())
-          {
-            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
-            sheet1.Cells[3, 3].Formula = "Sheet2!C$3";
-            sheet2.Cells[3, 3].Value = "Hello, world!";
-            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
-            sheet2.Cells[4, 3].Value = "Goodbye, world!";
-            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
-            package.Workbook.Calculate();
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
-            package.Workbook.Calculate();
-            Assert.AreEqual("'Sheet2'!D$3", sheet1.Cells[4, 4].Formula, true);
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            Assert.AreEqual("Hello, WORLD!", sheet1.Cells[4, 4].Value);
-          }
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells[3, 3].Formula = "Sheet2!C$3";
+                sheet2.Cells[3, 3].Value = "Hello, world!";
+                sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+                sheet2.Cells[4, 3].Value = "Goodbye, world!";
+                sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+                package.Workbook.Calculate();
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+                package.Workbook.Calculate();
+                Assert.AreEqual("'Sheet2'!D$3", sheet1.Cells[4, 4].Formula, true);
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                Assert.AreEqual("Hello, WORLD!", sheet1.Cells[4, 4].Value);
+            }
         }
 
         [TestMethod]
         public void CopyCellUpdatesColumnAbsoluteCrossSheetReferencesCorrectly()
         {
-          using (var package = new ExcelPackage())
-          {
-            var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-            var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
-            sheet1.Cells[3, 3].Formula = "Sheet2!$C3";
-            sheet2.Cells[3, 3].Value = "Hello, world!";
-            sheet2.Cells[3, 4].Value = "Hello, WORLD!";
-            sheet2.Cells[4, 3].Value = "Goodbye, world!";
-            sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
-            package.Workbook.Calculate();
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
-            package.Workbook.Calculate();
-            Assert.AreEqual("'Sheet2'!$C4", sheet1.Cells[4, 4].Formula, true);
-            Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
-            Assert.AreEqual("Goodbye, world!", sheet1.Cells[4, 4].Value);
-          }
-    }
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                var sheet2 = package.Workbook.Worksheets.Add("Sheet2");
+                sheet1.Cells[3, 3].Formula = "Sheet2!$C3";
+                sheet2.Cells[3, 3].Value = "Hello, world!";
+                sheet2.Cells[3, 4].Value = "Hello, WORLD!";
+                sheet2.Cells[4, 3].Value = "Goodbye, world!";
+                sheet2.Cells[4, 4].Value = "Goodbye, WORLD!";
+                package.Workbook.Calculate();
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                sheet1.Cells[3, 3].Copy(sheet1.Cells[4, 4]);
+                package.Workbook.Calculate();
+                Assert.AreEqual("'Sheet2'!$C4", sheet1.Cells[4, 4].Formula, true);
+                Assert.AreEqual("Hello, world!", sheet1.Cells[3, 3].Value);
+                Assert.AreEqual("Goodbye, world!", sheet1.Cells[4, 4].Value);
+            }
+        }
 
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void ExcelWorksheetRenameWithStartApostropheThrowsException()
-    {
-      using (var package = new ExcelPackage())
-      {
-        var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-        sheet1.Name = "'New Name";
-      }
-    }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExcelWorksheetRenameWithStartApostropheThrowsException()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Name = "'New Name";
+            }
+        }
 
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
-    public void ExcelWorksheetRenameWithEndApostropheThrowsException()
-    {
-      using (var package = new ExcelPackage())
-      {
-        var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
-        sheet1.Name = "New Name'";
-      }
-    }
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void ExcelWorksheetRenameWithEndApostropheThrowsException()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet1 = package.Workbook.Worksheets.Add("Sheet1");
+                sheet1.Name = "New Name'";
+            }
+        }
 
         #region Date1904 Test Cases
         [TestMethod]
@@ -2816,72 +2816,72 @@ namespace EPPlusTest
             pck.Save();
         }
 
-		[TestMethod]
-		public void CommentShiftsWithRowInserts()
-		{
-			InitBase();
-			var pck = new ExcelPackage();
-			var ws1 = pck.Workbook.Worksheets.Add("Comment1");
-			ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
-			ws1.Cells[4, 3].AddComment("Testing comment 2", "test2");
-			var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
-			pck.SaveAs(fileInfo);
-			pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
-			ws1 = pck.Workbook.Worksheets[1];
-			// Ensure the comments were saved in the correct location.
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[4, 3].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[4, 3].Comment.Author);
-			// Ensure they get shifted.
-			ws1.InsertRow(4, 4);
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[8, 3].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
-			pck.Save();
-			pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
-			ws1 = pck.Workbook.Worksheets[1];
-			// Ensure the shifted index is preserved.
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[8, 3].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
-		}
+        [TestMethod]
+        public void CommentShiftsWithRowInserts()
+        {
+            InitBase();
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Comment1");
+            ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
+            ws1.Cells[4, 3].AddComment("Testing comment 2", "test2");
+            var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
+            pck.SaveAs(fileInfo);
+            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            ws1 = pck.Workbook.Worksheets[1];
+            // Ensure the comments were saved in the correct location.
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[4, 3].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[4, 3].Comment.Author);
+            // Ensure they get shifted.
+            ws1.InsertRow(4, 4);
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[8, 3].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
+            pck.Save();
+            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            ws1 = pck.Workbook.Worksheets[1];
+            // Ensure the shifted index is preserved.
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[8, 3].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
+        }
 
-		[TestMethod]
-		public void CommentShiftsWithColumnInserts()
-		{
-			InitBase();
-			var pck = new ExcelPackage();
-			var ws1 = pck.Workbook.Worksheets.Add("Comment1");
-			ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
-			ws1.Cells[3, 4].AddComment("Testing comment 2", "test2");
-			var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
-			pck.SaveAs(fileInfo);
-			pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
-			ws1 = pck.Workbook.Worksheets[1];
-			// Ensure the comments were saved in the correct location.
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[3, 4].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[3, 4].Comment.Author);
-			// Ensure they get shifted.
-			ws1.InsertColumn(4, 4);
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
-			pck.Save();
-			pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
-			ws1 = pck.Workbook.Worksheets[1];
-			// Ensure the shifted index is preserved.
-			Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
-			Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
-			Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
-			Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
-		}
-		#endregion
+        [TestMethod]
+        public void CommentShiftsWithColumnInserts()
+        {
+            InitBase();
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Comment1");
+            ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
+            ws1.Cells[3, 4].AddComment("Testing comment 2", "test2");
+            var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
+            pck.SaveAs(fileInfo);
+            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            ws1 = pck.Workbook.Worksheets[1];
+            // Ensure the comments were saved in the correct location.
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[3, 4].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[3, 4].Comment.Author);
+            // Ensure they get shifted.
+            ws1.InsertColumn(4, 4);
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
+            pck.Save();
+            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            ws1 = pck.Workbook.Worksheets[1];
+            // Ensure the shifted index is preserved.
+            Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
+            Assert.AreEqual("test1", ws1.Cells[3, 3].Comment.Author);
+            Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
+            Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
+        }
+        #endregion
 
         [TestMethod]
         public void DateFunctionsWorkWithDifferentCultureDateFormats()
@@ -2928,6 +2928,54 @@ namespace EPPlusTest
                 // Inserting a column on sheet1 should modify the shared formula on sheet1, but not sheet2.
                 Assert.AreEqual("SUM(B2:D2)", sheet1.Cells["E2"].Formula);
                 Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
+            }
+        }
+        [TestMethod]
+        public void Sort()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Sorting");
+                AddSortingData(ws,1,1);
+                ws.Cells["A:C"].Sort(2, true);
+
+                AddSortingData(ws, 1, 5);
+                ws.Cells["H1:H1000"].Formula = "E1*2";
+                ws.Calculate();
+
+                ws.Cells["E1:H1000"].Sort(3);
+
+                ws.Cells["I5"].Value = 8;
+                ws.Cells["I6"].Value = 1;
+                ws.Cells["I7"].Value = "12";
+                ws.Cells["I8"].Value = "Test";
+                ws.Cells["I9"].Value = "aa";
+
+
+                ws.Cells["I:I"].Sort(0,true);
+                package.SaveAs(new FileInfo(@"c:\temp\sort.xlsx"));
+            }
+        }
+
+        private static void AddSortingData(ExcelWorksheet ws, int row, int col)
+        {
+            var rand = new Random();
+            var addr = ExcelCellBase.GetAddress(row, col, row + 999, col);
+            ws.Cells[addr].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            ws.Cells[addr].Style.Font.Color.SetColor(Color.White);
+            for (var r = row; r <= row+999; r++)
+            {
+                var v = rand.NextDouble() * row;
+                ws.SetValue(r, col, v);
+                ws.SetValue(r, col+1, $"Rad {r} v={v}");
+                ws.SetValue(r, col+2, $"Rad {r} v={v}");
+                ws.Cells[r, col].Style.Fill.BackgroundColor.SetColor(r % 3 == 0 ? Color.Red : r % 3 == 1 ? Color.Green : Color.Blue);
+                if (r % 10 == 0)
+                {
+                    ws.Cells[r, col+1, r, col+2].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    ws.Cells[r, col+1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
+                    ws.Cells[r, col+2].Style.Fill.BackgroundColor.SetColor(Color.LightCyan);
+                }
             }
         }
     }

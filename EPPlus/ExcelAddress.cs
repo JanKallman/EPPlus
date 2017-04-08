@@ -314,7 +314,13 @@ namespace OfficeOpenXml
                 _ws = address;
             }
             pos = _ws.IndexOf("!");
-            if (pos > -1)
+            if(pos==0)
+            {
+                _address = _ws.Substring(1);
+                _ws = _wb;
+                _wb = "";
+            }
+            else if (pos > -1)
             {
                 _address = _ws.Substring(pos + 1);
                 _ws = _ws.Substring(0, pos);

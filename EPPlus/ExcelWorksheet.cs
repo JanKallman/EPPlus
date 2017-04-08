@@ -90,6 +90,7 @@ namespace OfficeOpenXml
     {
         internal object _value;
         internal int _styleId;
+
     }
     /// <summary>
     /// Represents an Excel Chartsheet and provides access to its properties and methods
@@ -1924,6 +1925,17 @@ namespace OfficeOpenXml
                     ptbl.Address = ptbl.Address.AddRow(rowFrom, rows);
                     ptbl.CacheDefinition.SourceRange.Address = ptbl.CacheDefinition.SourceRange.AddRow(rowFrom, rows).Address;
                 }
+                
+                //Issue 15573
+                foreach (ExcelDataValidation dv in DataValidations)
+                {
+                    var addr=dv.Address;
+                    var newAddr =addr.AddRow(rowFrom, rows).Address;
+                    if (addr.Address != newAddr)
+                    {
+                        dv.SetAddress(newAddr);
+                    }
+                }
             }
 
             // Update cross-sheet references.
@@ -2114,6 +2126,18 @@ namespace OfficeOpenXml
                         }
                     }
                 }
+
+                //Issue 15573
+                foreach (ExcelDataValidation dv in DataValidations)
+                {
+                    var addr = dv.Address;
+                    var newAddr = addr.AddColumn(columnFrom, columns).Address;
+                    if (addr.Address != newAddr)
+                    {
+                        dv.SetAddress(newAddr);
+                    }
+                }
+
                 // Update cross-sheet references.
                 foreach (var sheet in Workbook.Worksheets.Where(sheet => sheet != this))
                 {
@@ -2505,6 +2529,19 @@ namespace OfficeOpenXml
                         ptbl.Address = ptbl.Address.DeleteRow(rowFrom, rows);
                     }
                 }
+                //Issue 15573
+                foreach (ExcelDataValidation dv in DataValidations)
+                {
+                    var addr = dv.Address;
+                    if (addr.Start.Row > rowFrom + rows)
+                    {
+                        var newAddr = addr.DeleteRow(rowFrom, rows).Address;
+                        if (addr.Address != newAddr)
+                        {
+                            dv.SetAddress(newAddr);
+                        }
+                    }
+                }
             }
         }
         /// <summary>
@@ -2602,7 +2639,20 @@ namespace OfficeOpenXml
                             ptbl.CacheDefinition.SourceRange.Address = ptbl.CacheDefinition.SourceRange.DeleteColumn(columnFrom, columns).Address;
                         }
                     }
+                }
 
+                //Issue 15573
+                foreach (ExcelDataValidation dv in DataValidations)
+                {
+                    var addr = dv.Address;
+                    if (addr.Start.Column > columnFrom + columns)
+                    {
+                        var newAddr = addr.DeleteColumn(columnFrom, columns).Address;
+                        if (addr.Address != newAddr)
+                        {
+                            dv.SetAddress(newAddr);
+                        }
+                    }
                 }
             }
         }
@@ -3373,13 +3423,13 @@ namespace OfficeOpenXml
 
                 //Rewrite the pivottable address again if any rows or columns have been inserted or deleted
                 pt.SetXmlNodeString("d:location/@ref", pt.Address.Address);
-                if (pt.CacheDefinition.SourceRange!=null && !pt.CacheDefinition.SourceRange.IsName)
+                var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
+                var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
+                if (pt.CacheDefinition.SourceRange!=null && !pt.CacheDefinition.SourceRange.IsName && t==null)
                 {
                     pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
                 }
 
-                var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
-                var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
                 var fields =
                     pt.CacheDefinition.CacheDefinitionXml.SelectNodes(
                         "d:pivotCacheDefinition/d:cacheFields/d:cacheField", NameSpaceManager);
@@ -3720,7 +3770,7 @@ namespace OfficeOpenXml
                             }
                             else
                             {
-                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\">", f.Address, styleID < 0 ? 0 : styleID);
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{2}>", f.Address, styleID < 0 ? 0 : styleID, GetCellType(v, true));
                                 cache.AppendFormat("<f>{0}</f>{1}</c>", ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v));
                             }
                         }

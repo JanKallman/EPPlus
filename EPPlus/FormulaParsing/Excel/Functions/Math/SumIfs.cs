@@ -36,7 +36,17 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 3);
-            var sumRange = ArgsToDoubleEnumerable(true, new List<FunctionArgument> {functionArguments[0]}, context).ToList();
+            var rows = new List<int>();
+            var valueRange = functionArguments[0].ValueAsRangeInfo;
+            List<double> sumRange;
+            if(valueRange != null)
+            {
+                sumRange = ArgsToDoubleEnumerableZeroPadded(true, valueRange, context).ToList();
+            }
+            else
+            {
+                sumRange = ArgsToDoubleEnumerable(true, new List<FunctionArgument> { functionArguments[0] }, context).Select(x => (double)x).ToList();
+            } 
             var argRanges = new List<ExcelDataProvider.IRangeInfo>();
             var criterias = new List<string>();
             for (var ix = 1; ix < 31; ix += 2)

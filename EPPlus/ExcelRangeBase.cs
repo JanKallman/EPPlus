@@ -54,8 +54,9 @@ using System.Security;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using wm=System.Windows.Media;
-using w=System.Windows;
+using wm = System.Windows.Media;
+using w = System.Windows;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml
 {	
@@ -1423,18 +1424,24 @@ namespace OfficeOpenXml
 			get
 			{
 				string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
-				string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
-				if (Addresses != null)
+                string fullAddress;
+				if (Addresses == null)
+                {
+                    fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
+                }
+                else
 				{
-					foreach (var a in Addresses)
+                    fullAddress = "";
+                    foreach (var a in Addresses)
 					{
+                        if (fullAddress != "") fullAddress += ",";
                         if (a.Address == "#REF!")
                         {
-                            fullAddress += "," + GetFullAddress(wbwsRef, "#REF!");
+                            fullAddress += GetFullAddress(wbwsRef, "#REF!");
                         }
                         else
                         {
-                            fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
+                            fullAddress += GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
                         }
 					}
 				}
@@ -1449,12 +1456,18 @@ namespace OfficeOpenXml
             get
             {
                 string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
-                string fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true), false);
-                if (Addresses != null)
+                string fullAddress;
+                if (Addresses == null)
                 {
+                    fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true), false);
+                }
+                else
+                {
+                    fullAddress = "";
                     foreach (var a in Addresses)
                     {
-                        fullAddress += "," + GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true),false); ;
+                        if (fullAddress != "") fullAddress += ",";
+                        fullAddress += GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true),false); ;
                     }
                 }
                 return fullAddress;
@@ -1470,19 +1483,11 @@ namespace OfficeOpenXml
 		{
 			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
 			{
-				//_worksheet.Cell(1, 1).SetValueRichText(value);
                 SetValue(value, 1, 1);
 			}
 			else
 			{
-                //for (int col = _fromCol; col <= _toCol; col++)
-                //{
-                //    for (int row = _fromRow; row <= _toRow; row++)
-                //    {
-						//_worksheet.Cell(row, col).SetValueRichText(value);
-                        SetValue(value, _fromRow,_fromCol);
-                    //}
-				//}
+                SetValue(value, _fromRow,_fromCol);
 			}
 		}
 
@@ -1980,7 +1985,11 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				foreach (var t in Members)
+                if(Members.Length==0)   //Fixes issue 15555
+                {
+                    throw (new ArgumentException("Parameter Members must have at least one property. Length is zero"));
+                }
+                foreach (var t in Members)
 				{
                     if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
 					{
@@ -2028,16 +2037,16 @@ namespace OfficeOpenXml
 		        return null;
 		    }
 
-			if (Members.Length == 0)
-			{
-				foreach (var item in Collection)
-				{
-					//_worksheet.Cells[row++, col].Value = item;
-                    values[row, col++] = item;
-                }
-			}
-			else
-			{
+			//if (Members.Length == 0)
+			//{
+			//	foreach (var item in Collection)
+			//	{
+			//		//_worksheet.Cells[row++, col].Value = item;
+   //                 values[row, col++] = item;
+   //             }
+			//}
+			//else
+			//{
 				foreach (var item in Collection)
 				{
 					col = 0;
@@ -2068,7 +2077,7 @@ namespace OfficeOpenXml
                         }
                     }
 					row++;
-				}
+				//}
 			}
 
             _worksheet.SetRangeValueInner(_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1, values);
@@ -2713,7 +2722,7 @@ namespace OfficeOpenXml
 			}
 		}
 
-        public object FormatedText { get; private set; }
+        //public object FormatedText { get; private set; }
 
         int _enumAddressIx = -1;
         public bool MoveNext()
@@ -2747,6 +2756,198 @@ namespace OfficeOpenXml
             _enumAddressIx = -1;
             cellEnum = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
         }
-    #endregion
+        #endregion
+        private struct SortItem<T>
+        {
+            internal int Row { get; set; }
+            internal T[] Items { get; set; }
+        }        
+        private class Comp : IComparer<SortItem<ExcelCoreValue>>
+        {
+            public int[] columns;
+            public bool[] descending;
+            public CultureInfo cultureInfo=CultureInfo.CurrentCulture;
+            public CompareOptions compareOptions = CompareOptions.None;
+            public int Compare(SortItem<ExcelCoreValue> x, SortItem<ExcelCoreValue> y)
+            {
+                var ret = 0;
+                for(int i=0;i<columns.Length;i++)
+                {
+                    var x1 = x.Items[columns[i]]._value;
+                    var y1 = y.Items[columns[i]]._value;
+                    var isNumX = ConvertUtil.IsNumeric(x1);
+                    var isNumY = ConvertUtil.IsNumeric(y1);
+                    if (isNumX && isNumY)   //Numeric Compare
+                    {
+                        var d1 = ConvertUtil.GetValueDouble(x1);
+                        var d2 = ConvertUtil.GetValueDouble(y1);
+                        if(double.IsNaN(d1))
+                        {
+                            d1 = double.MaxValue;
+                        }
+                        if(double.IsNaN(d2))
+                        {
+                            d2 = double.MaxValue;
+                        }                        
+                        ret = d1 < d2 ? -1 : (d1 > d2 ? 1 : 0);
+                    }
+                    else if(isNumX==false && isNumY==false)   //String Compare
+                    {
+                        var s1 = x1 == null ? "" : x1.ToString();
+                        var s2 = y1 == null ? "" : y1.ToString();
+                        ret = string.Compare(s1, s2, cultureInfo, compareOptions);
+                    }
+                    else
+                    {
+                        ret = isNumX ? -1 : 1;
+                    }
+                    if (ret != 0) return ret * (descending[i] ? -1 : 1);
+                }
+                return 0;
+            }
+        }
+        /// <summary>
+        /// Sort the range by value of the first column, Ascending.
+        /// </summary>
+        public void Sort()
+        {
+            Sort(new int[] { 0 }, new bool[] { false });
+        }
+        /// <summary>
+        /// Sort the range by value of the supplied column, Ascending.
+        /// <param name="column">The column to sort by within the range. Zerobased</param>
+        /// <param name="descending">Descending if true, otherwise Ascending. Default Ascending. Zerobased</param>
+        /// </summary>
+        public void Sort(int column, bool descending=false)
+        {
+            Sort(new int[] { column }, new bool[] { descending });
+        }
+        /// <summary>
+        /// Sort the range by value
+        /// </summary>
+        /// <param name="columns">The column(s) to sort by within the range. Zerobased</param>
+        /// <param name="descending">Descending if true, otherwise Ascending. Default Ascending. Zerobased</param>
+        /// <param name="culture">The CultureInfo used to compare values. A null value means CurrentCulture</param>
+        /// <param name="compareOptions">String compare option</param>
+        public void Sort(int[] columns, bool[] descending=null, CultureInfo culture=null, CompareOptions compareOptions=CompareOptions.None)
+        {
+            if (columns==null)
+            {
+                columns = new int[] { 0 };
+            }
+            var cols = _toCol - _fromCol + 1;
+            foreach(var c in columns)
+            {
+                if (c > cols-1 || c < 0)
+                {
+                    throw (new ArgumentException("Can not reference columns outside the boundries of the range. Note that column reference is zero-based within the range"));
+                }
+            }
+            var e = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
+            var l = new List<SortItem<ExcelCoreValue>>();
+            SortItem<ExcelCoreValue> item = new SortItem<ExcelCoreValue>();
+
+            while (e.Next())
+            {
+                if (l.Count == 0 || l[l.Count - 1].Row != e.Row)
+                {
+                    item = new SortItem<ExcelCoreValue>() { Row = e.Row, Items = new ExcelCoreValue[cols] };
+                    l.Add(item);
+                }
+                item.Items[e.Column - _fromCol] = e.Value;
+            }
+
+            if (descending == null)
+            {
+                descending = new bool[columns.Length];
+                for (int i = 0; i < columns.Length; i++)
+                {
+                    descending[i] = false;
+                }
+            }
+
+            var comp = new Comp();
+            comp.columns = columns;
+            comp.descending = descending;
+            comp.cultureInfo = culture ?? CultureInfo.CurrentCulture;
+            comp.compareOptions = compareOptions;
+            l.Sort(comp);
+
+            var flags = GetItems(_worksheet._flags, _fromRow, _fromCol, _toRow, _toCol);
+            var formulas = GetItems(_worksheet._formulas, _fromRow, _fromCol, _toRow, _toCol);
+            var hyperLinks = GetItems(_worksheet._hyperLinks, _fromRow, _fromCol, _toRow, _toCol);
+            var comments = GetItems(_worksheet._commentsStore, _fromRow, _fromCol, _toRow, _toCol);
+            var sf = new HashSet<int>();
+            //Sort the values and styles.
+            _worksheet._values.Clear(_fromRow, _fromCol, _toRow - _fromRow + 1, cols);
+            for (var r=0;r < l.Count;r++)
+            {
+                for (int c = 0; c < cols; c++)
+                {
+                    var row = _fromRow + r;
+                    var col = _fromCol + c;
+                    _worksheet._values.SetValueSpecial(row, col, SortSetValue, l[r].Items[c]);
+                    var addr = GetAddress(l[r].Row, _fromCol + c);
+                    //Move flags
+                    if (flags.ContainsKey(addr))
+                    {
+                        _worksheet._flags.SetValue(row, col, flags[addr]);
+                    }
+                    //Move formulas
+                    if (formulas.ContainsKey(addr))
+                    {
+                        _worksheet._formulas.SetValue(row, col, formulas[addr]);
+                        if(formulas[addr] is int)
+                        {
+                            var sfIx = (int)formulas[addr];
+                            if(!sf.Contains(sfIx))
+                            {
+                                var startAddr = new ExcelAddress(Worksheet._sharedFormulas[sfIx].Address);
+                                if (startAddr._fromRow > row)
+                                {
+                                    var f = Worksheet._sharedFormulas[sfIx];
+                                    f.Formula = ExcelCellBase.TranslateFromR1C1(ExcelCellBase.TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), row, f.StartCol);
+                                    f.StartRow = row;
+                                    f.Address = ExcelCellBase.GetAddress(row, col,startAddr._toRow, startAddr._toCol);
+                                }
+                            }
+                            sf.Add(sfIx);
+                        }
+                    }
+
+                    //Move hyperlinks
+                    if (hyperLinks.ContainsKey(addr))
+                    {
+                        _worksheet._hyperLinks.SetValue(row, col, hyperLinks[addr]);
+                    }
+
+                    //Move comments
+                    if (comments.ContainsKey(addr))
+                    {
+                        var i = comments[addr];
+                        _worksheet._commentsStore.SetValue(row, col, i);
+                        var comment=_worksheet._comments[i];
+                        comment.Address = GetAddress(row, col);
+                    }
+                }
+            }
+        }
+
+        private static Dictionary<string, T> GetItems<T>(CellStore<T> store, int fromRow, int fromCol, int toRow, int toCol)
+        {
+            var e= new CellsStoreEnumerator<T>(store, fromRow, fromCol, toRow, toCol);
+            var l = new Dictionary<string, T>();
+            while (e.Next())
+            {
+                l.Add(e.CellAddress, e.Value);
+            }
+            return l;
+        }
+
+        private static void SortSetValue(List<ExcelCoreValue> list, int index, object value)
+        {
+            var v = (ExcelCoreValue)value;
+            list[index] = new ExcelCoreValue { _value = v._value, _styleId = v._styleId };
+        }
     }
 }

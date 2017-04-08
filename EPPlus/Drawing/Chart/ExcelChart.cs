@@ -38,7 +38,6 @@ using System.IO;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Packaging;
-
 namespace OfficeOpenXml.Drawing.Chart
 {
     #region "Chart Enums"
@@ -348,8 +347,6 @@ namespace OfficeOpenXml.Drawing.Chart
         Width
     }
     #endregion
-    
-    
     /// <summary>
    /// Base class for Chart object.
    /// </summary>

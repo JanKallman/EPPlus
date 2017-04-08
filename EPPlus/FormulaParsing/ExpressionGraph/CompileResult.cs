@@ -35,6 +35,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.FormulaParsing.Excel.Functions;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -51,7 +52,14 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public CompileResult(object result, DataType dataType)
         {
-            Result = result;
+            if(result is ExcelDoubleCellValue)
+            {
+                Result = ((ExcelDoubleCellValue)result).Value;
+            }
+            else
+            {
+                Result = result;
+            }
             DataType = dataType;
         }
 

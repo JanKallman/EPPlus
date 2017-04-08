@@ -151,7 +151,7 @@ namespace OfficeOpenXml
             foreach (var namedRange in namedRanges)
             {
                 ExcelAddressBase adr;
-                if (rows==0)
+                if (cols > 0 && rowFrom == 0 && rows >= ExcelPackage.MaxRows)   //Issue 15554. Check
                 {
                     adr = namedRange.DeleteColumn(colFrom, cols);
                 }
@@ -169,7 +169,6 @@ namespace OfficeOpenXml
                 }
             }
         }
-
         private void InsertColumns(int colFrom, int cols, ExcelNamedRange namedRange)
         {
             if (colFrom > 0)

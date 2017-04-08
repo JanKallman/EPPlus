@@ -56,6 +56,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <NoWarn>15191, CS1591</NoWarn>
     <Prefer32Bit>false</Prefer32Bit>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -384,6 +385,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\DoubleArgumentParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DoubleEnumerableArgConverter.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ErrorHandlingFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\ExcelDoubleCellValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgument.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionRepository.cs" />
