@@ -29,6 +29,7 @@
  * Jan Källman		    Added       		        2013-01-05
  *******************************************************************************/
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Utils.CompundDocument;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,7 +49,6 @@ namespace OfficeOpenXml.Encryption
     /// </summary>
     internal class EncryptedPackageHandler
     {
-#if !MONO
         /// <summary>
         /// Read the package from the OLE document and decrypt it using the supplied password
         /// </summary>
@@ -57,18 +57,18 @@ namespace OfficeOpenXml.Encryption
         /// <returns></returns>
         internal MemoryStream DecryptPackage(FileInfo fi, ExcelEncryption encryption)
         {
-            CompoundDocument doc = new CompoundDocument(fi);
-            
-            MemoryStream ret = null;
-            if (CompoundDocument.IsStorageFile(fi.FullName) == 0)
+            if (CompoundDocument.IsCompoundDocument(fi))
             {
+                CompoundDocument doc = new CompoundDocument(fi);
+
+                MemoryStream ret = null;
                 ret = GetStreamFromPackage(doc, encryption);
+                return ret;
             }
             else
             {
                 throw (new InvalidDataException(string.Format("File {0} is not an encrypted package", fi.FullName)));
             }
-            return ret;
         }
 
         //Helpmethod to output the streams in the storage
@@ -91,34 +91,23 @@ namespace OfficeOpenXml.Encryption
         /// <param name="stream">The memory stream. </param>
         /// <param name="encryption">The encryption object from the Package</param>
         /// <returns></returns>
-        [SecuritySafeCritical]
         internal MemoryStream DecryptPackage(MemoryStream stream, ExcelEncryption encryption)
         {
-            //Create the lockBytes object.
-            CompoundDocument.ILockBytes lb=null;
             try
             {
-                lb = CompoundDocument.GetLockbyte(stream);
-
-                if (CompoundDocument.IsStorageILockBytes(lb) == 0)
+                if (CompoundDocument.IsCompoundDocument(stream))
                 {
-                    var doc = new CompoundDocument(lb);
+                    var doc = new CompoundDocument(stream);
                     return GetStreamFromPackage(doc, encryption);
                 }
                 else
                 {
-                    Marshal.ReleaseComObject(lb);
                     throw (new InvalidDataException("The stream is not an valid/supported encrypted document."));
                 }
             }
             catch// (Exception ex)
             {                
                 throw;
-            }
-            finally
-            {
-                Marshal.ReleaseComObject(lb);
-                lb = null;
             }
 
         }
@@ -223,8 +212,8 @@ namespace OfficeOpenXml.Encryption
             doc.Storage.DataStreams.Add("EncryptedPackage", encrData);
 
             ms = new MemoryStream();
-            var e=doc.Save();
-            ms.Write(e,0,e.Length);
+            doc.Save(ms);
+            //ms.Write(e,0,e.Length);
             return ms;
         }
 
@@ -326,8 +315,7 @@ namespace OfficeOpenXml.Encryption
             doc.Storage.DataStreams.Add("EncryptedPackage", ms.ToArray());
 
             var ret = new MemoryStream();                
-            var buffer = doc.Save();
-            ret.Write(buffer, 0, buffer.Length);
+            doc.Save(ret);
 
             return ret;
         }
@@ -917,7 +905,6 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-#endif
 		private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO

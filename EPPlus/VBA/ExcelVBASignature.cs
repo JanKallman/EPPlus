@@ -36,6 +36,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using OfficeOpenXml.Utils;
 using System.IO;
+using OfficeOpenXml.Utils.CompundDocument;
 
 namespace OfficeOpenXml.VBA
 {
@@ -375,9 +376,7 @@ namespace OfficeOpenXml.VBA
         /// The verifier
         /// </summary>
         public SignedCms Verifier { get; internal set; }
-#if !MONO
         internal CompoundDocument Signature { get; set; }
-#endif
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }
