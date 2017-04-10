@@ -15,24 +15,22 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
-#if !MONO
         [TestMethod]
         public void Compression()
         {
             //Compression/Decompression
             string value = "#aaabcdefaaaaghijaaaaaklaaamnopqaaaaaaaaaaaarstuvwxyzaaa";
 
-            byte[] compValue = CompoundDocument.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
-            string decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
+            byte[] compValue = VBACompression.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
+            string decompValue = Encoding.GetEncoding(1252).GetString(VBACompression.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
 
             value = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-            compValue = CompoundDocument.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
-            decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
+            compValue = VBACompression.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
+            decompValue = Encoding.GetEncoding(1252).GetString(VBACompression.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
         }
-#endif
         [Ignore]
         [TestMethod]
         public void ReadVBA()

@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="Address.cs" />
     <Compile Include="Calculation.cs" />
+    <Compile Include="CompoundDoc.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
     <Compile Include="ExcelCellBaseTest.cs" />
     <Compile Include="ExcelStyleTest.cs" />
