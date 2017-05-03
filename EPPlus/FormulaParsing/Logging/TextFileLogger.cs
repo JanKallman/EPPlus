@@ -18,7 +18,11 @@ namespace OfficeOpenXml.FormulaParsing.Logging
         private Dictionary<string, long> _funcPerformance = new Dictionary<string, long>();
         internal TextFileLogger(FileInfo fileInfo)
         {
+#if (Core)
+            _sw = new StreamWriter(new FileStream(fileInfo.FullName, FileMode.Append));
+#else
             _sw = new StreamWriter(fileInfo.FullName);
+#endif
         }
 
         private void WriteSeparatorAndTimeStamp()
@@ -105,7 +109,9 @@ namespace OfficeOpenXml.FormulaParsing.Logging
 
         public void Dispose()
         {
+#if !Core
             _sw.Close(); 
+#endif
             _sw.Dispose();
         }
     }

@@ -276,7 +276,7 @@ internal void Read(BinaryReader br)
                 else
                 {                        
                     var part= new byte[streamSize-size];
-                    Array.Copy(sectors[nextSector], part, streamSize - size);
+                    Array.Copy(sectors[nextSector], part, (int)streamSize - size);
                     bw.Write(part);
                     size += part.Length;
                 }
@@ -843,7 +843,7 @@ internal void Read(BinaryReader br)
             {
                 if (item.StreamSize > 0)
                 {
-                    item.StreamSize = item.Stream.LongLength;
+                    item.StreamSize = item.Stream.Length;
                     if (item.StreamSize < _miniStreamCutoffSize)
                     {
                         item.StartingSectorLocation=WriteStream(bwMini, dwi.miniFAT, item.Stream, miniFATSectorSize);

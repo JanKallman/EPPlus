@@ -17,7 +17,7 @@ namespace OfficeOpenXml
     }
     public static class FontSize
     {
-        public readonly static Dictionary<string, Dictionary<float, FontSizeInfo>> FontHeights = new Dictionary<string, Dictionary<float, FontSizeInfo>>(StringComparer.InvariantCultureIgnoreCase)
+        public readonly static Dictionary<string, Dictionary<float, FontSizeInfo>> FontHeights = new Dictionary<string, Dictionary<float, FontSizeInfo>>(StringComparer.OrdinalIgnoreCase)
         {
             {"Times New Roman",new Dictionary<float,FontSizeInfo>(){{6,new FontSizeInfo(20,5)},{8,new FontSizeInfo(20,6)},{10,new FontSizeInfo(20,6)},{11,new FontSizeInfo(20,7)},{12,new FontSizeInfo(21,8)},{14,new FontSizeInfo(25,9)},{16,new FontSizeInfo(27,11)},{18,new FontSizeInfo(31,12)},{20,new FontSizeInfo(35,14)},{22,new FontSizeInfo(37,14)},{24,new FontSizeInfo(41,16)},{26,new FontSizeInfo(44,18)},{28,new FontSizeInfo(47,19)},{36,new FontSizeInfo(61,24)},{48,new FontSizeInfo(82,32)},{72,new FontSizeInfo(122,48)},{96,new FontSizeInfo(164,64)},{128,new FontSizeInfo(216,86)},{256,new FontSizeInfo(428,171)}}},
             {"Arial",new Dictionary<float,FontSizeInfo>(){{6,new FontSizeInfo(20,5)},{8,new FontSizeInfo(20,6)},{10,new FontSizeInfo(20,7)},{11,new FontSizeInfo(20,8)},{12,new FontSizeInfo(21,9)},{14,new FontSizeInfo(24,11)},{16,new FontSizeInfo(27,12)},{18,new FontSizeInfo(31,13)},{20,new FontSizeInfo(34,15)},{22,new FontSizeInfo(36,16)},{24,new FontSizeInfo(40,18)},{26,new FontSizeInfo(44,19)},{28,new FontSizeInfo(46,21)},{36,new FontSizeInfo(59,27)},{48,new FontSizeInfo(79,36)},{72,new FontSizeInfo(120,53)},{96,new FontSizeInfo(159,71)},{128,new FontSizeInfo(213,95)},{256,new FontSizeInfo(424,190)}}},

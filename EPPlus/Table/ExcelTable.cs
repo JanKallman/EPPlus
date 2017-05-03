@@ -36,6 +36,8 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Compatibility;
+using System.Security;
 
 namespace OfficeOpenXml.Table
 {
@@ -178,7 +180,7 @@ namespace OfficeOpenXml.Table
                 }
                 else
                 {
-                    colName = System.Security.SecurityElement.Escape(cell.Value.ToString());
+                    colName = SecurityElement.Escape(cell.Value.ToString());
                 }
                 names.Add(colName, colName);
                 xml += string.Format("<tableColumn id=\"{0}\" name=\"{1}\" />", i,colName);

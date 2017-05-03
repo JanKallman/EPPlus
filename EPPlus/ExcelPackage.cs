@@ -43,6 +43,7 @@ using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
 using OfficeOpenXml.Utils.CompundDocument;
+using System.Text;
 
 namespace OfficeOpenXml
 {
@@ -411,7 +412,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo AddImage(byte[] image, Uri uri, string contentType)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
             lock (_images)
             {
@@ -441,7 +446,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo LoadImage(byte[] image, Uri uri, Packaging.ZipPackagePart imagePart)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-", "");
             if (_images.ContainsKey(hash))
             {
@@ -471,7 +480,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo GetImageInfo(byte[] image)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
 
             if (_images.ContainsKey(hash))
@@ -500,6 +513,9 @@ namespace OfficeOpenXml
         private void Init()
         {
             DoAdjustDrawings = true;
+#if (Core)
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252            
+#endif
         }
         /// <summary>
         /// Create a new file from a template
@@ -674,7 +690,7 @@ namespace OfficeOpenXml
             return ns;
         }
 		
-		#region SavePart
+#region SavePart
 		/// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
 		/// </summary>
@@ -717,9 +733,9 @@ namespace OfficeOpenXml
 			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
 		}
 
-        #endregion
+#endregion
 
-		#region Dispose
+#region Dispose
 		/// <summary>
 		/// Closes the package.
 		/// </summary>
@@ -727,10 +743,12 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
+#if (!Core)
                 if (_isExternalStream==false && Stream != null && (Stream.CanRead || Stream.CanWrite))
                 {
                     Stream.Close();
                 }
+#endif
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
@@ -746,9 +764,9 @@ namespace OfficeOpenXml
                 GC.Collect();
             }
 		}
-		#endregion
+#endregion
 
-		#region Save  // ExcelPackage save
+#region Save  // ExcelPackage save
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
@@ -810,14 +828,17 @@ namespace OfficeOpenXml
                             byte[] file = ((MemoryStream)Stream).ToArray();
                             EncryptedPackageHandler eph = new EncryptedPackageHandler();
                             var ms = eph.EncryptPackage(file, Encryption);
-
-                            fi.Write(ms.GetBuffer(), 0, (int)ms.Length);
+                             
+                            fi.Write(ms.ToArray(), 0, (int)ms.Length);
                         }
                         else
                         {                            
-                            fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                            fi.Write(((MemoryStream)Stream).ToArray(), 0, (int)Stream.Length);
                         }
+#if !Core
                         fi.Close();
+#endif
+                        fi.Dispose();
                     }
                     else
                     {
@@ -937,7 +958,9 @@ namespace OfficeOpenXml
             // Issue15252: Clear output buffer
             if (_stream != null)
             {
+#if !Core
                 _stream.Close();
+#endif
                 _stream.Dispose();
             }
 
@@ -954,7 +977,7 @@ namespace OfficeOpenXml
                 return _stream;
             }
         }
-		#endregion
+#endregion
         /// <summary>
         /// Compression option for the package
         /// </summary>        
@@ -969,7 +992,7 @@ namespace OfficeOpenXml
                 Package.Compression = value;
             }
         }
-		#region GetXmlFromUri
+#region GetXmlFromUri
 		/// <summary>
 		/// Get the XmlDocument from an URI
 		/// </summary>
@@ -982,7 +1005,7 @@ namespace OfficeOpenXml
             XmlHelper.LoadXmlSafe(xml, part.GetStream()); 
 			return (xml);
 		}
-		#endregion
+#endregion
 
         /// <summary>
         /// Saves and returns the Excel files as a bytearray.
@@ -1052,7 +1075,9 @@ namespace OfficeOpenXml
             }
 
             Stream.Seek(pos, SeekOrigin.Begin);
+#if !Core
             Stream.Close();
+#endif
             return byRet;
         }
         /// <summary>
@@ -1088,7 +1113,9 @@ namespace OfficeOpenXml
             }
             if (this._stream != null)
             {
+#if !Core
                 this._stream.Close();
+#endif
                 this._stream.Dispose();
                 this._stream = null;
             }

@@ -36,12 +36,13 @@ using Ionic.Zip;
 using System.IO;
 using System.Security;
 using OfficeOpenXml.Packaging.Ionic.Zip;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml.Packaging
 {
     public class ZipPackageRelationshipCollection : IEnumerable<ZipPackageRelationship>
     {
-        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>(StringComparer.InvariantCultureIgnoreCase);
+        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>(StringComparer.OrdinalIgnoreCase);
         internal void Add(ZipPackageRelationship item)
         {
             _rels.Add(item.Id, item);

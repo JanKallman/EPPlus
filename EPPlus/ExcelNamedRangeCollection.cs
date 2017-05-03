@@ -55,7 +55,7 @@ namespace OfficeOpenXml
             _ws = ws;
         }
         List<ExcelNamedRange> _list = new List<ExcelNamedRange>();
-        Dictionary<string, int> _dic = new Dictionary<string, int>(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, int> _dic = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Add a new named range
         /// </summary>

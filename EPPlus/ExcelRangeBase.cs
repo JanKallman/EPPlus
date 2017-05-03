@@ -54,9 +54,10 @@ using System.Security;
 using OfficeOpenXml.ConditionalFormatting;
 using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
-using wm = System.Windows.Media;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.CompatibilityExtensions;
+using EPPlus.Core.Compatibility;
 
 namespace OfficeOpenXml
 {	
@@ -1014,7 +1015,7 @@ namespace OfficeOpenXml
 
         internal static string FormatValue(object v, ExcelNumberFormatXml.ExcelFormatTranslator nf, string format, string textFormat)
         {
-			if (v is decimal || v.GetType().IsPrimitive)
+			if (v is decimal || TypeCompat.IsPrimitive(v))
 			{
 				double d;
 				try
@@ -1039,8 +1040,8 @@ namespace OfficeOpenXml
 				}
 				else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
-					var date = DateTime.FromOADate(d);
-					return date.ToString(format, nf.Culture);
+                    var date = DateTimeExtentions.FromOADate(d);
+                    return date.ToString(format, nf.Culture);
 				}
 			}
 			else if (v is DateTime)
@@ -1070,7 +1071,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					double d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
+					double d = new DateTime(0).Add((TimeSpan)v).ToOADate();
 					if (string.IsNullOrEmpty(nf.FractionFormat))
 					{
 						return d.ToString(format, nf.Culture);
@@ -1401,7 +1402,7 @@ namespace OfficeOpenXml
 		/// <summary>
 		/// Address including sheetname
 		/// </summary>
-		public string FullAddress
+		public new string FullAddress
 		{
 			get
 			{
@@ -1827,16 +1828,17 @@ namespace OfficeOpenXml
 	        }
 	        return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
 	    }
-	    #endregion
-		#region LoadFromDataTable
-		/// <summary>
-		/// Load the data from the datatable starting from the top left cell of the range
-		/// </summary>
-		/// <param name="Table">The datatable to load</param>
-		/// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
-		/// <param name="TableStyle">The table style to apply to the data</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
+        #endregion
+#if !Core
+#region LoadFromDataTable
+        /// <summary>
+        /// Load the data from the datatable starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Table">The datatable to load</param>
+        /// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
+        /// <param name="TableStyle">The table style to apply to the data</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
 		{
 			var r = LoadFromDataTable(Table, PrintHeaders);
 
@@ -1890,8 +1892,9 @@ namespace OfficeOpenXml
 
             return _worksheet.Cells[_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + Table.Columns.Count - 1];
         }
-		#endregion
-		#region LoadFromArrays
+#endregion
+#endif
+#region LoadFromArrays
 		/// <summary>
 		/// Loads data from the collection of arrays of objects into the range, starting from
 		/// the top-left cell.
@@ -1929,8 +1932,8 @@ namespace OfficeOpenXml
 
             return _worksheet.Cells[_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + maxColumn - 1];
         }
-		#endregion
-		#region LoadFromCollection
+#endregion
+#region LoadFromCollection
 		/// <summary>
 		/// Load a collection into a the worksheet starting from the top left row of the range.
 		/// </summary>
@@ -1991,7 +1994,7 @@ namespace OfficeOpenXml
                 }
                 foreach (var t in Members)
 				{
-                    if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
+                    if (t.DeclaringType!=null && t.DeclaringType != type && ! TypeCompat.IsSubclassOf(t.DeclaringType, type))
 					{
 						throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T");
 					}
@@ -2050,7 +2053,7 @@ namespace OfficeOpenXml
 				foreach (var item in Collection)
 				{
 					col = 0;
-                    if (item is string || item is decimal || item is DateTime || item.GetType().IsPrimitive)
+                    if (item is string || item is decimal || item is DateTime || TypeCompat.IsPrimitive(item))
                     {
                         //_worksheet.Cells[row, col++].Value = item;
                         values[row, col++] = item;
@@ -2098,8 +2101,8 @@ namespace OfficeOpenXml
 			}
 			return r;
 		}
-		#endregion
-		#region LoadFromText
+#endregion
+#region LoadFromText
 		/// <summary>
 		/// Loads a CSV text into a range starting from the top left cell.
 		/// Default settings is Comma separation
@@ -2273,8 +2276,8 @@ namespace OfficeOpenXml
 		{
 			return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
 		}
-		#endregion
-		#region GetValue
+#endregion
+#region GetValue
 		/// <summary>
 		/// Get the strongly typed value of the cell.
 		/// </summary>
@@ -2284,7 +2287,7 @@ namespace OfficeOpenXml
 		{
 			return _worksheet.GetTypedValue<T>(Value);
 		}
-		#endregion
+#endregion
 		/// <summary>
 		/// Get a range with an offset from the top left cell.
 		/// The new range has the same dimensions as the current range
@@ -2336,8 +2339,12 @@ namespace OfficeOpenXml
 		{
 		    if (string.IsNullOrEmpty(Author))
 		    {
-		        Author = Thread.CurrentPrincipal.Identity.Name;
-		    }
+#if Core
+                Author = System.Security.Claims.ClaimsPrincipal.Current.Identity.Name;
+#else
+                Author = Thread.CurrentPrincipal.Identity.Name;
+#endif
+            }
             //Check if any comments exists in the range and throw an exception
 			_changePropMethod(this, _setExistsCommentDelegate, null);
 			//Create the comments
@@ -2375,7 +2382,7 @@ namespace OfficeOpenXml
             object o = null;
             byte flag=0;
             Uri hl = null;
-            ExcelComment comment=null;
+            //ExcelComment comment=null;
 
             var excludeFormulas = excelRangeCopyOptionFlags.HasValue && (excelRangeCopyOptionFlags.Value & ExcelRangeCopyOptionFlags.ExcludeFormulas) == ExcelRangeCopyOptionFlags.ExcludeFormulas;
             var cse = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
@@ -2677,16 +2684,16 @@ namespace OfficeOpenXml
                 Worksheet.MergedCells.Remove(item);
 			}
 		}
-		#endregion
-		#region IDisposable Members
+#endregion
+#region IDisposable Members
 
 		public void Dispose()
 		{
 			//_worksheet = null;            
 		}
 
-		#endregion
-		#region "Enumerator"
+#endregion
+#region "Enumerator"
         CellsStoreEnumerator<ExcelCoreValue> cellEnum;
 		public IEnumerator<ExcelRangeBase> GetEnumerator()
 		{
@@ -2756,7 +2763,7 @@ namespace OfficeOpenXml
             _enumAddressIx = -1;
             cellEnum = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
         }
-        #endregion
+#endregion
         private struct SortItem<T>
         {
             internal int Row { get; set; }
@@ -2795,7 +2802,7 @@ namespace OfficeOpenXml
                     {
                         var s1 = x1 == null ? "" : x1.ToString();
                         var s2 = y1 == null ? "" : y1.ToString();
-                        ret = string.Compare(s1, s2, cultureInfo, compareOptions);
+                        ret = string.Compare(s1, s2,StringComparison.CurrentCulture);
                     }
                     else
                     {

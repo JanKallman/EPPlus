@@ -362,7 +362,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             //parent node must be a color node/definition
             List<string> colorDefs = new List<string>() { "a:prstClr", "a:hslClr", "a:schemeClr", "a:sysClr", "a:scrgbClr", "a:srgbClr" };
-            if (colorDefs.Find(cd => xPath.EndsWith(cd, StringComparison.InvariantCulture)) != null)
+            if (colorDefs.Find(cd => xPath.EndsWith(cd, StringComparison.Ordinal)) != null)
             {
                 s = xPath + "/a:alpha/@val";
             }

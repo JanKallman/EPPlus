@@ -106,7 +106,7 @@ namespace OfficeOpenXml.VBA
         /// <summary>
         /// Codepage for encoding. Default is current regional setting.
         /// </summary>
-        public int CodePage { get; internal set; }
+        public int CodePage  { get; internal set; }
         internal int LibFlags { get; set; }
         internal int MajorVersion { get; set; }
         internal int MinorVersion { get; set; }
@@ -391,7 +391,7 @@ namespace OfficeOpenXml.VBA
                     ret += value[i].ToString("x");
                 }
             }
-            return ret.ToUpper(CultureInfo.InvariantCulture);
+            return ret.ToUpperInvariant();
         }
         private byte[] GetByte(string value)
         {
@@ -1031,7 +1031,7 @@ namespace OfficeOpenXml.VBA
             SystemKind = eSyskind.Win32;            //Default
             Lcid = 1033;                            //English - United States
             LcidInvoke = 1033;                      //English - United States
-            CodePage = Encoding.Default.CodePage;
+            CodePage = Encoding.GetEncoding(0).CodePage;    //Switched from Default to make it work in Core
             MajorVersion = 1361024421;
             MinorVersion = 6;
             HelpContextID = 0;

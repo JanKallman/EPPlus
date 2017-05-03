@@ -220,7 +220,11 @@ namespace OfficeOpenXml.Encryption
         private byte[] EncryptDataAgile(byte[] data, EncryptionInfoAgile encryptionInfo, HashAlgorithm hashProvider)
         {
             var ke = encryptionInfo.KeyEncryptors[0];
+#if Core
+            var aes = Aes.Create();
+#else
             RijndaelManaged aes = new RijndaelManaged();
+#endif
             aes.KeySize = ke.KeyBits;
             aes.Mode = CipherMode.CBC;
             aes.Padding = PaddingMode.Zeros;
@@ -230,7 +234,7 @@ namespace OfficeOpenXml.Encryption
 
             //Encrypt the data
             var ms = new MemoryStream();
-            ms.Write(BitConverter.GetBytes(data.LongLength), 0, 8);
+            ms.Write(BitConverter.GetBytes((ulong)data.Length), 0, 8);
             while (pos < data.Length)
             {
                 var segmentSize = (int)(data.Length - pos > 4096 ? 4096 : data.Length - pos);
@@ -252,7 +256,7 @@ namespace OfficeOpenXml.Encryption
         {
             var iv = GetFinalHash(hashProvider, ei.KeyEncryptors[0], BlockKey_HmacKey, ei.KeyData.SaltValue);
             var ms = new MemoryStream();
-            EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, salt, 0L, salt.LongLength, iv, ms);
+            EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, salt, 0L, salt.Length, iv, ms);
             ei.DataIntegrity.EncryptedHmacKey = ms.ToArray();
             
             var h = GetHmacProvider(ei.KeyEncryptors[0], salt);
@@ -260,7 +264,7 @@ namespace OfficeOpenXml.Encryption
 
             ms = new MemoryStream();
             iv = GetFinalHash(hashProvider, ei.KeyEncryptors[0], BlockKey_HmacValue, ei.KeyData.SaltValue);
-            EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, hmacValue, 0L, hmacValue.LongLength, iv, ms);
+            EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, hmacValue, 0L, hmacValue.Length, iv, ms);
             ei.DataIntegrity.EncryptedHmacValue = ms.ToArray();
         }
 
@@ -268,8 +272,10 @@ namespace OfficeOpenXml.Encryption
         {
             switch (ei.HashAlgorithm)
             {
+#if (!Core)
                 case eHashAlogorithm.RIPEMD160:
                     return new HMACRIPEMD160(salt);
+#endif
                 case eHashAlogorithm.MD5:
                     return new HMACMD5(salt);              
                 case eHashAlogorithm.SHA1:
@@ -310,7 +316,7 @@ namespace OfficeOpenXml.Encryption
             //Encrypt the package
             byte[] encryptedPackage = EncryptData(encryptionKey, package, false);
             MemoryStream ms = new MemoryStream();
-            ms.Write(BitConverter.GetBytes((ulong)package.LongLength), 0, 8);
+            ms.Write(BitConverter.GetBytes((ulong)package.Length), 0, 8);
             ms.Write(encryptedPackage, 0, encryptedPackage.Length);
             doc.Storage.DataStreams.Add("EncryptedPackage", ms.ToArray());
 
@@ -319,7 +325,7 @@ namespace OfficeOpenXml.Encryption
 
             return ret;
         }
-        #region "Dataspaces Stream methods"
+#region "Dataspaces Stream methods"
         private void CreateDataSpaces(CompoundDocument doc)
         {
             var ds = new CompoundDocument.StoragePart();
@@ -414,7 +420,7 @@ namespace OfficeOpenXml.Encryption
             bw.Flush();
             return ms.ToArray();
         }
-        #endregion
+#endregion
         /// <summary>
         /// Create an EncryptionInfo object to encrypt a workbook
         /// </summary>
@@ -462,7 +468,11 @@ namespace OfficeOpenXml.Encryption
 
             //AES = 32 Bits
             encryptionInfo.Verifier.VerifierHashSize = 0x20;
-            SHA1 sha = new SHA1Managed();
+#if (Core)
+            var sha = SHA1.Create();
+#else
+            var sha = new SHA1Managed();
+#endif
             var verifierHash = sha.ComputeHash(verifier);
 
             encryptionInfo.Verifier.EncryptedVerifierHash = EncryptData(key, verifierHash, false);
@@ -471,7 +481,11 @@ namespace OfficeOpenXml.Encryption
         }
         private byte[] EncryptData(byte[] key, byte[] data, bool useDataSize)
         {
+#if (Core)
+            var aes = Aes.Create();
+#else
             RijndaelManaged aes = new RijndaelManaged();
+#endif
             aes.KeySize = key.Length * 8;
             aes.Mode = CipherMode.ECB;
             aes.Padding = PaddingMode.Zeros;
@@ -611,6 +625,28 @@ namespace OfficeOpenXml.Encryption
             }
             return null;
         }
+#if Core
+        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        {
+            switch (encr.HashAlgorithm)
+            {
+                case eHashAlogorithm.MD5:
+                    return MD5.Create();
+                //case eHashAlogorithm.RIPEMD160:
+                //    return new RIPEMD160Managed();                    
+                case eHashAlogorithm.SHA1:
+                    return SHA1.Create();
+                case eHashAlogorithm.SHA256:
+                    return SHA256.Create();
+                case eHashAlogorithm.SHA384:
+                    return SHA384.Create();
+                case eHashAlogorithm.SHA512:
+                    return SHA512.Create();
+                default:
+                    throw new NotSupportedException(string.Format("Hash provider is unsupported. {0}", encr.HashAlgorithm));
+            }
+        }
+#else
         private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
         {
             switch (encr.HashAlgorithm)
@@ -631,6 +667,7 @@ namespace OfficeOpenXml.Encryption
                         throw new NotSupportedException(string.Format("Hash provider is unsupported. {0}", encr.HashAlgorithm));
             }
         }
+#endif
         private MemoryStream DecryptBinary(EncryptionInfoBinary encryptionInfo, string password, long size, byte[] encryptedData)
         {
             MemoryStream doc = new MemoryStream();
@@ -642,7 +679,11 @@ namespace OfficeOpenXml.Encryption
                 encryptionInfo.Header.AlgID == AlgorithmID.AES256
                 )
             {
+#if (Core)
+                var decryptKey = Aes.Create();
+#else
                 RijndaelManaged decryptKey = new RijndaelManaged();
+#endif
                 decryptKey.KeySize = encryptionInfo.Header.KeySize;
                 decryptKey.Mode = CipherMode.ECB;
                 decryptKey.Padding = PaddingMode.None;
@@ -679,7 +720,11 @@ namespace OfficeOpenXml.Encryption
         /// <returns></returns>
         private bool IsPasswordValid(byte[] key, EncryptionInfoBinary encryptionInfo)
         {
-            RijndaelManaged decryptKey = new RijndaelManaged();
+#if (Core)
+            var decryptKey = Aes.Create();
+#else
+                RijndaelManaged decryptKey = new RijndaelManaged();
+#endif
             decryptKey.KeySize = encryptionInfo.Header.KeySize;
             decryptKey.Mode = CipherMode.ECB;
             decryptKey.Padding = PaddingMode.None;
@@ -708,7 +753,11 @@ namespace OfficeOpenXml.Encryption
             cryptoStream.Read(decryptedVerifierHash, 0, (int)16);
 
             //Get the hash for the decrypted verifier
+#if (Core)
+            var sha = SHA1.Create();
+#else
             var sha = new SHA1Managed();
+#endif
             var hash = sha.ComputeHash(decryptedVerifier);
 
             //Equal?
@@ -747,7 +796,11 @@ namespace OfficeOpenXml.Encryption
             SymmetricAlgorithm decryptKey = GetEncryptionAlgorithm(encr);
             decryptKey.BlockSize = encr.BlockSize << 3;
             decryptKey.KeySize = encr.KeyBits;
+#if (Core)
+            decryptKey.Mode = CipherMode.CBC;
+#else
             decryptKey.Mode = encr.CipherChaining == eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
+#endif
             decryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform decryptor = decryptKey.CreateDecryptor(
@@ -767,6 +820,25 @@ namespace OfficeOpenXml.Encryption
             return decryptedData;
         }
 
+#if (Core)
+        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        {
+            switch (encr.CipherAlgorithm)
+            {
+                case eCipherAlgorithm.AES:
+                    return Aes.Create();
+                //case eCipherAlgorithm.DES:
+                //    return new DESCryptoServiceProvider();
+                case eCipherAlgorithm.TRIPLE_DES:
+                case eCipherAlgorithm.TRIPLE_DES_112:
+                    return TripleDES.Create();
+                //case eCipherAlgorithm.RC2:
+                //    return new RC2CryptoServiceProvider();                    
+                default:
+                    throw(new NotSupportedException(string.Format("Unsupported Cipher Algorithm: {0}", encr.CipherAlgorithm.ToString())));
+            }
+        }
+#else
         private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
         {
             switch (encr.CipherAlgorithm)
@@ -784,12 +856,17 @@ namespace OfficeOpenXml.Encryption
                     throw(new NotSupportedException(string.Format("Unsupported Cipher Algorithm: {0}", encr.CipherAlgorithm.ToString())));
             }
         }
+#endif
         private void EncryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] key, byte[] data, long pos, long size, byte[] iv,MemoryStream ms)
         {
             var encryptKey = GetEncryptionAlgorithm(encr);
             encryptKey.BlockSize = encr.BlockSize << 3;
             encryptKey.KeySize = encr.KeyBits;
+#if (Core)
+            encryptKey.Mode = CipherMode.CBC;
+#else
             encryptKey.Mode = encr.CipherChaining==eChainingMode.ChainingModeCBC ? CipherMode.CBC : CipherMode.CFB;
+#endif
             encryptKey.Padding = PaddingMode.Zeros;
 
             ICryptoTransform encryptor = encryptKey.CreateEncryptor(
@@ -803,7 +880,7 @@ namespace OfficeOpenXml.Encryption
             
             var cryptoSize = size % encr.BlockSize == 0 ? size : (size + (encr.BlockSize - (size % encr.BlockSize)));
             var buffer = new byte[size];
-            Array.Copy(data, pos, buffer, 0, size);
+            Array.Copy(data, (int)pos, buffer, 0, (int)size);
             cryptoStream.Write(buffer, 0, (int)size);
             while (size % encr.BlockSize != 0)
             {
@@ -828,7 +905,11 @@ namespace OfficeOpenXml.Encryption
                 HashAlgorithm hashProvider;
                 if (encryptionInfo.Header.AlgIDHash == AlgorithmHashID.SHA1 || encryptionInfo.Header.AlgIDHash == AlgorithmHashID.App && (encryptionInfo.Flags & Flags.fExternal) == 0)
                 {
+#if (Core)
+                    hashProvider = SHA1.Create();
+#else
                     hashProvider = new SHA1CryptoServiceProvider();
+#endif
                 }
                 else if (encryptionInfo.Header.KeySize > 0 && encryptionInfo.Header.KeySize < 80)
                 {

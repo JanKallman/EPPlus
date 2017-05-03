@@ -189,10 +189,14 @@ namespace OfficeOpenXml.Style
 
 		private static string CleanText(string s)
 		{
-			// Need to convert HTML entities (named or numbered) into actual Unicode characters
-			s = System.Web.HttpUtility.HtmlDecode(s);
-			// Remove any non-breaking spaces, kills Excel
-			s = s.Replace("\u00A0", " ");
+            // Need to convert HTML entities (named or numbered) into actual Unicode characters
+#if Core
+            s = System.Net.WebUtility.HtmlDecode(s);
+#else
+            s = System.Web.HttpUtility.HtmlDecode(s);
+#endif
+            // Remove any non-breaking spaces, kills Excel
+            s = s.Replace("\u00A0", " ");
 			return s;
 		}
 
