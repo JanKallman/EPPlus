@@ -33,6 +33,7 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
 {

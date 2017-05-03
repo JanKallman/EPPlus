@@ -8,6 +8,7 @@ using OfficeOpenXml;
 using System.IO;
 using System.Diagnostics;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest
 {
@@ -90,15 +91,23 @@ namespace EPPlusTest
         [TestMethod]
         public void Calulation4()
         {
-			var dir = AppDomain.CurrentDomain.BaseDirectory;
-			var pck = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "FormulaTest.xlsx")));
+#if Core
+            var dir = AppContext.BaseDirectory;
+#else
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+            var pck = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "FormulaTest.xlsx")));
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
         [TestMethod]
         public void CalulationValidationExcel()
         {
+#if Core
+            var dir = AppContext.BaseDirectory;
+#else
             var dir = AppDomain.CurrentDomain.BaseDirectory;
+#endif
             var pck = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "FormulaTest.xlsx")));
 
             var ws = pck.Workbook.Worksheets["ValidateFormulas"];
@@ -288,7 +297,7 @@ namespace EPPlusTest
 
             if (sb.Length > 0)
             {
-                File.WriteAllText(string.Format("TestAllWorkooks{0}.txt", DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortDateString()), sb.ToString());
+                File.WriteAllText(string.Format("TestAllWorkooks{0}.txt", DateTime.Now.ToString("d") + " " + DateTime.Now.ToString("t")), sb.ToString());
                 throw(new Exception("Test failed with\r\n\r\n" + sb.ToString()));
 
             }
@@ -348,7 +357,7 @@ namespace EPPlusTest
                 var errors = new List<Tuple<string, object, object>>();
                 ExcelWorksheet sheet=null;
                 string adr="";
-                var fileErr = new System.IO.StreamWriter("c:\\temp\\err.txt");
+                var fileErr = new System.IO.StreamWriter(new FileStream("c:\\temp\\err.txt",FileMode.Append));
                 foreach (var cell in fr.Keys)
                 {
                     try
@@ -357,7 +366,7 @@ namespace EPPlusTest
                         var ix = int.Parse(spl[0]);
                         sheet = pck.Workbook.Worksheets[ix];
                         adr = spl[1];
-                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || sheet.Cells[adr].Value.GetType().IsPrimitive))
+                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || EPPlus.Core.Compatibility.TypeCompat.IsPrimitive(sheet.Cells[adr].Value)))
                         {
                             var d1 = Convert.ToDouble(fr[cell]);
                             var d2 = Convert.ToDouble(sheet.Cells[adr].Value);
@@ -389,7 +398,9 @@ namespace EPPlusTest
                         nErrors++;
                     }
                 }
+#if !Core
                 fileErr.Close();
+#endif
                 return nErrors.ToString();
             }
         }

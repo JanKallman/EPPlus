@@ -81,7 +81,7 @@ namespace OfficeOpenXml.Drawing
                 _drawingsXml = new XmlDocument();                
                 _drawingsXml.PreserveWhitespace = false;
                 _drawings = new List<ExcelDrawing>();
-                _drawingNames = new Dictionary<string,int>(StringComparer.InvariantCultureIgnoreCase);
+                _drawingNames = new Dictionary<string,int>(StringComparer.OrdinalIgnoreCase);
                 _package = xlPackage;
                 Worksheet = sheet;
                 XmlNode node = sheet.WorksheetXml.SelectSingleNode("//d:drawing", sheet.NameSpaceManager);
@@ -438,8 +438,10 @@ namespace OfficeOpenXml.Drawing
 
                     StreamWriter streamChart = new StreamWriter(_part.GetStream(FileMode.Create, FileAccess.Write));
                     DrawingXml.Save(streamChart);
+#if !Core
                     streamChart.Close();
-                    package.Flush();
+#endif
+                package.Flush();
 
                     _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
                     XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
@@ -480,8 +482,8 @@ namespace OfficeOpenXml.Drawing
 
                 return drawNode;
             }
-        #endregion
-        #region Remove methods
+#endregion
+#region Remove methods
             /// <summary>
             /// Removes a drawing.
             /// </summary>
@@ -541,7 +543,7 @@ namespace OfficeOpenXml.Drawing
                 RemoveDrawing(0);
             }
         }
-        #endregion
+#endregion
             internal void AdjustWidth(int[,] pos)
             {
                 var ix = 0;

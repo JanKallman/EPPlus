@@ -489,7 +489,9 @@ namespace OfficeOpenXml.Drawing.Chart
 
                StreamWriter streamChart = new StreamWriter(Part.GetStream(FileMode.Create, FileAccess.Write));
                ChartXml.Save(streamChart);
-               streamChart.Close();
+#if !Core
+                streamChart.Close();
+#endif
                package.Flush();
 
                var chartRelation = drawings.Part.CreateRelationship(UriHelper.GetRelativeUri(drawings.UriDrawing, UriChart), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/chart");
@@ -622,7 +624,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    return 0;
            }           
        }
-       #region "Xml init Functions"
+#region "Xml init Functions"
        private string ChartStartXml(eChartType type)
        {
            StringBuilder xml=new StringBuilder();
@@ -866,9 +868,9 @@ namespace OfficeOpenXml.Drawing.Chart
        {
            return string.Format("<c:{0}><c:thickness val=\"0\"/><c:spPr><a:noFill/><a:ln><a:noFill/></a:ln><a:effectLst/><a:sp3d/></c:spPr></c:{0}>", name);
        }
-       #endregion
-       #endregion
-       #region "Chart type functions
+#endregion
+#endregion
+#region "Chart type functions
        internal static bool IsType3D(eChartType chartType)
         {
             return chartType == eChartType.Area3D ||
@@ -1036,7 +1038,7 @@ namespace OfficeOpenXml.Drawing.Chart
                            ChartType == eChartType.Doughnut ||
                            ChartType == eChartType.DoughnutExploded;
         }
-        #endregion
+#endregion
        /// <summary>
        /// Get the name of the chart node
        /// </summary>
@@ -1189,7 +1191,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             throw (new NotImplementedException("Not yet implemented"));
         }
-        #region "Properties"
+#region "Properties"
         /// <summary>
         /// Reference to the worksheet
         /// </summary>
@@ -1650,8 +1652,8 @@ namespace OfficeOpenXml.Drawing.Chart
             get { return ""; }
         }
         ExcelChartTitle _title = null;
-        #endregion
-       #region "Grouping Enum Translation"
+#endregion
+#region "Grouping Enum Translation"
         private string GetGroupingText(eGrouping grouping)
        {
            switch (grouping)
@@ -1679,7 +1681,7 @@ namespace OfficeOpenXml.Drawing.Chart
                    return eGrouping.Clustered;
            }         
        }
-       #endregion
+#endregion
        internal static ExcelChart GetChart(ExcelDrawings drawings, XmlNode node/*, XmlNode chartTypeNode*/)
        {
            XmlNode chartNode = node.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart", drawings.NameSpaceManager);

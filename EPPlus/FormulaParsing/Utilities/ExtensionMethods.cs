@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EPPlus.Core.Compatibility;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace OfficeOpenXml.FormulaParsing.Utilities
         public static bool IsNumeric(this object obj)
         {
             if (obj == null) return false;
-            return (obj.GetType().IsPrimitive || obj is double || obj is decimal || obj is System.DateTime || obj is TimeSpan);
+            return (TypeCompat.IsPrimitive(obj) || obj is double || obj is decimal || obj is System.DateTime || obj is TimeSpan);
         }
     }
 }

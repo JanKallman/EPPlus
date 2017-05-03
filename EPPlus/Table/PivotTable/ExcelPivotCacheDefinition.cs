@@ -31,7 +31,6 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Text;
 using System.Xml;
 using System.Linq;
@@ -191,7 +190,7 @@ namespace OfficeOpenXml.Table.PivotTable
                             var name = GetXmlNodeString(_sourceNamePath);
                             foreach (var n in PivotTable.WorkSheet.Workbook.Names)
                             {
-                                if(name.Equals(n.Name,StringComparison.InvariantCultureIgnoreCase))
+                                if(name.Equals(n.Name,StringComparison.OrdinalIgnoreCase))
                                 {
                                     _sourceRange = n;
                                     return _sourceRange;
@@ -206,7 +205,7 @@ namespace OfficeOpenXml.Table.PivotTable
                                 }
                                 foreach (var n in w.Names)
                                 {
-                                    if (name.Equals(n.Name, StringComparison.InvariantCultureIgnoreCase))
+                                    if (name.Equals(n.Name, StringComparison.OrdinalIgnoreCase))
                                     {
                                         _sourceRange = n;
                                         break;

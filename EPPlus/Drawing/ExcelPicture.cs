@@ -39,7 +39,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
 using OfficeOpenXml.Utils;
-
 namespace OfficeOpenXml.Drawing
 {
     /// <summary>
@@ -123,8 +122,9 @@ namespace OfficeOpenXml.Drawing
             _image = Image.FromStream(imagestream);
             ImageConverter ic = new ImageConverter();
             var img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
+#if !Core
             imagestream.Close();
-
+#endif            
             UriPic = GetNewUri(package, "/xl/media/{0}" + imageFile.Name);
             var ii = _drawings._package.AddImage(img, UriPic, ContentType);
             string relID;
@@ -214,7 +214,7 @@ namespace OfficeOpenXml.Drawing
             newPic.relID = relID;
             //_drawings._pics.Add(newPic);
         }
-        #endregion
+#endregion
         private string SavePicture(Image image)
         {
             ImageConverter ic = new ImageConverter();

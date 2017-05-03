@@ -82,7 +82,11 @@ namespace EPPlusSamples
 
             //Now read the file into the sheet. Start from cell A1. Create a table with style 27. First row contains the header.
             Console.WriteLine("Load the text file...");
+#if (Core)            
+            var range = sheet.Cells["A1"].LoadFromText(new FileInfo("csv\\Sample9-1.txt"), format, TableStyles.Medium27, true);
+#else
             var range = sheet.Cells["A1"].LoadFromText(new FileInfo("..\\..\\csv\\Sample9-1.txt"), format, TableStyles.Medium27, true);
+#endif
 
             Console.WriteLine("Format the table...");
             //Tables don't support custom styling at this stage(you can of course format the cells), but we can create a Namedstyle for a column...
@@ -146,7 +150,11 @@ namespace EPPlusSamples
 
             //Now read the file into the sheet.
             Console.WriteLine("Load the text file...");
+#if (Core)            
+            var range = sheet.Cells["A1"].LoadFromText(new FileInfo("csv\\Sample9-2.txt"), format);
+#else
             var range = sheet.Cells["A1"].LoadFromText(new FileInfo("..\\..\\csv\\Sample9-2.txt"), format);
+#endif
 
             //Add a formula
             range.Offset(1, range.End.Column, range.End.Row - range.Start.Row, 1).FormulaR1C1 = "RC[-1]-RC[-2]";

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OfficeOpenXml.CompatibilityExtensions;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             else
             {
                 var d = ArgToDecimal(arguments, 0);
-                date = System.DateTime.FromOADate(d);
+                date = DateTimeExtentions.FromOADate(d);
             }
             return date;
         }

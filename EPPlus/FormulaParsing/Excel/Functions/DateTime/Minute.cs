@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -44,7 +45,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             else
             {
                 var d = ArgToDecimal(arguments, 0);
-                date = System.DateTime.FromOADate(d);
+                date = DateTimeExtentions.FromOADate(d);
             }
             return CreateResult(date.Minute, DataType.Integer);
         }

@@ -97,7 +97,7 @@ namespace EPPlusTest
         public void ReadVba()
         {
             var p = new ExcelPackage(new FileInfo(@"c:\temp\pricecheck.xlsm"));
-            var vba = p.Workbook.VbaProject;    
+            var vba = p.Workbook.VbaProject;            
         }
     }
 }

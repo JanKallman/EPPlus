@@ -149,7 +149,7 @@ namespace OfficeOpenXml
                 {
                     foreach (var t in ws.Tables)
                     {
-                        if (t.Name.Equals(Table.Name, StringComparison.InvariantCultureIgnoreCase))
+                        if (t.Name.Equals(Table.Name, StringComparison.OrdinalIgnoreCase))
                         {
                             _ws = ws.Name;
                             if (Table.IsAll)
@@ -211,7 +211,7 @@ namespace OfficeOpenXml
                                 var cols = Table.ColumnSpan.Split(':');
                                 foreach (var c in t.Columns)
                                 {
-                                    if (_fromCol <= 0 && cols[0].Equals(c.Name, StringComparison.InvariantCultureIgnoreCase))   //Issue15063 Add invariant igore case
+                                    if (_fromCol <= 0 && cols[0].Equals(c.Name, StringComparison.OrdinalIgnoreCase))   //Issue15063 Add invariant igore case
                                     {
                                         _fromCol = col;
                                         if (cols.Length == 1)
@@ -220,7 +220,7 @@ namespace OfficeOpenXml
                                             return;
                                         }
                                     }
-                                    else if (cols.Length > 1 && _fromCol > 0 && cols[1].Equals(c.Name, StringComparison.InvariantCultureIgnoreCase)) //Issue15063 Add invariant igore case
+                                    else if (cols.Length > 1 && _fromCol > 0 && cols[1].Equals(c.Name, StringComparison.OrdinalIgnoreCase)) //Issue15063 Add invariant igore case
                                     {
                                         _toCol = col;
                                         return;

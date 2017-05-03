@@ -23,7 +23,11 @@ namespace EPPlusTest
             {
                 Directory.CreateDirectory(_clipartPath);
             }
+#if (Core)
+            var asm = Assembly.GetEntryAssembly();
+#else
             var asm = Assembly.GetExecutingAssembly();
+#endif
             var validExtensions = new[]
                 {
                     ".gif", ".wmf"
@@ -32,7 +36,7 @@ namespace EPPlusTest
             {
                 foreach (var ext in validExtensions)
                 {
-                    if (name.EndsWith(ext, StringComparison.InvariantCultureIgnoreCase))
+                    if (name.EndsWith(ext, StringComparison.OrdinalIgnoreCase))
                     {
                         string fileName = name.Replace("EPPlusTest.Resources.", "");
                         using (var stream = asm.GetManifestResourceStream(name))

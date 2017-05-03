@@ -25,7 +25,6 @@
 
 using System;
 using System.IO;
-using System.Security.Permissions;
 
 namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
@@ -159,7 +158,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         }
 
 
+#if (Core)
+        static System.Text.Encoding ibm437 = System.Text.Encoding.GetEncoding("UTF-8");   
+#else
         static System.Text.Encoding ibm437 = System.Text.Encoding.GetEncoding("IBM437");
+#endif
         static System.Text.Encoding utf8 = System.Text.Encoding.GetEncoding("UTF-8");
 
         internal static byte[] StringToByteArray(string value, System.Text.Encoding encoding)
@@ -606,31 +609,31 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                     throw;
                 }
 #else
-                catch (System.IO.IOException ioexc1)
+                catch /*(System.IO.IOException ioexc1)*/
                 {
                     // Check if we can call GetHRForException,
                     // which makes unmanaged code calls.
-                    var p = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
-                    if (p.IsUnrestricted())
-                    {
-                        uint hresult = _HRForException(ioexc1);
-                        if (hresult != 0x80070021)  // ERROR_LOCK_VIOLATION
-                            throw new System.IO.IOException(String.Format("Cannot read file {0}", FileName), ioexc1);
-                        retries++;
-                        if (retries > 10)
-                            throw new System.IO.IOException(String.Format("Cannot read file {0}, at offset 0x{1:X8} after 10 retries", FileName, offset), ioexc1);
+                    //var p = new SecurityPermission(SecurityPermissionFlag.UnmanagedCode);
+                    //if (p.IsUnrestricted())
+                    //{
+                    //    uint hresult = _HRForException(ioexc1);
+                    //    if (hresult != 0x80070021)  // ERROR_LOCK_VIOLATION
+                    //        throw new System.IO.IOException(String.Format("Cannot read file {0}", FileName), ioexc1);
+                    //    retries++;
+                    //    if (retries > 10)
+                    //        throw new System.IO.IOException(String.Format("Cannot read file {0}, at offset 0x{1:X8} after 10 retries", FileName, offset), ioexc1);
 
-                        // max time waited on last retry = 250 + 10*550 = 5.75s
-                        // aggregate time waited after 10 retries: 250 + 55*550 = 30.5s
-                        System.Threading.Thread.Sleep(250 + retries * 550);
-                    }
-                    else
-                    {
+                    //    // max time waited on last retry = 250 + 10*550 = 5.75s
+                    //    // aggregate time waited after 10 retries: 250 + 55*550 = 30.5s
+                    //    System.Threading.Thread.Sleep(250 + retries * 550);
+                    //}
+                    //else
+                    //{
                         // The permission.Demand() failed. Therefore, we cannot call
                         // GetHRForException, and cannot do the subtle handling of
                         // ERROR_LOCK_VIOLATION.  Just bail.
                         throw;
-                    }
+                    //}
                 }
 #endif
             }
