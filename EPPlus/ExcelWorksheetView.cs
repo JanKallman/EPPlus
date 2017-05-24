@@ -269,8 +269,9 @@ namespace OfficeOpenXml
             }
             return false;
         }
+
         /// <summary>
-        /// Indicates if the worksheet is selected within the workbook
+        /// Indicates if the worksheet is selected within the workbook. NOTE: Setter clears other selected tabs.
         /// </summary>
         public bool TabSelected
         {
@@ -280,23 +281,50 @@ namespace OfficeOpenXml
             }
             set
             {
-                if (value)
+                SetTabSelected(value, false);
+            }
+        }
+
+        /// <summary>
+        /// Indicates if the worksheet is selected within the workbook. NOTE: Setter keeps other selected tabs.
+        /// </summary>
+        public bool TabSelectedMulti
+        {
+            get
+            {
+                return GetXmlNodeBool("@tabSelected");
+            }
+            set
+            {
+                SetTabSelected(value, true);
+            }
+        }
+
+        /// <summary>
+        /// Sets whether the worksheet is selected within the workbook.
+        /// </summary>
+        /// <param name="isSelected">Whether the tab is selected, defaults to true.</param>
+        /// <param name="allowMultiple">Whether to allow multiple active tabs, defaults to false.</param>
+        public void SetTabSelected(bool isSelected = true, bool allowMultiple = false)
+        {
+            if (isSelected)
+            {
+                SheetViewElement.SetAttribute("tabSelected", "1");
+                if (!allowMultiple)
                 {
                     //    // ensure no other worksheet has its tabSelected attribute set to 1
                     foreach (ExcelWorksheet sheet in _worksheet._package.Workbook.Worksheets)
                         sheet.View.TabSelected = false;
 
-                    SheetViewElement.SetAttribute("tabSelected", "1");
-                    XmlElement bookView = _worksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _worksheet.NameSpaceManager) as XmlElement;
-                    if (bookView != null)
-                    {
-                        bookView.SetAttribute("activeTab", (_worksheet.PositionID - 1).ToString());
-                    }
                 }
-                else
-                    SetXmlNodeString("@tabSelected", "0");
-
+                XmlElement bookView = _worksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _worksheet.NameSpaceManager) as XmlElement;
+                if (bookView != null)
+                {
+                    bookView.SetAttribute("activeTab", (_worksheet.PositionID - 1).ToString());
+                }
             }
+            else
+                SetXmlNodeString("@tabSelected", "0");
         }
 
 		/// <summary>
