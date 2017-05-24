@@ -354,6 +354,9 @@ namespace OfficeOpenXml
                         name = string.Format("Table{0}", ++ix);
                     }
                 }
+                //ensure the _nextTableID value has been initialized - Pull request by WillR
+                _pck.Workbook.ReadAllTables();
+
                 int Id = _pck.Workbook._nextTableID++;
                 prevName = name;
                 XmlDocument xmlDoc = new XmlDocument();
