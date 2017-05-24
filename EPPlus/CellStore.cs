@@ -19,7 +19,7 @@
  * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
  *
- * All code and executables are provided "as is" with no warranty either express or implied. 
+     * All code and executables are provided "as is" with no warranty either express or implied. 
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
  * Code change notes:
@@ -74,8 +74,17 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
         internal int GetPosition(int Row)
         {
             var page = (short)(Row >> CellStore<int>.pageBits);
-            _searchIx.Index = page;
-            var res = Array.BinarySearch(_pages, 0, PageCount, _searchIx);
+            int res;
+            if(page>=0 && page < PageCount && _pages[page].Index==page)
+            {
+                res = page;
+            }
+            else
+            {
+                _searchIx.Index = page;
+                res = Array.BinarySearch(_pages, 0, PageCount, _searchIx);
+            }
+
             if (res >= 0)
             {
                 GetPage(Row, ref res);
@@ -348,12 +357,19 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 	    }
         internal int GetPosition(int Column)
         {
-            _searchIx.Index = (short)Column;
-            return Array.BinarySearch(_columnIndex, 0, ColumnCount, _searchIx);
+            if(Column < ColumnCount && _columnIndex[Column].Index==Column)      //Check if th column is lesser than
+            {
+                return Column;
+            }
+            else
+            {
+                _searchIx.Index = (short)Column;
+                return Array.BinarySearch(_columnIndex, 0, ColumnCount, _searchIx);
+            }
         }
         internal CellStore<T> Clone()
         {
-            int row,col;
+            int row, col;
             var ret=new CellStore<T>();
             for (int c = 0; c < ColumnCount; c++)
             {
@@ -603,8 +619,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
         {
             lock(_columnIndex)
             {
-                var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
-                
+                var col = GetPosition(Column);          //Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
                 var page = (short)(Row >> pageBits);
                 if (col >= 0)
                 {
@@ -687,7 +702,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 
                 for (int colIx = fromColumn; colIx <= toColumn; colIx++)
                 {
-                    var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(colIx) });
+                //var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(colIx) });
+                    var col=GetPosition(colIx);
 
                     foreach (var pair in pages)
                     {
@@ -761,7 +777,8 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
         {
             lock (_columnIndex)
             {
-                var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
+                //var col = Array.BinarySearch(_columnIndex, 0, ColumnCount, new IndexBase() { Index = (short)(Column) });
+                var col = GetPosition(Column);
                 var page = (short)(Row >> pageBits);
                 if (col >= 0)
                 {

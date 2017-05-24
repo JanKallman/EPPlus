@@ -301,7 +301,7 @@ namespace OfficeOpenXml.FormulaParsing
             var addr = new ExcelAddress(worksheet, address);
             if (addr.Table != null)
             {
-                addr.SetRCFromTable(_package, new ExcelAddressBase(row, column, row, column));
+                addr = ConvertToA1C1(addr);
             }
             //SetCurrentWorksheet(addr.WorkSheet); 
             var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
@@ -309,6 +309,29 @@ namespace OfficeOpenXml.FormulaParsing
             //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
             return new RangeInfo(ws, addr);
         }
+        public override IRangeInfo GetRange(string worksheet, string address)
+        {
+            var addr = new ExcelAddress(worksheet, address);
+            if (addr.Table != null)
+            {
+                addr = ConvertToA1C1(addr);
+            }
+            //SetCurrentWorksheet(addr.WorkSheet); 
+            var wsName = string.IsNullOrEmpty(addr.WorkSheet) ? _currentWorksheet.Name : addr.WorkSheet;
+            var ws = _package.Workbook.Worksheets[wsName];
+            //return new CellsStoreEnumerator<object>(ws._values, addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
+            return new RangeInfo(ws, addr);
+        }
+
+        private ExcelAddress ConvertToA1C1(ExcelAddress addr)
+        {
+            //Convert the Table-style Address to an A1C1 address
+            addr.SetRCFromTable(_package, addr);
+            var a = new ExcelAddress(addr._fromRow, addr._fromCol, addr._toRow, addr._toCol);
+            a._ws = addr._ws;            
+            return a;
+        }
+
         public override INameInfo GetName(string worksheet, string name)
         {
             ExcelNamedRange nameItem;
@@ -510,6 +533,11 @@ namespace OfficeOpenXml.FormulaParsing
         {
             _names = new Dictionary<ulong, INameInfo>(); //Reset name cache.            
         }
+
+        //public override void SetToTableAddress(ExcelAddress address)
+        //{
+        //    address.SetRCFromTable(_package, address);
+        //}
     }
 }
     
