@@ -749,6 +749,7 @@ namespace OfficeOpenXml
                     Stream.Close();
                 }
 #endif
+                CloseStream();
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)

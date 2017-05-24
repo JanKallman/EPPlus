@@ -185,6 +185,11 @@ namespace OfficeOpenXml.Utils.CompundDocument
             return Name;
         }
 
+        /// <summary>
+        /// Compare length first, then sort by name in upper invariant
+        /// </summary>
+        /// <param name="other">The other item</param>
+        /// <returns></returns>
         public int CompareTo(CompoundDocumentItem other)
         {
             if(Name.Length < other.Name.Length)

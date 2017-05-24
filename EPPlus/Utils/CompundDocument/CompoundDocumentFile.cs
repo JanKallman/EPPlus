@@ -37,7 +37,7 @@ using System.Text.RegularExpressions;
 namespace OfficeOpenXml.Utils.CompundDocument
 {
     /// <summary>
-    /// Read and write a componddocument.
+    /// Read and write a compound document.
     /// Read spec here https://winprotocoldoc.blob.core.windows.net/productionwindowsarchives/MS-CFB/[MS-CFB].pdf
     /// </summary>
     internal class CompoundDocumentFile : IDisposable
@@ -145,8 +145,8 @@ namespace OfficeOpenXml.Utils.CompundDocument
             }
             return true;
         }
-#region Read
-internal void Read(BinaryReader br)
+    #region Read
+    internal void Read(BinaryReader br)
         {
             br.ReadBytes(8);    //Read header
             br.ReadBytes(16);   //Header CLSID (16 bytes): Reserved and unused class ID that MUST be set to all zeroes (CLSID_NULL). 
@@ -751,7 +751,6 @@ internal void Read(BinaryReader br)
                 }
             }
             _currentFATSectorPos = (int)bw.BaseStream.Position;
-            //bw.Write(new byte[(numberofDIFATSectors+numberOfFATSectors+dirSectors-sector)*sectorSize]);
             bw.Seek(0, SeekOrigin.End);
             WriteStreamFullSector(bw, _sectorSize);
             int sector;
