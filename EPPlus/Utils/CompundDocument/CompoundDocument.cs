@@ -75,10 +75,6 @@ namespace OfficeOpenXml.Utils.CompundDocument
             return CompoundDocumentFile.IsCompoundDocument(ms);
         }
 
-        //internal CompoundDocument(ILockBytes lb)
-        //{
-        //    Read(lb);
-        //}
         internal CompoundDocument(byte[] doc)
         {
             Read(doc);

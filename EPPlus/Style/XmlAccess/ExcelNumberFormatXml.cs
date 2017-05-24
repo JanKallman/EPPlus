@@ -317,7 +317,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                                             try
                                             {
 #if (Core)
-                                                //Culture = new CultureInfo(num & 0xFFFF);                                                
+                                                //Culture = new CultureInfo(num & 0xFFFF);        
                                                 Culture = null; //TODO Core Fix LCID
 #else
                                                 Culture = CultureInfo.GetCultureInfo(num & 0xFFFF);
