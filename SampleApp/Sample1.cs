@@ -41,12 +41,12 @@ namespace EPPlusSamples
 {
 	class Sample1
 	{
-		/// <summary>
-		/// Sample 1 - simply creates a new workbook from scratch.
-		/// The workbook contains one worksheet with a simple invertory list
-		/// </summary>
-		public static string RunSample1(DirectoryInfo outputDir)
-		{
+        /// <summary>
+        /// Sample 1 - simply creates a new workbook from scratch.
+        /// The workbook contains one worksheet with a simple invertory list
+        /// </summary>
+        public static string RunSample1(DirectoryInfo outputDir)
+        {
 			FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
 			if (newFile.Exists)
 			{
