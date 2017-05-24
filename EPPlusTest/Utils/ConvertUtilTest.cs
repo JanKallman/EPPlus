@@ -82,7 +82,6 @@ namespace EPPlusTest.Utils
 
             Assert.AreEqual(204, result);
         }
-
         // This is just illustration of the bug in old implementation
         //[TestMethod]
         public void TextToIntInOldImplementation()
@@ -91,7 +90,6 @@ namespace EPPlusTest.Utils
 
             Assert.AreEqual(204, result);
         }
-
         [TestMethod]
         public void DoubleToNullableInt()
         {
@@ -103,7 +101,8 @@ namespace EPPlusTest.Utils
         [TestMethod]
         public void StringToDecimal()
         {
-            var result = ConvertUtil.GetTypedCellValue<decimal>("1.4");
+            var decimalSign=System.Globalization.CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+            var result = ConvertUtil.GetTypedCellValue<decimal>($"1{decimalSign}4");
 
             Assert.AreEqual((decimal)1.4, result);
         }
@@ -112,7 +111,6 @@ namespace EPPlusTest.Utils
         public void EmptyStringToNullableDecimal()
         {
             var result = ConvertUtil.GetTypedCellValue<decimal?>("");
-
             Assert.IsNull(result);
         }
 
