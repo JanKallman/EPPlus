@@ -58,10 +58,10 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        #region "Public properties"
        const string showHorzBorderPath = "c:showHorzBorder/@val";
-       /// <summary>
-       /// Show the values 
-       /// </summary>
-        public bool ShowHorizontalBoarder
+        /// <summary>
+        /// The horizontal borders shall be shown in the data table
+        /// </summary>
+        public bool ShowHorizontalBorder
         {
            get
            {
@@ -74,9 +74,9 @@ namespace OfficeOpenXml.Drawing.Chart
        }
         const string showVertBorderPath = "c:showVertBorder/@val";
         /// <summary>
-        /// Show the values 
+        /// The vertical borders shall be shown in the data table
         /// </summary>
-        public bool ShowVerticalBoarder
+        public bool ShowVerticalBorder
         {
             get
             {
@@ -89,7 +89,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         const string showOutlinePath = "c:showOutline/@val";
         /// <summary>
-        /// Show the values 
+        /// The outline shall be shown on the data table
         /// </summary>
         public bool ShowOutline
         {
@@ -104,7 +104,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         const string showKeysPath = "c:showKeys/@val";
         /// <summary>
-        /// Show the values 
+        /// The legend keys shall be shown in the data table
         /// </summary>
         public bool ShowKeys
         {
