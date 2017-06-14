@@ -61,7 +61,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         string SHOWNEGBUBBLES_PATH = "c:showNegBubbles/@val";
         /// <summary>
-        /// Specifies the scale factor for the bubble chart. Can range from 0 to 300, corresponding to a percentage of the default size,
+        /// Specifies negative sized bubbles shall be shown on a bubble chart
         /// </summary>
         public bool ShowNegativeBubbles
         {
