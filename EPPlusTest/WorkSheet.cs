@@ -18,6 +18,20 @@ using System.Globalization;
 
 namespace EPPlusTest
 {
+
+    internal class BaseItem
+    {
+        public int Ref { get; set; }
+        public string BaseProp1 { get; set; }
+    }
+    internal class InhItem : BaseItem
+    {
+        public int TophRef { get; set; }
+        public string TopProp1 { get; set; }
+    }
+
+
+
     [TestClass]
     public class WorkSheetTest : TestBase
     {
@@ -236,37 +250,89 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.Cells["W20"].Text, string.Empty);
 
                 Assert.AreEqual(ws.Cells["Y20"].GetValue<string>(), "True");
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<int>(), 0);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<int?>(), null);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<double>(), 0d);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<double?>(), null);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal>(), 0m);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal?>(), null);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<int>(), 1);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<int?>(), 1);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<double>(), 1d);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<double?>(), 1d);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal>(), 1m);
+                Assert.AreEqual(ws.Cells["Y20"].GetValue<decimal?>(), 1m);
                 Assert.AreEqual(ws.Cells["Y20"].GetValue<bool>(), true);
                 Assert.AreEqual(ws.Cells["Y20"].GetValue<bool?>(), true);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<DateTime>(), DateTime.MinValue);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<DateTime?>(), null);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<TimeSpan>(), TimeSpan.Zero);
-                Assert.AreEqual(ws.Cells["Y20"].GetValue<TimeSpan?>(), null);
-                Assert.AreEqual(ws.Cells["Y20"].Text, "1");
+
+                Assert.IsInstanceOfType(GetValueException<DateTime>(ws.Cells["Y20"]), typeof(InvalidCastException));
+                Assert.IsInstanceOfType(GetValueException<DateTime?>(ws.Cells["Y20"]), typeof(InvalidCastException));
+                Assert.IsInstanceOfType(GetValueException<TimeSpan>(ws.Cells["Y20"]), typeof(InvalidCastException));
+                Assert.IsInstanceOfType(GetValueException<TimeSpan?>(ws.Cells["Y20"]), typeof(InvalidCastException));
 
                 Assert.AreEqual(ws.Cells["Z20"].GetValue<string>(), "Text2");
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<int>(), 0);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<int?>(), null);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<double>(), 0d);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<double?>(), null);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<decimal>(), 0m);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<decimal?>(), null);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<bool>(), false);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<bool?>(), null);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<DateTime>(), DateTime.MinValue);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<DateTime?>(), null);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<TimeSpan>(), TimeSpan.Zero);
-                Assert.AreEqual(ws.Cells["Z20"].GetValue<TimeSpan?>(), null);
+                Assert.IsInstanceOfType(GetValueException<int>(         ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<int?>(        ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<double>(      ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<double?>(     ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<decimal>(     ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<decimal?>(    ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<bool>(        ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<bool?>(       ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<DateTime>(    ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<DateTime?>(   ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<TimeSpan>(    ws.Cells["Z20"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<TimeSpan?>(   ws.Cells["Z20"]), typeof(FormatException));
                 Assert.AreEqual(ws.Cells["Z20"].Text, "Text2");
+
+                // even though value is set as integer, it is stored/exposed by EPPlust as double; feature?
+                //Assert.IsInstanceOfType(ws.Cells["X19"].Value, typeof(int));
+                Assert.AreEqual(ws.Cells["X19"].GetValue<string>(), "210");
+                Assert.AreEqual(ws.Cells["X19"].GetValue<int>(), 210);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<int?>(), 210);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<double>(), 210d);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<double?>(), 210d);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<decimal>(), 210m);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<decimal?>(), 210m);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<bool>(), true);
+                Assert.AreEqual(ws.Cells["X19"].GetValue<bool?>(), true);
+                // double is converted to DateTime and TimeSpan, but value is meaningless
+                Assert.IsNull(GetValueException<DateTime>(    ws.Cells["X19"]));
+                Assert.IsNull(GetValueException<DateTime?>(   ws.Cells["X19"]));
+                Assert.IsNull(GetValueException<TimeSpan>(    ws.Cells["X19"]));
+                Assert.IsNull(GetValueException<TimeSpan?>(   ws.Cells["X19"]));
+                Assert.AreEqual(ws.Cells["X19"].Text, "210");
+
+                Assert.IsInstanceOfType(ws.Cells["AA19"].Value, typeof(string));
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<string>(), "210");
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<int>(), 210);
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<int?>(), 210);
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<double>(), 210d);
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<double?>(), 210d);
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<decimal>(), 210m);
+                Assert.AreEqual(ws.Cells["AA19"].GetValue<decimal?>(), 210m);
+                Assert.IsInstanceOfType(GetValueException<bool>(        ws.Cells["AA19"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<bool?>(       ws.Cells["AA19"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<DateTime>(    ws.Cells["AA19"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<DateTime?>(   ws.Cells["AA19"]), typeof(FormatException));
+                Assert.AreEqual(TimeSpan.FromDays(210), ws.Cells["AA19"].GetValue<TimeSpan>());
+                Assert.AreEqual(TimeSpan.FromDays(210), ws.Cells["AA19"].GetValue<TimeSpan?>());
+                Assert.AreEqual(ws.Cells["AA19"].Text, "210");
+
+                // blank string produces null for nullable primitive types and conversion to non-nullable types throws FormatException
+                Assert.IsInstanceOfType(ws.Cells["AA18"].Value, typeof(string));
+                Assert.IsInstanceOfType(GetValueException<int>(         ws.Cells["AA18"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<double>(      ws.Cells["AA18"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<decimal>(     ws.Cells["AA18"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<bool>(        ws.Cells["AA18"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<DateTime>(    ws.Cells["AA18"]), typeof(FormatException));
+                Assert.IsInstanceOfType(GetValueException<TimeSpan>(    ws.Cells["AA18"]), typeof(FormatException));
+
+                Assert.IsNull(GetValueException<int?>(        ws.Cells["AA18"]));
+                Assert.IsNull(GetValueException<double?>(     ws.Cells["AA18"]));
+                Assert.IsNull(GetValueException<decimal?>(    ws.Cells["AA18"]));
+                Assert.IsNull(GetValueException<bool?>(       ws.Cells["AA18"]));
+                Assert.IsNull(GetValueException<DateTime?>(   ws.Cells["AA18"]));
+                Assert.IsNull(GetValueException<TimeSpan?>(   ws.Cells["AA18"]));
+                Assert.AreEqual(ws.Cells["AA18"].Text, " ");
             }
             instream.Close();
         }
+
         [Ignore]
         [TestMethod]
         public void ReadStreamWithTemplateWorkSheet()
@@ -356,12 +422,22 @@ namespace EPPlusTest
             ws.Cells["v19:v24"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Left;
             ws.Cells["v19:v24"].Style.Numberformat.Format = @"$#,##0.00_);($#,##0.00)";
 
+            // int value is actually exposed as double; feature or bug??
             ws.Cells["X19"].Value = 210;
             ws.Cells["X20"].Value = 212;
             ws.Cells["X21"].Value = 221;
             ws.Cells["X22"].Value = 123;
             ws.Cells["X23"].Value = 135;
             ws.Cells["X24"].Value = 134;
+
+            ws.Cells["AA18"].Value = " ";
+
+            ws.Cells["AA19"].Value = "210";
+            ws.Cells["AA20"].Value = "212";
+            ws.Cells["AA21"].Value = "221";
+            ws.Cells["AA22"].Value = "123";
+            ws.Cells["AA23"].Value = "135";
+            ws.Cells["AA24"].Value = "134";
 
             ws.Cells["Y19"].Value = true;
             ws.Cells["Y20"].Value = true;
@@ -833,6 +909,17 @@ namespace EPPlusTest
 
             var ints = new int[] { 1, 3, 4, 76, 2, 5 };
             ws.Cells["A15"].Value = ints;
+
+            ws = _pck.Workbook.Worksheets.Add("LoadFromCollection_Inherited");
+            List<InheritTestDTO> inhList = new List<InheritTestDTO>();
+            inhList.Add(new InheritTestDTO() { Id = 1, Name = "Item1", Boolean = false, Date = new DateTime(2011, 1, 1), dto = null, NameVar = "Field 1", InheritedProp="Inherited 1" });
+            inhList.Add(new InheritTestDTO() { Id = 2, Name = "Item2", Boolean = true, Date = new DateTime(2011, 1, 15), dto = new TestDTO(), NameVar = "Field 2", InheritedProp = "Inherited 2" });
+            ws.Cells["A1"].LoadFromCollection(inhList, true);
+            Assert.AreEqual("Inherited 2", ws.Cells[3, 1].Value);
+
+            ws.Cells["A5"].LoadFromCollection(inhList, true, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, new MemberInfo[]{typeof(InheritTestDTO).GetProperty("InheritedProp"), typeof(TestDTO).GetProperty("Name") });
+            Assert.AreEqual("Inherited 2", ws.Cells[7, 1].Value);
+
         }
         //[TestMethod]
         public void LoadFromEmptyCollectionTest()
@@ -2531,7 +2618,7 @@ namespace EPPlusTest
         Assert.AreEqual("'New Name'!C3", sheet.Cells[3, 3].Formula);
       }
     }
-
+    
     [TestMethod]
         public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
         {
@@ -2976,6 +3063,45 @@ namespace EPPlusTest
                     ws.Cells[r, col+1].Style.Fill.BackgroundColor.SetColor(Color.LightPink);
                     ws.Cells[r, col+2].Style.Fill.BackgroundColor.SetColor(Color.LightCyan);
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Get exception from thrown from <see cref="ExcelRangeBase.GetValue{T}"/>
+        /// </summary>
+        /// <typeparam name="T">
+        ///     Type of value to attempt getting from <paramref name="range"/>
+        /// </typeparam>
+        /// <param name="range">
+        ///     Mandatory, cell range from which to attempt getting typed value
+        /// </param>
+        /// <returns>
+        ///     null if none is thrown
+        /// </returns>
+        private static Exception GetValueException<T>(ExcelRangeBase range)
+        {
+            return GetException(() => range.GetValue<T>());
+        }
+
+        /// <summary>
+        ///     Get exception thrown by <paramref name="action"/> when invoked.
+        /// </summary>
+        /// <param name="action">
+        ///     Mandatory
+        /// </param>
+        /// <returns>
+        ///     null if none is thrown
+        /// </returns>
+        private static Exception GetException(Action action)
+        {
+            try
+            {
+                action.Invoke();
+                return null;
+            }
+            catch (Exception exception)
+            {
+                return exception;
             }
         }
     }

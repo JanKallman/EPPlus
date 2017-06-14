@@ -36,7 +36,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             var args = ArgsToDoubleEnumerable(IgnoreHiddenValues, false, arguments, context);
-            return CreateResult(StandardDeviation(args), DataType.Decimal);
+            return CreateResult(StandardDeviation(args.Select(x => (double)x)), DataType.Decimal);
         }
 
         private static double StandardDeviation(IEnumerable<double> values)
