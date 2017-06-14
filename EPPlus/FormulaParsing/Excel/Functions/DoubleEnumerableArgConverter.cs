@@ -31,9 +31,9 @@ using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
-    public class DoubleEnumerableArgConverter : CollectionFlattener<double>
+    public class DoubleEnumerableArgConverter : CollectionFlattener<ExcelDoubleCellValue>
     {
-        public virtual IEnumerable<double> ConvertArgs(bool ignoreHidden, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
+        public virtual IEnumerable<ExcelDoubleCellValue> ConvertArgs(bool ignoreHidden, bool ignoreErrors, IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
                 {
@@ -44,7 +44,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                             if(!ignoreErrors && cell.IsExcelError) throw new ExcelErrorValueException(ExcelErrorValue.Parse(cell.Value.ToString()));
                             if (!CellStateHelper.ShouldIgnore(ignoreHidden, cell, context) && ConvertUtil.IsNumeric(cell.Value))
                             {
-                                argList.Add(cell.ValueDouble);
+                                var val = new ExcelDoubleCellValue(cell.ValueDouble, cell.Row);
+                                argList.Add(val);
                             }       
                         }
                     }
@@ -53,13 +54,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                         if(!ignoreErrors && arg.ValueIsExcelError) throw new ExcelErrorValueException(arg.ValueAsExcelErrorValue);
                         if (ConvertUtil.IsNumeric(arg.Value) && !CellStateHelper.ShouldIgnore(ignoreHidden, arg, context))
                         {
-                            argList.Add(ConvertUtil.GetValueDouble(arg.Value));
+                            var val = new ExcelDoubleCellValue(ConvertUtil.GetValueDouble(arg.Value));
+                            argList.Add(val);
                         }
                     }
                 });
         }
 
-        public virtual IEnumerable<double> ConvertArgsIncludingOtherTypes(IEnumerable<FunctionArgument> arguments)
+        public virtual IEnumerable<ExcelDoubleCellValue> ConvertArgsIncludingOtherTypes(IEnumerable<FunctionArgument> arguments)
         {
             return base.FuncArgsToFlatEnumerable(arguments, (arg, argList) =>
             {
@@ -69,7 +71,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                 {
                     foreach (var cell in (ExcelDataProvider.IRangeInfo)arg.Value)
                     {
-                        argList.Add(cell.ValueDoubleLogical);
+                        var val = new ExcelDoubleCellValue(cell.ValueDoubleLogical, cell.Row);
+                        argList.Add(val);
                     }
                 }
                 else

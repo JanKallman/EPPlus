@@ -226,9 +226,8 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
 		}
-        //internal int _styleID = 0;
         /// <summary>
-        /// Sets the style for the entire column using the style ID.  
+        /// Sets the style for the entire column using the style ID.           
         /// </summary>
         public int StyleID
         {

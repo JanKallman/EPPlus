@@ -528,8 +528,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    byte[] b = System.IO.File.ReadAllBytes(template.FullName);
-                    ms.Write(b, 0, b.Length);
+                    WriteFileToStream(template.FullName, ms); 
                 }
                 try
                 {
@@ -579,8 +578,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    byte[] b = System.IO.File.ReadAllBytes(File.FullName);
-                    ms.Write(b, 0, b.Length);
+                    WriteFileToStream(File.FullName, ms);
                 }
                 try
                 {
@@ -611,7 +609,23 @@ namespace OfficeOpenXml
                 CreateBlankWb();
             }
         }
-
+        /// <summary>
+        /// Pull request from  perkuypers to read open Excel workbooks
+        /// </summary>
+        /// <param name="path">Path</param>
+        /// <param name="stream">Stream</param>
+        private static void WriteFileToStream(string path, Stream stream)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            {
+                var buffer = new byte[4096];
+                int read;
+                while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    stream.Write(buffer, 0, read);
+                }
+            }
+        }
         private void CreateBlankWb()
         {
             XmlDocument workbook = Workbook.WorkbookXml; // this will create the workbook xml in the package

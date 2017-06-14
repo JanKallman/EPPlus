@@ -41,16 +41,26 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             return left / right;
         }
 
+        public static double Var(IEnumerable<ExcelDoubleCellValue> args)
+        {
+            return Var(args.Select(x => (double)x));
+        }
+
         public static double Var(IEnumerable<double> args)
         {
-            double avg = args.Average();
+            double avg = args.Select(x => (double)x).Average();
             double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
             return Divide(d, (args.Count() - 1));
         }
 
+        public static double VarP(IEnumerable<ExcelDoubleCellValue> args)
+        {
+            return VarP(args.Select(x => (double)x));
+        }
+
         public static double VarP(IEnumerable<double> args)
         {
-            double avg = args.Average();
+            double avg = args.Select(x => (double)x).Average();
             double d = args.Aggregate(0.0, (total, next) => total += System.Math.Pow(next - avg, 2));
             return Divide(d, args.Count()); 
         }
