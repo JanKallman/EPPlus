@@ -18,6 +18,20 @@ using System.Globalization;
 
 namespace EPPlusTest
 {
+
+    internal class BaseItem
+    {
+        public int Ref { get; set; }
+        public string BaseProp1 { get; set; }
+    }
+    internal class InhItem : BaseItem
+    {
+        public int TophRef { get; set; }
+        public string TopProp1 { get; set; }
+    }
+
+
+
     [TestClass]
     public class WorkSheetTest : TestBase
     {
@@ -895,6 +909,17 @@ namespace EPPlusTest
 
             var ints = new int[] { 1, 3, 4, 76, 2, 5 };
             ws.Cells["A15"].Value = ints;
+
+            ws = _pck.Workbook.Worksheets.Add("LoadFromCollection_Inherited");
+            List<InheritTestDTO> inhList = new List<InheritTestDTO>();
+            inhList.Add(new InheritTestDTO() { Id = 1, Name = "Item1", Boolean = false, Date = new DateTime(2011, 1, 1), dto = null, NameVar = "Field 1", InheritedProp="Inherited 1" });
+            inhList.Add(new InheritTestDTO() { Id = 2, Name = "Item2", Boolean = true, Date = new DateTime(2011, 1, 15), dto = new TestDTO(), NameVar = "Field 2", InheritedProp = "Inherited 2" });
+            ws.Cells["A1"].LoadFromCollection(inhList, true);
+            Assert.AreEqual("Inherited 2", ws.Cells[3, 1].Value);
+
+            ws.Cells["A5"].LoadFromCollection(inhList, true, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, new MemberInfo[]{typeof(InheritTestDTO).GetProperty("InheritedProp"), typeof(TestDTO).GetProperty("Name") });
+            Assert.AreEqual("Inherited 2", ws.Cells[7, 1].Value);
+
         }
         //[TestMethod]
         public void LoadFromEmptyCollectionTest()
@@ -2593,7 +2618,7 @@ namespace EPPlusTest
         Assert.AreEqual("'New Name'!C3", sheet.Cells[3, 3].Formula);
       }
     }
-
+    
     [TestMethod]
         public void CopyCellUpdatesRelativeCrossSheetReferencesCorrectly()
         {

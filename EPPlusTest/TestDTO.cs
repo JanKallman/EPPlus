@@ -22,4 +22,9 @@ namespace EPPlusTest
             return Id + "," + Name;
         }
     }
+    public class InheritTestDTO : TestDTO
+    {
+        public string InheritedProp { get; set; }
+    }
+
 }

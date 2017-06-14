@@ -1979,10 +1979,11 @@ namespace OfficeOpenXml
 		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members)
 		{
 			var type = typeof(T);
+            bool isSameType=true;
 			if (Members == null)
 			{
 				Members = type.GetProperties(memberFlags);
-			}
+            }
 			else
 			{
                 if(Members.Length==0)   //Fixes issue 15555
@@ -1991,10 +1992,12 @@ namespace OfficeOpenXml
                 }
                 foreach (var t in Members)
 				{
-                    if (t.DeclaringType!=null && t.DeclaringType != type && !t.DeclaringType.IsSubclassOf(type))
-					{
-						throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T");
-					}
+                    if (t.DeclaringType != type) isSameType = false;
+                    //Fixing inverted check for IsSubclassOf / Pullrequest from tomdam
+                    if (t.DeclaringType != null && t.DeclaringType != type && !type.IsSubclassOf(t.DeclaringType) && !t.DeclaringType.IsSubclassOf(type))
+                    {
+                        throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T)");
+                    }
 				}
 			}
 
@@ -2049,7 +2052,7 @@ namespace OfficeOpenXml
 			//{
 				foreach (var item in Collection)
 				{
-					col = 0;
+                    col = 0;
                     if (item is string || item is decimal || item is DateTime || item.GetType().IsPrimitive)
                     {
                         //_worksheet.Cells[row, col++].Value = item;
@@ -2059,19 +2062,17 @@ namespace OfficeOpenXml
                     {
                         foreach (var t in Members)
                         {
+                            if (isSameType == false && item.GetType().GetMember(t.Name, memberFlags).Length == 0) continue; //Check if the property exists if anb inherited class is used
                             if (t is PropertyInfo)
                             {
-                                //_worksheet.Cells[row, col++].Value = ((PropertyInfo)t).GetValue(item, null);
                                 values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
                             }
                             else if (t is FieldInfo)
                             {
-                                //_worksheet.Cells[row, col++].Value = ((FieldInfo)t).GetValue(item);
                                 values[row, col++] = ((FieldInfo)t).GetValue(item);
                             }
                             else if (t is MethodInfo)
                             {
-                                //_worksheet.Cells[row, col++].Value = ((MethodInfo)t).Invoke(item, null);
                                 values[row, col++] = ((MethodInfo)t).Invoke(item, null);
                             }
                         }

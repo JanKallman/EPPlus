@@ -360,8 +360,8 @@ namespace EPPlusTest
         {
             var l = new List<cls1>();
 
-            var c2 = new cls2() { prop1 = 1, prop2 = "test1" };
-            l.Add(c2);
+            l.Add(new cls1() { prop1 = 1 });
+            l.Add(new cls2() { prop1 = 1, prop2 = "test1" });
 
             var p = new ExcelPackage();
             var ws = p.Workbook.Worksheets.Add("Test");
