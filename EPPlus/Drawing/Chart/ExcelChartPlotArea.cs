@@ -46,7 +46,11 @@ namespace OfficeOpenXml.Drawing.Chart
            : base(ns,node)
        {
            _firstChart = firstChart;
-       }
+            if (TopNode.SelectSingleNode("c:dTable", NameSpaceManager) != null)
+            {
+                _dataTable = new ExcelChartDataTable(NameSpaceManager, TopNode);
+            }
+        }
 
         ExcelChartCollection _chartTypes;
         public ExcelChartCollection ChartTypes
@@ -60,18 +64,45 @@ namespace OfficeOpenXml.Drawing.Chart
                 return _chartTypes;
             }
         }
+        #region Data table
+        /// <summary>
+        /// Creates a data table in the plotarea
+        /// The datatable can also be accessed via the DataTable propery
+        /// <see cref="DataTable"/>
+        /// </summary>
+        public ExcelChartDataTable CreateDataTable()
+        {
+            if(_dataTable!=null)
+            {
+                throw (new InvalidOperationException("Data table already exists"));
+            }
+
+            _dataTable = new ExcelChartDataTable(NameSpaceManager, TopNode);
+            return _dataTable;
+        }
+        /// <summary>
+        /// Remove the data table if it's created in the plotarea
+        /// </summary>
+        public void RemoveDataTable()
+        {
+            DeleteAllNode("c:dTable");
+            _dataTable = null;
+        }
         ExcelChartDataTable _dataTable = null;
+        /// <summary>
+        /// The data table object.
+        /// Use the CreateDataTable method to create a datatable if it does not exist.
+        /// <see cref="CreateDataTable"/>
+        /// <see cref="RemoveDataTable"/>
+        /// </summary>
         public ExcelChartDataTable DataTable
         {
             get
             {
-                if (_dataTable == null)
-                {
-                    _dataTable = new ExcelChartDataTable(NameSpaceManager, TopNode);
-                }
                 return _dataTable;
             }
         }
+        #endregion
         ExcelDrawingFill _fill = null;
         public ExcelDrawingFill Fill
         {

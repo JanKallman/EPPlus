@@ -24,6 +24,7 @@ namespace EPPlusTest.Drawing.Chart
         [TestMethod]
         public void DataTableFile()
         {
+            if (!Directory.Exists(TestContext.TestResultsDirectory)) Directory.CreateDirectory(TestContext.TestResultsDirectory);
             string outfile = Path.Combine(TestContext.TestResultsDirectory, "DataTableFile.xlsx");
             var fileinfo = new FileInfo(outfile);
             using (ExcelPackage pkg = new ExcelPackage(fileinfo))
@@ -44,9 +45,13 @@ namespace EPPlusTest.Drawing.Chart
                 var chart = chartsheet.Chart as ExcelLineChart;
                 chart.Series.Add(worksheet.Cells["B2:B12"], worksheet.Cells["A2:A12"]).Header = "Data Test";
 
-                // as per epplus style, data table does not init until used. so call something
-                chart.PlotArea.DataTable.ToString();
-
+                Assert.AreEqual(null, chart.PlotArea.DataTable);
+                chart.PlotArea.CreateDataTable();
+                Assert.AreEqual(true, chart.PlotArea.DataTable.ShowVerticalBorder);
+                chart.PlotArea.RemoveDataTable();
+                Assert.AreEqual(null, chart.PlotArea.DataTable);
+                chart.PlotArea.CreateDataTable();
+                chart.PlotArea.DataTable.ShowOutline = false;
                 pkg.Save();
 
                 XmlDocument xmldoc = chart.ChartXml;
