@@ -510,6 +510,9 @@ namespace EPPlusTest
             chrt.Smooth = false;
             chrt.Title.Text = "Line 3D";
             chrt.Series[0].Header = "Line serie 1";
+            chrt.Axis[0].MajorGridlines.Fill.Color = Color.Black;
+            chrt.Axis[0].MajorGridlines.LineStyle = eLineStyle.Dot;
+
             var tl = chrt.Series[0].TrendLines.Add(eTrendLine.Polynomial);
             tl.Name = "Test";
             tl.DisplayRSquaredValue = true;
@@ -519,7 +522,7 @@ namespace EPPlusTest
             tl.Intercept = 6;
             //tl.Period = 12;
             tl.Order = 5;
-
+            
             tl = chrt.Series[0].TrendLines.Add(eTrendLine.MovingAvgerage);
             chrt.Fill.Color = Color.LightSteelBlue;
             chrt.Border.LineStyle = eLineStyle.Dot;
@@ -676,7 +679,9 @@ namespace EPPlusTest
                             ExcelRange.GetAddress(1, 1, worksheet.Dimension.End.Row, 1));
 
            var Series = chart.Series[0];
-           
+           chart.Axis[0].MinorGridlines.Fill.Color = Color.Red;
+           chart.Axis[0].MinorGridlines.LineStyle = eLineStyle.LongDashDot;
+
            chart.Series[0].Header = "Blah";
         }
         //[TestMethod]

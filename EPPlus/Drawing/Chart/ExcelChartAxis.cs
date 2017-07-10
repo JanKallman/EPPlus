@@ -167,7 +167,7 @@ namespace OfficeOpenXml.Drawing.Chart
         internal ExcelChartAxis(XmlNamespaceManager nameSpaceManager, XmlNode topNode) :
             base(nameSpaceManager, topNode)
         {
-            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos", "spPr", "txPr", "crossAx", "crossesAt", "crosses", "crossBetween", "auto", "lblOffset", "majorUnit", "majorTimeUnit", "minorUnit", "minorTimeUnit", "dispUnits", "spPr", "txPr" };
+            SchemaNodeOrder = new string[] { "axId", "scaling", "logBase", "orientation", "max", "min", "delete", "axPos", "majorGridlines", "minorGridlines", "title", "numFmt", "majorTickMark", "minorTickMark", "tickLblPos", "spPr", "txPr", "crossAx", "crossesAt", "crosses", "crossBetween", "auto", "lblOffset", "majorUnit", "majorTimeUnit", "minorUnit", "minorTimeUnit", "dispUnits", "spPr", "txPr" };
         }
         internal string Id
         {
@@ -819,7 +819,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
         const string _orientationPath = "c:scaling/c:orientation/@val";
         /// <summary>
-        /// 
+        /// Axis orientation
         /// </summary>
         public eAxisOrientation Orientation
         {
@@ -843,5 +843,79 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
         #endregion
+
+        #region GridLines 
+        //Pull request from aesalazar
+        const string _majorGridlinesPath = "c:majorGridlines"; 
+        ExcelDrawingBorder _majorGridlines = null; 
+  
+        /// <summary> 
+        /// Major Gridlines for the Axis 
+        /// </summary> 
+        public ExcelDrawingBorder MajorGridlines 
+        { 
+        get 
+            { 
+                if (_majorGridlines == null) 
+                { 
+                    var node = TopNode.SelectSingleNode(_majorGridlinesPath, NameSpaceManager); 
+                    if (node == null) 
+                        CreateNode(_majorGridlinesPath); 
+  
+                    _majorGridlines = new ExcelDrawingBorder(NameSpaceManager, TopNode,$"{_majorGridlinesPath}/c:spPr/a:ln"); 
+                } 
+                return _majorGridlines; 
+            } 
+        } 
+  
+        const string _minorGridlinesPath = "c:minorGridlines"; 
+        ExcelDrawingBorder _minorGridlines = null; 
+  
+        /// <summary> 
+        /// Minor Gridlines for the Axis 
+        /// </summary> 
+        public ExcelDrawingBorder MinorGridlines
+        { 
+            get 
+            { 
+                if (_minorGridlines == null) 
+                { 
+                    var node = TopNode.SelectSingleNode(_minorGridlinesPath, NameSpaceManager); 
+                    if (node == null) 
+                        CreateNode(_minorGridlinesPath); 
+  
+                    _minorGridlines = new ExcelDrawingBorder(NameSpaceManager, TopNode,$"{_minorGridlinesPath}/c:spPr/a:ln"); 
+                } 
+                return _minorGridlines; 
+            } 
+        } 
+        /// <summary> 
+        /// Removes Major and Minor gridlines from the Axis 
+        /// </summary> 
+        public void RemoveGridlines()
+        { 
+            RemoveGridlines(true,true); 
+        } 
+  
+        /// <summary> 
+        /// Removes gridlines from the Axis 
+        /// </summary> 
+        /// <param name="removeMajor">Indicates if the Major gridlines should be removed</param> 
+        /// <param name="removeMinor">Indicates if the Minor gridlines should be removed</param> 
+        public void RemoveGridlines(bool removeMajor, bool removeMinor)
+        { 
+            if (removeMajor) 
+            { 
+                DeleteNode(_majorGridlinesPath); 
+                _majorGridlines = null; 
+            } 
+  
+            if (removeMinor) 
+            { 
+                DeleteNode(_minorGridlinesPath); 
+                _minorGridlines = null; 
+            } 
+        } 
+        #endregion 
     }
 }
