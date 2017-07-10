@@ -65,5 +65,42 @@ namespace EPPlusTest.Drawing.Chart
             axis.MaxValue = 1.2e-6;
             Assert.AreEqual(axis.MaxValue, 1.2e-6);
         }
+        [TestMethod] 
+        public void Gridlines_Set_IsNotNull()
+        { 
+            var major = axis.MajorGridlines; 
+            Assert.IsTrue(axis.ExistNode("c:majorGridlines")); 
+  
+            var minor = axis.MinorGridlines; 
+            Assert.IsTrue(axis.ExistNode("c:minorGridlines")); 
+        } 
+  
+        [TestMethod] 
+        public void Gridlines_Remove_IsNull()
+        { 
+            var major = axis.MajorGridlines; 
+            var minor = axis.MinorGridlines; 
+  
+            axis.RemoveGridlines(); 
+  
+            Assert.IsFalse(axis.ExistNode("c:majorGridlines")); 
+            Assert.IsFalse(axis.ExistNode("c:minorGridlines")); 
+  
+            major = axis.MajorGridlines; 
+            minor = axis.MinorGridlines; 
+  
+            axis.RemoveGridlines(true, false); 
+  
+            Assert.IsFalse(axis.ExistNode("c:majorGridlines")); 
+            Assert.IsTrue(axis.ExistNode("c:minorGridlines")); 
+  
+            major = axis.MajorGridlines; 
+            minor = axis.MinorGridlines; 
+  
+            axis.RemoveGridlines(false, true); 
+  
+            Assert.IsTrue(axis.ExistNode("c:majorGridlines")); 
+            Assert.IsFalse(axis.ExistNode("c:minorGridlines")); 
+        } 
     }
 }

@@ -9,7 +9,7 @@ namespace OfficeOpenXml.Utils
     {
         internal static Uri ResolvePartUri(Uri sourceUri, Uri targetUri)
         {
-           if(targetUri.OriginalString.StartsWith("/"))
+            if (targetUri.OriginalString.StartsWith("/") || targetUri.OriginalString.Contains("://"))
             {
                 return targetUri;
             }
