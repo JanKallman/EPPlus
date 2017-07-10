@@ -360,7 +360,6 @@ namespace OfficeOpenXml
             {
                 _stream = newStream;
                 _isExternalStream = true;
-                //_package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite); TODO:Remove
                 _package = new Packaging.ZipPackage(_stream);
                 CreateBlankWb();
             }
@@ -760,9 +759,9 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-                if (_isExternalStream==false && Stream != null && (Stream.CanRead || Stream.CanWrite))
+                if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
-                    Stream.Close();
+                    _stream.Close();
                 }
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
@@ -927,26 +926,7 @@ namespace OfficeOpenXml
 
             if (OutputStream != _stream)
             {
-                if (Encryption.IsEncrypted)
-                {
-#if !MONO
-                    //Encrypt Workbook
-                    Byte[] file = new byte[Stream.Length];
-                    long pos = Stream.Position;
-                    Stream.Seek(0, SeekOrigin.Begin);
-                    Stream.Read(file, 0, (int) Stream.Length);
-                    EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                    var ms = eph.EncryptPackage(file, Encryption);
-                    CopyStream(ms, ref OutputStream);
-#endif
-#if MONO
-                throw new NotSupportedException("Encryption is not supported under Mono.");
-#endif
-                }
-                else
-                {
-                    CopyStream(_stream, ref OutputStream);
-                }
+                CopyStream(_stream, ref OutputStream);
             }
         }
         /// <summary>
