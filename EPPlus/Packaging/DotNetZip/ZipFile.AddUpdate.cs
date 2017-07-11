@@ -1139,7 +1139,13 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 #if SILVERLIGHT
             return AddEntry(entryName, content, System.Text.Encoding.UTF8);
 #else
-            return AddEntry(entryName, content, System.Text.Encoding.Default);
+            return AddEntry(entryName, content,
+#if Core
+                System.Text.Encoding.GetEncoding("UTF-8")
+#else
+                System.Text.Encoding.Default
+#endif
+                );
 #endif
         }
 
@@ -1664,7 +1670,13 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 #if SILVERLIGHT
             return UpdateEntry(entryName, content, System.Text.Encoding.UTF8);
 #else
-            return UpdateEntry(entryName, content, System.Text.Encoding.Default);
+            return UpdateEntry(entryName, content,
+#if Core
+                System.Text.Encoding.GetEncoding("UTF-8")
+#else
+                System.Text.Encoding.Default
+#endif
+                );
 #endif
         }
 

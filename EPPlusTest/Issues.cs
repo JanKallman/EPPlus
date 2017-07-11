@@ -263,6 +263,7 @@ namespace EPPlusTest
             var dest = ws.Cells[1, column + columns, ws.Dimension.End.Row, ws.Dimension.End.Column + columns];
             source.Copy(dest);
         }
+#if !Core
         [TestMethod]
         public void Issue15123()
         {
@@ -300,7 +301,7 @@ namespace EPPlusTest
                 Assert.AreNotEqual(ws.Cells[2, 5].Text, "");
             }
         }
-
+#endif
         [TestMethod]
         public void Issue15128()
         {
@@ -1137,7 +1138,11 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(path2));
 
                 // files are identical?
+#if (Core)
+                var md5 = System.Security.Cryptography.MD5.Create();
+#else
                 var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+#endif
                 using (var fs1 = new FileStream(path1, FileMode.Open))
                 using (var fs2 = new FileStream(path2, FileMode.Open))
                 {

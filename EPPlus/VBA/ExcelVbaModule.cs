@@ -117,7 +117,7 @@ namespace OfficeOpenXml.VBA
             }
             set
             {
-                if(value.StartsWith("Attribute",StringComparison.InvariantCultureIgnoreCase) || value.StartsWith("VERSION",StringComparison.InvariantCultureIgnoreCase))
+                if(value.StartsWith("Attribute",StringComparison.OrdinalIgnoreCase) || value.StartsWith("VERSION",StringComparison.OrdinalIgnoreCase))
                 {
                     throw(new InvalidOperationException("Code can't start with an Attribute or VERSION keyword. Attributes can be accessed through the Attributes collection."));
                 }

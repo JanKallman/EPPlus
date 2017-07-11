@@ -49,37 +49,39 @@ namespace EPPlusSamples
     /// </summary>               
     class Sample6
     {
-        #region "Icon API function"
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SHFILEINFO
-        {
-            public IntPtr hIcon;
-            public IntPtr iIcon;
-            public uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public string szDisplayName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-            public string szTypeName;
-        };
-        public const uint SHGFI_ICON = 0x100;
-        public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
-        public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
-        [DllImport("shell32.dll")]
-        public static extern IntPtr SHGetFileInfo(string pszPath,
-                                    uint dwFileAttributes,
-                                    ref SHFILEINFO psfi,
-                                    uint cbSizeFileInfo,
-                                    uint uFlags);
-        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
-        extern static bool DestroyIcon(IntPtr handle);
+        #if (!Core)
+        #region Icon API function
+                [StructLayout(LayoutKind.Sequential)]
+                public struct SHFILEINFO
+                {
+                    public IntPtr hIcon;
+                    public IntPtr iIcon;
+                    public uint dwAttributes;
+                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+                    public string szDisplayName;
+                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+                    public string szTypeName;
+                };
+                public const uint SHGFI_ICON = 0x100;
+                public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
+                public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
+                [DllImport("shell32.dll")]
+                public static extern IntPtr SHGetFileInfo(string pszPath,
+                                            uint dwFileAttributes,
+                                            ref SHFILEINFO psfi,
+                                            uint cbSizeFileInfo,
+                                            uint uFlags);
+                [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
+                extern static bool DestroyIcon(IntPtr handle);
         #endregion
+        #endif
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }
             public int Count { get; set; }
             public long Size { get; set; }
 
-            #region IComparable<StatItem> Members
+#region IComparable<StatItem> Members
 
             //Default compare Size
             public int CompareTo(StatItem other)
@@ -88,7 +90,7 @@ namespace EPPlusSamples
                             (Size > other.Size ? 1 : 0);
             }
 
-            #endregion
+#endregion
         }
         static int _maxLevels;
 
@@ -148,6 +150,7 @@ namespace EPPlusSamples
 
             //Load the directory content to sheet 1
             row = AddDirectory(ws, dir, row, height, 0, skipIcons);
+
             ws.OutLineSummaryBelow = false;
 
             //Format columns
@@ -553,6 +556,12 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="FileName"></param>
         /// <returns></returns>
+#if (Core)
+        private static Bitmap GetIcon(string FileName)
+        {
+            return System.Drawing.Icon.ExtractAssociatedIcon(FileName).ToBitmap();
+        }
+#else
         private static Bitmap GetIcon(string FileName)
         {
             try
@@ -590,5 +599,6 @@ namespace EPPlusSamples
                 return null;
             }
         }
+#endif
     }
 }

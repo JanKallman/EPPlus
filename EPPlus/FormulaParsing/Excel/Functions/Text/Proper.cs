@@ -43,7 +43,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
             {
                 if (!char.IsLetter(previousChar))
                 {
-                    sb.Append(Utils.ConvertUtil._invariantTextInfo.ToUpper(ch.ToString(CultureInfo.InvariantCulture)));
+                    sb.Append(Utils.ConvertUtil._invariantTextInfo.ToUpper(ch.ToString()));
                 }
                 else
                 {

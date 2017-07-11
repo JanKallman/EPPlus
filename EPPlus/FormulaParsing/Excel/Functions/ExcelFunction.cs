@@ -34,6 +34,7 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 using System.Collections;
 using static OfficeOpenXml.FormulaParsing.EpplusExcelDataProvider;
 using static OfficeOpenXml.FormulaParsing.ExcelDataProvider;
+using EPPlus.Core.Compatibility;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -312,7 +313,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected bool IsNumeric(object val)
         {
             if (val == null) return false;
-            return (val.GetType().IsPrimitive || val is double || val is decimal  || val is System.DateTime || val is TimeSpan);
+            return (TypeCompat.IsPrimitive(val) || val is double || val is decimal  || val is System.DateTime || val is TimeSpan);
         }
 
         //protected virtual bool IsNumber(object obj)

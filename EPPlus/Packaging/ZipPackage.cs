@@ -71,8 +71,8 @@ namespace OfficeOpenXml.Packaging
                 Match = match;
             }
         }
-        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>(StringComparer.InvariantCultureIgnoreCase);
-        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>(StringComparer.InvariantCultureIgnoreCase);
+        Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>(StringComparer.OrdinalIgnoreCase);
+        internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>(StringComparer.OrdinalIgnoreCase);
         internal ZipPackage()
         {
             AddNew();
@@ -104,23 +104,23 @@ namespace OfficeOpenXml.Packaging
                         {
                             var b = new byte[e.UncompressedSize];
                             var size = zip.Read(b, 0, (int)e.UncompressedSize);
-                            if (e.FileName.Equals("[content_types].xml", StringComparison.InvariantCultureIgnoreCase))
+                            if (e.FileName.Equals("[content_types].xml", StringComparison.OrdinalIgnoreCase))
                             {
                                 AddContentTypes(Encoding.UTF8.GetString(b));
                                 hasContentTypeXml = true;
                             }
-                            else if (e.FileName.Equals("_rels/.rels", StringComparison.InvariantCultureIgnoreCase)) 
+                            else if (e.FileName.Equals("_rels/.rels", StringComparison.OrdinalIgnoreCase)) 
                             {
                                 ReadRelation(Encoding.UTF8.GetString(b), "");
                             }
                             else
                             {
-                                if (e.FileName.EndsWith(".rels", StringComparison.InvariantCultureIgnoreCase))
+                                if (e.FileName.EndsWith(".rels", StringComparison.OrdinalIgnoreCase))
                                 {
                                     rels.Add(GetUriKey(e.FileName), Encoding.UTF8.GetString(b));
                                 }
                                 else
-                                {
+                                {                                    
                                     var part = new ZipPackagePart(this, e);
                                     part.Stream = new MemoryStream();
                                     part.Stream.Write(b, 0, b.Length);
@@ -160,7 +160,10 @@ namespace OfficeOpenXml.Packaging
                     {
                         throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
+#if !Core
                     zip.Close();
+#endif
+                    zip.Dispose();
                 }
             }
         }
@@ -185,7 +188,7 @@ namespace OfficeOpenXml.Packaging
             }
         }
 
-        #region Methods
+#region Methods
         internal ZipPackagePart CreatePart(Uri partUri, string contentType)
         {
             return CreatePart(partUri, contentType, CompressionLevel.Default);
@@ -206,7 +209,7 @@ namespace OfficeOpenXml.Packaging
         {
             if (PartExists(partUri))
             {
-                return Parts.Single(x => x.Key.Equals(GetUriKey(partUri.OriginalString),StringComparison.InvariantCultureIgnoreCase)).Value;
+                return Parts.Single(x => x.Key.Equals(GetUriKey(partUri.OriginalString),StringComparison.OrdinalIgnoreCase)).Value;
             }
             else
             {
@@ -225,10 +228,10 @@ namespace OfficeOpenXml.Packaging
         }
         internal bool PartExists(Uri partUri)
         {
-            var uriKey = GetUriKey(partUri.OriginalString.ToLower(CultureInfo.InvariantCulture));
-            return Parts.Keys.Any(x => x.Equals(uriKey, StringComparison.InvariantCultureIgnoreCase));
+            var uriKey = GetUriKey(partUri.OriginalString.ToLowerInvariant());
+            return Parts.Keys.Any(x => x.Equals(uriKey, StringComparison.OrdinalIgnoreCase));
         }
-        #endregion
+#endregion
 
         internal void DeletePart(Uri Uri)
         {
@@ -237,7 +240,7 @@ namespace OfficeOpenXml.Packaging
             {
                 foreach (var r in p.GetRelationships())
                 {
-                    if (UriHelper.ResolvePartUri(p.Uri, r.TargetUri).OriginalString.Equals(Uri.OriginalString, StringComparison.InvariantCultureIgnoreCase))
+                    if (UriHelper.ResolvePartUri(p.Uri, r.TargetUri).OriginalString.Equals(Uri.OriginalString, StringComparison.OrdinalIgnoreCase))
                     {                        
                         delList.Add(new object[]{r.Id, p});
                     }
@@ -287,7 +290,10 @@ namespace OfficeOpenXml.Packaging
                 ssPart.WriteZip(os);
             }
             os.Flush();
+            
+#if !Core
             os.Close();
+#endif
             os.Dispose();  
             
             //return ms;

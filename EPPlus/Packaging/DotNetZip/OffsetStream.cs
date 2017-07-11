@@ -103,12 +103,17 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             Close();
         }
-
+#if Core
+        public void Close()
+        {
+            base.Dispose();
+        }
+#else
         public override void Close()
         {
             base.Close();
         }
-
+#endif
     }
 
 }

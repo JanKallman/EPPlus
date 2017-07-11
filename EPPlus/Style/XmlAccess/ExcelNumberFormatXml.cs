@@ -206,7 +206,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     NetTextFormat = NetTextFormatForWidth = "";
                     DataType = eFormatType.DateTime;
                 }
-                else if (format.Equals("general",StringComparison.InvariantCultureIgnoreCase))
+                else if (format.Equals("general",StringComparison.OrdinalIgnoreCase))
                 {
                     NetFormat = NetFormatForWidth = "0.#####";
                     NetTextFormat = NetTextFormatForWidth = "";
@@ -303,11 +303,11 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     }
                                     if (li.Length > 1)
                                     {
-                                        if (li[1].Equals("f800", StringComparison.InvariantCultureIgnoreCase))
+                                        if (li[1].Equals("f800", StringComparison.OrdinalIgnoreCase))
                                         {
                                             specialDateFormat = "D";
                                         }
-                                        else if (li[1].Equals("f400", StringComparison.InvariantCultureIgnoreCase))
+                                        else if (li[1].Equals("f400", StringComparison.OrdinalIgnoreCase))
                                         {
                                             specialDateFormat = "T";
                                         }
@@ -316,7 +316,12 @@ namespace OfficeOpenXml.Style.XmlAccess
                                             var num = int.Parse(li[1], NumberStyles.HexNumber);
                                             try
                                             {
+#if (Core)
+                                                //Culture = new CultureInfo(num & 0xFFFF);        
+                                                Culture = null; //TODO Core Fix LCID
+#else
                                                 Culture = CultureInfo.GetCultureInfo(num & 0xFFFF);
+#endif
                                             }
                                             catch
                                             {
@@ -665,6 +670,6 @@ namespace OfficeOpenXml.Style.XmlAccess
                 return pad + v;
             }
         }
-        #endregion
+#endregion
     }
 }

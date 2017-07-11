@@ -96,7 +96,13 @@ namespace EPPlusSamples
                 //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
                 //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
-                output = Sample6.RunSample6(outputDir, new DirectoryInfo("..\\.."), 5, false);
+                output = Sample6.RunSample6(outputDir, new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5,
+#if Core
+                    true
+#else
+                    false
+#endif
+                    );
                 Console.WriteLine("Sample 6 created:", output);
                 Console.WriteLine();
 
@@ -139,12 +145,13 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 12 created {0}", output);
                 Console.WriteLine();
 
+#if !Core
                 //Sample 13 - Shows a few ways to load data (Datatable, IEnumerable and more).
                 Console.WriteLine("Running sample 13");
                 Sample13.RunSample13(outputDir);
                 Console.WriteLine("Sample 13 created {0}", outputDir.Name);
                 Console.WriteLine();
-
+#endif
                 //Sample 14 - Conditional Formatting
                 Console.WriteLine("Running sample 14");
                 Sample14.RunSample14(outputDir);

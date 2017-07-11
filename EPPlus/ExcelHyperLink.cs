@@ -49,6 +49,7 @@ namespace OfficeOpenXml
         {
             OriginalUri = (Uri)this;
         }
+#if !Core
         /// <summary>
         /// A new hyperlink with the specified URI. This syntax is obsolete
         /// </summary>
@@ -60,6 +61,7 @@ namespace OfficeOpenXml
         {
             OriginalUri = (Uri)this;
         }
+#endif
         /// <summary>
         /// A new hyperlink with the specified URI and kind
         /// </summary>

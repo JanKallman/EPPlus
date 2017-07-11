@@ -41,7 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
     {
         private Dictionary<Type, FunctionCompiler> _customCompilers = new Dictionary<Type, FunctionCompiler>();
 
-        private Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>(StringComparer.InvariantCulture);
+        private Dictionary<string, ExcelFunction> _functions = new Dictionary<string, ExcelFunction>(StringComparer.Ordinal);
         
         /// <summary>
         /// Gets a <see cref="Dictionary{Type, FunctionCompiler}" /> of custom <see cref="FunctionCompiler"/>s.

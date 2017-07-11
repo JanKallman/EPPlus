@@ -787,7 +787,10 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 
                 if (targetFileName != null)
                 {
+#if !Core
                     output.Close();
+#endif
+                    output.Dispose();
                     output = null;
 
                     // workitem 10639
@@ -876,7 +879,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                     {
                         try
                         {
+#if !Core
                             if (output != null) output.Close();
+#endif
                             // An exception has occurred. If the file exists, check
                             // to see if it existed before we tried extracting.  If
                             // it did not, attempt to remove the target file. There
@@ -1207,7 +1212,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         }
 
 
-        #region Support methods
+#region Support methods
 
 
         // workitem 7968
@@ -1449,7 +1454,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
     }
 }

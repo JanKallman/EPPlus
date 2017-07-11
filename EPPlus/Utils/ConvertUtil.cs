@@ -7,6 +7,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.IO;
+using EPPlus.Core.Compatibility;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.Utils
 {
@@ -15,7 +17,7 @@ namespace OfficeOpenXml.Utils
         internal static bool IsNumeric(object candidate)
         {
             if (candidate == null) return false;
-            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
+            return (TypeCompat.IsPrimitive(candidate) || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
         }
 		/// <summary>
 		/// Tries to parse a double from the specified <paramref name="candidate"/> which is expected to be a string value.
@@ -92,7 +94,7 @@ namespace OfficeOpenXml.Utils
                     }
                     else if (v is TimeSpan)
                     {
-                        d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
+                        d = DateTimeExtentions.FromOADate(0).Add((TimeSpan)v).ToOADate();
                     }
                     else
                     {
@@ -306,7 +308,7 @@ namespace OfficeOpenXml.Utils
 
         #region internal cache objects
         internal static TextInfo _invariantTextInfo = CultureInfo.InvariantCulture.TextInfo;
-        internal static CompareInfo _invariantCompareInfo = CompareInfo.GetCompareInfo(CultureInfo.InvariantCulture.LCID);
+        internal static CompareInfo _invariantCompareInfo = CompareInfo.GetCompareInfo(CultureInfo.InvariantCulture.Name);  //TODO:Check that it works
         #endregion
     }
 }

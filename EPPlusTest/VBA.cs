@@ -15,24 +15,22 @@ namespace EPPlusTest
     [TestClass]
     public class VBA
     {
-#if !MONO
         [TestMethod]
         public void Compression()
         {
             //Compression/Decompression
             string value = "#aaabcdefaaaaghijaaaaaklaaamnopqaaaaaaaaaaaarstuvwxyzaaa";
 
-            byte[] compValue = CompoundDocument.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
-            string decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
+            byte[] compValue = VBACompression.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
+            string decompValue = Encoding.GetEncoding(1252).GetString(VBACompression.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
 
             value = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 
-            compValue = CompoundDocument.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
-            decompValue = Encoding.GetEncoding(1252).GetString(CompoundDocument.DecompressPart(compValue));
+            compValue = VBACompression.CompressPart(Encoding.GetEncoding(1252).GetBytes(value));
+            decompValue = Encoding.GetEncoding(1252).GetString(VBACompression.DecompressPart(compValue));
             Assert.AreEqual(value, decompValue);
         }
-#endif
         [Ignore]
         [TestMethod]
         public void ReadVBA()
@@ -49,7 +47,7 @@ namespace EPPlusTest
             }
 
             List<X509Certificate2> ret = new List<X509Certificate2>();
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            X509Store store = new X509Store(StoreName.My,StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
             //package.Workbook.VbaProject.Protection.SetPassword("");
@@ -156,7 +154,7 @@ namespace EPPlusTest
             }
 
             List<X509Certificate2> ret = new List<X509Certificate2>();
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
+            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
             //package.Workbook.VbaProject.Protection.SetPassword("");
@@ -204,7 +202,13 @@ namespace EPPlusTest
         {
             // This is a test for Issue 15026: VBA decompression encounters index out of range
             // on the decompression buffer.
-            var workbookDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
+            var workbookDir = Path.Combine(
+#if Core
+                AppContext.BaseDirectory
+#else
+                AppDomain.CurrentDomain.BaseDirectory
+#endif
+                , @"..\..\workbooks");
             var path = Path.Combine(workbookDir, "VBADecompressBug.xlsm");
             var f = new FileInfo(path);
             if (f.Exists)

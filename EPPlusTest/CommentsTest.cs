@@ -55,7 +55,8 @@ namespace EPPlusTest
                     var stylesDict = new System.Collections.Generic.Dictionary<string, string>();
                     string[] styles = a1.Comment.Style
                         .Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                    Array.ForEach(styles, s => {
+                    foreach(var s in styles)
+                    {
                         string[] split = s.Split(':');
                         if (split.Length == 2)
                         {
@@ -63,13 +64,15 @@ namespace EPPlusTest
                             var v = (split[1] ?? "").Trim().ToLower();
                             stylesDict[k] = v;
                         }
-                    });
+                    }
                     Assert.IsTrue(stylesDict.ContainsKey("visibility"));
                     //Assert.AreEqual("visible", stylesDict["visibility"]);
                     Assert.AreEqual("hidden", stylesDict["visibility"]);
                     Assert.IsFalse(a1.Comment.Visible);
                     pkg.Save();
+#if !Core
                     ms.Close();
+#endif
                 }
             }
             finally
