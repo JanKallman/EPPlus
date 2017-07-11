@@ -86,7 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellStore.cs" />
-    <Compile Include="Compatibility\DateTimeExtentions.cs" />
+    <Compile Include="Compatibility\DateTimeExtensions.cs" />
     <Compile Include="Compatibility\SecurityElement.cs" />
     <Compile Include="Compatibility\TypeCompat.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
