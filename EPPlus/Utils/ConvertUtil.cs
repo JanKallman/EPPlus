@@ -94,7 +94,7 @@ namespace OfficeOpenXml.Utils
                     }
                     else if (v is TimeSpan)
                     {
-                        d = DateTimeExtentions.FromOADate(0).Add((TimeSpan)v).ToOADate();
+                        d = DateTimeExtensions.FromOADate(0).Add((TimeSpan)v).ToOADate();
                     }
                     else
                     {
@@ -267,7 +267,7 @@ namespace OfficeOpenXml.Utils
 
             var fromType = value.GetType();
             var toType = typeof(T);
-            var toNullableUnderlyingType = (toType.IsGenericType && toType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            var toNullableUnderlyingType = (TypeCompat.IsGenericType(toType) && toType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 ? Nullable.GetUnderlyingType(toType)
                 : null;
 
@@ -283,7 +283,7 @@ namespace OfficeOpenXml.Utils
             if (toType == typeof(DateTime))
             {
                 if (value is double)
-                    return (T)(object)(DateTime.FromOADate((double)value));
+                    return (T)(object)(DateTimeExtensions.FromOADate((double)value));
 
                 if (fromType == typeof(TimeSpan))
                     return ((T)(object)(new DateTime(((TimeSpan)value).Ticks)));
@@ -294,7 +294,7 @@ namespace OfficeOpenXml.Utils
             else if (toType == typeof(TimeSpan))
             {
                 if (value is double)
-                    return (T)(object)(new TimeSpan(DateTime.FromOADate((double)value).Ticks));
+                    return (T)(object)(new TimeSpan(DateTimeExtensions.FromOADate((double)value).Ticks));
 
                 if (fromType == typeof(DateTime))
                     return ((T)(object)(new TimeSpan(((DateTime)value).Ticks)));

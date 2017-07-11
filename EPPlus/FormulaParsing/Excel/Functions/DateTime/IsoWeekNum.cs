@@ -13,7 +13,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 1);
             var dateInt = ArgToInt(arguments, 0);
-            var date = DateTimeExtentions.FromOADate(dateInt);
+            var date = DateTimeExtensions.FromOADate(dateInt);
             return CreateResult(WeekNumber(date), DataType.Integer);
         }
 

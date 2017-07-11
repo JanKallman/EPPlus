@@ -20,8 +20,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             ValidateArguments(arguments, 2);
             var numDate1 = ArgToDecimal(arguments, 0);
             var numDate2 = ArgToDecimal(arguments, 1);
-            var dt1 = DateTimeExtentions.FromOADate(numDate1);
-            var dt2 = DateTimeExtentions.FromOADate(numDate2);
+            var dt1 = DateTimeExtensions.FromOADate(numDate1);
+            var dt2 = DateTimeExtensions.FromOADate(numDate2);
 
             var calcType = Days360Calctype.Us;
             if (arguments.Count() > 2)

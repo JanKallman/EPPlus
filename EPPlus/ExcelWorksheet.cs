@@ -1506,7 +1506,7 @@ namespace OfficeOpenXml
                         }
                         if (res >= -657435.0 && res < 2958465.9999999)
                         {
-                            SetValueInner(row, col, DateTimeExtentions.FromOADate(res));
+                            SetValueInner(row, col, DateTimeExtensions.FromOADate(res));
                         }
                         else
                         {
@@ -3830,7 +3830,7 @@ namespace OfficeOpenXml
                 }
                 else if (v is TimeSpan)
                 {
-                    s = DateTimeExtentions.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    s = DateTimeExtensions.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
                 }
                 else if(TypeCompat.IsPrimitive(v) || v is double || v is decimal)
                 {
@@ -4279,7 +4279,7 @@ namespace OfficeOpenXml
                         sdv += offset;
 
                         //cse.Value._value = DateTime.FromOADate(sdv);
-                        SetValueInner(cse.Row, cse.Column, DateTimeExtentions.FromOADate(sdv));
+                        SetValueInner(cse.Row, cse.Column, DateTimeExtensions.FromOADate(sdv));
                     }
                     catch
                     {
@@ -4398,7 +4398,7 @@ namespace OfficeOpenXml
             return obj.WorksheetXml.OuterXml.GetHashCode();
         }
 
-#region Worksheet internal Accessor
+        #region Worksheet internal Accessor
         /// <summary>
         /// Get accessor of sheet value
         /// </summary>

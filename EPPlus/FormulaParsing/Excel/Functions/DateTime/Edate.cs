@@ -13,7 +13,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 2, eErrorType.Value);
             var dateSerial = ArgToDecimal(arguments, 0);
-            var date = DateTimeExtentions.FromOADate(dateSerial);
+            var date = DateTimeExtensions.FromOADate(dateSerial);
             var nMonthsToAdd = ArgToInt(arguments, 1);
             var resultDate = date.AddMonths(nMonthsToAdd);
             return CreateResult(resultDate.ToOADate(), DataType.Date);

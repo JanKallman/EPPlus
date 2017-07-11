@@ -26,8 +26,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
                 functionArguments[1] = functionArguments[0];
                 functionArguments[0] = fa;
             }
-            var date1 = DateTimeExtentions.FromOADate(date1Num);
-            var date2 = DateTimeExtentions.FromOADate(date2Num);
+            var date1 = DateTimeExtensions.FromOADate(date1Num);
+            var date2 = DateTimeExtensions.FromOADate(date2Num);
 
             var basis = 0;
             if (functionArguments.Count() > 2)

@@ -13,7 +13,7 @@ namespace EPPlusTest.Drawing.Chart
 {
 
     [TestClass]
-    public class ExcelChartDataTableTest
+    public class ExcelChartDataTableTest : TestBase
     {
         public TestContext TestContext { get; set; }
 
@@ -24,8 +24,7 @@ namespace EPPlusTest.Drawing.Chart
         [TestMethod]
         public void DataTableFile()
         {
-            if (!Directory.Exists(TestContext.TestResultsDirectory)) Directory.CreateDirectory(TestContext.TestResultsDirectory);
-            string outfile = Path.Combine(TestContext.TestResultsDirectory, "DataTableFile.xlsx");
+            string outfile = Path.Combine(_worksheetPath, "DataTableFile.xlsx");
             var fileinfo = new FileInfo(outfile);
             using (ExcelPackage pkg = new ExcelPackage(fileinfo))
             {
@@ -56,7 +55,7 @@ namespace EPPlusTest.Drawing.Chart
 
                 XmlDocument xmldoc = chart.ChartXml;
                 string xml = xmldoc.InnerXml;
-                TestContext.WriteLine(xml);
+                Console.WriteLine(xml);
                 Assert.IsTrue(xml.Contains("c:dTable"));
                 Assert.IsTrue(xml.Contains("/c:dTable"));
             }

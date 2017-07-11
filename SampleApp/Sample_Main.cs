@@ -41,6 +41,7 @@ namespace EPPlusSamples
 		{
 			try
 			{
+                //If you use Net.Core, add the conditional complilation symbol "Core" under Project Properties, Build-Tab
                 //Sample 3, 4 and 12 uses the Adventureworks database. Enter then name of your SQL server into the variable below...
                 //Leave this blank if you don't have access to the Adventureworks database 
                 string SqlServerName = "";
@@ -145,13 +146,11 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 12 created {0}", output);
                 Console.WriteLine();
 
-#if !Core
                 //Sample 13 - Shows a few ways to load data (Datatable, IEnumerable and more).
                 Console.WriteLine("Running sample 13");
                 Sample13.RunSample13(outputDir);
                 Console.WriteLine("Sample 13 created {0}", outputDir.Name);
                 Console.WriteLine();
-#endif
                 //Sample 14 - Conditional Formatting
                 Console.WriteLine("Running sample 14");
                 Sample14.RunSample14(outputDir);
