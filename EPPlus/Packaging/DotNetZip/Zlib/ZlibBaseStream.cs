@@ -300,7 +300,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zlib
         }
 
 
+#if (Core)
+        public void Close()
+#else
         public override void Close()
+#endif
         {
             if (_stream == null) return;
             try
@@ -310,7 +314,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zlib
             finally
             {
                 end();
+#if (!Core)
                 if (!_leaveOpen) _stream.Close();
+#endif
                 _stream = null;
             }
         }

@@ -30,6 +30,7 @@ using System.Globalization;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using util=OfficeOpenXml.Utils;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {

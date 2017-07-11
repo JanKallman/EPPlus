@@ -15,6 +15,9 @@ namespace EPPlusSamples
         {
             using (var package = new ExcelPackage())
             {
+#if (Core)
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sample16");
+#else   
                 var dataTable = new DataTable("test");
                 dataTable.Columns.Add("col1");
                 dataTable.Columns.Add("col2");
@@ -24,6 +27,7 @@ namespace EPPlusSamples
                 dataTable.Rows.Add("qwe21", "qwe22", "qwe23", "qwe24");
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add(dataTable.TableName);
                 worksheet.Cells["A1"].LoadFromDataTable(dataTable, true, TableStyles.None);
+#endif
                 worksheet.Protection.AllowSelectLockedCells = false;
                 worksheet.Protection.AllowSelectUnlockedCells = true;
                 worksheet.Protection.AllowSort = true;

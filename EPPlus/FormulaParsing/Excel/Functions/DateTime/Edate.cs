@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -12,7 +13,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 2, eErrorType.Value);
             var dateSerial = ArgToDecimal(arguments, 0);
-            var date = System.DateTime.FromOADate(dateSerial);
+            var date = DateTimeExtentions.FromOADate(dateSerial);
             var nMonthsToAdd = ArgToInt(arguments, 1);
             var resultDate = date.AddMonths(nMonthsToAdd);
             return CreateResult(resultDate.ToOADate(), DataType.Date);

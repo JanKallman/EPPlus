@@ -1501,11 +1501,18 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             if (output == null) return;
 
+#if !Core
             output.Close();
-
+#endif
+output.Dispose();
             // by calling Close() on the deflate stream, we write the footer bytes, as necessary.
             if ((compressor as Ionic.Zlib.DeflateStream) != null)
+            {
+#if !Core
                 compressor.Close();
+#endif
+                compressor.Dispose();
+            }
 #if BZIP
             else if ((compressor as Ionic.BZip2.BZip2OutputStream) != null)
                 compressor.Close();
@@ -1517,12 +1524,19 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 
 #if !NETCF
             else if ((compressor as Ionic.Zlib.ParallelDeflateOutputStream) != null)
+            {
+#if(!Core)
                 compressor.Close();
+#endif
+                compressor.Dispose();
+            }
 #endif
 
             encryptor.Flush();
+#if (!Core)
             encryptor.Close();
-
+#endif
+            encryptor.Dispose();
             _LengthOfTrailer = 0;
 
             _UncompressedSize = output.TotalBytesSlurped;
@@ -2567,12 +2581,12 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
             lock (_outputLock)
             {
                 int tid = System.Threading.Thread.CurrentThread.GetHashCode();
-#if ! (NETCF || SILVERLIGHT)
+#if !(NETCF || SILVERLIGHT)
                 Console.ForegroundColor = (ConsoleColor)(tid % 8 + 8);
 #endif
                 Console.Write("{0:000} ZipEntry.Write ", tid);
                 Console.WriteLine(format, varParams);
-#if ! (NETCF || SILVERLIGHT)
+#if !(NETCF || SILVERLIGHT)
                 Console.ResetColor();
 #endif
             }

@@ -43,6 +43,8 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
 using OfficeOpenXml.Style;
+using OfficeOpenXml.CompatibilityExtensions;
+using EPPlus.Core.Compatibility;
 
 namespace OfficeOpenXml
 {
@@ -150,7 +152,7 @@ namespace OfficeOpenXml
                 //Delete the shared string part, it will be recreated when the package is saved.
                 foreach (var rel in Part.GetRelationships())
                 {
-                    if (rel.TargetUri.OriginalString.EndsWith("sharedstrings.xml", StringComparison.InvariantCultureIgnoreCase))
+                    if (rel.TargetUri.OriginalString.EndsWith("sharedstrings.xml", StringComparison.OrdinalIgnoreCase))
                     {
                         Part.DeleteRelationship(rel.Id);
                         break;
@@ -455,7 +457,6 @@ namespace OfficeOpenXml
         /// </summary>
         public void CreateVBAProject()
         {
-#if !MONO
             if (_vba != null || _package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
             {
                 throw (new InvalidOperationException("VBA project already exists."));
@@ -463,10 +464,6 @@ namespace OfficeOpenXml
                         
             _vba = new ExcelVbaProject(this);
             _vba.Create();
-#endif
-#if MONO
-            throw new NotSupportedException("Creating a VBA project is not supported under Mono.");
-#endif
 				}
 		/// <summary>
 		/// URI to the workbook inside the package
@@ -829,9 +826,7 @@ namespace OfficeOpenXml
             //VBA
             if (_vba!=null)
             {
-#if !MONO
                 VbaProject.Save();
-#endif
             }
 
 		}
@@ -983,7 +978,7 @@ namespace OfficeOpenXml
 			{
 				if (string.IsNullOrEmpty(name.NameFormula))
 				{
-					if ((name.NameValue.GetType().IsPrimitive || name.NameValue is double || name.NameValue is decimal))
+					if ((TypeCompat.IsPrimitive(name.NameValue) || name.NameValue is double || name.NameValue is decimal))
 					{
 						elem.InnerText = Convert.ToDouble(name.NameValue, CultureInfo.InvariantCulture).ToString("R15", CultureInfo.InvariantCulture); 
 					}

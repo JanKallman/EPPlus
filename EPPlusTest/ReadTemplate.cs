@@ -35,7 +35,9 @@ namespace EPPlusTest
                 var ws = pck.Workbook.Worksheets.Add("Perf");
                 pck.SaveAs(stream);
             }
+#if !Core
             stream.Close();
+#endif
         }
         [Ignore]
         [TestMethod]
@@ -283,7 +285,7 @@ namespace EPPlusTest
             col.Style.Fill.BackgroundColor.SetColor(Color.Red);
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
-        #region "Threading Cellstore Test"
+#region "Threading Cellstore Test"
         public int _threadCount=0;
         ExcelPackage _pckThread;
         [TestMethod, Ignore]
@@ -342,7 +344,7 @@ namespace EPPlusTest
                 _cb();
             }
         }
-        #endregion
+#endregion
         [Ignore]
         [TestMethod]
         public void TestInvalidVBA()

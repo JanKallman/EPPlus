@@ -42,6 +42,9 @@ using OfficeOpenXml.Utils;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
+using OfficeOpenXml.Utils.CompundDocument;
+using System.Text;
+
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -408,7 +411,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo AddImage(byte[] image, Uri uri, string contentType)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
             lock (_images)
             {
@@ -438,7 +445,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo LoadImage(byte[] image, Uri uri, Packaging.ZipPackagePart imagePart)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-", "");
             if (_images.ContainsKey(hash))
             {
@@ -468,7 +479,11 @@ namespace OfficeOpenXml
         }
         internal ImageInfo GetImageInfo(byte[] image)
         {
+#if (Core)
+            var hashProvider = SHA1.Create();
+#else
             var hashProvider = new SHA1CryptoServiceProvider();
+#endif
             var hash = BitConverter.ToString(hashProvider.ComputeHash(image)).Replace("-","");
 
             if (_images.ContainsKey(hash))
@@ -497,6 +512,9 @@ namespace OfficeOpenXml
         private void Init()
         {
             DoAdjustDrawings = true;
+#if (Core)
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252            
+#endif
         }
         /// <summary>
         /// Create a new file from a template
@@ -513,17 +531,11 @@ namespace OfficeOpenXml
                 var ms = new MemoryStream();
                 if (password != null)
                 {
-#if !MONO
                     Encryption.IsEncrypted = true;
                     Encryption.Password = password;
                     var encrHandler = new EncryptedPackageHandler();
                     ms = encrHandler.DecryptPackage(template, Encryption);
                     encrHandler = null;
-#endif
-#if MONO
-	                throw (new NotImplementedException("No support for Encrypted packages in Mono"));
-#endif
-	                //throw (new NotImplementedException("No support for Encrypted packages in this version"));
                 }
                 else
                 {
@@ -536,8 +548,7 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                 {
-#if !MONO
-                    if (password == null && CompoundDocument.IsStorageFile(template.FullName)==0)
+                    if (password == null && CompoundDocument.IsCompoundDocument(ms))
                     {
                         throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                     }
@@ -545,10 +556,6 @@ namespace OfficeOpenXml
                     {
                         throw;
                     }
-#endif
-#if MONO
-                    throw;
-#endif
                 }
             }
             else
@@ -564,16 +571,11 @@ namespace OfficeOpenXml
             {
                 if (password != null)
                 {
-#if !MONO
                     var encrHandler = new EncryptedPackageHandler();
                     Encryption.IsEncrypted = true;
                     Encryption.Password = password;
                     ms = encrHandler.DecryptPackage(File, Encryption);
                     encrHandler = null;
-#endif
-#if MONO
-                    throw new NotImplementedException("No support for Encrypted packages in Mono");
-#endif
                 }
                 else
                 {
@@ -586,8 +588,7 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                {
-#if !MONO
-                    if (password == null && CompoundDocument.IsStorageFile(File.FullName)==0)
+                    if (password == null && CompoundDocument.IsCompoundDocument(File))
                     {
                         throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                     }
@@ -595,10 +596,6 @@ namespace OfficeOpenXml
                     {
                         throw;
                     }
-#endif
-#if MONO
-                    throw;
-#endif
                 }
             }
             else
@@ -706,7 +703,7 @@ namespace OfficeOpenXml
             return ns;
         }
 		
-		#region SavePart
+#region SavePart
 		/// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
 		/// </summary>
@@ -749,9 +746,9 @@ namespace OfficeOpenXml
 			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
 		}
 
-        #endregion
+#endregion
 
-		#region Dispose
+#region Dispose
 		/// <summary>
 		/// Closes the package.
 		/// </summary>
@@ -759,10 +756,13 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-                if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+#if (!Core)
+		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
                     _stream.Close();
                 }
+#endif
+                CloseStream();
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
@@ -778,9 +778,9 @@ namespace OfficeOpenXml
                 GC.Collect();
             }
 		}
-		#endregion
+#endregion
 
-		#region Save  // ExcelPackage save
+#region Save  // ExcelPackage save
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
@@ -803,17 +803,12 @@ namespace OfficeOpenXml
                 {
                     if(Encryption.IsEncrypted)
                     {
-#if !MONO
                         var ms = new MemoryStream();
                         _package.Save(ms);
                         byte[] file = ms.ToArray();
                         EncryptedPackageHandler eph = new EncryptedPackageHandler();
                         var msEnc = eph.EncryptPackage(file, Encryption);
                         CopyStream(msEnc, ref _stream);
-#endif
-#if MONO
-                        throw new NotSupportedException("Encryption is not supported under Mono.");
-#endif
                     }
                     else
                     {
@@ -844,22 +839,20 @@ namespace OfficeOpenXml
                         //EncryptPackage
                         if (Encryption.IsEncrypted)
                         {
-#if !MONO
                             byte[] file = ((MemoryStream)Stream).ToArray();
                             EncryptedPackageHandler eph = new EncryptedPackageHandler();
                             var ms = eph.EncryptPackage(file, Encryption);
-
-                            fi.Write(ms.GetBuffer(), 0, (int)ms.Length);
-#endif
-#if MONO
-                            throw new NotSupportedException("Encryption is not supported under Mono.");
-#endif
+                             
+                            fi.Write(ms.ToArray(), 0, (int)ms.Length);
                         }
                         else
                         {                            
-                            fi.Write(((MemoryStream)Stream).GetBuffer(), 0, (int)Stream.Length);
+                            fi.Write(((MemoryStream)Stream).ToArray(), 0, (int)Stream.Length);
                         }
+#if !Core
                         fi.Close();
+#endif
+                        fi.Dispose();
                     }
                     else
                     {
@@ -965,7 +958,9 @@ namespace OfficeOpenXml
             // Issue15252: Clear output buffer
             if (_stream != null)
             {
+#if !Core
                 _stream.Close();
+#endif
                 _stream.Dispose();
             }
 
@@ -982,7 +977,7 @@ namespace OfficeOpenXml
                 return _stream;
             }
         }
-		#endregion
+#endregion
         /// <summary>
         /// Compression option for the package
         /// </summary>        
@@ -997,7 +992,7 @@ namespace OfficeOpenXml
                 Package.Compression = value;
             }
         }
-		#region GetXmlFromUri
+#region GetXmlFromUri
 		/// <summary>
 		/// Get the XmlDocument from an URI
 		/// </summary>
@@ -1010,7 +1005,7 @@ namespace OfficeOpenXml
             XmlHelper.LoadXmlSafe(xml, part.GetStream()); 
 			return (xml);
 		}
-		#endregion
+#endregion
 
         /// <summary>
         /// Saves and returns the Excel files as a bytearray.
@@ -1074,15 +1069,15 @@ namespace OfficeOpenXml
             //Encrypt Workbook?
             if (Encryption.IsEncrypted)
             {
-#if !MONO
                 EncryptedPackageHandler eph=new EncryptedPackageHandler();
                 var ms = eph.EncryptPackage(byRet, Encryption);
                 byRet = ms.ToArray();
-#endif
             }
 
             Stream.Seek(pos, SeekOrigin.Begin);
+#if !Core
             Stream.Close();
+#endif
             return byRet;
         }
         /// <summary>
@@ -1118,7 +1113,9 @@ namespace OfficeOpenXml
             }
             if (this._stream != null)
             {
+#if !Core
                 this._stream.Close();
+#endif
                 this._stream.Dispose();
                 this._stream = null;
             }
@@ -1134,16 +1131,11 @@ namespace OfficeOpenXml
                 this._stream = output;
                 if (Password != null)
                 {
-#if !MONO
                     Stream encrStream = new MemoryStream();
                     CopyStream(input, ref encrStream);
                     EncryptedPackageHandler eph = new EncryptedPackageHandler();
                     Encryption.Password = Password;
                     ms = eph.DecryptPackage((MemoryStream)encrStream, Encryption);
-#endif
-#if MONO
-                    throw new NotSupportedException("Encryption is not supported under Mono.");
-#endif
                 }
                 else
                 {
@@ -1158,9 +1150,8 @@ namespace OfficeOpenXml
                 }
                 catch (Exception ex)
                 {
-#if !MONO
                     EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                    if (Password == null && CompoundDocument.IsStorageILockBytes(CompoundDocument.GetLockbyte((MemoryStream)_stream)) == 0)
+                    if (Password == null && CompoundDocument.IsCompoundDocument((MemoryStream)_stream))
                     {
                         throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
                     }
@@ -1168,10 +1159,6 @@ namespace OfficeOpenXml
                     {
                         throw;
                     }
-#endif
-#if MONO
-                    throw;
-#endif
                 }
             }            
             //Clear the workbook so that it gets reinitialized next time

@@ -1116,17 +1116,17 @@ namespace OfficeOpenXml.Packaging.Ionic
 
                         Int64 sz = 0;
                         string v = tokens[i + 2];
-                        if (v.EndsWith("K", StringComparison.InvariantCultureIgnoreCase))
+                        if (v.EndsWith("K", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024;
-                        else if (v.EndsWith("KB", StringComparison.InvariantCultureIgnoreCase))
+                        else if (v.EndsWith("KB", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024;
-                        else if (v.EndsWith("M", StringComparison.InvariantCultureIgnoreCase))
+                        else if (v.EndsWith("M", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024 * 1024;
-                        else if (v.EndsWith("MB", StringComparison.InvariantCultureIgnoreCase))
+                        else if (v.EndsWith("MB", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024 * 1024;
-                        else if (v.EndsWith("G", StringComparison.InvariantCultureIgnoreCase))
+                        else if (v.EndsWith("G", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 1)) * 1024 * 1024 * 1024;
-                        else if (v.EndsWith("GB", StringComparison.InvariantCultureIgnoreCase))
+                        else if (v.EndsWith("GB", StringComparison.OrdinalIgnoreCase))
                             sz = Int64.Parse(v.Substring(0, v.Length - 2)) * 1024 * 1024 * 1024;
                         else sz = Int64.Parse(tokens[i + 2]);
 

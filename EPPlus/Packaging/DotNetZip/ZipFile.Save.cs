@@ -227,7 +227,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                         // This means we opened and read a zip file.
                         // If we are now saving to the same file, we need to close the
                         // orig file, first.
+#if !Core
                         this._readstream.Close();
+#endif
                         this._readstream = null;
                         // the archiveStream for each entry needs to be null
                         foreach (var e in c)
@@ -663,7 +665,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
             {
                 if (zip64 == Zip64Option.Never)
                 {
-#if NETCF
+#if NETCF || Core
                     throw new ZipException("The archive requires a ZIP64 Central Directory. Consider enabling ZIP64 extensions.");
 #else
                     System.Diagnostics.StackFrame sf = new System.Diagnostics.StackFrame(1);

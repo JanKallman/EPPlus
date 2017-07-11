@@ -65,13 +65,14 @@ namespace EPPlusSamples
             }
         }
 
+#if !Core
         public static void RunSample13(DirectoryInfo outputDir)
         {
             ExcelPackage pck = new ExcelPackage();
 
             //Create a datatable with the directories and files from the root directory...
             DataTable dt = GetDataTable(outputDir.Root);
-            
+
             var wsDt = pck.Workbook.Worksheets.Add("FromDataTable");
 
             //Load the datatable and set the number formats...
@@ -79,9 +80,8 @@ namespace EPPlusSamples
             wsDt.Cells[2, 2, dt.Rows.Count + 1, 2].Style.Numberformat.Format = "#,##0";
             wsDt.Cells[2, 3, dt.Rows.Count + 1, 4].Style.Numberformat.Format = "mm-dd-yy";
             wsDt.Cells[wsDt.Dimension.Address].AutoFitColumns();
-
-            //Select Name and Created-time...
-            var collection = (from row in dt.Select() select new {Name=row["Name"], Created_time=(DateTime)row["Created"]});
+        //Select Name and Created-time...
+        var collection = (from row in dt.Select() select new {Name=row["Name"], Created_time=(DateTime)row["Created"]});
 
             var wsEnum = pck.Workbook.Worksheets.Add("FromAnonymous");
             
@@ -177,5 +177,6 @@ namespace EPPlusSamples
             }
             return dt;
         }
+#endif
     }
 }

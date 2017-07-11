@@ -255,7 +255,7 @@ namespace OfficeOpenXml.Style
             {
                 // coloring by shades of grey (-1 -> 0)
                 iTint = ((int)(theColor.Tint * 160) + 0x80);
-                translatedRGB = ((int)(decimal.Round(theColor.Tint * -512))).ToString("X");
+                translatedRGB = ((int)(Math.Round(theColor.Tint * -512))).ToString("X");
                 translatedRGB = "#FF" + translatedRGB + translatedRGB + translatedRGB;
             }
 
