@@ -316,9 +316,10 @@ namespace OfficeOpenXml.Style.XmlAccess
                                             var num = int.Parse(li[1], NumberStyles.HexNumber);
                                             try
                                             {
+//TODO:This must be fixed when Core 2.0 is released.
 #if (Core)
                                                 //Culture = new CultureInfo(num & 0xFFFF);        
-                                                Culture = null; //TODO Core Fix LCID
+                                                Culture = null; //TODO Core Fix LCID                                                
 #else
                                                 Culture = CultureInfo.GetCultureInfo(num & 0xFFFF);
 #endif

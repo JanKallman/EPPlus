@@ -15,7 +15,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 2);
-            var startDate = DateTimeExtentions.FromOADate(ArgToInt(functionArguments, 0));
+            var startDate = DateTimeExtensions.FromOADate(ArgToInt(functionArguments, 0));
             var nWorkDays = ArgToInt(functionArguments, 1);
             var resultDate = System.DateTime.MinValue;
             

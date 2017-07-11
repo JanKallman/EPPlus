@@ -116,7 +116,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 					}
 					else if (Result is TimeSpan)
 					{
-						_ResultNumeric = DateTimeExtentions.FromOADate(0).Add((TimeSpan)Result).ToOADate();
+						_ResultNumeric = DateTimeExtensions.FromOADate(0).Add((TimeSpan)Result).ToOADate();
 					}
 					else if (Result is ExcelDataProvider.IRangeInfo)
 					{

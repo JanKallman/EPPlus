@@ -4,7 +4,7 @@ using System.Text;
 
 namespace OfficeOpenXml.CompatibilityExtensions
 {
-    public static class DateTimeExtentions
+    public static class DateTimeExtensions
     {
  #if Core
         // System.DateTime

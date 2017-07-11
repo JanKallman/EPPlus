@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.Utils;
+using EPPlus.Core.Compatibility;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest.Utils
 {
@@ -193,7 +195,8 @@ namespace EPPlusTest.Utils
             }
             Type fromType = v.GetType();
             Type toType = typeof(T);
-            Type toType2 = (toType.IsGenericType && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
+            
+            Type toType2 = (TypeCompat.IsGenericType(toType) && toType.GetGenericTypeDefinition().Equals(typeof(Nullable<>)))
                 ? Nullable.GetUnderlyingType(toType)
                 : null;
             if (fromType == toType || fromType == toType2)
@@ -224,7 +227,7 @@ namespace EPPlusTest.Utils
                 {
                     if (cnv.CanConvertTo(typeof(double)))
                     {
-                        return (T)(object)(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))));
+                        return (T)(object)(DateTimeExtensions.FromOADate((double)cnv.ConvertTo(v, typeof(double))));
                     }
                     else
                     {
@@ -255,7 +258,7 @@ namespace EPPlusTest.Utils
                     if (cnv.CanConvertTo(typeof(double)))
                     {
 
-                        return (T)(object)(new TimeSpan(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))).Ticks));
+                        return (T)(object)(new TimeSpan(DateTimeExtensions.FromOADate((double)cnv.ConvertTo(v, typeof(double))).Ticks));
                     }
                     else
                     {

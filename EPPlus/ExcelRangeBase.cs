@@ -1040,7 +1040,7 @@ namespace OfficeOpenXml
 				}
 				else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
-                    var date = DateTimeExtentions.FromOADate(d);
+                    var date = DateTimeExtensions.FromOADate(d);
                     return date.ToString(format, nf.Culture);
 				}
 			}
@@ -1997,7 +1997,7 @@ namespace OfficeOpenXml
 				{
                     if (t.DeclaringType!=null && t.DeclaringType != type && ! TypeCompat.IsSubclassOf(t.DeclaringType, type))
                     //Fixing inverted check for IsSubclassOf / Pullrequest from tomdam
-                    if (t.DeclaringType != null && t.DeclaringType != type && !type.IsSubclassOf(t.DeclaringType) && !t.DeclaringType.IsSubclassOf(type))
+                    if (t.DeclaringType != null && t.DeclaringType != type && !TypeCompat.IsSubclassOf(type,t.DeclaringType) && !TypeCompat.IsSubclassOf(t.DeclaringType,type))
                     {
                         throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T)");
                     }

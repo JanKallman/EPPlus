@@ -15,8 +15,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 2);
-            var startDate = DateTimeExtentions.FromOADate(ArgToInt(functionArguments, 0));
-            var endDate = DateTimeExtentions.FromOADate(ArgToInt(functionArguments, 1));
+            var startDate = DateTimeExtensions.FromOADate(ArgToInt(functionArguments, 0));
+            var endDate = DateTimeExtensions.FromOADate(ArgToInt(functionArguments, 1));
             WorkdayCalculator calculator = new WorkdayCalculator();
             var weekdayFactory = new HolidayWeekdaysFactory();
             if (functionArguments.Length > 2)
