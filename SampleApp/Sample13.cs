@@ -35,7 +35,6 @@ using OfficeOpenXml;
 using System.Data;
 using OfficeOpenXml.Table;
 using System.Reflection;
-
 namespace EPPlusSamples
 {
     /// <summary>
@@ -46,11 +45,11 @@ namespace EPPlusSamples
         public class FileDTO
         {
             public string Name { get; set; }
-            public long Size {get;set;}
-            public DateTime Created {get;set;}
-            public DateTime LastModified {get;set;}
+            public long Size { get; set; }
+            public DateTime Created { get; set; }
+            public DateTime LastModified { get; set; }
 
-            public bool IsDirectory=false;                  //This is a field variable
+            public bool IsDirectory = false;                  //This is a field variable
 
             public override string ToString()
             {
@@ -157,32 +156,33 @@ namespace EPPlusSamples
             wsDt.Cells[2, 3, dt.Rows.Count + 1, 4].Style.Numberformat.Format = "mm-dd-yy";
             wsDt.Cells[wsDt.Dimension.Address].AutoFitColumns();
             //Select Name and Created-time...
-            var collection = (from row in dt.Select() select new {Name=row["Name"], Created_time=(DateTime)row["Created"]});
+            var collection = (from row in dt.Select() select new { Name = row["Name"], Created_time = (DateTime)row["Created"] });
 
             var wsEnum = pck.Workbook.Worksheets.Add("FromAnonymous");
-            
+
             //Load the collection starting from cell A1...
             wsEnum.Cells["A1"].LoadFromCollection(collection, true, TableStyles.Medium9);
-            
+
             //Add some formating...
-            wsEnum.Cells[2, 2, dt.Rows.Count-1, 2].Style.Numberformat.Format = "mm-dd-yy";
+            wsEnum.Cells[2, 2, dt.Rows.Count - 1, 2].Style.Numberformat.Format = "mm-dd-yy";
             wsEnum.Cells[wsEnum.Dimension.Address].AutoFitColumns();
 
             //Load a list of FileDTO objects from the datatable...
             var wsList = pck.Workbook.Worksheets.Add("FromList");
-            List<FileDTO> list = (from row in dt.Select() 
-                                  select new FileDTO { 
-                                           Name = row["Name"].ToString(), 
-                                           Size = row["Size"].GetType() == typeof(long) ? (long)row["Size"] : 0, 
-                                           Created = (DateTime)row["Created"], 
-                                           LastModified = (DateTime)row["Modified"],
-                                           IsDirectory = (row["Size"]==DBNull.Value) 
+            List<FileDTO> list = (from row in dt.Select()
+                                  select new FileDTO
+                                  {
+                                      Name = row["Name"].ToString(),
+                                      Size = row["Size"].GetType() == typeof(long) ? (long)row["Size"] : 0,
+                                      Created = (DateTime)row["Created"],
+                                      LastModified = (DateTime)row["Modified"],
+                                      IsDirectory = (row["Size"] == DBNull.Value)
                                   }).ToList<FileDTO>();
 
             //Load files ordered by size...
-            wsList.Cells["A1"].LoadFromCollection(from file in list 
-                                                  orderby file.Size descending 
-                                                  where file.IsDirectory == false 
+            wsList.Cells["A1"].LoadFromCollection(from file in list
+                                                  orderby file.Size descending
+                                                  where file.IsDirectory == false
                                                   select file, true, TableStyles.Medium9);
 
             wsList.Cells[2, 2, dt.Rows.Count + 1, 2].Style.Numberformat.Format = "#,##0";
@@ -193,10 +193,12 @@ namespace EPPlusSamples
             wsList.Cells["F1"].LoadFromCollection(from file in list
                                                   orderby file.Name ascending
                                                   where file.IsDirectory == true
-                                                  select new { 
-                                                      Name=file.Name, 
-                                                      Created = file.Created, 
-                                                      Last_modified=file.LastModified}, //Use an underscore in the property name to get a space in the title.
+                                                  select new
+                                                  {
+                                                      Name = file.Name,
+                                                      Created = file.Created,
+                                                      Last_modified = file.LastModified
+                                                  }, //Use an underscore in the property name to get a space in the title.
                                                   true, TableStyles.Medium11);
 
             wsList.Cells[2, 7, dt.Rows.Count + 1, 8].Style.Numberformat.Format = "mm-dd-yy";
@@ -224,7 +226,6 @@ namespace EPPlusSamples
             }
             pck.SaveAs(fi);
         }
-
         private static DataTable GetDataTable(DirectoryInfo dir)
         {
             DataTable dt = new DataTable("RootDir");
@@ -234,10 +235,10 @@ namespace EPPlusSamples
             dt.Columns.Add("Modified", typeof(DateTime));
             foreach (var item in dir.GetDirectories())
             {
-                var row=dt.NewRow();
-                row["Name"]=item.Name;
-                row["Created"]=item.CreationTime;
-                row["Modified"]=item.LastWriteTime;
+                var row = dt.NewRow();
+                row["Name"] = item.Name;
+                row["Created"] = item.CreationTime;
+                row["Modified"] = item.LastWriteTime;
 
                 dt.Rows.Add(row);
             }
@@ -253,6 +254,6 @@ namespace EPPlusSamples
             }
             return dt;
         }
-    }
 #endif
     }
+}
