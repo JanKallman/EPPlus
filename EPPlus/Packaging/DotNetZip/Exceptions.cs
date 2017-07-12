@@ -76,11 +76,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 
 
 #if ! (NETCF || SILVERLIGHT)
-        /// <summary>
-        /// Come on, you know how exceptions work. Why are you looking at this documentation?
-        /// </summary>
-        /// <param name="info">The serialization info for the exception.</param>
-        /// <param name="context">The streaming context from which to deserialize.</param>
+        ///// <summary>
+        ///// Come on, you know how exceptions work. Why are you looking at this documentation?
+        ///// </summary>
+        ///// <param name="info">The serialization info for the exception.</param>
+        ///// <param name="context">The streaming context from which to deserialize.</param>
         //protected BadPasswordException(SerializationInfo info, StreamingContext context)
         //    : base(info, context)
         //  {  }

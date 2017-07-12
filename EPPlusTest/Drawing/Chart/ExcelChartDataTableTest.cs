@@ -15,9 +15,6 @@ namespace EPPlusTest.Drawing.Chart
     [TestClass]
     public class ExcelChartDataTableTest : TestBase
     {
-        public TestContext TestContext { get; set; }
-
-
         /// <summary>
         /// Basic test to check output with excel. need enhanced to be stand alone checking
         /// </summary>
