@@ -6,8 +6,6 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Table;
-using Rhino.Mocks;
-using Rhino.Mocks.Constraints;
 
 namespace EPPlusTest
 {

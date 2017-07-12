@@ -102,7 +102,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 foreach (var field in _list)
                 {
-                    if (field.Name.Equals(name,StringComparison.InvariantCultureIgnoreCase))
+                    if (field.Name.Equals(name,StringComparison.OrdinalIgnoreCase))
                     {
                         return field;
                     }
@@ -297,8 +297,8 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             foreach (var df in _list)
             {
-                if (((!string.IsNullOrEmpty(df.Name) && df.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase) ||
-                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.Equals(name, StringComparison.InvariantCultureIgnoreCase)))) && datafield != df)
+                if (((!string.IsNullOrEmpty(df.Name) && df.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))) && datafield != df)
                 {
                     return true;
                 }

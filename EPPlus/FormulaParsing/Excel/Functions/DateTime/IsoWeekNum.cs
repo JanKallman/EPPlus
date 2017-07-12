@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -12,7 +13,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 1);
             var dateInt = ArgToInt(arguments, 0);
-            var date = System.DateTime.FromOADate(dateInt);
+            var date = DateTimeExtensions.FromOADate(dateInt);
             return CreateResult(WeekNumber(date), DataType.Integer);
         }
 

@@ -36,6 +36,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography.Pkcs;
 using OfficeOpenXml.Utils;
 using System.IO;
+using OfficeOpenXml.Utils.CompundDocument;
 
 namespace OfficeOpenXml.VBA
 {
@@ -99,7 +100,11 @@ namespace OfficeOpenXml.VBA
                 uint endel2 = br.ReadUInt32();  //0
                 ushort rgchProjectNameBuffer = br.ReadUInt16();
                 ushort rgchTimestampBuffer = br.ReadUInt16();
+#if Core
+                Verifier = new EnvelopedCms();
+#else
                 Verifier = new SignedCms();
+#endif
                 Verifier.Decode(signature);
             }
             else
@@ -218,7 +223,7 @@ namespace OfficeOpenXml.VBA
         {
             try
             {
-                X509Store store = new X509Store(loc);
+                X509Store store = new X509Store(StoreName.My, loc);
                 store.Open(OpenFlags.ReadOnly);
                 try
                 {
@@ -231,7 +236,11 @@ namespace OfficeOpenXml.VBA
                 }
                 finally
                 {
+#if Core
+                    store.Dispose();
+#else
                     store.Close();
+#endif
                 }
             }
             catch
@@ -306,10 +315,17 @@ namespace OfficeOpenXml.VBA
 
             ContentInfo contentInfo = new ContentInfo(((MemoryStream)bw.BaseStream).ToArray());
             contentInfo.ContentType.Value = "1.3.6.1.4.1.311.2.1.4";
+#if (Core)
+            Verifier = new EnvelopedCms(contentInfo);
+            var r = new CmsRecipient(Certificate);            
+            Verifier.Encrypt(r);
+            return Verifier.Encode();
+#else
             Verifier = new SignedCms(contentInfo);
             var signer = new CmsSigner(Certificate);
             Verifier.ComputeSignature(signer, false);
             return Verifier.Encode();
+#endif
         }
 
         private byte[] GetContentHash(ExcelVbaProject proj)
@@ -353,14 +369,14 @@ namespace OfficeOpenXml.VBA
                 var lines = module.Code.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines)
                 {
-                    if (!line.StartsWith("attribute", true, null))
+                    if (!line.StartsWith("attribute", StringComparison.OrdinalIgnoreCase))
                     {
                         bw.Write(enc.GetBytes(line));
                     }
                 }
             }
             var buffer = (bw.BaseStream as MemoryStream).ToArray();
-            var hp = System.Security.Cryptography.MD5CryptoServiceProvider.Create();
+            var hp = System.Security.Cryptography.MD5.Create();
             return hp.ComputeHash(buffer);
         }
         /// <summary>
@@ -374,10 +390,12 @@ namespace OfficeOpenXml.VBA
         /// <summary>
         /// The verifier
         /// </summary>
+#if Core
+        public EnvelopedCms Verifier { get; internal set; }
+#else
         public SignedCms Verifier { get; internal set; }
-#if !MONO
-        internal CompoundDocument Signature { get; set; }
 #endif
+        internal CompoundDocument Signature { get; set; }
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
     }

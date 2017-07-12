@@ -54,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers
             // two operators in sequence could be "<=" or ">="
             if (IsPartOfMultipleCharSeparator(context, c))
             {
-                var sOp = context.LastToken.Value + c.ToString(CultureInfo.InvariantCulture);
+                var sOp = context.LastToken.Value + c.ToString();
                 var op = _tokenSeparatorProvider.Tokens[sOp];
                 context.ReplaceLastToken(op);
                 context.NewToken();
@@ -67,7 +67,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis.TokenSeparatorHandlers
         {
             var lastToken = context.LastToken != null ? context.LastToken.Value : string.Empty;
             return _tokenSeparatorProvider.IsOperator(lastToken)
-                && _tokenSeparatorProvider.IsPossibleLastPartOfMultipleCharOperator(c.ToString(CultureInfo.InvariantCulture))
+                && _tokenSeparatorProvider.IsPossibleLastPartOfMultipleCharOperator(c.ToString())
                 && !context.CurrentTokenHasValue;
         }
     }

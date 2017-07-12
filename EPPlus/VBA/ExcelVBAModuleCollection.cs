@@ -28,6 +28,7 @@
  *******************************************************************************
  * Jan Källman		Added		12-APR-2012
  *******************************************************************************/
+using EPPlus.Core.Compatibility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace OfficeOpenXml.VBA
         {
             get
             {
-                return _list.Find((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().Equals(Name,StringComparison.InvariantCultureIgnoreCase));
+                return _list.Find((f) => TypeCompat.GetPropertyValue(f,"Name").ToString().Equals(Name,StringComparison.OrdinalIgnoreCase));
             }
         }
         /// <summary>
@@ -89,7 +90,7 @@ namespace OfficeOpenXml.VBA
         /// <returns>True if the name exists</returns>
         public bool Exists(string Name)
         {
-            return _list.Exists((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().Equals(Name,StringComparison.InvariantCultureIgnoreCase));
+            return _list.Exists((f) => TypeCompat.GetPropertyValue(f,"Name").ToString().Equals(Name,StringComparison.OrdinalIgnoreCase));
         }
         /// <summary>
         /// Removes the item

@@ -753,7 +753,7 @@ namespace OfficeOpenXml
             }
             foreach (ExcelNamedStyleXml style in NamedStyles)
             {
-                if (!style.Name.Equals("normal", StringComparison.InvariantCultureIgnoreCase))
+                if (!style.Name.Equals("normal", StringComparison.OrdinalIgnoreCase))
                 {
                     AddNamedStyle(count++, styleXfsNode, cellXfsNode, style);
                 }

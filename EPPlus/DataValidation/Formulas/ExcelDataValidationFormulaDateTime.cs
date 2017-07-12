@@ -36,7 +36,7 @@ using System.Text;
 using System.Xml;
 using OfficeOpenXml.DataValidation.Formulas.Contracts;
 using System.Globalization;
-
+using OfficeOpenXml.CompatibilityExtensions;
 namespace OfficeOpenXml.DataValidation.Formulas
 {
     internal class ExcelDataValidationFormulaDateTime : ExcelDataValidationFormulaValue<DateTime?>, IExcelDataValidationFormulaDateTime
@@ -50,7 +50,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
                 double oADate = default(double);
                 if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out oADate))
                 {
-                    Value = DateTime.FromOADate(oADate);
+                    Value = DateTimeExtensions.FromOADate(oADate);
                 }
                 else
                 {

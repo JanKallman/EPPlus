@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -13,7 +14,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             ValidateArguments(arguments, 1, eErrorType.Value);
             var dateSerial = ArgToDecimal(arguments, 0);
-            var date = System.DateTime.FromOADate(dateSerial);
+            var date = DateTimeExtensions.FromOADate(dateSerial);
             var startDay = DayOfWeek.Sunday;
             if (arguments.Count() > 1)
             {

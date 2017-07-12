@@ -554,14 +554,14 @@ namespace OfficeOpenXml.Encryption
             Verifier.SaltSize = (uint)BitConverter.ToInt32(data, pos);
             Verifier.Salt = new byte[Verifier.SaltSize];
 
-            Array.Copy(data, pos + 4, Verifier.Salt, 0, Verifier.SaltSize);
+            Array.Copy(data, pos + 4, Verifier.Salt, 0, (int)Verifier.SaltSize);
 
             Verifier.EncryptedVerifier = new byte[16];
             Array.Copy(data, pos + 20, Verifier.EncryptedVerifier, 0, 16);
 
             Verifier.VerifierHashSize = (uint)BitConverter.ToInt32(data, pos + 36);
             Verifier.EncryptedVerifierHash = new byte[Verifier.VerifierHashSize];
-            Array.Copy(data, pos + 40, Verifier.EncryptedVerifierHash, 0, Verifier.VerifierHashSize);
+            Array.Copy(data, pos + 40, Verifier.EncryptedVerifierHash, 0, (int)Verifier.VerifierHashSize);
         }
         internal byte[] WriteBinary()
         {

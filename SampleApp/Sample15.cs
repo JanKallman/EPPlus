@@ -98,11 +98,9 @@ namespace EPPlusSamples
             pck.Workbook.CodeModule.Code = "Private Sub Workbook_Open()\r\nCreateBubbleChart\r\nEnd Sub";
 
             //Optionally, Sign the code with your company certificate.
-            /*            
-            X509Store store = new X509Store(StoreLocation.CurrentUser);
-            store.Open(OpenFlags.ReadOnly);
-            pck.Workbook.VbaProject.Signature.Certificate = store.Certificates[0];
-            */
+            //X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+            //store.Open(OpenFlags.ReadOnly);
+            //pck.Workbook.VbaProject.Signature.Certificate = store.Certificates[0];
 
             //And Save as xlsm
             pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-2.xlsm"));
@@ -140,13 +138,21 @@ namespace EPPlusSamples
             pck.Workbook.VbaProject.Protection.SetPassword("EPPlus");
 
             //Add all the code from the textfiles in the Vba-Code sub-folder.
+#if Core
+            pck.Workbook.CodeModule.Code = File.ReadAllText("VBA-Code\\ThisWorkbook.txt");
+            
+            //Add the sheet code
+            ws.CodeModule.Code = File.ReadAllText("VBA-Code\\BattleshipSheet.txt");
+            var m1=pck.Workbook.VbaProject.Modules.AddModule("Code");
+            string code = File.ReadAllText("VBA-Code\\CodeModule.txt");
+#else
             pck.Workbook.CodeModule.Code = File.ReadAllText("..\\..\\VBA-Code\\ThisWorkbook.txt");
             
             //Add the sheet code
             ws.CodeModule.Code = File.ReadAllText("..\\..\\VBA-Code\\BattleshipSheet.txt");
             var m1=pck.Workbook.VbaProject.Modules.AddModule("Code");
             string code = File.ReadAllText("..\\..\\VBA-Code\\CodeModule.txt");
-            
+#endif            
             //Insert your ships on the right board. you can changes these, but don't cheat ;)
             var ships = new string[]{
                 "N3:N7",
@@ -169,10 +175,17 @@ namespace EPPlusSamples
             ws.Cells[shipsaddress].Style.Fill.BackgroundColor.SetColor(Color.Black);
 
             var m2 = pck.Workbook.VbaProject.Modules.AddModule("ComputerPlay");
+#if Core
+            m2.Code = File.ReadAllText("VBA-Code\\ComputerPlayModule.txt");
+#else
             m2.Code = File.ReadAllText("..\\..\\VBA-Code\\ComputerPlayModule.txt");
-
+#endif
             var c1 = pck.Workbook.VbaProject.Modules.AddClass("Ship",false);
+#if Core
+            c1.Code = File.ReadAllText("VBA-Code\\ShipClass.txt");
+#else
             c1.Code = File.ReadAllText("..\\..\\VBA-Code\\ShipClass.txt");
+#endif
 
             //Add the info text shape.
             var tb = ws.Drawings.AddShape("txtInfo", eShapeStyle.Rect);

@@ -86,6 +86,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellStore.cs" />
+    <Compile Include="Compatibility\DateTimeExtensions.cs" />
+    <Compile Include="Compatibility\SecurityElement.cs" />
+    <Compile Include="Compatibility\TypeCompat.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBeginsWith.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBetween.cs" />
@@ -716,9 +719,12 @@
     <Compile Include="RangeCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Utils\CompundDocument\CompoundDocumentFile.cs" />
+    <Compile Include="Utils\CompundDocument\CoumpundDocumentItem.cs" />
     <Compile Include="Utils\ConvertUtil.cs" />
     <Compile Include="Utils\UriHelper.cs" />
     <Compile Include="Packaging\ZipPackage.cs" />
+    <Compile Include="Utils\VBACompression.cs" />
     <Compile Include="VBA\ExcelVbaModule.cs" />
     <Compile Include="VBA\ExcelVbaModuleAttribute.cs" />
     <Compile Include="VBA\ExcelVbaModuleCollection.cs" />
@@ -766,7 +772,7 @@
     <Compile Include="Utils\AddressUtility.cs" />
     <Compile Include="Utils\Argument.cs" />
     <Compile Include="Utils\ArgumentExtensions.cs" />
-    <Compile Include="Utils\CompoundDocument.cs" />
+    <Compile Include="Utils\CompundDocument\CompoundDocument.cs" />
     <Compile Include="Utils\IArgument.cs" />
     <Compile Include="Utils\Require.cs" />
     <Compile Include="Utils\SqRefUtility.cs" />

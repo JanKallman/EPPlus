@@ -13,7 +13,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
     {
         private readonly string _groupSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberGroupSeparator;
         private readonly string _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
+#if Core
+        private readonly string _timeSeparator = ":";       //TODO: Core fix when available
+#else
         private readonly string _timeSeparator = CultureInfo.CurrentCulture.DateTimeFormat.TimeSeparator;
+#endif
         private readonly string _shortTimePattern = CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern;
         private readonly DateValue _dateValueFunc = new DateValue();
         private readonly TimeValue _timeValueFunc = new TimeValue();

@@ -56,8 +56,10 @@ namespace EPPlusTest
             Merge();
             Encoding();
             LoadText();
+#if !Core
             LoadDataReader();
             LoadDataTable();
+#endif
             LoadFromCollectionTest();
             LoadFromEmptyCollectionTest();
             LoadArray();
@@ -330,7 +332,9 @@ namespace EPPlusTest
                 Assert.IsNull(GetValueException<TimeSpan?>(   ws.Cells["AA18"]));
                 Assert.AreEqual(ws.Cells["AA18"].Text, " ");
             }
+#if !Core
             instream.Close();
+#endif
         }
 
         [Ignore]
@@ -366,7 +370,9 @@ namespace EPPlusTest
 
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
+#if !Core
             instream.Close();
+#endif
         }
         //[Ignore]
         //[TestMethod]
@@ -385,7 +391,9 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
                 pck.SaveAs(stream);
             }
+#if !Core
             instream.Close();
+#endif
         }
         //
         // You can use the following additional attributes as you write your tests:
@@ -546,7 +554,7 @@ namespace EPPlusTest
             _pck.Workbook.Properties.Manager = "Manager";
 
             _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
-            TestContext.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
+            Console.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
             _pck.Workbook.Properties.SetCustomPropertyValue("Author", "Jan Källman");
             _pck.Workbook.Properties.SetCustomPropertyValue("Count", 1);
             _pck.Workbook.Properties.SetCustomPropertyValue("IsTested", false);
@@ -559,7 +567,7 @@ namespace EPPlusTest
         public void Performance()
         {
             ExcelWorksheet ws = _pck.Workbook.Worksheets.Add("Perf");
-            TestContext.WriteLine("StartTime {0}", DateTime.Now);
+            Console.WriteLine("StartTime {0}", DateTime.Now);
 
             Random r = new Random();
             for (int i = 1; i <= PERF_ROWS; i++)
@@ -610,7 +618,7 @@ namespace EPPlusTest
             ws.DeleteRow(15, 2, true);
             ws.Cells["a1:B100"].Style.Locked = false;
             ws.Cells["a1:B12"].Style.Hidden = true;
-            TestContext.WriteLine("EndTime {0}", DateTime.Now);
+            Console.WriteLine("EndTime {0}", DateTime.Now);
         }
         //[Ignore]
         //[TestMethod]
@@ -1086,9 +1094,9 @@ namespace EPPlusTest
 
             ws.Cells[1, 1].Value = "Domestic Violence&#xB; and the Professional";
             var rt = ws.Cells[1, 2].RichText.Add("Domestic Violence&#xB; and the Professional 2");
-            TestContext.WriteLine(rt.Bold.ToString());
+            Console.WriteLine(rt.Bold.ToString());
             rt.Bold = true;
-            TestContext.WriteLine(rt.Bold.ToString());
+            Console.WriteLine(rt.Bold.ToString());
         }
         //[Ignore]
         //[TestMethod]
@@ -1596,6 +1604,7 @@ namespace EPPlusTest
             }
             p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
         }
+#if !Core
         //[TestMethod]
         public void LoadDataReader()
         {
@@ -1651,8 +1660,6 @@ namespace EPPlusTest
                 Assert.AreEqual(6, range.End.Row);
             }
         }
-
-
         //[TestMethod, Ignore]
         public void LoadDataTable()
         {
@@ -1709,7 +1716,7 @@ namespace EPPlusTest
 
             ws.Cells["D1"].LoadFromDataTable(dt, false);
         }
-
+#endif
         [TestMethod]
         public void LoadText_Bug15015()
         {
@@ -1890,7 +1897,7 @@ namespace EPPlusTest
             ws.Cells["A2"].Value = "Date Produced";
 
             ws.Cells["A2"].Style.Font.Bold = true;
-            ws.Cells["B2"].Value = DateTime.Now.ToShortDateString();
+            ws.Cells["B2"].Value = DateTime.Now.ToString("d");
             ws.Cells["D2"].Value = "Quantity";
             ws.Cells["D2"].Style.Font.Bold = true;
             ws.Cells["E2"].Value = "txt";
@@ -2729,7 +2736,7 @@ namespace EPPlusTest
             }
         }
 
-        #region Date1904 Test Cases
+#region Date1904 Test Cases
         [TestMethod]
         public void TestDate1904WithoutSetting()
         {
@@ -2968,14 +2975,18 @@ namespace EPPlusTest
             Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
             Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
         }
-        #endregion
+#endregion
 
         [TestMethod]
         public void DateFunctionsWorkWithDifferentCultureDateFormats()
         {
             var currentCulture = CultureInfo.CurrentCulture;
+#if Core
+            var us = CultureInfo.DefaultThreadCurrentCulture=new CultureInfo("en-US");
+#else
             var us = CultureInfo.CreateSpecificCulture("en-US");
             Thread.CurrentThread.CurrentCulture = us;
+#endif
             using (var package = new ExcelPackage())
             {
                 var ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -2986,8 +2997,12 @@ namespace EPPlusTest
                 Assert.AreEqual(41654.0, ws.Cells[2, 3].Value);
                 Assert.AreEqual(41670.0, ws.Cells[3, 3].Value);
             }
+#if Core
+            var gb = CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-GB");
+#else
             var gb = CultureInfo.CreateSpecificCulture("en-GB");
             Thread.CurrentThread.CurrentCulture = gb;
+#endif
             using (var package = new ExcelPackage())
             {
                 var ws = package.Workbook.Worksheets.Add("Sheet1");
@@ -2998,7 +3013,11 @@ namespace EPPlusTest
                 Assert.AreEqual(41654.0, ws.Cells[2, 3].Value);
                 Assert.AreEqual(41670.0, ws.Cells[3, 3].Value);
             }
+#if Core
+            CultureInfo.DefaultThreadCurrentCulture = currentCulture;
+#else
             Thread.CurrentThread.CurrentCulture = currentCulture;
+#endif
         }
         [TestMethod]
         public void CopySheetWithSharedFormula()

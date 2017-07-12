@@ -646,7 +646,7 @@ namespace OfficeOpenXml
 		internal bool GetXmlNodeBool(string path, bool blankValue)
 		{
 			string value = GetXmlNodeString(path);
-			if (value == "1" || value == "-1" || value.Equals("true",StringComparison.InvariantCultureIgnoreCase))
+			if (value == "1" || value == "-1" || value.Equals("true",StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
 			}
@@ -818,7 +818,11 @@ namespace OfficeOpenXml
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
-            settings.ProhibitDtd = true;
+#if(Core)
+            settings.DtdProcessing = DtdProcessing.Prohibit;
+#else
+            settings.ProhibitDtd = true;            
+#endif
             XmlReader reader = XmlReader.Create(stream, settings);
             xmlDoc.Load(reader);
         }

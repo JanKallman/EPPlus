@@ -36,6 +36,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 {
@@ -115,7 +116,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 					}
 					else if (Result is TimeSpan)
 					{
-						_ResultNumeric = DateTime.FromOADate(0).Add((TimeSpan)Result).ToOADate();
+						_ResultNumeric = DateTimeExtensions.FromOADate(0).Add((TimeSpan)Result).ToOADate();
 					}
 					else if (Result is ExcelDataProvider.IRangeInfo)
 					{
