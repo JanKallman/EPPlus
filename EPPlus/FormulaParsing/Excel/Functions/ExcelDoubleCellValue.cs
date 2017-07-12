@@ -51,7 +51,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         {
             return CompareTo(obj) == 0;
         }
-
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }        
         public static bool operator ==(ExcelDoubleCellValue a, ExcelDoubleCellValue b)
         {
             return a.Value.CompareTo(b.Value) == 0;

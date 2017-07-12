@@ -593,9 +593,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             int n = 0;
             bool done = false;
-#if !NETCF && !SILVERLIGHT
-            int retries = 0;
-#endif
+//#if !NETCF && !SILVERLIGHT
+//            int retries = 0;
+//#endif
             do
             {
                 try
