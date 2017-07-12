@@ -41,6 +41,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using Interop = System.Runtime.InteropServices;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
 namespace OfficeOpenXml.Packaging.Ionic.Zip
@@ -121,11 +122,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
     /// </para>
     ///
     /// </remarks>
-    [Interop.GuidAttribute("ebc25cf6-9120-4283-b972-0e5520d00005")]
-    [Interop.ComVisible(true)]
-#if !NETCF
-    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]
-#endif
+//    [Interop.GuidAttribute("ebc25cf6-9120-4283-b972-0e5520d00005")]
+//    [Interop.ComVisible(true)]
+//#if !NETCF
+//    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]
+//#endif
     internal partial class ZipFile :
     System.Collections.IEnumerable,
     System.Collections.Generic.IEnumerable<ZipEntry>,
@@ -2324,7 +2325,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             get
             {
+#if (Core)
+                return System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
+#else
                 return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
+#endif
             }
         }
 
@@ -2383,9 +2388,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
-        #region Constructors
+#region Constructors
 
         /// <summary>
         ///   Creates a new <c>ZipFile</c> instance, using the specified filename.
@@ -2857,11 +2862,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 
             return;
         }
-        #endregion
+#endregion
 
 
 
-        #region Indexers and Collections
+#region Indexers and Collections
 
         private List<ZipEntry> ZipEntriesAsList
         {
@@ -3415,9 +3420,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
-        #region Destructors and Disposers
+#region Destructors and Disposers
 
         //         /// <summary>
         //         /// This is the class Destructor, which gets called implicitly when the instance
@@ -3538,10 +3543,10 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                 this._disposed = true;
             }
         }
-        #endregion
+#endregion
 
 
-        #region private properties
+#region private properties
 
         internal Stream ReadStream
         {
@@ -3590,9 +3595,9 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                 _writestream = null;
             }
         }
-        #endregion
+#endregion
 
-        #region private fields
+#region private fields
         private TextWriter _StatusMessageTextWriter;
         private bool _CaseSensitiveRetrieval;
         private Stream _readstream;
@@ -3632,9 +3637,17 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         private Int64 _OffsetOfCentralDirectory64;
         private Nullable<bool> _OutputUsesZip64;
         internal bool _inExtractAll;
-        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("IBM437"); // UTF-8
+#if (Core)
+        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("UTF-8"); 
+#else
+        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("IBM437"); 
+#endif
         private ZipOption _alternateEncodingUsage = ZipOption.Never;
+#if (Core)
+        private static System.Text.Encoding _defaultEncoding = System.Text.Encoding.GetEncoding("UTF-8");
+#else
         private static System.Text.Encoding _defaultEncoding = System.Text.Encoding.GetEncoding("IBM437");
+#endif
 
         private int _BufferSize = BufferSizeDefault;
 
@@ -3654,7 +3667,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         /// </summary>
         public static readonly int BufferSizeDefault = 32768;
 
-        #endregion
+#endregion
     }
 
     /// <summary>
@@ -3833,7 +3846,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
 //
 // Data descriptor:  (used only when bit 3 of the general purpose bitfield is set)
 //         (although, I have found zip files where bit 3 is not set, yet this descriptor is present!)
-//         local file header signature     4 bytes  (0x08074b50)  ** sometimes!!! Not always
+//         local file header signature     4 bytes  (0x0Get074b50)  ** sometimes!!! Not always
 //         crc-32                          4 bytes
 //         compressed size                 4 bytes
 //         uncompressed size               4 bytes

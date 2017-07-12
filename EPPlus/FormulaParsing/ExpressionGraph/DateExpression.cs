@@ -28,6 +28,7 @@
  * ******************************************************************************
  * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
  *******************************************************************************/
+using OfficeOpenXml.CompatibilityExtensions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -47,7 +48,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
         public override CompileResult Compile()
         {
             var date = double.Parse(ExpressionString);
-            return new CompileResult(DateTime.FromOADate(date), DataType.Date);
+            return new CompileResult(DateTimeExtensions.FromOADate(date), DataType.Date);
         }
     }
 }

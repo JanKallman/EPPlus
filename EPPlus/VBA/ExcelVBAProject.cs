@@ -29,6 +29,7 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils.CompundDocument;
 
 namespace OfficeOpenXml.VBA
 {
@@ -63,9 +64,7 @@ namespace OfficeOpenXml.VBA
             {
                 Uri = UriHelper.ResolvePartUri(rel.SourceUri, rel.TargetUri);
                 Part = _pck.GetPart(Uri);
-#if !MONO
                 GetProject();                
-#endif
             }
             else
             {
@@ -107,7 +106,7 @@ namespace OfficeOpenXml.VBA
         /// <summary>
         /// Codepage for encoding. Default is current regional setting.
         /// </summary>
-        public int CodePage { get; internal set; }
+        public int CodePage  { get; internal set; }
         internal int LibFlags { get; set; }
         internal int MajorVersion { get; set; }
         internal int MinorVersion { get; set; }
@@ -154,7 +153,6 @@ namespace OfficeOpenXml.VBA
             }
         }
         #endregion
-#if !MONO
         #region Read Project
         private void GetProject()
         {
@@ -175,7 +173,7 @@ namespace OfficeOpenXml.VBA
             foreach (var modul in Modules)
             {
                 var stream = Document.Storage.SubStorage["VBA"].DataStreams[modul.streamName];
-                var byCode = CompoundDocument.DecompressPart(stream, (int)modul.ModuleOffset);
+                var byCode = VBACompression.DecompressPart(stream, (int)modul.ModuleOffset);
                 string code = Encoding.GetEncoding(CodePage).GetString(byCode);
                 int pos=0;
                 while(pos+9<code.Length && code.Substring(pos,9)=="Attribute")
@@ -393,7 +391,7 @@ namespace OfficeOpenXml.VBA
                     ret += value[i].ToString("x");
                 }
             }
-            return ret.ToUpper(CultureInfo.InvariantCulture);
+            return ret.ToUpperInvariant();
         }
         private byte[] GetByte(string value)
         {
@@ -406,7 +404,7 @@ namespace OfficeOpenXml.VBA
         }
         private void ReadDirStream()
         {
-            byte[] dir = CompoundDocument.DecompressPart(Document.Storage.SubStorage["VBA"].DataStreams["dir"]);
+            byte[] dir = VBACompression.DecompressPart(Document.Storage.SubStorage["VBA"].DataStreams["dir"]);
             MemoryStream ms = new MemoryStream(dir);
             BinaryReader br = new BinaryReader(ms);
             ExcelVbaReference currentRef = null;
@@ -569,7 +567,7 @@ namespace OfficeOpenXml.VBA
                 store.DataStreams.Add("dir", CreateDirStream());
                 foreach (var module in Modules)
                 {
-                    store.DataStreams.Add(module.Name, CompoundDocument.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Attributes.GetAttributeText() + module.Code)));
+                    store.DataStreams.Add(module.Name, VBACompression.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Attributes.GetAttributeText() + module.Code)));
                 }
 
                 //Copy streams from the template, if used.
@@ -600,9 +598,8 @@ namespace OfficeOpenXml.VBA
                     Part = _pck.CreatePart(Uri, ExcelPackage.schemaVBA);
                     var rel = _wb.Part.CreateRelationship(Uri, Packaging.TargetMode.Internal, schemaRelVba);
                 }
-                var vbaBuffer=doc.Save();
                 var st = Part.GetStream(FileMode.Create);
-                st.Write(vbaBuffer, 0, vbaBuffer.Length);
+                doc.Save(st);
                 st.Flush();
                 //Save the digital signture
                 Signature.Save(this);
@@ -738,7 +735,7 @@ namespace OfficeOpenXml.VBA
             bw.Write((ushort)0x10);             //Terminator
             bw.Write((uint)0);              
 
-            return CompoundDocument.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
+            return VBACompression.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
         }
 
         private void WriteModuleRecord(BinaryWriter bw, ExcelVBAModule module)
@@ -872,7 +869,7 @@ namespace OfficeOpenXml.VBA
                 bw.Write((ushort)0); //Null
             }
             bw.Write((ushort)0); //Null
-            return CompoundDocument.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
+            return VBACompression.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
         }       
         private byte[] CreateProjectStream()
         {
@@ -1018,10 +1015,8 @@ namespace OfficeOpenXml.VBA
             return sUC.Length == 0 ? s : sUC;
         }
         internal CompoundDocument Document { get; set; }
-#endif
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }
-#if !MONO
         /// <summary>
         /// Create a new VBA Project
         /// </summary>
@@ -1036,7 +1031,7 @@ namespace OfficeOpenXml.VBA
             SystemKind = eSyskind.Win32;            //Default
             Lcid = 1033;                            //English - United States
             LcidInvoke = 1033;                      //English - United States
-            CodePage = Encoding.Default.CodePage;
+            CodePage = Encoding.GetEncoding(0).CodePage;    //Switched from Default to make it work in Core
             MajorVersion = 1361024421;
             MinorVersion = 6;
             HelpContextID = 0;
@@ -1081,37 +1076,6 @@ namespace OfficeOpenXml.VBA
 
             return attr;
         }
-
-
-        //internal string GetBlankDocumentModule(string name, string clsid)
-        //{
-        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", clsid);  //Microsoft.Office.Interop.Excel.WorksheetClass
-        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
-        //    ret += "Attribute VB_Creatable = False\r\n";
-        //    ret += "Attribute VB_PredeclaredId = True\r\n";
-        //    ret += "Attribute VB_Exposed = True\r\n";
-        //    ret += "Attribute VB_TemplateDerived = False\r\n";
-        //    ret += "Attribute VB_Customizable = True";
-        //    return ret;
-        //}
-        //internal string GetBlankModule(string name)
-        //{
-        //    return string.Format("Attribute VB_Name = \"{0}\"\r\n", name);
-        //}
-        //internal string GetBlankClassModule(string name, bool exposed)
-        //{
-        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  
-        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
-        //    ret += "Attribute VB_Creatable = False\r\n";
-        //    ret += "Attribute VB_PredeclaredId = False\r\n";
-        //    ret += string.Format("Attribute VB_Exposed = {0}\r\n", exposed ? "True" : "False");
-        //    ret += "Attribute VB_TemplateDerived = False\r\n";
-        //    ret += "Attribute VB_Customizable = False\r\n";
-        //    return ret;
-        //}
-#endif
         /// <summary>
         /// Remove the project from the package
         /// </summary>

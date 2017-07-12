@@ -895,14 +895,13 @@ namespace OfficeOpenXml.Drawing.Chart
         public void RemoveGridlines()
         { 
             RemoveGridlines(true,true); 
-        } 
-  
-        /// <summary> 
-        /// Removes gridlines from the Axis 
-        /// </summary> 
-        /// <param name="removeMajor">Indicates if the Major gridlines should be removed</param> 
-        /// <param name="removeMinor">Indicates if the Minor gridlines should be removed</param> 
-        public void RemoveGridlines(bool removeMajor, bool removeMinor)
+        }
+        /// <summary>
+        ///  Removes gridlines from the Axis
+        /// </summary>
+        /// <param name="removeMajor">Indicates if the Major gridlines should be removed</param>
+        /// <param name="removeMinor">Indicates if the Minor gridlines should be removed</param>
+        public void RemoveGridlines(bool removeMajor, bool removeMinor)
         { 
             if (removeMajor) 
             { 

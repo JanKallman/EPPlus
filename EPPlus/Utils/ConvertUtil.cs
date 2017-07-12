@@ -7,6 +7,8 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.IO;
+using EPPlus.Core.Compatibility;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.Utils
 {
@@ -15,7 +17,7 @@ namespace OfficeOpenXml.Utils
         internal static bool IsNumeric(object candidate)
         {
             if (candidate == null) return false;
-            return (candidate.GetType().IsPrimitive || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
+            return (TypeCompat.IsPrimitive(candidate) || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
         }
 		/// <summary>
 		/// Tries to parse a double from the specified <paramref name="candidate"/> which is expected to be a string value.
@@ -92,7 +94,7 @@ namespace OfficeOpenXml.Utils
                     }
                     else if (v is TimeSpan)
                     {
-                        d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
+                        d = DateTimeExtensions.FromOADate(0).Add((TimeSpan)v).ToOADate();
                     }
                     else
                     {
@@ -265,7 +267,7 @@ namespace OfficeOpenXml.Utils
 
             var fromType = value.GetType();
             var toType = typeof(T);
-            var toNullableUnderlyingType = (toType.IsGenericType && toType.GetGenericTypeDefinition() == typeof(Nullable<>))
+            var toNullableUnderlyingType = (TypeCompat.IsGenericType(toType) && toType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 ? Nullable.GetUnderlyingType(toType)
                 : null;
 
@@ -281,7 +283,7 @@ namespace OfficeOpenXml.Utils
             if (toType == typeof(DateTime))
             {
                 if (value is double)
-                    return (T)(object)(DateTime.FromOADate((double)value));
+                    return (T)(object)(DateTimeExtensions.FromOADate((double)value));
 
                 if (fromType == typeof(TimeSpan))
                     return ((T)(object)(new DateTime(((TimeSpan)value).Ticks)));
@@ -292,7 +294,7 @@ namespace OfficeOpenXml.Utils
             else if (toType == typeof(TimeSpan))
             {
                 if (value is double)
-                    return (T)(object)(new TimeSpan(DateTime.FromOADate((double)value).Ticks));
+                    return (T)(object)(new TimeSpan(DateTimeExtensions.FromOADate((double)value).Ticks));
 
                 if (fromType == typeof(DateTime))
                     return ((T)(object)(new TimeSpan(((DateTime)value).Ticks)));
@@ -306,7 +308,7 @@ namespace OfficeOpenXml.Utils
 
         #region internal cache objects
         internal static TextInfo _invariantTextInfo = CultureInfo.InvariantCulture.TextInfo;
-        internal static CompareInfo _invariantCompareInfo = CompareInfo.GetCompareInfo(CultureInfo.InvariantCulture.LCID);
+        internal static CompareInfo _invariantCompareInfo = CompareInfo.GetCompareInfo(CultureInfo.InvariantCulture.Name);  //TODO:Check that it works
         #endregion
     }
 }

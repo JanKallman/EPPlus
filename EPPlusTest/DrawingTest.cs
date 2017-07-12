@@ -9,6 +9,7 @@ using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace EPPlusTest
 {
@@ -104,7 +105,9 @@ namespace EPPlusTest
             }
             else
             {
+#if (!Core)
                 TestContext.WriteLine("AG00021_.GIF does not exists. Skipping Pic7.");
+#endif
             }
 
             var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
@@ -801,7 +804,9 @@ namespace EPPlusTest
                 {
                     if (d is ExcelChart)
                     {
+#if (!Core)
                         TestContext.WriteLine(((ExcelChart)d).ChartType.ToString());
+#endif
                     }
                 }
             }
@@ -893,7 +898,12 @@ namespace EPPlusTest
         [TestMethod]
         public void AllDrawingsInsideMarkupCompatibility()
         {
+#if (Core)
+            string workbooksDir = Path.Combine(AppContext.BaseDirectory, @"..\..\workbooks");
+#else
             string workbooksDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\workbooks");
+#endif
+
             // This is codeplex issue 15028: Making an unrelated change to an Excel file that contains drawings that ALL exist
             // inside MarkupCompatibility/Choice nodes causes the drawings.xml file to be incorrectly garbage collected
             // when an unrelated change is made.

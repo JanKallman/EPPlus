@@ -47,7 +47,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
                 return CreateResult(false, DataType.Boolean);
             }
 
-            var result = string.Compare(val1.ToString(), val2.ToString(), StringComparison.InvariantCulture);
+            var result = string.Compare(val1.ToString(), val2.ToString(), StringComparison.Ordinal);
             return CreateResult(result == 0, DataType.Boolean);
         }
     }

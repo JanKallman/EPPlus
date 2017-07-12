@@ -99,7 +99,7 @@ namespace EPPlusSamples
 
                 Console.WriteLine();
                 Console.WriteLine("Print all cells with a value between 9500 and 10000 in column D and the year of Column C is {0} ...", DateTime.Today.Year + 1);
-                Console.WriteLine();    
+                Console.WriteLine();
 
                 count = 0;
                 foreach (var cell in query3)    //The cells returned here will all be in column D, since that is the address in the indexer. Use the Offset method to print any other cells from the same row.
