@@ -86,7 +86,8 @@ namespace EPPlusSamples
             wsEnum.Cells["A1"].LoadFromCollection(list, true, TableStyles.Medium9);
 
             //Add some formating...
-            wsEnum.Cells[2, 2, list.Count - 1, 2].Style.Numberformat.Format = "mm-dd-yy";
+            wsEnum.Cells[2, 2, list.Count + 1, 2].Style.Numberformat.Format = "#,##0";
+            wsEnum.Cells[2, 3, list.Count + 1, 4].Style.Numberformat.Format = "mm-dd-yy";
             wsEnum.Cells[wsEnum.Dimension.Address].AutoFitColumns();
 
             //Load a list of FileDTO objects from the datatable...
