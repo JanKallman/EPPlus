@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing
 {
@@ -18,7 +18,7 @@ namespace EPPlusTest.FormulaParsing
         [TestInitialize]
         public void Setup()
         {
-            _lifeTimeEventHandler = MockRepository.GenerateStub<IParsingLifetimeEventHandler>();
+            _lifeTimeEventHandler = A.Fake<IParsingLifetimeEventHandler>();
             _parsingScopes = new ParsingScopes(_lifeTimeEventHandler);
         }
 
@@ -71,7 +71,7 @@ namespace EPPlusTest.FormulaParsing
         {
             using (var scope = _parsingScopes.NewScope(RangeAddress.Empty))
             { }
-            _lifeTimeEventHandler.AssertWasCalled(x => x.ParsingCompleted());
+            A.CallTo(() => _lifeTimeEventHandler.ParsingCompleted()).MustHaveHappened();
         }
     }
 }

@@ -3,9 +3,10 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
+using FakeItEasy;
+
 namespace EPPlusTest.FormulaParsing.LexicalAnalysis
 {
     [TestClass]
@@ -19,8 +20,8 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         public void Setup()
         {
             var context = ParsingContext.Create();
-            var excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
-            _nameValueProvider = MockRepository.GenerateStub<INameValueProvider>();
+            var excelDataProvider = A.Fake<ExcelDataProvider>();
+            _nameValueProvider = A.Fake<INameValueProvider>();
             _tokenFactory = new TokenFactory(context.Configuration.FunctionRepository, _nameValueProvider);
         }
 
@@ -160,8 +161,8 @@ namespace EPPlusTest.FormulaParsing.LexicalAnalysis
         public void CreateShouldCreateNamedValueAsExcelAddressToken()
         {
             var input = "NamedValue";
-            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue","")).Return(true);
-            _nameValueProvider.Stub(x => x.IsNamedValue("NamedValue", null)).Return(true);
+            A.CallTo(() => _nameValueProvider.IsNamedValue("NamedValue","")).Returns(true);
+            A.CallTo(() => _nameValueProvider.IsNamedValue("NamedValue", null)).Returns(true);
             var token = _tokenFactory.Create(Enumerable.Empty<Token>(), input);
             Assert.AreEqual(TokenType.NameValue, token.TokenType);
             Assert.AreEqual("NamedValue", token.Value);

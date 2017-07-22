@@ -3,9 +3,9 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
+using FakeItEasy;
 
 namespace EPPlusTest.ExcelUtilities
 {
@@ -19,8 +19,8 @@ namespace EPPlusTest.ExcelUtilities
         [TestInitialize]
         public void Setup()
         {
-            _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
-            _excelDataProvider.Stub(x => x.ExcelMaxRows).Return(ExcelMaxRows);
+            _excelDataProvider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => _excelDataProvider.ExcelMaxRows).Returns(ExcelMaxRows);
             _addressTranslator = new AddressTranslator(_excelDataProvider);
         }
 

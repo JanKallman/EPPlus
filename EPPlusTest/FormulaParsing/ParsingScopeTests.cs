@@ -3,9 +3,9 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing
 {
@@ -19,10 +19,10 @@ namespace EPPlusTest.FormulaParsing
         [TestInitialize]
         public void Setup()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            var provider = A.Fake<ExcelDataProvider>();
             _factory = new RangeAddressFactory(provider);
-            _lifeTimeEventHandler = MockRepository.GenerateStub<IParsingLifetimeEventHandler>();
-            _parsingScopes = MockRepository.GenerateStub<ParsingScopes>(_lifeTimeEventHandler);
+            _lifeTimeEventHandler = A.Fake<IParsingLifetimeEventHandler>();
+            _parsingScopes = A.Fake<ParsingScopes>();
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace EPPlusTest.FormulaParsing
         {
             var scope = new ParsingScope(_parsingScopes, _factory.Create("A1"));
             ((IDisposable)scope).Dispose();
-            _parsingScopes.AssertWasCalled(x => x.KillScope(scope));
+           A.CallTo(() => _parsingScopes.KillScope(scope)).MustHaveHappened();
         }
     }
 }

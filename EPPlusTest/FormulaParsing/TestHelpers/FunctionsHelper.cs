@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
-using Rhino.Mocks;
-using Rhino.Mocks.Constraints;
 
 namespace EPPlusTest.FormulaParsing.TestHelpers
 {
