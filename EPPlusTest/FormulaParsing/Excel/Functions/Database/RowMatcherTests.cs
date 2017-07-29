@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Database;
-using Rhino.Mocks;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing.Excel.Functions.Database
 {
@@ -12,10 +12,10 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Database
     {
         private ExcelDatabaseCriteria GetCriteria(Dictionary<ExcelDatabaseCriteriaField, object> items)
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            var criteria = MockRepository.GenerateStub<ExcelDatabaseCriteria>(provider, string.Empty);
-            
-            criteria.Stub(x => x.Items).Return(items);
+            var provider = A.Fake<ExcelDataProvider>();
+            var criteria = A.Fake<ExcelDatabaseCriteria>();// (provider, string.Empty);
+
+            A.CallTo(() => criteria.Items).Returns(items);
             return criteria;
         }
         [TestMethod]

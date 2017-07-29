@@ -3,9 +3,9 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.ExcelDataProviderTests
 {
@@ -17,18 +17,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.ExcelDataProviderTests
             return new ExcelCell(val, null, 0, row);
         }
 
-        //[TestMethod]
-        //public void ShouldCallProviderInSumFunctionAndCalculateResult()
-        //{
-        //    var expectedAddres = "A1:A2";
-        //    var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-        //    provider
-        //        .Stub(x => x.GetRangeValues(string.Empty, expectedAddres))
-        //        .Return(new object[] { 1, 2 });
-        //    var parser = new FormulaParser(provider);
-        //    var result = parser.Parse(string.Format("sum({0})", expectedAddres));
-        //    Assert.AreEqual(3d, result);
-        //}
+      
 
         //[TestMethod]
         //public void ShouldExecuteFormulaInRange()

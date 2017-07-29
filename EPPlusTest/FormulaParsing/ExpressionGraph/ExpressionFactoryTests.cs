@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using FakeItEasy;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
@@ -20,7 +20,7 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         public void Setup()
         {
             _parsingContext = ParsingContext.Create();
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            var provider = A.Fake<ExcelDataProvider>();
             _factory = new ExpressionFactory(provider, _parsingContext);
         }
 

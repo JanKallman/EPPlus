@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using Rhino.Mocks;
+using FakeItEasy;
 using System.IO;
 using System.Threading;
 
@@ -19,7 +19,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestInitialize]
         public void Setup()
         {
-            var excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
+            var excelDataProvider = A.Fake<ExcelDataProvider>();
             _parser = new FormulaParser(excelDataProvider);
         }
 

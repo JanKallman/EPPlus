@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using FakeItEasy;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
 
@@ -18,8 +18,8 @@ namespace EPPlusTest.ExcelUtilities
         [TestInitialize]
         public void Setup()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.ExcelMaxRows).Return(ExcelMaxRows);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.ExcelMaxRows).Returns(ExcelMaxRows);
             _factory = new RangeAddressFactory(provider);
         }
 

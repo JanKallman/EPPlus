@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph.CompileStrategy;
-using Rhino.Mocks;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.FormulaParsing.Excel.Operators;
 using OfficeOpenXml.FormulaParsing;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing.ExpressionGraph
 {
@@ -21,7 +21,7 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         [TestInitialize]
         public void Setup()
         {
-            _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
+            _excelDataProvider = A.Fake<ExcelDataProvider>();
             var parsingContext = ParsingContext.Create();
             _graphBuilder = new ExpressionGraphBuilder(_excelDataProvider, parsingContext);
         }
