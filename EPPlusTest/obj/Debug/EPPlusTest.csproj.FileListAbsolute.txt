@@ -1,6 +1,3 @@
-C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.csprojResolveAssemblyReference.cache
-C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.Properties.Resources.resources
-C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.csproj.GenerateResource.Cache
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\Workbooks\FormulaTest.xlsx
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\EPPlusTest.dll
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\EPPlusTest.pdb
@@ -10,5 +7,8 @@ C:\Development\git\EPPlus\EPPlusTest\bin\Debug\EPPlus.pdb
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\EPPlus.xml
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\FakeItEasy.pdb
 C:\Development\git\EPPlus\EPPlusTest\bin\Debug\FakeItEasy.xml
+C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.csprojResolveAssemblyReference.cache
+C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.Properties.Resources.resources
+C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.csproj.GenerateResource.Cache
 C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.dll
 C:\Development\git\EPPlus\EPPlusTest\obj\Debug\EPPlusTest.pdb

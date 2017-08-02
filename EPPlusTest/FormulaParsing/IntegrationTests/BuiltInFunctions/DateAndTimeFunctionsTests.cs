@@ -6,6 +6,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing;
+using OfficeOpenXml.CompatibilityExtensions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using FakeItEasy;
 using System.IO;
@@ -49,14 +50,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void TodayShouldReturnAResult()
         {
             var result = _parser.Parse("Today()");
-            Assert.IsInstanceOfType(DateTime.FromOADate((double)result), typeof(DateTime));
+            Assert.IsInstanceOfType(DateTimeExtensions.FromOADate((double)result), typeof(DateTime));
         }
 
         [TestMethod]
         public void NowShouldReturnAResult()
         {
             var result = _parser.Parse("now()");
-            Assert.IsInstanceOfType(DateTime.FromOADate((double)result), typeof(DateTime));
+            Assert.IsInstanceOfType(DateTimeExtensions.FromOADate((double)result), typeof(DateTime));
         }
 
         [TestMethod]
@@ -216,7 +217,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             ws.Calculate();
             Assert.AreEqual(12, ws.Cells["B1"].Value);
         }
-
+#if (!Core)
         [TestMethod]
         public void DateValueTest1()
         {
@@ -268,6 +269,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             Assert.AreEqual(new DateTime(expectedYear, 1, 1).ToOADate(), ws.Cells["B1"].Value);
         }
 
+
         [TestMethod]
         public void TimeValueTestPm()
         {
@@ -282,6 +284,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             Assert.AreEqual(0.599, Math.Round(result, 3));
         }
 
+
         [TestMethod]
         public void TimeValueTestFullDate()
         {
@@ -295,5 +298,6 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
             var result = (double)ws.Cells["B1"].Value;
             Assert.AreEqual(0.099, Math.Round(result, 3));
         }
+#endif
     }
 }

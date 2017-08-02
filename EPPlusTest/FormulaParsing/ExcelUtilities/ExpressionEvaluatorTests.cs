@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using System.Collections.Generic;
-using System.Diagnostics.Design;
+//using System.Diagnostics.Design;
 using System.Globalization;
 using System.Linq;
 using System.Threading;

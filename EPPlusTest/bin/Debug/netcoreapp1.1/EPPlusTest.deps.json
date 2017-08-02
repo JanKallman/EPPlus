@@ -1,7 +1,7 @@
 {
   "runtimeTarget": {
     "name": ".NETCoreApp,Version=v1.1",
-    "signature": "1e67941643b5774cbe09c05ed97dab530cb3434c"
+    "signature": "6ee600cef20868c07b730f16d56397291a7a221a"
   },
   "compilationOptions": {},
   "targets": {
@@ -9,6 +9,7 @@
       "epplustest/1.0.0": {
         "dependencies": {
           "EPPlus.Core": "1.0.0",
+          "FakeItEasy": "4.0.0",
           "MSTest.TestAdapter": "1.1.11",
           "MSTest.TestFramework": "1.1.11",
           "Microsoft.NET.Test.Sdk": "15.0.0",
@@ -16,6 +17,17 @@
         },
         "runtime": {
           "EPPlusTest.dll": {}
+        }
+      },
+      "castle.core/4.1.0": {
+        "dependencies": {
+          "System.Collections.Specialized": "4.3.0",
+          "System.ComponentModel.TypeConverter": "4.3.0",
+          "System.Diagnostics.TraceSource": "4.3.0",
+          "System.Xml.XmlDocument": "4.3.0"
+        },
+        "runtime": {
+          "lib/netstandard1.3/Castle.Core.dll": {}
         }
       },
       "corecompat.system.drawing/1.0.0-beta006": {
@@ -29,6 +41,29 @@
           "lib/netstandard1.3/CoreCompat.System.Drawing.dll": {}
         }
       },
+      "fakeiteasy/4.0.0": {
+        "dependencies": {
+          "Castle.Core": "4.1.0",
+          "Microsoft.Extensions.DependencyModel": "1.0.0"
+        },
+        "runtime": {
+          "lib/netstandard1.6/FakeItEasy.dll": {}
+        }
+      },
+      "microsoft.dotnet.internalabstractions/1.0.0": {
+        "runtime": {
+          "lib/netstandard1.3/Microsoft.DotNet.InternalAbstractions.dll": {}
+        }
+      },
+      "microsoft.extensions.dependencymodel/1.0.0": {
+        "dependencies": {
+          "Microsoft.DotNet.InternalAbstractions": "1.0.0",
+          "Newtonsoft.Json": "9.0.1"
+        },
+        "runtime": {
+          "lib/netstandard1.6/Microsoft.Extensions.DependencyModel.dll": {}
+        }
+      },
       "microsoft.net.test.sdk/15.0.0": {
         "dependencies": {
           "Microsoft.TestPlatform.TestHost": "15.0.0"
@@ -39,7 +74,7 @@
           "System.ComponentModel.EventBasedAsync": "4.0.11",
           "System.ComponentModel.TypeConverter": "4.3.0",
           "System.Diagnostics.TextWriterTraceListener": "4.0.0",
-          "System.Diagnostics.TraceSource": "4.0.0",
+          "System.Diagnostics.TraceSource": "4.3.0",
           "System.Runtime.Serialization.Json": "4.0.2",
           "System.Runtime.Serialization.Primitives": "4.1.1",
           "System.Xml.XPath.XmlDocument": "4.3.0"
@@ -315,13 +350,13 @@
       },
       "system.diagnostics.textwritertracelistener/4.0.0": {
         "dependencies": {
-          "System.Diagnostics.TraceSource": "4.0.0"
+          "System.Diagnostics.TraceSource": "4.3.0"
         },
         "runtime": {
           "lib/netstandard1.3/System.Diagnostics.TextWriterTraceListener.dll": {}
         }
       },
-      "system.diagnostics.tracesource/4.0.0": {
+      "system.diagnostics.tracesource/4.3.0": {
         "runtimeTargets": {
           "runtimes/unix/lib/netstandard1.3/System.Diagnostics.TraceSource.dll": {
             "rid": "unix",
@@ -432,12 +467,40 @@
       "serviceable": false,
       "sha512": ""
     },
+    "castle.core/4.1.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-1cUDbDJtCKE+JPkcz2H8obqkjYuReE1cuINx/ewZQ6nHPO8oEQUtlu2n8kNlBPp22Mm2oC+LOBfkc8rDEVhfQA==",
+      "path": "castle.core/4.1.0",
+      "hashPath": "castle.core.4.1.0.nupkg.sha512"
+    },
     "corecompat.system.drawing/1.0.0-beta006": {
       "type": "package",
       "serviceable": true,
       "sha512": "sha512-KOBeVy8FHx9zkXrIZAM8OdXPrimROmvfB02fOegrYIelNN/zWhsOwzONgD7gw7wOTJgAFfdwpme5CiMraJj47Q==",
       "path": "corecompat.system.drawing/1.0.0-beta006",
       "hashPath": "corecompat.system.drawing.1.0.0-beta006.nupkg.sha512"
+    },
+    "fakeiteasy/4.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-KU80qHCR7LktmluZKVGD/K5oHP3A7VDUF945cH4//iU8WPJ+xZKQfIBjuNeBpSb+iAWeakIzHqOYL5sqnkDskw==",
+      "path": "fakeiteasy/4.0.0",
+      "hashPath": "fakeiteasy.4.0.0.nupkg.sha512"
+    },
+    "microsoft.dotnet.internalabstractions/1.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AAguUq7YyKk3yDWPoWA8DrLZvURxB/LrDdTn1h5lmPeznkFUpfC3p459w5mQYQE0qpquf/CkSQZ0etiV5vRHFA==",
+      "path": "microsoft.dotnet.internalabstractions/1.0.0",
+      "hashPath": "microsoft.dotnet.internalabstractions.1.0.0.nupkg.sha512"
+    },
+    "microsoft.extensions.dependencymodel/1.0.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-n55Y2T4qMgCNMrJaqAN+nlG2EH4XL+e9uxIg4vdFsQeF+L8UKxRdD3C35Bt+xk3vO3Zwp3g+6KFq2VPH2COSmg==",
+      "path": "microsoft.extensions.dependencymodel/1.0.0",
+      "hashPath": "microsoft.extensions.dependencymodel.1.0.0.nupkg.sha512"
     },
     "microsoft.net.test.sdk/15.0.0": {
       "type": "package",
@@ -530,12 +593,12 @@
       "path": "system.diagnostics.textwritertracelistener/4.0.0",
       "hashPath": "system.diagnostics.textwritertracelistener.4.0.0.nupkg.sha512"
     },
-    "system.diagnostics.tracesource/4.0.0": {
+    "system.diagnostics.tracesource/4.3.0": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-6WVCczFZKXwpWpzd/iJkYnsmWTSFFiU24Xx/YdHXBcu+nFI/ehTgeqdJQFbtRPzbrO3KtRNjvkhtj4t5/WwWsA==",
-      "path": "system.diagnostics.tracesource/4.0.0",
-      "hashPath": "system.diagnostics.tracesource.4.0.0.nupkg.sha512"
+      "sha512": "sha512-VnYp1NxGx8Ww731y2LJ1vpfb/DKVNKEZ8Jsh5SgQTZREL/YpWRArgh9pI8CDLmgHspZmLL697CaLvH85qQpRiw==",
+      "path": "system.diagnostics.tracesource/4.3.0",
+      "hashPath": "system.diagnostics.tracesource.4.3.0.nupkg.sha512"
     },
     "system.drawing.primitives/4.0.0": {
       "type": "package",
