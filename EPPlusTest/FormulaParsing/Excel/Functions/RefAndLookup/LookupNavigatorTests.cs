@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
-using Rhino.Mocks;
+using FakeItEasy;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml.FormulaParsing;
@@ -48,9 +48,9 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void CurrentValueShouldBeFirstCell()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName,2, 1)).Returns(4);
             var args = GetArgs(3, "A1:B2", 1);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(3, navigator.CurrentValue);
@@ -59,9 +59,9 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void MoveNextShouldReturnFalseIfLastCell()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName,2, 1)).Returns(4);
             var args = GetArgs(3, "A1:B1", 1);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.IsFalse(navigator.MoveNext());
@@ -70,10 +70,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void HasNextShouldBeTrueIfNotLastCell()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetDimensionEnd(A<string>.Ignored)).Returns(new ExcelCellAddress(5, 5));
+            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName,2, 1)).Returns(4);
             var args = GetArgs(3, "A1:B2", 1);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.IsTrue(navigator.MoveNext());
@@ -82,9 +82,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void MoveNextShouldNavigateVertically()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetCellValue(WorksheetName,1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName,2, 1)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName,2, 1)).Returns(4);
+            A.CallTo(() => provider.GetDimensionEnd(A<string>.Ignored)).Returns(new ExcelCellAddress(100, 10));
             var args = GetArgs(6, "A1:B2", 1);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             navigator.MoveNext();
@@ -94,10 +95,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void MoveNextShouldIncreaseIndex()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetDimensionEnd(A<string>.Ignored)).Returns(new ExcelCellAddress(5, 5));
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 1, 2)).Returns(4);
             var args = GetArgs(6, "A1:B2", 1);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(0, navigator.Index);
@@ -108,10 +109,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void GetLookupValueShouldReturnCorrespondingValue()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 2)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetDimensionEnd(A<string>.Ignored)).Returns(new ExcelCellAddress(5, 5));
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 1, 2)).Returns(4);
             var args = GetArgs(6, "A1:B2", 2);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(4, navigator.GetLookupValue());
@@ -120,10 +121,10 @@ namespace EPPlusTest.Excel.Functions.RefAndLookup
         [TestMethod]
         public void GetLookupValueShouldReturnCorrespondingValueWithOffset()
         {
-            var provider = MockRepository.GenerateStub<ExcelDataProvider>();
-            provider.Stub(x => x.GetDimensionEnd(Arg<string>.Is.Anything)).Return(new ExcelCellAddress(5, 5));
-            provider.Stub(x => x.GetCellValue(WorksheetName, 1, 1)).Return(3);
-            provider.Stub(x => x.GetCellValue(WorksheetName, 3, 3)).Return(4);
+            var provider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => provider.GetDimensionEnd(A<string>.Ignored)).Returns(new ExcelCellAddress(5, 5));
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 1, 1)).Returns(3);
+            A.CallTo(() => provider.GetCellValue(WorksheetName, 3, 3)).Returns(4);
             var args = new LookupArguments(3, "A1:A4", 3, 2, false,null);
             var navigator = LookupNavigatorFactory.Create(LookupDirection.Vertical, args, GetContext(provider));
             Assert.AreEqual(4, navigator.GetLookupValue());

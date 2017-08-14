@@ -3,7 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rhino.Mocks;
+using FakeItEasy;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
@@ -23,8 +23,8 @@ namespace EPPlusTest.ExcelUtilities
 
         private void SetupTranslator(int maxRows, ExcelReferenceType refType)
         {
-            _excelDataProvider = MockRepository.GenerateStub<ExcelDataProvider>();
-            _excelDataProvider.Stub(x => x.ExcelMaxRows).Return(maxRows);
+            _excelDataProvider = A.Fake<ExcelDataProvider>();
+            A.CallTo(() => _excelDataProvider.ExcelMaxRows).Returns(maxRows);
             _indexToAddressTranslator = new IndexToAddressTranslator(_excelDataProvider, refType);
         }
 
@@ -72,7 +72,7 @@ namespace EPPlusTest.ExcelUtilities
         [TestMethod]
         public void ShouldTranslateToEntireColumnWhenRowIsEqualToMaxRows()
         {
-            _excelDataProvider.Stub(x => x.ExcelMaxRows).Return(123456);
+            A.CallTo(() => _excelDataProvider.ExcelMaxRows).Returns(123456);
             var result = _indexToAddressTranslator.ToAddress(1, 123456);
             Assert.AreEqual("A", result);
         }

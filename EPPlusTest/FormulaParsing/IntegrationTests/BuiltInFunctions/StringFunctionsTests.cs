@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing;
-using Rhino.Mocks;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
 {
@@ -15,14 +15,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         [TestInitialize]
         public void Setup()
         {
-            _provider = MockRepository.GenerateStub<ExcelDataProvider>();
+            _provider = A.Fake<ExcelDataProvider>();
             _parser = new FormulaParser(_provider);
         }
 
         [TestMethod]
         public void TextShouldConcatenateWithNextExpression()
         {
-            _provider.Stub(x => x.GetFormat(23.5, "$0.00")).Return("$23.50");
+            A.CallTo(() =>_provider.GetFormat(23.5, "$0.00")).Returns("$23.50");
             var result = _parser.Parse("TEXT(23.5,\"$0.00\") & \" per hour\"");
             Assert.AreEqual("$23.50 per hour", result);
         }

@@ -1,0 +1,12 @@
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.dll.config
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.deps.json
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.runtimeconfig.json
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.runtimeconfig.dev.json
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.dll
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\SampleApp.Core.pdb
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\EPPlus.Core.dll
+C:\Development\git\EPPlus\SampleApp\bin\Debug\netcoreapp1.1\EPPlus.Core.pdb
+C:\Development\git\EPPlus\SampleApp\obj\Debug\netcoreapp1.1\SampleApp.Core.csprojResolveAssemblyReference.cache
+C:\Development\git\EPPlus\SampleApp\obj\Debug\netcoreapp1.1\SampleApp.Core.AssemblyInfo.cs
+C:\Development\git\EPPlus\SampleApp\obj\Debug\netcoreapp1.1\SampleApp.Core.dll
+C:\Development\git\EPPlus\SampleApp\obj\Debug\netcoreapp1.1\SampleApp.Core.pdb

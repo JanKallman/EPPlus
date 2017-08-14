@@ -1,0 +1,7 @@
+C:\Development\git\EPPlus\EPPlus\bin\Debug\netcoreapp1.1\EPPlus.Core.deps.json
+C:\Development\git\EPPlus\EPPlus\bin\Debug\netcoreapp1.1\EPPlus.Core.dll
+C:\Development\git\EPPlus\EPPlus\bin\Debug\netcoreapp1.1\EPPlus.Core.pdb
+C:\Development\git\EPPlus\EPPlus\obj\Debug\netcoreapp1.1\EPPlus.Core.AssemblyInfo.cs
+C:\Development\git\EPPlus\EPPlus\obj\Debug\netcoreapp1.1\EPPlus.Core.dll
+C:\Development\git\EPPlus\EPPlus\obj\Debug\netcoreapp1.1\EPPlus.Core.pdb
+C:\Development\git\EPPlus\EPPlus\obj\Debug\netcoreapp1.1\EPPlus.Core.csprojResolveAssemblyReference.cache

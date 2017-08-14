@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
+using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest.Excel.Functions
 {

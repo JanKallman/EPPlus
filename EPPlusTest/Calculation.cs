@@ -93,6 +93,7 @@ namespace EPPlusTest
         {
 #if Core
             var dir = AppContext.BaseDirectory;
+            dir = Directory.GetParent(dir).Parent.Parent.FullName;
 #else
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 #endif
@@ -105,6 +106,7 @@ namespace EPPlusTest
         {
 #if Core
             var dir = AppContext.BaseDirectory;
+            dir = Directory.GetParent(dir).Parent.Parent.FullName;
 #else
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 #endif

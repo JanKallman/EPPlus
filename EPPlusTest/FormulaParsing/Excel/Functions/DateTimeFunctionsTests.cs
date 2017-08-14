@@ -9,6 +9,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using EPPlusTest.FormulaParsing.TestHelpers;
 using OfficeOpenXml;
+using OfficeOpenXml.CompatibilityExtensions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 
@@ -64,7 +65,7 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             Thread.Sleep(1);
             var endTime = DateTime.Now;
-            var resultDate = DateTime.FromOADate((double)result.Result);
+            var resultDate = DateTimeExtensions.FromOADate((double)result.Result);
             Assert.IsTrue(resultDate > startTime && resultDate < endTime);
         }
 
@@ -74,7 +75,7 @@ namespace EPPlusTest.Excel.Functions
             var func = new Today();
             var args = new FunctionArgument[0];
             var result = func.Execute(args, _parsingContext);
-            var resultDate = DateTime.FromOADate((double)result.Result);
+            var resultDate = DateTimeExtensions.FromOADate((double)result.Result);
             Assert.AreEqual(DateTime.Now.Date, resultDate);
         }
 
@@ -280,9 +281,9 @@ namespace EPPlusTest.Excel.Functions
             var r2 = func.Execute(FunctionsHelper.CreateArgs(dt2arg, -1), _parsingContext);
             var r3 = func.Execute(FunctionsHelper.CreateArgs(dt3arg, 2), _parsingContext);
 
-            var dt1 = DateTime.FromOADate((double) r1.Result);
-            var dt2 = DateTime.FromOADate((double)r2.Result);
-            var dt3 = DateTime.FromOADate((double)r3.Result);
+            var dt1 = DateTimeExtensions.FromOADate((double) r1.Result);
+            var dt2 = DateTimeExtensions.FromOADate((double)r2.Result);
+            var dt3 = DateTimeExtensions.FromOADate((double)r3.Result);
 
             var exp1 = new DateTime(2012, 2, 29);
             var exp2 = new DateTime(2012, 12, 1);
@@ -454,7 +455,7 @@ namespace EPPlusTest.Excel.Functions
             var func = new Workday();
             var args = FunctionsHelper.CreateArgs(inputDate, -30);
             var result = func.Execute(args, _parsingContext);
-            Assert.AreEqual(DateTime.FromOADate(expectedDate), DateTime.FromOADate((double)result.Result));
+            Assert.AreEqual(DateTimeExtensions.FromOADate(expectedDate), DateTimeExtensions.FromOADate((double)result.Result));
         }
 
         [TestMethod]

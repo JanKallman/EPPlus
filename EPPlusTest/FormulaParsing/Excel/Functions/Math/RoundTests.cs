@@ -89,7 +89,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
                 new FunctionArgument(value1),
                 new FunctionArgument(digits)
             }, ParsingContext.Create());
-            Assert.AreEqual(126D, result.Result);
+            Assert.AreEqual(130D, result.Result);
         }
 
         [TestMethod]

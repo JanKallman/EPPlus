@@ -6,7 +6,7 @@ using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using Rhino.Mocks;
+using FakeItEasy;
 
 namespace EPPlusTest.FormulaParsing.ExpressionGraph
 {
@@ -43,7 +43,7 @@ namespace EPPlusTest.FormulaParsing.ExpressionGraph
         [TestMethod, ExpectedException(typeof(ArgumentNullException))]
         public void ConstructorShouldThrowIfParsingContextIsNull()
         {
-            new ExcelAddressExpression("A1", MockRepository.GenerateStub<ExcelDataProvider>(), null);
+            new ExcelAddressExpression("A1", A.Fake<ExcelDataProvider>(), null);
         }
 
         //TODO:Fix Test /Janne

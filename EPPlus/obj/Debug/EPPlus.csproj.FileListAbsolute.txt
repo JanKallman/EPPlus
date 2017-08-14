@@ -1,0 +1,12 @@
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.XML
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.dll
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.pdb
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.csprojResolveAssemblyReference.cache
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.dll
+C:\Users\mats.alm\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.pdb
+C:\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.XML
+C:\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.dll
+C:\Development\git\EPPlus\EPPlus\bin\Debug\EPPlus.pdb
+C:\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.csprojResolveAssemblyReference.cache
+C:\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.dll
+C:\Development\git\EPPlus\EPPlus\obj\Debug\EPPlus.pdb
