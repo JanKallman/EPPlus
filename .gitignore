@@ -33,7 +33,7 @@ obj/
 [Tt]est[Rr]esults 
 Ankh.NoLoad
 *.[Pp]ublish.xml
-.vs/config/applicationhost.config
+.vs/
 
 #Tooling
 _ReSharper*/
