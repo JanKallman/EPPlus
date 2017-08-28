@@ -100,7 +100,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                 LowValue = new ExcelConditionalFormattingColorScaleValue(
                   eExcelConditionalFormattingValueObjectPosition.Low,
                   eExcelConditionalFormattingValueObjectType.Min,
-                  ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
+                  ExcelConditionalFormattingConstants.Colors.CfvoLowValue,
                   eExcelConditionalFormattingRuleType.ThreeColorScale,
                   address,
                   priority,
@@ -111,7 +111,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                 MiddleValue = new ExcelConditionalFormattingColorScaleValue(
                   eExcelConditionalFormattingValueObjectPosition.Middle,
                   eExcelConditionalFormattingValueObjectType.Percent,
-                  ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue),
+                  ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue,
                   50,
                   string.Empty,
                   eExcelConditionalFormattingRuleType.ThreeColorScale,
@@ -124,7 +124,7 @@ namespace OfficeOpenXml.ConditionalFormatting
                 HighValue = new ExcelConditionalFormattingColorScaleValue(
                   eExcelConditionalFormattingValueObjectPosition.High,
                   eExcelConditionalFormattingValueObjectType.Max,
-                  ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
+                  ExcelConditionalFormattingConstants.Colors.CfvoHighValue,
                   eExcelConditionalFormattingRuleType.ThreeColorScale,
                   address,
                   priority,

@@ -18,7 +18,7 @@ namespace EPPlusTest.Drawing.Chart
         /// <summary>
         /// Basic test to check output with excel. need enhanced to be stand alone checking
         /// </summary>
-        [TestMethod]
+        [TestMethod,Ignore]
         public void DataTableFile()
         {
             string outfile = Path.Combine(_worksheetPath, "DataTableFile.xlsx");

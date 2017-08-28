@@ -6,7 +6,6 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.FormulaParsing;
-using OfficeOpenXml.CompatibilityExtensions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using FakeItEasy;
 using System.IO;
@@ -50,14 +49,14 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         public void TodayShouldReturnAResult()
         {
             var result = _parser.Parse("Today()");
-            Assert.IsInstanceOfType(DateTimeExtensions.FromOADate((double)result), typeof(DateTime));
+            Assert.IsInstanceOfType(DateTime.FromOADate((double)result), typeof(DateTime));
         }
 
         [TestMethod]
         public void NowShouldReturnAResult()
         {
             var result = _parser.Parse("now()");
-            Assert.IsInstanceOfType(DateTimeExtensions.FromOADate((double)result), typeof(DateTime));
+            Assert.IsInstanceOfType(DateTime.FromOADate((double)result), typeof(DateTime));
         }
 
         [TestMethod]

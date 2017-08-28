@@ -1501,16 +1501,12 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             if (output == null) return;
 
-#if !Core
             output.Close();
-#endif
-output.Dispose();
+            output.Dispose();
             // by calling Close() on the deflate stream, we write the footer bytes, as necessary.
             if ((compressor as Ionic.Zlib.DeflateStream) != null)
             {
-#if !Core
                 compressor.Close();
-#endif
                 compressor.Dispose();
             }
 #if BZIP
@@ -1525,17 +1521,13 @@ output.Dispose();
 #if !NETCF
             else if ((compressor as Ionic.Zlib.ParallelDeflateOutputStream) != null)
             {
-#if(!Core)
                 compressor.Close();
-#endif
                 compressor.Dispose();
             }
 #endif
 
             encryptor.Flush();
-#if (!Core)
             encryptor.Close();
-#endif
             encryptor.Dispose();
             _LengthOfTrailer = 0;
 

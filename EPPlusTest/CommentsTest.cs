@@ -70,9 +70,7 @@ namespace EPPlusTest
                     Assert.AreEqual("hidden", stylesDict["visibility"]);
                     Assert.IsFalse(a1.Comment.Visible);
                     pkg.Save();
-#if !Core
                     ms.Close();
-#endif
                 }
             }
             finally

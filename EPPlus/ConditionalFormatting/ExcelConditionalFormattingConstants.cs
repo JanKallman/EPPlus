@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -274,9 +275,9 @@ namespace OfficeOpenXml.ConditionalFormatting
     #region Colors
     internal class Colors
     {
-      internal const string CfvoLowValue = @"#FFF8696B";
-      internal const string CfvoMiddleValue = @"#FFFFEB84";
-      internal const string CfvoHighValue = @"#FF63BE7B";
+      internal static readonly Color CfvoLowValue = Color.FromArgb(0xFF,0xF8,0x69,0x6B);
+      internal static readonly Color CfvoMiddleValue = Color.FromArgb(0xFF,0xFF,0xEB,0x84);
+      internal static readonly Color CfvoHighValue = Color.FromArgb(0xFF,0x63,0xBE,0x7B);
     }
     #endregion Colors
   }

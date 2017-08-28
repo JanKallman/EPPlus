@@ -28,7 +28,6 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Exceptions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -39,7 +38,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             ValidateArguments(arguments, 1);
             var serialNumber = ArgToDecimal(arguments, 0);
             var returnType = arguments.Count() > 1 ? ArgToInt(arguments, 1) : 1;
-            return CreateResult(CalculateDayOfWeek(DateTimeExtensions.FromOADate(serialNumber), returnType), DataType.Integer);
+            return CreateResult(CalculateDayOfWeek(System.DateTime.FromOADate(serialNumber), returnType), DataType.Integer);
         }
 
         private static List<int> _oneBasedStartOnSunday = new List<int> { 1, 2, 3, 4, 5, 6, 7 };

@@ -56,7 +56,6 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
-using OfficeOpenXml.CompatibilityExtensions;
 using EPPlus.Core.Compatibility;
 
 namespace OfficeOpenXml
@@ -1040,7 +1039,7 @@ namespace OfficeOpenXml
 				}
 				else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
-                    var date = DateTimeExtensions.FromOADate(d);
+                    var date = DateTime.FromOADate(d);
                     return date.ToString(format, nf.Culture);
 				}
 			}
@@ -1829,7 +1828,7 @@ namespace OfficeOpenXml
 	        return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
 	    }
         #endregion
-#if !Core
+
 #region LoadFromDataTable
         /// <summary>
         /// Load the data from the datatable starting from the top left cell of the range
@@ -1893,7 +1892,7 @@ namespace OfficeOpenXml
             return _worksheet.Cells[_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + Table.Columns.Count - 1];
         }
 #endregion
-#endif
+
 #region LoadFromArrays
 		/// <summary>
 		/// Loads data from the collection of arrays of objects into the range, starting from
@@ -1995,7 +1994,10 @@ namespace OfficeOpenXml
                 }
                 foreach (var t in Members)
 				{
-                    if (t.DeclaringType!=null && t.DeclaringType != type && ! TypeCompat.IsSubclassOf(t.DeclaringType, type))
+                    if (t.DeclaringType!=null && t.DeclaringType != type)
+                    {
+                        isSameType = false;
+                    }
                     //Fixing inverted check for IsSubclassOf / Pullrequest from tomdam
                     if (t.DeclaringType != null && t.DeclaringType != type && !TypeCompat.IsSubclassOf(type,t.DeclaringType) && !TypeCompat.IsSubclassOf(t.DeclaringType,type))
                     {
@@ -2065,8 +2067,12 @@ namespace OfficeOpenXml
                     {
                         foreach (var t in Members)
                         {
-                            if (isSameType == false && item.GetType().GetMember(t.Name, memberFlags).Length == 0) continue; //Check if the property exists if anb inherited class is used
-                            if (t is PropertyInfo)
+                            if (isSameType == false && item.GetType().GetMember(t.Name, memberFlags).Length == 0)
+                            {
+                                col++;
+                                continue; //Check if the property exists if and inherited class is used
+                            }
+                            else if (t is PropertyInfo)
                             {
                                 values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
                             }

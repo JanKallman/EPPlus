@@ -36,7 +36,6 @@ using System.Xml;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
-using OfficeOpenXml.Compatibility;
 using System.Security;
 
 namespace OfficeOpenXml.Table

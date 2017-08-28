@@ -122,9 +122,7 @@ namespace OfficeOpenXml.Drawing
             _image = Image.FromStream(imagestream);
             ImageConverter ic = new ImageConverter();
             var img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
-#if !Core
             imagestream.Close();
-#endif            
             UriPic = GetNewUri(package, "/xl/media/{0}" + imageFile.Name);
             var ii = _drawings._package.AddImage(img, UriPic, ContentType);
             string relID;

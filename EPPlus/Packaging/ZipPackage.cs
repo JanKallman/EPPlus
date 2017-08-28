@@ -160,9 +160,7 @@ namespace OfficeOpenXml.Packaging
                     {
                         throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
                     }
-#if !Core
                     zip.Close();
-#endif
                     zip.Dispose();
                 }
             }
@@ -291,9 +289,7 @@ namespace OfficeOpenXml.Packaging
             }
             os.Flush();
             
-#if !Core
             os.Close();
-#endif
             os.Dispose();  
             
             //return ms;

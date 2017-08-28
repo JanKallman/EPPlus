@@ -304,7 +304,7 @@ namespace OfficeOpenXml
 						string[] attributeSplit = subPath.Split('=');
 						string attributeName = attributeSplit[0].Substring(1, attributeSplit[0].Length - 1);
 						string attributeValue = null;	// Null means no attribute value
-
+                        
 						// Check if we have an attribute value to set
 						if (attributeSplit.Length > 1)
 						{

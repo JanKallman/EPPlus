@@ -28,7 +28,6 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -46,7 +45,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
             else
             {
                 var d = ArgToDecimal(arguments, 0);
-                date = DateTimeExtensions.FromOADate(d);
+                date = System.DateTime.FromOADate(d);
             }
             return CreateResult(date.Year, DataType.Integer);
         }

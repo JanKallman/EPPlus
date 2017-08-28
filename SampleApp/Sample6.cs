@@ -559,7 +559,15 @@ namespace EPPlusSamples
 #if (Core)
         private static Bitmap GetIcon(string FileName)
         {
-            return System.Drawing.Icon.ExtractAssociatedIcon(FileName).ToBitmap();
+            if (File.Exists(FileName))
+            {
+                var bmp=System.Drawing.Icon.ExtractAssociatedIcon(FileName).ToBitmap();
+                return new Bitmap(bmp, new Size(16, 16));
+            }
+            else
+            {
+                return null;
+            }
         }
 #else
         private static Bitmap GetIcon(string FileName)

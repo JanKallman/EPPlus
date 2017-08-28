@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.IO;
 using EPPlus.Core.Compatibility;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.Utils
 {
@@ -94,7 +93,7 @@ namespace OfficeOpenXml.Utils
                     }
                     else if (v is TimeSpan)
                     {
-                        d = DateTimeExtensions.FromOADate(0).Add((TimeSpan)v).ToOADate();
+                        d = DateTime.FromOADate(0).Add((TimeSpan)v).ToOADate();
                     }
                     else
                     {
@@ -283,7 +282,7 @@ namespace OfficeOpenXml.Utils
             if (toType == typeof(DateTime))
             {
                 if (value is double)
-                    return (T)(object)(DateTimeExtensions.FromOADate((double)value));
+                    return (T)(object)(DateTime.FromOADate((double)value));
 
                 if (fromType == typeof(TimeSpan))
                     return ((T)(object)(new DateTime(((TimeSpan)value).Ticks)));
@@ -294,7 +293,7 @@ namespace OfficeOpenXml.Utils
             else if (toType == typeof(TimeSpan))
             {
                 if (value is double)
-                    return (T)(object)(new TimeSpan(DateTimeExtensions.FromOADate((double)value).Ticks));
+                    return (T)(object)(new TimeSpan(DateTime.FromOADate((double)value).Ticks));
 
                 if (fromType == typeof(DateTime))
                     return ((T)(object)(new TimeSpan(((DateTime)value).Ticks)));

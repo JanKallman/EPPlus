@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRanges
 {
@@ -33,9 +32,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
         public void Cleanup()
         {
             _package.Dispose();
-#if (!Core)
             Thread.CurrentThread.CurrentCulture = _currentCulture;
-#endif
         }
 
         [TestMethod]
@@ -116,7 +113,6 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             Assert.AreEqual(0.2d, result);
         }
 
-#if (!Core)
         [TestMethod]
         public void ValueShouldHandleScientificNotation()
         {
@@ -127,9 +123,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(0.012345d, result);
         }
-#endif
 
-#if (!Core)
         [TestMethod]
         public void ValueShouldHandleDate()
         {
@@ -141,9 +135,7 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(date.ToOADate(), result);
         }
-#endif
 
-#if (!Core)
         [TestMethod]
         public void ValueShouldHandleTime()
         {
@@ -157,6 +149,5 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(0.5, result);
         }
-#endif
     }
 }

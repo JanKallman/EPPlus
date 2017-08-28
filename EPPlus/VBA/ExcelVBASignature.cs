@@ -236,11 +236,8 @@ namespace OfficeOpenXml.VBA
                 }
                 finally
                 {
-#if Core
                     store.Dispose();
-#else
                     store.Close();
-#endif
                 }
             }
             catch

@@ -756,12 +756,10 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-#if (!Core)
 		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
                     _stream.Close();
                 }
-#endif
                 CloseStream();
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
@@ -849,9 +847,7 @@ namespace OfficeOpenXml
                         {                            
                             fi.Write(((MemoryStream)Stream).ToArray(), 0, (int)Stream.Length);
                         }
-#if !Core
                         fi.Close();
-#endif
                         fi.Dispose();
                     }
                     else
@@ -958,9 +954,7 @@ namespace OfficeOpenXml
             // Issue15252: Clear output buffer
             if (_stream != null)
             {
-#if !Core
                 _stream.Close();
-#endif
                 _stream.Dispose();
             }
 
@@ -1075,9 +1069,7 @@ namespace OfficeOpenXml
             }
 
             Stream.Seek(pos, SeekOrigin.Begin);
-#if !Core
             Stream.Close();
-#endif
             return byRet;
         }
         /// <summary>
@@ -1113,9 +1105,7 @@ namespace OfficeOpenXml
             }
             if (this._stream != null)
             {
-#if !Core
                 this._stream.Close();
-#endif
                 this._stream.Dispose();
                 this._stream = null;
             }

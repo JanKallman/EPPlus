@@ -4,7 +4,6 @@ using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.Utils;
 using EPPlus.Core.Compatibility;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest.Utils
 {
@@ -227,7 +226,7 @@ namespace EPPlusTest.Utils
                 {
                     if (cnv.CanConvertTo(typeof(double)))
                     {
-                        return (T)(object)(DateTimeExtensions.FromOADate((double)cnv.ConvertTo(v, typeof(double))));
+                        return (T)(object)(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))));
                     }
                     else
                     {
@@ -258,7 +257,7 @@ namespace EPPlusTest.Utils
                     if (cnv.CanConvertTo(typeof(double)))
                     {
 
-                        return (T)(object)(new TimeSpan(DateTimeExtensions.FromOADate((double)cnv.ConvertTo(v, typeof(double))).Ticks));
+                        return (T)(object)(new TimeSpan(DateTime.FromOADate((double)cnv.ConvertTo(v, typeof(double))).Ticks));
                     }
                     else
                     {

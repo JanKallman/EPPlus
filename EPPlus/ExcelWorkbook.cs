@@ -43,7 +43,6 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
 using OfficeOpenXml.Style;
-using OfficeOpenXml.CompatibilityExtensions;
 using EPPlus.Core.Compatibility;
 
 namespace OfficeOpenXml

@@ -70,7 +70,6 @@ namespace OfficeOpenXml.Encryption
                 throw (new InvalidDataException(string.Format("File {0} is not an encrypted package", fi.FullName)));
             }
         }
-
         //Helpmethod to output the streams in the storage
         //private void WriteDoc(CompoundDocument.StoragePart storagePart, string p)
         //{
@@ -275,7 +274,7 @@ namespace OfficeOpenXml.Encryption
 #if (!Core)
                 case eHashAlogorithm.RIPEMD160:
                     return new HMACRIPEMD160(salt);
-#endif
+#endif                
                 case eHashAlogorithm.MD5:
                     return new HMACMD5(salt);              
                 case eHashAlogorithm.SHA1:

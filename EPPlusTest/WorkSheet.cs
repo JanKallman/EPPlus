@@ -332,9 +332,7 @@ namespace EPPlusTest
                 Assert.IsNull(GetValueException<TimeSpan?>(   ws.Cells["AA18"]));
                 Assert.AreEqual(ws.Cells["AA18"].Text, " ");
             }
-#if !Core
             instream.Close();
-#endif
         }
 
         [Ignore]
@@ -370,9 +368,7 @@ namespace EPPlusTest
 
                 pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
             }
-#if !Core
             instream.Close();
-#endif
         }
         //[Ignore]
         //[TestMethod]
@@ -391,9 +387,7 @@ namespace EPPlusTest
                 Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
                 pck.SaveAs(stream);
             }
-#if !Core
             instream.Close();
-#endif
         }
         //
         // You can use the following additional attributes as you write your tests:

@@ -85,7 +85,7 @@ namespace EPPlusSamples
         // Now, lets change some properties:
         cfRule1.LowValue.Type = eExcelConditionalFormattingValueObjectType.Num;
         cfRule1.LowValue.Value = 4;
-        cfRule1.LowValue.Color = ColorTranslator.FromHtml("#FFFFEB84");
+        cfRule1.LowValue.Color = Color.FromArgb(0xFF, 0xFF, 0xEB, 0x84);
         cfRule1.HighValue.Type = eExcelConditionalFormattingValueObjectType.Formula;
         cfRule1.HighValue.Formula = "IF($G$1=\"A</x:&'cfRule>\",1,5)";
         cfRule1.StopIfTrue = true;

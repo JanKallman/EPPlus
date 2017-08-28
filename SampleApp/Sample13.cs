@@ -63,85 +63,6 @@ namespace EPPlusSamples
                 }
             }
         }
-#if Core
-        public static void RunSample13(DirectoryInfo outputDir)
-        {
-            ExcelPackage pck = new ExcelPackage();
-
-            var list = new List<FileDTO>();
-            foreach (var item in outputDir.Root.GetFiles())
-            {
-                list.Add(new FileDTO()
-                {
-                    Name = item.Name,
-                    Size = item.Length,
-                    Created = item.CreationTime,
-                    LastModified = item.LastWriteTime
-                });
-            }
-
-            var wsEnum = pck.Workbook.Worksheets.Add("FromAnonymous");
-
-            //Load the collection starting from cell A1...
-            wsEnum.Cells["A1"].LoadFromCollection(list, true, TableStyles.Medium9);
-
-            //Add some formating...
-            wsEnum.Cells[2, 2, list.Count + 1, 2].Style.Numberformat.Format = "#,##0";
-            wsEnum.Cells[2, 3, list.Count + 1, 4].Style.Numberformat.Format = "mm-dd-yy";
-            wsEnum.Cells[wsEnum.Dimension.Address].AutoFitColumns();
-
-            //Load a list of FileDTO objects from the datatable...
-            var wsList = pck.Workbook.Worksheets.Add("FromList");
-
-            //Load files ordered by size...
-            wsList.Cells["A1"].LoadFromCollection(from file in list
-                                                  orderby file.Size descending
-                                                  where file.IsDirectory == false
-                                                  select file, true, TableStyles.Medium9);
-
-            wsList.Cells[2, 2, list.Count + 1, 2].Style.Numberformat.Format = "#,##0";
-            wsList.Cells[2, 3, list.Count + 1, 4].Style.Numberformat.Format = "mm-dd-yy";
-
-
-            //Load directories ordered by Name...
-            wsList.Cells["F1"].LoadFromCollection(from file in list
-                                                  orderby file.Name ascending
-                                                  where file.IsDirectory == true
-                                                  select new
-                                                  {
-                                                      Name = file.Name,
-                                                      Created = file.Created,
-                                                      Last_modified = file.LastModified
-                                                  }, //Use an underscore in the property name to get a space in the title.
-                                                  true, TableStyles.Medium11);
-
-            wsList.Cells[2, 7, list.Count + 1, 8].Style.Numberformat.Format = "mm-dd-yy";
-
-            //Load the list using a specified array of MemberInfo objects. Properties, fields and methods are supported.
-            var rng = wsList.Cells["J1"].LoadFromCollection(list,
-                                                  true,
-                                                  TableStyles.Medium10,
-                                                  BindingFlags.Instance | BindingFlags.Public,
-                                                  new MemberInfo[] {
-                                                      typeof(FileDTO).GetProperty("Name"),
-                                                      typeof(FileDTO).GetField("IsDirectory"),
-                                                      typeof(FileDTO).GetMethod("ToString")}
-                                                  );
-
-            wsList.Tables.GetFromRange(rng).Columns[2].Name = "Description";
-
-            wsList.Cells[wsList.Dimension.Address].AutoFitColumns();
-
-            //...and save
-            var fi = new FileInfo(outputDir.FullName + @"\Sample13.xlsx");
-            if (fi.Exists)
-            {
-                fi.Delete();
-            }
-            pck.SaveAs(fi);
-        }
-
-#else
         public static void RunSample13(DirectoryInfo outputDir)
         {
             ExcelPackage pck = new ExcelPackage();
@@ -255,6 +176,5 @@ namespace EPPlusSamples
             }
             return dt;
         }
-#endif
     }
 }

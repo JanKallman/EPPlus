@@ -8,7 +8,6 @@ using OfficeOpenXml;
 using System.IO;
 using System.Diagnostics;
 using OfficeOpenXml.FormulaParsing;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest
 {
@@ -93,7 +92,7 @@ namespace EPPlusTest
         {
 #if Core
             var dir = AppContext.BaseDirectory;
-            dir = Directory.GetParent(dir).Parent.Parent.FullName;
+            dir = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 #else
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 #endif
@@ -106,7 +105,7 @@ namespace EPPlusTest
         {
 #if Core
             var dir = AppContext.BaseDirectory;
-            dir = Directory.GetParent(dir).Parent.Parent.FullName;
+            dir = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
 #else
             var dir = AppDomain.CurrentDomain.BaseDirectory;
 #endif
@@ -400,9 +399,7 @@ namespace EPPlusTest
                         nErrors++;
                     }
                 }
-#if !Core
                 fileErr.Close();
-#endif
                 return nErrors.ToString();
             }
         }

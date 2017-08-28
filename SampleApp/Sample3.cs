@@ -155,9 +155,7 @@ namespace EPPlusSamples
 									}
 									row++;
 								}
-                                #if (!Core)
-                                    sqlReader.Close();
-                                #endif
+                                sqlReader.Close();
 
                                 worksheet.Cells[startRow, 1, row - 1, 1].StyleName = "HyperLink";
                                 worksheet.Cells[startRow, 4, row - 1, 6].Style.Numberformat.Format = "[$$-409]#,##0";

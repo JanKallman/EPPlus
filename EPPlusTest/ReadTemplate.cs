@@ -35,9 +35,7 @@ namespace EPPlusTest
                 var ws = pck.Workbook.Worksheets.Add("Perf");
                 pck.SaveAs(stream);
             }
-#if !Core
             stream.Close();
-#endif
         }
         [Ignore]
         [TestMethod]

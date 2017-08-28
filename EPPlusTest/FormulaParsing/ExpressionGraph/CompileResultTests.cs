@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace EPPlusTest.FormulaParsing.ExpressionGraph
 {

@@ -54,8 +54,6 @@ using OfficeOpenXml.Utils;
 
 using System.Linq;
 using EPPlus.Core.Compatibility;
-using OfficeOpenXml.CompatibilityExtensions;
-using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml
 {
@@ -1506,7 +1504,7 @@ namespace OfficeOpenXml
                         }
                         if (res >= -657435.0 && res < 2958465.9999999)
                         {
-                            SetValueInner(row, col, DateTimeExtensions.FromOADate(res));
+                            SetValueInner(row, col, DateTime.FromOADate(res));
                         }
                         else
                         {
@@ -3830,7 +3828,7 @@ namespace OfficeOpenXml
                 }
                 else if (v is TimeSpan)
                 {
-                    s = DateTimeExtensions.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    s = DateTime.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
                 }
                 else if(TypeCompat.IsPrimitive(v) || v is double || v is decimal)
                 {
@@ -4279,7 +4277,7 @@ namespace OfficeOpenXml
                         sdv += offset;
 
                         //cse.Value._value = DateTime.FromOADate(sdv);
-                        SetValueInner(cse.Row, cse.Column, DateTimeExtensions.FromOADate(sdv));
+                        SetValueInner(cse.Row, cse.Column, DateTime.FromOADate(sdv));
                     }
                     catch
                     {

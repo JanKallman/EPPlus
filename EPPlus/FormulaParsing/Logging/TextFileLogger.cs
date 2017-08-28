@@ -109,9 +109,7 @@ namespace OfficeOpenXml.FormulaParsing.Logging
 
         public void Dispose()
         {
-#if !Core
             _sw.Close(); 
-#endif
             _sw.Dispose();
         }
     }

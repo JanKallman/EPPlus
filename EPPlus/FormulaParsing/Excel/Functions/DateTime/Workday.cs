@@ -5,7 +5,6 @@ using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime.Workdays;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.Utils;
-using OfficeOpenXml.CompatibilityExtensions;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
 {
@@ -15,7 +14,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime
         {
             var functionArguments = arguments as FunctionArgument[] ?? arguments.ToArray();
             ValidateArguments(functionArguments, 2);
-            var startDate = DateTimeExtensions.FromOADate(ArgToInt(functionArguments, 0));
+            var startDate = System.DateTime.FromOADate(ArgToInt(functionArguments, 0));
             var nWorkDays = ArgToInt(functionArguments, 1);
             var resultDate = System.DateTime.MinValue;
             
