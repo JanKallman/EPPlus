@@ -1569,5 +1569,19 @@ namespace EPPlusTest
                 package.Workbook.FormulaParserManager.DetachLogger();
             }
         }
+        [TestMethod]
+        public void Issue_15641()
+        {
+            ExcelPackage ep = new ExcelPackage();
+
+            ExcelWorksheet sheet = ep.Workbook.Worksheets.Add("A Sheet");
+
+            sheet.Cells[1, 1].CreateArrayFormula("IF(SUM(B1:J1)>0,SUM(B2:J2))"); //A1
+            sheet.Cells[2, 1].Value = sheet.Cells[1, 1].IsArrayFormula; //A2
+            sheet.Cells[1, 1].Copy(sheet.Cells[3, 1]); //A3
+
+            Assert.AreEqual(true, sheet.Cells[3, 1].IsArrayFormula);
+            
+        }
     }
  }

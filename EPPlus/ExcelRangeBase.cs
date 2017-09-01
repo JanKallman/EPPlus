@@ -312,6 +312,7 @@ namespace OfficeOpenXml
 				for (int row = address.Start.Row; row <= address.End.Row; row++)
 				{
 					range._worksheet._formulas.SetValue(row, col, f.Index);
+                    range._worksheet._flags.SetFlagValue(row, col, true, CellFlags.ArrayFormula);
 					range._worksheet.SetValueInner(row, col, null);
 				}
 			}
@@ -2425,20 +2426,15 @@ namespace OfficeOpenXml
                     Value=cse.Value._value
                 };
 
-                //Destination._worksheet.SetValueInner(row, col, cse.Value);
-
-                //if (_worksheet._types.Exists(row, col, ref s))
-                //{
-                //    //Destination._worksheet._types.SetValue(row, col,s);
-                //    cell.Type=s;
-                //}
-
                 if (!excludeFormulas && _worksheet._formulas.Exists(row, col, ref o))
                 {
                     if (o is int)
                     {
-                       // Destination._worksheet._formulas.SetValue(row, col, _worksheet.GetFormula(cse.Row, cse.Column));    //Shared formulas, set the formula per cell to simplify
                         cell.Formula=_worksheet.GetFormula(cse.Row, cse.Column);
+                        if(_worksheet._flags.GetFlagValue(cse.Row, cse.Column, CellFlags.ArrayFormula))
+                        {
+                            Destination._worksheet._flags.SetFlagValue(cse.Row, cse.Column, true, CellFlags.ArrayFormula);
+                        }
                     }
                     else
                     {

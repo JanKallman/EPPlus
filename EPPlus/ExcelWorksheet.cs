@@ -139,7 +139,7 @@ namespace OfficeOpenXml
 
             internal string GetFormula(int row, int column, string worksheet)
             {
-                if (StartRow == row && StartCol == column)
+                if ((StartRow == row && StartCol == column))
                 {
                     return Formula;
                 }
