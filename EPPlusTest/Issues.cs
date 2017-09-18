@@ -1547,7 +1547,7 @@ namespace EPPlusTest
                 Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue_15585()
         {
             var excelFile = new FileInfo(@"c:\temp\bug\formula_value.xlsx");

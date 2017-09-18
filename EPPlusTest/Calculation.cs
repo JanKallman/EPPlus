@@ -87,7 +87,7 @@ namespace EPPlusTest
             ws.SetFormula(1, 5, "Row(a3)");
             ws.Calculate();
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Calulation4()
         {
 #if Core
@@ -100,7 +100,7 @@ namespace EPPlusTest
             pck.Workbook.Calculate();
             Assert.AreEqual(490D, pck.Workbook.Worksheets[1].Cells["D5"].Value);
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void CalulationValidationExcel()
         {
 #if Core

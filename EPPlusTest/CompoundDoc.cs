@@ -62,7 +62,7 @@ namespace EPPlusTest
         //
         #endregion
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Read()
         {
            //var doc = File.ReadAllBytes(@"c:\temp\vbaProject.bin");
@@ -83,7 +83,7 @@ namespace EPPlusTest
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore ]
         public void ReadEncLong()
         {
             var doc=File.ReadAllBytes(@"c:\temp\EncrDocRead.xlsx");
@@ -93,7 +93,7 @@ namespace EPPlusTest
 
             File.WriteAllBytes(@"c:\temp\vba.xlsx", ms.ToArray());
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ReadVba()
         {
             var p = new ExcelPackage(new FileInfo(@"c:\temp\pricecheck.xlsm"));

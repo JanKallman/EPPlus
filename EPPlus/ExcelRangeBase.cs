@@ -2274,7 +2274,7 @@ namespace OfficeOpenXml
 
             if(inTQ)
             {
-                throw (new ArgumentException(string.Format("Text delimiter is not closed in line : {0}", list.Count-1)));
+                throw (new ArgumentException(string.Format("Text delimiter is not closed in line : {0}", prevLineStart + 1)));
             }
 
             if(Format.EOL.Length==1 && text[text.Length-1]==Format.EOL[0])
