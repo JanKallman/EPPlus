@@ -199,33 +199,33 @@ namespace EPPlusTest
         ws.SetValue(4, 3, 4);
         ws.SetValue(5, 3, 5);    
     }
-    [TestMethod]
-    public void TwoAndThreeColorConditionalFormattingFromFileDoesNotGetOverwrittenWithDefaultValues()
-    {
-        var file = new FileInfo(
-            AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"))
-            + @"Workbooks\MultiColorConditionalFormatting.xlsx");
-            Assert.IsTrue(file.Exists);
-            using (var package = new ExcelPackage(file))
-        {
-            var sheet = package.Workbook.Worksheets.First();
-            Assert.AreEqual(2, sheet.ConditionalFormatting.Count);
-            var twoColor = (ExcelConditionalFormattingTwoColorScale)sheet.ConditionalFormatting.First(cf => cf is ExcelConditionalFormattingTwoColorScale);
-            var threeColor = (ExcelConditionalFormattingThreeColorScale)sheet.ConditionalFormatting.First(cf => cf is ExcelConditionalFormattingThreeColorScale);
+    //[TestMethod]
+    //public void TwoAndThreeColorConditionalFormattingFromFileDoesNotGetOverwrittenWithDefaultValues()
+    //{
+    //    var file = new FileInfo(
+    //        AppDomain.CurrentDomain.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"))
+    //        + @"Workbooks\MultiColorConditionalFormatting.xlsx");
+    //        Assert.IsTrue(file.Exists);
+    //        using (var package = new ExcelPackage(file))
+    //    {
+    //        var sheet = package.Workbook.Worksheets.First();
+    //        Assert.AreEqual(2, sheet.ConditionalFormatting.Count);
+    //        var twoColor = (ExcelConditionalFormattingTwoColorScale)sheet.ConditionalFormatting.First(cf => cf is ExcelConditionalFormattingTwoColorScale);
+    //        var threeColor = (ExcelConditionalFormattingThreeColorScale)sheet.ConditionalFormatting.First(cf => cf is ExcelConditionalFormattingThreeColorScale);
 
-            var defaultTwoColorScale = new ExcelConditionalFormattingTwoColorScale(new ExcelAddress("A1"), 2, sheet);
-            var defaultThreeColorScale = new ExcelConditionalFormattingThreeColorScale(new ExcelAddress("A1"), 2, sheet);
+    //        var defaultTwoColorScale = new ExcelConditionalFormattingTwoColorScale(new ExcelAddress("A1"), 2, sheet);
+    //        var defaultThreeColorScale = new ExcelConditionalFormattingThreeColorScale(new ExcelAddress("A1"), 2, sheet);
 
-            Assert.IsNull(twoColor.HighValue);
-            Assert.IsNull(twoColor.LowValue);
-            Assert.IsNotNull(defaultTwoColorScale.HighValue);
-            Assert.IsNotNull(defaultTwoColorScale.LowValue);
-            Assert.IsNull(threeColor.HighValue);
-            Assert.IsNull(threeColor.LowValue);
-            Assert.IsNotNull(defaultThreeColorScale.HighValue);
-            Assert.IsNotNull(defaultThreeColorScale.LowValue);
-        }
-    }
+    //        Assert.IsNull(twoColor.HighValue);
+    //        Assert.IsNull(twoColor.LowValue);
+    //        Assert.IsNotNull(defaultTwoColorScale.HighValue);
+    //        Assert.IsNotNull(defaultTwoColorScale.LowValue);
+    //        Assert.IsNull(threeColor.HighValue);
+    //        Assert.IsNull(threeColor.LowValue);
+    //        Assert.IsNotNull(defaultThreeColorScale.HighValue);
+    //        Assert.IsNotNull(defaultThreeColorScale.LowValue);
+    //    }
+    //}
 
     }
 }
