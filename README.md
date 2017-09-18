@@ -1,5 +1,6 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus/branch/master)
- # EPPlus
+[![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus/branch/master) (.NET)
+[![Build status](https://ci.appveyor.com/api/projects/status/5excqxlfruj3u640/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus-13by9/branch/master) (.NET Core)
+# EPPlus
 Create advanced Excel spreadsheets using DotNet, without the need of interop.
 
 EPPlus is a .net library that reads and writes Excel files using the Open Office Xml format (xlsx). 
