@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.24720.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{84BB37E9-CE27-48E0-88F6-A741A46D5883}"
 	ProjectSection(SolutionItems) = preProject
@@ -24,6 +24,9 @@ Global
 		Debug|Any CPU = Debug|Any CPU
 		Debug|Mixed Platforms = Debug|Mixed Platforms
 		Debug|x86 = Debug|x86
+		DevTest|Any CPU = DevTest|Any CPU
+		DevTest|Mixed Platforms = DevTest|Mixed Platforms
+		DevTest|x86 = DevTest|x86
 		Release|Any CPU = Release|Any CPU
 		Release|Mixed Platforms = Release|Mixed Platforms
 		Release|x86 = Release|x86
@@ -34,6 +37,12 @@ Global
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|Any CPU.Build.0 = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|Mixed Platforms.Build.0 = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|x86.ActiveCfg = Debug|Any CPU
+		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.DevTest|x86.Build.0 = Debug|Any CPU
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Release|Any CPU.Build.0 = Release|Any CPU
 		{06BF3C68-E7D4-4579-90BE-E36DACE564EF}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -44,6 +53,12 @@ Global
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|Any CPU.Build.0 = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|Mixed Platforms.Build.0 = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|x86.ActiveCfg = Debug|Any CPU
+		{E7BCEDE0-EADD-437B-86D5-49D192216948}.DevTest|x86.Build.0 = Debug|Any CPU
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E7BCEDE0-EADD-437B-86D5-49D192216948}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -54,6 +69,12 @@ Global
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|Any CPU.Build.0 = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|x86.ActiveCfg = Debug|Any CPU
+		{1BF30A52-6149-432D-82F6-725250E5C662}.DevTest|x86.Build.0 = Debug|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1BF30A52-6149-432D-82F6-725250E5C662}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -64,6 +85,12 @@ Global
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|Any CPU.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|Any CPU.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|Mixed Platforms.Build.0 = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|x86.ActiveCfg = Debug|Any CPU
+		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.DevTest|x86.Build.0 = Debug|Any CPU
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{94CBCEFC-DDBF-4F54-8AEA-4C40BBD2881B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -75,6 +102,12 @@ Global
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Debug|x86.Build.0 = Debug|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|Any CPU.ActiveCfg = DevTest|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|Any CPU.Build.0 = DevTest|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|Mixed Platforms.ActiveCfg = DevTest|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|Mixed Platforms.Build.0 = DevTest|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|x86.ActiveCfg = DevTest|Any CPU
+		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.DevTest|x86.Build.0 = DevTest|Any CPU
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BE4A6343-F411-44A3-8D6F-F40747ED7BA5}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
@@ -87,6 +120,7 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .
+		SolutionGuid = {5C4ECF9E-F968-49BF-BC34-778F0ED6DABD}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = ExcelPackage.vsmdi

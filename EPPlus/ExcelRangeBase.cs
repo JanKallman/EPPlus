@@ -2121,12 +2121,13 @@ namespace OfficeOpenXml
 		{
 			return LoadFromText(Text, new ExcelTextFormat());
 		}
-		/// <summary>
-		/// Loads a CSV text into a range starting from the top left cell.
-		/// </summary>
-		/// <param name="Text">The Text</param>
-		/// <param name="Format">Information how to load the text</param>
-		/// <returns>The range containing the data</returns>
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <param name="AllowEOLInColumn">Allow specified EOL characters inside a column (inside the TextQualifiers of a column). Bad for performance, so dont use it unless you have to. Default False</param>
+        /// <returns>The range containing the data</returns>
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
         {
             if (string.IsNullOrEmpty(Text))
@@ -2138,8 +2139,19 @@ namespace OfficeOpenXml
 
             if (Format == null) Format = new ExcelTextFormat();
 
-            string splitRegex = String.Format("{0}(?=(?:[^{1}]*{1}[^{1}]*{1})*[^{1}]*$)", Format.EOL, Format.TextQualifier);
-            string[] lines = Regex.Split(Text, splitRegex);
+
+            string[] lines;
+            if (Format.TextQualifier==0)
+            {
+                lines = Regex.Split(Text, Format.EOL);
+            }
+            else
+            {
+                lines = GetLines(Text, Format);
+            }
+            //string splitRegex = String.Format("{0}(?=(?:[^{1}]*{1}[^{1}]*{1})*[^{1}]*$)", Format.EOL, Format.TextQualifier);
+            //lines = Regex.Split(Text, splitRegex);
+
             int row = 0;
             int col = 0;
             int maxCol = col;
@@ -2235,15 +2247,66 @@ namespace OfficeOpenXml
 
             return _worksheet.Cells[_fromRow, _fromCol, _fromRow + row, _fromCol + maxCol];
         }
-		/// <summary>
-		/// Loads a CSV text into a range starting from the top left cell.
-		/// </summary>
-		/// <param name="Text">The Text</param>
-		/// <param name="Format">Information how to load the text</param>
-		/// <param name="TableStyle">Create a table with this style</param>
-		/// <param name="FirstRowIsHeader">Use the first row as header</param>
-		/// <returns></returns>
-		public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
+
+        private string[] GetLines(string text, ExcelTextFormat Format)
+        {
+            if (Format.EOL == null || Format.EOL.Length == 0) return new string[] { text };
+            var eol = Format.EOL;
+            var list = new List<string>();
+            var inTQ=false;
+            var prevLineStart = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == Format.TextQualifier)
+                {
+                    inTQ = !inTQ;
+                }
+                else if(!inTQ)
+                {
+                    if (IsEOL(text, i, eol))
+                    {
+                        list.Add(text.Substring(prevLineStart, i-prevLineStart));
+                        i += eol.Length - 1;
+                        prevLineStart = i+1;
+                    }
+                }
+            }
+
+            if(inTQ)
+            {
+                throw (new ArgumentException(string.Format("Text delimiter is not closed in line : {0}", list.Count-1)));
+            }
+
+            if(Format.EOL.Length==1 && text[text.Length-1]==Format.EOL[0])
+            {
+                list.Add(text.Substring(prevLineStart, text.Length - prevLineStart - 1));
+                list.Add("");
+            }
+            else
+            {
+                list.Add(text.Substring(prevLineStart));
+            }
+            return list.ToArray();
+         }
+        private bool IsEOL(string text, int ix, string eol)
+        {
+            for (int i=0;i<eol.Length;i++)
+            {
+                if (text[ix + i] != eol[i])
+                    return false;
+            }
+            return ix+eol.Length<text.Length;
+        }
+
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <param name="TableStyle">Create a table with this style</param>
+        /// <param name="FirstRowIsHeader">Use the first row as header</param>
+        /// <returns></returns>
+        public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
 		{
 			var r = LoadFromText(Text, Format);
 
@@ -2253,12 +2316,12 @@ namespace OfficeOpenXml
 
 			return r;
 		}
-		/// <summary>
-		/// Loads a CSV file into a range starting from the top left cell.
-		/// </summary>
-		/// <param name="TextFile">The Textfile</param>
-		/// <returns></returns>
-		public ExcelRangeBase LoadFromText(FileInfo TextFile)
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="TextFile">The Textfile</param>
+        /// <returns></returns>
+        public ExcelRangeBase LoadFromText(FileInfo TextFile)
 		{
 			return LoadFromText(File.ReadAllText(TextFile.FullName, Encoding.ASCII));
 		}

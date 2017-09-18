@@ -56,10 +56,8 @@ namespace EPPlusTest
             Merge();
             Encoding();
             LoadText();
-#if !Core
             LoadDataReader();
             LoadDataTable();
-#endif
             LoadFromCollectionTest();
             LoadFromEmptyCollectionTest();
             LoadArray();
@@ -1598,7 +1596,7 @@ namespace EPPlusTest
             }
             p.SaveAs(new FileInfo(@"c:\temp\urlsaved.xlsx"));
         }
-#if !Core
+
         //[TestMethod]
         public void LoadDataReader()
         {
@@ -1710,7 +1708,6 @@ namespace EPPlusTest
 
             ws.Cells["D1"].LoadFromDataTable(dt, false);
         }
-#endif
         [TestMethod]
         public void LoadText_Bug15015()
         {
@@ -1739,7 +1736,7 @@ namespace EPPlusTest
         }
 
         //[Ignore]
-        //[TestMethod]
+        [TestMethod]
         public void LoadText()
         {
             var ws = _pck.Workbook.Worksheets.Add("Loaded Text");
@@ -1750,19 +1747,19 @@ namespace EPPlusTest
             ws.Cells["A4"].LoadFromText("\"1,3\",\"\",\"12,2\",\"Test\"\"\"", new ExcelTextFormat() { TextQualifier = '"' });
 
             ws = _pck.Workbook.Worksheets.Add("File1");
-            // ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\et1c1004.csv"), new ExcelTextFormat() {SkipLinesBeginning=3,SkipLinesEnd=1, EOL="\n"});
 
             ws = _pck.Workbook.Worksheets.Add("File2");
-            //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\etiv2812.csv"), new ExcelTextFormat() { SkipLinesBeginning = 3, SkipLinesEnd = 1, EOL = "\n" });
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\etiv2812.csv"), new ExcelTextFormat() { SkipLinesBeginning = 3, SkipLinesEnd = 1, EOL = "\n" });
 
-            //ws = _pck.Workbook.Worksheets.Add("File3");
-            //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\last_gics.txt"), new ExcelTextFormat() { SkipLinesBeginning = 1, Delimiter='|'});
+            ws = _pck.Workbook.Worksheets.Add("File3");
+            ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\last_gics.txt"), new ExcelTextFormat() { SkipLinesBeginning = 1, Delimiter='|'});
 
-            ws = _pck.Workbook.Worksheets.Add("File4");
+            //ws = _pck.Workbook.Worksheets.Add("File4");
             //ws.Cells["A1"].LoadFromText(new FileInfo(@"c:\temp\csv\20060927.custom_open_positions.cdf.SPP"), new ExcelTextFormat() { SkipLinesBeginning = 2, SkipLinesEnd=2, TextQualifier='"', DataTypes=new eDataTypes[] {eDataTypes.Number,eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.String, eDataTypes.String, eDataTypes.Number, eDataTypes.Number, eDataTypes.Number}},
             //    OfficeOpenXml.Table.TableStyles.Medium27, true);
 
-            ws.Cells["A1"].LoadFromText("1,\"Test\",\"\",\"\"\"\",3", new ExcelTextFormat() { TextQualifier = '\"' });
+            ws.Cells["A1"].LoadFromText("1,\"Test\",\"\",\"\"\"\",3\r\n", new ExcelTextFormat() { TextQualifier = '\"' });
 
             var style = _pck.Workbook.Styles.CreateNamedStyle("RedStyle");
             style.Style.Fill.PatternType = ExcelFillStyle.Solid;
