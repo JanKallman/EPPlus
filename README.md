@@ -1,4 +1,4 @@
-# EPPlus
+ # EPPlus
 Create advanced Excel spreadsheets using DotNet, without the need of interop.
 
 EPPlus is a .net library that reads and writes Excel files using the Open Office Xml format (xlsx). 
@@ -29,4 +29,4 @@ EPPlus uses dictionaries to access cell data, making performance a lot better.
 Complete integration with .NET 
 
 ## License
-The project is licensed under the GNU Library General Public License (LGPL).
+The project is licensed under the GNU Library General Public License (LGPL). 
