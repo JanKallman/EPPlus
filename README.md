@@ -1,4 +1,4 @@
- [![BuildStatus](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub?svg=true)](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub?svg=true)
+[![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub?svg=true)](https://ci.appveyor.com/project/swmal/epplus)
  # EPPlus
 Create advanced Excel spreadsheets using DotNet, without the need of interop.
 
