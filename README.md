@@ -29,5 +29,11 @@ Advantages over other:
 EPPlus uses dictionaries to access cell data, making performance a lot better.
 Complete integration with .NET 
 
+## Support
+All support is currently referred to [Stack overflow](https://stackoverflow.com/questions/tagged/epplus). 
+A tutorial is available in the wiki and the sample project can be downloaded with each version. 
+The old site at [Codeplex](http://epplus.codeplex.com) also contains material that can be helpful.
+Buggs and new feature requests can be added to the issues tracker. 
+
 ## License
 The project is licensed under the GNU Library General Public License (LGPL). 
