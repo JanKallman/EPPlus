@@ -1,4 +1,4 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus/branch/master)
+![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus/branch/master)
 # EPPlus
 Create advanced Excel spreadsheets using DotNet, without the need of interop.
 
@@ -32,8 +32,8 @@ Complete integration with .NET
 ## Support
 All support is currently referred to [Stack overflow](https://stackoverflow.com/questions/tagged/epplus). 
 A tutorial is available in the wiki and the sample project can be downloaded with each version. 
-The old site at [Codeplex](http://epplus.codeplex.com) also contains material that can be helpful.
-Buggs and new feature requests can be added to the issues tracker. 
+The old site at [Codeplex](http://epplus.codeplex.com) also contains material that can be helpful. 
+Bugs and new feature requests can be added to the issues tracker. 
 
 ## License
 The project is licensed under the GNU Library General Public License (LGPL). 
