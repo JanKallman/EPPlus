@@ -1200,9 +1200,16 @@ namespace OfficeOpenXml
                     }
                     else if (xr.GetAttribute("location") != null)
                     {
-                        hl = new ExcelHyperLink(xr.GetAttribute("location"), xr.GetAttribute("display"));
-                        hl.RowSpann = toRow - fromRow;
-                        hl.ColSpann = toCol - fromCol;
+                        hl = GetHyperlinkFromRef(xr, "location", fromRow, toRow, fromCol, toCol);
+                    }
+                    else if (xr.GetAttribute("ref") != null)
+                    {
+                        hl = GetHyperlinkFromRef(xr, "ref", fromRow, toRow, fromCol, toCol);
+                    }
+                    else
+                    {
+                        // not enough info to create a hyperlink
+                        break;
                     }
 
                     string tt = xr.GetAttribute("tooltip");
@@ -1218,6 +1225,15 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        private ExcelHyperLink GetHyperlinkFromRef(XmlReader xr, string refTag, int fromRow = 0, int toRow = 0, int fromCol = 0, int toCol = 0)
+        {
+            var hl = new ExcelHyperLink(xr.GetAttribute(refTag), xr.GetAttribute("display"));
+            hl.RowSpann = toRow - fromRow;
+            hl.ColSpann = toCol - fromCol;
+            return hl;
+        }
+
         /// <summary>
         /// Load cells
         /// </summary>
