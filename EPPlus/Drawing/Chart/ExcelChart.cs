@@ -1354,6 +1354,21 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
             }
         }
+        const string _roundedCornersPath = "../../../c:roundedCorners/@val";
+        /// <summary>
+        /// Border rounded corners
+        /// </summary>
+        public bool RoundedCorners
+        {
+            get
+            {
+                return _chartXmlHelper.GetXmlNodeBool(_roundedCornersPath);
+            }
+            set
+            {
+                _chartXmlHelper.SetXmlNodeBool(_roundedCornersPath, value);
+            }
+        }
         const string _plotVisibleOnlyPath="../../c:plotVisOnly/@val";
         /// <summary>
         /// Show data in hidden rows and columns
