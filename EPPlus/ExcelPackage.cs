@@ -4,7 +4,7 @@
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,11 +26,11 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * Starnuto Di Topo & Jan Källman   Added stream constructors 
+ * Jan KÃ¤llman		                Initial Release		        2009-10-01
+ * Starnuto Di Topo & Jan KÃ¤llman   Added stream constructors 
  *                                  and Load method Save as 
  *                                  stream                      2010-03-14
- * Jan Källman		License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -146,14 +146,14 @@ namespace OfficeOpenXml
     ///
     ///         // set some document properties
     ///         package.Workbook.Properties.Title = "Invertory";
-    ///         package.Workbook.Properties.Author = "Jan Källman";
+    ///         package.Workbook.Properties.Author = "Jan KÃ¤llman";
     ///         package.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 workbook using EPPlus";
     ///
     ///         // set some extended property values
     ///         package.Workbook.Properties.Company = "AdventureWorks Inc.";
     ///
     ///         // set some custom property values
-    ///         package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
+    ///         package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan KÃ¤llman");
     ///         package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
     ///
     ///         // save our new workbook and we are done!
