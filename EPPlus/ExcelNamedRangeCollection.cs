@@ -188,7 +188,7 @@ namespace OfficeOpenXml
 
         private static string BuildNewAddress(ExcelNamedRange namedRange, string newAddress)
         {
-            if (namedRange.FullAddress.Contains("!"))
+            if (namedRange.Address.Contains("!"))
             {
                 var worksheet = namedRange.FullAddress.Split('!')[0];
                 worksheet = worksheet.Trim('\'');
