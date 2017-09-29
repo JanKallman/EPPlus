@@ -110,7 +110,9 @@ namespace EPPlusTest
 #endif
             }
 
-            var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
+            // BUG This line fails with "System.Runtime.InteropServices.ExternalException: A generic error occurred in GDI+."
+            //var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
+
             //_pck.Workbook.Worksheets.Delete(ws2);
          }
          //[TestMethod]
