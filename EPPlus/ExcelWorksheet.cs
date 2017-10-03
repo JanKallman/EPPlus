@@ -3986,13 +3986,14 @@ namespace OfficeOpenXml
                 //foreach (ulong cell in _hyperLinks)
                 while(cse.Next())
                 {
-                    if (first)
+                    var uri = _hyperLinks.GetValue(cse.Row, cse.Column);
+                    if (first && uri != null)
                     {
                         sw.Write("<hyperlinks>");
                         first = false;
                     }
+
                     //int row, col;
-                    var uri = _hyperLinks.GetValue(cse.Row, cse.Column);
                     //ExcelCell cell = _cells[cellId] as ExcelCell;
                     if (uri is ExcelHyperLink && !string.IsNullOrEmpty((uri as ExcelHyperLink).ReferenceAddress))
                     {
