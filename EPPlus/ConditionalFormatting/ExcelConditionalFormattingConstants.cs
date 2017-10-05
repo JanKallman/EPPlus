@@ -108,6 +108,7 @@ namespace OfficeOpenXml.ConditionalFormatting
       internal const string Tint = "tint";
       internal const string Type = "type";
       internal const string Val = "val";
+      internal const string Gte = "gte";
     }
     #endregion Attributes
 
@@ -165,7 +166,8 @@ namespace OfficeOpenXml.ConditionalFormatting
       internal const string TintAttribute = "@" + Attributes.Tint;
       internal const string TypeAttribute = "@" + Attributes.Type;
       internal const string ValAttribute = "@" + Attributes.Val;
-    }
+      internal const string GteAttribute = "@" + Attributes.Gte;
+        }
     #endregion XML Paths
 
     #region Rule Type ST_CfType §18.18.12 (with small EPPlus changes)
