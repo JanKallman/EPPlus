@@ -1,10 +1,10 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,8 +26,8 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		    Initial Release		       2009-10-01
- * Jan Källman		    License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		    Initial Release		       2009-10-01
+ * Jan KÃ¤llman		    License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Collections;
@@ -350,8 +350,8 @@ namespace OfficeOpenXml
                         name = string.Format("Table{0}", ++ix);
                     }
                 }
-                //ensure the _nextTableID value has been initialized - Pull request by WillR
-                _pck.Workbook.ReadAllTables();
+                //ensure the _nextTableID value has been initialized - Pull request by WillR
+                _pck.Workbook.ReadAllTables();
 
                 int Id = _pck.Workbook._nextTableID++;
                 prevName = name;

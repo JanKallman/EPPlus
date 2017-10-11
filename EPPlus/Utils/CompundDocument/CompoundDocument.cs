@@ -130,7 +130,7 @@ namespace OfficeOpenXml.Utils.CompundDocument
             }
             foreach (var item in storage.DataStreams)
             {
-                var c = new CompoundDocumentItem() { Name = item.Key, ObjectType = 2, Stream = item.Value, StreamSize = item.Value.Length, Parent = parent };
+                var c = new CompoundDocumentItem() { Name = item.Key, ObjectType = 2, Stream = item.Value, StreamSize = (item.Value == null ? 0 : item.Value.Length), Parent = parent };
                 parent.Children.Add(c);
             }
         }

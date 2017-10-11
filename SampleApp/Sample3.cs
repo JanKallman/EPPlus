@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * All rights reserved.
@@ -27,7 +27,7 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		10-SEP-2009
+ * Jan KÃ¤llman		Added		10-SEP-2009
  *******************************************************************************/
 
 /*
@@ -39,7 +39,7 @@
  * 
  * Sample 3: Creates a workbook based on a template and populates using the database data.
  * 
- * Copyright 2007 © Dr John Tunnicliffe 
+ * Copyright 2007 Â© Dr John Tunnicliffe 
  * mailto:dr.john.tunnicliffe@btinternet.com
  * All rights reserved.
  * 

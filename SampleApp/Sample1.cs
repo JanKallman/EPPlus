@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * All rights reserved.
@@ -27,7 +27,7 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		21 Mar 2010
+ * Jan KÃ¤llman		Added		21 Mar 2010
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -129,14 +129,14 @@ namespace EPPlusSamples
 
                 // set some document properties
                 package.Workbook.Properties.Title = "Invertory";
-                package.Workbook.Properties.Author = "Jan Källman";
+                package.Workbook.Properties.Author = "Jan KÃ¤llman";
                 package.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 workbook using EPPlus";
 
                 // set some extended property values
                 package.Workbook.Properties.Company = "AdventureWorks Inc.";
 
                 // set some custom property values
-                package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
+                package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan KÃ¤llman");
                 package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
                 // save our new workbook and we are done!
                 package.Save();
