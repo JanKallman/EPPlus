@@ -47,7 +47,7 @@ namespace EPPlusTest
             }
 
             List<X509Certificate2> ret = new List<X509Certificate2>();
-            X509Store store = new X509Store(StoreName.My,StoreLocation.CurrentUser);
+            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
             package.Workbook.VbaProject.Signature.Certificate = store.Certificates[19];
             //package.Workbook.VbaProject.Protection.SetPassword("");
@@ -115,7 +115,7 @@ namespace EPPlusTest
 
             package.SaveAs(new FileInfo(@"c:\temp\vbaLong.xlsm"));
         }
-        [Ignore]        
+        [Ignore]
         [TestMethod]
         public void VbaError()
         {
@@ -173,7 +173,7 @@ namespace EPPlusTest
                 sb.AppendLine("Sub GetData()");
                 sb.AppendLine("MsgBox (\"Hello,World\")");
                 sb.AppendLine("End Sub");
-                
+
                 ExcelWorksheet worksheet2 = package.Workbook.Worksheets.Add("Sheet1");
                 var stringBuilder = new StringBuilder();
                 stringBuilder.AppendLine("Private Sub Worksheet_Change(ByVal Target As Range)");
@@ -189,13 +189,13 @@ namespace EPPlusTest
         [TestMethod]
         public void VbaBug()
         {
-            using ( var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\outfile.xlsm")))
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\outfile.xlsm")))
             {
                 Console.WriteLine(package.Workbook.CodeModule.Code.Length);
                 package.Workbook.Worksheets[1].CodeModule.Code = "Private Sub Worksheet_SelectionChange(ByVal Target As Range)\r\n\r\nEnd Sub";
-                package.Workbook.Worksheets.Add("TestCopy",package.Workbook.Worksheets[1]);
+                package.Workbook.Worksheets.Add("TestCopy", package.Workbook.Worksheets[1]);
                 package.SaveAs(new FileInfo(@"c:\temp\bug\outfile2.xlsm"));
-            }   
+            }
         }
         [TestMethod]
         public void DecompressionChunkGreaterThan4k()
@@ -218,6 +218,16 @@ namespace EPPlusTest
                     // Reading the Workbook.CodeModule.Code will cause an IndexOutOfRange if the problem hasn't been fixed.
                     Assert.IsTrue(package.Workbook.CodeModule.Code.Length > 0);
                 }
+            }
+        }
+        [TestMethod]
+        public void ReadNewVBA()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\makro.xlsm")))
+            {
+                Console.WriteLine(package.Workbook.VbaProject.Modules[0].Name);
+                
+                package.SaveAs(new FileInfo(@"c:\temp\bug\makroepp.xlsm"));
             }
         }
     }

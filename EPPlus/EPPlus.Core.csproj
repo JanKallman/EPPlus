@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+    <AssemblyVersion>4.5.0.0</AssemblyVersion>
+    <FileVersion>4.5.0.0</FileVersion>
+    <Version>4.5.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
+    <Authors>Jan Källman</Authors>
+    <Company />
+    <Product>EPPlus</Product>
+    <Description>Create advanced Excel spreadsheets using DotNet</Description>
+    <AssemblyName>EPPlus</AssemblyName>
+    <RootNamespace>EPPlus</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

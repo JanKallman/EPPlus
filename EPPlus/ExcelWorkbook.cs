@@ -28,7 +28,7 @@
  * ******************************************************************************
  * Jan Källman		    Initial Release		       2011-01-01
  * Jan Källman		    License changed GPL-->LGPL 2011-12-27
- * Richard Tallent		Fix escaping of quotes					2012-10-31
+ * Richard Tallent		Fix escaping of quotes     2012-10-31
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -107,7 +107,7 @@ namespace OfficeOpenXml
 			_names = new ExcelNamedRangeCollection(this);
 			_namespaceManager = namespaceManager;
 			TopNode = WorkbookXml.DocumentElement;
-			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
+			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", "webPublishObjects", "extLst" };
 		    FullCalcOnLoad = true;  //Full calculation on load by default, for both new workbooks and templates.
 			GetSharedStrings();
 		}

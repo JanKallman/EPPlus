@@ -869,7 +869,7 @@ namespace OfficeOpenXml.VBA
                 bw.Write((ushort)0); //Null
             }
             bw.Write((ushort)0); //Null
-            return VBACompression.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
+            return ((MemoryStream)bw.BaseStream).ToArray();
         }       
         private byte[] CreateProjectStream()
         {

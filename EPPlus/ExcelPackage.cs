@@ -188,6 +188,7 @@ namespace OfficeOpenXml
 		/// Main Xml schema name
 		/// </summary>
 		internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+                                            
 		/// <summary>
 		/// Relationship schema name
 		/// </summary>
@@ -214,7 +215,8 @@ namespace OfficeOpenXml
         internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
         internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
         internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
-
+        
+        internal const string schemaMainX14 = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
         //Pivottables
         internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
@@ -685,7 +687,7 @@ namespace OfficeOpenXml
             NameTable nt = new NameTable();
             var ns = new XmlNamespaceManager(nt);
             ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
-            ns.AddNamespace("d", ExcelPackage.schemaMain);
+            ns.AddNamespace("d", ExcelPackage.schemaMain);            
             ns.AddNamespace("r", ExcelPackage.schemaRelationships);
             ns.AddNamespace("c", ExcelPackage.schemaChart);
             ns.AddNamespace("vt", schemaVt);
@@ -700,6 +702,7 @@ namespace OfficeOpenXml
             ns.AddNamespace("dcterms", schemaDcTerms);
             ns.AddNamespace("dcmitype", schemaDcmiType);
             ns.AddNamespace("xsi", schemaXsi);
+            ns.AddNamespace("x14", schemaMainX14);
             return ns;
         }
 		

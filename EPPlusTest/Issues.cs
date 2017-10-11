@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;
 using System.Text;
+using System.Dynamic;
 
 namespace EPPlusTest
 {
@@ -1581,7 +1582,65 @@ namespace EPPlusTest
             sheet.Cells[1, 1].Copy(sheet.Cells[3, 1]); //A3
 
             Assert.AreEqual(true, sheet.Cells[3, 1].IsArrayFormula);
-            
+        }
+        [TestMethod]
+        public void Issue_5()
+        {
+            var excelFile = new FileInfo(@"c:\temp\bug\test.xlsm");
+            using (var package = new ExcelPackage(excelFile))
+            {
+                var ws = package.Workbook.Worksheets.Add("NewWorksheet");
+                ws.CodeModule.Code = "Private Sub Worksheet_SelectionChange(ByVal Target As Range)\r\n\r\nEnd Sub";
+                package.SaveAs(new FileInfo(@"c:\temp\bug\vbafailSaved.xlsm"));
+            }
+        }
+        [TestMethod]
+        public void Issue_8()
+        {
+            dynamic c = 1;
+
+            var l = new List<dynamic>();
+            l.Add(1);
+            l.Add("s");
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Dynamic Test");
+                ws.Cells["a1"].LoadFromCollection(l);
+                package.SaveAs(new FileInfo(@"c:\temp\dynamic.xlsx"));
+            }
+
+
+        }
+        [TestMethod]
+        public void Issuer27()
+        {
+            FileInfo file = new FileInfo(@"C:\Temp\Test.xlsx");
+            var pck = new ExcelPackage(file);
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Worksheet");
+            if (ws != null)
+            {
+                ws.Cells["A1"].Value = "Cell value 1";
+                ws.Cells["B1"].Value = "Cell value 2";
+                ws.Cells["C1"].Value = "Cell value 3";
+                ws.Cells["D1"].Value = "Cell value 4";
+                ws.Cells["E1"].Value = "Cell value 5";
+            }
+            //ws.Cells.Style.VerticalAlignment = ExcelVerticalAlignment::Top; // Columns 4 and greater hidden
+            ws.Cells.AutoFitColumns(0);
+            ws.Cells.Style.VerticalAlignment = ExcelVerticalAlignment.Top; // 4.1.1.0 - exception, 4.0.4.0 - columns 4 and 5 hidden
+            ws.Column(4).Hidden = true;
+            ws.Column(5).Hidden = true; // span exception
+            pck.Save();
+        }
+        [TestMethod]
+        public void Issuer26()
+        {
+            FileInfo file = new FileInfo(@"C:\Temp\repeatrowcol.xlsx");
+            var pck = new ExcelPackage(file);
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Worksheet");
+            ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1");
+            ws.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
+            pck.Save();
         }
     }
- }
+}

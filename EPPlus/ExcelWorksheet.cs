@@ -4111,7 +4111,7 @@ namespace OfficeOpenXml
             }
         }
 
-#region Drawing
+        #region Drawing
         ExcelDrawings _drawings = null;
         /// <summary>
         /// Collection of drawing-objects like shapes, images and charts
@@ -4127,7 +4127,7 @@ namespace OfficeOpenXml
                 return _drawings;
             }
         }
-#endregion
+        #endregion
         ExcelTableCollection _tables = null;
         /// <summary>
         /// Tables defined in the worksheet.
