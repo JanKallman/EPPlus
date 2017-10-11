@@ -27,8 +27,8 @@
  * Author							Change						Date
  * ******************************************************************************
 <<<<<<< HEAD
- * Jan Källman		    Initial Release		       2011-01-01
- * Jan Källman		    License changed GPL-->LGPL 2011-12-27
+ * Jan Kï¿½llman		    Initial Release		       2011-01-01
+ * Jan Kï¿½llman		    License changed GPL-->LGPL 2011-12-27
  * Richard Tallent		Fix escaping of quotes     2012-10-31
 =======
  * Jan KÃ¤llman		    Initial Release		       2011-01-01

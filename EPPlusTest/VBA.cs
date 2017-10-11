@@ -220,7 +220,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void ReadNewVBA()
         {
             using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\makro.xlsm")))

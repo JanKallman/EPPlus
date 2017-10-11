@@ -1583,7 +1583,7 @@ namespace EPPlusTest
 
             Assert.AreEqual(true, sheet.Cells[3, 1].IsArrayFormula);
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue_5()
         {
             var excelFile = new FileInfo(@"c:\temp\bug\test.xlsm");
@@ -1594,7 +1594,7 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\vbafailSaved.xlsm"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue_8()
         {
             dynamic c = 1;
@@ -1611,7 +1611,7 @@ namespace EPPlusTest
 
 
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issuer27()
         {
             FileInfo file = new FileInfo(@"C:\Temp\Test.xlsx");
@@ -1632,7 +1632,7 @@ namespace EPPlusTest
             ws.Column(5).Hidden = true; // span exception
             pck.Save();
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issuer26()
         {
             FileInfo file = new FileInfo(@"C:\Temp\repeatrowcol.xlsx");
