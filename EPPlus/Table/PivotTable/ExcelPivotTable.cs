@@ -486,7 +486,22 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable columns
         /// </summary>
+        [Obsolete("Use correctly spelled property 'ColumnGrandTotals'")]
         public bool ColumGrandTotals
+        {
+            get
+            {
+                return ColumnGrandTotals;
+            }
+            set
+            {
+                ColumnGrandTotals = value;
+            }
+        }
+        /// <summary>
+        /// If the grand totals should be displayed for the PivotTable columns
+        /// </summary>
+        public bool ColumnGrandTotals
         {
             get
             {
@@ -496,7 +511,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 SetXmlNodeBool("@colGrandTotals", value);
             }
-        }        
+        }
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable rows
         /// </summary>
