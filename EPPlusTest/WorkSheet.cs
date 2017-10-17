@@ -2164,6 +2164,9 @@ namespace EPPlusTest
             pt.RowFields.Add(pt.Fields[2]);
             pt.RowFields.Add(pt.Fields[4]);
             pt.DataOnRows = true;
+            pt.ColumnHeaderCaption = "Column Caption";
+            pt.RowHeaderCaption = "Row Caption";
+
             //wsPivot10.Drawings.AddChart("Pivotchart10", OfficeOpenXml.Drawing.Chart.eChartType.BarStacked3D, pt);
 
         }
