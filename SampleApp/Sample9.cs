@@ -51,8 +51,18 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="outputDir"></param>
         /// <returns></returns>
-        public static string RunSample9(DirectoryInfo outputDir)
+        public static string RunSample9()
         {
+            Stream stream = File.Open(@"C:\Users\Stenrud\Desktop\Book1.xlsx", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            ExcelPackage package1 = new ExcelPackage(stream);
+
+            var a = package1.Workbook.Theme;
+            
+
+
+
+            DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
+
             FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample9.xlsx");
             if (newFile.Exists)
             {

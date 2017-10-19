@@ -39,6 +39,9 @@ namespace EPPlusSamples
 	{
 		static void Main(string[] args)
 		{
+            Sample9.RunSample9();
+            return;
+
 			try
 			{
                 //If you use Net.Core, add the conditional complilation symbol "Core" under Project Properties, Build-Tab
@@ -124,7 +127,7 @@ namespace EPPlusSamples
                 //Sample 9 Loads two csv files into tables and creates an area chart and a Column/Line chart on the data.
                 //This sample also shows how to use a secondary axis.
                 Console.WriteLine("Running sample 9");
-                output = Sample9.RunSample9(outputDir);
+                output = Sample9.RunSample9();
                 Console.WriteLine("Sample 9 created: {0}", output);
                 Console.WriteLine();
 
