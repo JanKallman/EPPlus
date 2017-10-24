@@ -56,7 +56,8 @@ namespace EPPlusSamples
             Stream stream = File.Open(@"C:\Users\Stenrud\Desktop\Book1.xlsx", FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             ExcelPackage package1 = new ExcelPackage(stream);
 
-            var a = package1.Workbook.Theme;
+            var a = package1.Workbook.Theme.Colors.ElementAt(1);
+
             
 
 
