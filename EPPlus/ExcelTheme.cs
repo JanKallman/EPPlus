@@ -44,7 +44,7 @@ namespace OfficeOpenXml
             foreach (XmlElement n in themeColorNodes)
             {
                 string hex = n.GetAttribute("val");
-                _colors.Add("FFFFFF");
+                _colors.Add(hex);
             }
 
             // In GUI, color 0 and 1, and 2 and 3 has switched position, compared to the xml file 
