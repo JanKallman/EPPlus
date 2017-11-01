@@ -88,21 +88,23 @@ namespace OfficeOpenXml
 		private OfficeProperties _properties;
 
 		private ExcelStyles _styles;
-		#endregion
+        private ExcelTheme _theme;
+        #endregion
 
-		#region ExcelWorkbook Constructor
-		/// <summary>
-		/// Creates a new instance of the ExcelWorkbook class.
-		/// </summary>
-		/// <param name="package">The parent package</param>
-		/// <param name="namespaceManager">NamespaceManager</param>
-		internal ExcelWorkbook(ExcelPackage package, XmlNamespaceManager namespaceManager) :
+        #region ExcelWorkbook Constructor
+        /// <summary>
+        /// Creates a new instance of the ExcelWorkbook class.
+        /// </summary>
+        /// <param name="package">The parent package</param>
+        /// <param name="namespaceManager">NamespaceManager</param>
+        internal ExcelWorkbook(ExcelPackage package, XmlNamespaceManager namespaceManager) :
 			base(namespaceManager)
 		{
 			_package = package;
 			WorkbookUri = new Uri("/xl/workbook.xml", UriKind.Relative);
 			SharedStringsUri = new Uri("/xl/sharedStrings.xml", UriKind.Relative);
 			StylesUri = new Uri("/xl/styles.xml", UriKind.Relative);
+            ThemeUri = new Uri("/xl/theme/theme1.xml", UriKind.Relative);
 
 			_names = new ExcelNamedRangeCollection(this);
 			_namespaceManager = namespaceManager;
@@ -472,10 +474,14 @@ namespace OfficeOpenXml
         /// URI to the styles inside the package
 		/// </summary>
 		internal Uri StylesUri { get; private set; }
-		/// <summary>
+        /// <summary>
+        /// Uri to the theme inside the package
+        /// </summary>
+        internal Uri ThemeUri { get; private set; }
+        /// <summary>
         /// URI to the shared strings inside the package
-		/// </summary>
-		internal Uri SharedStringsUri { get; private set; }
+        /// </summary>
+        internal Uri SharedStringsUri { get; private set; }
 		/// <summary>
 		/// Returns a reference to the workbook's part within the package
 		/// </summary>
@@ -603,10 +609,11 @@ namespace OfficeOpenXml
 		#endregion
 		#region StylesXml
 		private XmlDocument _stylesXml;
-		/// <summary>
-		/// Provides access to the XML data representing the styles in the package. 
-		/// </summary>
-		public XmlDocument StylesXml
+        private XmlDocument _themeXml;
+        /// <summary>
+        /// Provides access to the XML data representing the styles in the package. 
+        /// </summary>
+        public XmlDocument StylesXml
 		{
 			get
 			{
@@ -653,10 +660,31 @@ namespace OfficeOpenXml
 				_stylesXml = value;
 			}
 		}
-		/// <summary>
-		/// Package styles collection. Used internally to access style data.
-		/// </summary>
-		public ExcelStyles Styles
+
+        public XmlDocument ThemeXml
+        {
+            get
+            {
+                if (_themeXml == null)
+                {
+                    if (_package.Package.PartExists(ThemeUri))
+                        _themeXml = _package.GetXmlFromUri(ThemeUri);
+                    else
+                    {
+                        throw new NotSupportedException();
+                    }
+                }
+                return (_themeXml);
+            }
+            set
+            {
+                _themeXml = value;
+            }
+        }
+        /// <summary>
+        /// Package styles collection. Used internally to access style data.
+        /// </summary>
+        public ExcelStyles Styles
 		{
 			get
 			{
@@ -667,13 +695,24 @@ namespace OfficeOpenXml
 				return _styles;
 			}
 		}
-		#endregion
+        public ExcelTheme Theme
+        {
+            get
+            {
+                if (_theme == null)
+                {
+                    _theme = new ExcelTheme(NameSpaceManager, ThemeXml, this);
+                }
+                return _theme;
+            }
+        }
+        #endregion
 
-		#region Office Document Properties
-		/// <summary>
-		/// The office document properties
-		/// </summary>
-		public OfficeProperties Properties
+        #region Office Document Properties
+        /// <summary>
+        /// The office document properties
+        /// </summary>
+        public OfficeProperties Properties
 		{
 			get 
 			{
