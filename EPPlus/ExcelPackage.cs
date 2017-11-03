@@ -4,7 +4,7 @@
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
  * See http://www.codeplex.com/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,11 +26,11 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * Starnuto Di Topo & Jan Källman   Added stream constructors 
+ * Jan KÃ¤llman		                Initial Release		        2009-10-01
+ * Starnuto Di Topo & Jan KÃ¤llman   Added stream constructors 
  *                                  and Load method Save as 
  *                                  stream                      2010-03-14
- * Jan Källman		License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -146,14 +146,14 @@ namespace OfficeOpenXml
     ///
     ///         // set some document properties
     ///         package.Workbook.Properties.Title = "Invertory";
-    ///         package.Workbook.Properties.Author = "Jan Källman";
+    ///         package.Workbook.Properties.Author = "Jan KÃ¤llman";
     ///         package.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 workbook using EPPlus";
     ///
     ///         // set some extended property values
     ///         package.Workbook.Properties.Company = "AdventureWorks Inc.";
     ///
     ///         // set some custom property values
-    ///         package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
+    ///         package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan KÃ¤llman");
     ///         package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
     ///
     ///         // save our new workbook and we are done!
@@ -188,6 +188,7 @@ namespace OfficeOpenXml
 		/// Main Xml schema name
 		/// </summary>
 		internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+                                            
 		/// <summary>
 		/// Relationship schema name
 		/// </summary>
@@ -214,7 +215,8 @@ namespace OfficeOpenXml
         internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
         internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
         internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
-
+        
+        internal const string schemaMainX14 = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
         //Pivottables
         internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
@@ -685,7 +687,7 @@ namespace OfficeOpenXml
             NameTable nt = new NameTable();
             var ns = new XmlNamespaceManager(nt);
             ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
-            ns.AddNamespace("d", ExcelPackage.schemaMain);
+            ns.AddNamespace("d", ExcelPackage.schemaMain);            
             ns.AddNamespace("r", ExcelPackage.schemaRelationships);
             ns.AddNamespace("c", ExcelPackage.schemaChart);
             ns.AddNamespace("vt", schemaVt);
@@ -700,6 +702,7 @@ namespace OfficeOpenXml
             ns.AddNamespace("dcterms", schemaDcTerms);
             ns.AddNamespace("dcmitype", schemaDcmiType);
             ns.AddNamespace("xsi", schemaXsi);
+            ns.AddNamespace("x14", schemaMainX14);
             return ns;
         }
 		

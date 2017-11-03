@@ -2126,7 +2126,6 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="Text">The Text</param>
         /// <param name="Format">Information how to load the text</param>
-        /// <param name="AllowEOLInColumn">Allow specified EOL characters inside a column (inside the TextQualifiers of a column). Bad for performance, so dont use it unless you have to. Default False</param>
         /// <returns>The range containing the data</returns>
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format)
         {
