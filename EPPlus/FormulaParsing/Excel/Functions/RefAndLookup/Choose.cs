@@ -33,6 +33,13 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 {
     public class Choose : ExcelFunction
     {
+        private readonly CompileResultFactory _compileResultFactory;
+
+        public Choose()
+        {
+            _compileResultFactory = new CompileResultFactory();
+        }
+
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 2);
@@ -52,7 +59,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             else
             {
                 var index = ArgToInt(arguments, 0);
-                return CreateResult(items[index].ToString(), DataType.String);
+                return _compileResultFactory.Create(items[index]);
             }
         }
     }
