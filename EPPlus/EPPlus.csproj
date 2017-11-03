@@ -223,6 +223,7 @@
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
     <Compile Include="Drawing\Chart\ExcelChartDataTable.cs" />
+    <Compile Include="ExcelTheme.cs" />
     <Compile Include="FontSize.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationAny.cs" />
@@ -726,6 +727,7 @@
     <Compile Include="RangeCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Style\XmlAccess\ExcelThemeColor.cs" />
     <Compile Include="Utils\CompundDocument\CompoundDocumentFile.cs" />
     <Compile Include="Utils\CompundDocument\CoumpundDocumentItem.cs" />
     <Compile Include="Utils\ConvertUtil.cs" />
