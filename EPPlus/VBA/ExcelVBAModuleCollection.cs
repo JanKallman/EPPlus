@@ -28,7 +28,7 @@
  *******************************************************************************
  * Jan Källman		Added		12-APR-2012
  *******************************************************************************/
-using EPPlus.Core.Compatibility;
+using EPPlus.Compatibility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

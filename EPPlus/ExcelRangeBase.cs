@@ -56,7 +56,7 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
-using EPPlus.Core.Compatibility;
+using EPPlus.Compatibility;
 
 namespace OfficeOpenXml
 {	

@@ -18,6 +18,10 @@ using System.Dynamic;
 
 namespace EPPlusTest
 {
+    /// <summary>
+    /// This class contains testcases for issues on Codeplex and Github.
+    /// All tests requiering an template should be set to ignored as it's not practical to include all xlsx templates in the project.
+    /// </summary>
     [TestClass]
     public class Issues
     {
@@ -40,12 +44,8 @@ namespace EPPlusTest
             var ws = p.Workbook.Worksheets.Add("test");
             ws.Cells["A1:A4"].Value = 1;
             ws.Cells["B1:B4"].Value = 2;
-
-            ws.Cells[1, 1, 4, 1]
-                        .Style.Numberformat.Format = "#,##0.00;[Red]-#,##0.00";
-
-            ws.Cells[1, 2, 5, 2]
-                                    .Style.Numberformat.Format = "#,##0;[Red]-#,##0";
+            ws.Cells[1, 1, 4, 1].Style.Numberformat.Format = "#,##0.00;[Red]-#,##0.00";
+            ws.Cells[1, 2, 5, 2].Style.Numberformat.Format = "#,##0;[Red]-#,##0";
 
             p.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
@@ -1522,7 +1522,6 @@ namespace EPPlusTest
                 Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
             }
         }
-
         [TestMethod]
         public void Issue15548_SumIfsShouldHandleBadData()
         {
@@ -1641,6 +1640,44 @@ namespace EPPlusTest
             ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1");
             ws.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
             pck.Save();
+        }
+        [TestMethod, Ignore]
+        public void Issue32()
+        {
+            var outputDir = new DirectoryInfo(@"c:\temp\sampleapp");
+            var existFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+            string newFileName = outputDir.FullName + @"\sample1_copied.xlsx";
+
+            System.IO.File.Copy(existFile.FullName, newFileName, true);
+            var newFile = new FileInfo(newFileName);
+
+            using (var package = new ExcelPackage(newFile))
+            {
+                // Add a new worksheet to the empty workbook
+
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory_copied", package.Workbook.Worksheets[1]);
+
+                //ExcelNamedRange sourceRange = package.Workbook.Names["Body"];
+                ExcelNamedRange sourceRange = package.Workbook.Names["row"];
+                ExcelNamedRange sourceRange2 = package.Workbook.Names["roww"];
+                ExcelNamedRange sourceRange3 = package.Workbook.Names["rowww"];
+                ExcelWorksheet worksheetFrom = sourceRange.Worksheet;
+
+                ExcelWorksheet worksheetTo = package.Workbook.Worksheets["Inventory_copied"];
+
+                ExcelRange cells = worksheetTo.Cells;
+                ExcelRange rangeTo = cells[1, 1, 1, 16384];
+                sourceRange.Copy(rangeTo);
+                ExcelRange rangeTo2 = cells[2, 1, 2, 16384];
+                sourceRange2.Copy(rangeTo2);
+                ExcelRange rangeTo3 = cells[4, 1, 4, 16384];
+                sourceRange3.Copy(rangeTo3);
+
+                package.Save();
+
+                //}
+                
+            }
         }
     }
 }

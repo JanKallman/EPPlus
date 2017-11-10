@@ -34,7 +34,6 @@ using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml.Style.XmlAccess;
 using System.Drawing;
-
 namespace OfficeOpenXml.Style
 {
     /// <summary>

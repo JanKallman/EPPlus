@@ -80,6 +80,9 @@
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client\PresentationFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client\System.configuration.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
@@ -93,8 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellStore.cs" />
-    <Compile Include="Compatibility\DateTimeExtensions.cs" />
-    <Compile Include="Compatibility\SecurityElement.cs" />
+    <Compile Include="Compatibility\CompatibilitySettings.cs" />
     <Compile Include="Compatibility\TypeCompat.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBeginsWith.cs" />

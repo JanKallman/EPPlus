@@ -49,7 +49,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
 using OfficeOpenXml.Style;
-using EPPlus.Core.Compatibility;
+using EPPlus.Compatibility;
 
 namespace OfficeOpenXml
 {
@@ -90,7 +90,7 @@ namespace OfficeOpenXml
 		}
 		#region Private Properties
 		internal ExcelPackage _package;
-		private ExcelWorksheets _worksheets;
+		internal ExcelWorksheets _worksheets;
 		private OfficeProperties _properties;
 
 		private ExcelStyles _styles;
@@ -177,15 +177,17 @@ namespace OfficeOpenXml
 
 					int localSheetID;
 					ExcelWorksheet nameWorksheet;
-					if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
+					
+                    if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
 					{
 						localSheetID = -1;
 						nameWorksheet=null;
 					}
 					else
 					{
-						nameWorksheet=Worksheets[localSheetID + 1];
+						nameWorksheet=Worksheets[localSheetID + _package._worksheetAdd];
 					}
+
 					var addressType = ExcelAddressBase.IsValid(fullAddress);
 					ExcelRangeBase range;
 					ExcelNamedRange namedRange;
@@ -250,11 +252,11 @@ namespace OfficeOpenXml
 						{
 							if (string.IsNullOrEmpty(addr._ws))
 							{
-								namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[localSheetID + 1], fullAddress, false));
+								namedRange = Worksheets[localSheetID + _package._worksheetAdd].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[localSheetID + _package._worksheetAdd], fullAddress, false));
 							}
 							else
 							{
-								namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[addr._ws], fullAddress, false));
+								namedRange = Worksheets[localSheetID + _package._worksheetAdd].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[addr._ws], fullAddress, false));
 							}
 						}
 						else
@@ -268,11 +270,13 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		#region Worksheets
-		/// <summary>
-		/// Provides access to all the worksheets in the workbook.
-		/// </summary>
-		public ExcelWorksheets Worksheets
+        #region Worksheets
+        /// <summary>
+        /// Provides access to all the worksheets in the workbook.
+        /// Note: Worksheets index either starts by 0 or 1 depending on the Excelpackage.Compatibility.IsWorksheets1Based property.
+        /// Default is 1 for .Net 3.5 and .Net 4 and 0 for .Net Core.
+        /// </summary>
+        public ExcelWorksheets Worksheets
 		{
 			get
 			{

@@ -65,7 +65,7 @@ namespace OfficeOpenXml
 			_pck = pck;
             _namespaceManager = nsm;
 			_worksheets = new Dictionary<int, ExcelWorksheet>();
-			int positionID = 1;
+			int positionID = _pck._worksheetAdd;
 
             foreach (XmlNode sheetNode in topNode.ChildNodes)
 			{
@@ -173,7 +173,7 @@ namespace OfficeOpenXml
 
                 string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
 
-                int positionID = _worksheets.Count + 1;
+                int positionID = _worksheets.Count + _pck._worksheetAdd;
                 ExcelWorksheet worksheet;
                 if (isChart)
                 {
@@ -229,7 +229,7 @@ namespace OfficeOpenXml
 
                 //Create a relation to the workbook
                 string relID = CreateWorkbookRel(Name, sheetID, uriWorksheet, false);
-                ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + 1, eWorkSheetHidden.Visible);
+                ExcelWorksheet added = new ExcelWorksheet(_namespaceManager, _pck, relID, uriWorksheet, Name, sheetID, _worksheets.Count + _pck._worksheetAdd, eWorkSheetHidden.Visible);
 
                 //Copy comments
                 if (Copy.Comments.Count > 0)
@@ -274,7 +274,7 @@ namespace OfficeOpenXml
                     Copy.CodeModuleName = name;
                 }
 
-                _worksheets.Add(_worksheets.Count + 1, added);
+                _worksheets.Add(_worksheets.Count + _pck._worksheetAdd, added);
 
                 //Remove any relation to printersettings.
                 XmlNode pageSetup = added.WorksheetXml.SelectSingleNode("//d:pageSetup", _namespaceManager);
@@ -507,12 +507,12 @@ namespace OfficeOpenXml
 
             bool doAdjust = _pck.DoAdjustDrawings;
             _pck.DoAdjustDrawings = false;
-            added.MergedCells.List.AddRange(Copy.MergedCells.List);
-            //Formulas
-            //foreach (IRangeID f in Copy._formulaCells)
-            //{
-            //    added._formulaCells.Add(f);
-            //}
+            //Merged cells
+            foreach (var r in added.MergedCells)
+            {
+                added.MergedCells.Add(new ExcelAddress(r),false);
+            }
+
             //Shared Formulas
             foreach (int key in Copy._sharedFormulas.Keys)
             {
@@ -947,7 +947,7 @@ namespace OfficeOpenXml
             }
             if (_pck.Workbook.View.ActiveTab == worksheet.SheetID)
             {
-                _pck.Workbook.Worksheets[1].View.TabSelected = true;
+                _pck.Workbook.Worksheets[_pck._worksheetAdd].View.TabSelected = true;
             }
             worksheet = null;
         }
@@ -996,9 +996,9 @@ namespace OfficeOpenXml
             }
         }
         #endregion
-		private void ReindexWorksheetDictionary()
+		internal void ReindexWorksheetDictionary()
 		{
-			var index = 1;
+			var index = _pck._worksheetAdd;
 			var worksheets = new Dictionary<int, ExcelWorksheet>();
 			foreach (var entry in _worksheets)
 			{
@@ -1130,7 +1130,7 @@ namespace OfficeOpenXml
 			{
 				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", sourceName));
 			}
-			Move(sourceSheet.PositionID, 1, false);
+			Move(sourceSheet.PositionID, _pck._worksheetAdd, false);
 		}
 
 		/// <summary>
@@ -1139,7 +1139,7 @@ namespace OfficeOpenXml
 		/// <param name="sourcePositionId"></param>
 		public void MoveToStart(int sourcePositionId)
 		{
-			Move(sourcePositionId, 1, false);
+			Move(sourcePositionId, _pck._worksheetAdd, false);
 		}
 
 		/// <summary>
@@ -1153,7 +1153,7 @@ namespace OfficeOpenXml
 			{
 				throw new Exception(string.Format("Move worksheet error: Could not find worksheet to move '{0}'", sourceName));
 			}
-			Move(sourceSheet.PositionID, _worksheets.Count, true);
+            Move(sourceSheet.PositionID, _worksheets.Count + (_pck._worksheetAdd - 1), true);
 		}
 
 		/// <summary>
@@ -1162,7 +1162,7 @@ namespace OfficeOpenXml
 		/// <param name="sourcePositionId"></param>
 		public void MoveToEnd(int sourcePositionId)
 		{
-			Move(sourcePositionId, _worksheets.Count, true);
+			Move(sourcePositionId, _worksheets.Count+(_pck._worksheetAdd - 1), true);
 		}
 
 		private void Move(string sourceName, string targetName, bool placeAfter)
@@ -1203,7 +1203,7 @@ namespace OfficeOpenXml
                     return;		//--- no reason to attempt to re-arrange a single item with itself
                 }
 
-                var index = 1;
+                var index = _pck._worksheetAdd;
                 var newOrder = new Dictionary<int, ExcelWorksheet>();
                 foreach (var entry in _worksheets)
                 {

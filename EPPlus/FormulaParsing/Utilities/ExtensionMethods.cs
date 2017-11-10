@@ -1,4 +1,4 @@
-﻿using EPPlus.Core.Compatibility;
+﻿using EPPlus.Compatibility;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -43,8 +43,12 @@ using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
 using OfficeOpenXml.Utils.CompundDocument;
+using System.Configuration;
+using EPPlus.Compatibility;
 using System.Text;
-
+#if (Core)
+using Microsoft.Extensions.Configuration;
+#endif
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -515,8 +519,24 @@ namespace OfficeOpenXml
         {
             DoAdjustDrawings = true;
 #if (Core)
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252            
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252
+
+            var build = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true,false);            
+            var c = build.Build();
+
+            var v = c["EPPlus:ExcelPackage:Compatibility:IsWorksheets1Based"];
+#else
+            var v = ConfigurationManager.AppSettings["EPPlus:ExcelPackage.Compatibility.IsWorksheets1Based"];
 #endif
+            if (v != null)
+            {
+                if(Boolean.TryParse(v.ToLowerInvariant(), out bool value))
+                {
+                    Compatibility.IsWorksheets1Based = value;
+                }
+            }
         }
         /// <summary>
         /// Create a new file from a template
@@ -989,13 +1009,28 @@ namespace OfficeOpenXml
                 Package.Compression = value;
             }
         }
-#region GetXmlFromUri
-		/// <summary>
-		/// Get the XmlDocument from an URI
-		/// </summary>
-		/// <param name="uri">The Uri to the part</param>
-		/// <returns>The XmlDocument</returns>
-		internal XmlDocument GetXmlFromUri(Uri uri)
+        CompatibilitySettings _compatibility = null;
+        /// <summary>
+        /// Compatibility settings for older versions of EPPlus.
+        /// </summary>
+        public CompatibilitySettings Compatibility
+        {
+            get
+            {
+                if(_compatibility==null)
+                {
+                    _compatibility=new CompatibilitySettings(this);
+                }
+                return _compatibility;
+            }
+        }
+        #region GetXmlFromUri
+        /// <summary>
+        /// Get the XmlDocument from an URI
+        /// </summary>
+        /// <param name="uri">The Uri to the part</param>
+        /// <returns>The XmlDocument</returns>
+        internal XmlDocument GetXmlFromUri(Uri uri)
 		{
 			XmlDocument xml = new XmlDocument();
 			Packaging.ZipPackagePart part = _package.GetPart(uri);
@@ -1158,6 +1193,11 @@ namespace OfficeOpenXml
             this._workbook = null;
         }
         static object _lock=new object();
+#if (Core)
+        internal int _worksheetAdd=0;
+#else
+        internal int _worksheetAdd=1;
+#endif
         /// <summary>
         /// Copies the input stream to the output stream.
         /// </summary>
