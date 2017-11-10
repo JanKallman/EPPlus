@@ -3683,7 +3683,7 @@ namespace OfficeOpenXml
                     {
                         if (v == null && styleID > 0)
                         {
-                            cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"/>", cse.CellAddress, styleID < 0 ? 0 : styleID);
+                            cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"/>", cse.CellAddress, styleID);
                         }
                         else if(v != null)
                         {

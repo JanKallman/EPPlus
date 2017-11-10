@@ -375,7 +375,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     {
                                         DataType = eFormatType.Number;
                                     }
-                                    else if (clc == 'y' || clc == 'm' || clc == 'd' || clc == 'h' || clc == 'm' || clc == 's')
+                                    else if (clc == 'y' || clc == 'm' || clc == 'd' || clc == 'h' || clc == 's')
                                     {
                                         DataType = eFormatType.DateTime;
                                     }
@@ -579,7 +579,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                     List<double> numerators = new List<double>() { 1, 0 };
                     List<double> denominators = new List<double>() { 0, 1 };
 
-                    if (maxDigits < 1 && maxDigits > 12)
+                    if (maxDigits < 1 || maxDigits > 12)
                     {
                         throw (new ArgumentException("Number of digits out of range (1-12)"));
                     }

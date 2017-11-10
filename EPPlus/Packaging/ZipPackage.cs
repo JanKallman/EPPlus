@@ -155,11 +155,7 @@ namespace OfficeOpenXml.Packaging
                     if (!hasContentTypeXml)
                     {
                         throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
-                    }
-                    if (!hasContentTypeXml)
-                    {
-                        throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
-                    }
+                    }                    
                     zip.Close();
                     zip.Dispose();
                 }

@@ -104,7 +104,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             set
             {
-                if (value < 2 && value > 72)
+                if (value < 2 || value > 72)
                 {
                     throw (new ArgumentOutOfRangeException("MarkerSize out of range. Range from 2-72 allowed."));
                 }

@@ -247,10 +247,7 @@ namespace OfficeOpenXml.FormulaParsing
                     else if (wb.Names.ContainsKey(adrName))
                     {
                         name = wb.Names[t.Value];
-                        if (string.IsNullOrEmpty(adrWs))
-                        {
-                            f.ws = name.Worksheet;
-                        }
+                        f.ws = name.Worksheet;
                     }
                     else
                     {
