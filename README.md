@@ -1,4 +1,3 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/5mmhlpvhtlrhefub/branch/master?svg=true)](https://ci.appveyor.com/project/swmal/epplus/branch/master)
 # EPPlus
 Create advanced Excel spreadsheets using .NET, without the need of interop.
 
