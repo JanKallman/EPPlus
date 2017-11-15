@@ -1815,6 +1815,16 @@ namespace EPPlusTest
             List<object[]> testArray = new List<object[]>() { new object[] { 3, 4, 5, 6 }, new string[] { "Test1", "test", "5", "6" } };
             ws.Cells["A1"].LoadFromArrays(testArray);
         }
+
+        [TestMethod]
+        public void LoadArrayEmtpyCollection()
+        {
+            _pck = new ExcelPackage();
+            var ws = _pck.Workbook.Worksheets.Add("PivotTable");
+            var result = ws.Cells["A1"].LoadFromArrays(new object[][] { });
+            Assert.IsNull(result);
+        }
+
         [Ignore]
         [TestMethod]
         public void DefColWidthBug()

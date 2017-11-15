@@ -1904,6 +1904,7 @@ namespace OfficeOpenXml
 		{
             //thanx to Abdullin for the code contribution
             if (Data == null) throw new ArgumentNullException("data");
+		    if (!Data.Any()) return null;
 
             var rowArray = new List<object[]>();
             var maxColumn = 0;
