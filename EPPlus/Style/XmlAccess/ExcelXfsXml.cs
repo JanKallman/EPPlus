@@ -875,7 +875,11 @@ namespace OfficeOpenXml.Style.XmlAccess
             if(_readingOrder!=ExcelReadingOrder.ContextDependent) this.SetXmlNodeString(readingOrderPath, ((int)_readingOrder).ToString());
             if (_shrinkToFit) this.SetXmlNodeString(shrinkToFitPath, "1");
             if (_indent > 0) SetXmlNodeString(indentPath, _indent.ToString());
-            if (_textRotation > 0) this.SetXmlNodeString(textRotationPath, _textRotation.ToString());
+            if (_textRotation > 0)
+            {
+                SetXmlNodeString(textRotationPath, _textRotation.ToString());
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
             if (!_locked) this.SetXmlNodeString(lockedPath, "0");
             if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
             if (_quotePrefix) this.SetXmlNodeString(quotePrefixPath, "1");
