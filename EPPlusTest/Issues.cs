@@ -1679,5 +1679,36 @@ namespace EPPlusTest
                 
             }
         }
+
+        [TestMethod]
+        public void Issue63() // See https://github.com/JanKallman/EPPlus/issues/63
+        {
+            // Prepare
+            var newFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.xlsx"));
+            try
+            {
+                using (var package = new ExcelPackage(newFile))
+                {
+                    ExcelWorksheet ws = package.Workbook.Worksheets.Add("ArrayTest");
+                    ws.Cells["A1"].Value = 1;
+                    ws.Cells["A2"].Value = 2;
+                    ws.Cells["A3"].Value = 3;
+                    ws.Cells["B1:B3"].CreateArrayFormula("A1:A3");
+                    package.Save();
+                }
+                Assert.IsTrue(File.Exists(newFile.FullName));
+
+                // Test: basic support to recognize array formulas after reading Excel workbook file
+                using (var package = new ExcelPackage(newFile))
+                {
+                    Assert.AreEqual("A1:A3", package.Workbook.Worksheets["ArrayTest"].Cells["B1"].Formula);
+                    Assert.IsTrue(package.Workbook.Worksheets["ArrayTest"].Cells["B1"].IsArrayFormula);
+                }
+            }
+            finally
+            {
+                File.Delete(newFile.FullName);
+            }
+        }
     }
 }
