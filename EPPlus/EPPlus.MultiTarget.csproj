@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netstandard2.0</TargetFrameworks>
     <AssemblyVersion>4.5.0.0</AssemblyVersion>
     <FileVersion>4.5.0.0</FileVersion>
-    <Version>4.5.0.0-beta</Version>
+    <Version>4.5.0.0-beta2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -157,7 +157,7 @@ Release Candidate changes
     <AssemblyOriginatorKeyFile>OpenOfficeXml.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
  
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>Core</DefineConstants>
   </PropertyGroup>
 
@@ -204,18 +204,11 @@ Release Candidate changes
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="CoreCompat.System.Drawing.v2" Version="5.2.0-preview1-r131" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
-    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
-    <PackageReference Include="System.Data.Common" Version="4.3.0" />
-    <PackageReference Include="System.Reflection" Version="4.3.0" />
-    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.4.0" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
-    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
-    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="readme.txt" />
