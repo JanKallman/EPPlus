@@ -1,8 +1,13 @@
-EPPlus 4.5 Beta 1
+EPPlus 4.5 Beta 2
 
 Visit https://github.com/JanKallman/EPPlus for the latest information
 
 EPPlus-Create advanced Excel spreadsheet.
+
+4.5.0.1 Beta 2
+* Added sparkline support.
+* Switched targetframework from netcoreapp2.0 to netstandardapp2.0
+* Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
 4.5.0.0 Beta 1
 * .Net Core support.
