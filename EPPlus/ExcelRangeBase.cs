@@ -1912,6 +1912,7 @@ namespace OfficeOpenXml
                 rowArray.Add(item);
                 if (maxColumn < item.Length) maxColumn = item.Length;
             }
+            if (rowArray.Count == 0) return null; //Issue #57
             _worksheet._values.SetRangeValueSpecial(_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + maxColumn - 1,
                 (List<ExcelCoreValue> list, int index, int rowIx, int columnIx, object value) =>
                 {

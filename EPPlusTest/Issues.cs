@@ -1679,5 +1679,52 @@ namespace EPPlusTest
                 
             }
         }
+        [TestMethod, Ignore]
+        public void Issue60()
+        {
+            var ms = new MemoryStream(File.ReadAllBytes(@"c:\temp\sampleapp\sample10\Template.xlsx"));
+            using (var p = new ExcelPackage())
+            {
+                p.Load(ms, "");                
+            }
+        }
+        [TestMethod]
+        public void Issue58()
+        {
+            var fileInfo = new FileInfo(@"C:\Temp\issue58.xlsx");
+            var package = new ExcelPackage(fileInfo);
+            if (package.Workbook.Worksheets.Count > 0)
+                package.Workbook.Worksheets.Delete("Test");
+
+            var worksheet = package.Workbook.Worksheets.Add("Test");
+            worksheet.Cells[1, 1].Value = "Name";
+            worksheet.Cells[1, 2].Value = "Address";
+            worksheet.Cells[1, 3].Value = "City";
+            worksheet.Cells[2, 1].Value = "Esben Rud";
+            worksheet.Cells[2, 2].Value = "Enghavevej";
+            worksheet.Cells[2, 3].Value = "Odense";
+            var r1 = worksheet.ProtectedRanges.Add("Range1", new ExcelAddress(1, 1, 2, 1));
+            Console.WriteLine("Range1: " + r1.Name + " " + r1.Address.ToString());
+            var r2 = worksheet.ProtectedRanges.Add("Range2", new ExcelAddress(1, 2, 2, 2));
+            Console.WriteLine("Range2: " + r2.Name + " " + r2.Address.ToString());
+            Console.WriteLine("*Range1: " + r1.Name + " " + r1.Address.ToString());
+            Console.WriteLine("*Range2: " + r2.Name + " " + r2.Address.ToString());
+            package.Save();
+            package.Dispose();
+        }
+        [TestMethod]
+        public void Issue57()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("test");
+            ws.Cells["A1"].LoadFromArrays(Enumerable.Empty<object[]>());
+        }
+        [TestMethod, Ignore]
+        public void Issue55()
+        {
+            ExcelPackage pck = new ExcelPackage(new FileInfo(@"C:\Temp\bug\monocell.xlsx")); 
+            ExcelWorksheet ws = pck.Workbook.Worksheets[1];
+            Console.WriteLine(ws.Cells["A1"].Text);
+        }
     }
 }

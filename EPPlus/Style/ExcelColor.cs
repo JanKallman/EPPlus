@@ -34,12 +34,13 @@ using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml.Style.XmlAccess;
 using System.Drawing;
+
 namespace OfficeOpenXml.Style
 {
     /// <summary>
     /// Color for cellstyling
     /// </summary>
-    public sealed class ExcelColor :  StyleBase
+    public sealed class ExcelColor :  StyleBase, IColor
     {
         eStyleClass _cls;
         StyleBase _parent;

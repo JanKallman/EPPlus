@@ -728,6 +728,13 @@
     <Compile Include="RangeCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sparkline\Enums.cs" />
+    <Compile Include="Sparkline\ExcelSparkline.cs" />
+    <Compile Include="Sparkline\ExcelSparklineColor.cs" />
+    <Compile Include="Sparkline\ExcelSparklineGroup.cs" />
+    <Compile Include="Sparkline\ExcelSparklineCollection.cs" />
+    <Compile Include="Sparkline\ExcelSparklineGroupCollection.cs" />
+    <Compile Include="Style\IColor.cs" />
     <Compile Include="Utils\CompundDocument\CompoundDocumentFile.cs" />
     <Compile Include="Utils\CompundDocument\CoumpundDocumentItem.cs" />
     <Compile Include="Utils\ConvertUtil.cs" />

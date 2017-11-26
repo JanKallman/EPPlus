@@ -331,14 +331,30 @@ namespace OfficeOpenXml
                 SetXmlNodeString(differentFirstPath, value ? "1" : "0");
 			}
 		}
-		#endregion
-
-		#region ExcelHeaderFooter Public Properties
-		/// <summary>
-		/// Provides access to the header on odd numbered pages of the document.
-		/// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
-		/// </summary>
-		public ExcelHeaderFooterText OddHeader 
+        #endregion
+        #region ScaleWithDoc
+        const string scaleWithDocPath = "@scaleWithDoc";
+        /// <summary>
+        /// Specify whether the header and footer should scale as you use the "Shrink to fit" feature on the document
+        /// </summary>
+        public bool ScaleWithDocument
+        {
+            get
+            {
+                return GetXmlNodeBool(scaleWithDocPath);
+            }
+            set
+            {
+                SetXmlNodeBool(scaleWithDocPath, value);
+            }
+        }
+        #endregion
+        #region ExcelHeaderFooter Public Properties
+        /// <summary>
+        /// Provides access to the header on odd numbered pages of the document.
+        /// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
+        /// </summary>
+        public ExcelHeaderFooterText OddHeader 
         { 
             get 
             {
@@ -454,12 +470,12 @@ namespace OfficeOpenXml
                 return _vmlDrawingsHF;
             }
         }
-		#endregion
-		#region Save  //  ExcelHeaderFooter
-		/// <summary>
-		/// Saves the header and footer information to the worksheet XML
-		/// </summary>
-		internal void Save()
+        #endregion
+            #region Save  //  ExcelHeaderFooter
+            /// <summary>
+            /// Saves the header and footer information to the worksheet XML
+            /// </summary>
+        internal void Save()
 		{
 			if (_oddHeader != null)
 			{

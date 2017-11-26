@@ -221,6 +221,10 @@ namespace OfficeOpenXml
         internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
         
         internal const string schemaMainX14 = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
+        internal const string schemaMainXm = "http://schemas.microsoft.com/office/excel/2006/main";
+        internal const string schemaXr = "http://schemas.microsoft.com/office/spreadsheetml/2014/revision";
+        internal const string schemaXr2 = "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2";
+
         //Pivottables
         internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
         internal const string schemaPivotCacheDefinition = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotCacheDefinition+xml";
@@ -723,6 +727,11 @@ namespace OfficeOpenXml
             ns.AddNamespace("dcmitype", schemaDcmiType);
             ns.AddNamespace("xsi", schemaXsi);
             ns.AddNamespace("x14", schemaMainX14);
+            ns.AddNamespace("xm", schemaMainXm);
+            ns.AddNamespace("xr2", schemaXr2);
+
+
+
             return ns;
         }
 		
