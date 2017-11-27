@@ -1257,6 +1257,14 @@ namespace OfficeOpenXml
     /// </summary>
     public class ExcelAddress : ExcelAddressBase
     {
+        
+        private bool isPivot;
+
+        bool isPivotAddress()
+        {
+            return isPivot;
+        }
+        
         internal ExcelAddress()
             : base()
         {
@@ -1271,6 +1279,12 @@ namespace OfficeOpenXml
         public ExcelAddress(string address)
             : base(address)
         {
+        }
+
+         public ExcelAddress(string address, bool pivot)
+            : base(address)
+        {
+            isPivot = pivot;
         }
         
         internal ExcelAddress(string ws, string address)
