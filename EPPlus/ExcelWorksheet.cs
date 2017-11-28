@@ -3408,7 +3408,7 @@ namespace OfficeOpenXml
                 sw.Write(_worksheetXml.OuterXml);
             }
             else
-            {
+            {   
                 CreateNode("d:cols");
                 CreateNode("d:sheetData");
                 CreateNode("d:mergeCells");

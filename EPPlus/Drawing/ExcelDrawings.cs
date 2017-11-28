@@ -442,10 +442,11 @@ namespace OfficeOpenXml.Drawing
                     package.Flush();
 
                     _drawingRelation = Worksheet.Part.CreateRelationship(UriHelper.GetRelativeUri(Worksheet.WorksheetUri, _uriDrawing), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/drawing");
-                    XmlElement e = Worksheet.WorksheetXml.CreateElement("drawing", ExcelPackage.schemaMain);
+                    XmlElement e = (XmlElement)Worksheet.CreateNode("d:drawing");
+                    //XmlElement e = Worksheet.WorksheetXml.SelectSingleNode("d:drawing", );
                     e.SetAttribute("id",ExcelPackage.schemaRelationships, _drawingRelation.Id);
 
-                    Worksheet.WorksheetXml.DocumentElement.AppendChild(e);
+                    //Worksheet.WorksheetXml.DocumentElement.AppendChild(e);
                     package.Flush();                    
                 }
                 XmlNode colNode = _drawingsXml.SelectSingleNode("//xdr:wsDr", NameSpaceManager);

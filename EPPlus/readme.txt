@@ -7,6 +7,7 @@ EPPlus-Create advanced Excel spreadsheet.
 4.5.0.1 Beta 2
 * Added sparkline support.
 * Switched targetframework from netcoreapp2.0 to netstandardapp2.0
+* Replaced CoreCompat.System.Drawing.v2 with System.Drawing.Common
 * Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
 4.5.0.0 Beta 1

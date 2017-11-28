@@ -25,7 +25,7 @@ namespace EPPlusTest
         {
             _pck = new ExcelPackage();
             OpenPackage(_pckfile);
-            var ws = _pck.Workbook.Worksheets[1];
+            var ws = _pck.Workbook.Worksheets[_pck.Compatibility.IsWorksheets1Based?1:0];
             Assert.AreEqual(4, ws.SparklineGroups.Count);
             var sg1 = ws.SparklineGroups[0];
             Assert.AreEqual("A1:A4",sg1.LocationRange.Address);
