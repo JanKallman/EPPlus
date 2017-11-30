@@ -750,7 +750,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
             // atime      8 bytes    win32 ticks since win32epoch
             // ctime      8 bytes    win32 ticks since win32epoch
 
-            if (dataSize != 32)
+            if (dataSize < 4)
                 throw new BadReadException(String.Format("  Unexpected size (0x{0:X4}) for NTFS times extra field at position 0x{1:X16}", dataSize, posn));
 
             j += 4;  // reserved
@@ -758,7 +758,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
             Int16 addlsize = (Int16)(buffer[j + 2] + buffer[j + 3] * 256);
             j += 4;  // tag and size
 
-            if (timetag == 0x0001 && addlsize == 24)
+            if (timetag == 0x0001 && addlsize >= 24)
             {
                 Int64 z = BitConverter.ToInt64(buffer, j);
                 this._Mtime = DateTime.FromFileTimeUtc(z);
@@ -790,6 +790,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                 _timestamp |= ZipEntryTimestamp.Windows;
                 _emitNtfsTimes = true;
             }
+			else
+			{
+                // An unknown NTFS tag so simply skip it.
+                j += dataSize;				
+			}
             return j;
         }
 
