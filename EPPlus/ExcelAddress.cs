@@ -1256,15 +1256,7 @@ namespace OfficeOpenXml
     /// Range address with the address property readonly
     /// </summary>
     public class ExcelAddress : ExcelAddressBase
-    {
-        
-        private bool isPivot;
-
-        bool isPivotAddress()
-        {
-            return isPivot;
-        }
-        
+    {                       
         internal ExcelAddress()
             : base()
         {
@@ -1274,23 +1266,17 @@ namespace OfficeOpenXml
         public ExcelAddress(int fromRow, int fromCol, int toRow, int toColumn)
             : base(fromRow, fromCol, toRow, toColumn)
         {
-            _ws = "";
+            _ws = "";           
         }
         public ExcelAddress(string address)
             : base(address)
-        {
-        }
-
-         public ExcelAddress(string address, bool pivot)
-            : base(address)
-        {
-            isPivot = pivot;
-        }
+        {         
+        }       
         
         internal ExcelAddress(string ws, string address)
             : base(address)
         {
-            if (string.IsNullOrEmpty(_ws)) _ws = ws;
+            if (string.IsNullOrEmpty(_ws)) _ws = ws;            
         }
         internal ExcelAddress(string ws, string address, bool isName)
             : base(address, isName)
@@ -1323,6 +1309,20 @@ namespace OfficeOpenXml
                 ChangeAddress();
             }
         }
+
+        public bool IsPivot
+        {             
+             get 
+             {
+                return isPivot;
+             }
+             set 
+             {
+                isPivot = value;
+             }
+        }
+
+        private bool isPivot; 
     }
     public class ExcelFormulaAddress : ExcelAddressBase
     {
