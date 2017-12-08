@@ -435,6 +435,41 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeString(_lblPos, lp.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + lp.Substring(1, lp.Length - 1));
             }
         }
+
+        const string _txPr = "c:txPr/a:bodyPr/@rot";
+        /// <summary>
+        /// Label rotation
+        /// </summary>
+        public float LabelRotation
+        {
+            get
+            {
+                var node = GetXmlNodeString(TopNode, _txPr);
+
+                if (node == null)
+                    return 0;
+
+                int.TryParse(node.ToString(), out int rotation);
+
+                return rotation / 60000;
+            }
+            set
+            {
+                if (GetXmlNodeString(TopNode, _txPr) == string.Empty)
+                {
+                    var txPr = CreateComplexNode(TopNode, "c:txPr");
+                    var bodyPr = CreateComplexNode(txPr, "a:bodyPr");
+                    var p = CreateComplexNode(txPr, "a:p");
+                    var pPr = CreateComplexNode(p, "a:pPr");
+                    CreateComplexNode(pPr, "a:defRPr");
+                }
+
+                int rotation = (int)value * 60000;
+                SetXmlNodeString("c:txPr/a:bodyPr/@rot", rotation.ToString());
+
+            }
+        }
+
         ExcelDrawingFill _fill = null;
         /// <summary>
         /// Access to fill properties
