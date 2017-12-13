@@ -1772,7 +1772,7 @@ namespace EPPlusTest
             ExcelWorksheet ws = pck.Workbook.Worksheets[1];
             Console.WriteLine(ws.Cells["A1"].Text);
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue51()
         {
             var filename = new FileInfo(@"c:\temp\bug\bug51.xlsx");
@@ -1801,7 +1801,7 @@ namespace EPPlusTest
         #region Issue 44
         private static string PIVOT_WS_NAME = "Pivot";
         private static string DATA_WS_NAME = "Data";
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue44()
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("el-GR");
