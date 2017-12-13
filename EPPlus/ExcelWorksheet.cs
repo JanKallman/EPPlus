@@ -1364,6 +1364,8 @@ namespace OfficeOpenXml
                         _formulas.SetValue(address._fromRow, address._fromCol, afIndex);
                         SetValueInner(address._fromRow, address._fromCol, null);
                         _sharedFormulas.Add(afIndex, new Formulas(SourceCodeTokenizer.Default) { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
+
+                        _flags.SetFlagValue(address._fromRow, address._fromCol, true, CellFlags.ArrayFormula);
                     }
                     else // ??? some other type
                     {
