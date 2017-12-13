@@ -85,14 +85,24 @@ namespace OfficeOpenXml
 			else
 				return CreateNode(path, false);
 		}
-		internal XmlNode CreateNode(string path, bool insertFirst)
+        /// <summary>
+        /// Create the node path. Nodesa are inserted according to the Schema node oreder
+        /// </summary>
+        /// <param name="path">The path to be created</param>
+        /// <param name="insertFirst">Insert as first child</param>
+        /// <param name="addNew">Always add a new item at the last level.</param>
+        /// <returns></returns>
+        internal XmlNode CreateNode(string path, bool insertFirst, bool addNew=false)
 		{
 			XmlNode node = TopNode;
 			XmlNode prependNode = null;
-			foreach (string subPath in path.Split('/'))
+            if (path.StartsWith("/")) path = path.Substring(1);
+            var subPaths = path.Split('/');
+            for(int i= 0; i < subPaths.Length;i++)
 			{
-				XmlNode subNode = node.SelectSingleNode(subPath, NameSpaceManager);
-				if (subNode == null)
+                string subPath = subPaths[i];
+                XmlNode subNode = node.SelectSingleNode(subPath, NameSpaceManager);
+				if (subNode == null || (i==subPath.Length-1 && addNew))
 				{
 					string nodeName;
 					string nodePrefix;

@@ -54,6 +54,7 @@ using OfficeOpenXml.Utils;
 
 using System.Linq;
 using EPPlus.Compatibility;
+using OfficeOpenXml.Sparkline;
 
 namespace OfficeOpenXml
 {
@@ -3409,7 +3410,7 @@ namespace OfficeOpenXml
                 sw.Write(_worksheetXml.OuterXml);
             }
             else
-            {
+            {   
                 CreateNode("d:cols");
                 CreateNode("d:sheetData");
                 CreateNode("d:mergeCells");
@@ -4153,6 +4154,24 @@ namespace OfficeOpenXml
                     _drawings = new ExcelDrawings(_package, this);
                 }
                 return _drawings;
+            }
+        }
+        #endregion
+        #region SparklineGroups
+        ExcelSparklineGroupCollection _sparklineGroups = null;
+        /// <summary>
+        /// Collection of Sparkline-objects. 
+        /// Sparklines are small in-cell charts.
+        /// </summary>
+        public ExcelSparklineGroupCollection SparklineGroups
+        {
+            get
+            {
+                if (_sparklineGroups == null)
+                {
+                    _sparklineGroups = new ExcelSparklineGroupCollection(this);
+                }
+                return _sparklineGroups;
             }
         }
         #endregion
