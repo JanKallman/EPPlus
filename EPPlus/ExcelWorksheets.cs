@@ -172,7 +172,7 @@ namespace OfficeOpenXml
                 _pck.Package.Flush();
 
                 string rel = CreateWorkbookRel(Name, sheetID, uriWorksheet, isChart);
-
+                
                 int positionID = _worksheets.Count + _pck._worksheetAdd;
                 ExcelWorksheet worksheet;
                 if (isChart)

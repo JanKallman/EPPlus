@@ -49,7 +49,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
 using OfficeOpenXml.Style;
-using EPPlus.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml
 {

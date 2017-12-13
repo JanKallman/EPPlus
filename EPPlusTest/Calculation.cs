@@ -367,7 +367,7 @@ namespace EPPlusTest
                         var ix = int.Parse(spl[0]);
                         sheet = pck.Workbook.Worksheets[ix];
                         adr = spl[1];
-                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || EPPlus.Compatibility.TypeCompat.IsPrimitive(sheet.Cells[adr].Value)))
+                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || OfficeOpenXml.Compatibility.TypeCompat.IsPrimitive(sheet.Cells[adr].Value)))
                         {
                             var d1 = Convert.ToDouble(fr[cell]);
                             var d2 = Convert.ToDouble(sheet.Cells[adr].Value);

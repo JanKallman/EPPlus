@@ -152,6 +152,7 @@ namespace OfficeOpenXml.Table
         }
         private string GetStartXml(string name, int tblId)
         {
+            name = ConvertUtil.ExcelEscapeString(name);
             string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>";
             xml += string.Format("<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" id=\"{0}\" name=\"{1}\" displayName=\"{2}\" ref=\"{3}\" headerRowCount=\"1\">",
             tblId,
@@ -245,7 +246,7 @@ namespace OfficeOpenXml.Table
             }
             set 
             {
-                if(WorkSheet.Workbook.ExistsTableName(value))
+                if(Name.Equals(value, StringComparison.CurrentCultureIgnoreCase)==false && WorkSheet.Workbook.ExistsTableName(value))
                 {
                     throw (new ArgumentException("Tablename is not unique"));
                 }

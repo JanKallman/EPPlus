@@ -15,6 +15,7 @@ using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;
 using System.Text;
 using System.Dynamic;
+using System.Globalization;
 
 namespace EPPlusTest
 {
@@ -1689,6 +1690,21 @@ namespace EPPlusTest
             }
         }
         [TestMethod]
+        public void Issue61()
+        {
+            DataTable table1 = new DataTable("TestTable");
+            table1.Columns.Add("name");
+            table1.Columns.Add("id");
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("i61");
+                ws.Cells["A1"].LoadFromDataTable(table1, true);
+                //p.SaveAs(new FileInfo(@"c:\temp\issue61.xlsx"));
+            }
+            
+        }
+
+        [TestMethod]
         public void Issue58()
         {
             var fileInfo = new FileInfo(@"C:\Temp\issue58.xlsx");
@@ -1726,5 +1742,81 @@ namespace EPPlusTest
             ExcelWorksheet ws = pck.Workbook.Worksheets[1];
             Console.WriteLine(ws.Cells["A1"].Text);
         }
+        [TestMethod]
+        public void Issue51()
+        {
+            var filename = new FileInfo(@"c:\temp\bug\bug51.xlsx");
+            using (ExcelPackage pck = new ExcelPackage(filename))
+            {
+                var data = pck.Workbook.Worksheets.Add("data");
+                data.Cells["A1"].Value = "Product";
+                data.Cells["B1"].Value = "Quantity";
+                data.Cells["A2"].Value = "Nails";
+                data.Cells["B2"].Value = 37;
+                data.Cells["A3"].Value = "Hammer";
+                data.Cells["B3"].Value = 5;
+                data.Cells["A4"].Value = "Saw";
+                data.Cells["B4"].Value = 12;
+
+                var dataRange = data.Cells["A1:B4"];
+
+                var pivot = pck.Workbook.Worksheets.Add("pivot");
+                var pivotTable = pivot.PivotTables.Add(pivot.Cells["A1"], dataRange, "a&b");
+                var tbl = data.Tables.Add(dataRange, "a&c");
+                tbl.Name = "_a&c";
+                pivotTable.Name = "a&b";
+                pck.Save();
+            }
+        }
+        #region Issue 44
+        private static string PIVOT_WS_NAME = "Pivot";
+        private static string DATA_WS_NAME = "Data";
+        [TestMethod]
+        public void Issue44()
+        {
+            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("el-GR");
+            using (ExcelPackage xlp = new ExcelPackage())
+            {
+                PrepareDoc(xlp);
+                GenPivot(xlp);
+
+                FileStream fs = File.Create(@"c:\temp\bug\pivot44.xlsx");
+                xlp.SaveAs(fs);
+                fs.Close();
+            }
+
+        }
+        private void PrepareDoc(ExcelPackage xlp)
+        {
+            //generate date/value pairs for October 2017
+            var series = Enumerable.Range(0, 31);
+            var data = from x in series
+                        select new { d = new DateTime(2017, 10, x + 1), x = x };
+            //put data in table
+            ExcelWorksheet ws = xlp.Workbook.Worksheets.Add(DATA_WS_NAME);
+            int col = 1;
+            ws.Cells[1, col++].Value = "Date";
+            ws.Cells[1, col].Value = "Value";
+            int row = 2;
+            foreach (var line in data)
+            {
+                col = 1;
+                ws.Cells[row, col++].Value = line.d;
+                ws.Cells[row, col - 1].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                ws.Cells[row, col].Value = line.x;
+                row++;
+            }
+        }
+
+        private void GenPivot(ExcelPackage xlp)
+        {
+            ExcelWorksheet ws = xlp.Workbook.Worksheets.Add(PIVOT_WS_NAME);
+            ExcelWorksheet srcws = xlp.Workbook.Worksheets[DATA_WS_NAME];
+            ExcelPivotTable piv = ws.PivotTables.Add(ws.Cells[1, 1], srcws.Cells[1, 1, 32, 2], "Pivot1");
+            piv.DataFields.Add(piv.Fields["Value"]);
+            ExcelPivotTableField dt = piv.RowFields.Add(piv.Fields["Date"]);
+            dt.AddDateGrouping(eDateGroupBy.Days | eDateGroupBy.Months);
+        }
+        #endregion
     }
 }

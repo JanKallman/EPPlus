@@ -3038,7 +3038,7 @@ namespace EPPlusTest
                 Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Sort()
         {
             using (ExcelPackage package = new ExcelPackage())
@@ -3046,6 +3046,7 @@ namespace EPPlusTest
                 var ws = package.Workbook.Worksheets.Add("Sorting");
                 AddSortingData(ws,1,1);
                 ws.Cells["A:C"].Sort(2, true);
+                ws.Cells["A:C"].Sort(new int[] { 2,1 }, new bool[] { true, false });
 
                 AddSortingData(ws, 1, 5);
                 ws.Cells["H1:H1000"].Formula = "E1*2";

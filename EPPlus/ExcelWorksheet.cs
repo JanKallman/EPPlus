@@ -53,7 +53,7 @@ using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Utils;
 
 using System.Linq;
-using EPPlus.Compatibility;
+using OfficeOpenXml.Compatibility;
 using OfficeOpenXml.Sparkline;
 
 namespace OfficeOpenXml

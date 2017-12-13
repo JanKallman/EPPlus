@@ -56,7 +56,7 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
-using EPPlus.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml
 {	
@@ -1864,10 +1864,11 @@ namespace OfficeOpenXml
                 throw (new ArgumentNullException("Table can't be null"));
             }
 
-            if (Table.Rows.Count == 0)
+            if (Table.Rows.Count == 0 && PrintHeaders == false)
             {
                 return null;
             }
+
             var rowArray = new List<object[]>();
             if (PrintHeaders)
             {

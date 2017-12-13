@@ -44,7 +44,7 @@ using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
 using OfficeOpenXml.Utils.CompundDocument;
 using System.Configuration;
-using EPPlus.Compatibility;
+using OfficeOpenXml.Compatibility;
 using System.Text;
 #if (Core)
 using Microsoft.Extensions.Configuration;

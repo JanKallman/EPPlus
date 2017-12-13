@@ -33,7 +33,7 @@ using System.Collections.Generic;
 using System.Text;
 using OfficeOpenXml;
 
-namespace EPPlus.Compatibility
+namespace OfficeOpenXml.Compatibility
 {
     /// <summary>
     /// Settings to stay compatible with older versions of EPPlus
