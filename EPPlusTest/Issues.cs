@@ -1734,7 +1734,7 @@ namespace EPPlusTest
             
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue58()
         {
             var fileInfo = new FileInfo(@"C:\Temp\issue58.xlsx");
