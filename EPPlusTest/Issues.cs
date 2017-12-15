@@ -1864,8 +1864,33 @@ namespace EPPlusTest
                 using (var pck2 = new ExcelPackage(pck.Stream))
                 {
                     ws = pck2.Workbook.Worksheets["Test!"];
-                    
+
                 }
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue68()
+        {
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\bug68.xlsx")))
+            {
+                var ws = pck.Workbook.Worksheets["Sheet1"];
+                pck.Workbook.Worksheets.Delete(ws);
+                ws = pck.Workbook.Worksheets.Add("Sheet1");                
+                pck.SaveAs(new FileInfo(@"c:\temp\bug68-2.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue70()
+        {
+            var documentPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"c:\temp\workbook with comment.xlsx");
+            var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"c:\temp\WorkbookWithCommentOutput.xlsx");
+            var fileInfo = new FileInfo(documentPath);
+            Assert.IsTrue(fileInfo.Exists);
+            using (var workbook = new ExcelPackage(fileInfo))
+            {
+                var ws = workbook.Workbook.Worksheets.First();
+                ws.DeleteRow(3); // NRE thrown here
+                workbook.SaveAs(new FileInfo(outputPath));
             }
         }
     }

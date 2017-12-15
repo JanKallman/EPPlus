@@ -261,7 +261,7 @@ namespace OfficeOpenXml
                 {
                     address = address.DeleteRow(fromRow, rows);
                 }
-                if(address.Address=="#REF!")
+                if(address==null || address.Address=="#REF!")
                 {
                     deletedComments.Add(comment);
                 }
