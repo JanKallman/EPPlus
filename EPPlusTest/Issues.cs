@@ -1677,7 +1677,7 @@ namespace EPPlusTest
                 package.Save();
 
                 //}
-                
+
             }
         }
         [TestMethod]
@@ -1716,7 +1716,7 @@ namespace EPPlusTest
             var ms = new MemoryStream(File.ReadAllBytes(@"c:\temp\sampleapp\sample10\Template.xlsx"));
             using (var p = new ExcelPackage())
             {
-                p.Load(ms, "");                
+                p.Load(ms, "");
             }
         }
         [TestMethod]
@@ -1731,7 +1731,7 @@ namespace EPPlusTest
                 ws.Cells["A1"].LoadFromDataTable(table1, true);
                 //p.SaveAs(new FileInfo(@"c:\temp\issue61.xlsx"));
             }
-            
+
         }
 
         [TestMethod, Ignore]
@@ -1768,7 +1768,7 @@ namespace EPPlusTest
         [TestMethod, Ignore]
         public void Issue55()
         {
-            ExcelPackage pck = new ExcelPackage(new FileInfo(@"C:\Temp\bug\monocell.xlsx")); 
+            ExcelPackage pck = new ExcelPackage(new FileInfo(@"C:\Temp\bug\monocell.xlsx"));
             ExcelWorksheet ws = pck.Workbook.Worksheets[1];
             Console.WriteLine(ws.Cells["A1"].Text);
         }
@@ -1821,7 +1821,7 @@ namespace EPPlusTest
             //generate date/value pairs for October 2017
             var series = Enumerable.Range(0, 31);
             var data = from x in series
-                        select new { d = new DateTime(2017, 10, x + 1), x = x };
+                       select new { d = new DateTime(2017, 10, x + 1), x = x };
             //put data in table
             ExcelWorksheet ws = xlp.Workbook.Worksheets.Add(DATA_WS_NAME);
             int col = 1;
@@ -1848,5 +1848,25 @@ namespace EPPlusTest
             dt.AddDateGrouping(eDateGroupBy.Days | eDateGroupBy.Months);
         }
         #endregion
+        [TestMethod]
+        public void Issue66()
+        {
+
+            using (var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("Test!");
+                ws.Cells["A1"].Value = 1;
+                ws.Cells["B1"].Formula = "A1";
+                var wb = pck.Workbook;
+                wb.Names.Add("N1", ws.Cells["A1:A2"]);
+                ws.Names.Add("N2", ws.Cells["A1"]);
+                pck.Save();
+                using (var pck2 = new ExcelPackage(pck.Stream))
+                {
+                    ws = pck2.Workbook.Worksheets["Test!"];
+                    
+                }
+            }
+        }
     }
 }
