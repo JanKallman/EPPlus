@@ -1583,5 +1583,16 @@ namespace EPPlusTest
             Assert.AreEqual(true, sheet.Cells[3, 1].IsArrayFormula);
             
         }
+
+        [TestMethod]
+        public void Issue_73()
+        {
+            var ep = new ExcelPackage();
+            var sheet = ep.Workbook.Worksheets.Add("NamedRanges");
+
+            sheet.Names.Add("Example", sheet.Cells[0,0,5,5]);
+
+
+        }
     }
  }
