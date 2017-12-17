@@ -40,13 +40,12 @@ namespace OfficeOpenXml.Style
     /// <summary>
     /// Color for cellstyling
     /// </summary>
-    public sealed class ExcelColor :  StyleBase
+    public sealed class ExcelColor :  StyleBase, IColor
     {
         eStyleClass _cls;
         StyleBase _parent;
         internal ExcelColor(ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int worksheetID, string address, eStyleClass cls, StyleBase parent) : 
             base(styles, ChangedEvent, worksheetID, address)
-            
         {
             _parent = parent;
             _cls = cls;

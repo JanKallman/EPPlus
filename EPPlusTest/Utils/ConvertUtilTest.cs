@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml.Utils;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace EPPlusTest.Utils
 {

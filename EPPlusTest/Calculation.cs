@@ -175,7 +175,7 @@ namespace EPPlusTest
         public void TestDataType()
         {
             var pck = new ExcelPackage(new FileInfo(@"c:\temp\EPPlusTestark\calc_amount.xlsx"));
-            var ws = pck.Workbook.Worksheets[1];
+            var ws = pck.Workbook.Worksheets.First();
             //ws.Names.Add("Name1",ws.Cells["A1"]);
             //ws.Names.Add("Name2", ws.Cells["A2"]);
             ws.Names["PRICE"].Value = 30;
@@ -370,7 +370,7 @@ namespace EPPlusTest
                         var ix = int.Parse(spl[0]);
                         sheet = pck.Workbook.Worksheets[ix];
                         adr = spl[1];
-                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || EPPlus.Core.Compatibility.TypeCompat.IsPrimitive(sheet.Cells[adr].Value)))
+                        if (fr[cell] is double && (sheet.Cells[adr].Value is double || sheet.Cells[adr].Value is decimal  || OfficeOpenXml.Compatibility.TypeCompat.IsPrimitive(sheet.Cells[adr].Value)))
                         {
                             var d1 = Convert.ToDouble(fr[cell]);
                             var d2 = Convert.ToDouble(sheet.Cells[adr].Value);

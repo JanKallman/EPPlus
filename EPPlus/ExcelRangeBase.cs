@@ -56,7 +56,7 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml
 {	
@@ -1864,10 +1864,11 @@ namespace OfficeOpenXml
                 throw (new ArgumentNullException("Table can't be null"));
             }
 
-            if (Table.Rows.Count == 0)
+            if (Table.Rows.Count == 0 && PrintHeaders == false)
             {
                 return null;
             }
+
             var rowArray = new List<object[]>();
             if (PrintHeaders)
             {
@@ -1912,6 +1913,7 @@ namespace OfficeOpenXml
                 rowArray.Add(item);
                 if (maxColumn < item.Length) maxColumn = item.Length;
             }
+            if (rowArray.Count == 0) return null; //Issue #57
             _worksheet._values.SetRangeValueSpecial(_fromRow, _fromCol, _fromRow + rowArray.Count - 1, _fromCol + maxColumn - 1,
                 (List<ExcelCoreValue> list, int index, int rowIx, int columnIx, object value) =>
                 {

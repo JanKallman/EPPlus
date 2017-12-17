@@ -34,7 +34,7 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 using System.Collections;
 using static OfficeOpenXml.FormulaParsing.EpplusExcelDataProvider;
 using static OfficeOpenXml.FormulaParsing.ExcelDataProvider;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {

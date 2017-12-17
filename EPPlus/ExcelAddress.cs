@@ -97,6 +97,25 @@ namespace OfficeOpenXml
         /// <summary>
         /// Creates an Address object
         /// </summary>
+        /// <param name="worksheetName">Worksheet Name</param>
+        /// <param name="fromRow">start row</param>
+        /// <param name="fromCol">start column</param>
+        /// <param name="toRow">End row</param>
+        /// <param name="toColumn">End column</param>
+        public ExcelAddressBase(string worksheetName, int fromRow, int fromCol, int toRow, int toColumn)
+        {
+            _ws = worksheetName;
+            _fromRow = fromRow;
+            _toRow = toRow;
+            _fromCol = fromCol;
+            _toCol = toColumn;
+            Validate();
+
+            _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+        }
+        /// <summary>
+        /// Creates an Address object
+        /// </summary>
         /// <param name="fromRow">start row</param>
         /// <param name="fromCol">start column</param>
         /// <param name="toRow">End row</param>
@@ -423,7 +442,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return string.IsNullOrEmpty(_ws) ? _ws : "[" + _ws + "]!" + Address;
+                return string.IsNullOrEmpty(_ws) ? _ws : "'" + _ws + "'!" + Address;
             }
         }
         /// <summary>

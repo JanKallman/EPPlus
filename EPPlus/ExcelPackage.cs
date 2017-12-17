@@ -43,8 +43,12 @@ using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
 using OfficeOpenXml.Utils.CompundDocument;
+using System.Configuration;
+using OfficeOpenXml.Compatibility;
 using System.Text;
-
+#if (Core)
+using Microsoft.Extensions.Configuration;
+#endif
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -188,6 +192,7 @@ namespace OfficeOpenXml
 		/// Main Xml schema name
 		/// </summary>
 		internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+                                            
 		/// <summary>
 		/// Relationship schema name
 		/// </summary>
@@ -214,6 +219,11 @@ namespace OfficeOpenXml
         internal const string schemaDcmiType = @"http://purl.org/dc/dcmitype/";
         internal const string schemaXsi = @"http://www.w3.org/2001/XMLSchema-instance";
         internal const string schemaVt = @"http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes";
+        
+        internal const string schemaMainX14 = "http://schemas.microsoft.com/office/spreadsheetml/2009/9/main";
+        internal const string schemaMainXm = "http://schemas.microsoft.com/office/excel/2006/main";
+        internal const string schemaXr = "http://schemas.microsoft.com/office/spreadsheetml/2014/revision";
+        internal const string schemaXr2 = "http://schemas.microsoft.com/office/spreadsheetml/2015/revision2";
 
         //Pivottables
         internal const string schemaPivotTable = @"application/vnd.openxmlformats-officedocument.spreadsheetml.pivotTable+xml";
@@ -513,8 +523,24 @@ namespace OfficeOpenXml
         {
             DoAdjustDrawings = true;
 #if (Core)
-            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252            
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);  //Add Support for codepage 1252
+
+            var build = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", true,false);            
+            var c = build.Build();
+
+            var v = c["EPPlus:ExcelPackage:Compatibility:IsWorksheets1Based"];
+#else
+            var v = ConfigurationManager.AppSettings["EPPlus:ExcelPackage.Compatibility.IsWorksheets1Based"];
 #endif
+            if (v != null)
+            {
+                if(Boolean.TryParse(v.ToLowerInvariant(), out bool value))
+                {
+                    Compatibility.IsWorksheets1Based = value;
+                }
+            }
         }
         /// <summary>
         /// Create a new file from a template
@@ -685,7 +711,7 @@ namespace OfficeOpenXml
             NameTable nt = new NameTable();
             var ns = new XmlNamespaceManager(nt);
             ns.AddNamespace(string.Empty, ExcelPackage.schemaMain);
-            ns.AddNamespace("d", ExcelPackage.schemaMain);
+            ns.AddNamespace("d", ExcelPackage.schemaMain);            
             ns.AddNamespace("r", ExcelPackage.schemaRelationships);
             ns.AddNamespace("c", ExcelPackage.schemaChart);
             ns.AddNamespace("vt", schemaVt);
@@ -700,6 +726,12 @@ namespace OfficeOpenXml
             ns.AddNamespace("dcterms", schemaDcTerms);
             ns.AddNamespace("dcmitype", schemaDcmiType);
             ns.AddNamespace("xsi", schemaXsi);
+            ns.AddNamespace("x14", schemaMainX14);
+            ns.AddNamespace("xm", schemaMainXm);
+            ns.AddNamespace("xr2", schemaXr2);
+
+
+
             return ns;
         }
 		
@@ -986,13 +1018,28 @@ namespace OfficeOpenXml
                 Package.Compression = value;
             }
         }
-#region GetXmlFromUri
-		/// <summary>
-		/// Get the XmlDocument from an URI
-		/// </summary>
-		/// <param name="uri">The Uri to the part</param>
-		/// <returns>The XmlDocument</returns>
-		internal XmlDocument GetXmlFromUri(Uri uri)
+        CompatibilitySettings _compatibility = null;
+        /// <summary>
+        /// Compatibility settings for older versions of EPPlus.
+        /// </summary>
+        public CompatibilitySettings Compatibility
+        {
+            get
+            {
+                if(_compatibility==null)
+                {
+                    _compatibility=new CompatibilitySettings(this);
+                }
+                return _compatibility;
+            }
+        }
+        #region GetXmlFromUri
+        /// <summary>
+        /// Get the XmlDocument from an URI
+        /// </summary>
+        /// <param name="uri">The Uri to the part</param>
+        /// <returns>The XmlDocument</returns>
+        internal XmlDocument GetXmlFromUri(Uri uri)
 		{
 			XmlDocument xml = new XmlDocument();
 			Packaging.ZipPackagePart part = _package.GetPart(uri);
@@ -1155,6 +1202,11 @@ namespace OfficeOpenXml
             this._workbook = null;
         }
         static object _lock=new object();
+#if (Core)
+        internal int _worksheetAdd=0;
+#else
+        internal int _worksheetAdd=1;
+#endif
         /// <summary>
         /// Copies the input stream to the output stream.
         /// </summary>

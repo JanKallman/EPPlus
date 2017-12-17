@@ -26,9 +26,15 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
+<<<<<<< HEAD
+ * Jan K�llman		    Initial Release		       2011-01-01
+ * Jan K�llman		    License changed GPL-->LGPL 2011-12-27
+ * Richard Tallent		Fix escaping of quotes     2012-10-31
+=======
  * Jan Källman		    Initial Release		       2011-01-01
  * Jan Källman		    License changed GPL-->LGPL 2011-12-27
  * Richard Tallent		Fix escaping of quotes					2012-10-31
+>>>>>>> 21c1f80b2e27bc423e3de7f9f2e2b8c9d63934f2
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -43,7 +49,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using OfficeOpenXml.Packaging.Ionic.Zip;
 using System.Drawing;
 using OfficeOpenXml.Style;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml
 {
@@ -84,7 +90,7 @@ namespace OfficeOpenXml
 		}
 		#region Private Properties
 		internal ExcelPackage _package;
-		private ExcelWorksheets _worksheets;
+		internal ExcelWorksheets _worksheets;
 		private OfficeProperties _properties;
 
 		private ExcelStyles _styles;
@@ -107,7 +113,7 @@ namespace OfficeOpenXml
 			_names = new ExcelNamedRangeCollection(this);
 			_namespaceManager = namespaceManager;
 			TopNode = WorkbookXml.DocumentElement;
-			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", };
+			SchemaNodeOrder = new string[] { "fileVersion", "fileSharing", "workbookPr", "workbookProtection", "bookViews", "sheets", "functionGroups", "functionPrototypes", "externalReferences", "definedNames", "calcPr", "oleSize", "customWorkbookViews", "pivotCaches", "smartTagPr", "smartTagTypes", "webPublishing", "fileRecoveryPr", "webPublishObjects", "extLst" };
 		    FullCalcOnLoad = true;  //Full calculation on load by default, for both new workbooks and templates.
 			GetSharedStrings();
 		}
@@ -171,15 +177,17 @@ namespace OfficeOpenXml
 
 					int localSheetID;
 					ExcelWorksheet nameWorksheet;
-					if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
+					
+                    if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
 					{
 						localSheetID = -1;
 						nameWorksheet=null;
 					}
 					else
 					{
-						nameWorksheet=Worksheets[localSheetID + 1];
+						nameWorksheet=Worksheets[localSheetID + _package._worksheetAdd];
 					}
+
 					var addressType = ExcelAddressBase.IsValid(fullAddress);
 					ExcelRangeBase range;
 					ExcelNamedRange namedRange;
@@ -244,11 +252,11 @@ namespace OfficeOpenXml
 						{
 							if (string.IsNullOrEmpty(addr._ws))
 							{
-								namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[localSheetID + 1], fullAddress, false));
+								namedRange = Worksheets[localSheetID + _package._worksheetAdd].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[localSheetID + _package._worksheetAdd], fullAddress, false));
 							}
 							else
 							{
-								namedRange = Worksheets[localSheetID + 1].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[addr._ws], fullAddress, false));
+								namedRange = Worksheets[localSheetID + _package._worksheetAdd].Names.Add(elem.GetAttribute("name"), new ExcelRangeBase(this, Worksheets[addr._ws], fullAddress, false));
 							}
 						}
 						else
@@ -262,11 +270,13 @@ namespace OfficeOpenXml
 				}
 			}
 		}
-		#region Worksheets
-		/// <summary>
-		/// Provides access to all the worksheets in the workbook.
-		/// </summary>
-		public ExcelWorksheets Worksheets
+        #region Worksheets
+        /// <summary>
+        /// Provides access to all the worksheets in the workbook.
+        /// Note: Worksheets index either starts by 0 or 1 depending on the Excelpackage.Compatibility.IsWorksheets1Based property.
+        /// Default is 1 for .Net 3.5 and .Net 4 and 0 for .Net Core.
+        /// </summary>
+        public ExcelWorksheets Worksheets
 		{
 			get
 			{

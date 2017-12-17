@@ -251,6 +251,7 @@ namespace OfficeOpenXml
                             var newColumn = ws.Column(column._columnMax + 1);
                             newColumn.ColumnMax = address.End.Column;
                             AddNewStyleColumn(sender, e, ws, styleCashe, newColumn, newColumn.StyleID);
+                            column = newColumn;
                         }
                         break;
                     }
