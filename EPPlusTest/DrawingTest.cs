@@ -109,9 +109,8 @@ namespace EPPlusTest
                 TestContext.WriteLine("AG00021_.GIF does not exists. Skipping Pic7.");
 #endif
             }
-
-            // BUG This line fails with "System.Runtime.InteropServices.ExternalException: A generic error occurred in GDI+."
-            //var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
+            
+            var wsCopy = _pck.Workbook.Worksheets.Add("Picture3", ws2);
 
             //_pck.Workbook.Worksheets.Delete(ws2);
          }
