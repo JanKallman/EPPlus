@@ -279,9 +279,7 @@ namespace EPPlusTest
             ws.Cells["A8"].Formula = "INT(A4)";
 
             ws.Calculate();
-
-            // BUG This line fails but should pass for consistency with Excel 
-            //Assert.AreEqual((int)currentDate.ToOADate(), ws.Cells["A5"].Value);
+            Assert.AreEqual((int)currentDate.ToOADate(), ws.Cells["A5"].Value);
 
             Assert.AreEqual((int)currentDate.ToOADate(), ws.Cells["A6"].Value);
             Assert.AreEqual(31, ws.Cells["A7"].Value);
