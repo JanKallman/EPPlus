@@ -280,7 +280,6 @@ namespace EPPlusTest
 
             ws.Calculate();
             Assert.AreEqual((int)currentDate.ToOADate(), ws.Cells["A5"].Value);
-
             Assert.AreEqual((int)currentDate.ToOADate(), ws.Cells["A6"].Value);
             Assert.AreEqual(31, ws.Cells["A7"].Value);
             Assert.AreEqual(31, ws.Cells["A8"].Value);
