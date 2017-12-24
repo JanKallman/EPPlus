@@ -111,50 +111,21 @@ namespace OfficeOpenXml
         {
             if (value == "")
                 return "";
-            bool isText = false;
-            string ret = "";
-            string part = "";
-            char prevTQ = (char)0;
-            for (int pos = 0; pos < value.Length; pos++)
+
+            var lexer = new Lexer(SourceCodeTokenizer.Default, new SyntacticAnalyzer());
+            var tokens = lexer.Tokenize(value);
+            foreach (var token in tokens)
             {
-                char c = value[pos];
-                if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
+                //Console.WriteLine($"{token.TokenType} : {token.Value}");
+                if (token.TokenType == TokenType.ExcelAddress || token.TokenType.Equals(TokenType.NameValue))
                 {
-                    if (isText == false && part != "" && prevTQ==c)
-                    {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr);
-                        part = "";
-                        prevTQ = (char)0;
-                    }
-                    isText = !isText;
-                    prevTQ = c;
-                    ret += c;
+                    var part = addressTranslator(token.Value, row, col, rowIncr, colIncr);
+                    //Console.Write($"==> " + part);
+                    token.Value = part;
                 }
-                else if (isText)
-                {
-                    ret += c;
-                }
-                else
-                {
-                    if ((c == '-' || c == '+' || c == '*' || c == '/' ||
-                        c == '=' || c == '^' || c == ',' || c == ':' ||
-                        c == '<' || c == '>' || c == '(' || c == ')' || c == '!' ||
-                        c == ' ' || c == '&' || c == '%') &&
-                        (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
-                    {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;
-                        part = "";
-                    }
-                    else
-                    {
-                        part += c;
-                    }
-                }
+
             }
-            if (part != "")
-            {
-                ret += addressTranslator(part, row, col, rowIncr, colIncr);
-            }
+            var ret = string.Join("", tokens.Select(x => x.Value).ToArray());
             return ret;
         }
         /// <summary>
@@ -168,41 +139,46 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
         {
-            int addrRow, addrCol;
-            string Ret = "R";
-            if (GetRowCol(part, out addrRow, out addrCol, false))
+            int delim = part.IndexOf(':');
+            if (delim > 0)
             {
-                if (addrRow == 0 || addrCol == 0)
+                string p1 = ToR1C1_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
+                string p2 = ToR1C1_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                if (p1.Equals(p2))
+                    return p1;
+                return p1 + ":" + p2;
+            }
+
+            else
+                return ToR1C1_1(part, row, col, rowIncr, colIncr);
+        }
+        private static string ToR1C1_1(string part, int row, int col, int rowIncr, int colIncr)
+        {
+            int addrRow, addrCol;
+            bool fixRow, fixCol;
+            StringBuilder sb = new StringBuilder();
+            if (GetRowCol(part, out addrRow, out addrCol, false, out fixRow, out fixCol))
+            {
+                if (addrRow == 0 && addrCol == 0)
                 {
                     return part;
                 }
-                if (part.IndexOf('$', 1) > 0)
+                if (addrRow > 0)
                 {
-                    Ret += addrRow.ToString();
+                    sb.Append(fixRow ? $"R{addrRow}" : (addrRow == row ? "R" : $"R[{addrRow - row}]"));
                 }
-                else if (addrRow - row != 0)
+                if (addrCol > 0)
                 {
-                    Ret += string.Format("[{0}]", addrRow - row);
+                    sb.Append(fixCol ? $"C{addrCol}" : (addrCol == col ? "C" : $"C[{addrCol - col}]"));
                 }
-
-                if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(part, "$"))
-                {
-                    return Ret + "C" + addrCol;
-                }
-                else if (addrCol - col != 0)
-                {
-                    return Ret + "C" + string.Format("[{0}]", addrCol - col);
-                }
-                else
-                {
-                    return Ret + "C";
-                }
+                return sb.ToString();
             }
             else
             {
                 return part;
             }
         }
+
         /// <summary>
         /// Translates to absolute address
         /// </summary>
@@ -214,34 +190,90 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
-            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
-
-            int rStart = check.IndexOf("R");
-            if (rStart != 0)
-                return part;
-            if (part.Length == 1) //R
+            int delim = part.IndexOf(':');
+            if (delim > 0)
             {
-                return GetAddress(row, col);
+                string p1 = ToAbs_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
+                string p2 = ToAbs_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                if (p1.Equals(p2))
+                    return p1;
+                return p1 + ":" + p2;
+            }
+            else
+                return ToAbs_1(part, row, col, rowIncr, colIncr);
+        }
+        private static string ToAbs_1(string part, int row, int col, int rowIncr, int colIncr)
+        {
+            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
+            // Bug
+            int rStart = check.IndexOf("R");
+            int cStart = check.IndexOf("C");
+            //if (rStart != 0)
+            //    return part;
+            if (rStart != 0 && cStart != 0)
+                return part;
+            if (part.Length == 1) //R or C
+            {
+                if (rStart == 0)
+                {
+                    //return GetAddress(row);
+                    return $"{row}:{row}";
+                }
+                else
+                {
+                    var cLetter = GetColumnLetter(col);
+                    return $"{cLetter}:{cLetter}";
+                }
+
             }
 
-            int cStart = check.IndexOf("C");
             bool absoluteRow, absoluteCol;
             if (cStart == -1)
             {
-                int RNum = GetRC(part, row, out absoluteRow);
+                int RNum = GetRC(part.Substring(1), row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
-                    return GetAddress(RNum, absoluteRow, col, false);
+                    return GetAddressRow(RNum, absoluteRow);
                 }
                 else
                 {
                     return part;
                 }
             }
-            else
+            if (rStart == -1)
             {
-                int RNum = GetRC(part.Substring(1, cStart - 1), row, out absoluteRow);
-                int CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
+                int CNum = GetRC(part.Substring(1), col, out absoluteCol);
+                if (CNum > int.MinValue)
+                {
+                    return GetAddressCol(CNum, absoluteCol);
+                }
+                else
+                {
+                    return part;
+                }
+            }
+            {
+                int RNum, CNum;
+                if (1 == cStart)
+                {
+                    RNum = row;
+                    absoluteRow = false;
+                }
+                else
+                {
+                    RNum = GetRC(part.Substring(1, cStart - 1), row, out absoluteRow);
+                }
+                if ((part.Length - 1) == cStart)
+                {
+                    CNum = col;
+                    absoluteCol = false;
+                }
+                else
+                {
+                    CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
+                }
+
+
                 if (RNum > int.MinValue && CNum > int.MinValue)
                 {
                     return GetAddress(RNum, absoluteRow, CNum, absoluteCol);
@@ -466,7 +498,10 @@ namespace OfficeOpenXml
         {
             return GetRowCol(CellAddress, out row, out col, true, out fixedRow, out fixedCol);
         }
-
+        internal static bool IsAlpha(char c)
+        {
+            return c >= 'A' && c <= 'Z';
+        }
         /// <summary>
         /// Get the row/column for a Cell-address
         /// </summary>
@@ -520,7 +555,7 @@ namespace OfficeOpenXml
             }
             else if (c == '$')
             {
-              if (i == colStartIx)
+              if (IsAlpha(address[i+1]))
               {
                 colStartIx++;
                 fixedCol = true;
@@ -559,6 +594,19 @@ namespace OfficeOpenXml
             return col;
         }
         #region GetAddress
+        public static string GetAddressRow(int Row, bool Absolute = false)
+        {
+            if (Absolute)
+                return $"${Row}:${Row}";
+            return $"{Row}:{Row}";
+        }
+        public static string GetAddressCol(int Col, bool Absolute = false)
+        {
+            var colLetter = GetColumnLetter(Col);
+            if (Absolute)
+                return $"${colLetter}:${colLetter}";
+            return $"{colLetter}:{colLetter}";
+        }
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
         /// </summary>
