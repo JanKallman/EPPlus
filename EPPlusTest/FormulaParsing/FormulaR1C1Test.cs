@@ -69,6 +69,14 @@ namespace EPPlusTest.FormulaParsing
             Assert.AreEqual("SUM($B:$B)", f);
         }
         [TestMethod]
+        public void C2AbsWithSheet()
+        {
+            string fR1C1 = "SUM(A!C2)";
+            _sheet.Cells[5, 3].FormulaR1C1 = fR1C1;
+            string f = _sheet.Cells[5, 3].Formula;
+            Assert.AreEqual("SUM(A!$B:$B)", f);
+        }
+        [TestMethod]
         public void C2()
         {
             string fR1C1 = "SUM(C2)";

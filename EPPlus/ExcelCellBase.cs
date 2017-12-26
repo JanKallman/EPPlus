@@ -139,6 +139,13 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
         {
+            int shInd = part.IndexOf('!');
+            string sh = "";
+            if (shInd > 0)
+            {
+                sh = part.Substring(0, shInd + 1);
+                part = part.Substring(shInd + 1);
+            }
             int delim = part.IndexOf(':');
             if (delim > 0)
             {
@@ -146,11 +153,11 @@ namespace OfficeOpenXml
                 string p2 = ToR1C1_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
                 if (p1.Equals(p2))
                     return p1;
-                return p1 + ":" + p2;
+                return sh + p1 + ":" + p2;
             }
 
             else
-                return ToR1C1_1(part, row, col, rowIncr, colIncr);
+                return sh + ToR1C1_1(part, row, col, rowIncr, colIncr);
         }
         private static string ToR1C1_1(string part, int row, int col, int rowIncr, int colIncr)
         {
@@ -190,6 +197,14 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
+            int shInd = part.IndexOf('!');
+            string sh = "";
+            if (shInd > 0)
+            {
+                sh = part.Substring(0, shInd + 1);
+                part = part.Substring(shInd + 1);
+            }
+
             int delim = part.IndexOf(':');
             if (delim > 0)
             {
@@ -197,10 +212,10 @@ namespace OfficeOpenXml
                 string p2 = ToAbs_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
                 if (p1.Equals(p2))
                     return p1;
-                return p1 + ":" + p2;
+                return sh + p1 + ":" + p2;
             }
             else
-                return ToAbs_1(part, row, col, rowIncr, colIncr);
+                return sh + ToAbs_1(part, row, col, rowIncr, colIncr);
         }
         private static string ToAbs_1(string part, int row, int col, int rowIncr, int colIncr)
         {
