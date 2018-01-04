@@ -53,13 +53,8 @@ namespace OfficeOpenXml.Style
         /// <summary>
         /// The theme color
         /// </summary>
-        public string Theme
-        {
-            get
-            {
-                return GetSource().Theme;
-            }
-        }
+        public string Theme => GetSource().Theme;
+
         /// <summary>
         /// The tint value
         /// </summary>
@@ -114,15 +109,22 @@ namespace OfficeOpenXml.Style
         {
             Rgb = color.ToArgb().ToString("X");
         }
-
-
-        internal override string Id
+        /// <summary>
+        /// Gets the color of the object
+        /// </summary>
+        /// <returns>System.Drawing.Color</returns>
+        public Color GetColor()
         {
-            get 
-            {
-                return Theme + Tint + Rgb + Indexed;
-            }
+            var alpha = Convert.ToInt32(Rgb?.Substring(0,2), 16);
+            var red   = Convert.ToInt32(Rgb?.Substring(2,2), 16);
+            var green = Convert.ToInt32(Rgb?.Substring(4,2), 16);
+            var blue  = Convert.ToInt32(Rgb?.Substring(6,2), 16);
+
+            return Color.FromArgb(alpha, red, green, blue);
         }
+
+        internal override string Id => Theme + Tint + Rgb + Indexed;
+
         private ExcelColorXml GetSource()
         {
             Index = _parent.Index < 0 ? 0 : _parent.Index;
@@ -156,10 +158,8 @@ namespace OfficeOpenXml.Style
         /// Return the RGB value for the Indexed or Tint property
         /// </summary>
         /// <returns>The RGB color starting with a #</returns>
-        public string LookupColor()
-        {
-            return LookupColor(this);
-        }
+        public string LookupColor() => LookupColor(this);
+
         /// <summary>
         /// Return the RGB value for the color object that uses the Indexed or Tint property
         /// </summary>
