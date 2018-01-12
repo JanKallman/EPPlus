@@ -544,6 +544,12 @@ namespace EPPlusTest
             _pck.Workbook.Properties.Status = "Status";
             _pck.Workbook.Properties.HyperlinkBase = new Uri("http://serversideexcel.com", UriKind.Absolute);
             _pck.Workbook.Properties.Manager = "Manager";
+            _pck.Workbook.Properties.AppVersion="4.5.0.1";
+            _pck.Workbook.Properties.LinksUpToDate = false;
+            _pck.Workbook.Properties.HyperlinksChanged = false;
+            _pck.Workbook.Properties.SharedDoc = false;
+            _pck.Workbook.Properties.ScaleCrop = false;
+
 
             _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
             Console.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
