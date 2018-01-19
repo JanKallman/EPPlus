@@ -13,6 +13,7 @@ namespace EPPlusTest.FormulaParsing
     {
         private ExcelPackage _package;
         private ExcelWorksheet _sheet;
+        private ExcelWorksheet _sheet2;
         [TestInitialize]
         public void Initialize()
         {
@@ -34,6 +35,7 @@ namespace EPPlusTest.FormulaParsing
             s1.Cells["C4"].Value = 8;
 
             _sheet = s1;
+            _sheet2 = _package.Workbook.Worksheets.Add("test2",s1);
         }
 
         [TestCleanup]
@@ -92,6 +94,12 @@ namespace EPPlusTest.FormulaParsing
             _sheet.Cells[5, 3].FormulaR1C1 = fR1C1;
             string f = _sheet.Cells[5, 3].Formula;
             Assert.AreEqual("SUM($2:$2)",f);
+
+            fR1C1 = "SUM(TEST2!R2)";
+            _sheet.Cells[5, 3].FormulaR1C1 = fR1C1;
+            f = _sheet.Cells[5, 3].Formula;
+            Assert.AreEqual("SUM(TEST2!$2:$2)", f);
+
         }
         [TestMethod]
         public void R2()
