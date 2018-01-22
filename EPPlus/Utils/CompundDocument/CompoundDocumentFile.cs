@@ -63,7 +63,7 @@ namespace OfficeOpenXml.Utils.CompundDocument
         }
         public CompoundDocumentFile(MemoryStream ms)
         {
-
+            ms.Seek(0, SeekOrigin.Begin);   //Fixes issue #60
             Read(new BinaryReader(ms));
         }
         private struct DocWriteInfo

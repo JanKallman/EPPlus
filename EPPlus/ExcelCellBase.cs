@@ -727,85 +727,105 @@ namespace OfficeOpenXml
         #region IsValidCellAddress
         public static bool IsValidAddress(string address)
         {
+            if (string.IsNullOrEmpty(address.Trim())) return false ;
             address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
-            string r1 = "", c1 = "", r2 = "", c2 = "";
-            bool isSecond = false;
-            for (int i = 0; i < address.Length; i++)
+            var addrs = address.Split(',');
+            foreach (var a in addrs)
             {
-                if (address[i] >= 'A' && address[i] <= 'Z')
+                string r1 = "", c1 = "", r2 = "", c2 = "";
+                bool isSecond = false;
+                for (int i = 0; i < a.Length; i++)
                 {
-                    if (isSecond == false)
+                    if (IsCol(a[i]))
                     {
-                        if (r1 != "") return false;
-                        c1 += address[i];
-                        if (c1.Length > 3) return false;
+                        if (isSecond == false)
+                        {
+                            if (r1 != "") return false;
+                            c1 += a[i];
+                            if (c1.Length > 3) return false;
+                        }
+                        else
+                        {
+                            if (r2 != "") return false;
+                            c2 += a[i];
+                            if (c2.Length > 3) return false;
+                        }
+                    }
+                    else if (IsRow(a[i]))
+                    {
+                        if (isSecond == false)
+                        {
+                            r1 += a[i];
+                            if (r1.Length > 7) return false;
+                        }
+                        else
+                        {
+                            r2 += a[i];
+                            if (r2.Length > 7) return false;
+                        }
+                    }
+                    else if (a[i] == ':')
+                    {
+                        if (isSecond || i== a.Length - 1) return false;
+                        isSecond = true;
+                    }
+                    else if (a[i] == '$')
+                    {
+                        if (i == a.Length - 1 || a[i + 1] == ':' ||
+                            (i > 1 && (IsCol(a[i - 1]) && (IsCol(a[i + 1])))) ||
+                            (i > 1 && (IsRow(a[i - 1]) && (IsRow(a[i + 1])))))
+                        {
+                            return false;
+                        }
                     }
                     else
-                    {
-                        if (r2 != "") return false;
-                        c2 += address[i];
-                        if (c2.Length > 3) return false;
-                    }
-                }
-                else if (address[i] >= '0' && address[i] <= '9')
-                {
-                    if (isSecond == false)
-                    {
-                        r1 += address[i];
-                        if (r1.Length > 7) return false;
-                    }
-                    else
-                    {
-                        r2 += address[i];
-                        if (r2.Length > 7) return false;
-                    }
-                }
-                else if (address[i] == ':')
-                {
-                    isSecond=true;
-                }
-                else if (address[i] == '$')
-                {
-                    if (i == address.Length - 1 || address[i + 1] == ':')
                     {
                         return false;
                     }
+                }
+                bool ret;
+                if (r1 != "" && c1 != "" && r2 == "" && c2 == "")   //Single Cell
+                {
+                    ret=(GetColumn(c1) <= ExcelPackage.MaxColumns && int.Parse(r1) <= ExcelPackage.MaxRows);
+                }
+                else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
+                {
+                    var iR2 = int.Parse(r2);
+                    var iC2 = GetColumn(c2);
+
+                    ret = GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
+                        iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
+
+                }
+                else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
+                {
+                    var c2n = GetColumn(c2);
+                    ret = (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
+                }
+                else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
+                {
+                    var iR2 = int.Parse(r2);
+
+                    ret = int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
                 }
                 else
                 {
                     return false;
                 }
+                if (ret == false) return false;
             }
-
-            if (r1!="" && c1!="" && r2 == "" && c2 == "")   //Single Cell
-            {
-                return (GetColumn(c1)<=ExcelPackage.MaxColumns && int.Parse(r1)<=ExcelPackage.MaxRows);   
-            }
-            else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
-            {
-                var iR2 = int.Parse(r2);
-                var iC2 = GetColumn(c2);
-
-                return GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
-                    iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
-                                                    
-            }
-            else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
-            {                
-                var c2n=GetColumn(c2);
-                return (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
-            }
-            else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
-            {
-                var iR2 = int.Parse(r2);
-
-                return int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
+
+        private static bool IsCol(char c)
+        {
+            return c >= 'A' && c <= 'Z';
+        }
+        private static bool IsRow(char r)
+        {
+            return r >= '0' && r <= '9';
+        }
+
         /// <summary>
         /// Checks that a cell address (e.g. A5) is valid.
         /// </summary>

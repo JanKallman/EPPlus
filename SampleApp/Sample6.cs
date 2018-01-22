@@ -46,7 +46,7 @@ namespace EPPlusSamples
 {
     /// <summary>
     /// Sample 6 - Reads the filesystem and makes a report.
-    /// </summary>               
+    /// </summary>                  
     class Sample6
     {
         #if (!Core)

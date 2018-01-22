@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using System.IO;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
 
 namespace OfficeOpenXml.Utils
 {

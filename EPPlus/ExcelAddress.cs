@@ -97,6 +97,25 @@ namespace OfficeOpenXml
         /// <summary>
         /// Creates an Address object
         /// </summary>
+        /// <param name="worksheetName">Worksheet Name</param>
+        /// <param name="fromRow">start row</param>
+        /// <param name="fromCol">start column</param>
+        /// <param name="toRow">End row</param>
+        /// <param name="toColumn">End column</param>
+        public ExcelAddressBase(string worksheetName, int fromRow, int fromCol, int toRow, int toColumn)
+        {
+            _ws = worksheetName;
+            _fromRow = fromRow;
+            _toRow = toRow;
+            _fromCol = fromCol;
+            _toCol = toColumn;
+            Validate();
+
+            _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+        }
+        /// <summary>
+        /// Creates an Address object
+        /// </summary>
         /// <param name="fromRow">start row</param>
         /// <param name="fromCol">start column</param>
         /// <param name="toRow">End row</param>
@@ -261,26 +280,23 @@ namespace OfficeOpenXml
         protected internal void SetAddress(string address)
         {
             address = address.Trim();
-            if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "'"))
+            if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "'") || Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "["))
             {
-                int pos = address.IndexOf("'", 1);
-                while (pos < address.Length && address[pos + 1] == '\'')
-                {
-                    pos = address.IndexOf("'", pos+2);
-                }
-                var wbws = address.Substring(1,pos-1).Replace("''","'");
-                SetWbWs(wbws);
-                _address = address.Substring(pos + 2);
-            }
-            else if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(address, "[")) //Remove any external reference
-            {
+                //int pos = address.IndexOf("'", 1);
+                //while (pos < address.Length && address[pos + 1] == '\'')
+                //{
+                //    pos = address.IndexOf("'", pos + 2);
+                //}
+                //var wbws = address.Substring(1, pos - 1).Replace("''", "'");
                 SetWbWs(address);
+                //_address = address.Substring(pos + 2);
             }
             else
             {
                 _address = address;
             }
-            if(_address.IndexOfAny(new char[] {',','!', '['}) > -1)
+
+            if (_address.IndexOfAny(new char[] {',','!', '['}) > -1)
             {
                 //Advanced address. Including Sheet or multi or table.
                 ExtractAddress(_address);
@@ -313,8 +329,19 @@ namespace OfficeOpenXml
                 _wb = "";
                 _ws = address;
             }
+            if(_ws.StartsWith("'"))
+            {
+                pos = _ws.IndexOf("'",1);
+                if(pos>0)
+                {
+                    _address = _ws.Substring(pos+2);
+                    _ws = _ws.Substring(1, pos-1);
+                    return;
+                }
+            }
             pos = _ws.IndexOf("!");
-            if(pos==0)
+
+            if (pos==0)
             {
                 _address = _ws.Substring(1);
                 _ws = _wb;
@@ -324,6 +351,10 @@ namespace OfficeOpenXml
             {
                 _address = _ws.Substring(pos + 1);
                 _ws = _ws.Substring(0, pos);
+            }
+            else
+            {
+                _address = address;
             }
         }
         internal void ChangeWorksheet(string wsName, string newWs)
@@ -423,7 +454,15 @@ namespace OfficeOpenXml
         {
             get
             {
-                return string.IsNullOrEmpty(_ws) ? _ws : "[" + _ws + "]!" + Address;
+                var a=GetAddress();
+                if(_addresses != null)
+                {
+                    foreach(var sa in _addresses)
+                    {
+                        a += ";"+sa.GetAddress();
+                    }
+                }
+                return a;
             }
         }
         /// <summary>

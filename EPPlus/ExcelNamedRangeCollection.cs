@@ -178,7 +178,7 @@ namespace OfficeOpenXml
                     var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column +cols, namedRange.End.Row, namedRange.End.Column + cols);
                     namedRange.Address = BuildNewAddress(namedRange, newAddress);
                 }
-                else if (colFrom <= namedRange.End.Column)
+                else if (colFrom <= namedRange.End.Column && namedRange.End.Column + cols < ExcelPackage.MaxColumns)
                 {
                     var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column, namedRange.End.Row, namedRange.End.Column + cols);
                     namedRange.Address = BuildNewAddress(namedRange, newAddress);
@@ -206,10 +206,10 @@ namespace OfficeOpenXml
                     var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row + rows, namedRange.Start.Column, namedRange.End.Row + rows, namedRange.End.Column);
                     namedRange.Address = BuildNewAddress(namedRange, newAddress); 
                 }
-                else if (rowFrom <= namedRange.End.Row)
+                else if (rowFrom <= namedRange.End.Row && namedRange.End.Row+rows <= ExcelPackage.MaxRows)
                 {
                     var newAddress = ExcelCellBase.GetAddress(namedRange.Start.Row, namedRange.Start.Column, namedRange.End.Row + rows, namedRange.End.Column);
-                    namedRange.Address = BuildNewAddress(namedRange, newAddress); ;
+                    namedRange.Address = BuildNewAddress(namedRange, newAddress); 
                 }
             }
         }

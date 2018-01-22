@@ -256,7 +256,22 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         /// <summary>
-        /// A boolean that indicates whether to show all items for this field
+        /// Indicates whether the field can have multiple items selected in the page field
+        /// </summary>
+        public bool MultipleItemSelectionAllowed
+        {
+            get
+            {
+                return GetXmlNodeBool("@multipleItemSelectionAllowed");
+            }
+            set
+            {
+                SetXmlNodeBool("@multipleItemSelectionAllowed", value);
+            }
+        }
+        #region Show properties
+        /// <summary>
+        /// Indicates whether to show all items for this field
         /// </summary>
         public bool ShowAll 
         { 
@@ -269,6 +284,77 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@showAll",value);
             }
         }
+        /// <summary>
+        /// Indicates whether to hide drop down buttons on PivotField headers
+        /// </summary>
+        public bool ShowDropDowns
+        {
+            get
+            {
+                return GetXmlNodeBool("@showDropDowns");
+            }
+            set
+            {
+                SetXmlNodeBool("@showDropDowns", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether this hierarchy is omitted from the field list
+        /// </summary>
+        public bool ShowInFieldList
+        {
+            get
+            {
+                return GetXmlNodeBool("@showInFieldList");
+            }
+            set
+            {
+                SetXmlNodeBool("@showInFieldList", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the property as a member caption
+        /// </summary>
+        public bool ShowAsCaption
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropAsCaption");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropAsCaption", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the member property value in a PivotTable cell
+        /// </summary>
+        public bool ShowMemberPropertyInCell
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropCell");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropCell", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the member property value in a tooltip on the appropriate PivotTable cells
+        /// </summary>
+        public bool ShowMemberPropertyToolTip
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropTip");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropTip", value);
+            }
+        }
+        #endregion
         /// <summary>
         /// The type of sort that is applied to this field
         /// </summary>

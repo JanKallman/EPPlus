@@ -80,6 +80,9 @@
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client\PresentationFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration">
+      <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client\System.configuration.dll</HintPath>
+    </Reference>
     <Reference Include="System.Core">
       <HintPath>C:\Program Files\Reference Assemblies\Microsoft\Framework\v3.5\System.Core.dll</HintPath>
     </Reference>
@@ -93,8 +96,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellStore.cs" />
-    <Compile Include="Compatibility\DateTimeExtensions.cs" />
-    <Compile Include="Compatibility\SecurityElement.cs" />
+    <Compile Include="Compatibility\CompatibilitySettings.cs" />
     <Compile Include="Compatibility\TypeCompat.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingAverageGroup.cs" />
     <Compile Include="ConditionalFormatting\Contracts\IExcelConditionalFormattingBeginsWith.cs" />
@@ -726,6 +728,13 @@
     <Compile Include="RangeCollection.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Sparkline\Enums.cs" />
+    <Compile Include="Sparkline\ExcelSparkline.cs" />
+    <Compile Include="Sparkline\ExcelSparklineColor.cs" />
+    <Compile Include="Sparkline\ExcelSparklineGroup.cs" />
+    <Compile Include="Sparkline\ExcelSparklineCollection.cs" />
+    <Compile Include="Sparkline\ExcelSparklineGroupCollection.cs" />
+    <Compile Include="Style\IColor.cs" />
     <Compile Include="Utils\CompundDocument\CompoundDocumentFile.cs" />
     <Compile Include="Utils\CompundDocument\CoumpundDocumentItem.cs" />
     <Compile Include="Utils\ConvertUtil.cs" />
@@ -867,6 +876,7 @@
   <ItemGroup>
     <Compile Include="ConditionalFormatting\CF Implementation.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

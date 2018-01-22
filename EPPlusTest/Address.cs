@@ -284,5 +284,29 @@ namespace EPPlusTest
             Assert.AreEqual(1, excelAddress._fromRow);
             Assert.AreEqual(2, excelAddress._toRow);
         }
+        [TestMethod]
+        public void IsValidAddress()
+        {
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$A12:XY1:3"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("A1$2:XY$13"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("A12$:X$Y$13"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("A12:X$Y$13"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$A$12:$XY$13,$A12:XY1:3"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$A$12:"));
+
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("$XFD$1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$XFE$1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$XFD$1048577"));
+
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("A12"));
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("A$12"));
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("$A$12"));
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("$A$12:$XY$13"));
+            Assert.IsTrue(ExcelCellBase.IsValidAddress("$A$12:$XY$13,$A12:XY$14"));
+
+            Assert.IsFalse(ExcelCellBase.IsValidAddress("$A$12:$XY$13,$A12:XY$14$"));
+        }
+
+
     }
 }

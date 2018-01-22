@@ -53,7 +53,8 @@ using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Utils;
 
 using System.Linq;
-using EPPlus.Core.Compatibility;
+using OfficeOpenXml.Compatibility;
+using OfficeOpenXml.Sparkline;
 
 namespace OfficeOpenXml
 {
@@ -1363,6 +1364,7 @@ namespace OfficeOpenXml
                         _formulas.SetValue(address._fromRow, address._fromCol, afIndex);
                         SetValueInner(address._fromRow, address._fromCol, null);
                         _sharedFormulas.Add(afIndex, new Formulas(SourceCodeTokenizer.Default) { Index = afIndex, Formula = formula, Address = aAddress, StartRow = address._fromRow, StartCol = address._fromCol, IsArray = true });
+                        _flags.SetFlagValue(address._fromRow, address._fromCol, true, CellFlags.ArrayFormula);
                     }
                     else // ??? some other type
                     {
@@ -3322,58 +3324,62 @@ namespace OfficeOpenXml
 
                 //Rewrite the pivottable address again if any rows or columns have been inserted or deleted
                 pt.SetXmlNodeString("d:location/@ref", pt.Address.Address);
-                var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
-                var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
-                if (pt.CacheDefinition.SourceRange!=null && !pt.CacheDefinition.SourceRange.IsName && t==null)
+                var r = pt.CacheDefinition.SourceRange;
+                if (r != null)  //Source does not exist
                 {
-                    pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
-                }
-
-                var fields =
-                    pt.CacheDefinition.CacheDefinitionXml.SelectNodes(
-                        "d:pivotCacheDefinition/d:cacheFields/d:cacheField", NameSpaceManager);
-                int ix = 0;
-                if (fields != null)
-                {
-                    var flds = new HashSet<string>();
-                    foreach (XmlElement node in fields)
+                    var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
+                    var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
+                    if (pt.CacheDefinition.SourceRange != null && !pt.CacheDefinition.SourceRange.IsName && t == null)
                     {
-                        if (ix >= pt.CacheDefinition.SourceRange.Columns) break;
-                        var fldName = node.GetAttribute("name");                        //Fixes issue 15295 dup name error
-                        if (string.IsNullOrEmpty(fldName))
-                        {
-                            fldName = (t == null
-                                ? pt.CacheDefinition.SourceRange.Offset(0, ix++, 1, 1).Value.ToString()
-                                : t.Columns[ix++].Name);
-                        }
-                        if (flds.Contains(fldName))
-                        {                            
-                            fldName = GetNewName(flds, fldName);
-                        }
-                        flds.Add(fldName);
-                        node.SetAttribute("name", fldName);
+                        pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
                     }
-                    foreach (var df in pt.DataFields)
+
+                    var fields =
+                        pt.CacheDefinition.CacheDefinitionXml.SelectNodes(
+                            "d:pivotCacheDefinition/d:cacheFields/d:cacheField", NameSpaceManager);
+                    int ix = 0;
+                    if (fields != null)
                     {
-                        if (string.IsNullOrEmpty(df.Name))
+                        var flds = new HashSet<string>();
+                        foreach (XmlElement node in fields)
                         {
-                            string name;
-                            if (df.Function == DataFieldFunctions.None)
+                            if (ix >= pt.CacheDefinition.SourceRange.Columns) break;
+                            var fldName = node.GetAttribute("name");                        //Fixes issue 15295 dup name error
+                            if (string.IsNullOrEmpty(fldName))
                             {
-                                name = df.Field.Name; //Name must be set or Excel will crash on rename.                                
+                                fldName = (t == null
+                                    ? pt.CacheDefinition.SourceRange.Offset(0, ix++, 1, 1).Value.ToString()
+                                    : t.Columns[ix++].Name);
                             }
-                            else
+                            if (flds.Contains(fldName))
                             {
-                                name = df.Function.ToString() + " of " + df.Field.Name; //Name must be set or Excel will crash on rename.
+                                fldName = GetNewName(flds, fldName);
                             }
-                            //Make sure name is unique
-                            var newName = name;
-                            var i = 2;
-                            while (pt.DataFields.ExistsDfName(newName, df))
+                            flds.Add(fldName);
+                            node.SetAttribute("name", fldName);
+                        }
+                        foreach (var df in pt.DataFields)
+                        {
+                            if (string.IsNullOrEmpty(df.Name))
                             {
-                                newName = name + (i++).ToString(CultureInfo.InvariantCulture);
+                                string name;
+                                if (df.Function == DataFieldFunctions.None)
+                                {
+                                    name = df.Field.Name; //Name must be set or Excel will crash on rename.                                
+                                }
+                                else
+                                {
+                                    name = df.Function.ToString() + " of " + df.Field.Name; //Name must be set or Excel will crash on rename.
+                                }
+                                //Make sure name is unique
+                                var newName = name;
+                                var i = 2;
+                                while (pt.DataFields.ExistsDfName(newName, df))
+                                {
+                                    newName = name + (i++).ToString(CultureInfo.InvariantCulture);
+                                }
+                                df.Name = newName;
                             }
-                            df.Name = newName;
                         }
                     }
                 }
@@ -3407,7 +3413,7 @@ namespace OfficeOpenXml
                 sw.Write(_worksheetXml.OuterXml);
             }
             else
-            {
+            {   
                 CreateNode("d:cols");
                 CreateNode("d:sheetData");
                 CreateNode("d:mergeCells");
@@ -3596,7 +3602,7 @@ namespace OfficeOpenXml
         private void UpdateRowCellData(StreamWriter sw)
         {
             ExcelStyleCollection<ExcelXfs> cellXfs = _package.Workbook.Styles.CellXfs;
-            
+
             int row = -1;
 
             StringBuilder sbXml = new StringBuilder();
@@ -3604,23 +3610,15 @@ namespace OfficeOpenXml
             var styles = _package.Workbook.Styles;
             var cache = new StringBuilder();
             cache.Append("<sheetData>");
+
             
-            ////Set a value for cells with style and no value set.
-            //var cseStyle = new CellsStoreEnumerator<ExcelCoreValue>(_values, 0, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
-            //foreach (var s in cseStyle)
-            //{
-            //    if(!ExistsValueInner(cseStyle.Row, cseStyle.Column))
-            //    {
-            //        SetValueInner(cseStyle.Row, cseStyle.Column, null);
-            //    }
-            //}
+            FixSharedFormulas(); //Fixes Issue #32
 
             columnStyles = new Dictionary<int, int>();
             var cse = new CellsStoreEnumerator<ExcelCoreValue>(_values, 1, 0, ExcelPackage.MaxRows, ExcelPackage.MaxColumns);
-            //foreach (IRangeID r in _cells)
-            while(cse.Next())
+            while (cse.Next())
             {
-                if (cse.Column>0)
+                if (cse.Column > 0)
                 {
                     var val = cse.Value;
                     //int styleID = cellXfs[styles.GetStyleId(this, cse.Row, cse.Column)].newID;
@@ -3643,11 +3641,11 @@ namespace OfficeOpenXml
                             {
                                 if (f.IsArray)
                                 {
-                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{5}><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v,true));
+                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{5}><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v, true));
                                 }
                                 else
                                 {
-                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{6}><f ref=\"{2}\" t=\"shared\" si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v,true));
+                                    cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{6}><f ref=\"{2}\" t=\"shared\" si=\"{3}\">{4}</f>{5}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, f.Address, sfId, ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v, true));
                                 }
 
                             }
@@ -3657,15 +3655,15 @@ namespace OfficeOpenXml
                             }
                             else
                             {
-                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{4}><f t=\"shared\" si=\"{2}\"/>{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v), GetCellType(v,true));
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{4}><f t=\"shared\" si=\"{2}\"/>{3}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, sfId, GetFormulaValue(v), GetCellType(v, true));
                             }
                         }
                         else
                         {
                             // We can also have a single cell array formula
-                            if(f.IsArray)
+                            if (f.IsArray)
                             {
-                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{5}><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v,true));
+                                cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{5}><f ref=\"{2}\" t=\"array\">{3}</f>{4}</c>", cse.CellAddress, styleID < 0 ? 0 : styleID, string.Format("{0}:{1}", f.Address, f.Address), ConvertUtil.ExcelEscapeString(f.Formula), GetFormulaValue(v), GetCellType(v, true));
                             }
                             else
                             {
@@ -3674,9 +3672,9 @@ namespace OfficeOpenXml
                             }
                         }
                     }
-                    else if (formula!=null && formula.ToString()!="")
+                    else if (formula != null && formula.ToString() != "")
                     {
-                        cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v,true));
+                        cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"{2}>", cse.CellAddress, styleID < 0 ? 0 : styleID, GetCellType(v, true));
                         cache.AppendFormat("<f>{0}</f>{1}</c>", ConvertUtil.ExcelEscapeString(formula.ToString()), GetFormulaValue(v));
                     }
                     else
@@ -3685,17 +3683,17 @@ namespace OfficeOpenXml
                         {
                             cache.AppendFormat("<c r=\"{0}\" s=\"{1}\"/>", cse.CellAddress, styleID < 0 ? 0 : styleID);
                         }
-                        else if(v != null)
+                        else if (v != null)
                         {
                             // Fix for issue 15460
                             var enumerableResult = v as System.Collections.IEnumerable;
                             if (enumerableResult != null && !(v is string))
                             {
-                              var enumerator = enumerableResult.GetEnumerator();
-                              if (enumerator.MoveNext() && enumerator.Current != null)
-                                v = enumerator.Current;
-                              else
-                                v = string.Empty;
+                                var enumerator = enumerableResult.GetEnumerator();
+                                if (enumerator.MoveNext() && enumerator.Current != null)
+                                    v = enumerator.Current;
+                                else
+                                    v = string.Empty;
                             }
                             if ((TypeCompat.IsPrimitive(v) || v is double || v is decimal || v is DateTime || v is TimeSpan))
                             {
@@ -3710,7 +3708,7 @@ namespace OfficeOpenXml
                                 if (!ss.ContainsKey(vString))
                                 {
                                     ix = ss.Count;
-                                    ss.Add(vString, new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row,cse.Column,CellFlags.RichText), pos = ix });
+                                    ss.Add(vString, new ExcelWorkbook.SharedStringItem() { isRichText = _flags.GetFlagValue(cse.Row, cse.Column, CellFlags.RichText), pos = ix });
                                 }
                                 else
                                 {
@@ -3746,6 +3744,39 @@ namespace OfficeOpenXml
             cache.Append("</sheetData>");
             sw.Write(cache.ToString());
             sw.Flush();
+        }
+
+        /// <summary>
+        /// Check all Shared formulas that the first cell has not been deleted.
+        /// If so create a standard formula of all cells in the formula .
+        /// </summary>
+        private void FixSharedFormulas()
+        {
+            var remove = new List<int>();
+            foreach (var f in _sharedFormulas.Values)
+            {
+                var addr = new ExcelAddressBase(f.Address);
+                var shIx = _formulas.GetValue(addr._fromRow, addr._fromCol);
+                if (!(shIx is int) || (shIx is int && (int)shIx != f.Index))
+                {
+                    for (var row = addr._fromRow; row <= addr._toRow; row++)
+                    {
+                        for (var col = addr._fromCol; col <= addr._toCol; col++)
+                        {
+                            if (!(addr._fromRow == row && addr._fromCol == col))
+                            {
+                                var fIx=_formulas.GetValue(row, col);
+                                if (fIx is int && (int)fIx == f.Index)
+                                {
+                                    _formulas.SetValue(row, col, f.GetFormula(row, col, this.Name));
+                                }
+                            }
+                        }
+                    }
+                    remove.Add(f.Index);
+                }
+            }
+            remove.ForEach(i => _sharedFormulas.Remove(i));
         }
         private Dictionary<int, int> columnStyles = null;
         // get StyleID without cell style for UpdateRowCellData
@@ -3986,13 +4017,14 @@ namespace OfficeOpenXml
                 //foreach (ulong cell in _hyperLinks)
                 while(cse.Next())
                 {
-                    if (first)
+                    var uri = _hyperLinks.GetValue(cse.Row, cse.Column);
+                    if (first && uri != null)
                     {
                         sw.Write("<hyperlinks>");
                         first = false;
                     }
+
                     //int row, col;
-                    var uri = _hyperLinks.GetValue(cse.Row, cse.Column);
                     //ExcelCell cell = _cells[cellId] as ExcelCell;
                     if (uri is ExcelHyperLink && !string.IsNullOrEmpty((uri as ExcelHyperLink).ReferenceAddress))
                     {
@@ -4111,7 +4143,7 @@ namespace OfficeOpenXml
             }
         }
 
-#region Drawing
+        #region Drawing
         ExcelDrawings _drawings = null;
         /// <summary>
         /// Collection of drawing-objects like shapes, images and charts
@@ -4127,7 +4159,25 @@ namespace OfficeOpenXml
                 return _drawings;
             }
         }
-#endregion
+        #endregion
+        #region SparklineGroups
+        ExcelSparklineGroupCollection _sparklineGroups = null;
+        /// <summary>
+        /// Collection of Sparkline-objects. 
+        /// Sparklines are small in-cell charts.
+        /// </summary>
+        public ExcelSparklineGroupCollection SparklineGroups
+        {
+            get
+            {
+                if (_sparklineGroups == null)
+                {
+                    _sparklineGroups = new ExcelSparklineGroupCollection(this);
+                }
+                return _sparklineGroups;
+            }
+        }
+        #endregion
         ExcelTableCollection _tables = null;
         /// <summary>
         /// Tables defined in the worksheet.

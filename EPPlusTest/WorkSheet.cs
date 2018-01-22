@@ -544,6 +544,12 @@ namespace EPPlusTest
             _pck.Workbook.Properties.Status = "Status";
             _pck.Workbook.Properties.HyperlinkBase = new Uri("http://serversideexcel.com", UriKind.Absolute);
             _pck.Workbook.Properties.Manager = "Manager";
+            _pck.Workbook.Properties.AppVersion="4.5.0.1";
+            _pck.Workbook.Properties.LinksUpToDate = false;
+            _pck.Workbook.Properties.HyperlinksChanged = false;
+            _pck.Workbook.Properties.SharedDoc = false;
+            _pck.Workbook.Properties.ScaleCrop = false;
+
 
             _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
             Console.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
@@ -2900,6 +2906,7 @@ namespace EPPlusTest
             pck.SaveAs(new FileInfo(_worksheetPath + "comment.xlsx"));
 
             pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
             var ws2 = pck.Workbook.Worksheets[1];
             ws2.Cells[1, 2].AddComment("Testing", "test1");
             pck.Save();
@@ -2910,12 +2917,14 @@ namespace EPPlusTest
         {
             InitBase();
             var pck = new ExcelPackage();
+            pck.Compatibility.IsWorksheets1Based = true;
             var ws1 = pck.Workbook.Worksheets.Add("Comment1");
             ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
             ws1.Cells[4, 3].AddComment("Testing comment 2", "test2");
             var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
             pck.SaveAs(fileInfo);
             pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the comments were saved in the correct location.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2930,6 +2939,7 @@ namespace EPPlusTest
             Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
             pck.Save();
             pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the shifted index is preserved.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2943,12 +2953,14 @@ namespace EPPlusTest
         {
             InitBase();
             var pck = new ExcelPackage();
+            pck.Compatibility.IsWorksheets1Based = true;
             var ws1 = pck.Workbook.Worksheets.Add("Comment1");
             ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
             ws1.Cells[3, 4].AddComment("Testing comment 2", "test2");
             var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
             pck.SaveAs(fileInfo);
             pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the comments were saved in the correct location.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2963,6 +2975,7 @@ namespace EPPlusTest
             Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
             pck.Save();
             pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the shifted index is preserved.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -3031,7 +3044,7 @@ namespace EPPlusTest
                 Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Sort()
         {
             using (ExcelPackage package = new ExcelPackage())
@@ -3039,6 +3052,7 @@ namespace EPPlusTest
                 var ws = package.Workbook.Worksheets.Add("Sorting");
                 AddSortingData(ws,1,1);
                 ws.Cells["A:C"].Sort(2, true);
+                ws.Cells["A:C"].Sort(new int[] { 2,1 }, new bool[] { true, false });
 
                 AddSortingData(ws, 1, 5);
                 ws.Cells["H1:H1000"].Formula = "E1*2";

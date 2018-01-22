@@ -294,7 +294,8 @@ namespace EPPlusTest
 			editedPackage.SaveAs(packageStream);
 
 			var newPackage = new ExcelPackage(packageStream);
-			var positionId = 1;
+            newPackage.Compatibility.IsWorksheets1Based = true;
+            var positionId = 1;
 			foreach (var worksheet in editedPackage.Workbook.Worksheets)
 			{
 				Assert.AreEqual(worksheet.Name, newPackage.Workbook.Worksheets[positionId].Name, "Worksheets are not in the same order");

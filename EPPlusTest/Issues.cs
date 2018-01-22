@@ -14,9 +14,15 @@ using System.Collections.Generic;
 using OfficeOpenXml.Table.PivotTable;
 using OfficeOpenXml.Drawing.Chart;
 using System.Text;
+using System.Dynamic;
+using System.Globalization;
 
 namespace EPPlusTest
 {
+    /// <summary>
+    /// This class contains testcases for issues on Codeplex and Github.
+    /// All tests requiering an template should be set to ignored as it's not practical to include all xlsx templates in the project.
+    /// </summary>
     [TestClass]
     public class Issues
     {
@@ -39,12 +45,8 @@ namespace EPPlusTest
             var ws = p.Workbook.Worksheets.Add("test");
             ws.Cells["A1:A4"].Value = 1;
             ws.Cells["B1:B4"].Value = 2;
-
-            ws.Cells[1, 1, 4, 1]
-                        .Style.Numberformat.Format = "#,##0.00;[Red]-#,##0.00";
-
-            ws.Cells[1, 2, 5, 2]
-                                    .Style.Numberformat.Format = "#,##0;[Red]-#,##0";
+            ws.Cells[1, 1, 4, 1].Style.Numberformat.Format = "#,##0.00;[Red]-#,##0.00";
+            ws.Cells[1, 2, 5, 2].Style.Numberformat.Format = "#,##0;[Red]-#,##0";
 
             p.SaveAs(new FileInfo(@"c:\temp\style.xlsx"));
         }
@@ -1521,7 +1523,6 @@ namespace EPPlusTest
                 Assert.AreEqual(1, result, string.Format("Expected 1, got {0}", result));
             }
         }
-
         [TestMethod]
         public void Issue15548_SumIfsShouldHandleBadData()
         {
@@ -1581,7 +1582,316 @@ namespace EPPlusTest
             sheet.Cells[1, 1].Copy(sheet.Cells[3, 1]); //A3
 
             Assert.AreEqual(true, sheet.Cells[3, 1].IsArrayFormula);
-            
+        }
+        [TestMethod, Ignore]
+        public void Issue_5()
+        {
+            var excelFile = new FileInfo(@"c:\temp\bug\test.xlsm");
+            using (var package = new ExcelPackage(excelFile))
+            {
+                var ws = package.Workbook.Worksheets.Add("NewWorksheet");
+                ws.CodeModule.Code = "Private Sub Worksheet_SelectionChange(ByVal Target As Range)\r\n\r\nEnd Sub";
+                package.SaveAs(new FileInfo(@"c:\temp\bug\vbafailSaved.xlsm"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue_8()
+        {
+            dynamic c = 1;
+
+            var l = new List<dynamic>();
+            l.Add(1);
+            l.Add("s");
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("Dynamic Test");
+                ws.Cells["a1"].LoadFromCollection(l);
+                package.SaveAs(new FileInfo(@"c:\temp\dynamic.xlsx"));
+            }
+
+
+        }
+        [TestMethod, Ignore]
+        public void Issuer27()
+        {
+            FileInfo file = new FileInfo(@"C:\Temp\Test.xlsx");
+            var pck = new ExcelPackage(file);
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Worksheet");
+            if (ws != null)
+            {
+                ws.Cells["A1"].Value = "Cell value 1";
+                ws.Cells["B1"].Value = "Cell value 2";
+                ws.Cells["C1"].Value = "Cell value 3";
+                ws.Cells["D1"].Value = "Cell value 4";
+                ws.Cells["E1"].Value = "Cell value 5";
+            }
+            //ws.Cells.Style.VerticalAlignment = ExcelVerticalAlignment::Top; // Columns 4 and greater hidden
+            ws.Cells.AutoFitColumns(0);
+            ws.Cells.Style.VerticalAlignment = ExcelVerticalAlignment.Top; // 4.1.1.0 - exception, 4.0.4.0 - columns 4 and 5 hidden
+            ws.Column(4).Hidden = true;
+            ws.Column(5).Hidden = true; // span exception
+            pck.Save();
+        }
+        [TestMethod, Ignore]
+        public void Issuer26()
+        {
+            FileInfo file = new FileInfo(@"C:\Temp\repeatrowcol.xlsx");
+            var pck = new ExcelPackage(file);
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Worksheet");
+            ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1");
+            ws.PrinterSettings.RepeatColumns = new ExcelAddress("A:A");
+            pck.Save();
+        }
+        [TestMethod, Ignore]
+        public void Issue32()
+        {
+            var outputDir = new DirectoryInfo(@"c:\temp\sampleapp");
+            var existFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+            string newFileName = outputDir.FullName + @"\sample1_copied.xlsx";
+
+            System.IO.File.Copy(existFile.FullName, newFileName, true);
+            var newFile = new FileInfo(newFileName);
+
+            using (var package = new ExcelPackage(newFile))
+            {
+                // Add a new worksheet to the empty workbook
+
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory_copied", package.Workbook.Worksheets[1]);
+
+                //ExcelNamedRange sourceRange = package.Workbook.Names["Body"];
+                ExcelNamedRange sourceRange = package.Workbook.Names["row"];
+                ExcelNamedRange sourceRange2 = package.Workbook.Names["roww"];
+                ExcelNamedRange sourceRange3 = package.Workbook.Names["rowww"];
+                ExcelWorksheet worksheetFrom = sourceRange.Worksheet;
+
+                ExcelWorksheet worksheetTo = package.Workbook.Worksheets["Inventory_copied"];
+
+                ExcelRange cells = worksheetTo.Cells;
+                ExcelRange rangeTo = cells[1, 1, 1, 16384];
+                sourceRange.Copy(rangeTo);
+                ExcelRange rangeTo2 = cells[2, 1, 2, 16384];
+                sourceRange2.Copy(rangeTo2);
+                ExcelRange rangeTo3 = cells[4, 1, 4, 16384];
+                sourceRange3.Copy(rangeTo3);
+
+                package.Save();
+
+                //}
+
+            }
+        }
+        [TestMethod]
+        public void Issue63() // See https://github.com/JanKallman/EPPlus/issues/63
+        {
+            // Prepare
+            var newFile = new FileInfo(Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.xlsx"));
+            try
+            {
+                using (var package = new ExcelPackage(newFile))
+                {
+                    ExcelWorksheet ws = package.Workbook.Worksheets.Add("ArrayTest");
+                    ws.Cells["A1"].Value = 1;
+                    ws.Cells["A2"].Value = 2;
+                    ws.Cells["A3"].Value = 3;
+                    ws.Cells["B1:B3"].CreateArrayFormula("A1:A3");
+                    package.Save();
+                }
+                Assert.IsTrue(File.Exists(newFile.FullName));
+
+                // Test: basic support to recognize array formulas after reading Excel workbook file
+                using (var package = new ExcelPackage(newFile))
+                {
+                    Assert.AreEqual("A1:A3", package.Workbook.Worksheets["ArrayTest"].Cells["B1"].Formula);
+                    Assert.IsTrue(package.Workbook.Worksheets["ArrayTest"].Cells["B1"].IsArrayFormula);
+                }
+            }
+            finally
+            {
+                File.Delete(newFile.FullName);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue60()
+        {
+            var ms = new MemoryStream(File.ReadAllBytes(@"c:\temp\sampleapp\sample10\Template.xlsx"));
+            using (var p = new ExcelPackage())
+            {
+                p.Load(ms, "");
+            }
+        }
+        [TestMethod]
+        public void Issue61()
+        {
+            DataTable table1 = new DataTable("TestTable");
+            table1.Columns.Add("name");
+            table1.Columns.Add("id");
+            using (var p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("i61");
+                ws.Cells["A1"].LoadFromDataTable(table1, true);
+                //p.SaveAs(new FileInfo(@"c:\temp\issue61.xlsx"));
+            }
+
+        }
+
+        [TestMethod, Ignore]
+        public void Issue58()
+        {
+            var fileInfo = new FileInfo(@"C:\Temp\issue58.xlsx");
+            var package = new ExcelPackage(fileInfo);
+            if (package.Workbook.Worksheets.Count > 0)
+                package.Workbook.Worksheets.Delete("Test");
+
+            var worksheet = package.Workbook.Worksheets.Add("Test");
+            worksheet.Cells[1, 1].Value = "Name";
+            worksheet.Cells[1, 2].Value = "Address";
+            worksheet.Cells[1, 3].Value = "City";
+            worksheet.Cells[2, 1].Value = "Esben Rud";
+            worksheet.Cells[2, 2].Value = "Enghavevej";
+            worksheet.Cells[2, 3].Value = "Odense";
+            var r1 = worksheet.ProtectedRanges.Add("Range1", new ExcelAddress(1, 1, 2, 1));
+            Console.WriteLine("Range1: " + r1.Name + " " + r1.Address.ToString());
+            var r2 = worksheet.ProtectedRanges.Add("Range2", new ExcelAddress(1, 2, 2, 2));
+            Console.WriteLine("Range2: " + r2.Name + " " + r2.Address.ToString());
+            Console.WriteLine("*Range1: " + r1.Name + " " + r1.Address.ToString());
+            Console.WriteLine("*Range2: " + r2.Name + " " + r2.Address.ToString());
+            package.Save();
+            package.Dispose();
+        }
+        [TestMethod]
+        public void Issue57()
+        {
+            ExcelPackage pck = new ExcelPackage();
+            ExcelWorksheet ws = pck.Workbook.Worksheets.Add("test");
+            ws.Cells["A1"].LoadFromArrays(Enumerable.Empty<object[]>());
+        }
+        [TestMethod, Ignore]
+        public void Issue55()
+        {
+            ExcelPackage pck = new ExcelPackage(new FileInfo(@"C:\Temp\bug\monocell.xlsx"));
+            ExcelWorksheet ws = pck.Workbook.Worksheets[1];
+            Console.WriteLine(ws.Cells["A1"].Text);
+        }
+        [TestMethod, Ignore]
+        public void Issue51()
+        {
+            var filename = new FileInfo(@"c:\temp\bug\bug51.xlsx");
+            using (ExcelPackage pck = new ExcelPackage(filename))
+            {
+                var data = pck.Workbook.Worksheets.Add("data");
+                data.Cells["A1"].Value = "Product";
+                data.Cells["B1"].Value = "Quantity";
+                data.Cells["A2"].Value = "Nails";
+                data.Cells["B2"].Value = 37;
+                data.Cells["A3"].Value = "Hammer";
+                data.Cells["B3"].Value = 5;
+                data.Cells["A4"].Value = "Saw";
+                data.Cells["B4"].Value = 12;
+
+                var dataRange = data.Cells["A1:B4"];
+
+                var pivot = pck.Workbook.Worksheets.Add("pivot");
+                var pivotTable = pivot.PivotTables.Add(pivot.Cells["A1"], dataRange, "a&b");
+                var tbl = data.Tables.Add(dataRange, "a&c");
+                tbl.Name = "_a&c";
+                pivotTable.Name = "a&b";
+                pck.Save();
+            }
+        }
+        #region Issue 44
+        private static string PIVOT_WS_NAME = "Pivot";
+        private static string DATA_WS_NAME = "Data";
+        [TestMethod, Ignore]
+        public void Issue44()
+        {
+            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("el-GR");
+            using (ExcelPackage xlp = new ExcelPackage())
+            {
+                PrepareDoc(xlp);
+                GenPivot(xlp);
+
+                FileStream fs = File.Create(@"c:\temp\bug\pivot44.xlsx");
+                xlp.SaveAs(fs);
+                fs.Close();
+            }
+
+        }
+        private void PrepareDoc(ExcelPackage xlp)
+        {
+            //generate date/value pairs for October 2017
+            var series = Enumerable.Range(0, 31);
+            var data = from x in series
+                       select new { d = new DateTime(2017, 10, x + 1), x = x };
+            //put data in table
+            ExcelWorksheet ws = xlp.Workbook.Worksheets.Add(DATA_WS_NAME);
+            int col = 1;
+            ws.Cells[1, col++].Value = "Date";
+            ws.Cells[1, col].Value = "Value";
+            int row = 2;
+            foreach (var line in data)
+            {
+                col = 1;
+                ws.Cells[row, col++].Value = line.d;
+                ws.Cells[row, col - 1].Style.Numberformat.Format = DateTimeFormatInfo.CurrentInfo.ShortDatePattern;
+                ws.Cells[row, col].Value = line.x;
+                row++;
+            }
+        }
+
+        private void GenPivot(ExcelPackage xlp)
+        {
+            ExcelWorksheet ws = xlp.Workbook.Worksheets.Add(PIVOT_WS_NAME);
+            ExcelWorksheet srcws = xlp.Workbook.Worksheets[DATA_WS_NAME];
+            ExcelPivotTable piv = ws.PivotTables.Add(ws.Cells[1, 1], srcws.Cells[1, 1, 32, 2], "Pivot1");
+            piv.DataFields.Add(piv.Fields["Value"]);
+            ExcelPivotTableField dt = piv.RowFields.Add(piv.Fields["Date"]);
+            dt.AddDateGrouping(eDateGroupBy.Days | eDateGroupBy.Months);
+        }
+        #endregion
+        [TestMethod]
+        public void Issue66()
+        {
+
+            using (var pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("Test!");
+                ws.Cells["A1"].Value = 1;
+                ws.Cells["B1"].Formula = "A1";
+                var wb = pck.Workbook;
+                wb.Names.Add("N1", ws.Cells["A1:A2"]);
+                ws.Names.Add("N2", ws.Cells["A1"]);
+                pck.Save();
+                using (var pck2 = new ExcelPackage(pck.Stream))
+                {
+                    ws = pck2.Workbook.Worksheets["Test!"];
+
+                }
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue68()
+        {
+            using (var pck = new ExcelPackage(new FileInfo(@"c:\temp\bug68.xlsx")))
+            {
+                var ws = pck.Workbook.Worksheets["Sheet1"];
+                pck.Workbook.Worksheets.Delete(ws);
+                ws = pck.Workbook.Worksheets.Add("Sheet1");                
+                pck.SaveAs(new FileInfo(@"c:\temp\bug68-2.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue70()
+        {
+            var documentPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"c:\temp\workbook with comment.xlsx");
+            var outputPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"c:\temp\WorkbookWithCommentOutput.xlsx");
+            var fileInfo = new FileInfo(documentPath);
+            Assert.IsTrue(fileInfo.Exists);
+            using (var workbook = new ExcelPackage(fileInfo))
+            {
+                var ws = workbook.Workbook.Worksheets.First();
+                ws.DeleteRow(3); // NRE thrown here
+                workbook.SaveAs(new FileInfo(outputPath));
+            }
         }
     }
- }
+}
