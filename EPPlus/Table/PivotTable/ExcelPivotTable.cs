@@ -741,6 +741,20 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         /// <summary>
+        /// Specifies the string to be displayed in column header in compact mode.
+        /// </summary>
+        public string ColumnHeaderCaption
+        {
+            get
+            {
+                return GetXmlNodeString("@colHeaderCaption");
+            }
+            set
+            {
+                SetXmlNodeString("@colHeaderCaption", value);
+            }
+        }
+        /// <summary>
         /// Specifies the string to be displayed in cells with no value
         /// </summary>
         public string MissingCaption
