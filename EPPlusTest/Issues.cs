@@ -16,6 +16,7 @@ using OfficeOpenXml.Drawing.Chart;
 using System.Text;
 using System.Dynamic;
 using System.Globalization;
+using OfficeOpenXml.Drawing;
 
 namespace EPPlusTest
 {
@@ -1875,7 +1876,7 @@ namespace EPPlusTest
             {
                 var ws = pck.Workbook.Worksheets["Sheet1"];
                 pck.Workbook.Worksheets.Delete(ws);
-                ws = pck.Workbook.Worksheets.Add("Sheet1");                
+                ws = pck.Workbook.Worksheets.Add("Sheet1");
                 pck.SaveAs(new FileInfo(@"c:\temp\bug68-2.xlsx"));
             }
         }
@@ -1891,6 +1892,50 @@ namespace EPPlusTest
                 var ws = workbook.Workbook.Worksheets.First();
                 ws.DeleteRow(3); // NRE thrown here
                 workbook.SaveAs(new FileInfo(outputPath));
+            }
+        }
+        
+        [TestMethod, Ignore]
+        public void Issue100()
+        {
+            Stream templateFile = new FileStream(@"c:\temp\bug\epplus_drawing_id_issue.xlsx", FileMode.Open, FileAccess.Read, FileShare.Read);
+            FileStream outputFile = new FileStream(@"c:\temp\bug\epplus_drawing_id_issue_new.xlsx", FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            using (ExcelPackage package = new ExcelPackage(templateFile))
+            {
+                ExcelWorkbook wb = package.Workbook;
+                ExcelWorksheet sh = wb.Worksheets[1];
+                System.Drawing.Image img_ = System.Drawing.Image.FromFile(@"C:\temp\img\background.gif");
+                ExcelPicture pic = sh.Drawings.AddPicture("logo", img_);
+                pic.SetPosition(1, 1);
+
+                package.SaveAs(outputFile);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue99()
+        {
+            var template = @"c:\temp\bug\iss99\Template.xlsx";
+            var result = @"c:\temp\bug\iss99\Result.xlsx";
+            using (var inStream = File.Open(template, FileMode.Open))
+            {
+                using (var outStream = File.Open(result, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                {
+                    using (ExcelPackage xl = new ExcelPackage(outStream, inStream))
+                    {
+                        xl.Save();
+                    }
+                }
+            }
+        }
+        [TestMethod]
+        public void Issue94()
+        {
+            using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplate.xlsx")))
+            {
+                var ws = package.Workbook.Worksheets.First();
+                var copy = package.Workbook.Worksheets.Add("copy", ws);
+                package.Workbook.Worksheets.Delete(ws);
+                package.SaveAs(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplateSaved.xlsx"));
             }
         }
     }

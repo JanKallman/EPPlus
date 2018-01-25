@@ -2330,6 +2330,9 @@ namespace EPPlusTest
             ws.Cells["A1:C3"].Style.Fill.Gradient.Color1.SetColor(Color.Red);
             ws.Cells["A1:C3"].Style.Fill.Gradient.Color2.SetColor(Color.Blue);
 
+            ws.Cells["J20:J23"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            ws.Cells["J20:J23"].Style.Fill.BackgroundColor.SetColor(0xFF,0x00,0XFF,0x00); //Green
+
             ws.Cells["A1"].Style.Fill.PatternType = ExcelFillStyle.MediumGray;
             ws.Cells["A1"].Style.Fill.BackgroundColor.SetColor(Color.ForestGreen);
             var r = ws.Cells["A2:A3"];

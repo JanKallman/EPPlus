@@ -508,7 +508,7 @@ namespace OfficeOpenXml
             bool doAdjust = _pck.DoAdjustDrawings;
             _pck.DoAdjustDrawings = false;
             //Merged cells
-            foreach (var r in added.MergedCells)
+            foreach (var r in Copy.MergedCells)     //Issue #94
             {
                 added.MergedCells.Add(new ExcelAddress(r),false);
             }
@@ -523,15 +523,10 @@ namespace OfficeOpenXml
             //Cells
             int row,col;
             var val = new CellsStoreEnumerator<ExcelCoreValue>(Copy._values);
-            //object f=null;
-            //foreach (var addr in val)
             while(val.Next())
             {                
-                //row=(int)addr>>32;
-                //col=(int)addr&32;
                 row = val.Row;
                 col = val.Column;
-                //added._cells.Add(cell.Clone(added));
                 int styleID=0;
                 if (row == 0) //Column
                 {
@@ -551,7 +546,6 @@ namespace OfficeOpenXml
                     {
                         r.Clone(added);
                         styleID = r.StyleID;
-                        //added.SetValueInner(row, col, r.Clone(added));                                                
                     }
                     
                 }
@@ -579,11 +573,6 @@ namespace OfficeOpenXml
         private int CopyValues(ExcelWorksheet Copy, ExcelWorksheet added, int row, int col)
         {
             added.SetValueInner(row, col, Copy.GetValueInner(row, col));
-            //var t = Copy._types.GetValue(row, col);
-            //if (t != null)
-            //{
-            //    added._types.SetValue(row, col, t);
-            //}
             byte fl=0;
             if (Copy._flags.Exists(row,col,ref fl))
             {
@@ -622,7 +611,6 @@ namespace OfficeOpenXml
 
             StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
             streamDrawing.Write(xml);
-            //streamDrawing.Close();
             streamDrawing.Flush();
 
             //Add the relationship ID to the worksheet xml.
@@ -639,7 +627,6 @@ namespace OfficeOpenXml
             var vmlPart = _pck.Package.CreatePart(uriVml, "application/vnd.openxmlformats-officedocument.vmlDrawing", _pck.Compression);
             StreamWriter streamVml = new StreamWriter(vmlPart.GetStream(FileMode.Create, FileAccess.Write));
             streamVml.Write(xml);
-            //streamVml.Close();
             streamVml.Flush();
 
             var newVmlRel = workSheet.Part.CreateRelationship(UriHelper.GetRelativeUri(workSheet.WorksheetUri,uriVml), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/vmlDrawing");
@@ -657,16 +644,12 @@ namespace OfficeOpenXml
         private void CopyDrawing(ExcelWorksheet Copy, ExcelWorksheet workSheet/*, PackageRelationship r*/)
         {
             
-            //Check if the worksheet has drawings
-            //if(_xlPackage.Package.PartExists(r.TargetUri))
-            //{
                 //First copy the drawing XML                
                 string xml = Copy.Drawings.DrawingXml.OuterXml;            
                 var uriDraw=new Uri(string.Format("/xl/drawings/drawing{0}.xml", workSheet.SheetID),  UriKind.Relative);
                 var part= _pck.Package.CreatePart(uriDraw,"application/vnd.openxmlformats-officedocument.drawing+xml", _pck.Compression);
                 StreamWriter streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(xml);
-                //streamDrawing.Close();
                 streamDrawing.Flush();
 
                 XmlDocument drawXml = new XmlDocument();
@@ -689,7 +672,6 @@ namespace OfficeOpenXml
                         var chartPart = _pck.Package.CreatePart(UriChart, "application/vnd.openxmlformats-officedocument.drawingml.chart+xml", _pck.Compression);
                         StreamWriter streamChart = new StreamWriter(chartPart.GetStream(FileMode.Create, FileAccess.Write));
                         streamChart.Write(xml);
-                        //streamChart.Close();
                         streamChart.Flush();
                         //Now create the new relationship to the copied chart xml
                         var prevRelID=draw.TopNode.SelectSingleNode("xdr:graphicFrame/a:graphic/a:graphicData/c:chart/@r:id", Copy.Drawings.NameSpaceManager).Value;
@@ -727,7 +709,6 @@ namespace OfficeOpenXml
                 //rewrite the drawing xml with the new relID's
                 streamDrawing = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
                 streamDrawing.Write(drawXml.OuterXml);
-               // streamDrawing.Close();
                 streamDrawing.Flush();
 
             //Copy the size variables to the copy.
@@ -742,10 +723,10 @@ namespace OfficeOpenXml
                     c._height = draw._height;
                     c._width = draw._width;
                 }
-            }
+            }            
         }
 
-		private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)
+        private void CopyVmlDrawing(ExcelWorksheet origSheet, ExcelWorksheet newSheet)
 		{
 			var xml = origSheet.VmlDrawingsComments.VmlDrawingXml.OuterXml;
 			var vmlUri = new Uri(string.Format("/xl/drawings/vmlDrawing{0}.vml", newSheet.SheetID), UriKind.Relative);

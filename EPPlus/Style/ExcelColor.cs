@@ -112,10 +112,24 @@ namespace OfficeOpenXml.Style
         /// <param name="color">The color</param>
         public void SetColor(Color color)
         {
-            Rgb = color.ToArgb().ToString("X");
+            Rgb = color.ToArgb().ToString("X");       
         }
-
-
+        /// <summary>
+        /// Set the color of the object
+        /// </summary>
+        /// <param name="alpha">Alpha component value</param>
+        /// <param name="red">Red component value</param>
+        /// <param name="green">Green component value</param>
+        /// <param name="blue">Blue component value</param>
+        public void SetColor(int alpha, int red, int green, int blue)
+        {
+            if(alpha < 0 || red < 0 || green < 0 ||blue < 0 ||
+               alpha > 255 || red > 255 || green > 255 || blue > 255)
+            {
+                throw (new ArgumentException("Argument range must be from 0 to 255"));
+            }
+            Rgb = alpha.ToString("X2") + red.ToString("X2") + green.ToString("X2") + blue.ToString("X2");
+        }
         internal override string Id
         {
             get 
