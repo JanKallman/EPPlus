@@ -4195,7 +4195,7 @@ namespace OfficeOpenXml
                 return _tables;
             }
         }
-        ExcelPivotTableCollection _pivotTables = null;
+        internal ExcelPivotTableCollection _pivotTables = null;
         /// <summary>
         /// Pivottables defined in the worksheet.
         /// </summary>

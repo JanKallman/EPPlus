@@ -223,7 +223,6 @@ namespace OfficeOpenXml
                 XmlDocument worksheetXml = new XmlDocument();
                 worksheetXml.LoadXml(Copy.WorksheetXml.OuterXml);
                 worksheetXml.Save(streamWorksheet);
-                //streamWorksheet.Close();
                 _pck.Package.Flush();
 
 
@@ -403,55 +402,55 @@ namespace OfficeOpenXml
                 string xml = tbl.PivotTableXml.OuterXml;
 
                 string name;
-                if (prevName == "")
+                if(Copy.Workbook==added.Workbook || added.PivotTables._pivotTableNames.ContainsKey(tbl.Name))
                 {
-                    name = Copy.PivotTables.GetNewTableName();
+                    if (prevName == "")
+                    {
+                        name = added.PivotTables.GetNewTableName();
+                    }
+                    else
+                    {
+                        int ix = int.Parse(prevName.Substring(10)) + 1;
+                        name = string.Format("PivotTable{0}", ix);
+                        while (_pck.Workbook.ExistsPivotTableName(name))
+                        {
+                            name = string.Format("PivotTable{0}", ++ix);
+                        }
+                    }
                 }
                 else
                 {
-                    int ix=int.Parse(prevName.Substring(10))+1;
-                    name = string.Format("PivotTable{0}", ix);
-                    while (_pck.Workbook.ExistsPivotTableName(name))
-                    {
-                        name = string.Format("PivotTable{0}", ++ix);
-                    }
+                    name = tbl.Name;
                 }
                 prevName=name;
                 XmlDocument xmlDoc = new XmlDocument();
                 //TODO: Fix save pivottable here
-                //Copy.Save();    //Save the worksheet first
                 xmlDoc.LoadXml(xml);
-                //xmlDoc.SelectSingleNode("//d:table/@id", tbl.NameSpaceManager).Value = Id.ToString();
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
                 xml = xmlDoc.OuterXml;
 
                 int Id = _pck.Workbook._nextPivotTableID++;
-                //var uriTbl = new Uri(string.Format("/xl/pivotTables/pivotTable{0}.xml", Id), UriKind.Relative);
                 var uriTbl = GetNewUri(_pck.Package, "/xl/pivotTables/pivotTable{0}.xml", ref Id);
                 if (_pck.Workbook._nextPivotTableID < Id) _pck.Workbook._nextPivotTableID = Id;
                 var partTbl = _pck.Package.CreatePart(uriTbl, ExcelPackage.schemaPivotTable , _pck.Compression);
                 StreamWriter streamTbl = new StreamWriter(partTbl.GetStream(FileMode.Create, FileAccess.Write));
                 streamTbl.Write(xml);
-                //streamTbl.Close();
                 streamTbl.Flush();
 
                 xml = tbl.CacheDefinition.CacheDefinitionXml.OuterXml;
-                //var uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", Id), UriKind.Relative);
-                //while (_pck.Package.PartExists(uriCd))
-                //{
-                //    uriCd = new Uri(string.Format("/xl/pivotCache/pivotcachedefinition{0}.xml", ++Id), UriKind.Relative);
-                //}
                 var uriCd = GetNewUri(_pck.Package, "/xl/pivotCache/pivotcachedefinition{0}.xml", ref Id);
                 var partCd = _pck.Package.CreatePart(uriCd, ExcelPackage.schemaPivotCacheDefinition, _pck.Compression);
                 StreamWriter streamCd = new StreamWriter(partCd.GetStream(FileMode.Create, FileAccess.Write));
                 streamCd.Write(xml);
                 streamCd.Flush();
 
+                added.Workbook.AddPivotTable(Id.ToString(), uriCd);
+
                 xml = "<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />";
-                var uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", Id), UriKind.Relative);
+                var uriRec = new Uri(string.Format("/xl/pivotCache/pivotCacheRecords{0}.xml", Id), UriKind.Relative);
                 while (_pck.Package.PartExists(uriRec))
                 {
-                    uriRec = new Uri(string.Format("/xl/pivotCache/pivotrecords{0}.xml", ++Id), UriKind.Relative);
+                    uriRec = new Uri(string.Format("/xl/pivotCache/pivotCacheRecords{0}.xml", ++Id), UriKind.Relative);
                 }
                 var partRec = _pck.Package.CreatePart(uriRec, ExcelPackage.schemaPivotCacheRecords, _pck.Compression);
                 StreamWriter streamRec = new StreamWriter(partRec.GetStream(FileMode.Create, FileAccess.Write));
@@ -462,7 +461,9 @@ namespace OfficeOpenXml
                 added.Part.CreateRelationship(UriHelper.ResolvePartUri(added.WorksheetUri, uriTbl), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotTable");
                 partTbl.CreateRelationship(UriHelper.ResolvePartUri(tbl.Relationship.SourceUri, uriCd), tbl.CacheDefinition.Relationship.TargetMode, tbl.CacheDefinition.Relationship.RelationshipType);
                 partCd.CreateRelationship(UriHelper.ResolvePartUri(uriCd, uriRec), Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/pivotCacheRecords");
+
             }
+            added._pivotTables = null;   //Reset collection so it's reloaded when accessing the collection next time.
         }
         private void CopyHeaderFooterPictures(ExcelWorksheet Copy, ExcelWorksheet added)
         {
@@ -513,7 +514,7 @@ namespace OfficeOpenXml
                 added.MergedCells.Add(new ExcelAddress(r),false);
             }
 
-            //Shared Formulas
+            //Shared Formulas   
             foreach (int key in Copy._sharedFormulas.Keys)
             {
                 added._sharedFormulas.Add(key, Copy._sharedFormulas[key].Clone());
@@ -989,12 +990,14 @@ namespace OfficeOpenXml
 			_worksheets = worksheets;
 		}
 
-		/// <summary>
-		/// Returns the worksheet at the specified position.  
-		/// </summary>
-		/// <param name="PositionID">The position of the worksheet. 1-base</param>
-		/// <returns></returns>
-		public ExcelWorksheet this[int PositionID]
+        /// <summary>
+        /// Returns the worksheet at the specified position. 
+        /// </summary>
+        /// <param name="PositionID">The position of the worksheet. Collection is zero based or one-base depending on the Package.Compatibility.IsWorksheets1Based propery. </param>
+        /// 
+        /// <seealso cref="ExcelPackage.Compatibility"/>
+        /// <returns></returns>
+        public ExcelWorksheet this[int PositionID]
 		{
 			get
 			{

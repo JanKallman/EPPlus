@@ -1927,7 +1927,7 @@ namespace EPPlusTest
                 }
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue94()
         {
             using (var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplate.xlsx")))
@@ -1937,6 +1937,22 @@ namespace EPPlusTest
                 package.Workbook.Worksheets.Delete(ws);
                 package.SaveAs(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplateSaved.xlsx"));
             }
+        }
+        [TestMethod,Ignore]
+        public void Issue107()
+        {
+            using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\sampleapp\sample12.xlsx")))
+            using (ExcelPackage epOUT = new ExcelPackage(new FileInfo(@"C:\temp\bug\pivotbug107.xlsx")))
+            {
+                foreach (ExcelWorksheet sheet in epIN.Workbook.Worksheets)
+                {
+                    ExcelWorksheet newSheet = epOUT.Workbook.Worksheets.Add(sheet.Name, sheet);
+                }
+                epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[1].Name + "-2", epIN.Workbook.Worksheets[1]);
+                epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[2].Name + "-2", epIN.Workbook.Worksheets[2]);
+                epOUT.Save();
+                epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
+           }
         }
     }
 }
