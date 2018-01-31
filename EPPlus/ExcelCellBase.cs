@@ -73,7 +73,7 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Formula Functions"
-        private delegate string dlgTransl(string part, int row, int col, int rowIncr, int colIncr);
+        private delegate string dlgTransl(string part, int row, int col, int rowIncr, int colIncr, bool isNoRange = false);
         #region R1C1 Functions"
         /// <summary>
         /// Translates a R1C1 to an absolut address/Formula
@@ -118,11 +118,20 @@ namespace OfficeOpenXml
             for (int pos = 0; pos < value.Length; pos++)
             {
                 char c = value[pos];
+
+                // Check if part is a range, eg has ":" after or before the part.
+                var isNoRange = false;
+                var partStartPos = pos - part.Length - 1;
+                if (c != ':' && partStartPos >= 0 && value[partStartPos] != ':')
+                {
+                    isNoRange = true;
+                }
+
                 if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
                 {
                     if (isText == false && part != "" && prevTQ==c)
                     {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr);
+                        ret += addressTranslator(part, row, col, rowIncr, colIncr, isNoRange);
                         part = "";
                         prevTQ = (char)0;
                     }
@@ -142,7 +151,7 @@ namespace OfficeOpenXml
                         c == ' ' || c == '&' || c == '%') &&
                         (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
                     {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;
+                        ret += addressTranslator(part, row, col, rowIncr, colIncr, isNoRange) + c;
                         part = "";
                     }
                     else
@@ -153,7 +162,14 @@ namespace OfficeOpenXml
             }
             if (part != "")
             {
-                ret += addressTranslator(part, row, col, rowIncr, colIncr);
+                var isNoRange = false;
+                var partStartPos = value.Length - part.Length - 1;
+                if (partStartPos >= 0 && value[partStartPos] != ':')
+                {
+                    isNoRange = true;
+                }
+
+                ret += addressTranslator(part, row, col, rowIncr, colIncr, isNoRange);
             }
             return ret;
         }
@@ -166,7 +182,7 @@ namespace OfficeOpenXml
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr, bool isNoRange = false)
         {
             int addrRow, addrCol;
             string Ret = "R";
@@ -212,8 +228,20 @@ namespace OfficeOpenXml
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr, bool isNoRange = false)
         {
+            // Allow for static R1C1 style column references or static column range references
+            string pattern = @"^C([0-9]+)$";
+            if (Regex.IsMatch(part, pattern))
+            {
+                Match match = Regex.Matches(part, pattern)[0];
+                var absBit = $"${GetColumnLetter(int.Parse(match.Groups[1].Value))}";
+                if (isNoRange)
+                    return $"{absBit}:{absBit}";
+                else
+                    return absBit;
+            }
+
             string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
 
             int rStart = check.IndexOf("R");
