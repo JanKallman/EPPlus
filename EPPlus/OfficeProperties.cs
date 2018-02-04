@@ -335,7 +335,7 @@ namespace OfficeOpenXml
         const string LinksUpToDatePath = "xp:Properties/xp:LinksUpToDate";
         /// <summary>
         /// Indicates whether hyperlinks in a document are up-to-date
-        /// <   /summary>
+        /// </summary>
         public bool LinksUpToDate
         {
             get { return _extendedHelper.GetXmlNodeBool(LinksUpToDatePath); }

@@ -148,7 +148,28 @@ namespace EPPlusTest.FormulaParsing
             Assert.AreEqual("$AB6-SUM($L6:$U6)", f);
             _sheet.Cells[6, 13].Formula = f;
             Assert.AreEqual(fR1C1, _sheet.Cells[6, 13].FormulaR1C1);
-
+        }
+        [TestMethod]
+        public void SimpleRelativeR1C1()
+        {
+            string fR1C1 = "R[-1]C[-5]";
+            var c = _sheet.Cells[7, 7];
+            c.FormulaR1C1 = fR1C1;
+            string f = c.Formula;
+            Assert.AreEqual("B6", f);
+            c.Formula = f;
+            Assert.AreEqual(fR1C1, c.FormulaR1C1);
+        }
+        [TestMethod]
+        public void SimpleAbsR1C1()
+        {
+            string fR1C1 = "R1C5";
+            var c = _sheet.Cells[8, 8];
+            c.FormulaR1C1 = fR1C1;
+            string f = c.Formula;
+            Assert.AreEqual("$E$1", f);
+            c.Formula = f;
+            Assert.AreEqual(fR1C1, c.FormulaR1C1);
         }
     }
 }

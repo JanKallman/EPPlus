@@ -1733,7 +1733,7 @@ namespace EPPlusTest
                 ws.Cells["A1"].LoadFromText("\"text with eol,\r\n",
                                             new ExcelTextFormat { TextQualifier = '"', EOL = ",\r\n", Delimiter = ',' });
             }
-            catch (Exception e)
+            catch //(Exception e)
             {
                 //Assert.AreEqual("Text delimiter is not closed in line : \"text with eol", e.Message, "Exception message");
                 exceptionThrown = true;
