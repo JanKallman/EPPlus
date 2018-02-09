@@ -126,6 +126,7 @@ namespace OfficeOpenXml.Table
             LoadXmlSafe(TableXml, Part.GetStream());
             init();
             Address = new ExcelAddressBase(GetXmlNodeString("@ref"));
+            UpdateTableStyle();
         }
         internal ExcelTable(ExcelWorksheet sheet, ExcelAddressBase address, string name, int tblId) : 
             base(sheet.NameSpaceManager)
@@ -149,6 +150,44 @@ namespace OfficeOpenXml.Table
         {
             TopNode = TableXml.DocumentElement;
             SchemaNodeOrder = new string[] { "autoFilter", "tableColumns", "tableStyleInfo" };
+        }
+        /// <summary>
+        /// Update the Table Style based on the StyleName in the document.
+        /// </summary>
+        private void UpdateTableStyle()
+        {
+            string styleName = GetXmlNodeString(STYLENAME_PATH);
+            _tableStyle = GetTableStyle(styleName);
+        }
+        /// <summary>
+        /// Try and Parse the Table Style from Style Name.
+        /// </summary>
+        /// <param name="name">Name of the Style.</param>
+        /// <returns>Returns the Table Style equavalent to Style Name.</returns>
+        private TableStyles GetTableStyle(string name)
+        {
+            TableStyles tableStyle = TableStyles.None;
+            if (name.StartsWith("TableStyle"))
+            {
+                try
+                {
+                    tableStyle = (TableStyles)Enum.Parse(typeof(TableStyles),
+                        name.Substring(10, name.Length - 10), true);
+                }
+                catch
+                {
+                    tableStyle = TableStyles.Custom;
+                }
+            }
+            else if (name == "None")
+            {
+                tableStyle = TableStyles.None;
+            }
+            else
+            {
+                tableStyle = TableStyles.Custom;
+            }
+            return tableStyle;
         }
         private string GetStartXml(string name, int tblId)
         {
@@ -471,27 +510,10 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                if (value.StartsWith("TableStyle"))
-                {
-                    try
-                    {
-                        _tableStyle = (TableStyles)Enum.Parse(typeof(TableStyles), value.Substring(10,value.Length-10), true);
-                    }
-                    catch
-                    {
-                        _tableStyle = TableStyles.Custom;
-                    }
-                }
-                else if (value == "None")
-                {
-                    _tableStyle = TableStyles.None;
+                _tableStyle = GetTableStyle(value);
+                if (_tableStyle == TableStyles.None)
                     value = "";
-                }
-                else
-                {
-                    _tableStyle = TableStyles.Custom;
-                }
-                SetXmlNodeString(STYLENAME_PATH,value,true);
+                SetXmlNodeString(STYLENAME_PATH, value, true);
             }
         }
         const string SHOWFIRSTCOLUMN_PATH = "d:tableStyleInfo/@showFirstColumn";

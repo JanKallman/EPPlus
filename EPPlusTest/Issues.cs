@@ -1954,5 +1954,96 @@ namespace EPPlusTest
                 epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
            }
         }
+        [TestMethod]
+        public void Issue_117_Table_Should_Get_StyleName_OnCreate()
+        {
+            using (var pckg = new ExcelPackage())
+            {
+                var wks = pckg.Workbook.Worksheets.Add("Data");
+                var tbl = wks.Tables.Add(wks.Cells["A1:C3"], "People");
+                tbl.TableStyle = TableStyles.Light1;
+
+                wks.Cells["A1"].Value = "First Name";
+                wks.Cells["B1"].Value = "Last Name";
+                wks.Cells["C1"].Value = "Age";
+
+                wks.Cells["A2"].Value = "Bob";
+                wks.Cells["B2"].Value = "Robin";
+                wks.Cells["C2"].Value = 35;
+                Assert.AreEqual("TableStyleLight1",tbl.StyleName);
+            }
+        }
+        [TestMethod]
+        public void Issue_117_TableStyleName_Should_Get_TableStyle_OnCreate()
+        {
+            using (var pckg = new ExcelPackage())
+            {
+                var wks = pckg.Workbook.Worksheets.Add("Data");
+                var tbl = wks.Tables.Add(wks.Cells["A1:C3"], "People");
+                tbl.StyleName = "TableStyleLight1";
+
+                wks.Cells["A1"].Value = "First Name";
+                wks.Cells["B1"].Value = "Last Name";
+                wks.Cells["C1"].Value = "Age";
+
+                wks.Cells["A2"].Value = "Bob";
+                wks.Cells["B2"].Value = "Robin";
+                wks.Cells["C2"].Value = 35;
+                Assert.AreEqual(TableStyles.Light1, tbl.TableStyle);
+            }
+        }
+        [TestMethod]
+        public void Issue_117_Table_Should_Get_TableStyle_OnCreate()
+        {
+            using (var pckg = new ExcelPackage())
+            {
+                var wks = pckg.Workbook.Worksheets.Add("Data");
+                var tbl = wks.Tables.Add(wks.Cells["A1:C3"], "People");
+                tbl.TableStyle = TableStyles.Light1;
+
+                wks.Cells["A1"].Value = "First Name";
+                wks.Cells["B1"].Value = "Last Name";
+                wks.Cells["C1"].Value = "Age";
+
+                wks.Cells["A2"].Value = "Bob";
+                wks.Cells["B2"].Value = "Robin";
+                wks.Cells["C2"].Value = 35;
+                Assert.AreEqual(TableStyles.Light1,tbl.TableStyle);
+            }
+        }
+        [TestMethod]
+        public void Issue_117_Table_Should_Get_TableStyle_OnReopen()
+        {
+            byte[] excelBytes;
+            using (var pckg = new ExcelPackage())
+            {
+                var wks = pckg.Workbook.Worksheets.Add("Data");
+                var tbl = wks.Tables.Add(wks.Cells["A1:C3"], "People");
+                tbl.TableStyle = TableStyles.Light1;
+
+                wks.Cells["A1"].Value = "First Name";
+                wks.Cells["B1"].Value = "Last Name";
+                wks.Cells["C1"].Value = "Age";
+
+                var index = 2;
+                string[] firstNames = { "Bob", "Sunder", "Robert" };
+                string[] lastNames = { "Bentaly", "Vadivel", "Rathinam" };
+                int[] ages = { 35, 26, 40 };
+                for(int i=0;i<firstNames.Length;i++)
+                {
+                    wks.Cells[$"A{index}"].Value = firstNames[i];
+                    wks.Cells[$"B{index}"].Value = lastNames[i];
+                    wks.Cells[$"C{index++}"].Value = ages[i];
+                }
+                excelBytes = pckg.GetAsByteArray();
+            }
+
+            using (var pckg = new ExcelPackage(new MemoryStream(excelBytes)))
+            {
+                var tbl = pckg.Workbook.Worksheets[1].Tables[0];
+
+                Assert.AreEqual(TableStyles.Light1, tbl.TableStyle);
+            }
+        }
     }
 }
