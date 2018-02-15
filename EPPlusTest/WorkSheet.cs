@@ -3078,6 +3078,23 @@ namespace EPPlusTest
             }
         }
 
+        [TestMethod]
+        public void SaveFormulaSourcePivotTable()
+        {
+#if Core
+            var dir = AppContext.BaseDirectory;
+            dir = Directory.GetParent(dir).Parent.Parent.Parent.FullName;
+#else
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#endif
+
+            using (ExcelPackage package = new ExcelPackage(new FileInfo(Path.Combine(dir, "Workbooks", "PivotTableTestCase.xlsx"))))
+            {
+                var tempFile = Path.GetTempFileName();
+                package.SaveAs(new FileInfo($"{tempFile}.xlsx"));
+            }
+        }
+
         private static void AddSortingData(ExcelWorksheet ws, int row, int col)
         {
             var rand = new Random();
