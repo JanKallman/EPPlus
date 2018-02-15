@@ -33,6 +33,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Style.XmlAccess
@@ -300,8 +301,9 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             else
             {
-                float min = -1, max = 500;
-                foreach (var h in FontSize.FontHeights[name])
+                var fontHeights = FontSize.FontHeights[name];
+                float min = fontHeights.Keys.Min(), max = fontHeights.Keys.Max();
+                foreach (var h in fontHeights)
                 {
                     if (min < h.Key && h.Key < size)
                     {
