@@ -171,6 +171,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["indirect"] = new Indirect();
             Functions["offset"] = new Offset(){SkipArgumentEvaluation = true};
             // Date
+            Functions["DATEDIF"] = new DATEDIF();
             Functions["date"] = new Date();
             Functions["today"] = new Today();
             Functions["now"] = new Now();

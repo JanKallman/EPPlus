@@ -364,6 +364,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseRow.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcher.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DATEDIF.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateValue.cs" />
