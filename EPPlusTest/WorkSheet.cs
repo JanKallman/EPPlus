@@ -2797,6 +2797,36 @@ namespace EPPlusTest
         }
 
         [TestMethod]
+        public void TestTimeSpan1904WithSetting()
+        {
+            string file = "test1904.xlsx";
+            TimeSpan timeTest1 = new TimeSpan(0, 4, 33);
+            DateTime dateTest1 = DateTime.FromOADate(ExcelWorkbook.date1904Offset) + timeTest1;
+            TimeSpan timeTest2 = timeTest1.Negate();
+            DateTime dateTest2 = DateTime.FromOADate(ExcelWorkbook.date1904Offset) + timeTest2;
+            //DateTime dateTest2 = new DateTime(1950, 11, 30);
+
+            if (File.Exists(file))
+                File.Delete(file);
+
+            ExcelPackage pack = new ExcelPackage(new FileInfo(file));
+            pack.Workbook.Date1904 = true;
+
+            ExcelWorksheet w = pack.Workbook.Worksheets.Add("test");
+            w.Cells[1, 1, 2, 1].Style.Numberformat.Format = ExcelNumberFormat.GetFromBuildInFromID(21);
+            w.Cells[1, 1].Value = timeTest1;
+            w.Cells[2, 1].Value = timeTest2;
+            pack.Save();
+
+
+            ExcelPackage pack2 = new ExcelPackage(new FileInfo(file));
+            ExcelWorksheet w2 = pack2.Workbook.Worksheets["test"];
+
+            Assert.AreEqual(dateTest1, w2.Cells[1, 1].Value);
+            Assert.AreEqual(dateTest2, w2.Cells[2, 1].Value);
+        }
+
+        [TestMethod]
         public void TestDate1904SetAndRemoveSetting()
         {
             string file = "test1904.xlsx";
