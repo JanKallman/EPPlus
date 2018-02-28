@@ -1938,16 +1938,17 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplateSaved.xlsx"));
             }
         }
-        [TestMethod,Ignore]
+        [TestMethod]
         public void Issue107()
         {
-            using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\sampleapp\sample12.xlsx")))
+            using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\bug\issue107\in.xlsx")))
             using (ExcelPackage epOUT = new ExcelPackage(new FileInfo(@"C:\temp\bug\pivotbug107.xlsx")))
             {
                 foreach (ExcelWorksheet sheet in epIN.Workbook.Worksheets)
                 {
                     ExcelWorksheet newSheet = epOUT.Workbook.Worksheets.Add(sheet.Name, sheet);
                 }
+                epIN.Compatibility.IsWorksheets1Based = true;
                 epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[1].Name + "-2", epIN.Workbook.Worksheets[1]);
                 epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[2].Name + "-2", epIN.Workbook.Worksheets[2]);
                 epOUT.Save();

@@ -835,11 +835,11 @@ namespace OfficeOpenXml
                     {
                         var ms = new MemoryStream();
                         _package.Save(ms);
-                        byte[] file = ms.ToArray();
+                        byte[] file = ms.ToArray(); 
                         EncryptedPackageHandler eph = new EncryptedPackageHandler();
                         var msEnc = eph.EncryptPackage(file, Encryption);
                         CopyStream(msEnc, ref _stream);
-                    }
+                    }   
                     else
                     {
                         _package.Save(_stream);

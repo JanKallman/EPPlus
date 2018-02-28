@@ -427,6 +427,12 @@ namespace OfficeOpenXml
                 //TODO: Fix save pivottable here
                 xmlDoc.LoadXml(xml);
                 xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@name", tbl.NameSpaceManager).Value = name;
+                var cacheId = tbl.CacheID;
+                if (!added.Workbook.ExistsPivotCache(tbl.CacheID, ref cacheId))
+                {
+                    xmlDoc.SelectSingleNode("//d:pivotTableDefinition/@cacheId", tbl.NameSpaceManager).Value = cacheId.ToString();
+
+                }
                 xml = xmlDoc.OuterXml;
 
                 int Id = _pck.Workbook._nextPivotTableID++;
@@ -444,7 +450,7 @@ namespace OfficeOpenXml
                 streamCd.Write(xml);
                 streamCd.Flush();
 
-                added.Workbook.AddPivotTable(Id.ToString(), uriCd);
+                added.Workbook.AddPivotTable(cacheId.ToString(), uriCd); 
 
                 xml = "<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />";
                 var uriRec = new Uri(string.Format("/xl/pivotCache/pivotCacheRecords{0}.xml", Id), UriKind.Relative);
@@ -990,13 +996,21 @@ namespace OfficeOpenXml
 			_worksheets = worksheets;
 		}
 
+#if Core
         /// <summary>
         /// Returns the worksheet at the specified position. 
         /// </summary>
-        /// <param name="PositionID">The position of the worksheet. Collection is zero based or one-base depending on the Package.Compatibility.IsWorksheets1Based propery. </param>
-        /// 
+        /// <param name="PositionID">The position of the worksheet. Collection is zero-based or one-base depending on the Package.Compatibility.IsWorksheets1Based propery. Default is Zero based</param>
         /// <seealso cref="ExcelPackage.Compatibility"/>
         /// <returns></returns>
+#else
+        /// <summary>
+        /// Returns the worksheet at the specified position. 
+        /// </summary>
+        /// <param name="PositionID">The position of the worksheet. Collection is zero-based or one-base depending on the Package.Compatibility.IsWorksheets1Based propery. Default is One based</param>
+        /// <seealso cref="ExcelPackage.Compatibility"/>
+        /// <returns></returns>
+#endif
         public ExcelWorksheet this[int PositionID]
 		{
 			get
@@ -1039,7 +1053,7 @@ namespace OfficeOpenXml
             ExcelWorksheet added = Add(NewName, Copy);
             return added;
         }
-		#endregion
+#endregion
         internal ExcelWorksheet GetBySheetID(int localSheetID)
         {
             foreach (ExcelWorksheet ws in this)
@@ -1062,7 +1076,7 @@ namespace OfficeOpenXml
             }
             return (xlWorksheet);
         }
-		#region MoveBefore and MoveAfter Methods
+#region MoveBefore and MoveAfter Methods
 		/// <summary>
 		/// Moves the source worksheet to the position before the target worksheet
 		/// </summary>
@@ -1245,7 +1259,7 @@ namespace OfficeOpenXml
             }
 		}
 
-		#endregion
+#endregion
         public void Dispose()
         {            
              foreach (var sheet in this._worksheets.Values) 

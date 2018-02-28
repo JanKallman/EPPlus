@@ -101,7 +101,7 @@ namespace OfficeOpenXml.Utils.CompundDocument
         {
             foreach(var item in parent.Children)
             {
-                if(item.ObjectType==1)  //Substorage
+                if(item.ObjectType==1)      //Substorage
                 {
                     var part = new StoragePart();
                     storage.SubStorage.Add(item.Name, part);
