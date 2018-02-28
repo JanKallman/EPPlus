@@ -106,7 +106,7 @@ EPPlus-Create advanced Excel spreadsheet.
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common">
-      <Version>4.5.0-preview1-25914-04</Version>
+      <Version>4.5.0-preview1-26216-02</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
