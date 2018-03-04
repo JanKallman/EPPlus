@@ -1261,13 +1261,16 @@ namespace OfficeOpenXml
 
 #endregion
         public void Dispose()
-        {            
-             foreach (var sheet in this._worksheets.Values) 
-             { 
-                 ((IDisposable)sheet).Dispose(); 
-             } 
-             _worksheets = null;
-             _pck = null;            
+        {    
+		if (_worksheets != null)
+	     	{
+		     foreach (var sheet in this._worksheets.Values) 
+		     { 
+			 ((IDisposable)sheet).Dispose(); 
+		     } 
+		     _worksheets = null;
+		     _pck = null;
+		}
         }
     } // end class Worksheets
 }
