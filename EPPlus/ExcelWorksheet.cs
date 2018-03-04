@@ -1676,12 +1676,69 @@ namespace OfficeOpenXml
                 return _mergedCells;
             }
         }
+	
         /// <summary>
-		/// Provides access to an individual row within the worksheet so you can set its properties.
-		/// </summary>
-		/// <param name="row">The row number in the worksheet</param>
-		/// <returns></returns>
-		public ExcelRow Row(int row)
+	/// Provides access to an individual cell within the worksheet so you can set its properties.
+	/// For using with application like Dynamics NAV witch can't access ExcelRange/this[row,col]
+	/// </summary>
+	/// <param name="row">The row number in the worksheet</param>
+	/// <param name="col">The column number in the worksheet</param>
+	/// <returns></returns>
+	public ExcelRange Cell(int row, int col)
+        {
+            CheckSheetType();
+            return new ExcelRange(this, row, col, row, col);
+        }
+        /// <summary>
+	/// Provides access to an individual cell within the worksheet so you can set its properties.
+	/// For using with application like Dynamics NAV witch can't access ExcelRange/this[address]
+	/// </summary>
+	/// <param name="address">The address in the worksheet</param>
+	/// <returns></returns>	
+	public ExcelRange Cell(string address)
+        {
+            if (address.Contains(':'))
+                throw new ArgumentException("Not a single cell address");
+
+            CheckSheetType();
+            return new ExcelRange(this, address);
+        }
+	
+        /// <summary>
+	/// Provides access to an range of cells within the worksheet so you can set its properties.
+	/// For using with application like Dynamics NAV witch can't access ExcelRange/this[fromRow,fromCol,toRow,toCol]
+	/// </summary>
+	/// <param name="fromRow">The from row number in the worksheet</param>
+	/// <param name="fromCol">The from column number in the worksheet</param>
+	/// <param name="toRow">The to row number in the worksheet</param>
+	/// <param name="toCol">The to column number in the worksheet</param>
+	/// <returns></returns>	
+	public ExcelRange Range(int fromRow, int fromCol, int toRow, int toCol)
+        {
+            CheckSheetType();
+            return new ExcelRange(this, fromRow, fromCol, toRow, toCol);
+        }
+        /// <summary>
+	/// Provides access to an individual cell within the worksheet so you can set its properties.
+	/// For using with application like Dynamics NAV witch can't access ExcelRange/this[address]
+	/// </summary>
+	/// <param name="address">The address in the worksheet</param>
+	/// <returns></returns>	
+        public ExcelRange Range(string address)
+        {
+            if (!address.Contains(':'))
+                throw new ArgumentException("Not a range address");
+
+            CheckSheetType();
+            return new ExcelRange(this, address);
+        }
+	
+        /// <summary>
+	/// Provides access to an individual row within the worksheet so you can set its properties.
+	/// </summary>
+	/// <param name="row">The row number in the worksheet</param>
+	/// <returns></returns>
+	public ExcelRow Row(int row)
         {
             //ExcelRow r;
             //ulong id = ExcelRow.GetRowID(_sheetID, row);
