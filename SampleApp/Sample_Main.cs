@@ -28,6 +28,7 @@
  * Author							Change						Date
  *******************************************************************************
  * Jan Källman		Added		10-SEP-2009
+ * Brahm Bothma		Added		23-NOV-2017
  *******************************************************************************/
 using System;
 using System.IO;
@@ -48,11 +49,16 @@ namespace EPPlusSamples
 
                 // change this line to contain the path to the output folder<
                 DirectoryInfo outputDir = new DirectoryInfo(@"c:\temp\SampleApp");
-                if (!outputDir.Exists) throw new Exception("outputDir does not exist!");
+                if (!outputDir.Exists)
+                {
+                    outputDir.Create(); // BBot : 2017-11-23: Creates the temp output directory if it does not exist.
 
-                // Sample 1 - simply creates a new workbook from scratch
-                // containing a worksheet that adds a few numbers together 
-                Console.WriteLine("Running sample 1");
+                    if (!outputDir.Exists) throw new Exception("outputDir does not exist!");
+                }
+
+                    // Sample 1 - simply creates a new workbook from scratch
+                    // containing a worksheet that adds a few numbers together 
+                    Console.WriteLine("Running sample 1");
                 string output = Sample1.RunSample1(outputDir);
                 Console.WriteLine("Sample 1 created: {0}", output);
                 Console.WriteLine();
@@ -172,6 +178,14 @@ namespace EPPlusSamples
                 Console.WriteLine("Running Sample_AddFormulaFunction");
                 Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
                 Console.WriteLine();
+
+                // Open the folder (BBot : 2017-11-23)
+                // TODO : Open the folder
+                using (System.Diagnostics.Process myProc = new System.Diagnostics.Process())
+                {
+                    myProc.StartInfo.FileName = outputDir.ToString();
+                    myProc.Start();
+                }
             }
 			catch (Exception ex)
             {
