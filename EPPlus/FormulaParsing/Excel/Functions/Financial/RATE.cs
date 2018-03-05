@@ -55,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Financial
                     dueDate = DueDate.EndOfPeriod;
                 }
             }
-            double guess = 0;
+            double guess = 0.1;
             if (arguments.Count() > 5)
             {
                 guess = ArgToDecimal(arguments, 5);
