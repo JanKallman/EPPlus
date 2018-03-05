@@ -85,6 +85,49 @@ namespace EPPlusTest
                 printitems(c);
             }
         }
+        [TestMethod]
+        public void WriteReadCompundDoc()
+        {
+            for(int i=1;i<50;i++)
+            {
+                var b=CreateFile(i);
+                ReadFile(b,i);
+                GC.Collect();
+            }
+            for (int i = 5; i < 20; i++)
+            {
+                var b = CreateFile(i*50);
+                ReadFile(b, i*50);
+                GC.Collect();
+            }
+        }
+
+        private void ReadFile(byte[] b, int noSheets)
+        {
+            var ms = new MemoryStream(b);
+            using (var p = new ExcelPackage(ms))
+            {
+                Assert.AreEqual(p.Workbook.VbaProject.Modules.Count,noSheets+2);
+                Assert.AreEqual(noSheets, p.Workbook.Worksheets.Count);
+            }
+        }
+
+        public byte[] CreateFile(int noSheets)
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheets = Enumerable.Range(1, noSheets)   //460
+                    .Select(x => $"Sheet{x}");
+                foreach (var sheet in sheets)
+                    package.Workbook.Worksheets.Add(sheet);
+
+                package.Workbook.CreateVBAProject();
+                package.Workbook.VbaProject.Modules.AddModule("Module1").Code
+                    = "\r\nPublic Sub SayHello()\r\nMsgBox(\"Hello\")\r\nEnd Sub\r\n";
+
+                return package.GetAsByteArray();
+            }
+        }
 
         [TestMethod, Ignore ]
         public void ReadEncLong()

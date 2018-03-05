@@ -1938,7 +1938,7 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplateSaved.xlsx"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue107()
         {
             using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\bug\issue107\in.xlsx")))

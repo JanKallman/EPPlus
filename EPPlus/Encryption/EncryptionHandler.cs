@@ -626,7 +626,7 @@ namespace OfficeOpenXml.Encryption
             return null;
         }
 #if Core
-        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.HashAlgorithm)
             {
@@ -821,7 +821,7 @@ namespace OfficeOpenXml.Encryption
         }
 
 #if (Core)
-        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.CipherAlgorithm)
             {

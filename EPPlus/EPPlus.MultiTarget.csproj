@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.0.2</AssemblyVersion>
-    <FileVersion>4.5.0.2</FileVersion>
-    <Version>4.5.0.2-rc</Version>
+    <AssemblyVersion>4.5.0.3</AssemblyVersion>
+    <FileVersion>4.5.0.3</FileVersion>
+    <Version>4.5.0.3-rc</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -17,14 +17,21 @@
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>EPPlus 4.5 rc
-This version will be the last before the final 4.5, if no major bugs are found. 
-Please help us test it!
+    <PackageReleaseNotes>EPPlus 4.5.0.3 rc
+
+This version fixes a bug in the compound document classes effecting VBA and Encryption.
+
 NOTE: Breaking change in .Net Core. The indexer of the worksheets collection will be zero based. See remarks under 4.5.0.1 Beta 1 below.
 
 Visit https://github.com/JanKallman/EPPlus for the latest information
 
 EPPlus-Create advanced Excel spreadsheet.
+
+4.5.0.3 
+* Fix for compund documents (VBA and Encryption).
+* Fix for Excel 2010 sha1 hashed agile encryption.
+* Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
+* Also se https://github.com/JanKallman/EPPlus/commits/master
 
 4.5.0.2 rc
 * Merged in a few pull requests and fixed some issues. See https://github.com/JanKallman/EPPlus/commits/master
