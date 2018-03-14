@@ -29,7 +29,8 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
-using OfficeOpenXml.Utils.CompundDocument;
+using EPPlus.Utils.CompoundDocumentFormat;
+using EPPlus.Utils.Storage;
 
 namespace OfficeOpenXml.VBA
 {

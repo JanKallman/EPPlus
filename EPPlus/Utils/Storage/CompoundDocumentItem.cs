@@ -28,13 +28,13 @@
  *******************************************************************************
  * Jan Källman		Added		28-MAR-2017
  *******************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
-namespace OfficeOpenXml.Utils.CompundDocument
+namespace EPPlus.Utils.CompoundDocumentFormat
 {
     internal class CompoundDocumentItem : IComparable<CompoundDocumentItem>
     {

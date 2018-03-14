@@ -4,11 +4,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml;
-using OfficeOpenXml.Utils.CompundDocument;
 using OfficeOpenXml.Style;
 using System.Drawing;
 using System.Dynamic;
 using System.Linq;
+using EPPlus.Utils.CompoundDocumentFormat;
 
 namespace EPPlusTest
 {
