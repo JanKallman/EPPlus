@@ -30,14 +30,8 @@
  * Jan Källman      Added compression support 27-03-2012
  * Jan Källman      Native support for compound documents 2017-04-10
  *******************************************************************************/
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
-using comTypes = System.Runtime.InteropServices.ComTypes;
 using System.IO;
-using System.Security;
 
 namespace OfficeOpenXml.Utils.CompundDocument
 {
