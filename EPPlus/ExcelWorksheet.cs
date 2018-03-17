@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+ /*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -4483,6 +4483,11 @@ namespace OfficeOpenXml
         {
             return _values.GetValue(row, col)._styleId;
         }
+	
+	/// <summary>
+        /// Define the base date
+        /// </summary>
+        public static readonly DateTime BaseDate = new DateTime(1899, 12, 30);
 
         /// <summary>
         /// Set accessor of sheet value
@@ -4492,6 +4497,12 @@ namespace OfficeOpenXml
         /// <param name="value">value</param>
         internal void SetValueInner(int row, int col, object value)
         {
+	    if (value is DateTime dtTest)
+            {
+                //remove invalid date
+                if (dtTest < BaseDate) { value = null; }
+            }
+	    
             _values.SetValueSpecial(row, col, _setValueInnerUpdateDelegate, value);
         }
         private static CellStore<ExcelCoreValue>.SetValueDelegate _setValueInnerUpdateDelegate = SetValueInnerUpdate;
@@ -4507,6 +4518,19 @@ namespace OfficeOpenXml
         /// <param name="styleId">styleId</param>
         internal void SetStyleInner(int row, int col, int styleId)
         {
+            if (value is string sTest)
+            {
+                if (list[index]._value != null)
+                {
+                    if (sTest.Length > 0 && sTest[0] == 10)
+                    {
+                        value = list[index]._value + sTest;
+                    }
+                }
+                // check max length
+                if (value.ToString().Length > 32767) throw new ArgumentException("Cells can only hold 32,767 characters.");
+            }
+	    
             _values.SetValueSpecial(row, col, (CellStore<ExcelCoreValue>.SetValueDelegate)SetStyleInnerUpdate, styleId);
         }
         void SetStyleInnerUpdate(List<ExcelCoreValue> list, int index, object styleId)
