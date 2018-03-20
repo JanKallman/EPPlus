@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -3327,12 +3327,31 @@ namespace OfficeOpenXml
                 var r = pt.CacheDefinition.SourceRange;
                 if (r != null)  //Source does not exist
                 {
-                    var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
-                    var t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
-                    if (pt.CacheDefinition.SourceRange != null && !pt.CacheDefinition.SourceRange.IsName && t == null)
+                    ExcelTable t = null;
+                    if (pt.CacheDefinition.SourceRange.IsName)
                     {
-                        pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
+                        //Named range, set name
+                        pt.CacheDefinition.DeleteNode(ExcelPivotCacheDefinition._sourceAddressPath); //Remove any address if previously set.
+                        pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceNamePath, ((ExcelNamedRange)pt.CacheDefinition.SourceRange).Name);
                     }
+                    else
+                    {
+                        var ws = Workbook.Worksheets[pt.CacheDefinition.SourceRange.WorkSheet];
+                        t = ws.Tables.GetFromRange(pt.CacheDefinition.SourceRange);
+                        if (t == null)
+                        {
+                            //Address
+                            pt.CacheDefinition.DeleteNode(ExcelPivotCacheDefinition._sourceNamePath); //Remove any name or table if previously set.
+                            pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceAddressPath, pt.CacheDefinition.SourceRange.Address);
+                        }
+                        else
+                        {
+                            //Table, set name
+                            pt.CacheDefinition.DeleteNode(ExcelPivotCacheDefinition._sourceAddressPath); //Remove any address if previously set.
+                            pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceNamePath, t.Name);
+                        }
+                    }
+
 
                     var fields =
                         pt.CacheDefinition.CacheDefinitionXml.SelectNodes(

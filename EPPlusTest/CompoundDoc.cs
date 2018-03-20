@@ -129,7 +129,7 @@ namespace EPPlusTest
             }
         }
 
-        [TestMethod, Ignore ]
+        [TestMethod, Ignore]
         public void ReadEncLong()
         {
             var doc=File.ReadAllBytes(@"c:\temp\EncrDocRead.xlsx");

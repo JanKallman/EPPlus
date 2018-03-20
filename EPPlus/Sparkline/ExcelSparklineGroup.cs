@@ -110,10 +110,6 @@ namespace OfficeOpenXml.Sparkline
                 {
                     throw (new ArgumentException("Range must only be 1 row or column"));
                 }
-                else if (value.Rows != Sparklines.Count && value.Columns != Sparklines.Count)
-                {
-                    throw (new ArgumentException("Range rows or columns must match number of sparkline cells"));
-                }
 
                 DateAxis = true;
                 SetXmlNodeString("xm:f", value.FullAddress);

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 
@@ -42,23 +42,9 @@ namespace EPPlusSamples
     /// </summary>
     class Sample11
     {
-        public static string RunSample11(DirectoryInfo outputDir)
+        public static string RunSample11()
         {
-            //Create a Sample10 directory...
-            if (!Directory.Exists(outputDir.FullName + @"\Sample11"))
-            {
-                outputDir.CreateSubdirectory("Sample11");
-            }
-            outputDir = new DirectoryInfo(outputDir + @"\Sample11");
-
-            //create FileInfo object...
-            FileInfo output = new FileInfo(outputDir.FullName + @"\Output.xlsx");
-            if (output.Exists)
-            {
-                output.Delete();
-                output = new FileInfo(outputDir.FullName + @"\Output.xlsx");
-            }
-
+            FileInfo output = Utils.GetFileInfo("sample11.xlsx");
             using (var package = new ExcelPackage(output))
             {
                 AddIntegerValidation(package);

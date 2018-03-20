@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * 
  * The GNU General Public License can be viewed at http://www.opensource.org/licenses/gpl-license.php
@@ -53,7 +53,7 @@ namespace EPPlusSamples
         /// <param name="template">the template</param>
         /// <param name="outputdir">output dir</param>
         /// <returns></returns>
-        public static string RunSample4(string connectionString, FileInfo template, DirectoryInfo outputdir)
+        public static string RunSample4(string connectionString, FileInfo template)
         {
             using (ExcelPackage p = new ExcelPackage(template, true))
             {
@@ -92,7 +92,7 @@ namespace EPPlusSamples
                 {
                     int row = startRow;
                     sqlConn.Open();
-                    using (SqlCommand sqlCmd = new SqlCommand("SELECT CurrencyRateDate, SUM(Case when ToCurrencyCode = 'JPY' Then EndOfDayRate Else 0 END) AS [JPY], SUM(Case when ToCurrencyCode = 'EUR' Then EndOfDayRate Else 0 END) AS [EUR], SUM(Case when ToCurrencyCode = 'GBP' Then EndOfDayRate Else 0 END) AS [GBP] FROM [AdventureWorks].[Sales].[CurrencyRate]  where [FromCurrencyCode]='USD' AND ToCurrencyCode in ('JPY', 'EUR', 'GBP') GROUP BY CurrencyRateDate  ORDER BY CurrencyRateDate", sqlConn))
+                    using (SqlCommand sqlCmd = new SqlCommand("SELECT CurrencyRateDate, SUM(Case when ToCurrencyCode = 'JPY' Then EndOfDayRate Else 0 END) AS [JPY], SUM(Case when ToCurrencyCode = 'EUR' Then EndOfDayRate Else 0 END) AS [EUR], SUM(Case when ToCurrencyCode = 'GBP' Then EndOfDayRate Else 0 END) AS [GBP] FROM [Sales].[CurrencyRate]  where [FromCurrencyCode]='USD' AND ToCurrencyCode in ('JPY', 'EUR', 'GBP') GROUP BY CurrencyRateDate  ORDER BY CurrencyRateDate", sqlConn))
                     {
                         using (SqlDataReader sqlReader = sqlCmd.ExecuteReader())
                         {                            
@@ -129,12 +129,13 @@ namespace EPPlusSamples
                     chart.Series[2].XSeries = "'" + ws.Name + "'!" + ExcelRange.GetAddress(startRow + 1, 1, row - 1, 1);
                     chart.Series[2].Series = "'" + ws.Name + "'!" + ExcelRange.GetAddress(startRow + 1, 7, row - 1, 7);
                 }
-                //Get the documet as a byte array from the stream and save it to disk.  (This is usefull in a webapplication) ... 
+                
+                //Get the documet as a byte array from the stream and save it to disk.  (This is useful in a webapplication) ... 
                 Byte[] bin = p.GetAsByteArray();
 
-                string file = outputdir + "\\sample4.xlsx";
-                File.WriteAllBytes(file, bin);
-                return file;
+                FileInfo file = Utils.GetFileInfo("sample4.xlsx");
+                File.WriteAllBytes(file.FullName, bin);
+                return file.FullName;
             }
         }
     }

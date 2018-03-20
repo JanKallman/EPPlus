@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 
@@ -40,18 +40,18 @@ namespace EPPlusSamples
 {
     class Sample15
     {
-        public static void VBASample(DirectoryInfo outputDir)
+        public static void VBASample()
         {
             //Create a macro-enabled workbook from scratch.
-            VBASample1(outputDir);
+            VBASample1();
             
             //Open Sample 1 and add code to change the chart to a bubble chart.
-            VBASample2(outputDir);
+            VBASample2();
 
             //Simple battleships game from scratch.
-            VBASample3(outputDir);
+            VBASample3();
         }
-        private static void VBASample1(DirectoryInfo outputDir)
+        private static void VBASample1()
         {
             ExcelPackage pck = new ExcelPackage();
 
@@ -68,15 +68,18 @@ namespace EPPlusSamples
             sb.AppendLine("Private Sub Workbook_Open()");
             sb.AppendLine("    [VBA Sample].Shapes(\"VBASampleRect\").TextEffect.Text = \"This text is set from VBA!\"");
             sb.AppendLine("End Sub");
-            pck.Workbook.CodeModule.Code = sb.ToString();            
+            pck.Workbook.CodeModule.Code = sb.ToString();
 
             //And Save as xlsm
-            pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-1.xlsm"));
+            FileInfo fi = Utils.GetFileInfo("sample15-1.xlsm");
+            pck.SaveAs(fi);
         }
-        private static void VBASample2(DirectoryInfo outputDir)
+        private static void VBASample2()
         {
+            FileInfo sample1File = Utils.GetFileInfo("sample1.xlsx",false);
             //Open Sample 1 again
-            ExcelPackage pck = new ExcelPackage(new FileInfo(outputDir.FullName + @"\sample1.xlsx"));
+            ExcelPackage pck = new ExcelPackage(sample1File);
+            var p = new ExcelPackage();
             //Create a vba project             
             pck.Workbook.CreateVBAProject();
 
@@ -103,9 +106,10 @@ namespace EPPlusSamples
             //pck.Workbook.VbaProject.Signature.Certificate = store.Certificates[0];
 
             //And Save as xlsm
-            pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-2.xlsm"));
+            FileInfo fi =Utils.GetFileInfo("sample15-2.xlsm");
+            pck.SaveAs(fi);
         }
-        private static void VBASample3(DirectoryInfo outputDir)
+        private static void VBASample3()
         {
             //Now, lets do something a little bit more fun.
             //We are going to create a simple battleships game from scratch.
@@ -137,22 +141,16 @@ namespace EPPlusSamples
             //Password protect your code
             pck.Workbook.VbaProject.Protection.SetPassword("EPPlus");
 
+            var codeDir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory + "VBA-Code");
+
             //Add all the code from the textfiles in the Vba-Code sub-folder.
-#if Core
-            pck.Workbook.CodeModule.Code = File.ReadAllText("VBA-Code\\ThisWorkbook.txt");
-            
+            pck.Workbook.CodeModule.Code = GetCodeModule(codeDir, "ThisWorkbook.txt");
+
             //Add the sheet code
-            ws.CodeModule.Code = File.ReadAllText("VBA-Code\\BattleshipSheet.txt");
+            ws.CodeModule.Code = GetCodeModule(codeDir, "BattleshipSheet.txt");
             var m1=pck.Workbook.VbaProject.Modules.AddModule("Code");
-            string code = File.ReadAllText("VBA-Code\\CodeModule.txt");
-#else
-            pck.Workbook.CodeModule.Code = File.ReadAllText("..\\..\\VBA-Code\\ThisWorkbook.txt");
-            
-            //Add the sheet code
-            ws.CodeModule.Code = File.ReadAllText("..\\..\\VBA-Code\\BattleshipSheet.txt");
-            var m1=pck.Workbook.VbaProject.Modules.AddModule("Code");
-            string code = File.ReadAllText("..\\..\\VBA-Code\\CodeModule.txt");
-#endif            
+            string code = GetCodeModule(codeDir, "CodeModule.txt");
+
             //Insert your ships on the right board. you can changes these, but don't cheat ;)
             var ships = new string[]{
                 "N3:N7",
@@ -175,17 +173,9 @@ namespace EPPlusSamples
             ws.Cells[shipsaddress].Style.Fill.BackgroundColor.SetColor(Color.Black);
 
             var m2 = pck.Workbook.VbaProject.Modules.AddModule("ComputerPlay");
-#if Core
-            m2.Code = File.ReadAllText("VBA-Code\\ComputerPlayModule.txt");
-#else
-            m2.Code = File.ReadAllText("..\\..\\VBA-Code\\ComputerPlayModule.txt");
-#endif
+            m2.Code = GetCodeModule(codeDir, "ComputerPlayModule.txt"); 
             var c1 = pck.Workbook.VbaProject.Modules.AddClass("Ship",false);
-#if Core
-            c1.Code = File.ReadAllText("VBA-Code\\ShipClass.txt");
-#else
-            c1.Code = File.ReadAllText("..\\..\\VBA-Code\\ShipClass.txt");
-#endif
+            c1.Code = GetCodeModule(codeDir, "ShipClass.txt"); 
 
             //Add the info text shape.
             var tb = ws.Drawings.AddShape("txtInfo", eShapeStyle.Rect);
@@ -226,7 +216,13 @@ namespace EPPlusSamples
             //    }
             //}
 
-            pck.SaveAs(new FileInfo(outputDir.FullName + @"\sample15-3.xlsm"));
+            var fi = Utils.GetFileInfo(@"sample15-3.xlsm");
+            pck.SaveAs(fi);
+        }
+
+        private static string GetCodeModule(DirectoryInfo codeDir, string fileName)
+        {
+            return File.ReadAllText(Utils.GetFileInfo(codeDir, fileName, false).FullName);
         }
 
         private static void AddChart(ExcelRange rng,string name, string prefix)

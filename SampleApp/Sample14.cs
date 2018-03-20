@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -48,16 +48,9 @@ namespace EPPlusSamples
     /// <summary>
     /// Sample 14 - Conditional formatting example
     /// </summary>
-    public static string RunSample14(DirectoryInfo outputDir)
+    public static string RunSample14()
     {
-      FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample14.xlsx");
-
-      if (newFile.Exists)
-      {
-        newFile.Delete();  // ensures we create a new workbook
-        newFile = new FileInfo(outputDir.FullName + @"\sample14.xlsx");
-      }
-
+      FileInfo newFile = Utils.GetFileInfo("sample14.xlsx");
       using (ExcelPackage package = new ExcelPackage(newFile))
       {
         // add a new worksheet to the empty workbook

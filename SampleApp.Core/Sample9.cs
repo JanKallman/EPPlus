@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -51,14 +51,9 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="outputDir"></param>
         /// <returns></returns>
-        public static string RunSample9(DirectoryInfo outputDir)
+        public static string RunSample9()
         {
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample9.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(outputDir.FullName + @"\sample9.xlsx");
-            }
+            FileInfo newFile = Utils.GetFileInfo(@"\sample9.xlsx");
             
             using (ExcelPackage package = new ExcelPackage())
             {
@@ -80,9 +75,11 @@ namespace EPPlusSamples
             format.SkipLinesBeginning = 2;
             format.SkipLinesEnd = 1;
 
+            var csvDir= new DirectoryInfo(AppContext.BaseDirectory + "csv"); 
+
             //Now read the file into the sheet. Start from cell A1. Create a table with style 27. First row contains the header.
             Console.WriteLine("Load the text file...");
-            var range = sheet.Cells["A1"].LoadFromText(new FileInfo("csv\\Sample9-1.txt"), format, TableStyles.Medium27, true);
+            var range = sheet.Cells["A1"].LoadFromText(Utils.GetFileInfo(csvDir,"Sample9-1.txt",false), format, TableStyles.Medium27, true);
 
             Console.WriteLine("Format the table...");
             //Tables don't support custom styling at this stage(you can of course format the cells), but we can create a Namedstyle for a column...
@@ -146,7 +143,9 @@ namespace EPPlusSamples
 
             //Now read the file into the sheet.
             Console.WriteLine("Load the text file...");
-            var range = sheet.Cells["A1"].LoadFromText(new FileInfo("csv\\Sample9-2.txt"), format);
+            var csvDir = new DirectoryInfo(AppContext.BaseDirectory + "csv");
+
+            var range = sheet.Cells["A1"].LoadFromText(Utils.GetFileInfo(csvDir, "Sample9-2.txt", false), format);
 
             //Add a formula
             range.Offset(1, range.End.Column, range.End.Row - range.Start.Row, 1).FormulaR1C1 = "RC[-1]-RC[-2]";

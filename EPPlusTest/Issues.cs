@@ -1955,5 +1955,28 @@ namespace EPPlusTest
                 epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
            }
         }
+        [TestMethod]
+        public void Issue127()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\PivotTableTestCase.xlsx")))
+            {
+                Assert.AreEqual(p.Workbook.Worksheets.Count, 2);
+                p.SaveAs(new FileInfo(@"C:\temp\bug\PivotTableTestCaseSaved.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void Issue155()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet1");
+                string csv = "A\tB\tC\r\n1\t\t\r\n";
+                ws.Cells["A1"].LoadFromText(csv, new ExcelTextFormat { Delimiter = '\t' });
+                Assert.IsTrue(ws.Cells["B2"].Value == null);
+                byte[] data = pck.GetAsByteArray();
+                string path = @"C:\temp\test.xlsx";
+                File.WriteAllBytes(path, data);
+            }
+            }
     }
 }
