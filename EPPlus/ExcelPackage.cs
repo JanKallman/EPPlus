@@ -42,10 +42,11 @@ using OfficeOpenXml.Utils;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.Encryption;
-using OfficeOpenXml.Utils.CompundDocument;
 using System.Configuration;
 using OfficeOpenXml.Compatibility;
 using System.Text;
+using EPPlus.Utils.CompoundDocumentFormat;
+using EPPlus.Utils.Storage;
 #if (Core)
 using Microsoft.Extensions.Configuration;
 #endif

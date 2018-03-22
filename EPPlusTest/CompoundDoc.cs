@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Text;
-using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml;
-using OfficeOpenXml.Utils.CompundDocument;
 using OfficeOpenXml.Style;
 using System.Drawing;
+using System.Dynamic;
 using System.Linq;
+using EPPlus.Utils.CompoundDocumentFormat;
 
 namespace EPPlusTest
 {
@@ -18,53 +18,6 @@ namespace EPPlusTest
     [TestClass]
     public class CompoundDoc
     {
-        public CompoundDoc()
-        {
-            //
-            // TODO: Add constructor logic here
-            //
-        }
-
-        private TestContext testContextInstance;
-
-        /// <summary>
-        ///Gets or sets the test context which provides
-        ///information about and functionality for the current test run.
-        ///</summary>
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
-            }
-        }
-
-        #region Additional test attributes
-        //
-        // You can use the following additional attributes as you write your tests:
-        //
-        // Use ClassInitialize to run code before running the first test in the class
-        // [ClassInitialize()]
-        // public static void MyClassInitialize(TestContext testContext) { }
-        //
-        // Use ClassCleanup to run code after all tests in a class have run
-        // [ClassCleanup()]
-        // public static void MyClassCleanup() { }
-        //
-        // Use TestInitialize to run code before running each test 
-        // [TestInitialize()]
-        // public void MyTestInitialize() { }
-        //
-        // Use TestCleanup to run code after each test has run
-        // [TestCleanup()]
-        // public void MyTestCleanup() { }
-        //
-        #endregion
-
         [TestMethod, Ignore]
         public void Read()
         {
@@ -96,6 +49,7 @@ namespace EPPlusTest
 
             File.WriteAllBytes(@"c:\temp\vba.xlsx", ms.ToArray());
         }
+        
         [TestMethod, Ignore]
         public void ReadVba()
         {
@@ -103,18 +57,15 @@ namespace EPPlusTest
             var vba = p.Workbook.VbaProject;
             p.SaveAs(new FileInfo(@"c:\temp\pricecheckSaved.xlsm"));
         }
-        FileInfo TempFile(string name)
-        {
-            var baseFolder = Path.Combine(@"c:\temp\bug\");
-            return new FileInfo(Path.Combine(baseFolder, name));
-        }
-        [TestMethod, Ignore]
+        
+        [TestMethod]
         public void Issue131()
         {
-            var src = TempFile("report.xlsm");
-            if (src.Exists) src.Delete();
-            var package = new ExcelPackage(src);
-            var sheets = Enumerable.Range(1, 500)   //460
+            var fi = TempFile.GenerateFile
+                .WithFileExtention("xlsm");
+               
+            var package = new ExcelPackage(fi);
+            var sheets = Enumerable.Range(1, 500)
                 .Select(x => $"Sheet{x}");
             foreach (var sheet in sheets)
                 package.Workbook.Worksheets.Add(sheet);
@@ -125,17 +76,15 @@ namespace EPPlusTest
 
             package.Save();
         }
+
+        
         [TestMethod, Ignore]
         public void Sample7EncrLargeTest()
         {
             int Rows = 1000000;
             int colMult = 20;
-            FileInfo newFile = new FileInfo(@"C:\temp\bug\sample7compdoctest.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(@"C:\temp\bug\sample7compdoctest.xlsx");
-            }
+
+            var newFile = TempFile.GenerateFile.WithFileExtention("xlsx");
             using (ExcelPackage package = new ExcelPackage())
             {
                 Console.WriteLine("{0:HH.mm.ss}\tStarting...", DateTime.Now);
@@ -221,6 +170,7 @@ namespace EPPlusTest
             }
             Console.WriteLine("{0:HH.mm.ss}\tDone!!", DateTime.Now);
         }
+        
         [TestMethod, Ignore]
         public void ReadPerfTest()
         {
@@ -228,6 +178,7 @@ namespace EPPlusTest
             //var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\sample7compdoctest_4.5.xlsx"), "");
             //var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\sample7compdoctest.310k.xlsx"), "");
         }
+
         [TestMethod, Ignore]
         public void ReadVbaIssue107()
         {

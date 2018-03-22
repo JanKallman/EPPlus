@@ -35,8 +35,9 @@ using System.Text;
 using System.Security.Cryptography.X509Certificates;
 using OfficeOpenXml.Utils;
 using System.IO;
-using OfficeOpenXml.Utils.CompundDocument;
 using System.Security.Cryptography.Pkcs;
+using EPPlus.Utils.CompoundDocumentFormat;
+using EPPlus.Utils.Storage;
 
 namespace OfficeOpenXml.VBA
 {
