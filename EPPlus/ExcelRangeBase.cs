@@ -1683,7 +1683,7 @@ namespace OfficeOpenXml
 			if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
 			{
 				string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-				if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+				if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
 				{
 					if (v2 == v)
 					{
@@ -1727,7 +1727,7 @@ namespace OfficeOpenXml
 						}
 					case eDataTypes.Percent:
 						string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-						if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+						if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
 						{
 							return d / 100;
 						}

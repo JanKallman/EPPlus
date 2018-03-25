@@ -51,7 +51,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
             if (!string.IsNullOrEmpty(value))
             {
                 double dValue = default(double);
-                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
+                if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out dValue))
                 {
                     Value = dValue;
                 }

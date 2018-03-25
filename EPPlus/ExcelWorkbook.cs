@@ -178,7 +178,7 @@ namespace OfficeOpenXml
 					int localSheetID;
 					ExcelWorksheet nameWorksheet;
 					
-                    if(!int.TryParse(elem.GetAttribute("localSheetId"), out localSheetID))
+                    if(!int.TryParse(elem.GetAttribute("localSheetId"), NumberStyles.Number, CultureInfo.InvariantCulture, out localSheetID))
 					{
 						localSheetID = -1;
 						nameWorksheet=null;
@@ -201,7 +201,7 @@ namespace OfficeOpenXml
 
 							string externalIndex = fullAddress.Substring(start + 1, end - start - 1);
 							int index;
-							if (int.TryParse(externalIndex, out index))
+							if (int.TryParse(externalIndex, NumberStyles.Any, CultureInfo.InvariantCulture, out index))
 							{
 								if (index > 0 && index <= _externalReferences.Count)
 								{
@@ -228,7 +228,7 @@ namespace OfficeOpenXml
 						{
 							namedRange.NameValue = fullAddress.Substring(1,fullAddress.Length-2);
 						}
-						else if (double.TryParse(fullAddress, NumberStyles.Any, CultureInfo.InvariantCulture, out value))
+						else if (double.TryParse(fullAddress, NumberStyles.Number, CultureInfo.InvariantCulture, out value))
 						{
 							namedRange.NameValue = value;
 						}

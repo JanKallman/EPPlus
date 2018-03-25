@@ -49,7 +49,6 @@ namespace EPPlusSamples
     /// </summary>                  
     class Sample6
     {
-        #if (!Core)
         #region Icon API function
                 [StructLayout(LayoutKind.Sequential)]
                 public struct SHFILEINFO
@@ -74,7 +73,6 @@ namespace EPPlusSamples
                 [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
                 extern static bool DestroyIcon(IntPtr handle);
         #endregion
-        #endif
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }
@@ -551,20 +549,6 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="FileName"></param>
         /// <returns></returns>
-#if (Core)
-        private static Bitmap GetIcon(string FileName)
-        {
-            if (File.Exists(FileName))
-            {
-                var bmp=System.Drawing.Icon.ExtractAssociatedIcon(FileName).ToBitmap();
-                return new Bitmap(bmp, new Size(16, 16));
-            }
-            else
-            {
-                return null;
-            }
-        }
-#else
         private static Bitmap GetIcon(string FileName)
         {
             try
@@ -602,6 +586,5 @@ namespace EPPlusSamples
                 return null;
             }
         }
-#endif
     }
 }

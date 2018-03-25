@@ -1324,7 +1324,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 else
                 {
                     int v;
-                    if (int.TryParse(node.Value, out v))
+                    if (int.TryParse(node.Value, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
                     {
                         return (eChartStyle)v;
                     }

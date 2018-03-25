@@ -373,7 +373,7 @@ namespace OfficeOpenXml
             if (value[0] == '[' && value[value.Length - 1] == ']') //Offset?                
             {
                 fixedAddr = false;
-                if (int.TryParse(value.Substring(1, value.Length - 2), out num))
+                if (int.TryParse(value.Substring(1, value.Length - 2), NumberStyles.Any, CultureInfo.InvariantCulture, out num))
                 {
                     return (OffsetValue + num);
                 }
@@ -385,7 +385,7 @@ namespace OfficeOpenXml
             else
             {
                 fixedAddr = true;
-                if (int.TryParse(value, out num))
+                if (int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
                 {
                     return num;
                 }

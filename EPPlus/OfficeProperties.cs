@@ -451,7 +451,7 @@ namespace OfficeOpenXml
                         }
                     case "i4":
                         int i;
-                        if (int.TryParse(value, out i))
+                        if (int.TryParse(value, System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out i))
                         {
                             return i;
                         }
@@ -461,7 +461,7 @@ namespace OfficeOpenXml
                         }
                     case "r8":
                         double d;
-                        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+                        if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out d))
                         {
                             return d;
                         }

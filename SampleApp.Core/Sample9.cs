@@ -53,7 +53,7 @@ namespace EPPlusSamples
         /// <returns></returns>
         public static string RunSample9()
         {
-            FileInfo newFile = Utils.GetFileInfo(@"\sample9.xlsx");
+            FileInfo newFile = Utils.GetFileInfo(@"sample9.xlsx");
             
             using (ExcelPackage package = new ExcelPackage())
             {

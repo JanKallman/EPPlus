@@ -288,7 +288,7 @@ namespace OfficeOpenXml.Drawing.Vml
             if (v.EndsWith("f"))
             {
                 v = v.Substring(0, v.Length - 1);
-                if (double.TryParse(v, out d))
+                if (double.TryParse(v, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                 {
                     d /= 65535;
                 }
@@ -299,7 +299,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             else
             {
-                if (!double.TryParse(v, out d))
+                if (!double.TryParse(v, System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out d))
                 {
                     d = def;
                 }

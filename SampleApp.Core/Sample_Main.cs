@@ -42,7 +42,7 @@ namespace EPPlusSamples
 		{
 			try
 			{
-                //Sample 3, 4 and 12 uses the Adventureworks database. Enter then connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
+                //Sample 3, 4 and 12 uses the Adventureworks database. Enter the connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
                 //Leave this blank if you don't have access to the Adventureworks database 
                 string connectionStr = "";      //for example "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=MySqlServer"
 
@@ -94,7 +94,7 @@ namespace EPPlusSamples
                 //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
                 //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
-                output = Sample6.RunSample6(new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5, false);
+                output = Sample6.RunSample6(new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5, true);
                 Console.WriteLine("Sample 6 created:", output);
                 Console.WriteLine();
 
@@ -119,7 +119,7 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 9 created: {0}", output);
                 Console.WriteLine();
 
-                //Sample 10 Swedish Quiz : Shows Encryption and workbook and worksheet protection.
+                //Sample 10 Swedish Quiz : Shows Encryption, workbook- and worksheet protection.
                 Console.WriteLine("Running sample 10");
                 Sample10.RunSample10();
                 Console.WriteLine("Sample 10 created: {0}", Utils.OutputDir.FullName);

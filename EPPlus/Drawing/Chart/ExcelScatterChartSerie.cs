@@ -336,7 +336,7 @@ namespace OfficeOpenXml.Drawing.Chart
             if (s.Length > 0)
             {
                 int i = 0;
-                if (int.TryParse(GetXmlNodeString(s), out i))
+                if (int.TryParse(GetXmlNodeString(s), System.Globalization.NumberStyles.Any, CultureInfo.InvariantCulture, out i))
                 {
                     r = (i == 0) ? 0 : 100 - (i / 1000);
                 }

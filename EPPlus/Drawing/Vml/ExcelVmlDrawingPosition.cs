@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml.Drawing.Vml
@@ -124,7 +125,7 @@ namespace OfficeOpenXml.Drawing.Vml
             if (numbers.Length == 8)
             {
                 int ret;
-                if (int.TryParse(numbers[_startPos + pos], out ret))
+                if (int.TryParse(numbers[_startPos + pos], System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out ret))
                 {
                     return ret;
                 }

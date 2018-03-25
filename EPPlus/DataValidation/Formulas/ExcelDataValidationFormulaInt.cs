@@ -48,7 +48,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
             if (!string.IsNullOrEmpty(value))
             {
                 int intValue = default(int);
-                if (int.TryParse(value, out intValue))
+                if (int.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out intValue))
                 {
                     Value = intValue;
                 }

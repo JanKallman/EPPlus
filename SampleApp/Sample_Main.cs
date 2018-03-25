@@ -42,9 +42,9 @@ namespace EPPlusSamples
 		{
 			try
 			{
-                //Sample 3, 4 and 12 uses the Adventureworks database. Enter then connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
+                //Sample 3, 4 and 12 uses the Adventureworks database. Enter the connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
                 //Leave this blank if you don't have access to the Adventureworks database 
-                string connectionStr = "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=vr-dev4";      //for example "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=MySqlServer"
+                string connectionStr = "";      //for example "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=MySqlServer"
 
                 //Set the output directory to the SampleApp folder where the app is running from. 
                 Utils.OutputDir = new DirectoryInfo($"{AppDomain.CurrentDomain.BaseDirectory}SampleApp");
@@ -119,7 +119,7 @@ namespace EPPlusSamples
                 Console.WriteLine("Sample 9 created: {0}", output);
                 Console.WriteLine();
 
-                //Sample 10 Swedish Quiz : Shows Encryption and workbook and worksheet protection.
+                //Sample 10 Swedish Quiz : Shows Encryption, workbook- and worksheet protection.
                 Console.WriteLine("Running sample 10");
                 Sample10.RunSample10();
                 Console.WriteLine("Sample 10 created: {0}", Utils.OutputDir.FullName);

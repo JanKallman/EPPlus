@@ -937,7 +937,7 @@ namespace OfficeOpenXml
                     if (xr.NodeType == XmlNodeType.Element)
                     {
                         int id;
-                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        if (int.TryParse(xr.GetAttribute("id"), NumberStyles.Number, CultureInfo.InvariantCulture, out id))
                         {
                             Row(id).PageBreak = true;
                         }
@@ -959,7 +959,7 @@ namespace OfficeOpenXml
                     if (xr.NodeType == XmlNodeType.Element)
                     {
                         int id;
-                        if (int.TryParse(xr.GetAttribute("id"), out id))
+                        if (int.TryParse(xr.GetAttribute("id"), NumberStyles.Number, CultureInfo.InvariantCulture, out id))
                         {
                             Column(id).PageBreak = true;
                         }
@@ -1136,7 +1136,7 @@ namespace OfficeOpenXml
                         SetValueInner(0, min, col);
 
                         int style;
-                        if (!(xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), out style)))
+                        if (!(xr.GetAttribute("style") == null || !int.TryParse(xr.GetAttribute("style"), NumberStyles.Number, CultureInfo.InvariantCulture, out style)))
                         {
                             SetStyleInner(0, min, style);
                         }
@@ -1514,7 +1514,7 @@ namespace OfficeOpenXml
                 if ((nf >= 14 && nf <= 22) || (nf >= 45 && nf <= 47))
                 {
                     double res;
-                    if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
+                    if (double.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out res))
                     {
                         if (Workbook.Date1904)
                         {

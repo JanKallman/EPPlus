@@ -49,32 +49,6 @@ namespace EPPlusSamples
     /// </summary>                  
     class Sample6
     {
-        #if (!Core)
-        #region Icon API function
-                [StructLayout(LayoutKind.Sequential)]
-                public struct SHFILEINFO
-                {
-                    public IntPtr hIcon;
-                    public IntPtr iIcon;
-                    public uint dwAttributes;
-                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-                    public string szDisplayName;
-                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-                    public string szTypeName;
-                };
-                public const uint SHGFI_ICON = 0x100;
-                public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
-                public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
-                [DllImport("shell32.dll")]
-                public static extern IntPtr SHGetFileInfo(string pszPath,
-                                            uint dwFileAttributes,
-                                            ref SHFILEINFO psfi,
-                                            uint cbSizeFileInfo,
-                                            uint uFlags);
-                [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
-                extern static bool DestroyIcon(IntPtr handle);
-        #endregion
-        #endif
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }
@@ -551,7 +525,6 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="FileName"></param>
         /// <returns></returns>
-#if (Core)
         private static Bitmap GetIcon(string FileName)
         {
             if (File.Exists(FileName))
@@ -564,44 +537,5 @@ namespace EPPlusSamples
                 return null;
             }
         }
-#else
-        private static Bitmap GetIcon(string FileName)
-        {
-            try
-            {
-                SHFILEINFO shinfo = new SHFILEINFO();                
-
-                var ret = SHGetFileInfo(FileName,
-                                          0,
-                                          ref shinfo,
-                                          (uint)Marshal.SizeOf(shinfo),
-                                          SHGFI_ICON | SHGFI_SMALLICON);
-
-                if (shinfo.hIcon == IntPtr.Zero) return null;
-
-                Bitmap bmp = Icon.FromHandle(shinfo.hIcon).ToBitmap();
-                DestroyIcon(shinfo.hIcon);
-
-                //Fix transparant color 
-                Color InvalidColor = Color.FromArgb(0, 0, 0, 0);
-                for (int w = 0; w < bmp.PhysicalDimension.Width; w++)
-                {
-                    for (int h = 0; h < bmp.PhysicalDimension.Height; h++)
-                    {
-                        if (bmp.GetPixel(w, h) == InvalidColor)
-                        {
-                            bmp.SetPixel(w, h, Color.Transparent);
-                        }
-                    }
-                }
-
-                return bmp;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-#endif
     }
 }
