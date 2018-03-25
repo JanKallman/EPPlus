@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -66,28 +66,21 @@ namespace EPPlusSamples
 		/// <param name="outputDir">The output directory</param>
 		/// <param name="templateDir">The location of the sample template</param>
 		/// <param name="connectionString">The connection string to your copy of the AdventureWorks database</param>
-		public static string RunSample3(DirectoryInfo outputDir, string connectionString)
+		public static string RunSample3(string connectionString)
 		{
-			
-            string file = outputDir.FullName + @"\sample3.xlsx";
-            if (File.Exists(file)) File.Delete(file);
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample3.xlsx");
-
-			// ok, we can run the real code of the sample now
-			using (ExcelPackage xlPackage = new ExcelPackage(newFile))
-			{
-				// uncomment this line if you want the XML written out to the outputDir
-				//xlPackage.DebugMode = true; 
-
-				// get handle to the existing worksheet
-				ExcelWorksheet worksheet = xlPackage.Workbook.Worksheets.Add("Sales");
+            var file = Utils.GetFileInfo("Sample3.xlsx");
+            // ok, we can run the real code of the sample now
+            using (ExcelPackage xlPackage = new ExcelPackage(file))
+            {
+                // get handle to the existing worksheet
+                ExcelWorksheet worksheet = xlPackage.Workbook.Worksheets.Add("Sales");
                 var namedStyle = xlPackage.Workbook.Styles.CreateNamedStyle("HyperLink");   //This one is language dependent
                 namedStyle.Style.Font.UnderLine = true;
                 namedStyle.Style.Font.Color.SetColor(Color.Blue);
                 if (worksheet != null)
-				{
-					const int startRow = 5;
-					int row = startRow;
+                {
+                    const int startRow = 5;
+                    int row = startRow;
                     //Create Headers and format them 
                     worksheet.Cells["A1"].Value = "AdventureWorks Inc.";
                     using (ExcelRange r = worksheet.Cells["A1:G1"])
@@ -97,7 +90,7 @@ namespace EPPlusSamples
                         r.Style.Font.Color.SetColor(Color.White);
                         r.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.CenterContinuous;
                         r.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
-                        r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(23,55,93));
+                        r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(23, 55, 93));
                     }
                     worksheet.Cells["A2"].Value = "Year-End Sales Report";
                     using (ExcelRange r = worksheet.Cells["A2:G2"])
@@ -107,7 +100,7 @@ namespace EPPlusSamples
                         r.Style.Font.Color.SetColor(Color.Black);
                         r.Style.HorizontalAlignment = ExcelHorizontalAlignment.CenterContinuous;
                         r.Style.Fill.PatternType = ExcelFillStyle.Solid;
-                        r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(184,204,228));
+                        r.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(184, 204, 228));
                     }
 
                     worksheet.Cells["A4"].Value = "Name";
@@ -123,38 +116,38 @@ namespace EPPlusSamples
 
 
                     // lets connect to the AdventureWorks sample database for some data
-					using (SqlConnection sqlConn = new SqlConnection(connectionString))
-					{
-						sqlConn.Open();
-						using (SqlCommand sqlCmd = new SqlCommand("select LastName + ', ' + FirstName AS [Name], EmailAddress, JobTitle, CountryRegionName, ISNULL(SalesQuota,0) AS SalesQuota, ISNULL(SalesQuota,0)*12 AS YearlyQuota, SalesYTD from Sales.vSalesPerson ORDER BY SalesYTD desc", sqlConn))
-						{
-							using (SqlDataReader sqlReader = sqlCmd.ExecuteReader())
-							{
-								// get the data and fill rows 5 onwards
-								while (sqlReader.Read())
-								{
-									int col = 1;
-									// our query has the columns in the right order, so simply
-									// iterate through the columns
-									for (int i = 0; i < sqlReader.FieldCount; i++)
-									{
-										// use the email address as a hyperlink for column 1
-										if (sqlReader.GetName(i) == "EmailAddress")
-										{
-											// insert the email address as a hyperlink for the name
-											string hyperlink = "mailto:" + sqlReader.GetValue(i).ToString();
-											worksheet.Cells[row, 1].Hyperlink = new Uri(hyperlink, UriKind.Absolute);
-										}
-										else
-										{
-											// do not bother filling cell with blank data (also useful if we have a formula in a cell)
-											if (sqlReader.GetValue(i) != null)
-												worksheet.Cells[row, col].Value = sqlReader.GetValue(i);
-											col++;
-										}
-									}
-									row++;
-								}
+                    using (SqlConnection sqlConn = new SqlConnection(connectionString))
+                    {
+                        sqlConn.Open();
+                        using (SqlCommand sqlCmd = new SqlCommand("select LastName + ', ' + FirstName AS [Name], EmailAddress, JobTitle, CountryRegionName, ISNULL(SalesQuota,0) AS SalesQuota, ISNULL(SalesQuota,0)*12 AS YearlyQuota, SalesYTD from Sales.vSalesPerson ORDER BY SalesYTD desc", sqlConn))
+                        {
+                            using (SqlDataReader sqlReader = sqlCmd.ExecuteReader())
+                            {
+                                // get the data and fill rows 5 onwards
+                                while (sqlReader.Read())
+                                {
+                                    int col = 1;
+                                    // our query has the columns in the right order, so simply
+                                    // iterate through the columns
+                                    for (int i = 0; i < sqlReader.FieldCount; i++)
+                                    {
+                                        // use the email address as a hyperlink for column 1
+                                        if (sqlReader.GetName(i) == "EmailAddress")
+                                        {
+                                            // insert the email address as a hyperlink for the name
+                                            string hyperlink = "mailto:" + sqlReader.GetValue(i).ToString();
+                                            worksheet.Cells[row, 1].Hyperlink = new Uri(hyperlink, UriKind.Absolute);
+                                        }
+                                        else
+                                        {
+                                            // do not bother filling cell with blank data (also useful if we have a formula in a cell)
+                                            if (sqlReader.GetValue(i) != null)
+                                                worksheet.Cells[row, col].Value = sqlReader.GetValue(i);
+                                            col++;
+                                        }
+                                    }
+                                    row++;
+                                }
                                 sqlReader.Close();
 
                                 worksheet.Cells[startRow, 1, row - 1, 1].StyleName = "HyperLink";
@@ -172,50 +165,44 @@ namespace EPPlusSamples
                                 worksheet.Column(6).Width = 10;
                                 worksheet.Column(7).Width = 12;
                             }
-						}
-						sqlConn.Close();
-					}
+                        }
+                        sqlConn.Close();
+                    }
 
                     // lets set the header text 
-					worksheet.HeaderFooter.OddHeader.CenteredText = "AdventureWorks Inc. Sales Report";
-					// add the page number to the footer plus the total number of pages
-					worksheet.HeaderFooter.OddFooter.RightAlignedText =
-						string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
-					// add the sheet name to the footer
-					worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
-					// add the file path to the footer
-					worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
-				}
-				// we had better add some document properties to the spreadsheet 
+                    worksheet.HeaderFooter.OddHeader.CenteredText = "AdventureWorks Inc. Sales Report";
+                    // add the page number to the footer plus the total number of pages
+                    worksheet.HeaderFooter.OddFooter.RightAlignedText =
+                        string.Format("Page {0} of {1}", ExcelHeaderFooter.PageNumber, ExcelHeaderFooter.NumberOfPages);
+                    // add the sheet name to the footer
+                    worksheet.HeaderFooter.OddFooter.CenteredText = ExcelHeaderFooter.SheetName;
+                    // add the file path to the footer
+                    worksheet.HeaderFooter.OddFooter.LeftAlignedText = ExcelHeaderFooter.FilePath + ExcelHeaderFooter.FileName;
+                }
+                // we had better add some document properties to the spreadsheet 
 
-				// set some core property values
-				xlPackage.Workbook.Properties.Title = "Sample 3";
-				xlPackage.Workbook.Properties.Author = "John Tunnicliffe";
-				xlPackage.Workbook.Properties.Subject = "ExcelPackage Samples";
-				xlPackage.Workbook.Properties.Keywords = "Office Open XML";
-				xlPackage.Workbook.Properties.Category = "ExcelPackage Samples";
-				xlPackage.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 file from scratch using the Packaging API and Office Open XML";
+                // set some core property values
+                xlPackage.Workbook.Properties.Title = "Sample 3";
+                xlPackage.Workbook.Properties.Author = "John Tunnicliffe";
+                xlPackage.Workbook.Properties.Subject = "ExcelPackage Samples";
+                xlPackage.Workbook.Properties.Keywords = "Office Open XML";
+                xlPackage.Workbook.Properties.Category = "ExcelPackage Samples";
+                xlPackage.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 file from scratch using the Packaging API and Office Open XML";
 
-				// set some extended property values
-				xlPackage.Workbook.Properties.Company = "AdventureWorks Inc.";
+                // set some extended property values
+                xlPackage.Workbook.Properties.Company = "AdventureWorks Inc.";
                 xlPackage.Workbook.Properties.HyperlinkBase = new Uri("http://www.codeplex.com/MSFTDBProdSamples");
 
-				// set some custom property values
-				xlPackage.Workbook.Properties.SetCustomPropertyValue("Checked by", "John Tunnicliffe");
-				xlPackage.Workbook.Properties.SetCustomPropertyValue("EmployeeID", "1147");
-				xlPackage.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "ExcelPackage");
-				
-				// save the new spreadsheet
-				xlPackage.Save();
-			}
+                // set some custom property values
+                xlPackage.Workbook.Properties.SetCustomPropertyValue("Checked by", "John Tunnicliffe");
+                xlPackage.Workbook.Properties.SetCustomPropertyValue("EmployeeID", "1147");
+                xlPackage.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "ExcelPackage");
 
-			// if you want to take a look at the XML created in the package, simply uncomment the following lines
-			// These copy the output file and give it a zip extension so you can open it and take a look!
-			//FileInfo zipFile = new FileInfo(outputDir.FullName + @"\sample3.zip");
-			//if (zipFile.Exists) zipFile.Delete();
-			//newFile.CopyTo(zipFile.FullName);
+                // save the new spreadsheet
+                xlPackage.Save();
+            }
 
-			return newFile.FullName;
+			return file.FullName;
 		}
 	}
 }

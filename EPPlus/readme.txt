@@ -1,8 +1,15 @@
-EPPlus 4.5 Beta 2
+EPPlus 4.5 rc
+
+This version will be the last before the final 4.5, if no major bugs are found. 
+Please help us test it!
+NOTE: Breaking change in .Net Core. The indexer of the worksheets collection will be zero based. See remarks under 4.5.0.1 Beta 1 below.
 
 Visit https://github.com/JanKallman/EPPlus for the latest information
 
 EPPlus-Create advanced Excel spreadsheet.
+
+4.5.0.2 rc
+* Merged in a few pull requests and fixed some issues. See https://github.com/JanKallman/EPPlus/commits/master
 
 4.5.0.1 Beta 2
 * Added sparkline support.

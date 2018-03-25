@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -1683,7 +1683,7 @@ namespace OfficeOpenXml
 			if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
 			{
 				string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-				if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+				if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
 				{
 					if (v2 == v)
 					{
@@ -1700,7 +1700,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-					return v;
+					return string.IsNullOrEmpty(v) ? null : v; ;
 				}
 			}
 			else
@@ -1727,7 +1727,7 @@ namespace OfficeOpenXml
 						}
 					case eDataTypes.Percent:
 						string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-						if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+						if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
 						{
 							return d / 100;
 						}
@@ -2202,7 +2202,6 @@ namespace OfficeOpenXml
                             {
                                 if (c == Format.Delimiter)
                                 {
-                                    //_worksheet.SetValue(row, col, ConvertData(Format, v, col - _fromCol, isText));
                                     items.Add(ConvertData(Format, v, col, isText));
                                     v = "";
                                     isText = false;
@@ -2246,7 +2245,7 @@ namespace OfficeOpenXml
                     list[index] = new ExcelCoreValue { _value = item[columnIx], _styleId = list[index]._styleId };
                 }, values);
 
-            return _worksheet.Cells[_fromRow, _fromCol, _fromRow + row, _fromCol + maxCol];
+            return _worksheet.Cells[_fromRow, _fromCol, _fromRow + row-1, _fromCol + maxCol];
         }
 
         private string[] GetLines(string text, ExcelTextFormat Format)

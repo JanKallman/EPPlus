@@ -75,6 +75,7 @@
     <Compile Include="Sample13.cs" />
     <Compile Include="Sample14.cs" />
     <Compile Include="Sample15.cs" />
+    <Compile Include="Sample16.cs" />
     <Compile Include="Sample8.cs" />
     <Compile Include="Sample1.cs" />
     <Compile Include="Sample3.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="Sample_Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sample2.cs" />
+    <Compile Include="Utils.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -118,16 +120,32 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="GraphTemplate.xlsx" />
+    <Content Include="GraphTemplate.xlsx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="csv\Sample9-2.txt" />
-    <Content Include="csv\Sample9-1.txt" />
-    <Content Include="VBA-Code\ComputerPlayModule.txt" />
-    <Content Include="VBA-Code\BattleshipSheet.txt" />
-    <Content Include="VBA-Code\ThisWorkbook.txt" />
-    <Content Include="VBA-Code\CodeModule.txt" />
-    <Content Include="VBA-Code\ShipClass.txt" />
+    <Content Include="csv\Sample9-2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="csv\Sample9-1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA-Code\ComputerPlayModule.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA-Code\BattleshipSheet.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA-Code\ThisWorkbook.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA-Code\CodeModule.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA-Code\ShipClass.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus\EPPlus.csproj">

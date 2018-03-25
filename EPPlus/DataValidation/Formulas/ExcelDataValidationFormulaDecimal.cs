@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -51,7 +51,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
             if (!string.IsNullOrEmpty(value))
             {
                 double dValue = default(double);
-                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out dValue))
+                if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out dValue))
                 {
                     Value = dValue;
                 }

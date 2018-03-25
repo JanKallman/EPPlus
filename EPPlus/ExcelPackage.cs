@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -74,6 +74,9 @@ namespace OfficeOpenXml
     /// <summary>
     /// Represents an Excel 2007/2010 XLSX file package.  
     /// This is the top-level object to access all parts of the document.
+    /// </summary>
+    /// <remarks>
+    /// <example>
     /// <code>
 	///     FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
 	/// 	if (newFile.Exists)
@@ -167,8 +170,9 @@ namespace OfficeOpenXml
     ///
     ///       return newFile.FullName;
     /// </code>
-    /// More samples can be found at  <a href="http://epplus.codeplex.com/">http://epplus.codeplex.com/</a>
-    /// </summary>
+    /// More samples can be found at  <a href="https://github.com/JanKallman/EPPlus/">https://github.com/JanKallman/EPPlus/</a>
+    /// </example>
+    /// </remarks>
 	public sealed class ExcelPackage : IDisposable
 	{
         internal const bool preserveWhitespace=false;
@@ -249,10 +253,10 @@ namespace OfficeOpenXml
         /// </summary>
         public const int MaxRows = 1048576;
 		#endregion
-
 		#region ExcelPackage Constructors
         /// <summary>
-        /// Create a new instance of the ExcelPackage. Output is accessed through the Stream property.
+        /// Create a new instance of the ExcelPackage. 
+        /// Output is accessed through the Stream property, using the <see cref="SaveAs(FileInfo)"/> method or later set the <see cref="File" /> property.
         /// </summary>
         public ExcelPackage()
         {
@@ -835,11 +839,11 @@ namespace OfficeOpenXml
                     {
                         var ms = new MemoryStream();
                         _package.Save(ms);
-                        byte[] file = ms.ToArray();
+                        byte[] file = ms.ToArray(); 
                         EncryptedPackageHandler eph = new EncryptedPackageHandler();
                         var msEnc = eph.EncryptPackage(file, Encryption);
                         CopyStream(msEnc, ref _stream);
-                    }
+                    }   
                     else
                     {
                         _package.Save(_stream);

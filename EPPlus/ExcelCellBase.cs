@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -111,50 +111,21 @@ namespace OfficeOpenXml
         {
             if (value == "")
                 return "";
-            bool isText = false;
-            string ret = "";
-            string part = "";
-            char prevTQ = (char)0;
-            for (int pos = 0; pos < value.Length; pos++)
+
+            var lexer = new Lexer(SourceCodeTokenizer.Default, new SyntacticAnalyzer());
+            var tokens = lexer.Tokenize(value);
+            foreach (var token in tokens)
             {
-                char c = value[pos];
-                if (((c == '"' || c=='\'') && !isText) || (isText && c == prevTQ))
+                //Console.WriteLine($"{token.TokenType} : {token.Value}");
+                if (token.TokenType == TokenType.ExcelAddress || token.TokenType.Equals(TokenType.NameValue))
                 {
-                    if (isText == false && part != "" && prevTQ==c)
-                    {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr);
-                        part = "";
-                        prevTQ = (char)0;
-                    }
-                    isText = !isText;
-                    prevTQ = c;
-                    ret += c;
+                    var part = addressTranslator(token.Value, row, col, rowIncr, colIncr);
+                    //Console.Write($"==> " + part);
+                    token.Value = part;
                 }
-                else if (isText)
-                {
-                    ret += c;
-                }
-                else
-                {
-                    if ((c == '-' || c == '+' || c == '*' || c == '/' ||
-                        c == '=' || c == '^' || c == ',' || c == ':' ||
-                        c == '<' || c == '>' || c == '(' || c == ')' || c == '!' ||
-                        c == ' ' || c == '&' || c == '%') &&
-                        (pos == 0 || value[pos - 1] != '[')) //Last part to allow for R1C1 style [-x]
-                    {
-                        ret += addressTranslator(part, row, col, rowIncr, colIncr) + c;
-                        part = "";
-                    }
-                    else
-                    {
-                        part += c;
-                    }
-                }
+
             }
-            if (part != "")
-            {
-                ret += addressTranslator(part, row, col, rowIncr, colIncr);
-            }
+            var ret = string.Join("", tokens.Select(x => x.Value).ToArray());
             return ret;
         }
         /// <summary>
@@ -168,41 +139,53 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
         {
-            int addrRow, addrCol;
-            string Ret = "R";
-            if (GetRowCol(part, out addrRow, out addrCol, false))
+            int shInd = part.IndexOf('!');
+            string sh = "";
+            if (shInd > 0)
             {
-                if (addrRow == 0 || addrCol == 0)
+                sh = part.Substring(0, shInd + 1);
+                part = part.Substring(shInd + 1);
+            }
+            int delim = part.IndexOf(':');
+            if (delim > 0)
+            {
+                string p1 = ToR1C1_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
+                string p2 = ToR1C1_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                if (p1.Equals(p2))
+                    return p1;
+                return sh + p1 + ":" + p2;
+            }
+
+            else
+                return sh + ToR1C1_1(part, row, col, rowIncr, colIncr);
+        }
+        private static string ToR1C1_1(string part, int row, int col, int rowIncr, int colIncr)
+        {
+            int addrRow, addrCol;
+            bool fixRow, fixCol;
+            StringBuilder sb = new StringBuilder();
+            if (GetRowCol(part, out addrRow, out addrCol, false, out fixRow, out fixCol))
+            {
+                if (addrRow == 0 && addrCol == 0)
                 {
                     return part;
                 }
-                if (part.IndexOf('$', 1) > 0)
+                if (addrRow > 0)
                 {
-                    Ret += addrRow.ToString();
+                    sb.Append(fixRow ? $"R{addrRow}" : (addrRow == row ? "R" : $"R[{addrRow - row}]"));
                 }
-                else if (addrRow - row != 0)
+                if (addrCol > 0)
                 {
-                    Ret += string.Format("[{0}]", addrRow - row);
+                    sb.Append(fixCol ? $"C{addrCol}" : (addrCol == col ? "C" : $"C[{addrCol - col}]"));
                 }
-
-                if (Utils.ConvertUtil._invariantCompareInfo.IsPrefix(part, "$"))
-                {
-                    return Ret + "C" + addrCol;
-                }
-                else if (addrCol - col != 0)
-                {
-                    return Ret + "C" + string.Format("[{0}]", addrCol - col);
-                }
-                else
-                {
-                    return Ret + "C";
-                }
+                return sb.ToString();
             }
             else
             {
                 return part;
             }
         }
+
         /// <summary>
         /// Translates to absolute address
         /// </summary>
@@ -214,34 +197,98 @@ namespace OfficeOpenXml
         /// <returns></returns>
         private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
         {
-            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
-
-            int rStart = check.IndexOf("R");
-            if (rStart != 0)
-                return part;
-            if (part.Length == 1) //R
+            int shInd = part.IndexOf('!');
+            string sh = "";
+            if (shInd > 0)
             {
-                return GetAddress(row, col);
+                sh = part.Substring(0, shInd + 1);
+                part = part.Substring(shInd + 1);
             }
 
+            int delim = part.IndexOf(':');
+            if (delim > 0)
+            {
+                string p1 = ToAbs_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
+                string p2 = ToAbs_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                if (p1.Equals(p2))
+                    return p1;
+                return sh + p1 + ":" + p2;
+            }
+            else
+                return sh + ToAbs_1(part, row, col, rowIncr, colIncr);
+        }
+        private static string ToAbs_1(string part, int row, int col, int rowIncr, int colIncr)
+        {
+            string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
+            // Bug
+            int rStart = check.IndexOf("R");
             int cStart = check.IndexOf("C");
+            //if (rStart != 0)
+            //    return part;
+            if (rStart != 0 && cStart != 0)
+                return part;
+            if (part.Length == 1) //R or C
+            {
+                if (rStart == 0)
+                {
+                    //return GetAddress(row);
+                    return $"{row}:{row}";
+                }
+                else
+                {
+                    var cLetter = GetColumnLetter(col);
+                    return $"{cLetter}:{cLetter}";
+                }
+
+            }
+
             bool absoluteRow, absoluteCol;
             if (cStart == -1)
             {
-                int RNum = GetRC(part, row, out absoluteRow);
+                int RNum = GetRC(part.Substring(1), row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
-                    return GetAddress(RNum, absoluteRow, col, false);
+                    return GetAddressRow(RNum, absoluteRow);
                 }
                 else
                 {
                     return part;
                 }
             }
-            else
+            if (rStart == -1)
             {
-                int RNum = GetRC(part.Substring(1, cStart - 1), row, out absoluteRow);
-                int CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
+                int CNum = GetRC(part.Substring(1), col, out absoluteCol);
+                if (CNum > int.MinValue)
+                {
+                    return GetAddressCol(CNum, absoluteCol);
+                }
+                else
+                {
+                    return part;
+                }
+            }
+            {
+                int RNum, CNum;
+                if (1 == cStart)
+                {
+                    RNum = row;
+                    absoluteRow = false;
+                }
+                else
+                {
+                    RNum = GetRC(part.Substring(1, cStart - 1), row, out absoluteRow);
+                }
+                if ((part.Length - 1) == cStart)
+                {
+                    CNum = col;
+                    absoluteCol = false;
+                }
+                else
+                {
+                    CNum = GetRC(part.Substring(cStart + 1, part.Length - cStart - 1), col, out absoluteCol);
+                }
+
+
                 if (RNum > int.MinValue && CNum > int.MinValue)
                 {
                     return GetAddress(RNum, absoluteRow, CNum, absoluteCol);
@@ -326,7 +373,7 @@ namespace OfficeOpenXml
             if (value[0] == '[' && value[value.Length - 1] == ']') //Offset?                
             {
                 fixedAddr = false;
-                if (int.TryParse(value.Substring(1, value.Length - 2), out num))
+                if (int.TryParse(value.Substring(1, value.Length - 2), NumberStyles.Any, CultureInfo.InvariantCulture, out num))
                 {
                     return (OffsetValue + num);
                 }
@@ -338,7 +385,7 @@ namespace OfficeOpenXml
             else
             {
                 fixedAddr = true;
-                if (int.TryParse(value, out num))
+                if (int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out num))
                 {
                     return num;
                 }
@@ -466,7 +513,10 @@ namespace OfficeOpenXml
         {
             return GetRowCol(CellAddress, out row, out col, true, out fixedRow, out fixedCol);
         }
-
+        internal static bool IsAlpha(char c)
+        {
+            return c >= 'A' && c <= 'Z';
+        }
         /// <summary>
         /// Get the row/column for a Cell-address
         /// </summary>
@@ -520,7 +570,7 @@ namespace OfficeOpenXml
             }
             else if (c == '$')
             {
-              if (i == colStartIx)
+              if (IsAlpha(address[i+1]))
               {
                 colStartIx++;
                 fixedCol = true;
@@ -559,6 +609,19 @@ namespace OfficeOpenXml
             return col;
         }
         #region GetAddress
+        public static string GetAddressRow(int Row, bool Absolute = false)
+        {
+            if (Absolute)
+                return $"${Row}:${Row}";
+            return $"{Row}:{Row}";
+        }
+        public static string GetAddressCol(int Col, bool Absolute = false)
+        {
+            var colLetter = GetColumnLetter(Col);
+            if (Absolute)
+                return $"${colLetter}:${colLetter}";
+            return $"{colLetter}:{colLetter}";
+        }
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address
         /// </summary>
@@ -579,6 +642,7 @@ namespace OfficeOpenXml
         /// <returns>The cell address in the format A1</returns>
         public static string GetAddress(int Row, bool AbsoluteRow, int Column, bool AbsoluteCol)
         {
+            if (Row < 1 || Row > ExcelPackage.MaxRows || Column < 1 || Column > ExcelPackage.MaxColumns) return "#REF!";
             return ( AbsoluteCol ? "$" : "") + GetColumnLetter(Column) + ( AbsoluteRow ? "$" : "") + Row.ToString();
         }
         /// <summary>
@@ -727,85 +791,105 @@ namespace OfficeOpenXml
         #region IsValidCellAddress
         public static bool IsValidAddress(string address)
         {
+            if (string.IsNullOrEmpty(address.Trim())) return false ;
             address = Utils.ConvertUtil._invariantTextInfo.ToUpper(address);
-            string r1 = "", c1 = "", r2 = "", c2 = "";
-            bool isSecond = false;
-            for (int i = 0; i < address.Length; i++)
+            var addrs = address.Split(',');
+            foreach (var a in addrs)
             {
-                if (address[i] >= 'A' && address[i] <= 'Z')
+                string r1 = "", c1 = "", r2 = "", c2 = "";
+                bool isSecond = false;
+                for (int i = 0; i < a.Length; i++)
                 {
-                    if (isSecond == false)
+                    if (IsCol(a[i]))
                     {
-                        if (r1 != "") return false;
-                        c1 += address[i];
-                        if (c1.Length > 3) return false;
+                        if (isSecond == false)
+                        {
+                            if (r1 != "") return false;
+                            c1 += a[i];
+                            if (c1.Length > 3) return false;
+                        }
+                        else
+                        {
+                            if (r2 != "") return false;
+                            c2 += a[i];
+                            if (c2.Length > 3) return false;
+                        }
+                    }
+                    else if (IsRow(a[i]))
+                    {
+                        if (isSecond == false)
+                        {
+                            r1 += a[i];
+                            if (r1.Length > 7) return false;
+                        }
+                        else
+                        {
+                            r2 += a[i];
+                            if (r2.Length > 7) return false;
+                        }
+                    }
+                    else if (a[i] == ':')
+                    {
+                        if (isSecond || i== a.Length - 1) return false;
+                        isSecond = true;
+                    }
+                    else if (a[i] == '$')
+                    {
+                        if (i == a.Length - 1 || a[i + 1] == ':' ||
+                            (i > 1 && (IsCol(a[i - 1]) && (IsCol(a[i + 1])))) ||
+                            (i > 1 && (IsRow(a[i - 1]) && (IsRow(a[i + 1])))))
+                        {
+                            return false;
+                        }
                     }
                     else
-                    {
-                        if (r2 != "") return false;
-                        c2 += address[i];
-                        if (c2.Length > 3) return false;
-                    }
-                }
-                else if (address[i] >= '0' && address[i] <= '9')
-                {
-                    if (isSecond == false)
-                    {
-                        r1 += address[i];
-                        if (r1.Length > 7) return false;
-                    }
-                    else
-                    {
-                        r2 += address[i];
-                        if (r2.Length > 7) return false;
-                    }
-                }
-                else if (address[i] == ':')
-                {
-                    isSecond=true;
-                }
-                else if (address[i] == '$')
-                {
-                    if (i == address.Length - 1 || address[i + 1] == ':')
                     {
                         return false;
                     }
+                }
+                bool ret;
+                if (r1 != "" && c1 != "" && r2 == "" && c2 == "")   //Single Cell
+                {
+                    ret=(GetColumn(c1) <= ExcelPackage.MaxColumns && int.Parse(r1) <= ExcelPackage.MaxRows);
+                }
+                else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
+                {
+                    var iR2 = int.Parse(r2);
+                    var iC2 = GetColumn(c2);
+
+                    ret = GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
+                        iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
+
+                }
+                else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
+                {
+                    var c2n = GetColumn(c2);
+                    ret = (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
+                }
+                else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
+                {
+                    var iR2 = int.Parse(r2);
+
+                    ret = int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
                 }
                 else
                 {
                     return false;
                 }
+                if (ret == false) return false;
             }
-
-            if (r1!="" && c1!="" && r2 == "" && c2 == "")   //Single Cell
-            {
-                return (GetColumn(c1)<=ExcelPackage.MaxColumns && int.Parse(r1)<=ExcelPackage.MaxRows);   
-            }
-            else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
-            {
-                var iR2 = int.Parse(r2);
-                var iC2 = GetColumn(c2);
-
-                return GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
-                    iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
-                                                    
-            }
-            else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
-            {                
-                var c2n=GetColumn(c2);
-                return (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
-            }
-            else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
-            {
-                var iR2 = int.Parse(r2);
-
-                return int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
-            }
-            else
-            {
-                return false;
-            }
+            return true;
         }
+
+        private static bool IsCol(char c)
+        {
+            return c >= 'A' && c <= 'Z';
+        }
+        private static bool IsRow(char r)
+        {
+            return r >= '0' && r <= '9';
+        }
+
         /// <summary>
         /// Checks that a cell address (e.g. A5) is valid.
         /// </summary>

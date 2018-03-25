@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -49,7 +49,6 @@ namespace EPPlusSamples
     /// </summary>                  
     class Sample6
     {
-        #if (!Core)
         #region Icon API function
                 [StructLayout(LayoutKind.Sequential)]
                 public struct SHFILEINFO
@@ -74,7 +73,6 @@ namespace EPPlusSamples
                 [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
                 extern static bool DestroyIcon(IntPtr handle);
         #endregion
-        #endif
         public class StatItem : IComparable<StatItem>
         {
             public string Name { get; set; }
@@ -103,16 +101,11 @@ namespace EPPlusSamples
         /// <param name="dir">Directory to scan</param>
         /// <param name="depth">How many levels?</param>
         /// <param name="skipIcons">Skip the icons in column A. A lot faster</param>
-        public static string RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth, bool skipIcons)
+        public static string RunSample6(DirectoryInfo dir, int depth, bool skipIcons)
         {
             _maxLevels = depth;
 
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample6.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(outputDir.FullName + @"\sample6.xlsx");
-            }
+            FileInfo newFile = Utils.GetFileInfo("sample6.xlsx");
             
             //Create the workbook
             ExcelPackage pck = new ExcelPackage(newFile);
@@ -125,7 +118,7 @@ namespace EPPlusSamples
             ws.Column(2).Width = 60;
             ws.Column(3).Width = 16;
             ws.Column(4).Width = 20;
-            ws.Column(5).Width =20;
+            ws.Column(5).Width = 20;
             
             //This set the outline for column 4 and 5 and hide them
             ws.Column(4).OutlineLevel = 1;
@@ -556,20 +549,6 @@ namespace EPPlusSamples
         /// </summary>
         /// <param name="FileName"></param>
         /// <returns></returns>
-#if (Core)
-        private static Bitmap GetIcon(string FileName)
-        {
-            if (File.Exists(FileName))
-            {
-                var bmp=System.Drawing.Icon.ExtractAssociatedIcon(FileName).ToBitmap();
-                return new Bitmap(bmp, new Size(16, 16));
-            }
-            else
-            {
-                return null;
-            }
-        }
-#else
         private static Bitmap GetIcon(string FileName)
         {
             try
@@ -607,6 +586,5 @@ namespace EPPlusSamples
                 return null;
             }
         }
-#endif
     }
 }

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -332,6 +332,44 @@ namespace OfficeOpenXml
                 _coreHelper.SetXmlNodeString(ModifiedPath + "/@xsi:type", "dcterms:W3CDTF");
 	        }
 	    }
+        const string LinksUpToDatePath = "xp:Properties/xp:LinksUpToDate";
+        /// <summary>
+        /// Indicates whether hyperlinks in a document are up-to-date
+        /// </summary>
+        public bool LinksUpToDate
+        {
+            get { return _extendedHelper.GetXmlNodeBool(LinksUpToDatePath); }
+            set { _extendedHelper.SetXmlNodeBool(LinksUpToDatePath, value); }
+        }
+        const string HyperlinksChangedPath = "xp:Properties/xp:HyperlinksChanged";
+        /// <summary>
+        /// Hyperlinks need update
+        /// </summary>
+        public bool HyperlinksChanged
+        {
+            get { return _extendedHelper.GetXmlNodeBool(HyperlinksChangedPath); }
+            set { _extendedHelper.SetXmlNodeBool(HyperlinksChangedPath, value); }
+        }
+        const string ScaleCropPath = "xp:Properties/xp:ScaleCrop";
+        /// <summary>
+        /// Display mode of the document thumbnail. True to enable scaling. False to enable cropping.
+        /// </summary>
+        public bool ScaleCrop
+        {
+            get { return _extendedHelper.GetXmlNodeBool(ScaleCropPath); }
+            set { _extendedHelper.SetXmlNodeBool(ScaleCropPath, value); }
+        }
+
+
+        const string SharedDocPath = "xp:Properties/xp:SharedDoc";
+        /// <summary>
+        /// If true, document is shared between multiple producers.
+        /// </summary>
+        public bool SharedDoc
+        {
+            get { return _extendedHelper.GetXmlNodeBool(SharedDocPath); }
+            set { _extendedHelper.SetXmlNodeBool(SharedDocPath, value); }
+        }
 
         #region Get and Set Extended Properties
         /// <summary>
@@ -413,7 +451,7 @@ namespace OfficeOpenXml
                         }
                     case "i4":
                         int i;
-                        if (int.TryParse(value, out i))
+                        if (int.TryParse(value, System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out i))
                         {
                             return i;
                         }
@@ -423,7 +461,7 @@ namespace OfficeOpenXml
                         }
                     case "r8":
                         double d;
-                        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+                        if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out d))
                         {
                             return d;
                         }

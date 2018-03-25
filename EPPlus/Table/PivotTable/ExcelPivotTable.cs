@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -486,7 +486,22 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable columns
         /// </summary>
+        [Obsolete("Use correctly spelled property 'ColumnGrandTotals'")]
         public bool ColumGrandTotals
+        {
+            get
+            {
+                return ColumnGrandTotals;
+            }
+            set
+            {
+                ColumnGrandTotals = value;
+            }
+        }
+        /// <summary>
+        /// If the grand totals should be displayed for the PivotTable columns
+        /// </summary>
+        public bool ColumnGrandTotals
         {
             get
             {
@@ -496,7 +511,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 SetXmlNodeBool("@colGrandTotals", value);
             }
-        }        
+        }
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable rows
         /// </summary>
@@ -738,6 +753,20 @@ namespace OfficeOpenXml.Table.PivotTable
             set
             {
                 SetXmlNodeString("@rowHeaderCaption", value);                
+            }
+        }
+        /// <summary>
+        /// Specifies the string to be displayed in column header in compact mode.
+        /// </summary>
+        public string ColumnHeaderCaption
+        {
+            get
+            {
+                return GetXmlNodeString("@colHeaderCaption");
+            }
+            set
+            {
+                SetXmlNodeString("@colHeaderCaption", value);
             }
         }
         /// <summary>

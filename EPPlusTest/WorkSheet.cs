@@ -544,6 +544,12 @@ namespace EPPlusTest
             _pck.Workbook.Properties.Status = "Status";
             _pck.Workbook.Properties.HyperlinkBase = new Uri("http://serversideexcel.com", UriKind.Absolute);
             _pck.Workbook.Properties.Manager = "Manager";
+            _pck.Workbook.Properties.AppVersion="4.5.0.1";
+            _pck.Workbook.Properties.LinksUpToDate = false;
+            _pck.Workbook.Properties.HyperlinksChanged = false;
+            _pck.Workbook.Properties.SharedDoc = false;
+            _pck.Workbook.Properties.ScaleCrop = false;
+
 
             _pck.Workbook.Properties.SetCustomPropertyValue("DateTest", new DateTime(2008, 12, 31));
             Console.WriteLine(_pck.Workbook.Properties.GetCustomPropertyValue("DateTest").ToString());
@@ -1727,7 +1733,7 @@ namespace EPPlusTest
                 ws.Cells["A1"].LoadFromText("\"text with eol,\r\n",
                                             new ExcelTextFormat { TextQualifier = '"', EOL = ",\r\n", Delimiter = ',' });
             }
-            catch (Exception e)
+            catch //(Exception e)
             {
                 //Assert.AreEqual("Text delimiter is not closed in line : \"text with eol", e.Message, "Exception message");
                 exceptionThrown = true;
@@ -2164,6 +2170,9 @@ namespace EPPlusTest
             pt.RowFields.Add(pt.Fields[2]);
             pt.RowFields.Add(pt.Fields[4]);
             pt.DataOnRows = true;
+            pt.ColumnHeaderCaption = "Column Caption";
+            pt.RowHeaderCaption = "Row Caption";
+
             //wsPivot10.Drawings.AddChart("Pivotchart10", OfficeOpenXml.Drawing.Chart.eChartType.BarStacked3D, pt);
 
         }
@@ -2323,6 +2332,9 @@ namespace EPPlusTest
             ws.Cells["A1:C3"].Style.Fill.Gradient.Type = ExcelFillGradientType.Linear;
             ws.Cells["A1:C3"].Style.Fill.Gradient.Color1.SetColor(Color.Red);
             ws.Cells["A1:C3"].Style.Fill.Gradient.Color2.SetColor(Color.Blue);
+
+            ws.Cells["J20:J23"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+            ws.Cells["J20:J23"].Style.Fill.BackgroundColor.SetColor(0xFF,0x00,0XFF,0x00); //Green
 
             ws.Cells["A1"].Style.Fill.PatternType = ExcelFillStyle.MediumGray;
             ws.Cells["A1"].Style.Fill.BackgroundColor.SetColor(Color.ForestGreen);
