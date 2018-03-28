@@ -13,25 +13,11 @@ using System.Data;
 using OfficeOpenXml.Table.PivotTable;
 using System.Reflection;
 using OfficeOpenXml.Table;
-using System.Threading;
 using System.Globalization;
+using System.Threading;
 
 namespace EPPlusTest
 {
-
-    internal class BaseItem
-    {
-        public int Ref { get; set; }
-        public string BaseProp1 { get; set; }
-    }
-    internal class InhItem : BaseItem
-    {
-        public int TophRef { get; set; }
-        public string TopProp1 { get; set; }
-    }
-
-
-
     [TestClass]
     public class WorkSheetTest : TestBase
     {
@@ -76,8 +62,11 @@ namespace EPPlusTest
             DefinedName();
             CreatePivotTable();
             AddChartSheet();
-            SetHeaderFooterImage();
-
+#if (Core)
+            SetHeaderFooterImage(EmbeddedResources.BitmapImage, 101.25, 105D);
+#else
+            SetHeaderFooterImage(EmbeddedResources.VectorDrawing, 595.5, 841.5);
+#endif
             SaveWorksheet("Worksheet.xlsx");
 
             ReadWorkSheet();
@@ -147,7 +136,7 @@ namespace EPPlusTest
         //[TestMethod]
         public void ReadWorkSheet()
         {
-            FileStream instream = new FileStream(_worksheetPath + @"Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            FileStream instream = new FileStream("Worksheet.xlsx".AsWorkSheetPath(), FileMode.Open, FileAccess.ReadWrite);
             using (ExcelPackage pck = new ExcelPackage(instream))
             {
                 var ws = pck.Workbook.Worksheets["Perf"];
@@ -337,7 +326,7 @@ namespace EPPlusTest
         [TestMethod]
         public void ReadStreamWithTemplateWorkSheet()
         {
-            FileStream instream = new FileStream(_worksheetPath + @"\Worksheet.xlsx", FileMode.Open, FileAccess.Read);
+            FileStream instream = new FileStream("Worksheet.xlsx".AsWorkSheetPath(), FileMode.Open, FileAccess.Read);
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(stream, instream))
             {
@@ -372,11 +361,11 @@ namespace EPPlusTest
         //[TestMethod]
         public void ReadStreamSaveAsStream()
         {
-            if (!File.Exists(_worksheetPath + @"Worksheet.xlsx"))
+            if (!File.Exists("Worksheet.xlsx".AsWorkSheetPath()))
             {
                 Assert.Inconclusive("Worksheet.xlsx does not exists");
             }
-            FileStream instream = new FileStream(_worksheetPath + @"Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            FileStream instream = new FileStream("Worksheet.xlsx".AsWorkSheetPath(), FileMode.Open, FileAccess.ReadWrite);
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(instream))
             {
@@ -455,7 +444,7 @@ namespace EPPlusTest
 
             // add autofilter
             ws.Cells["U19:X24"].AutoFilter = true;
-            ExcelPicture pic = ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+            ExcelPicture pic = ws.Drawings.AddPicture("Pic1", EmbeddedResources.Test1.GetEmbeddedResourceAsImage());
             pic.SetPosition(150, 140);
 
             ws.Cells["A30"].Value = "Text orientation 45";
@@ -516,14 +505,11 @@ namespace EPPlusTest
             ws.Names.Add("SheetName", ws.Cells["A1:A2"]);
             ws.View.FreezePanes(3, 5);
 
-            foreach (ExcelRangeBase cell in ws.Cells["A1"])
-            {
-                Assert.Fail("A1 is not set");
-            }
+            Assert.IsFalse(ws.Cells["A1"].Any(), "A1 should not be not set");
 
             foreach (ExcelRangeBase cell in ws.Cells[ws.Dimension.Address])
             {
-                System.Diagnostics.Debug.WriteLine(cell.Address);
+                System.Diagnostics.Debug.WriteLine($"{cell.Address}: {cell.Value}");
             }
 
             ////Linq test
@@ -864,7 +850,7 @@ namespace EPPlusTest
 
             ExcelPackage pck2 = new ExcelPackage();
             pck2.Workbook.Worksheets.Add("Copy From other pck", _pck.Workbook.Worksheets["Address"]);
-            pck2.SaveAs(new FileInfo(_worksheetPath + "copy.xlsx"));
+            pck2.SaveAs("copy.xlsx".AsWorkSheetFileInfo());
             pck2 = null;
             Assert.AreEqual(6, wsCopy.Comments.Count);
         }
@@ -872,7 +858,7 @@ namespace EPPlusTest
         [TestMethod]
         public void TestDelete()
         {
-            string file = _worksheetPath + "test.xlsx";
+            string file = "test.xlsx".AsWorkSheetPath();
 
             if (File.Exists(file))
                 File.Delete(file);
@@ -968,7 +954,7 @@ namespace EPPlusTest
         [TestMethod]
         public void RowStyle()
         {
-            FileInfo newFile = new FileInfo(_worksheetPath + @"sample8.xlsx");
+            FileInfo newFile = @"sample8.xlsx".AsWorkSheetFileInfo();
             if (newFile.Exists)
             {
                 newFile.Delete();  // ensures we create a new workbook
@@ -1123,7 +1109,7 @@ namespace EPPlusTest
             ExcelHyperLink hl = new ExcelHyperLink("http://epplus.codeplex.com");
             hl.ToolTip = "Screen Tip";
 
-            ws.Drawings.AddPicture("Pic URI", Properties.Resources.Test1, hl);
+            ws.Drawings.AddPicture("Pic URI", EmbeddedResources.Test1.GetEmbeddedResourceAsImage(), hl);
         }
         [TestMethod]
         public void PivotTableTest()
@@ -1729,7 +1715,7 @@ namespace EPPlusTest
             }
             catch (Exception e)
             {
-                //Assert.AreEqual("Text delimiter is not closed in line : \"text with eol", e.Message, "Exception message");
+                // Assert.AreEqual("Text delimiter is not closed in line : \"text with eol", e.Message, "Exception message");
                 exceptionThrown = true;
             }
             Assert.IsTrue(exceptionThrown, "Exception thrown");
@@ -2241,28 +2227,56 @@ namespace EPPlusTest
         {
             var ws = _pck.Workbook.Worksheets.Add("backimg");
 
-            ws.BackgroundImage.Image = Properties.Resources.Test1;
-            ws = _pck.Workbook.Worksheets.Add("backimg2");
-            ws.BackgroundImage.SetFromFile(new FileInfo(Path.Combine(_clipartPath, "Vector Drawing.wmf")));
+            ws.BackgroundImage.Image = EmbeddedResources.Test1.GetEmbeddedResourceAsImage();
         }
+
+#if Core
+        [ExpectedException(typeof(ArgumentException), "CoreCompat System.Drawing thrown an exception for wmfs with the message No codec available for format:b96b3cad-0728-11d3-9d7b-0000f81ef32e")]
+#endif
+        [TestMethod]
+        public void SetBackgroundToVectorImage()
+        {
+            var ws = _pck.Workbook.Worksheets.Add("backimg2");
+
+            ws.BackgroundImage.SetFromFile(new FileInfo(EmbeddedResources.VectorDrawing.GetEmbeddedResourceAsTempFile()));
+        }
+
+#if (Core)
         //[Ignore]
         [TestMethod]
-        public void SetHeaderFooterImage()
+        [DataRow(EmbeddedResources.BitmapImage, 101.25D, 105D)]
+        [DataRow(EmbeddedResources.Test1, 49.5, 426D)]
+        [DataRow(EmbeddedResources.VectorDrawing, 3, 3, true)]
+        [DataRow(EmbeddedResources.VectorDrawing2, 3, 3, true)]
+#endif
+        public void SetHeaderFooterImage(EmbeddedResources resource, double expectedHeight, double expectedWidth, bool willThrow = false)
         {
 
             var ws = _pck.Workbook.Worksheets.Add("HeaderImage");
             ws.HeaderFooter.OddHeader.CenteredText = "Before ";
-            var img = ws.HeaderFooter.OddHeader.InsertPicture(Properties.Resources.Test1, PictureAlignment.Centered);
-            img.Title = "Renamed Image";
-            //img.GrayScale = true;
-            //img.BiLevel = true;
-            //img.Gain = .5;
-            //img.Gamma = .35;
+            ExcelVmlDrawingPicture img;
+            try
+            {
+                img = ws.HeaderFooter.OddHeader.InsertPicture(resource.GetEmbeddedResourceAsImage(),
+                    PictureAlignment.Centered);
+            }
+            catch (ArgumentException ex)
+            {
+                // CoreCompat System.Drawing doesn't support WMF
+                Assert.AreEqual("No codec available for format:b96b3cad-0728-11d3-9d7b-0000f81ef32e", ex.Message);
+                return;
+            }
 
-            Assert.AreEqual(img.Width, 426);
-            img.Width /= 4;
-            Assert.AreEqual(img.Height, 49.5);
+            img.Title = "Renamed Image";
+
+            Assert.AreEqual(expectedWidth, img.Width);;
+            Assert.AreEqual(expectedHeight, img.Height);
+
             img.Height /= 4;
+            img.Width /= 4;
+            Assert.AreEqual(expectedWidth / 4, img.Width);
+            Assert.AreEqual(expectedHeight / 4, img.Height);
+
             Assert.AreEqual(img.Left, 0);
             Assert.AreEqual(img.Top, 0);
             ws.HeaderFooter.OddHeader.CenteredText += " After";
@@ -2897,9 +2911,9 @@ namespace EPPlusTest
             var ws1 = pck.Workbook.Worksheets.Add("Comment1");
             ws1.Cells[1, 1].AddComment("Testing", "test1");
 
-            pck.SaveAs(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck.SaveAs("comment.xlsx".AsWorkSheetFileInfo());
 
-            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck = "comment.xlsx".AsExcelPackage();
             var ws2 = pck.Workbook.Worksheets[1];
             ws2.Cells[1, 2].AddComment("Testing", "test1");
             pck.Save();
@@ -2913,9 +2927,9 @@ namespace EPPlusTest
             var ws1 = pck.Workbook.Worksheets.Add("Comment1");
             ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
             ws1.Cells[4, 3].AddComment("Testing comment 2", "test2");
-            var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
+            var fileInfo = "comment.xlsx".AsWorkSheetFileInfo();
             pck.SaveAs(fileInfo);
-            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck = new ExcelPackage(fileInfo);
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the comments were saved in the correct location.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2929,7 +2943,7 @@ namespace EPPlusTest
             Assert.AreEqual("Testing comment 2", ws1.Cells[8, 3].Comment.Text);
             Assert.AreEqual("test2", ws1.Cells[8, 3].Comment.Author);
             pck.Save();
-            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck = "comment.xlsx".AsExcelPackage();
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the shifted index is preserved.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2946,9 +2960,9 @@ namespace EPPlusTest
             var ws1 = pck.Workbook.Worksheets.Add("Comment1");
             ws1.Cells[3, 3].AddComment("Testing comment 1", "test1");
             ws1.Cells[3, 4].AddComment("Testing comment 2", "test2");
-            var fileInfo = new FileInfo(_worksheetPath + "comment.xlsx");
+            var fileInfo = "comment.xlsx".AsWorkSheetFileInfo();
             pck.SaveAs(fileInfo);
-            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck = "comment.xlsx".AsExcelPackage();
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the comments were saved in the correct location.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);
@@ -2962,7 +2976,7 @@ namespace EPPlusTest
             Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
             Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
             pck.Save();
-            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment.xlsx"));
+            pck = "comment.xlsx".AsExcelPackage();
             ws1 = pck.Workbook.Worksheets[1];
             // Ensure the shifted index is preserved.
             Assert.AreEqual("Testing comment 1", ws1.Cells[3, 3].Comment.Text);

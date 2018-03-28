@@ -97,6 +97,7 @@
     <Compile Include="CompoundDoc.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
     <Compile Include="Drawing\Chart\ExcelChartDataTableTest.cs" />
+    <Compile Include="EmbeddedResources.cs" />
     <Compile Include="ExcelCellBaseTest.cs" />
     <Compile Include="ExcelStyleTest.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExpressionEvaluatorTests.cs" />
@@ -114,6 +115,8 @@
     <Compile Include="FormulaParsing\ExpressionGraph\CompileResultTests.cs" />
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactoryTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserManagerTests.cs" />
+    <Compile Include="ResourceExtensions.cs" />
+    <Compile Include="Scaffolding.cs" />
     <Compile Include="Utils\ConvertUtilTest.cs" />
     <Compile Include="DataValidation\CustomValidationTests.cs" />
     <Compile Include="DataValidation\DataValidationTests.cs" />
@@ -207,11 +210,6 @@
     <Compile Include="FormulaParsing\TestHelpers\FunctionsHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DrawingTest.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="ReadTemplate.cs" />
     <Compile Include="TestBase.cs" />
     <Compile Include="TestDTO.cs" />
@@ -224,6 +222,7 @@
     <Compile Include="Utils\SqRefUtilityTests.cs" />
     <Compile Include="VBA.cs" />
     <Compile Include="WorkSheet.cs" />
+    <Compile Include="WorksheetExtensionMethods.cs" />
     <Compile Include="WorksheetsTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -234,13 +233,6 @@
     <None Include="Workbooks\FormulaTest.xlsx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -268,7 +260,7 @@
     <EmbeddedResource Include="Resources\BitmapImage.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Test1.jpg" />
+    <EmbeddedResource Include="Resources\Test1.jpg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus\EPPlus.csproj">

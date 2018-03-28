@@ -1,7 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.IO;
-using System.Runtime.InteropServices.ComTypes;
 
 namespace EPPlusTest
 {
@@ -23,17 +22,17 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"Test\DrawingEncr.xlsx"));                
             }
 
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(_worksheetPath + @"\DrawingEncr.xlsx"), true, "EPPlus"))            
+            using (ExcelPackage pck = new ExcelPackage("DrawingEncr.xlsx".AsWorkSheetFileInfo(), true, "EPPlus"))            
             {
                 pck.Encryption.IsEncrypted = false;
-                pck.SaveAs(new FileInfo(_worksheetPath + @"\DrawingNotEncr.xlsx"));
+                pck.SaveAs("DrawingNotEncr.xlsx".AsWorkSheetFileInfo());
             }
 
-            FileStream fs = new FileStream(_worksheetPath + @"\DrawingEncr.xlsx", FileMode.Open, FileAccess.ReadWrite);
+            FileStream fs = new FileStream("DrawingEncr.xlsx".AsWorkSheetPath(), FileMode.Open, FileAccess.ReadWrite);
             using (ExcelPackage pck = new ExcelPackage(fs, "EPPlus"))
             {
                 pck.Encryption.IsEncrypted = false;
-                pck.SaveAs(new FileInfo(_worksheetPath + @"DrawingNotEncr.xlsx"));
+                pck.SaveAs("DrawingNotEncr.xlsx".AsWorkSheetFileInfo());
             }
 
         }

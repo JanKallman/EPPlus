@@ -2,11 +2,7 @@
 using OfficeOpenXml;
 using OfficeOpenXml.Drawing.Chart;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace EPPlusTest.Drawing.Chart
@@ -21,9 +17,7 @@ namespace EPPlusTest.Drawing.Chart
         [TestMethod,Ignore]
         public void DataTableFile()
         {
-            string outfile = Path.Combine(_worksheetPath, "DataTableFile.xlsx");
-            var fileinfo = new FileInfo(outfile);
-            using (ExcelPackage pkg = new ExcelPackage(fileinfo))
+            using (ExcelPackage pkg = "DataTableFile.xlsx".AsExcelPackage())
             {
                 // Add worksheet with sample data
                 var worksheet = pkg.Workbook.Worksheets.Add("TestData");

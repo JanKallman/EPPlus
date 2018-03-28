@@ -1,10 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace EPPlusTest
 {
@@ -19,7 +15,7 @@ namespace EPPlusTest
             using (var pck = new ExcelPackage())
             {
                 var ws = pck.Workbook.Worksheets.Add("original");
-                ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+                ws.Drawings.AddPicture("Pic1", EmbeddedResources.Test1.GetEmbeddedResourceAsImage());
                 pck.Workbook.Worksheets.Copy("original", "copy");
                 pck.SaveAs(ms);
             }
@@ -39,7 +35,7 @@ namespace EPPlusTest
             using (var pck = new ExcelPackage(new MemoryStream()))
             {
                 var ws = pck.Workbook.Worksheets.Add("original");
-                ws.Drawings.AddPicture("Pic1", Properties.Resources.Test1);
+                ws.Drawings.AddPicture("Pic1", EmbeddedResources.Test1.GetEmbeddedResourceAsImage());
                 pck.Workbook.Worksheets.Copy("original", "copy");
                 pck.Workbook.Worksheets.Delete(ws);
                 pck.Save();
