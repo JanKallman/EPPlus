@@ -73,6 +73,7 @@ namespace OfficeOpenXml.Packaging
         }
         Dictionary<string, ZipPackagePart> Parts = new Dictionary<string, ZipPackagePart>(StringComparer.OrdinalIgnoreCase);
         internal Dictionary<string, ContentType> _contentTypes = new Dictionary<string, ContentType>(StringComparer.OrdinalIgnoreCase);
+        internal char _dirSeparator='/';
         internal ZipPackage()
         {
             AddNew();
@@ -97,7 +98,15 @@ namespace OfficeOpenXml.Packaging
                 stream.Seek(0, SeekOrigin.Begin);                
                 using (ZipInputStream zip = new ZipInputStream(stream))
                 {
-                    var e = zip.GetNextEntry();
+                    var e = zip.GetNextEntry();                    
+                    if (e.FileName.Contains("\\"))
+                    {
+                        _dirSeparator = '\\';
+                    }
+                    else
+                    {
+                        _dirSeparator = '/';
+                    }
                     while (e != null)
                     {
                         if (e.UncompressedSize > 0)
@@ -109,7 +118,7 @@ namespace OfficeOpenXml.Packaging
                                 AddContentTypes(Encoding.UTF8.GetString(b));
                                 hasContentTypeXml = true;
                             }
-                            else if (e.FileName.Equals("_rels/.rels", StringComparison.OrdinalIgnoreCase)) 
+                            else if (e.FileName.Equals($"_rels{_dirSeparator}.rels", StringComparison.OrdinalIgnoreCase)) 
                             {
                                 ReadRelation(Encoding.UTF8.GetString(b), "");
                             }
@@ -217,10 +226,10 @@ namespace OfficeOpenXml.Packaging
 
         internal string GetUriKey(string uri)
         {
-            string ret = uri;
+            string ret = uri.Replace('\\', '/');
             if (ret[0] != '/')
             {
-                ret = "/" + ret;
+                ret = '/' + ret;
             }
             return ret;
         }
@@ -269,7 +278,7 @@ namespace OfficeOpenXml.Packaging
             byte[] b = enc.GetBytes(GetContentTypeXml());
             os.Write(b, 0, b.Length);
             /**** Top Rels ****/
-            _rels.WriteZip(os, "_rels\\.rels");
+            _rels.WriteZip(os, $"_rels/.rels");
             ZipPackagePart ssPart=null;
             foreach(var part in Parts.Values)
             {

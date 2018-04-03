@@ -1894,7 +1894,7 @@ namespace EPPlusTest
                 workbook.SaveAs(new FileInfo(outputPath));
             }
         }
-        
+
         [TestMethod, Ignore]
         public void Issue100()
         {
@@ -1953,7 +1953,7 @@ namespace EPPlusTest
                 epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[2].Name + "-2", epIN.Workbook.Worksheets[2]);
                 epOUT.Save();
                 epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
-           }
+            }
         }
         [TestMethod]
         public void Issue127()
@@ -1964,7 +1964,16 @@ namespace EPPlusTest
                 p.SaveAs(new FileInfo(@"C:\temp\bug\PivotTableTestCaseSaved.xlsx"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
+        public void Issue167()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\test-Errorworkbook.xlsx")))
+            {
+                Assert.AreEqual(p.Workbook.Worksheets.Count, 1);
+                p.SaveAs(new FileInfo(@"C:\temp\bug\test-ErrorworkbookSaved.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
         public void Issue155()
         {
             using (var pck = new ExcelPackage())
@@ -1977,6 +1986,15 @@ namespace EPPlusTest
                 string path = @"C:\temp\test.xlsx";
                 File.WriteAllBytes(path, data);
             }
+        }
+        [TestMethod, Ignore]
+        public void Issue173()
+        {
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue173.xlsx")))
+            {
+                ExcelWorksheet ws = xlPackage.Workbook.Worksheets.First();
+                var r = ws.Cells["A4"].Text;
             }
+        }
     }
 }

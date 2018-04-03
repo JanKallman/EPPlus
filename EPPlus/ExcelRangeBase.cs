@@ -997,6 +997,10 @@ namespace OfficeOpenXml
 					break;
 				}
 			}
+            if(nf==null)
+            {
+                nf = styles.NumberFormats[0].FormatTranslator;  //nf should never be null. If so set to General, Issue 173
+            }
 
 			string format, textFormat;
 			if (forWidthCalc)
