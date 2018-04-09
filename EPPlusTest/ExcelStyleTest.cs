@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using System.Xml;
+using OfficeOpenXml.Style.XmlAccess;
 
 namespace EPPlusTest
 {
@@ -25,6 +26,13 @@ namespace EPPlusTest
                 Assert.IsNull(nodes[0].Attributes["quotePrefix"]);
                 Assert.AreEqual("1", nodes[cell.StyleID].Attributes["quotePrefix"].Value);
             }
+        }
+
+        [TestMethod]
+        public void GetFontHeightBug()
+        {
+            var r = ExcelFontXml.GetFontHeight("Calibri Light", 4);
+            Assert.AreEqual(r, 20);
         }
     }
 }
