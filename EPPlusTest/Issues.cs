@@ -1996,5 +1996,35 @@ namespace EPPlusTest
                 var r = ws.Cells["A4"].Text;
             }
         }
+
+
+        /// <summary>
+        /// Creating a new ExcelPackage with an external stream should not dispose of 
+        /// that external stream. That is the responsibility of the caller.
+        /// Note: This test would pass with EPPlus 4.1.1. In 4.5.1 the line CloseStream() was added
+        /// to the ExcelPackage.Dispose() method. That line is redundant with the line before, 
+        /// _stream.Close() except that _stream.Close() is only called if the _stream is NOT
+        /// an External Stream (and several other conditions).
+        /// Note that CloseStream() doesn't do anything different than _stream.Close().
+        /// </summary>
+        [TestMethod]
+        public void Issue184_Disposing_External_Stream()
+        {
+            // Arrange
+            var stream = new MemoryStream();
+
+            using (var excelPackage = new ExcelPackage(stream))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Issue 184");
+                worksheet.Cells[1, 1].Value = "Hello EPPlus!";
+                excelPackage.SaveAs(stream);
+
+                // Act
+            } // This dispose should not dispose of stream.
+
+            // Assert
+            Assert.IsTrue(stream.Length > 0);
+        }
+
     }
 }
