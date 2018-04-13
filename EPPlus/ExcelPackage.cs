@@ -792,11 +792,20 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+		        if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
-                    _stream.Close();
+                    // Only close _stream if it is NOT external. Note that CloseStream()
+                    // comments even state "Close the internal stream."
+                    CloseStream();
+                    // The only advantage that might exist to call CloseStream()
+                    // which in turn calls both _stream.Close() and _stream.Dispose()
+                    // is if someone didn't treat these as Microsoft did in the Stream class.
+                    // In Stream, Dispose() calls Close() and Close() has 2 lines:
+                    // Dispose(true);
+                    // GC.SuppressFinalize(this);
+                    //_stream.Close();
                 }
-                CloseStream();
+                //CloseStream();
                 _package.Close();
                 if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
