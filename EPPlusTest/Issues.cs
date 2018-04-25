@@ -1996,5 +1996,63 @@ namespace EPPlusTest
                 var r = ws.Cells["A4"].Text;
             }
         }
+        [TestMethod]
+        public void Issue176()
+        {
+            using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue176.xlsx")))
+            {
+                Assert.AreEqual(Math.Round(pck.Workbook.Worksheets[1].Cells["A1"].Style.Fill.BackgroundColor.Tint,5), -0.04999M);
+                pck.SaveAs(new FileInfo($@"C:\temp\bug\issue176-saved.xlsx"));
+            }
+        }
+
+        [TestMethod]
+        public void Issue178()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("TestData");
+                var format = new ExcelTextFormat();
+                format.TextQualifier = '"';
+                var txt = "\"BillingMonth\",\"SequenceNumber\",\"Level7Code\"\r\n";
+                    txt += "\"022018\",\"1\",\"\"\r\n";
+                 
+                var range = sheet.Cells["A1"].LoadFromText(txt, format, TableStyles.None, true);
+                Assert.AreEqual(sheet.Cells["C2"].Value, null);
+            }
+        }
+        [TestMethod]
+        public void Issue181()
+        {
+            using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue181.xlsx")))
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.First();
+                var a=pck.Workbook.Properties.Author;
+                pck.SaveAs(new FileInfo($@"C:\temp\bug\issue181-saved.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void Issue10()
+        {
+            var fi = new FileInfo($@"C:\temp\bug\issue10.xlsx");
+            if(fi.Exists)
+            {
+                fi.Delete();
+            }
+            using (var pck = new ExcelPackage(fi))
+            {
+                var ws = pck.Workbook.Worksheets.Add("Pictures");
+                int row = 1;                
+                foreach (var f in Directory.EnumerateFiles(@"c:\temp\addin_temp\Addin\img\open_icon_library-full\icons\ico\16x16\actions\"))
+                {
+                    var b = new Bitmap(f);
+                    var pic=ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
+                    pic.SetPosition(row, 0, 0, 0);
+                    row += 2;
+                }
+                pck.Save();
+            }
+        }
+
     }
 }

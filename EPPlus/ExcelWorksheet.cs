@@ -1514,7 +1514,7 @@ namespace OfficeOpenXml
                 if ((nf >= 14 && nf <= 22) || (nf >= 45 && nf <= 47))
                 {
                     double res;
-                    if (double.TryParse(v, NumberStyles.Number, CultureInfo.InvariantCulture, out res))
+                    if (double.TryParse(v, NumberStyles.Any, CultureInfo.InvariantCulture, out res))
                     {
                         if (Workbook.Date1904)
                         {

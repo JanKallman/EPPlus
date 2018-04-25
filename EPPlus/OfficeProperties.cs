@@ -585,7 +585,7 @@ namespace OfficeOpenXml
             if (_xmlPropertiesCore != null)
             {
                 _package.SavePart(_uriPropertiesCore, _xmlPropertiesCore);
-            }
+                }
             if (_xmlPropertiesExtended != null)
             {
                 _package.SavePart(_uriPropertiesExtended, _xmlPropertiesExtended);

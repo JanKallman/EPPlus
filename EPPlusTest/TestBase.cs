@@ -12,16 +12,20 @@ namespace EPPlusTest
         protected ExcelPackage _pck;
         protected string _clipartPath="";
         protected string _worksheetPath="";
+        protected string _testInputPath = @"c:\epplusTest\workbooks";
         public TestContext TestContext { get; set; }
         
         [TestInitialize]
         public void InitBase()
         {
-
             _clipartPath = Path.Combine(Path.GetTempPath(), @"EPPlus clipart");
             if (!Directory.Exists(_clipartPath))
             {
                 Directory.CreateDirectory(_clipartPath);
+            }
+            if(Environment.GetEnvironmentVariable("EPPlusTestInputPath")!=null)
+            {
+                _testInputPath = Environment.GetEnvironmentVariable("EPPlusTestInputPath");
             }
 #if (Core)
             var asm = Assembly.GetEntryAssembly();
@@ -32,6 +36,7 @@ namespace EPPlusTest
                 {
                     ".gif", ".wmf"
                 };
+
             foreach (var name in asm.GetManifestResourceNames())
             {
                 foreach (var ext in validExtensions)
@@ -48,6 +53,7 @@ namespace EPPlusTest
                     }
                 }
             }
+
             _worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
             if (!Directory.Exists(_worksheetPath))
             {

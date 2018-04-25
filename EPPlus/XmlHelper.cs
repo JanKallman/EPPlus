@@ -698,7 +698,7 @@ namespace OfficeOpenXml
 		internal decimal GetXmlNodeDecimal(string path)
 		{
 			decimal d;
-			if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Number, CultureInfo.InvariantCulture, out d))
+			if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
 			{
 				return d;
 			}
@@ -710,7 +710,7 @@ namespace OfficeOpenXml
         internal decimal? GetXmlNodeDecimalNull(string path)
         {
             decimal d;
-            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Number, CultureInfo.InvariantCulture, out d))
+            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
             {
                 return d;
             }

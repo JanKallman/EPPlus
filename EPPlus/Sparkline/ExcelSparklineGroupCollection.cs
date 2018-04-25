@@ -37,6 +37,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Sparkline
 {
+    /// <summary>
+    /// A collection of sparkline groups
+    /// </summary>
     public class ExcelSparklineGroupCollection : IEnumerable<ExcelSparklineGroup>
     {
         ExcelWorksheet _ws;
@@ -52,6 +55,9 @@ namespace OfficeOpenXml.Sparkline
         const string _topSearchPath = _extPath + _searchPath + "/x14:sparklineGroups";
         const string _topPath = _extPath + "/x14:sparklineGroups";
 
+        /// <summary>
+        /// Number of items in the collection
+        /// </summary>
         public int Count
         {
             get
@@ -59,6 +65,13 @@ namespace OfficeOpenXml.Sparkline
                 return _lst.Count;
             }            
         }
+        /// <summary>
+        /// Adds a new sparklinegroup to the collection
+        /// </summary>
+        /// <param name="type">Type of sparkline</param>
+        /// <param name="locationRange">The location of the sparkline group. The range must have one row or column and must match the number of rows/columns in the datarange</param>
+        /// <param name="dataRange">The data for the sparkline group</param>
+        /// <returns></returns>
         public ExcelSparklineGroup Add(eSparklineType type, ExcelAddressBase locationRange, ExcelAddressBase dataRange)
         {
             if(locationRange.Rows==1)
@@ -200,10 +213,18 @@ namespace OfficeOpenXml.Sparkline
         {
             return _lst.GetEnumerator();
         }
+        /// <summary>
+        /// Removes the sparkline.
+        /// </summary>
+        /// <param name="index">The index of the item to be removed</param>
         public void RemoveAt(int index)
         {
             Remove(_lst[index]);
         }
+        /// <summary>
+        /// Removes the sparkline.
+        /// </summary>
+        /// <param name="sparklineGroup">The sparklinegroup to be removed</param>
         public void Remove(ExcelSparklineGroup sparklineGroup)
         {
             sparklineGroup.TopNode.ParentNode.RemoveChild(sparklineGroup.TopNode);

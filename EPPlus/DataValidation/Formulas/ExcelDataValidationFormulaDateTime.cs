@@ -47,7 +47,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
             if (!string.IsNullOrEmpty(value))
             {
                 double oADate = default(double);
-                if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out oADate))
+                if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out oADate))
                 {
                     Value = DateTime.FromOADate(oADate);
                 }

@@ -1045,14 +1045,15 @@ namespace OfficeOpenXml
 				else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
                     var date = DateTime.FromOADate(d);
-                    return date.ToString(format, nf.Culture);
-				}
+                    //return date.ToString(format, nf.Culture);
+                    return GetDateText(date, format, nf.Culture);
+                }
 			}
 			else if (v is DateTime)
 			{
 				if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
-					return ((DateTime)v).ToString(format, nf.Culture);
+                    return GetDateText((DateTime)v, format, nf.Culture);
 				}
 				else
 				{
@@ -1071,8 +1072,9 @@ namespace OfficeOpenXml
 			{
 				if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
 				{
-					return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
-				}
+                    return GetDateText(new DateTime(((TimeSpan)v).Ticks), format, nf.Culture);
+                    //return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
+                }
 				else
 				{
 					double d = new DateTime(0).Add((TimeSpan)v).ToOADate();
@@ -1099,10 +1101,40 @@ namespace OfficeOpenXml
 			}
 			return v.ToString();
 }
-		/// <summary>
-		/// Gets or sets a formula for a range.
-		/// </summary>
-		public string Formula
+
+        private static string GetDateText(DateTime d, string format, CultureInfo culture)
+        {
+            if (format == "d" || format == "D")
+            {
+                return d.Day.ToString();
+            }
+            else if (format == "M")
+            {
+                return d.Month.ToString();
+            }
+            else if (format == "m")
+            {
+                return d.Minute.ToString();
+            }
+            else if (format.ToLower() == "y" || format.ToLower() == "yy")
+            {
+                return d.ToString("yy", culture);
+            }
+            else if (format.ToLower() == "yyy" || format.ToLower() == "yyyy")
+            {
+                return d.ToString("yyy", culture);
+            }
+            else
+            {
+                return d.ToString(format, culture);
+            }    
+            
+        }
+
+        /// <summary>
+        /// Gets or sets a formula for a range.
+        /// </summary>
+        public string Formula
 		{
 			get
 			{
@@ -1687,7 +1719,7 @@ namespace OfficeOpenXml
 			if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
 			{
 				string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-				if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
+				if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
 				{
 					if (v2 == v)
 					{
@@ -1731,7 +1763,7 @@ namespace OfficeOpenXml
 						}
 					case eDataTypes.Percent:
 						string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-						if (double.TryParse(v2, NumberStyles.Number, Format.Culture, out d))
+						if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
 						{
 							return d / 100;
 						}
@@ -2223,7 +2255,7 @@ namespace OfficeOpenXml
                             QCount = 0;
                         }
                     }
-                    if (QCount > 1)
+                    if (QCount > 1 && (v!="" && QCount==2))
                     {
                         v += new string(Format.TextQualifier, QCount / 2);
                     }
@@ -2278,12 +2310,12 @@ namespace OfficeOpenXml
 
             if(inTQ)
             {
-                throw (new ArgumentException(string.Format("Text delimiter is not closed in line : {0}", prevLineStart + 1)));
+                throw (new ArgumentException(string.Format("Text delimiter is not closed in line : {0}", list.Count)));
             }
-
-            if(Format.EOL.Length==1 && text[text.Length-1]==Format.EOL[0])
+            
+            if (prevLineStart >= Format.EOL.Length && IsEOL(text, prevLineStart - Format.EOL.Length, Format.EOL))
             {
-                list.Add(text.Substring(prevLineStart, text.Length - prevLineStart - 1));
+                //list.Add(text.Substring(prevLineStart- Format.EOL.Length, Format.EOL.Length));
                 list.Add("");
             }
             else
@@ -2299,7 +2331,7 @@ namespace OfficeOpenXml
                 if (text[ix + i] != eol[i])
                     return false;
             }
-            return ix+eol.Length<text.Length;
+            return ix+eol.Length<=text.Length;
         }
 
         /// <summary>

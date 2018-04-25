@@ -8,9 +8,9 @@ using System.Text;
 
 namespace OfficeOpenXml.Compatibility
 {
-    public class ImageCompat
+    internal class ImageCompat
     {
-        public static byte[] GetImageAsByteArray(Image image)
+        internal static byte[] GetImageAsByteArray(Image image)
         {
             var ms = new MemoryStream();
             if (image.RawFormat.Guid == ImageFormat.Gif.Guid)

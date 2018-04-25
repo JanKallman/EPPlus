@@ -66,6 +66,10 @@ namespace OfficeOpenXml.Sparkline
             }
         }
 
+        /// <summary>
+        /// Sets a color
+        /// </summary>
+        /// <param name="color">The color</param>
         public void SetColor(Color color)
         {
             Rgb = color.ToArgb().ToString("X");

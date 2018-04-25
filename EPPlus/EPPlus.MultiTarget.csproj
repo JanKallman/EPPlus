@@ -219,6 +219,10 @@ Release Candidate changes
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EPPlus.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Compatibility\DateTimeExtensions.cs" />
     <Compile Remove="Compatibility\SecurityElement.cs" />

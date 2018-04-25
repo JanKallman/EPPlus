@@ -236,7 +236,8 @@ namespace OfficeOpenXml.Packaging
         internal bool PartExists(Uri partUri)
         {
             var uriKey = GetUriKey(partUri.OriginalString.ToLowerInvariant());
-            return Parts.Keys.Any(x => x.Equals(uriKey, StringComparison.OrdinalIgnoreCase));
+            return Parts.ContainsKey(uriKey);
+            //return Parts.Keys.Any(x => x.Equals(uriKey, StringComparison.OrdinalIgnoreCase));
         }
 #endregion
 

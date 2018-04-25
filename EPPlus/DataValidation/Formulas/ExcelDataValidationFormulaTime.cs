@@ -49,7 +49,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
             if (!string.IsNullOrEmpty(value))
             {
                 decimal time = default(decimal);
-                if (decimal.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out time))
+                if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out time))
                 {
                     Value = new ExcelTime(time);
                 }
