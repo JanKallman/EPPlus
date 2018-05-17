@@ -1996,17 +1996,17 @@ namespace EPPlusTest
                 var r = ws.Cells["A4"].Text;
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue176()
         {
             using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue176.xlsx")))
             {
-                Assert.AreEqual(Math.Round(pck.Workbook.Worksheets[1].Cells["A1"].Style.Fill.BackgroundColor.Tint,5), -0.04999M);
+                Assert.AreEqual(Math.Round(pck.Workbook.Worksheets[1].Cells["A1"].Style.Fill.BackgroundColor.Tint, 5), -0.04999M);
                 pck.SaveAs(new FileInfo($@"C:\temp\bug\issue176-saved.xlsx"));
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue178()
         {
             using (ExcelPackage package = new ExcelPackage())
@@ -2015,44 +2015,89 @@ namespace EPPlusTest
                 var format = new ExcelTextFormat();
                 format.TextQualifier = '"';
                 var txt = "\"BillingMonth\",\"SequenceNumber\",\"Level7Code\"\r\n";
-                    txt += "\"022018\",\"1\",\"\"\r\n";
-                 
+                txt += "\"022018\",\"1\",\"\"\r\n";
+
                 var range = sheet.Cells["A1"].LoadFromText(txt, format, TableStyles.None, true);
                 Assert.AreEqual(sheet.Cells["C2"].Value, null);
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue181()
         {
             using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue181.xlsx")))
             {
                 ExcelWorksheet ws = pck.Workbook.Worksheets.First();
-                var a=pck.Workbook.Properties.Author;
+                var a = pck.Workbook.Properties.Author;
                 pck.SaveAs(new FileInfo($@"C:\temp\bug\issue181-saved.xlsx"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue10()
         {
             var fi = new FileInfo($@"C:\temp\bug\issue10.xlsx");
-            if(fi.Exists)
+            if (fi.Exists)
             {
                 fi.Delete();
             }
             using (var pck = new ExcelPackage(fi))
             {
                 var ws = pck.Workbook.Worksheets.Add("Pictures");
-                int row = 1;                
+                int row = 1;
                 foreach (var f in Directory.EnumerateFiles(@"c:\temp\addin_temp\Addin\img\open_icon_library-full\icons\ico\16x16\actions\"))
                 {
                     var b = new Bitmap(f);
-                    var pic=ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
+                    var pic = ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
                     pic.SetPosition(row, 0, 0, 0);
                     row += 2;
                 }
                 pck.Save();
             }
         }
+        /// <summary>
+        /// Creating a new ExcelPackage with an external stream should not dispose of 
+        /// that external stream. That is the responsibility of the caller.
+        /// Note: This test would pass with EPPlus 4.1.1. In 4.5.1 the line CloseStream() was added
+        /// to the ExcelPackage.Dispose() method. That line is redundant with the line before, 
+        /// _stream.Close() except that _stream.Close() is only called if the _stream is NOT
+        /// an External Stream (and several other conditions).
+        /// Note that CloseStream() doesn't do anything different than _stream.Close().
+        /// </summary>
+        [TestMethod]
+        public void Issue184_Disposing_External_Stream()
+        {
+            // Arrange
+            var stream = new MemoryStream();
 
+            using (var excelPackage = new ExcelPackage(stream))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Issue 184");
+                worksheet.Cells[1, 1].Value = "Hello EPPlus!";
+                excelPackage.SaveAs(stream);
+                // Act
+            } // This dispose should not dispose of stream.
+
+            // Assert
+            Assert.IsTrue(stream.Length > 0);
+        }
+        [TestMethod]
+        public void Issue204()
+        {
+            using (var pack = new ExcelPackage())
+            {
+                //create sheets
+                var sheet1 = pack.Workbook.Worksheets.Add("Sheet 1");
+                var sheet2 = pack.Workbook.Worksheets.Add("Sheet 2");
+                //set some default values
+                sheet1.Cells[1, 1].Value = 1;
+                sheet2.Cells[1, 1].Value = 2;
+                //fill the formula
+                var formula = string.Format("'{0}'!R1C1", sheet1.Name);
+
+                var cell = sheet2.Cells[2, 1];
+                cell.FormulaR1C1 = formula;
+                //Formula should remain the same
+                Assert.AreEqual(formula.ToUpper(), cell.FormulaR1C1.ToUpper());
+            }
+        }
     }
 }

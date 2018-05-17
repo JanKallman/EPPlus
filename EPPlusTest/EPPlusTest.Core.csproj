@@ -21,6 +21,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\BitmapImage.gif" />
+    <None Remove="Resources\Test1.jpg" />
+    <None Remove="Resources\Vector Drawing.wmf" />
+    <None Remove="Resources\Vector Drawing2.wmf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\BitmapImage.gif" />
+    <EmbeddedResource Include="Resources\Test1.jpg" />
+    <EmbeddedResource Include="Resources\Vector Drawing.wmf" />
+    <EmbeddedResource Include="Resources\Vector Drawing2.wmf" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FakeItEasy" Version="4.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.11" />

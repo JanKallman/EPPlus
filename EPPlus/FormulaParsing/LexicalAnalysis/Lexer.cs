@@ -53,7 +53,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         private readonly ISourceCodeTokenizer _tokenizer;
         private readonly ISyntacticAnalyzer _analyzer;
-
         public IEnumerable<Token> Tokenize(string input)
         {
             return Tokenize(input, null);

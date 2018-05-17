@@ -112,12 +112,12 @@ namespace OfficeOpenXml
             if (value == "")
                 return "";
 
-            var lexer = new Lexer(SourceCodeTokenizer.Default, new SyntacticAnalyzer());
-            var tokens = lexer.Tokenize(value);
+            var lexer = new Lexer(SourceCodeTokenizer.R1C1, new SyntacticAnalyzer());
+            var tokens = lexer.Tokenize(value, null);
             foreach (var token in tokens)
             {
                 //Console.WriteLine($"{token.TokenType} : {token.Value}");
-                if (token.TokenType == TokenType.ExcelAddress || token.TokenType.Equals(TokenType.NameValue))
+                if (token.TokenType == TokenType.ExcelAddress || token.TokenType.Equals(TokenType.NameValue) || token.TokenType == TokenType.ExcelAddressR1C1)
                 {
                     var part = addressTranslator(token.Value, row, col, rowIncr, colIncr);
                     //Console.Write($"==> " + part);

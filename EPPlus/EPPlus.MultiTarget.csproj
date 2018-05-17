@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.1.0</AssemblyVersion>
-    <FileVersion>4.5.1.0</FileVersion>
-    <Version>4.5.1</Version>
+    <AssemblyVersion>4.5.2.0</AssemblyVersion>
+    <FileVersion>4.5.2.0</FileVersion>
+    <Version>4.5.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -17,7 +17,7 @@
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>EPPlus 4.5.1
+    <PackageReleaseNotes>EPPlus 4.5.2
 
 New features in version 4.5:
 * .NET Core support
@@ -45,6 +45,8 @@ apt-get install libgdiplus
 EPPlus-A .NET Spreadsheet API
 
 Changes
+4.5.2
+* Bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
 4.5.1
 * Added web sample for .NET Core from Vahid Nasiri
 * Added sample sparkline sample to sample project
@@ -260,7 +262,7 @@ Release Candidate changes
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common">
-      <Version>4.5.0-preview1-26216-02</Version>
+      <Version>4.5.0-rc1</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />

@@ -27,11 +27,7 @@ namespace EPPlusTest
             {
                 _testInputPath = Environment.GetEnvironmentVariable("EPPlusTestInputPath");
             }
-#if (Core)
-            var asm = Assembly.GetEntryAssembly();
-#else
             var asm = Assembly.GetExecutingAssembly();
-#endif
             var validExtensions = new[]
                 {
                     ".gif", ".wmf"
@@ -53,7 +49,7 @@ namespace EPPlusTest
                     }
                 }
             }
-
+            
             _worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
             if (!Directory.Exists(_worksheetPath))
             {

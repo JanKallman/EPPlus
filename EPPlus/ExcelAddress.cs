@@ -876,10 +876,11 @@ namespace OfficeOpenXml
             ExternalAddress,
             InternalName,
             ExternalName,
-            Formula
+            Formula,
+            R1C1
         }
 
-        internal static AddressType IsValid(string Address)
+        internal static AddressType IsValid(string Address, bool r1c1=false)
         {
             double d;
             if (Address == "#REF!")
@@ -894,108 +895,104 @@ namespace OfficeOpenXml
             {
                 return AddressType.Formula;
             }
+            
             else
             {
-                string wb, ws, intAddress;
-                if(SplitAddress(Address, out wb, out ws, out intAddress))
+                if (r1c1 && IsR1C1(Address))
                 {
-                    if(intAddress.Contains("[")) //Table reference
-                    {
-                        return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
-                    }
-                    else if(intAddress.Contains(","))
-                    {
-                        intAddress=intAddress.Substring(0, intAddress.IndexOf(','));
-                    }
-                    if(IsAddress(intAddress))
-                    {
-                        return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
-                    }
-                    else
-                    {
-                        return string.IsNullOrEmpty(wb) ? AddressType.InternalName : AddressType.ExternalName;
-                    }
+                    return AddressType.R1C1;
                 }
                 else
                 {
-                    return AddressType.Invalid;
+                    string wb, ws, intAddress;
+                    if (SplitAddress(Address, out wb, out ws, out intAddress))
+                    {
+                        if (intAddress.Contains("[")) //Table reference
+                        {
+                            return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
+                        }
+                        else if (intAddress.Contains(","))
+                        {
+                            intAddress = intAddress.Substring(0, intAddress.IndexOf(','));
+                        }
+                        if (IsAddress(intAddress))
+                        {
+                            return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
+                        }
+                        else
+                        {
+                            return string.IsNullOrEmpty(wb) ? AddressType.InternalName : AddressType.ExternalName;
+                        }
+                    }
+                    else
+                    {
+                        return AddressType.Invalid;
+                    }
                 }
-
-                //if(string.IsNullOrEmpty(wb));
-
             }
-            //ExcelAddress a = new ExcelAddress(Address);
-            //if (Address.IndexOf('!') > 0)
-            //{                
-            //    string[] split = Address.Split('!');
-            //    if (split.Length == 2)
-            //    {
-            //        ws = split[0];
-            //        Address = split[1];
-            //    }
-            //    else if (split.Length == 3 && split[1] == "#REF" && split[2] == "")
-            //    {
-            //        ws = split[0];
-            //        Address = "#REF!";
-            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
-            //        {
-            //            return AddressType.ExternalAddress;
-            //        }
-            //        else
-            //        {
-            //            return AddressType.InternalAddress;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        return AddressType.Invalid;
-            //    }            
-            //}
-            //int _fromRow, column, _toRow, _toCol;
-            //if (ExcelAddressBase.GetRowColFromAddress(Address, out _fromRow, out column, out _toRow, out _toCol))
-            //{
-            //    if (_fromRow > 0 && column > 0 && _toRow <= ExcelPackage.MaxRows && _toCol <= ExcelPackage.MaxColumns)
-            //    {
-            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
-            //        {
-            //            return AddressType.ExternalAddress;
-            //        }
-            //        else
-            //        {
-            //            return AddressType.InternalAddress;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        return AddressType.Invalid;
-            //    }
-            //}
-            //else
-            //{
-            //    if(IsValidName(Address))
-            //    {
-            //        if (ws.StartsWith("[") && ws.IndexOf("]") > 1)
-            //        {
-            //            return AddressType.ExternalName;
-            //        }
-            //        else
-            //        {
-            //            return AddressType.InternalName;
-            //        }
-            //    }
-            //    else
-            //    {
-            //        return AddressType.Invalid;
-            //    }
-            //}
+        }
 
+        private static bool IsR1C1(string address)
+        {
+            if (address.StartsWith("!"))
+            {
+                address = address.Substring(1);
+            }
+            address = address.ToUpper();
+            if (string.IsNullOrEmpty(address) || (address[0]!='R' && address[0]!='C'))
+            {
+                return false;
+            }
+            bool isC = false, isROrC = false;
+            bool startBracket = false;
+            foreach(var c in address)
+            {
+                switch(c)
+                {
+                    case 'C':
+                        isC = true;
+                        isROrC = true;
+                        break;
+                    case 'R':
+                        if (isC)
+                            return false;
+                        isROrC = true;
+                        break;
+                    case '[':
+                        startBracket = true;
+                        break;
+                    case ']':
+                        if (startBracket == false) return false;
+                        isROrC = false;
+                        break;
+                    case ':':
+                        isC = false;
+                        startBracket = false;
+                        isROrC = false;
+                        break;
+                    default:
+                        if((c>='0' && c<='9') ||c=='-')
+                        {
+                            if(isROrC==false)
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                        break;
+                }
+            }
+            return true;
         }
 
         private static bool IsAddress(string intAddress)
         {
             if(string.IsNullOrEmpty(intAddress)) return false;            
             var cells = intAddress.Split(':');
-            int fromRow,toRow, fromCol, toCol;
+            int fromRow, toRow, fromCol, toCol;
 
             if(!GetRowCol(cells[0], out fromRow, out fromCol, false))
             {

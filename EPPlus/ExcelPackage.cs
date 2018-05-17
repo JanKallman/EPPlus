@@ -800,13 +800,11 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+		        if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
-                    _stream.Close();
+                    CloseStream();
                 }
-                CloseStream();
                 _package.Close();
-                if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
                 {
                     _workbook.Dispose();
