@@ -80,6 +80,25 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void CeilingBugTest1()
+        {
+            var expectedValue = 100d;
+            var func = new Ceiling();
+            var args = FunctionsHelper.CreateArgs(100d, 100d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+        [TestMethod]
+        public void CeilingBugTest2()
+        {
+            var expectedValue = 12000d;
+            var func = new Ceiling();
+            var args = FunctionsHelper.CreateArgs(12000d, 1000d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+
+        [TestMethod]
         public void CeilingShouldRoundTowardsZeroIfSignificanceAndNumberIsMinus0point1()
         {
             var expectedValue = -22.4d;
