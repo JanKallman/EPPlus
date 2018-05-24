@@ -46,7 +46,12 @@ EPPlus-A .NET Spreadsheet API
 
 Changes
 4.5.2
-* Bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+* Upgraded System.Drawing.Common to 4.5.0-rc1
+* Optimized image handling
+* External Streams are not closed when disposing the package
+* Fixed issue with Floor and Celing functions
+* And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+ 
 4.5.1
 * Added web sample for .NET Core from Vahid Nasiri
 * Added sample sparkline sample to sample project

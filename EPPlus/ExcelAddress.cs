@@ -296,6 +296,7 @@ namespace OfficeOpenXml
                 _address = address;
             }
 
+            _addresses = null;
             if (_address.IndexOfAny(new char[] {',','!', '['}) > -1)
             {
                 //Advanced address. Including Sheet or multi or table.
@@ -305,7 +306,6 @@ namespace OfficeOpenXml
             {
                 //Simple address
                 GetRowColFromAddress(_address, out _fromRow, out _fromCol, out _toRow, out  _toCol, out _fromRowFixed, out _fromColFixed,  out _toRowFixed, out _toColFixed);
-                _addresses = null;
                 _start = null;
                 _end = null;
             }
@@ -454,13 +454,17 @@ namespace OfficeOpenXml
         {
             get
             {
-                var a=GetAddress();
+                string a="";
                 if(_addresses != null)
                 {
                     foreach(var sa in _addresses)
                     {
-                        a += ";"+sa.GetAddress();
+                        a += ","+sa.GetAddress();
                     }
+                }
+                else
+                {
+                    a = GetAddress();
                 }
                 return a;
             }

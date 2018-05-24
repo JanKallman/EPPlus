@@ -460,6 +460,24 @@ namespace EPPlusTest.Excel.Functions
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(-26d, result.Result);
         }
+        [TestMethod]
+        public void FloorBugTest1()
+        {
+            var expectedValue = 100d;
+            var func = new Floor();
+            var args = FunctionsHelper.CreateArgs(100d, 100d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+        [TestMethod]
+        public void FloorBugTest2()
+        {
+            var expectedValue = 12000d;
+            var func = new Floor();
+            var args = FunctionsHelper.CreateArgs(12000d, 1000d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
 
         [TestMethod]
         public void RandShouldReturnAValueBetween0and1()

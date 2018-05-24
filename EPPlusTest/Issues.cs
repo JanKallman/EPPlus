@@ -25,7 +25,7 @@ namespace EPPlusTest
     /// All tests requiering an template should be set to ignored as it's not practical to include all xlsx templates in the project.
     /// </summary>
     [TestClass]
-    public class Issues
+    public class Issues : TestBase
     {
         [TestInitialize]
         public void Initialize()
@@ -2098,6 +2098,18 @@ namespace EPPlusTest
                 //Formula should remain the same
                 Assert.AreEqual(formula.ToUpper(), cell.FormulaR1C1.ToUpper());
             }
+        }
+        [TestMethod]
+        public void Issue170()
+        {
+            OpenTemplatePackage("print_titles_170.xlsx");
+            ExcelWorksheet sheet = _pck.Workbook.Worksheets[0];
+
+            sheet.PrinterSettings.RepeatColumns = new ExcelAddress("$A:$C");
+            sheet.PrinterSettings.RepeatRows = new ExcelAddress("$1:$3");
+
+            SaveWorksheet("print_titles_170-Saved.xlsx");
+            _pck.Dispose();
         }
     }
 }

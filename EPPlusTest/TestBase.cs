@@ -11,8 +11,8 @@ namespace EPPlusTest
     {
         protected ExcelPackage _pck;
         protected string _clipartPath="";
-        protected string _worksheetPath="";
-        protected string _testInputPath = @"c:\epplusTest\workbooks";
+        protected string _worksheetPath= @"c:\epplusTest\Testoutput\";
+        protected string _testInputPath = @"c:\epplusTest\workbooks\";
         public TestContext TestContext { get; set; }
         
         [TestInitialize]
@@ -50,23 +50,38 @@ namespace EPPlusTest
                 }
             }
             
-            _worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
-            if (!Directory.Exists(_worksheetPath))
-            {
-                Directory.CreateDirectory(_worksheetPath);
-            }
+            //_worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
+            //if (!Directory.Exists(_worksheetPath))
+            //{
+            //    Directory.CreateDirectory(_worksheetPath);
+            //}
             var di=new DirectoryInfo(_worksheetPath);            
             _worksheetPath = di.FullName + "\\";
 
             _pck = new ExcelPackage();
         }
 
-        protected void OpenPackage(string name)
+        protected ExcelPackage OpenPackage(string name)
         {
             var fi = new FileInfo(_worksheetPath + name);
             _pck = new ExcelPackage(fi);
+            return _pck;
         }
-        
+        protected ExcelPackage OpenTemplatePackage(string name)
+        {
+            var t = new FileInfo(_testInputPath + name);
+            if (t.Exists)
+            {
+                var fi = new FileInfo(_worksheetPath + name);
+                _pck = new ExcelPackage(fi, t);
+            }
+            else
+            {
+                Assert.Inconclusive($"Template {name} does not exist in path {_testInputPath}");
+            }
+            return _pck;
+        }
+
         protected void SaveWorksheet(string name)
         {
             if (_pck.Workbook.Worksheets.Count == 0) return;
