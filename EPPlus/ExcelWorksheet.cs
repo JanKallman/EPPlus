@@ -191,7 +191,7 @@ namespace OfficeOpenXml
             }
             internal CellStore<int> _cells = new CellStore<int>();
             List<string> _list = new List<string>();
-            internal List<string> List { get { return _list; } }
+            internal List<string> List { get { return _list; } set { _list = value } }
             public string this[int row, int column]
             {
                 get
@@ -3501,18 +3501,7 @@ namespace OfficeOpenXml
 
         private void CleanupMergedCells(MergeCellsCollection _mergedCells)
         {
-            int i=0;
-            while (i < _mergedCells.List.Count)
-            {
-                if (_mergedCells[i] == null)
-                {
-                    _mergedCells.List.RemoveAt(i);
-                }
-                else
-                {
-                    i++;
-                }
-            }
+            _mergedCells.List = _mergedCells.Where(x => x != null).ToList();
         }
         private void UpdateColBreaks(StreamWriter sw)
         {
