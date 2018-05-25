@@ -3501,8 +3501,8 @@ namespace OfficeOpenXml
 
         private void CleanupMergedCells(MergeCellsCollection _mergedCells)
         {
-            int i=0;
-            while (i < _mergedCells.List.Count)
+            int i=_mergedCells.List.Count - 1;
+            while (i >= 0)
             {
                 if (_mergedCells[i] == null)
                 {
@@ -3510,7 +3510,7 @@ namespace OfficeOpenXml
                 }
                 else
                 {
-                    i++;
+                    i--;
                 }
             }
         }
