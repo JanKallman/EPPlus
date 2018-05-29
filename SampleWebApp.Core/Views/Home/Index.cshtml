@@ -26,3 +26,31 @@
       <input type="submit" value="Upload" />
    </form>
 </fieldset>
+
+<fieldset style="margin-top: 15px">
+   <legend>Handling Blob Responses</legend>
+   <button type="button" onclick="downloadBlob()">Ajax Download</button>
+</fieldset>
+
+@section Scripts
+{
+    <script type="text/javascript">
+    function downloadBlob()
+    {
+       fetch('/Home/InMemoryReport')
+	     .then(function(response) {
+	         return response.blob();
+	     })
+	     .then(function(xlsxBlob) {
+             var a = document.createElement("a");
+             document.body.appendChild(a);
+             a.style = "display: none";
+             let url = window.URL.createObjectURL(xlsxBlob);
+             a.href = url;
+             a.download = "report.xlsx";
+             a.click();
+             window.URL.revokeObjectURL(url);
+	     });
+    }
+    </script>
+}
