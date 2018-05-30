@@ -1322,7 +1322,7 @@ namespace EPPlusTest
                     file.Delete();
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void MergeIssue()
         {
             var worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
@@ -1955,7 +1955,7 @@ namespace EPPlusTest
                 epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue127()
         {
             using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\PivotTableTestCase.xlsx")))
@@ -2111,5 +2111,16 @@ namespace EPPlusTest
             SaveWorksheet("print_titles_170-Saved.xlsx");
             _pck.Dispose();
         }
+        [TestMethod]
+        public void Issue219()
+        {
+            OpenTemplatePackage("issueFile.xlsx");
+            foreach(var ws in _pck.Workbook.Worksheets)
+            {
+                Console.WriteLine(ws.Name);
+            }
+
+            _pck.Dispose();
+        }
+        }
     }
-}
