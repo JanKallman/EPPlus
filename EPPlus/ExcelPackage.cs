@@ -178,6 +178,7 @@ namespace OfficeOpenXml
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
         private bool _isExternalStream=false;
+        private bool _isReadOnly = false;
         internal class ImageInfo
         {
             internal string Hash { get; set; }
@@ -281,6 +282,7 @@ namespace OfficeOpenXml
             Init();
             if (readOnly)
             {
+                _isReadOnly = true;
                 FileStream fs = new FileStream(newFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                 
                 if (fs.Length == 0)
@@ -866,6 +868,10 @@ namespace OfficeOpenXml
         /// </summary>
         public void Save()
         {
+            if (_isReadOnly)
+            {
+                throw new InvalidOperationException("Error saving file, the package was open as read only");
+            }
             try
             {
                 if (_stream is MemoryStream && _stream.Length > 0)

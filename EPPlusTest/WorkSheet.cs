@@ -333,6 +333,77 @@ namespace EPPlusTest
             instream.Close();
         }
 
+        [TestMethod]
+        public void ReadWorksheetFromPathString()
+        {
+            using(ExcelPackage pck = new ExcelPackage(_worksheetPath + @"Worksheet.xlsx"))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["Comment"];
+                var comment = ws.Cells["B2"].Comment;
+
+                Assert.AreNotEqual(comment, null);
+                Assert.AreEqual(comment.Author, "Jan Källman");
+            }
+        }
+
+        [TestMethod]
+        public void ReadWorksheetFromPathStringReadOnly()
+        {
+            string filePath = _worksheetPath + @"Worksheet.xlsx";
+
+            //Simulates the Excel blocking the file
+            FileStream fs1 = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+
+            using (ExcelPackage pck = new ExcelPackage(filePath, true))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
+
+                ws = pck.Workbook.Worksheets["Comment"];
+                var comment = ws.Cells["B2"].Comment;
+
+                Assert.AreNotEqual(comment, null);
+                Assert.AreEqual(comment.Author, "Jan Källman");
+            }
+
+            fs1.Dispose();
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(InvalidOperationException))]
+        public void ReadWorksheetFromPathStringReadOnlyException()
+        {
+            string filePath = _worksheetPath + @"Worksheet.xlsx";
+
+            //Simulates the Excel blocking the file
+            FileStream fs1 = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read);
+
+            using (ExcelPackage pck = new ExcelPackage(filePath, true))
+            {
+                var ws = pck.Workbook.Worksheets["Perf"];
+                ws.SetValue(1, 1, 1);
+                pck.Save();
+            }
+
+            fs1.Dispose();
+        }
+
+        [TestMethod]
+        public void SaveWorksheetFromPathString()
+        {
+            string filePath = _worksheetPath + @"WorksheetSaveString.xlsx";
+
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                var ws = pck.Workbook.Worksheets.Add("Sheet1");
+                ws.SetValue(1, 1, 1);
+                pck.SaveAs(filePath);
+            }
+        }
+
         [Ignore]
         [TestMethod]
         public void ReadStreamWithTemplateWorkSheet()
