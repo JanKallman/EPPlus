@@ -6,6 +6,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Sparkline
 {
+    /// <summary>
+    /// Represents a single sparkline within the sparkline group
+    /// </summary>
     public class ExcelSparkline : XmlHelper
     {
         internal ExcelSparkline(XmlNamespaceManager nsm, XmlNode topNode) : base(nsm, topNode)

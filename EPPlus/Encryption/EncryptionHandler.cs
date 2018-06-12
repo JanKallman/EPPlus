@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -157,7 +157,7 @@ namespace OfficeOpenXml.Encryption
             //Get the password key.
             var hashProvider = GetHashProvider(encryptionInfo.KeyEncryptors[0]);
             var baseHash = GetPasswordHash(hashProvider, encr.SaltValue, encryption.Password, encr.SpinCount, encr.HashSize);
-            var hashFinal = GetFinalHash(hashProvider, encr, BlockKey_KeyValue, baseHash);
+            var hashFinal = GetFinalHash(hashProvider,  BlockKey_KeyValue, baseHash);
             hashFinal = FixHashSize(hashFinal, encr.KeyBits / 8);
 
             var encrData = EncryptDataAgile(package, encryptionInfo, hashProvider);
@@ -174,9 +174,9 @@ namespace OfficeOpenXml.Encryption
 
             encr.VerifierHash = hashProvider.ComputeHash(encr.VerifierHashInput);
 
-            var VerifierInputKey = GetFinalHash(hashProvider, encr, BlockKey_HashInput, baseHash);
-            var VerifierHashKey = GetFinalHash(hashProvider, encr, BlockKey_HashValue, baseHash);
-            var KeyValueKey = GetFinalHash(hashProvider, encr, BlockKey_KeyValue, baseHash);
+            var VerifierInputKey = GetFinalHash(hashProvider, BlockKey_HashInput, baseHash);
+            var VerifierHashKey = GetFinalHash(hashProvider, BlockKey_HashValue, baseHash);
+            var KeyValueKey = GetFinalHash(hashProvider, BlockKey_KeyValue, baseHash);
 
             var ms = new MemoryStream();
             EncryptAgileFromKey(encr, VerifierInputKey, encr.VerifierHashInput, 0, encr.VerifierHashInput.Length, encr.SaltValue, ms);
@@ -252,7 +252,7 @@ namespace OfficeOpenXml.Encryption
         // Set the dataintegrity
         private void SetHMAC(EncryptionInfoAgile ei, HashAlgorithm hashProvider, byte[] salt, byte[] data)
         {
-            var iv = GetFinalHash(hashProvider, ei.KeyEncryptors[0], BlockKey_HmacKey, ei.KeyData.SaltValue);
+            var iv = GetFinalHash(hashProvider, BlockKey_HmacKey, ei.KeyData.SaltValue);
             var ms = new MemoryStream();
             EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, salt, 0L, salt.Length, iv, ms);
             ei.DataIntegrity.EncryptedHmacKey = ms.ToArray();
@@ -261,12 +261,12 @@ namespace OfficeOpenXml.Encryption
             var hmacValue = h.ComputeHash(data);
 
             ms = new MemoryStream();
-            iv = GetFinalHash(hashProvider, ei.KeyEncryptors[0], BlockKey_HmacValue, ei.KeyData.SaltValue);
+            iv = GetFinalHash(hashProvider, BlockKey_HmacValue, ei.KeyData.SaltValue);
             EncryptAgileFromKey(ei.KeyEncryptors[0], ei.KeyEncryptors[0].KeyValue, hmacValue, 0L, hmacValue.Length, iv, ms);
             ei.DataIntegrity.EncryptedHmacValue = ms.ToArray();
         }
 
-        private HMAC GetHmacProvider(EncryptionInfoAgile.EncryptionKeyEncryptor ei, byte[] salt)
+        private HMAC GetHmacProvider(EncryptionInfoAgile.EncryptionKeyData ei, byte[] salt)
         {
             switch (ei.HashAlgorithm)
             {
@@ -564,34 +564,36 @@ namespace OfficeOpenXml.Encryption
             {
                 var encr = encryptionInfo.KeyEncryptors[0];
                 var hashProvider = GetHashProvider(encr);
+                var hashProviderDataKey = GetHashProvider(encryptionInfo.KeyData);
+
                 var baseHash = GetPasswordHash(hashProvider, encr.SaltValue, password, encr.SpinCount, encr.HashSize);
 
                 //Get the keys for the verifiers and the key value
-                var valInputKey = GetFinalHash(hashProvider, encr, BlockKey_HashInput, baseHash);
-                var valHashKey = GetFinalHash(hashProvider, encr, BlockKey_HashValue, baseHash);
-                var valKeySizeKey = GetFinalHash(hashProvider, encr, BlockKey_KeyValue, baseHash);
+                var valInputKey = GetFinalHash(hashProvider, BlockKey_HashInput, baseHash);
+                var valHashKey = GetFinalHash(hashProvider, BlockKey_HashValue, baseHash);
+                var valKeySizeKey = GetFinalHash(hashProvider, BlockKey_KeyValue, baseHash);
 
                 //Decrypt
                 encr.VerifierHashInput = DecryptAgileFromKey(encr, valInputKey, encr.EncryptedVerifierHashInput, encr.SaltSize, encr.SaltValue);
                 encr.VerifierHash = DecryptAgileFromKey(encr, valHashKey, encr.EncryptedVerifierHash, encr.HashSize, encr.SaltValue);
-                encr.KeyValue = DecryptAgileFromKey(encr, valKeySizeKey, encr.EncryptedKeyValue, encr.KeyBits / 8, encr.SaltValue);
+                encr.KeyValue = DecryptAgileFromKey(encr, valKeySizeKey, encr.EncryptedKeyValue, encryptionInfo.KeyData.KeyBits / 8, encr.SaltValue);
 
                 if (IsPasswordValid(hashProvider, encr))
                 {
-                    var ivhmac = GetFinalHash(hashProvider, encr, BlockKey_HmacKey, encryptionInfo.KeyData.SaltValue);
-                    var key = DecryptAgileFromKey(encr, encr.KeyValue, encryptionInfo.DataIntegrity.EncryptedHmacKey, encryptionInfo.KeyData.HashSize, ivhmac);
+                    var ivhmac = GetFinalHash(hashProviderDataKey, BlockKey_HmacKey, encryptionInfo.KeyData.SaltValue);
+                    var key = DecryptAgileFromKey(encryptionInfo.KeyData, encr.KeyValue, encryptionInfo.DataIntegrity.EncryptedHmacKey, encryptionInfo.KeyData.HashSize, ivhmac);
 
-                    ivhmac = GetFinalHash(hashProvider, encr, BlockKey_HmacValue, encryptionInfo.KeyData.SaltValue);
-                    var value = DecryptAgileFromKey(encr, encr.KeyValue, encryptionInfo.DataIntegrity.EncryptedHmacValue, encryptionInfo.KeyData.HashSize, ivhmac);
+                    ivhmac = GetFinalHash(hashProviderDataKey, BlockKey_HmacValue, encryptionInfo.KeyData.SaltValue);
+                    var value = DecryptAgileFromKey(encryptionInfo.KeyData, encr.KeyValue, encryptionInfo.DataIntegrity.EncryptedHmacValue, encryptionInfo.KeyData.HashSize, ivhmac);
 
-                    var hmca = GetHmacProvider(encr, key);
+                    var hmca = GetHmacProvider(encryptionInfo.KeyData, key);
                     var v2 = hmca.ComputeHash(data);
 
                     for (int i = 0; i < v2.Length; i++)
                     {
                         if (value[i] != v2[i])
                         {
-                            throw (new Exception("Dataintegrity key missmatch"));
+                            throw (new Exception("Dataintegrity key mismatch"));
                         }
                     }
 
@@ -604,11 +606,11 @@ namespace OfficeOpenXml.Encryption
                         var ivTmp = new byte[4 + encryptionInfo.KeyData.SaltSize];
                         Array.Copy(encryptionInfo.KeyData.SaltValue, 0, ivTmp, 0, encryptionInfo.KeyData.SaltSize);
                         Array.Copy(BitConverter.GetBytes(segment), 0, ivTmp, encryptionInfo.KeyData.SaltSize, 4);
-                        var iv = hashProvider.ComputeHash(ivTmp);
+                        var iv = hashProviderDataKey.ComputeHash(ivTmp);
                         var buffer = new byte[bufferSize];
                         Array.Copy(encryptedData, pos, buffer, 0, bufferSize);
 
-                        var b = DecryptAgileFromKey(encr, encr.KeyValue, buffer, segmentSize, iv);
+                        var b = DecryptAgileFromKey(encryptionInfo.KeyData, encr.KeyValue, buffer, segmentSize, iv);
                         doc.Write(b, 0, b.Length);
                         pos += segmentSize;
                         segment++;
@@ -624,7 +626,7 @@ namespace OfficeOpenXml.Encryption
             return null;
         }
 #if Core
-        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.HashAlgorithm)
             {
@@ -645,7 +647,7 @@ namespace OfficeOpenXml.Encryption
             }
         }
 #else
-        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private HashAlgorithm GetHashProvider(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.HashAlgorithm)
             {
@@ -789,7 +791,7 @@ namespace OfficeOpenXml.Encryption
             return true;
         }
 
-        private byte[] DecryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] key, byte[] encryptedData, long size, byte[] iv)
+        private byte[] DecryptAgileFromKey(EncryptionInfoAgile.EncryptionKeyData encr, byte[] key, byte[] encryptedData, long size, byte[] iv)
         {
             SymmetricAlgorithm decryptKey = GetEncryptionAlgorithm(encr);
             decryptKey.BlockSize = encr.BlockSize << 3;
@@ -819,7 +821,7 @@ namespace OfficeOpenXml.Encryption
         }
 
 #if (Core)
-        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.CipherAlgorithm)
             {
@@ -837,7 +839,7 @@ namespace OfficeOpenXml.Encryption
             }
         }
 #else
-        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyEncryptor encr)
+        private SymmetricAlgorithm GetEncryptionAlgorithm(EncryptionInfoAgile.EncryptionKeyData encr)
         {
             switch (encr.CipherAlgorithm)
             {
@@ -975,7 +977,7 @@ namespace OfficeOpenXml.Encryption
             {
                 var hashProvider = GetHashProvider(encr);
                 var hash = GetPasswordHash(hashProvider, encr.SaltValue, password, encr.SpinCount, encr.HashSize);
-                var hashFinal = GetFinalHash(hashProvider, encr, blockKey, hash);
+                var hashFinal = GetFinalHash(hashProvider, blockKey, hash);
 
                 return FixHashSize(hashFinal, encr.KeyBits / 8);
             }
@@ -984,7 +986,7 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-		private byte[] GetFinalHash(HashAlgorithm hashProvider, EncryptionInfoAgile.EncryptionKeyEncryptor encr, byte[] blockKey, byte[] hash)
+		private byte[] GetFinalHash(HashAlgorithm hashProvider, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

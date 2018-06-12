@@ -3064,6 +3064,27 @@ namespace EPPlusTest
 #endif
         }
         [TestMethod]
+        public void Text()
+        {
+            using (ExcelPackage p = new ExcelPackage())
+            {
+                var ws = p.Workbook.Worksheets.Add("Sheet1");
+                ws.Cells["A1"].Value = new DateTime(2018, 2, 3);
+                ws.Cells["A1"].Style.Numberformat.Format = "d";
+                Assert.AreEqual("3", ws.Cells["A1"].Text);
+                ws.Cells["A1"].Style.Numberformat.Format = "D";
+                Assert.AreEqual("3", ws.Cells["A1"].Text);
+                ws.Cells["A1"].Style.Numberformat.Format = "M";
+                Assert.AreEqual("2", ws.Cells["A1"].Text);
+                ws.Cells["A1"].Style.Numberformat.Format = "Y";
+                Assert.AreEqual("18", ws.Cells["A1"].Text);
+                ws.Cells["A1"].Style.Numberformat.Format = "YY";
+                Assert.AreEqual("18", ws.Cells["A1"].Text);
+                ws.Cells["A1"].Style.Numberformat.Format = "YYY";
+                Assert.AreEqual("2018", ws.Cells["A1"].Text);
+            }
+        }
+        [TestMethod]
         public void CopySheetWithSharedFormula()
         {
             using (ExcelPackage package = new ExcelPackage())

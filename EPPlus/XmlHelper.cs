@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -672,7 +672,7 @@ namespace OfficeOpenXml
 		internal int GetXmlNodeInt(string path)
 		{
 			int i;
-			if (int.TryParse(GetXmlNodeString(path), out i))
+			if (int.TryParse(GetXmlNodeString(path), NumberStyles.Number, CultureInfo.InvariantCulture, out i))
 			{
 				return i;
 			}
@@ -685,7 +685,7 @@ namespace OfficeOpenXml
         {
             int i;
             string s = GetXmlNodeString(path);
-            if (s!="" && int.TryParse(s, out i))
+            if (s!="" && int.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out i))
             {
                 return i;
             }

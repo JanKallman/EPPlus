@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -42,39 +42,18 @@ namespace EPPlusSamples
 {
     public static class Sample10
     {
-        public static void RunSample10(DirectoryInfo outputDir)
-        {            
+        public static void RunSample10()
+        {
             //Create a Sample10 directory...
-            if(!Directory.Exists(outputDir.FullName + @"\Sample10"))
-            {
-                outputDir.CreateSubdirectory("Sample10");
-            }
-            outputDir=new DirectoryInfo(outputDir + @"\Sample10");
+            var outputDir = Utils.GetDirectoryInfo("Sample10");
 
             //create the three FileInfo objects...
-            FileInfo templateFile = new FileInfo(outputDir.FullName + @"\Template.xlsx");
-            if (templateFile.Exists)
-            {
-                templateFile.Delete(); 
-                templateFile = new FileInfo(outputDir.FullName + @"\Template.xlsx");
-            }
-            FileInfo answerFile = new FileInfo(outputDir.FullName + @"\Answers.xlsx");
-            if (answerFile.Exists)
-            {
-                answerFile.Delete();  
-                answerFile = new FileInfo(outputDir.FullName + @"\Answers.xlsx");
-            }
-
-            FileInfo JKAnswerFile = new FileInfo(outputDir.FullName + @"\JKAnswers.xlsx");
-            if (JKAnswerFile.Exists)
-            {
-                JKAnswerFile.Delete();
-                JKAnswerFile = new FileInfo(outputDir.FullName + @"\JKAnswers.xlsx");
-            }
+            FileInfo templateFile = Utils.GetFileInfo(outputDir, "template.xlsx");
+            FileInfo answerFile = Utils.GetFileInfo(outputDir, "answers.xlsx");
+            FileInfo JKAnswerFile = Utils.GetFileInfo(outputDir, "JKAnswers.xlsx");
 
             //Create the template...
-            using (
-            ExcelPackage package = new ExcelPackage(templateFile))
+            using (ExcelPackage package = new ExcelPackage(templateFile))
             {
                 //Lock the workbook totally
                 var workbook = package.Workbook;

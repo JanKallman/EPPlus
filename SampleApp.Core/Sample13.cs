@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 
@@ -63,12 +63,12 @@ namespace EPPlusSamples
                 }
             }
         }
-        public static void RunSample13(DirectoryInfo outputDir)
+        public static void RunSample13()
         {
-            ExcelPackage pck = new ExcelPackage();
+            var pck = new ExcelPackage();
 
             //Create a datatable with the directories and files from the root directory...
-            DataTable dt = GetDataTable(outputDir.Root);
+            DataTable dt = GetDataTable(Utils.GetDirectoryInfo("."));
 
             var wsDt = pck.Workbook.Worksheets.Add("FromDataTable");
 
@@ -141,11 +141,7 @@ namespace EPPlusSamples
             wsList.Cells[wsList.Dimension.Address].AutoFitColumns();
 
             //...and save
-            var fi = new FileInfo(outputDir.FullName + @"\Sample13.xlsx");
-            if (fi.Exists)
-            {
-                fi.Delete();
-            }
+            var fi = Utils.GetFileInfo("sample13.xlsx");
             pck.SaveAs(fi);
         }
         private static DataTable GetDataTable(DirectoryInfo dir)

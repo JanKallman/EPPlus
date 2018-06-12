@@ -2,27 +2,75 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.0.1</AssemblyVersion>
-    <FileVersion>4.5.0.1</FileVersion>
-    <Version>4.5.0.1-beta</Version>
+    <AssemblyVersion>4.5.2.1</AssemblyVersion>
+    <FileVersion>4.5.2.1</FileVersion>
+    <Version>4.5.2.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
     <Authors>Jan Källman</Authors>
     <Company></Company>
     <Product>EPPlus</Product>
-    <Description>Create advanced Excel spreadsheets using .Net</Description>
+    <Description>Create advanced Excel spreadsheets using .NET</Description>
     <AssemblyName>EPPlus</AssemblyName>
     <RootNamespace>EPPlus</RootNamespace>
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
-    <Copyright>Jan Källman 2017</Copyright>
+    <Copyright>Jan Källman 2018</Copyright>
     <PackageReleaseNotes>
-      EPPlus 4.5 Beta 2
+      EPPlus 4.5.2.1
 
-      Visit https://github.com/JanKallman/EPPlus for the latest information
+      New features in version 4.5:
+      * .NET Core support
+      * Sparklines
+      * Sort method added to ExcelRange
+      * Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
 
-      EPPlus-Create advanced Excel spreadsheet.
+      Important Notes:
+      Breaking change in .NET Core: The Worksheets collection will be zero based as default.
+      This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
+      .NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+      This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
+
+      .NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
+      System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
+      Use your favorite package manager to install it.
+      For example:
+
+      Homebrew on MacOS:
+      brew install mono-libgdiplus
+
+      apt-get:
+      apt-get install libgdiplus
+
+      EPPlus-A .NET Spreadsheet API
+
+      Changes
+      4.5.2.1
+      * Upgraded System.Drawing.Common for .NET Core to 4.5.0
+      * Fixed problem with Apostrophe in worksheet name
+
+      4.5.2
+      * Upgraded System.Drawing.Common to 4.5.0-rc1
+      * Optimized image handling
+      * External Streams are not closed when disposing the package
+      * Fixed issue with Floor and Celing functions
+      * And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+
+      4.5.1
+      * Added web sample for .NET Core from Vahid Nasiri
+      * Added sample sparkline sample to sample project
+      * Fixed a few problems related to .NET Core on Mac
+
+      4.5.0.3
+      * Fix for compound documents (VBA and Encryption).
+      * Fix for Excel 2010 sha1 hashed agile encryption.
+      * Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
+      * Also see https://github.com/JanKallman/EPPlus/commits/master
+
+      4.5.0.2 rc
+      * Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+
 
       4.5.0.1 Beta 2
       * Added sparkline support.
@@ -47,8 +95,8 @@
       4.1
       * Added functions Rank, Rank.eq, Rank.avg and Search
       * Applied a whole bunch of pull requests...
-      * Performance and memory usage tweeks
-      * Ability to set and retrieve 'custom' extended application propeties.
+      * Performance and memory usage tweaks
+      * Ability to set and retrieve 'custom' extended application properties.
       * Added style QuotePrefix
       * Added support for MajorTimeUnit and MinorTimeUnit to chart axes
       * Added GapWidth Property to BarChart and Gapwidth.
@@ -79,7 +127,7 @@
       * Fixes a whole bunch of bugs related to the cell store (Worksheet.InsertColumn, Worksheet.InsertRow, Worksheet.DeleteColumn, Worksheet.DeleteRow, Range.Copy, Range.Clear)
       * Added functions Acos, Acosh, Asinh, Atanh, Atan, CountBlank, CountIfs, Mina, Offset, Median, Hyperlink, Rept
       * Fix for reading Excel comment content from the t-element.
-      * Fix to make Range.LoadFromCollection work better with inheritence
+      * Fix to make Range.LoadFromCollection work better with inheritance
       * And alot of other small fixes
 
       4.0.1 Fixes
@@ -92,7 +140,7 @@
       * Better exception when accessing a worksheet out of range in the Excelworksheets indexer.
       * Added Small and Large function to formula parser. Performance fix when encountering an unknown function.
       * Fixed handling strings in formulas
-      * Calculate hangs if formula start with a parenthes.
+      * Calculate hangs if formula start with a parenthesis.
       * Worksheet.Dimension returned an invalid range in some cases.
       * Rowheight was wrong in some cases.
       * ExcelSeries.Header had an incorrect validation check.
@@ -183,6 +231,10 @@ Release Candidate changes
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\EPPlus.xml</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netstandard2.0|AnyCPU'">
+    <NoWarn>1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <Compile Remove="Compatibility\DateTimeExtensions.cs" />
     <Compile Remove="Compatibility\SecurityElement.cs" />
@@ -220,7 +272,7 @@ Release Candidate changes
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common">
-      <Version>4.5.0-preview1-25914-04</Version>
+      <Version>4.5.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
@@ -231,11 +283,8 @@ Release Candidate changes
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="readme.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="readme.txt">
+    <None Update="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
 </Project>

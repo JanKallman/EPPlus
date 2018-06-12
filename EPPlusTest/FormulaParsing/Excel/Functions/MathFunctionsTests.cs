@@ -80,6 +80,25 @@ namespace EPPlusTest.Excel.Functions
         }
 
         [TestMethod]
+        public void CeilingBugTest1()
+        {
+            var expectedValue = 100d;
+            var func = new Ceiling();
+            var args = FunctionsHelper.CreateArgs(100d, 100d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+        [TestMethod]
+        public void CeilingBugTest2()
+        {
+            var expectedValue = 12000d;
+            var func = new Ceiling();
+            var args = FunctionsHelper.CreateArgs(12000d, 1000d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+
+        [TestMethod]
         public void CeilingShouldRoundTowardsZeroIfSignificanceAndNumberIsMinus0point1()
         {
             var expectedValue = -22.4d;
@@ -440,6 +459,24 @@ namespace EPPlusTest.Excel.Functions
             var args = FunctionsHelper.CreateArgs(-26.75d, -1);
             var result = func.Execute(args, _parsingContext);
             Assert.AreEqual(-26d, result.Result);
+        }
+        [TestMethod]
+        public void FloorBugTest1()
+        {
+            var expectedValue = 100d;
+            var func = new Floor();
+            var args = FunctionsHelper.CreateArgs(100d, 100d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
+        }
+        [TestMethod]
+        public void FloorBugTest2()
+        {
+            var expectedValue = 12000d;
+            var func = new Floor();
+            var args = FunctionsHelper.CreateArgs(12000d, 1000d);
+            var result = func.Execute(args, _parsingContext);
+            Assert.AreEqual(expectedValue, result.Result);
         }
 
         [TestMethod]

@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -45,15 +45,11 @@ namespace EPPlusSamples
         /// <summary>
         /// Sample 5 - open Sample 1 and add 2 new rows and a Piechart
         /// </summary>
-        public static string RunSample5(DirectoryInfo outputDir)
+        public static string RunSample5()
         {
-            FileInfo templateFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample5.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(outputDir.FullName + @"\sample5.xlsx");
-            }
+            FileInfo newFile = Utils.GetFileInfo("sample5.xlsx");
+            FileInfo templateFile = Utils.GetFileInfo("sample1.xlsx", false);
+
             using (ExcelPackage package = new ExcelPackage(newFile, templateFile))
             {
                 //Open worksheet 1

@@ -3,7 +3,7 @@
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
  *
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 

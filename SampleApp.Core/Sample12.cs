@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 
@@ -67,22 +67,19 @@ namespace EPPlusSamples
                 }
             }
         }
-        public static string RunSample12(string sqlServerName, DirectoryInfo outputDir)
+        public static string RunSample12(string connectionStr)
         {
             var list = new List<SalesDTO>();
-            if (sqlServerName == "")
+            if (connectionStr == "")
             {
                 list = GetRandomData();
             }
             else
             {
-                list = GetDataFromSQL(sqlServerName);
+                list = GetDataFromSQL(connectionStr);
             }
 
-            string file = outputDir.FullName + @"\sample12.xlsx";
-            if (File.Exists(file)) File.Delete(file);
-            FileInfo newFile = new FileInfo(file);
-
+            FileInfo newFile = Utils.GetFileInfo("sample12.xlsx");
             using (ExcelPackage pck = new ExcelPackage(newFile))
             {
                 // get the handle to the existing worksheet
@@ -146,7 +143,7 @@ namespace EPPlusSamples
 
                 pck.Save();
             }
-            return file;
+            return newFile.FullName;
         }
 
         private static List<SalesDTO> GetRandomData()
@@ -172,15 +169,14 @@ namespace EPPlusSamples
             return ret;
         }
 
-        private static List<SalesDTO> GetDataFromSQL(string sqlServerName)
+        private static List<SalesDTO> GetDataFromSQL(string connectionStr)
         {
-            string connectionStr = string.Format(@"server={0};database=AdventureWorks;Integrated Security=true;", sqlServerName);
             var ret = new List<SalesDTO>();
             // lets connect to the AdventureWorks sample database for some data
             using (SqlConnection sqlConn = new SqlConnection(connectionStr))
             {
                 sqlConn.Open();
-                using (SqlCommand sqlCmd = new SqlCommand("select h.Title, FirstName, MiddleName, LastName, SubTotal, OrderDate, TaxAmt, Freight, TotalDue  from Sales.SalesOrderHeader s inner join HumanResources.Employee h on s.SalesPersonID = h.EmployeeID inner join Person.Contact c on c.ContactID = h.ContactID order by LastName, FirstName, MiddleName;", sqlConn))
+                using (SqlCommand sqlCmd = new SqlCommand("select Title, FirstName, MiddleName, LastName, SubTotal, OrderDate, TaxAmt, Freight, TotalDue  from Sales.SalesOrderHeader s inner join HumanResources.Employee h on s.SalesPersonID = h.BusinessEntityID inner join Person.Person c on c.BusinessEntityID = h.BusinessEntityID order by LastName, FirstName, MiddleName;", sqlConn))
                 {
                     using (SqlDataReader sqlReader = sqlCmd.ExecuteReader())
                     {

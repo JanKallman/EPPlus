@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -45,22 +45,24 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 {
     public class TokenFactory : ITokenFactory
     {
-        public TokenFactory(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider)
-            : this(new TokenSeparatorProvider(), nameValueProvider, functionRepository)
+        public TokenFactory(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider, bool r1c1=false)
+            : this(new TokenSeparatorProvider(), nameValueProvider, functionRepository, r1c1)
         {
 
         }
 
-        public TokenFactory(ITokenSeparatorProvider tokenSeparatorProvider, INameValueProvider nameValueProvider, IFunctionNameProvider functionNameProvider)
+        public TokenFactory(ITokenSeparatorProvider tokenSeparatorProvider, INameValueProvider nameValueProvider, IFunctionNameProvider functionNameProvider, bool r1c1)
         {
             _tokenSeparatorProvider = tokenSeparatorProvider;
             _functionNameProvider = functionNameProvider;
             _nameValueProvider = nameValueProvider;
+            _r1c1 = r1c1;
         }
 
         private readonly ITokenSeparatorProvider _tokenSeparatorProvider;
         private readonly IFunctionNameProvider _functionNameProvider;
         private readonly INameValueProvider _nameValueProvider;
+        private bool _r1c1;
         public Token Create(IEnumerable<Token> tokens, string token)
         {
             return Create(tokens, token, null);
@@ -150,11 +152,15 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Enumerable);
             }
-            var at = OfficeOpenXml.ExcelAddressBase.IsValid(token);
+            var at = OfficeOpenXml.ExcelAddressBase.IsValid(token, _r1c1);
             if (at==ExcelAddressBase.AddressType.InternalAddress)
             {
                 return new Token(token.ToUpper(CultureInfo.InvariantCulture), TokenType.ExcelAddress);
             } 
+            else if (at == ExcelAddressBase.AddressType.R1C1)
+            {
+                return new Token(token.ToUpper(CultureInfo.InvariantCulture), TokenType.ExcelAddressR1C1);
+            }
             return new Token(token, TokenType.Unrecognized);
 
         }

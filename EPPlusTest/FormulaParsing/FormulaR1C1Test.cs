@@ -171,5 +171,19 @@ namespace EPPlusTest.FormulaParsing
             c.Formula = f;
             Assert.AreEqual(fR1C1, c.FormulaR1C1);
         }
+        [TestMethod]
+        public void OutOfRangeCol()
+        {
+            _sheet.Cells["a3"].FormulaR1C1 = "R[-3]C";
+            Assert.AreEqual("#REF!", _sheet.Cells["a3"].Formula);
+            _sheet.Cells["a3"].FormulaR1C1 = "R[-2]C";
+            Assert.AreEqual("A1", _sheet.Cells["a3"].Formula);
+
+            _sheet.Cells["B3"].FormulaR1C1 = "RC[-2]";
+            Assert.AreEqual("#REF!", _sheet.Cells["B3"].Formula);
+            _sheet.Cells["B3"].FormulaR1C1 = "RC[-1]";
+            Assert.AreEqual("A3", _sheet.Cells["B3"].Formula);
+
+        }
     }
 }

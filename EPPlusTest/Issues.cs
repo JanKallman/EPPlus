@@ -25,7 +25,7 @@ namespace EPPlusTest
     /// All tests requiering an template should be set to ignored as it's not practical to include all xlsx templates in the project.
     /// </summary>
     [TestClass]
-    public class Issues
+    public class Issues : TestBase
     {
         [TestInitialize]
         public void Initialize()
@@ -1322,7 +1322,7 @@ namespace EPPlusTest
                     file.Delete();
             }
         }
-        [TestMethod]
+        [TestMethod, Ignore]
         public void MergeIssue()
         {
             var worksheetPath = Path.Combine(Path.GetTempPath(), @"EPPlus worksheets");
@@ -1894,7 +1894,7 @@ namespace EPPlusTest
                 workbook.SaveAs(new FileInfo(outputPath));
             }
         }
-        
+
         [TestMethod, Ignore]
         public void Issue100()
         {
@@ -1938,21 +1938,189 @@ namespace EPPlusTest
                 package.SaveAs(new FileInfo(@"c:\temp\bug\iss94\MergedCellsTemplateSaved.xlsx"));
             }
         }
-        [TestMethod,Ignore]
+        [TestMethod, Ignore]
         public void Issue107()
         {
-            using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\sampleapp\sample12.xlsx")))
+            using (ExcelPackage epIN = new ExcelPackage(new FileInfo(@"C:\temp\bug\issue107\in.xlsx")))
             using (ExcelPackage epOUT = new ExcelPackage(new FileInfo(@"C:\temp\bug\pivotbug107.xlsx")))
             {
                 foreach (ExcelWorksheet sheet in epIN.Workbook.Worksheets)
                 {
                     ExcelWorksheet newSheet = epOUT.Workbook.Worksheets.Add(sheet.Name, sheet);
                 }
+                epIN.Compatibility.IsWorksheets1Based = true;
                 epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[1].Name + "-2", epIN.Workbook.Worksheets[1]);
                 epIN.Workbook.Worksheets.Add(epIN.Workbook.Worksheets[2].Name + "-2", epIN.Workbook.Worksheets[2]);
                 epOUT.Save();
                 epIN.SaveAs(new FileInfo(@"C:\temp\bug\pivotbug107-SameWB.xlsx"));
-           }
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue127()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\PivotTableTestCase.xlsx")))
+            {
+                Assert.AreEqual(p.Workbook.Worksheets.Count, 2);
+                p.SaveAs(new FileInfo(@"C:\temp\bug\PivotTableTestCaseSaved.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue167()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\test-Errorworkbook.xlsx")))
+            {
+                Assert.AreEqual(p.Workbook.Worksheets.Count, 1);
+                p.SaveAs(new FileInfo(@"C:\temp\bug\test-ErrorworkbookSaved.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue155()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("Sheet1");
+                string csv = "A\tB\tC\r\n1\t\t\r\n";
+                ws.Cells["A1"].LoadFromText(csv, new ExcelTextFormat { Delimiter = '\t' });
+                Assert.IsTrue(ws.Cells["B2"].Value == null);
+                byte[] data = pck.GetAsByteArray();
+                string path = @"C:\temp\test.xlsx";
+                File.WriteAllBytes(path, data);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue173()
+        {
+            using (ExcelPackage xlPackage = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue173.xlsx")))
+            {
+                ExcelWorksheet ws = xlPackage.Workbook.Worksheets.First();
+                var r = ws.Cells["A4"].Text;
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue176()
+        {
+            using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue176.xlsx")))
+            {
+                Assert.AreEqual(Math.Round(pck.Workbook.Worksheets[1].Cells["A1"].Style.Fill.BackgroundColor.Tint, 5), -0.04999M);
+                pck.SaveAs(new FileInfo($@"C:\temp\bug\issue176-saved.xlsx"));
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void Issue178()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("TestData");
+                var format = new ExcelTextFormat();
+                format.TextQualifier = '"';
+                var txt = "\"BillingMonth\",\"SequenceNumber\",\"Level7Code\"\r\n";
+                txt += "\"022018\",\"1\",\"\"\r\n";
+
+                var range = sheet.Cells["A1"].LoadFromText(txt, format, TableStyles.None, true);
+                Assert.AreEqual(sheet.Cells["C2"].Value, null);
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue181()
+        {
+            using (var pck = new ExcelPackage(new FileInfo($@"C:\temp\bug\issue181.xlsx")))
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.First();
+                var a = pck.Workbook.Properties.Author;
+                pck.SaveAs(new FileInfo($@"C:\temp\bug\issue181-saved.xlsx"));
+            }
+        }
+        [TestMethod, Ignore]
+        public void Issue10()
+        {
+            var fi = new FileInfo($@"C:\temp\bug\issue10.xlsx");
+            if (fi.Exists)
+            {
+                fi.Delete();
+            }
+            using (var pck = new ExcelPackage(fi))
+            {
+                var ws = pck.Workbook.Worksheets.Add("Pictures");
+                int row = 1;
+                foreach (var f in Directory.EnumerateFiles(@"c:\temp\addin_temp\Addin\img\open_icon_library-full\icons\ico\16x16\actions\"))
+                {
+                    var b = new Bitmap(f);
+                    var pic = ws.Drawings.AddPicture($"Image{(row + 1) / 2}", b);
+                    pic.SetPosition(row, 0, 0, 0);
+                    row += 2;
+                }
+                pck.Save();
+            }
+        }
+        /// <summary>
+        /// Creating a new ExcelPackage with an external stream should not dispose of 
+        /// that external stream. That is the responsibility of the caller.
+        /// Note: This test would pass with EPPlus 4.1.1. In 4.5.1 the line CloseStream() was added
+        /// to the ExcelPackage.Dispose() method. That line is redundant with the line before, 
+        /// _stream.Close() except that _stream.Close() is only called if the _stream is NOT
+        /// an External Stream (and several other conditions).
+        /// Note that CloseStream() doesn't do anything different than _stream.Close().
+        /// </summary>
+        [TestMethod]
+        public void Issue184_Disposing_External_Stream()
+        {
+            // Arrange
+            var stream = new MemoryStream();
+
+            using (var excelPackage = new ExcelPackage(stream))
+            {
+                var worksheet = excelPackage.Workbook.Worksheets.Add("Issue 184");
+                worksheet.Cells[1, 1].Value = "Hello EPPlus!";
+                excelPackage.SaveAs(stream);
+                // Act
+            } // This dispose should not dispose of stream.
+
+            // Assert
+            Assert.IsTrue(stream.Length > 0);
+        }
+        [TestMethod]
+        public void Issue204()
+        {
+            using (var pack = new ExcelPackage())
+            {
+                //create sheets
+                var sheet1 = pack.Workbook.Worksheets.Add("Sheet 1");
+                var sheet2 = pack.Workbook.Worksheets.Add("Sheet 2");
+                //set some default values
+                sheet1.Cells[1, 1].Value = 1;
+                sheet2.Cells[1, 1].Value = 2;
+                //fill the formula
+                var formula = string.Format("'{0}'!R1C1", sheet1.Name);
+
+                var cell = sheet2.Cells[2, 1];
+                cell.FormulaR1C1 = formula;
+                //Formula should remain the same
+                Assert.AreEqual(formula.ToUpper(), cell.FormulaR1C1.ToUpper());
+            }
+        }
+        [TestMethod]
+        public void Issue170()
+        {
+            OpenTemplatePackage("print_titles_170.xlsx");
+            ExcelWorksheet sheet = _pck.Workbook.Worksheets[0];
+
+            sheet.PrinterSettings.RepeatColumns = new ExcelAddress("$A:$C");
+            sheet.PrinterSettings.RepeatRows = new ExcelAddress("$1:$3");
+
+            SaveWorksheet("print_titles_170-Saved.xlsx");
+            _pck.Dispose();
+        }
+        [TestMethod]
+        public void Issue219()
+        {
+            OpenTemplatePackage("issueFile.xlsx");
+            foreach(var ws in _pck.Workbook.Worksheets)
+            {
+                Console.WriteLine(ws.Name);
+            }
+
+            _pck.Dispose();
+        }
         }
     }
-}

@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -46,12 +46,12 @@ namespace EPPlusSamples
         /// This sample shows how to use Linq with the Cells collection
         /// </summary>
         /// <param name="outputDir">The path where sample7.xlsx is</param>
-        public static void RunLinqSample(DirectoryInfo outputDir)
+        public static void RunLinqSample()
         {
 	        Console.WriteLine("Now open sample 7 again and perform some Linq queries...");
 		    Console.WriteLine();
 
-			FileInfo existingFile = new FileInfo(outputDir.FullName + @"\sample7.xlsx");
+            FileInfo existingFile = Utils.GetFileInfo("sample7.xlsx", false);
             using (ExcelPackage package = new ExcelPackage(existingFile))
             {
                 ExcelWorksheet sheet = package.Workbook.Worksheets[0];

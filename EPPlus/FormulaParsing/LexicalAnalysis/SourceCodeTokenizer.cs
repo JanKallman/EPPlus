@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -41,11 +41,16 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
     {
         public static ISourceCodeTokenizer Default
         {
-            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty); }
+            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, false); }
+        }
+        public static ISourceCodeTokenizer R1C1
+        {
+            get { return new SourceCodeTokenizer(FunctionNameProvider.Empty, NameValueProvider.Empty, true); }
         }
 
-        public SourceCodeTokenizer(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider)
-            : this(new TokenFactory(functionRepository, nameValueProvider), new TokenSeparatorProvider())
+
+        public SourceCodeTokenizer(IFunctionNameProvider functionRepository, INameValueProvider nameValueProvider, bool r1c1=false)
+            : this(new TokenFactory(functionRepository, nameValueProvider, r1c1), new TokenSeparatorProvider())
         {
 
         }
@@ -115,7 +120,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                 }
                 else if(token.TokenType == TokenType.WorksheetName){
                     // use this and the following three tokens
-                    token.TokenType = TokenType.ExcelAddress;
+                    token.TokenType = context.Result[i + 3].TokenType;
                     var sb = new StringBuilder();
                     var nToRemove = 3;
                     if (context.Result.Count < i + nToRemove)
@@ -123,7 +128,8 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
                         token.TokenType = TokenType.InvalidReference;
                         nToRemove = context.Result.Count - i - 1;
                     }
-                    else if(context.Result[i + 3].TokenType != TokenType.ExcelAddress)
+                    else if(context.Result[i + 3].TokenType != TokenType.ExcelAddress &&
+                            context.Result[i + 3].TokenType != TokenType.ExcelAddressR1C1)
                     {
                         token.TokenType = TokenType.InvalidReference;
                         nToRemove--;

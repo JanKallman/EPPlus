@@ -7,6 +7,9 @@ using System.Xml;
 
 namespace OfficeOpenXml.Sparkline
 {
+    /// <summary>
+    /// Represents a group of sparklines
+    /// </summary>
     public class ExcelSparklineGroup : XmlHelper
     {
         // Schema here... https://msdn.microsoft.com/en-us/library/hh656506(v=office.12).aspx
@@ -110,10 +113,6 @@ namespace OfficeOpenXml.Sparkline
                 {
                     throw (new ArgumentException("Range must only be 1 row or column"));
                 }
-                else if (value.Rows != Sparklines.Count && value.Columns != Sparklines.Count)
-                {
-                    throw (new ArgumentException("Range rows or columns must match number of sparkline cells"));
-                }
 
                 DateAxis = true;
                 SetXmlNodeString("xm:f", value.FullAddress);
@@ -159,6 +158,9 @@ namespace OfficeOpenXml.Sparkline
                 }
             }
         }
+        /// <summary>
+        /// The Sparklines for the sparklinegroup
+        /// </summary>
         public ExcelSparklineCollection Sparklines { get; internal set; }        
         #region Boolean settings
         const string _dateAxisPath = "@dateAxis";
@@ -174,6 +176,10 @@ namespace OfficeOpenXml.Sparkline
             }
         }
         const string _markersPath = "@markers";
+        /// <summary>
+        /// Highlight each point in each sparkline in the sparkline group.
+        /// Applies to line sparklines only
+        /// </summary>
         public bool Markers
         {
             get
@@ -186,6 +192,9 @@ namespace OfficeOpenXml.Sparkline
             }
         }
         const string _highPath = "@high";
+        /// <summary>
+        /// Highlight the highest point of data in the sparkline group
+        /// </summary>
         public bool High
         {
             get
@@ -198,6 +207,9 @@ namespace OfficeOpenXml.Sparkline
             }
         }
         const string _lowPath = "@low";
+        /// <summary>
+        /// Highlight the lowest point of data in the sparkline group
+        /// </summary>
         public bool Low
         {
             get
@@ -210,6 +222,9 @@ namespace OfficeOpenXml.Sparkline
             }
         }
         const string _firstPath = "@first";
+        /// <summary>
+        /// Highlight the first point of data in the sparkline group
+        /// </summary>
         public bool First
         {
             get
@@ -222,6 +237,9 @@ namespace OfficeOpenXml.Sparkline
             }
         }
         const string _lastPath = "@last";
+        /// <summary>
+        /// Highlight the last point of data in the sparkline group
+        /// </summary>
         public bool Last
         {
             get
@@ -235,6 +253,9 @@ namespace OfficeOpenXml.Sparkline
         }
 
         const string _negativePath = "@negative";
+        /// <summary>
+        /// Highlight negative points of data in the sparkline group with a different color or marker
+        /// </summary>
         public bool Negative
         {
             get

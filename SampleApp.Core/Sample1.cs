@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -45,15 +45,9 @@ namespace EPPlusSamples
         /// Sample 1 - simply creates a new workbook from scratch.
         /// The workbook contains one worksheet with a simple invertory list
         /// </summary>
-        public static string RunSample1(DirectoryInfo outputDir)
+        public static string RunSample1()
         {
-			var newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-			if (newFile.Exists)
-			{
-				newFile.Delete();  // ensures we create a new workbook
-				newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-			}
-			using (var package = new ExcelPackage(newFile))
+			using (var package = new ExcelPackage())
             {
                 // Add a new worksheet to the empty workbook
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
@@ -138,12 +132,12 @@ namespace EPPlusSamples
                 // set some custom property values
                 package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
                 package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
-                // save our new workbook and we are done!
-                package.Save();
 
+                var xlFile = Utils.GetFileInfo("sample1.xlsx");
+                // save our new workbook in the output directory and we are done!
+                package.SaveAs(xlFile);
+                return xlFile.FullName;
             }
-
-            return newFile.FullName;
 		}
 	}
 }

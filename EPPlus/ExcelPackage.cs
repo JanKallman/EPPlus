@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -74,6 +74,9 @@ namespace OfficeOpenXml
     /// <summary>
     /// Represents an Excel 2007/2010 XLSX file package.  
     /// This is the top-level object to access all parts of the document.
+    /// </summary>
+    /// <remarks>
+    /// <example>
     /// <code>
 	///     FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
 	/// 	if (newFile.Exists)
@@ -167,8 +170,9 @@ namespace OfficeOpenXml
     ///
     ///       return newFile.FullName;
     /// </code>
-    /// More samples can be found at  <a href="http://epplus.codeplex.com/">http://epplus.codeplex.com/</a>
-    /// </summary>
+    /// More samples can be found at  <a href="https://github.com/JanKallman/EPPlus/">https://github.com/JanKallman/EPPlus/</a>
+    /// </example>
+    /// </remarks>
 	public sealed class ExcelPackage : IDisposable
 	{
         internal const bool preserveWhitespace=false;
@@ -249,10 +253,10 @@ namespace OfficeOpenXml
         /// </summary>
         public const int MaxRows = 1048576;
 		#endregion
-
 		#region ExcelPackage Constructors
         /// <summary>
-        /// Create a new instance of the ExcelPackage. Output is accessed through the Stream property.
+        /// Create a new instance of the ExcelPackage. 
+        /// Output is accessed through the Stream property, using the <see cref="SaveAs(FileInfo)"/> method or later set the <see cref="File" /> property.
         /// </summary>
         public ExcelPackage()
         {
@@ -505,13 +509,13 @@ namespace OfficeOpenXml
                 return null;
             }
         }
+        internal static int _id = 1;
         private Uri GetNewUri(Packaging.ZipPackage package, string sUri)
         {
-            int id = 1;
             Uri uri;
             do
             {
-                uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
+                uri = new Uri(string.Format(sUri, _id++), UriKind.Relative);
             }
             while (package.PartExists(uri));
             return uri;
@@ -744,7 +748,11 @@ namespace OfficeOpenXml
 		internal void SavePart(Uri uri, XmlDocument xmlDoc)
 		{
             Packaging.ZipPackagePart part = _package.GetPart(uri);
-			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
+            var stream = part.GetStream(FileMode.Create, FileAccess.Write);
+            var xr = new XmlTextWriter(stream, Encoding.UTF8);
+            xr.Formatting = Formatting.None;
+            
+            xmlDoc.Save(xr);
 		}
         /// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
@@ -775,7 +783,11 @@ namespace OfficeOpenXml
                     }
                 }
             }
-			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
+            var stream = part.GetStream(FileMode.Create, FileAccess.Write);
+            var xr = new XmlTextWriter(stream, Encoding.UTF8);
+            xr.Formatting = Formatting.None;
+
+            xmlDoc.Save(xr);
 		}
 
 #endregion
@@ -788,13 +800,11 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+		        if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
-                    _stream.Close();
+                    CloseStream();
                 }
-                CloseStream();
                 _package.Close();
-                if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
                 {
                     _workbook.Dispose();
@@ -835,11 +845,11 @@ namespace OfficeOpenXml
                     {
                         var ms = new MemoryStream();
                         _package.Save(ms);
-                        byte[] file = ms.ToArray();
+                        byte[] file = ms.ToArray(); 
                         EncryptedPackageHandler eph = new EncryptedPackageHandler();
                         var msEnc = eph.EncryptPackage(file, Encryption);
                         CopyStream(msEnc, ref _stream);
-                    }
+                    }   
                     else
                     {
                         _package.Save(_stream);

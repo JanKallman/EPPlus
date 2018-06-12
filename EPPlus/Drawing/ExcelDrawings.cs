@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -428,7 +428,7 @@ namespace OfficeOpenXml.Drawing
         }
             private XmlElement CreateDrawingXml()
             {
-                if (DrawingXml.OuterXml == "")
+                if (DrawingXml.DocumentElement == null)
                 {
                     DrawingXml.LoadXml(string.Format("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><xdr:wsDr xmlns:xdr=\"{0}\" xmlns:a=\"{1}\" />", ExcelPackage.schemaSheetDrawings, ExcelPackage.schemaDrawings));
                     Packaging.ZipPackage package = Worksheet._package.Package;

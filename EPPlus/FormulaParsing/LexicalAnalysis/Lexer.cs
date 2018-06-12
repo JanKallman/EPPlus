@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -53,7 +53,6 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
 
         private readonly ISourceCodeTokenizer _tokenizer;
         private readonly ISyntacticAnalyzer _analyzer;
-
         public IEnumerable<Token> Tokenize(string input)
         {
             return Tokenize(input, null);
