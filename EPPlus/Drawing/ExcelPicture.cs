@@ -59,8 +59,7 @@ namespace OfficeOpenXml.Drawing
                 UriPic = UriHelper.ResolvePartUri(drawings.UriDrawing, RelPic.TargetUri);
 
                 Part = drawings.Part.Package.GetPart(UriPic);
-                FileInfo f = new FileInfo(UriPic.OriginalString);
-                ContentType = GetContentType(f.Extension);
+                ContentType = Path.GetExtension(UriPic.OriginalString);
                 _image = Image.FromStream(Part.GetStream());
 
 #if (Core)
