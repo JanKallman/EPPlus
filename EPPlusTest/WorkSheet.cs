@@ -1144,8 +1144,13 @@ namespace EPPlusTest
                 new object [] { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55}
             });
             var table = ws.Tables.Add(ws.Cells["A1:D4"], "PivotData");
-            ws.PivotTables.Add(ws.Cells["G1"], ws.Cells["A1:D4"], "PivotTable");
-            Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable"].StyleName);
+            var pt=ws.PivotTables.Add(ws.Cells["G20"], ws.Cells["A1:D4"], "PivotTable1");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.DataFields.Add(pt.Fields[3]);
+            Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable1"].StyleName);
+
+            _pck.Workbook.Worksheets.AddChart("PivotChartWorksheet", eChartType.Line, pt);
+            SaveWorksheet("Pivot.xlsx");
         }
 
 
