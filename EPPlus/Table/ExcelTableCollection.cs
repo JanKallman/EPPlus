@@ -34,7 +34,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 namespace OfficeOpenXml.Table
 {
     /// <summary>
@@ -78,16 +78,19 @@ namespace OfficeOpenXml.Table
         {
             if (Range.WorkSheet != null && Range.WorkSheet != _ws.Name)
             {
-                throw new ArgumentException("Range does not belong to worksheet", "Range");
+                throw new ArgumentException("Range does not belong to a worksheet", "Range");
             }
-            
+
             if (string.IsNullOrEmpty(Name))
             {
                 Name = GetNewTableName();
             }
-            else if (_ws.Workbook.ExistsTableName(Name))
+            else
             {
-                throw (new ArgumentException("Tablename is not unique"));
+                if (_ws.Workbook.ExistsTableName(Name))
+                {
+                    throw (new ArgumentException("Tablename is not unique"));
+                }
             }
 
             ValidateTableName(Name);
@@ -119,7 +122,10 @@ namespace OfficeOpenXml.Table
             {
                 throw new ArgumentException("Tablename has spaces");
             }
-
+            if (!ExcelAddressUtil.IsValidName(Name))
+            {
+                throw (new ArgumentException("Tablename is not valid"));
+            }
         }
 
         public void Delete(int Index, bool ClearRange = false)

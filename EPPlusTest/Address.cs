@@ -5,7 +5,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
-
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 namespace EPPlusTest
 {
     /// <summary>
@@ -134,7 +134,19 @@ namespace EPPlusTest
           Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1048576:XFD1048576"));
           Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
         }
-
+        [TestMethod]
+        public void IsValidName()
+        {
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("123sa"));  //invalid start char 
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("*d"));     //invalid start char
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("\t"));     //invalid start char
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("\\t"));    //Backslash at least three chars
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("A+1"));   //invalid char
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("A%we"));   //Address invalid
+            Assert.IsFalse(ExcelAddressUtil.IsValidName("BB73"));   //Address invalid
+            Assert.IsTrue(ExcelAddressUtil.IsValidName("BBBB75"));  //Valid
+            Assert.IsTrue(ExcelAddressUtil.IsValidName("BB1500005")); //Valid
+        }
         [TestMethod]
         public void NamedRangeMovesDownIfRowInsertedAbove()
         {

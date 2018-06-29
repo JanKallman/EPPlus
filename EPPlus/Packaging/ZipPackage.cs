@@ -98,7 +98,11 @@ namespace OfficeOpenXml.Packaging
                 stream.Seek(0, SeekOrigin.Begin);                
                 using (ZipInputStream zip = new ZipInputStream(stream))
                 {
-                    var e = zip.GetNextEntry();                    
+                    var e = zip.GetNextEntry();
+                    if(e==null)
+                    {
+                        throw (new InvalidDataException("The file is not an valid Package file. If the file is encrypted, please supply the password in the constructor."));
+                    }
                     if (e.FileName.Contains("\\"))
                     {
                         _dirSeparator = '\\';

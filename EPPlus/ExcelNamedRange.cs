@@ -119,6 +119,5 @@ namespace OfficeOpenXml
         {
             return Name;
         }
-
     }
 }
