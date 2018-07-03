@@ -25,7 +25,7 @@
 // ------------------------------------------------------------------
 
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
 
     /// <summary>

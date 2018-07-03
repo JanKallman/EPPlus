@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -42,37 +42,36 @@ using System.Drawing.Imaging;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Style.XmlAccess;
 using OfficeOpenXml.Table;
-
 namespace EPPlusSamples
 {
     /// <summary>
     /// Sample 6 - Reads the filesystem and makes a report.
-    /// </summary>               
+    /// </summary>                  
     class Sample6
     {
-        #region "Icon API function"
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SHFILEINFO
-        {
-            public IntPtr hIcon;
-            public IntPtr iIcon;
-            public uint dwAttributes;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-            public string szDisplayName;
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-            public string szTypeName;
-        };
-        public const uint SHGFI_ICON = 0x100;
-        public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
-        public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
-        [DllImport("shell32.dll")]
-        public static extern IntPtr SHGetFileInfo(string pszPath,
-                                    uint dwFileAttributes,
-                                    ref SHFILEINFO psfi,
-                                    uint cbSizeFileInfo,
-                                    uint uFlags);
-        [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
-        extern static bool DestroyIcon(IntPtr handle);
+        #region Icon API function
+                [StructLayout(LayoutKind.Sequential)]
+                public struct SHFILEINFO
+                {
+                    public IntPtr hIcon;
+                    public IntPtr iIcon;
+                    public uint dwAttributes;
+                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
+                    public string szDisplayName;
+                    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
+                    public string szTypeName;
+                };
+                public const uint SHGFI_ICON = 0x100;
+                public const uint SHGFI_LARGEICON = 0x0;    // 'Large icon
+                public const uint SHGFI_SMALLICON = 0x1;    // 'Small icon
+                [DllImport("shell32.dll")]
+                public static extern IntPtr SHGetFileInfo(string pszPath,
+                                            uint dwFileAttributes,
+                                            ref SHFILEINFO psfi,
+                                            uint cbSizeFileInfo,
+                                            uint uFlags);
+                [System.Runtime.InteropServices.DllImport("user32.dll", CharSet = CharSet.Auto)]
+                extern static bool DestroyIcon(IntPtr handle);
         #endregion
         public class StatItem : IComparable<StatItem>
         {
@@ -80,7 +79,7 @@ namespace EPPlusSamples
             public int Count { get; set; }
             public long Size { get; set; }
 
-            #region IComparable<StatItem> Members
+#region IComparable<StatItem> Members
 
             //Default compare Size
             public int CompareTo(StatItem other)
@@ -89,7 +88,7 @@ namespace EPPlusSamples
                             (Size > other.Size ? 1 : 0);
             }
 
-            #endregion
+#endregion
         }
         static int _maxLevels;
 
@@ -102,16 +101,11 @@ namespace EPPlusSamples
         /// <param name="dir">Directory to scan</param>
         /// <param name="depth">How many levels?</param>
         /// <param name="skipIcons">Skip the icons in column A. A lot faster</param>
-        public static string RunSample6(DirectoryInfo outputDir, DirectoryInfo dir, int depth, bool skipIcons)
+        public static string RunSample6(DirectoryInfo dir, int depth, bool skipIcons)
         {
             _maxLevels = depth;
 
-            FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample6.xlsx");
-            if (newFile.Exists)
-            {
-                newFile.Delete();  // ensures we create a new workbook
-                newFile = new FileInfo(outputDir.FullName + @"\sample6.xlsx");
-            }
+            FileInfo newFile = Utils.GetFileInfo("sample6.xlsx");
             
             //Create the workbook
             ExcelPackage pck = new ExcelPackage(newFile);
@@ -124,7 +118,7 @@ namespace EPPlusSamples
             ws.Column(2).Width = 60;
             ws.Column(3).Width = 16;
             ws.Column(4).Width = 20;
-            ws.Column(5).Width =20;
+            ws.Column(5).Width = 20;
             
             //This set the outline for column 4 and 5 and hide them
             ws.Column(4).OutlineLevel = 1;
@@ -149,6 +143,7 @@ namespace EPPlusSamples
 
             //Load the directory content to sheet 1
             row = AddDirectory(ws, dir, row, height, 0, skipIcons);
+
             ws.OutLineSummaryBelow = false;
 
             //Format columns
@@ -173,6 +168,7 @@ namespace EPPlusSamples
             shape.TextAnchoring = eTextAnchoringType.Top;
             shape.TextVertical = eTextVerticalType.Horizontal;
             shape.TextAnchoringControl=false;
+            ws.Calculate();
             ws.Cells[1,2,row,5].AutoFitColumns();
 
             //Add the graph sheet
@@ -191,6 +187,7 @@ namespace EPPlusSamples
             ws.PrinterSettings.FitToHeight = 0;
             ws.PrinterSettings.RepeatRows = new ExcelAddress("1:1"); //Print titles
             ws.PrinterSettings.PrintArea = ws.Cells[1, 1, row - 1, 5];
+            pck.Workbook.Calculate();
 
             //Done! save the sheet
             pck.Save();
@@ -247,9 +244,6 @@ namespace EPPlusSamples
         {
             var ws = pck.Workbook.Worksheets.Add("Statistics");
             ws.View.ShowGridLines = false;
-
-            //ws.Column(1).Width = 40;
-            //ws.Column(2).Width = 20;
 
             //Set first the header and format it
             ws.Cells["A1"].Value = "Statistics for ";
@@ -370,7 +364,6 @@ namespace EPPlusSamples
             using (ExcelRange r = ws.Cells[row, 1, row, 2])
             {
                 r.Style.Font.SetFromFont(new Font("Arial", 12, FontStyle.Bold));
-                //AlterColor(ws, row);
             }
 
             row++;
@@ -389,7 +382,6 @@ namespace EPPlusSamples
                         ws.Cells[row, 2].Value = lst[lst.Count - i - 1].Count;
                     }
 
-                    //AlterColor(ws, row);
                     row++;
                 }
             }
@@ -414,7 +406,6 @@ namespace EPPlusSamples
                 ws.Cells[row, 2].Value = rest;
                 ws.Cells[row, 1, row, 2].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 ws.Cells[row, 1, row, 2].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
-                //AlterColor(ws, row);
                 row++;
             }
 

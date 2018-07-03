@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -32,15 +32,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Ionic.Zip;
-using Ionic.Zlib;
 using System.IO;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 
 namespace OfficeOpenXml.Packaging
 {
-    internal class ZipPackagePart : ZipPackageRelationshipBase
+    internal class ZipPackagePart : ZipPackageRelationshipBase, IDisposable
     {
-        internal delegate void SaveHandlerDelegate(ZipOutputStream stream, Ionic.Zlib.CompressionLevel compressionLevel, string fileName);
+        internal delegate void SaveHandlerDelegate(ZipOutputStream stream, CompressionLevel compressionLevel, string fileName);
 
         internal ZipPackagePart(ZipPackage package, ZipEntry entry)
         {
@@ -96,7 +95,7 @@ namespace OfficeOpenXml.Packaging
             }
             else
             {
-                _stream.Seek(0, SeekOrigin.Begin);
+                _stream.Seek(0, SeekOrigin.Begin);                
             }
             return _stream;
         }
@@ -143,22 +142,29 @@ namespace OfficeOpenXml.Packaging
                 {
                     return;
                 }
-                os.CompressionLevel = (Ionic.Zlib.CompressionLevel)CompressionLevel;
+                os.CompressionLevel = (OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel)CompressionLevel;
                 os.PutNextEntry(Uri.OriginalString);
                 os.Write(b, 0, b.Length);
             }
             else
             {
-                SaveHandler(os, (Ionic.Zlib.CompressionLevel)CompressionLevel, Uri.OriginalString);
+                SaveHandler(os, (CompressionLevel)CompressionLevel, Uri.OriginalString);
             }
 
             if (_rels.Count > 0)
             {
                 string f = Uri.OriginalString;
-                var fi = new FileInfo(f);
-                _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - fi.Name.Length), fi.Name)));
+                var name = Path.GetFileName(f);
+                _rels.WriteZip(os, (string.Format("{0}_rels/{1}.rels", f.Substring(0, f.Length - name.Length), name)));
             }
+            b = null;
         }
 
+
+        public void Dispose()
+        {
+            _stream.Close();
+            _stream.Dispose();
+        }
     }
 }

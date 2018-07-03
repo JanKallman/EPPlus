@@ -89,12 +89,46 @@ namespace EPPlusTest.DataValidation.IntegrationTests
             _package.SaveAs(new FileInfo(GetTestOutputPath("AddOneValidationOfTypeTime.xlsx")));
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void DataValidations_ReadExistingWorkbookWithDataValidations()
         {
             using (var package = new ExcelPackage(new FileInfo(GetTestOutputPath("DVTest.xlsx"))))
             {
                 Assert.AreEqual(3, package.Workbook.Worksheets[1].DataValidations.Count);
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void RemoveDataValidation()
+        {
+            var fileInfo = new FileInfo(@"c:\Temp\DvTest.xlsx");
+            if(File.Exists(fileInfo.FullName))
+                File.Delete(fileInfo.FullName);
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                var validation = sheet.DataValidations.AddIntegerValidation("A1");
+                validation.Formula.Value = 1;
+                validation.Formula2.Value = 2;
+                validation.ShowErrorMessage = true;
+                validation.Error = "Error!";
+
+                //var validation2 = sheet.DataValidations.AddIntegerValidation("B1");
+                //validation2.Formula.Value = 1;
+                //validation2.Formula2.Value = 2;
+                //validation2.ShowErrorMessage = true;
+                //validation2.Error = "Error!";
+
+                package.SaveAs(fileInfo);
+            }
+            using (var pck = new ExcelPackage(fileInfo))
+            {
+                var sheet = pck.Workbook.Worksheets.First();
+                var dv = sheet.DataValidations.First();
+                sheet.DataValidations.Remove(dv);
+                if (File.Exists(fileInfo.FullName))
+                    File.Delete(fileInfo.FullName);
+                pck.SaveAs(fileInfo);
             }
         }
 

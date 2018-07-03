@@ -1,0 +1,5 @@
+-[] Write a detailed description of your what you have implemented or changed.
+-[] Attach unit tests in the testproject to test implemented functionallity.
+-[] Make sure no tests fail in the test project.
+-[] Verify that you only check in the files intended for the pull request.
+-[] Do not change dotnet version, include new dependencies unless you explicitly talked to someone in the project about doing so.

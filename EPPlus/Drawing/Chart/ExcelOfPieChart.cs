@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Table.PivotTable;
+using System.Globalization;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -76,7 +77,7 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
 
-        const string pieTypePath = "c:chartSpace/c:chart/c:plotArea/c:ofPieChart/c:ofPieType/@val";
+        const string pieTypePath = "c:ofPieType/@val";
         /// <summary>
         /// Type, pie or bar
         /// </summary>
@@ -93,8 +94,23 @@ namespace OfficeOpenXml.Drawing.Chart
             }
             internal set
             {
-                _chartXmlHelper.CreateNode(pieTypePath,true);
+                _chartXmlHelper.CreateNode(pieTypePath, true);
                 _chartXmlHelper.SetXmlNodeString(pieTypePath, value == ePieType.Bar ? "bar" : "pie");
+            }
+        }
+        string _gapWidthPath = "c:gapWidth/@val";
+        /// <summary>
+        /// The size of the gap between two adjacent bars/columns
+        /// </summary>
+        public int GapWidth
+        {
+            get
+            {
+                return _chartXmlHelper.GetXmlNodeInt(_gapWidthPath);
+            }
+            set
+            {
+                _chartXmlHelper.SetXmlNodeString(_gapWidthPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         internal override eChartType GetChartType(string name)

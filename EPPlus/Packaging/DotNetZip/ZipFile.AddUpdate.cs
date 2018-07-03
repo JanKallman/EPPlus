@@ -30,7 +30,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal partial class ZipFile
     {
@@ -1139,7 +1139,13 @@ namespace Ionic.Zip
 #if SILVERLIGHT
             return AddEntry(entryName, content, System.Text.Encoding.UTF8);
 #else
-            return AddEntry(entryName, content, System.Text.Encoding.Default);
+            return AddEntry(entryName, content,
+#if Core
+                System.Text.Encoding.GetEncoding("UTF-8")
+#else
+                System.Text.Encoding.Default
+#endif
+                );
 #endif
         }
 
@@ -1664,7 +1670,13 @@ namespace Ionic.Zip
 #if SILVERLIGHT
             return UpdateEntry(entryName, content, System.Text.Encoding.UTF8);
 #else
-            return UpdateEntry(entryName, content, System.Text.Encoding.Default);
+            return UpdateEntry(entryName, content,
+#if Core
+                System.Text.Encoding.GetEncoding("UTF-8")
+#else
+                System.Text.Encoding.Default
+#endif
+                );
 #endif
         }
 
@@ -1796,7 +1808,7 @@ namespace Ionic.Zip
         /// </remarks>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.AddEntry(string, System.IO.Stream)"/>
-        /// <seealso cref="Ionic.Zip.ZipEntry.InputStream"/>
+        /// <seealso cref="ZipEntry.InputStream"/>
         ///
         /// <param name="entryName">
         ///   The name, including any path, to use within the archive for the entry.

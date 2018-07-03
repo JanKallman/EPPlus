@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -34,7 +34,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
+using System.Security;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
 namespace OfficeOpenXml.Table
 {
@@ -109,7 +112,7 @@ namespace OfficeOpenXml.Table
     /// <summary>
     /// An Excel Table
     /// </summary>
-    public class ExcelTable : XmlHelper
+    public class ExcelTable : XmlHelper, IEqualityComparer<ExcelTable>
     {
         internal ExcelTable(Packaging.ZipPackageRelationship rel, ExcelWorksheet sheet) : 
             base(sheet.NameSpaceManager)
@@ -150,29 +153,37 @@ namespace OfficeOpenXml.Table
         }
         private string GetStartXml(string name, int tblId)
         {
+            name = ConvertUtil.ExcelEscapeString(name);
             string xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\" ?>";
             xml += string.Format("<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" id=\"{0}\" name=\"{1}\" displayName=\"{2}\" ref=\"{3}\" headerRowCount=\"1\">",
             tblId,
             name,
-            cleanDisplayName(name),
+            ExcelAddressUtil.GetValidName(name),
             Address.Address);
             xml += string.Format("<autoFilter ref=\"{0}\" />", Address.Address);
 
             int cols=Address._toCol-Address._fromCol+1;
             xml += string.Format("<tableColumns count=\"{0}\">",cols);
+            var names = new Dictionary<string, string>();            
             for(int i=1;i<=cols;i++)
             {
                 var cell = WorkSheet.Cells[Address._fromRow, Address._fromCol+i-1];
                 string colName;
-                if (cell.Value == null)
+                if (cell.Value == null || names.ContainsKey(cell.Value.ToString()))
                 {
-                    colName = string.Format("Column{0}", i);
+                    //Get an unique name
+                    int a=i;
+                    do
+                    {
+                        colName = string.Format("Column{0}", a++);
+                    }
+                    while (names.ContainsKey(colName));
                 }
                 else
                 {
-                    colName = System.Security.SecurityElement.Escape(cell.Value.ToString());
+                    colName = SecurityElement.Escape(cell.Value.ToString());
                 }
-                
+                names.Add(colName, colName);
                 xml += string.Format("<tableColumn id=\"{0}\" name=\"{1}\" />", i,colName);
             }
             xml += "</tableColumns>";
@@ -181,7 +192,7 @@ namespace OfficeOpenXml.Table
 
             return xml;
         }
-        private string cleanDisplayName(string name) 
+        internal static string CleanDisplayName(string name) 
         {
             return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
@@ -236,7 +247,7 @@ namespace OfficeOpenXml.Table
             }
             set 
             {
-                if(WorkSheet.Workbook.ExistsTableName(value))
+                if(Name.Equals(value, StringComparison.CurrentCultureIgnoreCase)==false && WorkSheet.Workbook.ExistsTableName(value))
                 {
                     throw (new ArgumentException("Tablename is not unique"));
                 }
@@ -248,7 +259,7 @@ namespace OfficeOpenXml.Table
                     WorkSheet.Tables._tableNames.Add(value,ix);
                 }
                 SetXmlNodeString(NAME_PATH, value);
-                SetXmlNodeString(DISPLAY_NAME_PATH, cleanDisplayName(value));
+                SetXmlNodeString(DISPLAY_NAME_PATH, ExcelAddressUtil.GetValidName(value));
             }
         }
         /// <summary>
@@ -259,15 +270,25 @@ namespace OfficeOpenXml.Table
             get;
             set;
         }
+
+        private ExcelAddressBase _address = null;
         /// <summary>
         /// The address of the table
         /// </summary>
         public ExcelAddressBase Address
         {
-            get;
-            internal set;
+            get
+            {
+                return _address;
+            }
+            internal set
+            {
+                _address = value;
+                SetXmlNodeString("@ref",value.Address);
+                WriteAutoFilter(ShowTotal);
+            }
         }
-        ExcelTableColumnCollection _cols = null;
+        internal ExcelTableColumnCollection _cols = null;
         /// <summary>
         /// Collection of the columns in the table
         /// </summary>
@@ -314,7 +335,7 @@ namespace OfficeOpenXml.Table
             }
             set
             {
-                if (Address._toRow - Address._fromRow < 1 && value ||
+                if (Address._toRow - Address._fromRow < 0 && value ||
                     Address._toRow - Address._fromRow == 1 && value && ShowTotal)
                 {
                     throw (new Exception("Cant set ShowHeader-property. Table has too few rows"));
@@ -324,6 +345,18 @@ namespace OfficeOpenXml.Table
                 {
                     DeleteNode(HEADERROWCOUNT_PATH);
                     WriteAutoFilter(ShowTotal);
+                    for (int i = 0; i < Columns.Count; i++)
+                    {
+                        var v = WorkSheet.GetValue<string>(Address._fromRow, Address._fromCol + i);
+                        if(string.IsNullOrEmpty(v))
+                        {
+                            WorkSheet.SetValue(Address._fromRow, Address._fromCol + i, _cols[i].Name);
+                        }
+                        else if (v != _cols[i].Name)
+                        {
+                            _cols[i].Name = v;
+                        }
+                    }
                 }
                 else
                 {
@@ -435,7 +468,7 @@ namespace OfficeOpenXml.Table
         {
             get
             {
-                return GetXmlNodeString(StyleName);
+                return GetXmlNodeString(STYLENAME_PATH);
             }
             set
             {
@@ -598,6 +631,16 @@ namespace OfficeOpenXml.Table
                 }
 
             }
-        }        
+        }
+
+        public bool Equals(ExcelTable x, ExcelTable y)
+        {
+            return x.WorkSheet == y.WorkSheet && x.Id == y.Id && x.TableXml.OuterXml == y.TableXml.OuterXml;
+        }
+
+        public int GetHashCode(ExcelTable obj)
+        {
+            return obj.TableXml.OuterXml.GetHashCode();
+        }
     }
 }

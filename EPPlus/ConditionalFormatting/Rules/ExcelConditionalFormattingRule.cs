@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -85,7 +85,12 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode)
     {
       Require.Argument(address).IsNotNull("address");
-      Require.Argument(priority).IsInRange(1, int.MaxValue, "priority");
+
+  	  // While MSDN states that 1 is the "highest priority," it also defines this
+	  // field as W3C XML Schema int, which would allow values less than 1. Excel
+	  // itself will, on occasion, use a value of 0, so this check will allow a 0.
+      Require.Argument(priority).IsInRange(0, int.MaxValue, "priority");
+
       Require.Argument(worksheet).IsNotNull("worksheet");
 
       _type = type;

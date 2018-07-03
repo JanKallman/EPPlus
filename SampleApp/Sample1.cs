@@ -1,4 +1,4 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * All rights reserved.
@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -27,7 +27,7 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		21 Mar 2010
+ * Jan KÃ¤llman		Added		21 Mar 2010
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -37,26 +37,19 @@ using OfficeOpenXml;
 using System.Xml;
 using System.Drawing;
 using OfficeOpenXml.Style;
-
 namespace EPPlusSamples
 {
 	class Sample1
 	{
-		/// <summary>
-		/// Sample 1 - simply creates a new workbook from scratch.
-		/// The workbook contains one worksheet with a simple invertory list
-		/// </summary>
-		public static string RunSample1(DirectoryInfo outputDir)
-		{
-			FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-			if (newFile.Exists)
-			{
-				newFile.Delete();  // ensures we create a new workbook
-				newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-			}
-			using (ExcelPackage package = new ExcelPackage(newFile))
+        /// <summary>
+        /// Sample 1 - simply creates a new workbook from scratch.
+        /// The workbook contains one worksheet with a simple invertory list
+        /// </summary>
+        public static string RunSample1()
+        {
+			using (var package = new ExcelPackage())
             {
-                // add a new worksheet to the empty workbook
+                // Add a new worksheet to the empty workbook
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
                 //Add the headers
                 worksheet.Cells[1, 1].Value = "ID";
@@ -99,11 +92,17 @@ namespace EPPlusSamples
                 worksheet.Cells[5, 3, 5, 5].Formula = string.Format("SUBTOTAL(9,{0})", new ExcelAddress(2,3,4,3).Address);
                 worksheet.Cells["C2:C5"].Style.Numberformat.Format = "#,##0";
                 worksheet.Cells["D2:E5"].Style.Numberformat.Format = "#,##0.00";
-
+                
                 //Create an autofilter for the range
                 worksheet.Cells["A1:E4"].AutoFilter = true;
 
                 worksheet.Cells["A2:A4"].Style.Numberformat.Format = "@";   //Format as text
+
+                //There is actually no need to calculate, Excel will do it for you, but in some cases it might be useful. 
+                //For example if you link to this workbook from another workbook or you will open the workbook in a program that hasn't a calculation engine or 
+                //you want to use the result of a formula in your program.
+                worksheet.Calculate(); 
+
                 worksheet.Cells.AutoFitColumns(0);  //Autofit columns for all cells
 
                 // lets set the header text 
@@ -124,21 +123,21 @@ namespace EPPlusSamples
 
                 // set some document properties
                 package.Workbook.Properties.Title = "Invertory";
-                package.Workbook.Properties.Author = "Jan Källman";
+                package.Workbook.Properties.Author = "Jan KÃ¤llman";
                 package.Workbook.Properties.Comments = "This sample demonstrates how to create an Excel 2007 workbook using EPPlus";
 
                 // set some extended property values
                 package.Workbook.Properties.Company = "AdventureWorks Inc.";
 
                 // set some custom property values
-                package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan Källman");
+                package.Workbook.Properties.SetCustomPropertyValue("Checked by", "Jan KÃ¤llman");
                 package.Workbook.Properties.SetCustomPropertyValue("AssemblyName", "EPPlus");
-                // save our new workbook and we are done!
-                package.Save();
 
+                var xlFile = Utils.GetFileInfo("sample1.xlsx");
+                // save our new workbook in the output directory and we are done!
+                package.SaveAs(xlFile);
+                return xlFile.FullName;
             }
-
-            return newFile.FullName;
 		}
 	}
 }

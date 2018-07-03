@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -214,6 +214,20 @@ namespace OfficeOpenXml.Style
             }
         }
 
+        /// <summary>
+        /// If true the cell has a quote prefix, which indicates the value of the cell is prefixed with a single quote.
+        /// </summary>
+        public bool QuotePrefix
+        {
+            get
+            {
+                return _styles.CellXfs[Index].QuotePrefix;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Style, eStyleProperty.QuotePrefix, value, _positionID, _address));
+            }
+        }
 
         const string xfIdPath = "@xfId";
         /// <summary>
@@ -244,7 +258,7 @@ namespace OfficeOpenXml.Style
         {
             get 
             { 
-                return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + "|" + VerticalAlignment + "|" + HorizontalAlignment + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + XfId.ToString(); 
+                return Numberformat.Id + "|" + Font.Id + "|" + Fill.Id + "|" + Border.Id + "|" + VerticalAlignment + "|" + HorizontalAlignment + "|" + WrapText.ToString() + "|" + ReadingOrder.ToString() + "|" + XfId.ToString() + "|" + QuotePrefix.ToString(); 
             }
         }
 

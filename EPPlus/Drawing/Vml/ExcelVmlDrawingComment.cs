@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -50,17 +50,22 @@ namespace OfficeOpenXml.Drawing.Vml
             SchemaNodeOrder = new string[] { "fill", "stroke", "shadow", "path", "textbox", "ClientData", "MoveWithCells", "SizeWithCells", "Anchor", "Locked", "AutoFill", "LockText", "TextHAlign", "TextVAlign", "Row", "Column", "Visible" };
         }   
         internal ExcelRangeBase Range { get; set; }
-        //public string Id 
-        //{
-        //    get
-        //    {
-        //        return GetXmlNodeString("@id");
-        //    }
-        //    set
-        //    {
-        //        SetXmlNodeString("@id",value);
-        //    }
-        //}
+
+        /// <summary>
+        /// Address in the worksheet
+        /// </summary>
+        public string Address
+        {
+            get
+            {
+                return Range.Address;
+            }
+            internal set
+            {
+                Range.Address = value;
+            }
+        }
+
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";
         /// <summary>
         /// Vertical alignment for text
@@ -153,6 +158,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 }                
             }
         }
+
         const string BACKGROUNDCOLOR_PATH = "@fillcolor";
         const string BACKGROUNDCOLOR2_PATH = "v:fill/@color2";
         /// <summary>
@@ -229,7 +235,7 @@ namespace OfficeOpenXml.Drawing.Vml
                 else
                 {
                     string v = value.ToString();
-                    v = v.Substring(0, 1).ToLower() + v.Substring(1, v.Length - 1);
+                    v = v.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + v.Substring(1, v.Length - 1);
                     SetXmlNodeString(LINESTYLE_PATH, v);
                     DeleteNode(ENDCAP_PATH);
                 }
@@ -426,6 +432,36 @@ namespace OfficeOpenXml.Drawing.Vml
                     _to = new ExcelVmlDrawingPosition(NameSpaceManager, TopNode.SelectSingleNode("x:ClientData", NameSpaceManager), 4);
                 }
                 return _to;
+            }
+        }
+        const string ROW_PATH = "x:ClientData/x:Row";
+        /// <summary>
+        /// Row position for a comment
+        /// </summary>
+        internal int Row
+        {
+            get
+            {
+                return GetXmlNodeInt(ROW_PATH);
+            }
+            set
+            {
+                SetXmlNodeString(ROW_PATH, value.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        const string COLUMN_PATH = "x:ClientData/x:Column";
+        /// <summary>
+        /// Column position for a comment
+        /// </summary>
+        internal int Column
+        {
+            get
+            {
+                return GetXmlNodeInt(COLUMN_PATH);
+            }
+            set
+            {
+                SetXmlNodeString(COLUMN_PATH, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         const string STYLE_PATH = "@style";

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -35,12 +35,13 @@ using System.Text;
 using Ionic.Zip;
 using System.IO;
 using System.Xml;
-using Ionic.Zlib;
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 namespace OfficeOpenXml.Packaging
 {
     public abstract class ZipPackageRelationshipBase
     {
         protected ZipPackageRelationshipCollection _rels = new ZipPackageRelationshipCollection();
+        protected internal 
         int maxRId = 1;
         internal void DeleteRelationship(string id)
         {
@@ -67,7 +68,7 @@ namespace OfficeOpenXml.Packaging
             rel.TargetUri = targetUri;
             rel.TargetMode = targetMode;
             rel.RelationshipType = relationshipType;
-            rel.Id = "RId" + (maxRId++).ToString();
+            rel.Id = "rId" + (maxRId++).ToString();
             _rels.Add(rel);
             return rel;
         }
@@ -97,13 +98,21 @@ namespace OfficeOpenXml.Packaging
                 var rel = new ZipPackageRelationship();
                 rel.Id = c.GetAttribute("Id");
                 rel.RelationshipType = c.GetAttribute("Type");
-                rel.TargetMode = c.GetAttribute("TargetMode").ToLower() == "external" ? TargetMode.External : TargetMode.Internal;
-                rel.TargetUri = new Uri(c.GetAttribute("Target"), UriKind.RelativeOrAbsolute);
+                rel.TargetMode = c.GetAttribute("TargetMode").Equals("external",StringComparison.OrdinalIgnoreCase) ? TargetMode.External : TargetMode.Internal;
+                try
+                {
+                    rel.TargetUri = new Uri(c.GetAttribute("Target"), UriKind.RelativeOrAbsolute);
+                }
+                catch
+                {
+                    //The URI is not a valid URI. Encode it to make i valid.
+                    rel.TargetUri = new Uri(Uri.EscapeUriString("Invalid:URI "+c.GetAttribute("Target")), UriKind.RelativeOrAbsolute);
+                }
                 if (!string.IsNullOrEmpty(source))
                 {
                     rel.SourceUri = new Uri(source, UriKind.Relative);
                 }
-                if (rel.Id.ToLower().StartsWith("rid"))
+                if (rel.Id.StartsWith("rid", StringComparison.OrdinalIgnoreCase))
                 {
                     int id;
                     if (int.TryParse(rel.Id.Substring(3), out id))

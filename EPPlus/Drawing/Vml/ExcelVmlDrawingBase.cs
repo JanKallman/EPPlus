@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -91,6 +91,20 @@ namespace OfficeOpenXml.Drawing.Vml
                 SetXmlNodeString("@id",value);
             }
         }
+        /// <summary>
+        /// Alternative text to be displayed instead of a graphic.
+        /// </summary>
+        public string AlternativeText
+        {
+            get
+            {
+                return GetXmlNodeString("@alt");
+            }
+            set
+            {
+                SetXmlNodeString("@alt", value);
+            }
+        }
         #region "Style Handling methods"
         protected bool GetStyle(string style, string key, out string value)
         {
@@ -117,7 +131,7 @@ namespace OfficeOpenXml.Drawing.Vml
         }
         protected string SetStyle(string style, string key, string value)
         {
-            string[] styles = style.Split(';');
+            string[] styles = style.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
             string newStyle="";
             bool changed = false;
             foreach (string s in styles)
@@ -143,7 +157,7 @@ namespace OfficeOpenXml.Drawing.Vml
             }
             else
             {
-                newStyle = style.Substring(0, style.Length - 1);
+                newStyle = newStyle.Substring(0, newStyle.Length - 1);
             }
             return newStyle;
         }

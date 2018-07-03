@@ -27,11 +27,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Ionic.Zlib;
 using System.IO;
 
 
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
     internal class WorkItem
     {
@@ -758,9 +757,11 @@ namespace Ionic.Zlib
             _Flush(true);
 
             if (!_leaveOpen)
+            {
                 _outStream.Close();
-
-            _isClosed= true;
+                _outStream.Dispose();
+            }
+            _isClosed = true;
         }
 
 
@@ -968,7 +969,8 @@ namespace Ionic.Zlib
 
                 } while (nextToWrite >= 0);
 
-            } while (doAll && (_lastWritten != _latestCompressed));
+            //} while (doAll && (_lastWritten != _latestCompressed));
+            } while (doAll && (_lastWritten != _latestCompressed || _lastWritten != _lastFilled));
 
             emitting = false;
         }

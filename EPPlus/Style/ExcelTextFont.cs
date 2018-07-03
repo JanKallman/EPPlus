@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Drawing;
@@ -260,7 +261,7 @@ namespace OfficeOpenXml.Style
                     return "dbl";
                 default:
                     string ret = value.ToString();
-                    return ret.Substring(0, 1).ToLower() + ret.Substring(1, ret.Length - 1);
+                    return ret.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + ret.Substring(1, ret.Length - 1);
             }
         }
         private eStrikeType TranslateStrike(string text)

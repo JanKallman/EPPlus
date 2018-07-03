@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -85,14 +85,24 @@ namespace OfficeOpenXml
 			else
 				return CreateNode(path, false);
 		}
-		internal XmlNode CreateNode(string path, bool insertFirst)
+        /// <summary>
+        /// Create the node path. Nodesa are inserted according to the Schema node oreder
+        /// </summary>
+        /// <param name="path">The path to be created</param>
+        /// <param name="insertFirst">Insert as first child</param>
+        /// <param name="addNew">Always add a new item at the last level.</param>
+        /// <returns></returns>
+        internal XmlNode CreateNode(string path, bool insertFirst, bool addNew=false)
 		{
 			XmlNode node = TopNode;
 			XmlNode prependNode = null;
-			foreach (string subPath in path.Split('/'))
+            if (path.StartsWith("/")) path = path.Substring(1);
+            var subPaths = path.Split('/');
+            for(int i= 0; i < subPaths.Length;i++)
 			{
-				XmlNode subNode = node.SelectSingleNode(subPath, NameSpaceManager);
-				if (subNode == null)
+                string subPath = subPaths[i];
+                XmlNode subNode = node.SelectSingleNode(subPath, NameSpaceManager);
+				if (subNode == null || (i==subPath.Length-1 && addNew))
 				{
 					string nodeName;
 					string nodePrefix;
@@ -304,7 +314,7 @@ namespace OfficeOpenXml
 						string[] attributeSplit = subPath.Split('=');
 						string attributeName = attributeSplit[0].Substring(1, attributeSplit[0].Length - 1);
 						string attributeValue = null;	// Null means no attribute value
-
+                        
 						// Check if we have an attribute value to set
 						if (attributeSplit.Length > 1)
 						{
@@ -646,7 +656,7 @@ namespace OfficeOpenXml
 		internal bool GetXmlNodeBool(string path, bool blankValue)
 		{
 			string value = GetXmlNodeString(path);
-			if (value == "1" || value == "-1" || value == "True")
+			if (value == "1" || value == "-1" || value.Equals("true",StringComparison.OrdinalIgnoreCase))
 			{
 				return true;
 			}
@@ -662,7 +672,7 @@ namespace OfficeOpenXml
 		internal int GetXmlNodeInt(string path)
 		{
 			int i;
-			if (int.TryParse(GetXmlNodeString(path), out i))
+			if (int.TryParse(GetXmlNodeString(path), NumberStyles.Number, CultureInfo.InvariantCulture, out i))
 			{
 				return i;
 			}
@@ -675,7 +685,7 @@ namespace OfficeOpenXml
         {
             int i;
             string s = GetXmlNodeString(path);
-            if (s!="" && int.TryParse(s, out i))
+            if (s!="" && int.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out i))
             {
                 return i;
             }
@@ -697,7 +707,19 @@ namespace OfficeOpenXml
 				return 0;
 			}
 		}
-		internal double? GetXmlNodeDoubleNull(string path)
+        internal decimal? GetXmlNodeDecimalNull(string path)
+        {
+            decimal d;
+            if (decimal.TryParse(GetXmlNodeString(path), NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+            {
+                return d;
+            }
+            else
+            {
+                return null;
+            }
+        }
+        internal double? GetXmlNodeDoubleNull(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -707,7 +729,7 @@ namespace OfficeOpenXml
 			else
 			{
 				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -716,8 +738,8 @@ namespace OfficeOpenXml
 					return null;
 				}
 			}
-		}
-		internal double GetXmlNodeDouble(string path)
+		}		
+        internal double GetXmlNodeDouble(string path)
 		{
 			string s = GetXmlNodeString(path);
 			if (s == "")
@@ -726,8 +748,8 @@ namespace OfficeOpenXml
 			}
 			else
 			{
-				double v;
-				if (double.TryParse(s, NumberStyles.Number, CultureInfo.InvariantCulture, out v))
+                double v;
+				if (double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out v))
 				{
 					return v;
 				}
@@ -737,6 +759,7 @@ namespace OfficeOpenXml
 				}
 			}
 		}
+
     internal string GetXmlNodeString(XmlNode node, string path)
     {
       if (node == null)
@@ -766,27 +789,27 @@ namespace OfficeOpenXml
 		{
             return GetXmlNodeString(TopNode, path);
 		}
-		internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
-		{
-			return GetNewUri(package, sUri, 1);
-		}
-        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, int id)
-		{
-			Uri uri;
-			do
-			{
-				uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
-			}
-			while (package.PartExists(uri));
-			return uri;
-		}
-		/// <summary>
-		/// Insert the new node before any of the nodes in the comma separeted list
-		/// </summary>
-		/// <param name="parentNode">Parent node</param>
-		/// <param name="beforeNodes">comma separated list containing nodes to insert after. Left to right order</param>
-		/// <param name="newNode">The new node to be inserterd</param>
-		internal void InserAfter(XmlNode parentNode, string beforeNodes, XmlNode newNode)
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri)
+        {
+            var id = 1;
+            return GetNewUri(package, sUri, ref id);
+        }
+        internal static Uri GetNewUri(Packaging.ZipPackage package, string sUri, ref int id)
+        {
+            Uri uri = new Uri(string.Format(sUri, id), UriKind.Relative);
+            while (package.PartExists(uri))
+            {
+                uri = new Uri(string.Format(sUri, ++id), UriKind.Relative);
+            }
+            return uri;
+        }
+        /// <summary>
+        /// Insert the new node before any of the nodes in the comma separeted list
+        /// </summary>
+        /// <param name="parentNode">Parent node</param>
+        /// <param name="beforeNodes">comma separated list containing nodes to insert after. Left to right order</param>
+        /// <param name="newNode">The new node to be inserterd</param>
+        internal void InserAfter(XmlNode parentNode, string beforeNodes, XmlNode newNode)
 		{
 			string[] nodePaths = beforeNodes.Split(',');
 
@@ -805,11 +828,14 @@ namespace OfficeOpenXml
         {
             XmlReaderSettings settings = new XmlReaderSettings();
             //Disable entity parsing (to aviod xmlbombs, External Entity Attacks etc).
+#if(Core)
+            settings.DtdProcessing = DtdProcessing.Prohibit;
+#else
             settings.ProhibitDtd = true;            
-            XmlReader reader = XmlReader.Create(stream, settings);            
-            
+#endif
+            XmlReader reader = XmlReader.Create(stream, settings);
             xmlDoc.Load(reader);
-        }        
+        }
         internal static void LoadXmlSafe(XmlDocument xmlDoc, string xml, Encoding encoding)
         {
             var stream = new MemoryStream(encoding.GetBytes(xml));

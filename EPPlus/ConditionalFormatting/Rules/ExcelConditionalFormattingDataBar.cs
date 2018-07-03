@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -78,7 +78,12 @@ namespace OfficeOpenXml.ConditionalFormatting
               itemElementNode,
               (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
         {
-            SchemaNodeOrder = new string[] { "cfvo", "color" };
+            var s = SchemaNodeOrder;
+            Array.Resize(ref s, s.Length+2);    //Fixes issue 15429. Append node order instead om overwriting it.
+            s[s.Length - 2] = "cfvo";
+            s[s.Length - 1] = "color";
+            SchemaNodeOrder = s;
+
             //Create the <dataBar> node inside the <cfRule> node
             if (itemElementNode!=null && itemElementNode.HasChildNodes)
             {

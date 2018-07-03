@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -41,6 +41,11 @@ namespace OfficeOpenXml.DataValidation
     /// </summary>
     public interface IRangeDataValidation
     {
+        /// <summary>
+        /// Adds a <see cref="IExcelDataValidationAny"/> to the range.
+        /// </summary>
+        /// <returns>A <see cref="ExcelDataValidationAny"/> that can be configured for any validation</returns>
+        IExcelDataValidationAny AddAnyDataValidation();
         /// <summary>
         /// Adds a <see cref="IExcelDataValidationInt"/> to the range
         /// </summary>

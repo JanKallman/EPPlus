@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
 namespace OfficeOpenXml
@@ -187,6 +188,24 @@ namespace OfficeOpenXml
             Top = top;
             Width = width;
             Height = height;
+        }
+
+        const string ACTIVETAB_PATH = "d:bookViews/d:workbookView/@activeTab";
+        public int ActiveTab 
+        {
+            get
+            {
+                var v=GetXmlNodeInt(ACTIVETAB_PATH);
+                if (v < 0)
+                    return 0;
+                else
+                    return v;
+
+            }
+            set
+            {
+                SetXmlNodeString(ACTIVETAB_PATH, value.ToString(CultureInfo.InvariantCulture));
+            }
         }
     }
 }

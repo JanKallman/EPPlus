@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -46,12 +46,12 @@ namespace EPPlusSamples
         /// This sample shows how to use Linq with the Cells collection
         /// </summary>
         /// <param name="outputDir">The path where sample7.xlsx is</param>
-        public static void RunLinqSample(DirectoryInfo outputDir)
+        public static void RunLinqSample()
         {
 	        Console.WriteLine("Now open sample 7 again and perform some Linq queries...");
 		    Console.WriteLine();
 
-			FileInfo existingFile = new FileInfo(outputDir.FullName + @"\sample7.xlsx");
+            FileInfo existingFile = Utils.GetFileInfo("sample7.xlsx", false);
             using (ExcelPackage package = new ExcelPackage(existingFile))
             {
                 ExcelWorksheet sheet = package.Workbook.Worksheets[1];
@@ -99,7 +99,7 @@ namespace EPPlusSamples
 
                 Console.WriteLine();
                 Console.WriteLine("Print all cells with a value between 9500 and 10000 in column D and the year of Column C is {0} ...", DateTime.Today.Year + 1);
-                Console.WriteLine();    
+                Console.WriteLine();
 
                 count = 0;
                 foreach (var cell in query3)    //The cells returned here will all be in column D, since that is the address in the indexer. Use the Offset method to print any other cells from the same row.

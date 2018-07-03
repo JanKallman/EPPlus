@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -96,12 +96,12 @@ namespace OfficeOpenXml.Table.PivotTable
             //CacheDefinition
             CacheDefinitionXml = new XmlDocument();
             LoadXmlSafe(CacheDefinitionXml, GetStartXml(sourceAddress), Encoding.UTF8);
-            CacheDefinitionUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheDefinition{0}.xml", tblId); 
+            CacheDefinitionUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheDefinition{0}.xml", ref tblId); 
             Part = pck.CreatePart(CacheDefinitionUri, ExcelPackage.schemaPivotCacheDefinition);
             TopNode = CacheDefinitionXml.DocumentElement;
 
             //CacheRecord. Create an empty one.
-            CacheRecordUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheRecords{0}.xml", tblId); 
+            CacheRecordUri = GetNewUri(pck, "/xl/pivotCache/pivotCacheRecords{0}.xml", ref tblId); 
             var cacheRecord = new XmlDocument();
             cacheRecord.LoadXml("<pivotCacheRecords xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\" count=\"0\" />");
             var recPart = pck.CreatePart(CacheRecordUri, ExcelPackage.schemaPivotCacheRecords);
@@ -168,7 +168,8 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         
         const string _sourceWorksheetPath="d:cacheSource/d:worksheetSource/@sheet";
-        const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
+        internal const string _sourceNamePath = "d:cacheSource/d:worksheetSource/@name";
+        internal const string _sourceAddressPath = "d:cacheSource/d:worksheetSource/@ref";
         internal ExcelRangeBase _sourceRange = null;
         /// <summary>
         /// The source data range when the pivottable has a worksheet datasource. 
@@ -184,7 +185,35 @@ namespace OfficeOpenXml.Table.PivotTable
                     if (CacheSource == eSourceType.Worksheet)
                     {
                         var ws = PivotTable.WorkSheet.Workbook.Worksheets[GetXmlNodeString(_sourceWorksheetPath)];
-                        if (ws != null)
+                        if (ws == null) //Not worksheet, check name or table name
+                        {
+                            var name = GetXmlNodeString(_sourceNamePath);
+                            foreach (var n in PivotTable.WorkSheet.Workbook.Names)
+                            {
+                                if(name.Equals(n.Name,StringComparison.OrdinalIgnoreCase))
+                                {
+                                    _sourceRange = n;
+                                    return _sourceRange;
+                                }
+                            }
+                            foreach (var w in PivotTable.WorkSheet.Workbook.Worksheets)
+                            {
+                                if (w.Tables._tableNames.ContainsKey(name))
+                                {
+                                    _sourceRange = w.Cells[w.Tables[name].Address.Address];
+                                    break;
+                                }
+                                foreach (var n in w.Names)
+                                {
+                                    if (name.Equals(n.Name, StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        _sourceRange = n;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else
                         {
                             _sourceRange = ws.Cells[GetXmlNodeString(_sourceAddressPath)];
                         }
@@ -243,13 +272,13 @@ namespace OfficeOpenXml.Table.PivotTable
             var sourceWorksheet = PivotTable.WorkSheet.Workbook.Worksheets[sourceAddress.WorkSheet];
             for (int col = sourceAddress._fromCol; col <= sourceAddress._toCol; col++)
             {
-                if (sourceWorksheet == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col) == null || sourceWorksheet._values.GetValue(sourceAddress._fromRow, col).ToString().Trim() == "")
+                if (sourceWorksheet == null || sourceWorksheet.GetValueInner(sourceAddress._fromRow, col) == null || sourceWorksheet.GetValueInner(sourceAddress._fromRow, col).ToString().Trim() == "")
                 {
                     xml += string.Format("<cacheField name=\"Column{0}\" numFmtId=\"0\">", col - sourceAddress._fromCol + 1);
                 }
                 else
                 {
-                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet._values.GetValue(sourceAddress._fromRow, col));
+                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet.GetValueInner(sourceAddress._fromRow, col));
                 }
                 //xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
                 xml += "<sharedItems containsBlank=\"1\" /> ";

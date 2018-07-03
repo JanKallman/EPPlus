@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -206,9 +206,14 @@ namespace OfficeOpenXml.DataValidation.Formulas
             {
                 State = FormulaState.Value;
             }
-            SetXmlNodeString(_formulaPath, GetValueAsString());
+            var valuesAsString = GetValueAsString();
+            // Excel supports max 255 characters in this field.
+            if (valuesAsString.Length > 255)
+            {
+                throw new InvalidOperationException("The total length of a DataValidation list cannot exceed 255 characters");
+            }
+            SetXmlNodeString(_formulaPath, valuesAsString);
         }
-
         public IList<string> Values
         {
             get;
@@ -227,7 +232,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
                 }
                 else
                 {
-                    sb.AppendFormat(", {0}", val);
+                    sb.AppendFormat(",{0}", val);
                 }
             }
             sb.Append("\"");

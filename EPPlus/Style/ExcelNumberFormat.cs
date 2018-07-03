@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -78,8 +78,8 @@ namespace OfficeOpenXml.Style
                 return "general";
             }
             set
-            {
-                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Numberformat, eStyleProperty.Format, value, _positionID, _address));
+            {                
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Numberformat, eStyleProperty.Format, (string.IsNullOrEmpty(value) ? "General" : value), _positionID, _address));
             }
         }
 
@@ -144,7 +144,7 @@ namespace OfficeOpenXml.Style
                 case 39:
                     return "#,##0.00;(#,##0.00)";
                 case 40:
-                    return "#,##0.00;[Red](#,#)";
+                    return "#,##0.00;[Red](#,##0.00)";
                 case 45:
                     return "mm:ss";
                 case 46:
@@ -164,6 +164,7 @@ namespace OfficeOpenXml.Style
             switch (format)
             {
                 case "General":
+                case "":
                     return 0;
                 case "0":
                     return 1;
@@ -207,7 +208,7 @@ namespace OfficeOpenXml.Style
                     return 38;
                 case "#,##0.00;(#,##0.00)":
                     return 39;
-                case "#,##0.00;[Red](#,#)":
+                case "#,##0.00;[Red](#,##0.00)":                      
                     return 40;
                 case "mm:ss":
                     return 45;

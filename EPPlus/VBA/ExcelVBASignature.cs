@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -33,9 +33,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using System.Security.Cryptography.Pkcs;
 using OfficeOpenXml.Utils;
 using System.IO;
+using OfficeOpenXml.Utils.CompundDocument;
+using System.Security.Cryptography.Pkcs;
 
 namespace OfficeOpenXml.VBA
 {
@@ -99,7 +100,11 @@ namespace OfficeOpenXml.VBA
                 uint endel2 = br.ReadUInt32();  //0
                 ushort rgchProjectNameBuffer = br.ReadUInt16();
                 ushort rgchTimestampBuffer = br.ReadUInt16();
+#if Core
+                Verifier = new EnvelopedCms();
+#else
                 Verifier = new SignedCms();
+#endif
                 Verifier.Decode(signature);
             }
             else
@@ -143,17 +148,31 @@ namespace OfficeOpenXml.VBA
         //}
         internal void Save(ExcelVbaProject proj)
         {
-            if (Certificate == null || Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            if (Certificate == null)
             {
-                if (Part != null)
+                return;
+            }
+            
+            if (Certificate.HasPrivateKey==false)    //No signature. Remove any Signature part
+            {
+                var storeCert = GetCertFromStore(StoreLocation.CurrentUser);
+                if (storeCert == null)
+                {
+                    storeCert = GetCertFromStore(StoreLocation.LocalMachine);
+                }
+                if (storeCert != null && storeCert.HasPrivateKey == true)
+                {
+                    Certificate = storeCert;
+                }
+                else
                 {
                     foreach (var r in Part.GetRelationships())
                     {
                         Part.DeleteRelationship(r.Id);
                     }
                     Part.Package.DeletePart(Part.Uri);
+                    return;
                 }
-                return;
             }
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
@@ -198,6 +217,35 @@ namespace OfficeOpenXml.VBA
             }
             var b = ms.ToArray();
             Part.GetStream(FileMode.Create).Write(b, 0, b.Length);            
+        }
+
+        private X509Certificate2 GetCertFromStore(StoreLocation loc)
+        {
+            try
+            {
+                X509Store store = new X509Store(StoreName.My, loc);
+                store.Open(OpenFlags.ReadOnly);
+                try
+                {
+                    var storeCert = store.Certificates.Find(
+                                    X509FindType.FindByThumbprint,
+                                    Certificate.Thumbprint,
+                                    true
+                                    ).OfType<X509Certificate2>().FirstOrDefault();
+                    return storeCert;
+                }
+                finally
+                {
+                    #if Core
+                        store.Dispose();
+                    #endif
+                    store.Close();
+                }
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private byte[] GetCertStore()
@@ -266,10 +314,17 @@ namespace OfficeOpenXml.VBA
 
             ContentInfo contentInfo = new ContentInfo(((MemoryStream)bw.BaseStream).ToArray());
             contentInfo.ContentType.Value = "1.3.6.1.4.1.311.2.1.4";
+#if (Core)
+            Verifier = new EnvelopedCms(contentInfo);
+            var r = new CmsRecipient(Certificate);            
+            Verifier.Encrypt(r);
+            return Verifier.Encode();
+#else
             Verifier = new SignedCms(contentInfo);
             var signer = new CmsSigner(Certificate);
             Verifier.ComputeSignature(signer, false);
             return Verifier.Encode();
+#endif
         }
 
         private byte[] GetContentHash(ExcelVbaProject proj)
@@ -313,14 +368,14 @@ namespace OfficeOpenXml.VBA
                 var lines = module.Code.Split(new char[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
                 foreach (var line in lines)
                 {
-                    if (!line.StartsWith("attribute", true, null))
+                    if (!line.StartsWith("attribute", StringComparison.OrdinalIgnoreCase))
                     {
                         bw.Write(enc.GetBytes(line));
                     }
                 }
             }
             var buffer = (bw.BaseStream as MemoryStream).ToArray();
-            var hp = System.Security.Cryptography.MD5CryptoServiceProvider.Create();
+            var hp = System.Security.Cryptography.MD5.Create();
             return hp.ComputeHash(buffer);
         }
         /// <summary>
@@ -334,7 +389,11 @@ namespace OfficeOpenXml.VBA
         /// <summary>
         /// The verifier
         /// </summary>
+#if Core
+        public EnvelopedCms Verifier { get; internal set; }
+#else
         public SignedCms Verifier { get; internal set; }
+#endif
         internal CompoundDocument Signature { get; set; }
         internal Packaging.ZipPackagePart Part { get; set; }
         internal Uri Uri { get; private set; }

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -86,8 +86,27 @@ namespace OfficeOpenXml
                 {
                     base.Address = Address;
                 }
+                _rtc = null;
                 return this;
             }
+        }
+
+        private ExcelRange GetTableAddess(ExcelWorksheet _worksheet, string address)
+        {
+            int ixStart = address.IndexOf('[');
+            if (ixStart == 0) //External Address
+            {
+                int ixEnd = address.IndexOf(']',ixStart+1);
+                if (ixStart >= 0 & ixEnd >= 0)
+                {
+                    var external = address.Substring(ixStart + 1, ixEnd - 1);
+                    //if (Worksheet.Workbook._externalReferences.Count < external)
+                    //{
+                    //foreach(var 
+                    //}
+                }
+            }
+            return null;
         }
         /// <summary>
         /// Access a single cell
@@ -105,7 +124,14 @@ namespace OfficeOpenXml
                 _fromRow = Row;
                 _toCol = Col;
                 _toRow = Row;
-                base.Address = GetAddress(_fromRow, _fromCol);
+                _rtc = null;
+                // avoid address re-calculation
+                //base.Address = GetAddress(_fromRow, _fromCol);
+                _start = null;
+                _end = null;
+                _addresses = null;
+                _address = GetAddress(_fromRow, _fromCol);
+                ChangeAddress();
                 return this;
             }
         }
@@ -128,7 +154,14 @@ namespace OfficeOpenXml
                 _fromRow = FromRow;
                 _toCol = ToCol;
                 _toRow = ToRow;
-                base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                _rtc = null;
+                // avoid address re-calculation
+                //base.Address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                _start = null;
+                _end = null;
+                _addresses = null;
+                _address = GetAddress(_fromRow, _fromCol, _toRow, _toCol);
+                ChangeAddress();
                 return this;
             }
         }

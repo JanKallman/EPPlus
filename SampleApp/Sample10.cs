@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -42,35 +42,15 @@ namespace EPPlusSamples
 {
     public static class Sample10
     {
-        public static void RunSample10(DirectoryInfo outputDir)
-        {            
+        public static void RunSample10()
+        {
             //Create a Sample10 directory...
-            if(!Directory.Exists(outputDir.FullName + @"\Sample10"))
-            {
-                outputDir.CreateSubdirectory("Sample10");
-            }
-            outputDir=new DirectoryInfo(outputDir + @"\Sample10");
+            var outputDir = Utils.GetDirectoryInfo("Sample10");
 
             //create the three FileInfo objects...
-            FileInfo templateFile = new FileInfo(outputDir.FullName + @"\Template.xlsx");
-            if (templateFile.Exists)
-            {
-                templateFile.Delete(); 
-                templateFile = new FileInfo(outputDir.FullName + @"\Template.xlsx");
-            }
-            FileInfo answerFile = new FileInfo(outputDir.FullName + @"\Answers.xlsx");
-            if (answerFile.Exists)
-            {
-                answerFile.Delete();  
-                answerFile = new FileInfo(outputDir.FullName + @"\Answers.xlsx");
-            }
-
-            FileInfo JKAnswerFile = new FileInfo(outputDir.FullName + @"\JKAnswers.xlsx");
-            if (JKAnswerFile.Exists)
-            {
-                JKAnswerFile.Delete();
-                JKAnswerFile = new FileInfo(outputDir.FullName + @"\JKAnswers.xlsx");
-            }
+            FileInfo templateFile = Utils.GetFileInfo(outputDir, "template.xlsx");
+            FileInfo answerFile = Utils.GetFileInfo(outputDir, "answers.xlsx");
+            FileInfo JKAnswerFile = Utils.GetFileInfo(outputDir, "JKAnswers.xlsx");
 
             //Create the template...
             using (ExcelPackage package = new ExcelPackage(templateFile))
@@ -160,7 +140,7 @@ namespace EPPlusSamples
                 package.Save();
 
                 //Quiz-template is done, now create the answer template and encrypt it...
-                using (     var packageAnswers = new ExcelPackage(package.Stream))       //We use the stream from the template here to get a copy of it.
+                using (var packageAnswers = new ExcelPackage(package.Stream))       //We use the stream from the template here to get a copy of it.
                 {
                     var sheetAnswers = packageAnswers.Workbook.Worksheets[1];
                     sheetAnswers.Cells["C7"].Value = "Stockholm";
@@ -196,9 +176,9 @@ namespace EPPlusSamples
             foreach (var cell in wsAnswers.Cells["C7,C9,C11"])
             {
                 wsUser.Cells[cell.Address].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                if (cell.Value.ToString().ToLower() == wsUser.Cells[cell.Address].Value.ToString().ToLower()) //Correct Answer?
+                if (cell.Value.ToString().Equals(wsUser.Cells[cell.Address].Value.ToString(), StringComparison.OrdinalIgnoreCase)) //Correct Answer?
                 {
-                        wsUser.Cells[cell.Address].Style.Fill.BackgroundColor.SetColor(Color.Green);
+                    wsUser.Cells[cell.Address].Style.Fill.BackgroundColor.SetColor(Color.Green);
                 }
                 else
                 {

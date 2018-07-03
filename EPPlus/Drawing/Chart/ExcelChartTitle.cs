@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 topNode = node.OwnerDocument.CreateElement("c", "title", ExcelPackage.schemaChart);
                 node.InsertBefore(topNode, node.ChildNodes[0]);
-                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
+                topNode.InnerXml = "<c:tx><c:rich><a:bodyPr /><a:lstStyle /><a:p><a:pPr><a:defRPr sz=\"1800\" b=\"0\" /></a:pPr><a:r><a:t /></a:r></a:p></c:rich></c:tx><c:layout /><c:overlay val=\"0\" />";
             }
             TopNode = topNode;
             SchemaNodeOrder = new string[] { "tx","bodyPr", "lstStyle", "layout", "overlay" };

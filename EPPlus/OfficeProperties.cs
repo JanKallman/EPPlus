@@ -1,10 +1,10 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,9 +26,10 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * Jan Källman                      Total rewrite               2010-03-01
- * Jan Källman		    License changed GPL-->LGPL  2011-12-27
+ * Jan KÃ¤llman		                Initial Release		        2009-10-01
+ * Jan KÃ¤llman                      Total rewrite               2010-03-01
+ * Jan KÃ¤llman		                License changed GPL-->LGPL  2011-12-27
+ * Raziq York                       Added Created & Modified    2014-08-20
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -183,7 +184,10 @@ namespace OfficeOpenXml
         public string LastModifiedBy
         {
             get { return _coreHelper.GetXmlNodeString(LastModifiedByPath); }
-            set { _coreHelper.SetXmlNodeString(LastModifiedByPath, value); }
+            set
+            {
+                _coreHelper.SetXmlNodeString(LastModifiedByPath, value);
+            }
         }
 
         const string LastPrintedPath = "cp:lastPrinted";
@@ -195,6 +199,26 @@ namespace OfficeOpenXml
             get { return _coreHelper.GetXmlNodeString(LastPrintedPath); }
             set { _coreHelper.SetXmlNodeString(LastPrintedPath, value); }
         }
+
+        const string CreatedPath = "dcterms:created";
+
+        /// <summary>
+	    /// Gets/sets the created property of the document (core property)
+	    /// </summary>
+	    public DateTime Created
+	    {
+	        get
+	        {
+	            DateTime date;
+	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(CreatedPath), out date) ? date : DateTime.MinValue;
+	        }
+	        set
+	        {
+	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+	            _coreHelper.SetXmlNodeString(CreatedPath, dateString);
+                _coreHelper.SetXmlNodeString(CreatedPath + "/@xsi:type", "dcterms:W3CDTF");
+	        }
+	    }
 
         const string CategoryPath = "cp:category";
         /// <summary>
@@ -242,11 +266,12 @@ namespace OfficeOpenXml
 
         const string ApplicationPath = "xp:Properties/xp:Application";
         /// <summary>
-        /// Gets the Application property of the document (extended property)
+        /// Gets/Set the Application property of the document (extended property)
         /// </summary>
         public string Application
         {
             get { return _extendedHelper.GetXmlNodeString(ApplicationPath); }
+            set { _extendedHelper.SetXmlNodeString(ApplicationPath, value); }
         }
 
         const string HyperlinkBasePath = "xp:Properties/xp:HyperlinkBase";
@@ -261,11 +286,12 @@ namespace OfficeOpenXml
 
         const string AppVersionPath = "xp:Properties/xp:AppVersion";
         /// <summary>
-        /// Gets the AppVersion property of the document (extended property)
+        /// Gets/Set the AppVersion property of the document (extended property)
         /// </summary>
         public string AppVersion
         {
             get { return _extendedHelper.GetXmlNodeString(AppVersionPath); }
+            set { _extendedHelper.SetXmlNodeString(AppVersionPath, value); }
         }
         const string CompanyPath = "xp:Properties/xp:Company";
 
@@ -288,8 +314,70 @@ namespace OfficeOpenXml
             set { _extendedHelper.SetXmlNodeString(ManagerPath, value); }
         }
 
+        const string ModifiedPath = "dcterms:modified";
+	    /// <summary>
+	    /// Gets/sets the modified property of the document (core property)
+	    /// </summary>
+	    public DateTime Modified
+	    {
+	        get
+	        {
+	            DateTime date;
+	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(ModifiedPath), out date) ? date : DateTime.MinValue;
+	        }
+	        set
+	        {
+	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+	            _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
+                _coreHelper.SetXmlNodeString(ModifiedPath + "/@xsi:type", "dcterms:W3CDTF");
+	        }
+	    }
+        const string LinksUpToDatePath = "xp:Properties/xp:LinksUpToDate";
+        /// <summary>
+        /// Indicates whether hyperlinks in a document are up-to-date
+        /// </summary>
+        public bool LinksUpToDate
+        {
+            get { return _extendedHelper.GetXmlNodeBool(LinksUpToDatePath); }
+            set { _extendedHelper.SetXmlNodeBool(LinksUpToDatePath, value); }
+        }
+        const string HyperlinksChangedPath = "xp:Properties/xp:HyperlinksChanged";
+        /// <summary>
+        /// Hyperlinks need update
+        /// </summary>
+        public bool HyperlinksChanged
+        {
+            get { return _extendedHelper.GetXmlNodeBool(HyperlinksChangedPath); }
+            set { _extendedHelper.SetXmlNodeBool(HyperlinksChangedPath, value); }
+        }
+        const string ScaleCropPath = "xp:Properties/xp:ScaleCrop";
+        /// <summary>
+        /// Display mode of the document thumbnail. True to enable scaling. False to enable cropping.
+        /// </summary>
+        public bool ScaleCrop
+        {
+            get { return _extendedHelper.GetXmlNodeBool(ScaleCropPath); }
+            set { _extendedHelper.SetXmlNodeBool(ScaleCropPath, value); }
+        }
+
+
+        const string SharedDocPath = "xp:Properties/xp:SharedDoc";
+        /// <summary>
+        /// If true, document is shared between multiple producers.
+        /// </summary>
+        public bool SharedDoc
+        {
+            get { return _extendedHelper.GetXmlNodeBool(SharedDocPath); }
+            set { _extendedHelper.SetXmlNodeBool(SharedDocPath, value); }
+        }
+
         #region Get and Set Extended Properties
-        private string GetExtendedPropertyValue(string propertyName)
+        /// <summary>
+        /// Get the value of an extended property 
+        /// </summary>
+        /// <param name="propertyName">The name of the property</param>
+        /// <returns>The value</returns>
+        public string GetExtendedPropertyValue(string propertyName)
         {
             string retValue = null;
             string searchString = string.Format("xp:Properties/xp:{0}", propertyName);
@@ -299,6 +387,15 @@ namespace OfficeOpenXml
                 retValue = node.InnerText;
             }
             return retValue;
+        }
+        /// <summary>
+        /// Set the value for an extended property
+        /// </summary>
+        /// <param name="propertyName">The name of the property</param>
+        /// <param name="value">The value</param>
+        public void SetExtendedPropertyValue(string propertyName, string value){
+            string propertyPath = string.Format("xp:Properties/xp:{0}", propertyName);
+            _extendedHelper.SetXmlNodeString(propertyPath, value);
         }
         #endregion
         #endregion
@@ -354,7 +451,7 @@ namespace OfficeOpenXml
                         }
                     case "i4":
                         int i;
-                        if (int.TryParse(value, out i))
+                        if (int.TryParse(value, System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out i))
                         {
                             return i;
                         }
@@ -364,7 +461,7 @@ namespace OfficeOpenXml
                         }
                     case "r8":
                         double d;
-                        if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out d))
+                        if (double.TryParse(value, NumberStyles.Number, CultureInfo.InvariantCulture, out d))
                         {
                             return d;
                         }
@@ -437,7 +534,7 @@ namespace OfficeOpenXml
             if (value is bool)
             {
                 valueElem = CustomPropertiesXml.CreateElement("vt", "bool", ExcelPackage.schemaVt);
-                valueElem.InnerText = value.ToString().ToLower();
+                valueElem.InnerText = value.ToString().ToLower(CultureInfo.InvariantCulture);
             }
             else if (value is DateTime)
             {
@@ -488,7 +585,7 @@ namespace OfficeOpenXml
             if (_xmlPropertiesCore != null)
             {
                 _package.SavePart(_uriPropertiesCore, _xmlPropertiesCore);
-            }
+                }
             if (_xmlPropertiesExtended != null)
             {
                 _package.SavePart(_uriPropertiesExtended, _xmlPropertiesExtended);

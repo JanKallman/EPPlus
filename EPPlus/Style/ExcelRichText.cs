@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -45,11 +45,11 @@ namespace OfficeOpenXml.Style
     /// </summary>
     public class ExcelRichText : XmlHelper
     {
-        internal ExcelRichText(XmlNamespaceManager ns, XmlNode topNode) :
+        internal ExcelRichText(XmlNamespaceManager ns, XmlNode topNode, ExcelRichTextCollection collection) :
             base(ns, topNode)
         {
             SchemaNodeOrder=new string[] {"rPr", "t", "b", "i","strike", "u", "vertAlign" , "sz", "color", "rFont", "family", "scheme", "charset"};
-            PreserveSpace = false;
+            _collection = collection;
         }
         internal delegate void CallbackDelegate();
         CallbackDelegate _callback;
@@ -70,9 +70,10 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-				// Don't remove if blank -- setting a blank rich text value on a node is common,
-				// for example when applying both bold and italic to text.
-				SetXmlNodeString(TEXT_PATH, value, false);
+                _collection.ConvertRichtext();
+                // Don't remove if blank -- setting a blank rich text value on a node is common,
+                // for example when applying both bold and italic to text.
+                SetXmlNodeString(TEXT_PATH, value, false);
                 if (PreserveSpace)
                 {
                     XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
@@ -81,7 +82,6 @@ namespace OfficeOpenXml.Style
                 if (_callback != null) _callback();
             }
         }
-        bool _preserveSpace=false;
         /// <summary>
         /// Preserves whitespace. Default true
         /// </summary>
@@ -94,10 +94,11 @@ namespace OfficeOpenXml.Style
                 {
                     return elem.GetAttribute("xml:space")=="preserve";
                 }
-                return _preserveSpace;
+                return false;
             }
             set
             {
+                _collection.ConvertRichtext();
                 XmlElement elem = TopNode.SelectSingleNode(TEXT_PATH, NameSpaceManager) as XmlElement;
                 if (elem != null)
                 {
@@ -110,7 +111,7 @@ namespace OfficeOpenXml.Style
                         elem.RemoveAttribute("xml:space");
                     }
                 }
-                _preserveSpace = false;
+                if (_callback != null) _callback();
             }
         }
         const string BOLD_PATH = "d:rPr/d:b";
@@ -125,6 +126,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 if (value)
                 {
                     CreateNode(BOLD_PATH);
@@ -149,6 +151,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 if (value)
                 {
                     CreateNode(ITALIC_PATH);
@@ -172,6 +175,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 if (value)
                 {
                     CreateNode(STRIKE_PATH);
@@ -195,6 +199,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 if (value)
                 {
                     CreateNode(UNDERLINE_PATH);
@@ -234,7 +239,9 @@ namespace OfficeOpenXml.Style
             }
             set
             {
-				if(value == ExcelVerticalAlignmentFont.None) {
+                _collection.ConvertRichtext();
+                if (value == ExcelVerticalAlignmentFont.None)
+                {
 					// If Excel 2010 encounters a vertical align value of blank, it will not load
 					// the spreadsheet. So if None is specified, delete the node, it will be 
 					// recreated if a new value is applied later.
@@ -242,6 +249,7 @@ namespace OfficeOpenXml.Style
 				} else {
 					SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
 				}
+                if (_callback != null) _callback();
             }
         }
         const string SIZE_PATH = "d:rPr/d:sz/@val";
@@ -256,6 +264,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 SetXmlNodeString(SIZE_PATH, value.ToString(CultureInfo.InvariantCulture));
                 if (_callback != null) _callback();
             }
@@ -272,6 +281,7 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 SetXmlNodeString(FONT_PATH, value);
                 if (_callback != null) _callback();
             }
@@ -296,9 +306,12 @@ namespace OfficeOpenXml.Style
             }
             set
             {
+                _collection.ConvertRichtext();
                 SetXmlNodeString(COLOR_PATH, value.ToArgb().ToString("X")/*.Substring(2, 6)*/);
                 if (_callback != null) _callback();
             }
         }
+
+        public ExcelRichTextCollection _collection { get; set; }
     }
 }

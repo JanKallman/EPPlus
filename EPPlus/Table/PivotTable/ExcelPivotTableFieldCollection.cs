@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -102,7 +102,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 foreach (var field in _list)
                 {
-                    if (field.Name == name)
+                    if (field.Name.Equals(name,StringComparison.OrdinalIgnoreCase))
                     {
                         return field;
                     }
@@ -184,7 +184,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 case "rowFields":
                     if (field.IsColumnField || field.IsPageField)
                     {
-                        throw(new Exception("This field is a column or page field. Can's add it to the RowFields collection"));
+                        throw(new Exception("This field is a column or page field. Can't add it to the RowFields collection"));
                     }
                     field.IsRowField = value;
                     field.Axis = ePivotFieldAxis.Row;
@@ -192,7 +192,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 case "colFields":
                     if (field.IsRowField || field.IsPageField)
                     {
-                        throw (new Exception("This field is a row or page field. Can's add it to the ColumnFields collection"));
+                        throw (new Exception("This field is a row or page field. Can't add it to the ColumnFields collection"));
                     }
                     field.IsColumnField = value;
                     field.Axis = ePivotFieldAxis.Column;
@@ -200,7 +200,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 case "pageFields":
                     if (field.IsColumnField || field.IsRowField)
                     {
-                        throw (new Exception("Field is a column or row field. Can's add it to the PageFields collection"));
+                        throw (new Exception("Field is a column or row field. Can't add it to the PageFields collection"));
                     }
                     if (_table.Address._fromRow < 3)
                     {
@@ -295,11 +295,10 @@ namespace OfficeOpenXml.Table.PivotTable
 
         internal bool ExistsDfName(string name, ExcelPivotTableDataField datafield)
         {
-            name = name.ToLower();
             foreach (var df in _list)
             {
-                if (((!string.IsNullOrEmpty(df.Name) && df.Name.ToLower() == name) ||
-                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.ToLower() == name)) && datafield != df)
+                if (((!string.IsNullOrEmpty(df.Name) && df.Name.Equals(name, StringComparison.OrdinalIgnoreCase) ||
+                     (string.IsNullOrEmpty(df.Name) && df.Field.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))) && datafield != df)
                 {
                     return true;
                 }

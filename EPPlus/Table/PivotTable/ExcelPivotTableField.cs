@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -82,6 +82,48 @@ namespace OfficeOpenXml.Table.PivotTable
         Sum,
         Var,
         VarP
+    }
+    /// <summary>
+    /// Defines the data formats for a field in the PivotTable
+    /// </summary>
+    public enum eShowDataAs
+    {
+        /// <summary>
+        /// Indicates the field is shown as the "difference from" a value.
+        /// </summary>
+        Difference,
+        /// <summary>
+        /// Indicates the field is shown as the "index.
+        /// </summary>
+        Index, 
+        /// <summary>
+        /// Indicates that the field is shown as its normal datatype.
+        /// </summary>
+        Normal, 
+        /// <summary>
+        /// /Indicates the field is show as the "percentage of" a value
+        /// </summary>
+        Percent, 
+        /// <summary>
+        /// Indicates the field is shown as the "percentage difference from" a value.
+        /// </summary>
+        PercentDiff, 
+        /// <summary>
+        /// Indicates the field is shown as the percentage of column.
+        /// </summary>
+        PercentOfCol,
+        /// <summary>
+        /// Indicates the field is shown as the percentage of row
+        /// </summary>
+        PercentOfRow, 
+        /// <summary>
+        /// Indicates the field is shown as percentage of total.
+        /// </summary>
+        PercentOfTotal, 
+        /// <summary>
+        /// Indicates the field is shown as running total in the table.
+        /// </summary>
+        RunTotal,        
     }
       /// <summary>
      /// Built-in subtotal functions
@@ -163,7 +205,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    return GetXmlNodeString("@name");
+                    return v;
                 }
             }
             set
@@ -214,7 +256,22 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         /// <summary>
-        /// A boolean that indicates whether to show all items for this field
+        /// Indicates whether the field can have multiple items selected in the page field
+        /// </summary>
+        public bool MultipleItemSelectionAllowed
+        {
+            get
+            {
+                return GetXmlNodeBool("@multipleItemSelectionAllowed");
+            }
+            set
+            {
+                SetXmlNodeBool("@multipleItemSelectionAllowed", value);
+            }
+        }
+        #region Show properties
+        /// <summary>
+        /// Indicates whether to show all items for this field
         /// </summary>
         public bool ShowAll 
         { 
@@ -227,6 +284,77 @@ namespace OfficeOpenXml.Table.PivotTable
                 SetXmlNodeBool("@showAll",value);
             }
         }
+        /// <summary>
+        /// Indicates whether to hide drop down buttons on PivotField headers
+        /// </summary>
+        public bool ShowDropDowns
+        {
+            get
+            {
+                return GetXmlNodeBool("@showDropDowns");
+            }
+            set
+            {
+                SetXmlNodeBool("@showDropDowns", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether this hierarchy is omitted from the field list
+        /// </summary>
+        public bool ShowInFieldList
+        {
+            get
+            {
+                return GetXmlNodeBool("@showInFieldList");
+            }
+            set
+            {
+                SetXmlNodeBool("@showInFieldList", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the property as a member caption
+        /// </summary>
+        public bool ShowAsCaption
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropAsCaption");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropAsCaption", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the member property value in a PivotTable cell
+        /// </summary>
+        public bool ShowMemberPropertyInCell
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropCell");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropCell", value);
+            }
+        }
+        /// <summary>
+        /// Indicates whether to show the member property value in a tooltip on the appropriate PivotTable cells
+        /// </summary>
+        public bool ShowMemberPropertyToolTip
+        {
+            get
+            {
+                return GetXmlNodeBool("@showPropTip");
+            }
+            set
+            {
+                SetXmlNodeBool("@showPropTip", value);
+            }
+        }
+        #endregion
         /// <summary>
         /// The type of sort that is applied to this field
         /// </summary>
@@ -245,7 +373,7 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    SetXmlNodeString("@sortType", value.ToString().ToLower());
+                    SetXmlNodeString("@sortType", value.ToString().ToLower(CultureInfo.InvariantCulture));
                 }
             }
         }
@@ -325,7 +453,7 @@ namespace OfficeOpenXml.Table.PivotTable
                         if ((value & e) == e)
                         {
                             var newTotalType = e.ToString();
-                            var totalType = char.ToLower(newTotalType[0]) + newTotalType.Substring(1);
+                            var totalType = char.ToLowerInvariant(newTotalType[0]) + newTotalType.Substring(1);
                             // add new attribute
                             SetXmlNodeBool("@" + totalType + "Subtotal", true);
                             innerXml += "<item t=\"" + totalType + "\" />";
@@ -548,12 +676,12 @@ namespace OfficeOpenXml.Table.PivotTable
                     {
                         return field;
                     }
-                    else if (fieldIndex > index)
-                    {
-                        newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
-                        newElement.SetAttribute(indexAttrText, index.ToString());
-                        rowsNode.InsertAfter(newElement, field);
-                    }
+                    //else if (fieldIndex > index)
+                    //{
+                    //    newElement = rowsNode.OwnerDocument.CreateElement(fieldNodeText, ExcelPackage.schemaMain);
+                    //    newElement.SetAttribute(indexAttrText, index.ToString());
+                    //    rowsNode.InsertAfter(newElement, field);
+                    //}
                 }
                 prevField=field;
             }
@@ -592,7 +720,7 @@ namespace OfficeOpenXml.Table.PivotTable
             _cacheFieldHelper.SetXmlNodeBool("d:sharedItems/@containsNonDate", false);
             _cacheFieldHelper.SetXmlNodeBool("d:sharedItems/@containsSemiMixedTypes", false);
 
-            group.TopNode.InnerXml += string.Format("<fieldGroup base=\"{0}\"><rangePr groupBy=\"{1}\" /><groupItems /></fieldGroup>", BaseIndex, GroupBy.ToString().ToLower());
+            group.TopNode.InnerXml += string.Format("<fieldGroup base=\"{0}\"><rangePr groupBy=\"{1}\" /><groupItems /></fieldGroup>", BaseIndex, GroupBy.ToString().ToLower(CultureInfo.InvariantCulture));
 
             if (StartDate.Year < 1900)
             {

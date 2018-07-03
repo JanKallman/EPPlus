@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -89,45 +89,48 @@ namespace OfficeOpenXml.ConditionalFormatting
         itemElementNode,
         (namespaceManager == null) ? worksheet.NameSpaceManager : namespaceManager)
     {
-      // Create the <colorScale> node inside the <cfRule> node
-      var colorScaleNode = CreateComplexNode(
-        Node,
-        ExcelConditionalFormattingConstants.Paths.ColorScale);
+            if (itemElementNode == null)
+            {
+                // Create the <colorScale> node inside the <cfRule> node
+                var colorScaleNode = CreateComplexNode(
+                  Node,
+                  ExcelConditionalFormattingConstants.Paths.ColorScale);
 
-      // LowValue default
-      LowValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.Low,
-        eExcelConditionalFormattingValueObjectType.Min,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoLowValue),
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+                // LowValue default
+                LowValue = new ExcelConditionalFormattingColorScaleValue(
+                  eExcelConditionalFormattingValueObjectPosition.Low,
+                  eExcelConditionalFormattingValueObjectType.Min,
+                  ExcelConditionalFormattingConstants.Colors.CfvoLowValue,
+                  eExcelConditionalFormattingRuleType.ThreeColorScale,
+                  address,
+                  priority,
+                  worksheet,
+                  NameSpaceManager);
 
-      // MiddleValue default
-      MiddleValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.Middle,
-        eExcelConditionalFormattingValueObjectType.Percent,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue),
-        50,
-        string.Empty,
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+                // MiddleValue default
+                MiddleValue = new ExcelConditionalFormattingColorScaleValue(
+                  eExcelConditionalFormattingValueObjectPosition.Middle,
+                  eExcelConditionalFormattingValueObjectType.Percent,
+                  ExcelConditionalFormattingConstants.Colors.CfvoMiddleValue,
+                  50,
+                  string.Empty,
+                  eExcelConditionalFormattingRuleType.ThreeColorScale,
+                  address,
+                  priority,
+                  worksheet,
+                  NameSpaceManager);
 
-      // HighValue default
-      HighValue = new ExcelConditionalFormattingColorScaleValue(
-        eExcelConditionalFormattingValueObjectPosition.High,
-        eExcelConditionalFormattingValueObjectType.Max,
-        ColorTranslator.FromHtml(ExcelConditionalFormattingConstants.Colors.CfvoHighValue),
-        eExcelConditionalFormattingRuleType.ThreeColorScale,
-        address,
-        priority,
-        worksheet,
-        NameSpaceManager);
+                // HighValue default
+                HighValue = new ExcelConditionalFormattingColorScaleValue(
+                  eExcelConditionalFormattingValueObjectPosition.High,
+                  eExcelConditionalFormattingValueObjectType.Max,
+                  ExcelConditionalFormattingConstants.Colors.CfvoHighValue,
+                  eExcelConditionalFormattingRuleType.ThreeColorScale,
+                  address,
+                  priority,
+                  worksheet,
+                  NameSpaceManager);
+            }
     }
 
     /// <summary>

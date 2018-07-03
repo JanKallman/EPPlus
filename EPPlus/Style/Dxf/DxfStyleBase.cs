@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -59,7 +60,7 @@ namespace OfficeOpenXml.Style.Dxf
             else
             {
                 var s = v.ToString();
-                s = s.Substring(0, 1).ToLower() + s.Substring(1);
+                s = s.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + s.Substring(1);
                 helper.SetXmlNodeString(path, s);
             }
         }

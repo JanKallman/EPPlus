@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -31,9 +31,11 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml;
 using System.Drawing;
+using System.Globalization;
 
 namespace OfficeOpenXml.Style
 {
@@ -52,7 +54,7 @@ namespace OfficeOpenXml.Style
             {
                 foreach (XmlNode n in nl)
                 {
-                    _list.Add(new ExcelRichText(ns, n));
+                    _list.Add(new ExcelRichText(ns, n,this));
                 }
             }
         }
@@ -92,6 +94,18 @@ namespace OfficeOpenXml.Style
         /// <returns></returns>
         public ExcelRichText Add(string Text)
         {
+            return Insert(_list.Count, Text);
+        }
+
+        /// <summary>
+        /// Insert a rich text string at the specified index.
+        /// </summary>
+        /// <param name="index">The zero-based index at which rich text should be inserted.</param>
+        /// <param name="text">The text to insert.</param>
+        /// <returns></returns>
+        public ExcelRichText Insert(int index, string text)
+        {
+            ConvertRichtext();
             XmlDocument doc;
             if (TopNode is XmlDocument)
             {
@@ -102,11 +116,18 @@ namespace OfficeOpenXml.Style
                 doc = TopNode.OwnerDocument;
             }
             var node = doc.CreateElement("d", "r", ExcelPackage.schemaMain);
-            TopNode.AppendChild(node);
-            var rt = new ExcelRichText(NameSpaceManager, node);
+            if (index < _list.Count)
+            {
+                TopNode.InsertBefore(node, TopNode.ChildNodes[index]);
+            }
+            else
+            {
+                TopNode.AppendChild(node);
+            }
+            var rt = new ExcelRichText(NameSpaceManager, node, this);
             if (_list.Count > 0)
             {
-                ExcelRichText prevItem = _list[_list.Count - 1];
+                ExcelRichText prevItem = _list[index < _list.Count ? index : _list.Count - 1];
                 rt.FontName = prevItem.FontName;
                 rt.Size = prevItem.Size;
                 if (prevItem.Color.IsEmpty)
@@ -119,7 +140,7 @@ namespace OfficeOpenXml.Style
                 }
                 rt.PreserveSpace = rt.PreserveSpace;
                 rt.Bold = prevItem.Bold;
-                rt.Italic = prevItem.Italic;                
+                rt.Italic = prevItem.Italic;
                 rt.UnderLine = prevItem.UnderLine;
             }
             else if (_cells == null)
@@ -136,15 +157,40 @@ namespace OfficeOpenXml.Style
                 rt.Italic = style.Font.Italic;
                 _cells.IsRichText = true;
             }
-            rt.Text = Text;
+            rt.Text = text;
             rt.PreserveSpace = true;
-            if(_cells!=null) 
+            if (_cells != null)
             {
                 rt.SetCallback(UpdateCells);
                 UpdateCells();
             }
-            _list.Add(rt);
+            _list.Insert(index, rt);
             return rt;
+        }
+
+        internal void ConvertRichtext()
+        {
+            if (_cells == null) return;
+            var isRt = _cells.Worksheet._flags.GetFlagValue(_cells._fromRow, _cells._fromCol, CellFlags.RichText);
+            if (Count == 1 && isRt == false)
+            {
+                _cells.Worksheet._flags.SetFlagValue(_cells._fromRow, _cells._fromCol, true, CellFlags.RichText);
+                var s = _cells.Worksheet.GetStyleInner(_cells._fromRow, _cells._fromCol);
+                //var fnt = cell.Style.Font;
+                var fnt = _cells.Worksheet.Workbook.Styles.GetStyleObject(s, _cells.Worksheet.PositionID, ExcelAddressBase.GetAddress(_cells._fromRow, _cells._fromCol)).Font;
+                this[0].PreserveSpace = true;
+                this[0].Bold = fnt.Bold;
+                this[0].FontName = fnt.Name;
+                this[0].Italic = fnt.Italic;
+                this[0].Size = fnt.Size;
+                this[0].UnderLine = fnt.UnderLine;
+
+                int hex;
+                if (fnt.Color.Rgb != "" && int.TryParse(fnt.Color.Rgb, NumberStyles.HexNumber, null, out hex))
+                {
+                    this[0].Color = Color.FromArgb(hex);
+                }
+            }
         }
         internal void UpdateCells()
         {
@@ -157,6 +203,7 @@ namespace OfficeOpenXml.Style
         {
             _list.Clear();
             TopNode.RemoveAll();
+            UpdateCells();
             if (_cells != null) _cells.IsRichText = false;
         }
         /// <summary>
@@ -218,7 +265,7 @@ namespace OfficeOpenXml.Style
 
         IEnumerator<ExcelRichText> IEnumerable<ExcelRichText>.GetEnumerator()
         {
-            return _list.GetEnumerator();
+            return _list.Select(x => { x.SetCallback(UpdateCells); return x; }).GetEnumerator();
         }
 
         #endregion
@@ -227,7 +274,7 @@ namespace OfficeOpenXml.Style
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            return _list.GetEnumerator();
+            return _list.Select(x => { x.SetCallback(UpdateCells); return x; }).GetEnumerator();
         }
 
         #endregion

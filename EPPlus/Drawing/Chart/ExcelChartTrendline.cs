@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -121,7 +121,7 @@ namespace OfficeOpenXml.Drawing.Chart
         {
            get
            {
-               switch (GetXmlNodeString(TRENDLINEPATH).ToLower())
+               switch (GetXmlNodeString(TRENDLINEPATH).ToLower(CultureInfo.InvariantCulture))
                {
                    case "exp":
                        return eTrendLine.Exponential;
@@ -272,11 +272,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool(DISPLAYRSQUAREDVALUEPATH, false);
+                return GetXmlNodeBool(DISPLAYRSQUAREDVALUEPATH, true);
             }
             set
             {
-                SetXmlNodeBool(DISPLAYRSQUAREDVALUEPATH,value, false);
+                SetXmlNodeBool(DISPLAYRSQUAREDVALUEPATH, value, true);
             }
         }
         const string DISPLAYEQUATIONPATH = "c:dispEq/@val";
@@ -287,11 +287,11 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
-                return GetXmlNodeBool(DISPLAYEQUATIONPATH, false);
+                return GetXmlNodeBool(DISPLAYEQUATIONPATH, true);
             }
             set
             {
-                SetXmlNodeBool(DISPLAYEQUATIONPATH, value, false);
+                SetXmlNodeBool(DISPLAYEQUATIONPATH, value, true);
             }
         }
     }

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -54,5 +54,25 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal long useCnt=0;
         internal int newID=int.MinValue;
+        protected bool GetBoolValue(XmlNode topNode, string path)
+        {
+            var node = topNode.SelectSingleNode(path, NameSpaceManager);
+            if (node is XmlAttribute)
+            {
+                return node.Value != "0";
+            }
+            else
+            {
+                if (node != null && ((node.Attributes["val"] != null && node.Attributes["val"].Value != "0") || node.Attributes["val"] == null))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }                
+            }
+        }
+
     }
 }

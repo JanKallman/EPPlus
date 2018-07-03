@@ -27,7 +27,7 @@
 using System;
 using System.IO;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
 
     internal partial class ZipEntry
@@ -43,7 +43,7 @@ namespace Ionic.Zip
         ///   out the <c>ExtractWithPassword()</c> methods.
         /// </overloads>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
         /// <seealso cref="ZipEntry.Extract(ExtractExistingFileAction)"/>
         ///
         /// <remarks>
@@ -134,8 +134,8 @@ namespace Ionic.Zip
         ///
         /// <param name="baseDirectory">the pathname of the base directory</param>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Extract(string, ExtractExistingFileAction)"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.Extract(string, ExtractExistingFileAction)"/>
         ///
         /// <example>
         /// This example extracts only the entries in a zip file that are .txt files,
@@ -251,15 +251,15 @@ namespace Ionic.Zip
         ///   the right one for you...
         /// </overloads>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractWithPassword(ExtractExistingFileAction, string)"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.ExtractWithPassword(ExtractExistingFileAction, string)"/>
         ///
         /// <remarks>
         ///
         /// <para>
         ///   Existing entries in the filesystem will not be overwritten. If you
         ///   would like to force the overwrite of existing files, see the <see
-        ///   cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>property, or call
+        ///   cref="ZipEntry.ExtractExistingFile"/>property, or call
         ///   <see
         ///   cref="ExtractWithPassword(ExtractExistingFileAction,string)"/>.
         /// </para>
@@ -310,14 +310,14 @@ namespace Ionic.Zip
         ///   directory, and using the specified password.
         /// </summary>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractWithPassword(string, ExtractExistingFileAction, string)"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.ExtractWithPassword(string, ExtractExistingFileAction, string)"/>
         ///
         /// <remarks>
         /// <para>
         ///   Existing entries in the filesystem will not be overwritten. If you
         ///   would like to force the overwrite of existing files, see the <see
-        ///   cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>property, or call
+        ///   cref="ZipEntry.ExtractExistingFile"/>property, or call
         ///   <see
         ///   cref="ExtractWithPassword(ExtractExistingFileAction,string)"/>.
         /// </para>
@@ -489,8 +489,7 @@ namespace Ionic.Zip
         /// <para>
         ///    The <c>OpenReader()</c> method works only when the ZipEntry is
         ///    obtained from an instance of <c>ZipFile</c>. This method will throw
-        ///    an exception if the ZipEntry is obtained from a <see
-        ///    cref="ZipInputStream"/>.
+        ///    an exception if the ZipEntry is obtained from a ZipInputStream.
         /// </para>
         /// </remarks>
         ///
@@ -539,7 +538,7 @@ namespace Ionic.Zip
         ///   End Using
         /// </code>
         /// </example>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Extract(System.IO.Stream)"/>
+        /// <seealso cref="ZipEntry.Extract(System.IO.Stream)"/>
         /// <returns>The Stream for reading.</returns>
         internal Ionic.Crc.CrcCalculatorStream OpenReader()
         {
@@ -789,6 +788,7 @@ namespace Ionic.Zip
                 if (targetFileName != null)
                 {
                     output.Close();
+                    output.Dispose();
                     output = null;
 
                     // workitem 10639
@@ -1208,7 +1208,7 @@ namespace Ionic.Zip
         }
 
 
-        #region Support methods
+#region Support methods
 
 
         // workitem 7968
@@ -1450,7 +1450,7 @@ namespace Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
     }
 }

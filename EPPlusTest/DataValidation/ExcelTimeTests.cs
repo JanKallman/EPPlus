@@ -12,7 +12,7 @@ namespace EPPlusTest.DataValidation
     {
         private ExcelTime _time;
         private readonly decimal SecondsPerHour = 3600;
-        private readonly decimal HoursPerDay = 24;
+       // private readonly decimal HoursPerDay = 24;
         private readonly decimal SecondsPerDay = 3600 * 24;
 
         private decimal Round(decimal value)

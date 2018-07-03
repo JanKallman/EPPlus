@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -84,12 +84,12 @@ namespace OfficeOpenXml.DataValidation
             Hour = (int)hour;
 
             // handle minute
-            decimal remainingSeconds = totalSeconds - ((decimal)Hour * SecondsPerHour);
+            decimal remainingSeconds = totalSeconds - (hour * SecondsPerHour);
             decimal minute = Math.Floor(remainingSeconds / SecondsPerMinute);
             Minute = (int)minute;
 
             // handle second
-            remainingSeconds = totalSeconds - ((decimal)Hour * SecondsPerHour) - ((decimal)Minute * SecondsPerMinute);
+            remainingSeconds = totalSeconds - (hour * SecondsPerHour) - (minute * SecondsPerMinute);
             decimal second = Math.Round(remainingSeconds, MidpointRounding.AwayFromZero);
             // Second might be rounded to 60... the SetSecond method handles that.
             SetSecond((int)second);

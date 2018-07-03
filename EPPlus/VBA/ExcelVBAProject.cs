@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -20,6 +20,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -28,6 +29,7 @@ using System.Security.Cryptography.Pkcs;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.Utils.CompundDocument;
 
 namespace OfficeOpenXml.VBA
 {
@@ -104,7 +106,7 @@ namespace OfficeOpenXml.VBA
         /// <summary>
         /// Codepage for encoding. Default is current regional setting.
         /// </summary>
-        public int CodePage { get; internal set; }
+        public int CodePage  { get; internal set; }
         internal int LibFlags { get; set; }
         internal int MajorVersion { get; set; }
         internal int MinorVersion { get; set; }
@@ -159,8 +161,8 @@ namespace OfficeOpenXml.VBA
             byte[] vba;
             vba = new byte[stream.Length];
             stream.Read(vba, 0, (int)stream.Length);
-
             Document = new CompoundDocument(vba);
+
             ReadDirStream();
             ProjectStreamText = Encoding.GetEncoding(CodePage).GetString(Document.Storage.DataStreams["PROJECT"]);
             ReadModules();
@@ -171,7 +173,7 @@ namespace OfficeOpenXml.VBA
             foreach (var modul in Modules)
             {
                 var stream = Document.Storage.SubStorage["VBA"].DataStreams[modul.streamName];
-                var byCode = CompoundDocument.DecompressPart(stream, (int)modul.ModuleOffset);
+                var byCode = VBACompression.DecompressPart(stream, (int)modul.ModuleOffset);
                 string code = Encoding.GetEncoding(CodePage).GetString(byCode);
                 int pos=0;
                 while(pos+9<code.Length && code.Substring(pos,9)=="Attribute")
@@ -389,7 +391,7 @@ namespace OfficeOpenXml.VBA
                     ret += value[i].ToString("x");
                 }
             }
-            return ret.ToUpper();
+            return ret.ToUpperInvariant();
         }
         private byte[] GetByte(string value)
         {
@@ -402,7 +404,7 @@ namespace OfficeOpenXml.VBA
         }
         private void ReadDirStream()
         {
-            byte[] dir = CompoundDocument.DecompressPart(Document.Storage.SubStorage["VBA"].DataStreams["dir"]);
+            byte[] dir = VBACompression.DecompressPart(Document.Storage.SubStorage["VBA"].DataStreams["dir"]);
             MemoryStream ms = new MemoryStream(dir);
             BinaryReader br = new BinaryReader(ms);
             ExcelVbaReference currentRef = null;
@@ -550,6 +552,7 @@ namespace OfficeOpenXml.VBA
             }
         }
         #endregion
+
         #region Save Project
         internal void Save()
         {
@@ -564,7 +567,7 @@ namespace OfficeOpenXml.VBA
                 store.DataStreams.Add("dir", CreateDirStream());
                 foreach (var module in Modules)
                 {
-                    store.DataStreams.Add(module.Name, CompoundDocument.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Attributes.GetAttributeText() + module.Code)));
+                    store.DataStreams.Add(module.Name, VBACompression.CompressPart(Encoding.GetEncoding(CodePage).GetBytes(module.Attributes.GetAttributeText() + module.Code)));
                 }
 
                 //Copy streams from the template, if used.
@@ -595,9 +598,8 @@ namespace OfficeOpenXml.VBA
                     Part = _pck.CreatePart(Uri, ExcelPackage.schemaVBA);
                     var rel = _wb.Part.CreateRelationship(Uri, Packaging.TargetMode.Internal, schemaRelVba);
                 }
-                var vbaBuffer=doc.Save();
                 var st = Part.GetStream(FileMode.Create);
-                st.Write(vbaBuffer, 0, vbaBuffer.Length);
+                doc.Save(st);
                 st.Flush();
                 //Save the digital signture
                 Signature.Save(this);
@@ -733,7 +735,7 @@ namespace OfficeOpenXml.VBA
             bw.Write((ushort)0x10);             //Terminator
             bw.Write((uint)0);              
 
-            return CompoundDocument.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
+            return VBACompression.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
         }
 
         private void WriteModuleRecord(BinaryWriter bw, ExcelVBAModule module)
@@ -867,7 +869,7 @@ namespace OfficeOpenXml.VBA
                 bw.Write((ushort)0); //Null
             }
             bw.Write((ushort)0); //Null
-            return CompoundDocument.CompressPart(((MemoryStream)bw.BaseStream).ToArray());
+            return ((MemoryStream)bw.BaseStream).ToArray();
         }       
         private byte[] CreateProjectStream()
         {
@@ -1029,19 +1031,36 @@ namespace OfficeOpenXml.VBA
             SystemKind = eSyskind.Win32;            //Default
             Lcid = 1033;                            //English - United States
             LcidInvoke = 1033;                      //English - United States
-            CodePage = Encoding.Default.CodePage;
+            CodePage = Encoding.GetEncoding(0).CodePage;    //Switched from Default to make it work in Core
             MajorVersion = 1361024421;
             MinorVersion = 6;
             HelpContextID = 0;
             Modules.Add(new ExcelVBAModule(_wb.CodeNameChange) { Name = "ThisWorkbook", Code = "", Attributes=GetDocumentAttributes("ThisWorkbook", "0{00020819-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
             foreach (var sheet in _wb.Worksheets)
             {
-                if (!Modules.Exists(sheet.Name))
+                var name = GetModuleNameFromWorksheet(sheet);
+                if (!Modules.Exists(name))
                 {
-                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = sheet.Name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
+                    Modules.Add(new ExcelVBAModule(sheet.CodeNameChange) { Name = name, Code = "", Attributes = GetDocumentAttributes(sheet.Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
                 }
             }
             _protection = new ExcelVbaProtection(this) { UserProtected = false, HostProtected = false, VbeProtected = false, VisibilityState = true };
+        }
+
+        internal string GetModuleNameFromWorksheet(ExcelWorksheet sheet)
+        {
+            var name = sheet.Name;
+            name = name.Substring(0, name.Length < 31 ? name.Length : 31);  //Maximum 31 charachters
+            if (this.Modules[name] != null || !Regex.IsMatch(name, "^[a-zA-Z][a-zA-Z0-9_ ]*$")) //Check for valid chars, if not valid, set to sheetX.
+            {
+                int i = sheet.PositionID;
+                name = "Sheet" + i.ToString();
+                while (this.Modules[name] != null)
+                {
+                    name = "Sheet" + (++i).ToString(); ;
+                }
+            }            
+            return name;
         }
         internal ExcelVbaModuleAttributesCollection GetDocumentAttributes(string name, string clsid)
         {
@@ -1057,34 +1076,6 @@ namespace OfficeOpenXml.VBA
 
             return attr;
         }
-        //internal string GetBlankDocumentModule(string name, string clsid)
-        //{
-        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", clsid);  //Microsoft.Office.Interop.Excel.WorksheetClass
-        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
-        //    ret += "Attribute VB_Creatable = False\r\n";
-        //    ret += "Attribute VB_PredeclaredId = True\r\n";
-        //    ret += "Attribute VB_Exposed = True\r\n";
-        //    ret += "Attribute VB_TemplateDerived = False\r\n";
-        //    ret += "Attribute VB_Customizable = True";
-        //    return ret;
-        //}
-        //internal string GetBlankModule(string name)
-        //{
-        //    return string.Format("Attribute VB_Name = \"{0}\"\r\n", name);
-        //}
-        //internal string GetBlankClassModule(string name, bool exposed)
-        //{
-        //    string ret=string.Format("Attribute VB_Name = \"{0}\"\r\n",name);
-        //    ret += string.Format("Attribute VB_Base = \"{0}\"\r\n", "0{FCFB3D2A-A0FA-1068-A738-08002B3371B5}");  
-        //    ret += "Attribute VB_GlobalNameSpace = False\r\n";
-        //    ret += "Attribute VB_Creatable = False\r\n";
-        //    ret += "Attribute VB_PredeclaredId = False\r\n";
-        //    ret += string.Format("Attribute VB_Exposed = {0}\r\n", exposed ? "True" : "False");
-        //    ret += "Attribute VB_TemplateDerived = False\r\n";
-        //    ret += "Attribute VB_Customizable = False\r\n";
-        //    return ret;
-        //}
         /// <summary>
         /// Remove the project from the package
         /// </summary>

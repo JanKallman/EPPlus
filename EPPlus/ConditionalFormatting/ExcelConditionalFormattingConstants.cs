@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -30,6 +30,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Xml;
@@ -107,6 +108,7 @@ namespace OfficeOpenXml.ConditionalFormatting
       internal const string Tint = "tint";
       internal const string Type = "type";
       internal const string Val = "val";
+      internal const string Gte = "gte";
     }
     #endregion Attributes
 
@@ -164,7 +166,8 @@ namespace OfficeOpenXml.ConditionalFormatting
       internal const string TintAttribute = "@" + Attributes.Tint;
       internal const string TypeAttribute = "@" + Attributes.Type;
       internal const string ValAttribute = "@" + Attributes.Val;
-    }
+      internal const string GteAttribute = "@" + Attributes.Gte;
+        }
     #endregion XML Paths
 
     #region Rule Type ST_CfType §18.18.12 (with small EPPlus changes)
@@ -274,9 +277,9 @@ namespace OfficeOpenXml.ConditionalFormatting
     #region Colors
     internal class Colors
     {
-      internal const string CfvoLowValue = @"#FFF8696B";
-      internal const string CfvoMiddleValue = @"#FFFFEB84";
-      internal const string CfvoHighValue = @"#FF63BE7B";
+      internal static readonly Color CfvoLowValue = Color.FromArgb(0xFF,0xF8,0x69,0x6B);
+      internal static readonly Color CfvoMiddleValue = Color.FromArgb(0xFF,0xFF,0xEB,0x84);
+      internal static readonly Color CfvoHighValue = Color.FromArgb(0xFF,0x63,0xBE,0x7B);
     }
     #endregion Colors
   }

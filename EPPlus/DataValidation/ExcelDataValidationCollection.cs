@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -30,12 +30,14 @@
  * Mats Alm                         Applying patch submitted    2011-11-14
  *                                  by Ted Heatherington
  * Jan Källman		                License changed GPL-->LGPL  2011-12-27
- *******************************************************************************/
+ * Raziq York		                Added support for Any type  2014-08-08
+*******************************************************************************/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Globalization;
 using OfficeOpenXml.Utils;
 using System.Xml;
 using OfficeOpenXml.DataValidation.Contracts;
@@ -91,11 +93,13 @@ namespace OfficeOpenXml.DataValidation
             {
                 foreach (XmlNode node in dataValidationNodes)
                 {
-                    if (node.Attributes["sqref"] == null || node.Attributes["type"] == null) continue;
+                    if (node.Attributes["sqref"] == null) continue;
 
                     var addr = node.Attributes["sqref"].Value;
 
-                    var type = ExcelDataValidationType.GetBySchemaName(node.Attributes["type"].Value);
+                    var typeSchema = node.Attributes["type"] != null ? node.Attributes["type"].Value : "";
+
+                    var type = ExcelDataValidationType.GetBySchemaName(typeSchema);
                     _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
             }
@@ -116,9 +120,28 @@ namespace OfficeOpenXml.DataValidation
 
         private void OnValidationCountChanged()
         {
-            if (TopNode != null)
+
+            //if (TopNode != null)
+            //{
+            //    SetXmlNodeString("@count", _validations.Count.ToString());
+            //}
+            var dvNode = GetRootNode();
+            if (_validations.Count == 0)
             {
-                SetXmlNodeString("@count", _validations.Count.ToString());
+                if (dvNode != null)
+                {
+                    _worksheet.WorksheetXml.DocumentElement.RemoveChild(dvNode);
+                }
+                _worksheet.ClearValidations();
+            }
+            else
+            {
+                var attr = _worksheet.WorksheetXml.DocumentElement.SelectSingleNode(DataValidationPath + "[@count]", _worksheet.NameSpaceManager);
+                if (attr == null)
+                {
+                    dvNode.Attributes.Append(_worksheet.WorksheetXml.CreateAttribute("count"));
+                }
+                dvNode.Attributes["count"].Value = _validations.Count.ToString(CultureInfo.InvariantCulture);
             }
         }
 
@@ -137,7 +160,7 @@ namespace OfficeOpenXml.DataValidation
         private void ValidateAddress(string address, IExcelDataValidation validatingValidation)
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
-            
+
             // ensure that the new address does not collide with an existing validation.
             var newAddress = new ExcelAddress(address);
             if (_validations.Count > 0)
@@ -151,7 +174,7 @@ namespace OfficeOpenXml.DataValidation
                     var result = validation.Address.Collide(newAddress);
                     if (result != ExcelAddressBase.eAddressCollition.No)
                     {
-                        throw new InvalidOperationException(string.Format("The address ({0}) collides with an existing validation ({1})", address, validation.Address.Address));
+                         throw new InvalidOperationException(string.Format("The address ({0}) collides with an existing validation ({1})", address, validation.Address.Address));
                     }
                 }
             }
@@ -176,6 +199,21 @@ namespace OfficeOpenXml.DataValidation
         }
 
         /// <summary>
+        /// Adds a <see cref="ExcelDataValidationAny"/> to the worksheet.
+        /// </summary>
+        /// <param name="address">The range/address to validate</param>
+        /// <returns></returns>
+        public IExcelDataValidationAny AddAnyValidation(string address)
+        {
+            ValidateAddress(address);
+            EnsureRootElementExists();
+            var item = new ExcelDataValidationAny(_worksheet, address, ExcelDataValidationType.Any);
+            _validations.Add(item);
+            OnValidationCountChanged();
+            return item;
+        }
+
+        /// <summary>
         /// Adds an <see cref="IExcelDataValidationInt"/> to the worksheet. Whole means that the only accepted values
         /// are integer values.
         /// </summary>
@@ -183,7 +221,7 @@ namespace OfficeOpenXml.DataValidation
         public IExcelDataValidationInt AddIntegerValidation(string address)
         {
             ValidateAddress(address);
-            EnsureRootElementExists(); 
+            EnsureRootElementExists();
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.Whole);
             _validations.Add(item);
             OnValidationCountChanged();
@@ -252,7 +290,7 @@ namespace OfficeOpenXml.DataValidation
             return item;
         }
 
-        
+
         public IExcelDataValidationTime AddTimeValidation(string address)
         {
             ValidateAddress(address);
@@ -290,7 +328,9 @@ namespace OfficeOpenXml.DataValidation
                 throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
             }
             Require.Argument(item).IsNotNull("item");
-            TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
+            //TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
+            var dvNode = _worksheet.WorksheetXml.DocumentElement.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager);
+            dvNode?.RemoveChild(((ExcelDataValidation)item).TopNode);
             var retVal = _validations.Remove(item);
             if (retVal) OnValidationCountChanged();
             return retVal;
@@ -371,7 +411,12 @@ namespace OfficeOpenXml.DataValidation
                 {
                     throw new InvalidCastException("The supplied item must inherit OfficeOpenXml.DataValidation.ExcelDataValidation");
                 }
-                TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager).RemoveChild(((ExcelDataValidation)m).TopNode);
+                TopNode.RemoveChild(((ExcelDataValidation)m).TopNode);
+                //var dvNode = TopNode.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager);
+                //if (dvNode != null)
+                //{
+                //    dvNode.RemoveChild(((ExcelDataValidation)m).TopNode);
+                //}
             }
             _validations.RemoveAll(match);
             OnValidationCountChanged();

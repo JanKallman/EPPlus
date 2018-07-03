@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -86,11 +86,18 @@ namespace OfficeOpenXml.VBA
             }
             set
             {
-                _name = value;
-                streamName = value;
-                if (_nameChangeCallback != null)
+                if (value.Any(c => c > 255))
                 {
-                    _nameChangeCallback(value);
+                    throw (new InvalidOperationException("Vba module names can't contain unicode characters"));
+                }
+                if (value != _name)
+                {
+                    _name = value;
+                    streamName = value;
+                    if (_nameChangeCallback != null)
+                    {
+                        _nameChangeCallback(value);
+                    }
                 }
             }
         }
@@ -110,7 +117,7 @@ namespace OfficeOpenXml.VBA
             }
             set
             {
-                if(value.StartsWith("Attribute",StringComparison.InvariantCultureIgnoreCase) || value.StartsWith("VERSION",StringComparison.InvariantCultureIgnoreCase))
+                if(value.StartsWith("Attribute",StringComparison.OrdinalIgnoreCase) || value.StartsWith("VERSION",StringComparison.OrdinalIgnoreCase))
                 {
                     throw(new InvalidOperationException("Code can't start with an Attribute or VERSION keyword. Attributes can be accessed through the Attributes collection."));
                 }

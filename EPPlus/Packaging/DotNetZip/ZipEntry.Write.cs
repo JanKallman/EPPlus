@@ -26,11 +26,12 @@
 // ------------------------------------------------------------------
 
 
+using OfficeOpenXml.Packaging.Ionic.Zlib;
 using System;
 using System.IO;
 using RE = System.Text.RegularExpressions;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal partial class ZipEntry
     {
@@ -682,7 +683,7 @@ namespace Ionic.Zip
         {
             if (_UncompressedSize < 0x10) return false;
             if (_CompressionMethod == 0x00) return false;
-            if (CompressionLevel == Ionic.Zlib.CompressionLevel.None) return false;
+            if (CompressionLevel == OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.None) return false;
             if (_CompressedSize < _UncompressedSize) return false;
 
             if (this._Source == ZipEntrySource.Stream && !this._sourceStream.CanSeek) return false;
@@ -1501,10 +1502,13 @@ namespace Ionic.Zip
             if (output == null) return;
 
             output.Close();
-
+            output.Dispose();
             // by calling Close() on the deflate stream, we write the footer bytes, as necessary.
             if ((compressor as Ionic.Zlib.DeflateStream) != null)
+            {
                 compressor.Close();
+                compressor.Dispose();
+            }
 #if BZIP
             else if ((compressor as Ionic.BZip2.BZip2OutputStream) != null)
                 compressor.Close();
@@ -1516,12 +1520,15 @@ namespace Ionic.Zip
 
 #if !NETCF
             else if ((compressor as Ionic.Zlib.ParallelDeflateOutputStream) != null)
+            {
                 compressor.Close();
+                compressor.Dispose();
+            }
 #endif
 
             encryptor.Flush();
             encryptor.Close();
-
+            encryptor.Dispose();
             _LengthOfTrailer = 0;
 
             _UncompressedSize = output.TotalBytesSlurped;
@@ -1967,8 +1974,8 @@ namespace Ionic.Zip
                     if (_container.ParallelDeflater == null)
                     {
                         _container.ParallelDeflater =
-                            new Ionic.Zlib.ParallelDeflateOutputStream(s,
-                                                                       CompressionLevel,
+                            new ParallelDeflateOutputStream(s,
+                                                                        CompressionLevel,
                                                                        _container.Strategy,
                                                                        true);
                         // can set the codec buffer size only before the first call to Write().
@@ -1984,7 +1991,7 @@ namespace Ionic.Zip
                     return o1;
                 }
 #endif
-                var o = new Ionic.Zlib.DeflateStream(s, Ionic.Zlib.CompressionMode.Compress,
+                var o = new DeflateStream(s, OfficeOpenXml.Packaging.Ionic.Zlib.CompressionMode.Compress,
                                                      CompressionLevel,
                                                      true);
                 if (_container.CodecBufferSize > 0)
@@ -2566,12 +2573,12 @@ namespace Ionic.Zip
             lock (_outputLock)
             {
                 int tid = System.Threading.Thread.CurrentThread.GetHashCode();
-#if ! (NETCF || SILVERLIGHT)
+#if !(NETCF || SILVERLIGHT)
                 Console.ForegroundColor = (ConsoleColor)(tid % 8 + 8);
 #endif
                 Console.Write("{0:000} ZipEntry.Write ", tid);
                 Console.WriteLine(format, varParams);
-#if ! (NETCF || SILVERLIGHT)
+#if !(NETCF || SILVERLIGHT)
                 Console.ResetColor();
 #endif
             }

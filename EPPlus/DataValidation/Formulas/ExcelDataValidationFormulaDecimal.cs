@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -64,7 +64,7 @@ namespace OfficeOpenXml.DataValidation.Formulas
 
         protected override string GetValueAsString()
         {
-            return Value.HasValue ? Value.Value.ToString("g15", CultureInfo.InvariantCulture) : string.Empty;
+            return Value.HasValue ? Value.Value.ToString("R15", CultureInfo.InvariantCulture) : string.Empty;
         }
     }
 }

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using System.Globalization;
+using System.Linq;
 
 namespace OfficeOpenXml
 {
@@ -461,7 +462,7 @@ namespace OfficeOpenXml
             }
             set
             {
-                SetXmlNodeString(_orientationPath, value.ToString().ToLower());
+                SetXmlNodeString(_orientationPath, value.ToString().ToLower(CultureInfo.InvariantCulture));
             }
         }
         const string _fitToWidthPath = "d:pageSetup/@fitToWidth";
@@ -557,11 +558,11 @@ namespace OfficeOpenXml
                     ExcelRangeBase r = _ws.Names["_xlnm.Print_Titles"] as ExcelRangeBase;
                     if (r.Start.Column == 1 && r.End.Column == ExcelPackage.MaxColumns)
                     {
-                        return r;
+                        return new ExcelAddress(r.FirstAddress);
                     }
-                    else if (r.Address != null && r.Addresses[0].Start.Column == 1 && r.Addresses[0].End.Column == ExcelPackage.MaxColumns)
+                    else if (r._addresses != null)
                     {
-                        return r.Addresses[0];
+                        return r._addresses.FirstOrDefault(a => a.Start.Column == 1 && a.End.Column == ExcelPackage.MaxColumns);
                     }
                     else
                     {
@@ -615,9 +616,14 @@ namespace OfficeOpenXml
                 if (_ws.Names.ContainsKey("_xlnm.Print_Titles"))
                 {
                     ExcelRangeBase r = _ws.Names["_xlnm.Print_Titles"] as ExcelRangeBase;
+                    
                     if (r.Start.Row == 1 && r.End.Row == ExcelPackage.MaxRows)
                     {
-                        return r;
+                        return new ExcelAddress(r.FirstAddress);
+                    }
+                    else if (r._addresses != null)
+                    {
+                        return r._addresses.FirstOrDefault(a => a.Start.Row == 1 && a.End.Row == ExcelPackage.MaxRows);
                     }
                     else
                     {

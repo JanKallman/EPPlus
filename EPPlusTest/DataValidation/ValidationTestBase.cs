@@ -22,6 +22,7 @@ namespace EPPlusTest.DataValidation
         public void SetupTestData()
         {
             _package = new ExcelPackage();
+            _package.Compatibility.IsWorksheets1Based = true;
             _sheet = _package.Workbook.Worksheets.Add("test");
             _cultureInfo = new CultureInfo("en-US");
         }
@@ -35,7 +36,13 @@ namespace EPPlusTest.DataValidation
 
         protected string GetTestOutputPath(string fileName)
         {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), fileName);
+            return Path.Combine(
+#if (Core)
+            Path.GetTempPath()      //In Net.Core Output to TempPath 
+#else
+            Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+#endif
+                , fileName);
         }
 
         protected void SaveTestOutput(string fileName)
@@ -55,6 +62,19 @@ namespace EPPlusTest.DataValidation
             _namespaceManager.AddNamespace("d", "urn:a");
             var sb = new StringBuilder();
             sb.AppendFormat("<dataValidation xmlns:d=\"urn:a\" type=\"{0}\" sqref=\"{1}\">", validationType, address);
+            sb.AppendFormat("<d:formula1>{0}</d:formula1>", formula1Value);
+            sb.Append("</dataValidation>");
+            xmlDoc.LoadXml(sb.ToString());
+            _dataValidationNode = xmlDoc.DocumentElement;
+        }
+
+        protected void LoadXmlTestData(string address, string validationType, string operatorName, string formula1Value)
+        {
+            var xmlDoc = new XmlDocument();
+            _namespaceManager = new XmlNamespaceManager(xmlDoc.NameTable);
+            _namespaceManager.AddNamespace("d", "urn:a");
+            var sb = new StringBuilder();
+            sb.AppendFormat("<dataValidation xmlns:d=\"urn:a\" type=\"{0}\" sqref=\"{1}\" operator=\"{2}\">", validationType, address, operatorName);
             sb.AppendFormat("<d:formula1>{0}</d:formula1>", formula1Value);
             sb.Append("</dataValidation>");
             xmlDoc.LoadXml(sb.ToString());

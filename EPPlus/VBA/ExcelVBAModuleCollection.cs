@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -28,6 +28,7 @@
  *******************************************************************************
  * Jan Källman		Added		12-APR-2012
  *******************************************************************************/
+using OfficeOpenXml.Compatibility;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +61,7 @@ namespace OfficeOpenXml.VBA
         {
             get
             {
-                return _list.Find((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
+                return _list.Find((f) => TypeCompat.GetPropertyValue(f,"Name").ToString().Equals(Name,StringComparison.OrdinalIgnoreCase));
             }
         }
         /// <summary>
@@ -89,7 +90,7 @@ namespace OfficeOpenXml.VBA
         /// <returns>True if the name exists</returns>
         public bool Exists(string Name)
         {
-            return _list.Exists((f) => f.GetType().GetProperty("Name").GetValue(f, null).ToString().ToLower() == Name.ToLower());
+            return _list.Exists((f) => TypeCompat.GetPropertyValue(f,"Name").ToString().Equals(Name,StringComparison.OrdinalIgnoreCase));
         }
         /// <summary>
         /// Removes the item
@@ -134,6 +135,10 @@ namespace OfficeOpenXml.VBA
         /// <returns>The module object</returns>
         public ExcelVBAModule AddModule(string Name)
         {
+            if (this[Name] != null)
+            {
+                throw(new ArgumentException("Vba modulename already exist."));
+            }
             var m = new ExcelVBAModule();
             m.Name = Name;
             m.Type = eModuleType.Module;

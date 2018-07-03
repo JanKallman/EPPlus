@@ -1,10 +1,10 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,25 +26,14 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Initial Release		        2009-10-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		Initial Release		        2009-10-01
+ * Jan KÃ¤llman		License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
 using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
-    public class ColumnInternal
-    {
-            internal int ColumnMax;
-            internal bool BestFit;
-            internal bool Collapsed;
-            internal bool Hidden;
-            internal short OutlineLevel;
-            internal bool PageBreak;
-            internal bool Phonetic;
-            internal double Width;        
-    }
     /// <summary>
 	/// Represents one or more columns within the worksheet
 	/// </summary>
@@ -68,7 +57,7 @@ namespace OfficeOpenXml
             _width = _worksheet.DefaultColWidth;
         }
 		#endregion
-        int _columnMin;		
+        internal int _columnMin;		
 		/// <summary>
 		/// Sets the first column the definition refers to.
 		/// </summary>
@@ -92,10 +81,10 @@ namespace OfficeOpenXml
                     throw new Exception("ColumnMax out of range");
                 }
 
-                var cse = new CellsStoreEnumerator<object>(_worksheet._values, 0, 0, 0, ExcelPackage.MaxColumns);
+                var cse = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, 0, 0, 0, ExcelPackage.MaxColumns);
                 while(cse.Next())
                 {
-                    var c = cse.Value as ExcelColumn;
+                    var c = cse.Value._value as ExcelColumn;
                     if (cse.Column > _columnMin && c.ColumnMax <= value && cse.Column!=_columnMin)
                     {
                         throw new Exception(string.Format("ColumnMax can not span over existing column {0}.",c.ColumnMin));
@@ -218,7 +207,7 @@ namespace OfficeOpenXml
             {
                 string letter = ExcelCellBase.GetColumnLetter(ColumnMin);
                 string endLetter = ExcelCellBase.GetColumnLetter(ColumnMax);
-                return _worksheet.Workbook.Styles.GetStyleObject(_styleID, _worksheet.PositionID, letter + ":" + endLetter);
+                return _worksheet.Workbook.Styles.GetStyleObject(StyleID, _worksheet.PositionID, letter + ":" + endLetter);
             }
         }
         internal string _styleName="";
@@ -237,19 +226,18 @@ namespace OfficeOpenXml
                 _styleName = value;
             }
 		}
-        internal int _styleID = 0;
         /// <summary>
-        /// Sets the style for the entire column using the style ID.  
+        /// Sets the style for the entire column using the style ID.           
         /// </summary>
         public int StyleID
         {
             get
             {
-                return _worksheet._styles.GetValue(0, ColumnMin);
+                return _worksheet.GetStyleInner(0, ColumnMin);
             }
             set
             {
-                _worksheet._styles.SetValue(0, ColumnMin, value);
+                _worksheet.SetStyleInner(0, ColumnMin, value);
             }
         }
         /// <summary>
@@ -259,6 +247,17 @@ namespace OfficeOpenXml
         {
             get;
             set;
+        }
+        public bool Merged
+        {
+            get
+            {
+                return _worksheet.MergedCells[ColumnMin, 0] != null;
+            }
+            set
+            {
+                _worksheet.MergedCells.Add(new ExcelAddressBase(1, ColumnMin, ExcelPackage.MaxRows, ColumnMax), true);
+            }
         }
         #endregion
 
@@ -348,13 +347,13 @@ namespace OfficeOpenXml
                 newCol.ColumnMax = ColumnMax;
                 newCol.BestFit = BestFit;
                 newCol.Collapsed = Collapsed;
-                newCol.Hidden = Hidden;
                 newCol.OutlineLevel = OutlineLevel;
                 newCol.PageBreak = PageBreak;
                 newCol.Phonetic = Phonetic;
-                newCol.StyleName = StyleName;
+                newCol._styleName = _styleName;
                 newCol.StyleID = StyleID;
                 newCol.Width = Width;
+                newCol.Hidden = Hidden;
                 return newCol;
         }
     }

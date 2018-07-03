@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -34,12 +34,14 @@ using System.Linq;
 using System.Text;
 using Ionic.Zip;
 using System.IO;
+using System.Security;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 
 namespace OfficeOpenXml.Packaging
 {
     public class ZipPackageRelationshipCollection : IEnumerable<ZipPackageRelationship>
     {
-        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>();
+        internal protected Dictionary<string, ZipPackageRelationship> _rels = new Dictionary<string, ZipPackageRelationship>(StringComparer.OrdinalIgnoreCase);
         internal void Add(ZipPackageRelationship item)
         {
             _rels.Add(item.Id, item);
@@ -87,7 +89,7 @@ namespace OfficeOpenXml.Packaging
             StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\">");
             foreach (var rel in _rels.Values)
             {
-                xml.AppendFormat("<Relationship Id=\"{0}\" Type=\"{1}\" Target=\"{2}\"{3}/>", rel.Id, rel.RelationshipType, rel.TargetUri, rel.TargetMode == TargetMode.External ? " TargetMode=\"External\"" : "");
+                xml.AppendFormat("<Relationship Id=\"{0}\" Type=\"{1}\" Target=\"{2}\"{3}/>", SecurityElement.Escape(rel.Id), rel.RelationshipType, SecurityElement.Escape(rel.TargetUri.OriginalString), rel.TargetMode == TargetMode.External ? " TargetMode=\"External\"" : "");
             }
             xml.Append("</Relationships>");
 

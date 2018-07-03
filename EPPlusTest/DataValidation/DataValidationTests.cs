@@ -24,6 +24,17 @@ namespace EPPlusTest.DataValidation
             CleanupTestData();
         }
 
+        [TestMethod]
+        public void DataValidations_ShouldSetOperatorFromExistingXml()
+        {
+            // Arrange
+            LoadXmlTestData("A1", "whole", "greaterThanOrEqual", "1");
+            // Act
+            var validation = new ExcelDataValidationInt(_sheet, "A1", ExcelDataValidationType.Whole, _dataValidationNode, _namespaceManager);
+            // Assert
+            Assert.AreEqual(ExcelDataValidationOperator.greaterThanOrEqual, validation.Operator);
+       }
+
         [TestMethod, ExpectedException(typeof(InvalidOperationException))]
         public void DataValidations_ShouldThrowIfOperatorIsEqualAndFormula1IsEmpty()
         {

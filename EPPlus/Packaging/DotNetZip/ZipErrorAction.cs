@@ -26,7 +26,7 @@
 // ------------------------------------------------------------------
 
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     /// An enum providing the options when an error occurs during opening or reading

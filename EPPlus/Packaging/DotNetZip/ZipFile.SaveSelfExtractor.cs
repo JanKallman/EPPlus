@@ -64,7 +64,7 @@ using System.IO;
 using System.Collections.Generic;
 
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
 #if !NO_SFX
     /// <summary>
@@ -527,7 +527,7 @@ namespace Ionic.Zip
         //string _defaultExtractLocation;
         //string _postExtractCmdLine;
         //         string _SetDefaultLocationCode =
-        //         "namespace Ionic.Zip { internal partial class WinFormsSelfExtractorStub { partial void _SetDefaultExtractLocation() {" +
+        //         "namespace OfficeOpenXml.Packaging.Ionic.Zip { internal partial class WinFormsSelfExtractorStub { partial void _SetDefaultExtractLocation() {" +
         //         " txtExtractDirectory.Text = \"@@VALUE\"; } }}";
 
 

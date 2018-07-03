@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -49,6 +49,7 @@ namespace OfficeOpenXml
         {
             OriginalUri = (Uri)this;
         }
+#if !Core
         /// <summary>
         /// A new hyperlink with the specified URI. This syntax is obsolete
         /// </summary>
@@ -60,6 +61,7 @@ namespace OfficeOpenXml
         {
             OriginalUri = (Uri)this;
         }
+#endif
         /// <summary>
         /// A new hyperlink with the specified URI and kind
         /// </summary>

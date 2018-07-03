@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -39,6 +39,8 @@ using System.IO;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Packaging;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Compatibility;
+
 namespace OfficeOpenXml
 {
     /// <summary>
@@ -86,8 +88,12 @@ namespace OfficeOpenXml
                 }
                 else
                 {
+#if (Core)
+                    var img=ImageCompat.GetImageAsByteArray(value);
+#else
                     ImageConverter ic = new ImageConverter();
                     byte[] img = (byte[])ic.ConvertTo(value, typeof(byte[]));
+#endif
                     var ii = _workSheet.Workbook._package.AddImage(img);
                     var rel = _workSheet.Part.CreateRelationship(ii.Uri, Packaging.TargetMode.Internal, ExcelPackage.schemaRelationships + "/image");
                     SetXmlNodeString(BACKGROUNDPIC_PATH, rel.Id);
@@ -104,8 +110,10 @@ namespace OfficeOpenXml
             DeletePrevImage();
 
             Image img;
+            byte[] fileBytes;
             try
             {
+                fileBytes = File.ReadAllBytes(PictureFile.FullName);
                 img = Image.FromFile(PictureFile.FullName);
             }
             catch (Exception ex)
@@ -113,11 +121,9 @@ namespace OfficeOpenXml
                 throw (new InvalidDataException("File is not a supported image-file or is corrupt", ex));
             }
 
-            ImageConverter ic = new ImageConverter();
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
             var imageURI = XmlHelper.GetNewUri(_workSheet._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length - PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
 
-            byte[] fileBytes = (byte[])ic.ConvertTo(img, typeof(byte[]));
             var ii = _workSheet.Workbook._package.AddImage(fileBytes, imageURI, contentType);
 
 
@@ -141,8 +147,12 @@ namespace OfficeOpenXml
             var relID = GetXmlNodeString(BACKGROUNDPIC_PATH);
             if (relID != "")
             {
+#if (Core)
+                var img=ImageCompat.GetImageAsByteArray(Image);
+#else
                 var ic = new ImageConverter();
                 byte[] img = (byte[])ic.ConvertTo(Image, typeof(byte[]));
+#endif
                 var ii = _workSheet.Workbook._package.GetImageInfo(img);
 
                 //Delete the relation

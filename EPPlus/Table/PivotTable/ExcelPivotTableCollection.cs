@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -54,7 +54,6 @@ namespace OfficeOpenXml.Table.PivotTable
                 {
                     var tbl = new ExcelPivotTable(rel, ws);
                     _pivotTableNames.Add(tbl.Name, _pivotTables.Count);
-                    if (tbl.Id + 1 > _ws.Workbook._nextPivotTableID) _ws.Workbook._nextPivotTableID = tbl.Id + 1;
                     _pivotTables.Add(tbl);
                 }
             }
@@ -63,9 +62,9 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             _pivotTables.Add(tbl);
             _pivotTableNames.Add(tbl.Name, _pivotTables.Count - 1);
-            if (tbl.Id >= _ws.Workbook._nextPivotTableID)
+            if (tbl.CacheID >= _ws.Workbook._nextPivotTableID)
             {
-                _ws.Workbook._nextPivotTableID = tbl.Id + 1;
+                _ws.Workbook._nextPivotTableID = tbl.CacheID + 1;
             }
             return tbl;
         }
@@ -98,6 +97,7 @@ namespace OfficeOpenXml.Table.PivotTable
                     throw (new ArgumentException(string.Format("Table range collides with table {0}", t.Name)));
                 }
             }
+            
             return Add(new ExcelPivotTable(_ws, Range, Source, Name, _ws.Workbook._nextPivotTableID++));
         }
 

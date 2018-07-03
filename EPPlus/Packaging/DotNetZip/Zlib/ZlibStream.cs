@@ -28,7 +28,7 @@
 using System;
 using System.IO;
 
-namespace Ionic.Zlib
+namespace OfficeOpenXml.Packaging.Ionic.Zlib
 {
 
     /// <summary>

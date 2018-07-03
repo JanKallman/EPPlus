@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -60,7 +60,6 @@ namespace OfficeOpenXml.Table.PivotTable
             Address = new ExcelAddressBase(GetXmlNodeString("d:location/@ref"));
 
             _cacheDefinition = new ExcelPivotCacheDefinition(sheet.NameSpaceManager, this);
-
             LoadFields();
 
             //Add row fields.
@@ -135,7 +134,7 @@ namespace OfficeOpenXml.Table.PivotTable
             PivotTableXml = new XmlDocument();
             LoadXmlSafe(PivotTableXml, GetStartXml(name, tblId, address, sourceAddress), Encoding.UTF8);
             TopNode = PivotTableXml.DocumentElement;
-            PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", tblId);
+            PivotTableUri =  GetNewUri(pck, "/xl/pivotTables/pivotTable{0}.xml", ref tblId);
             init();
 
             Part = pck.CreatePart(PivotTableUri, ExcelPackage.schemaPivotTable);
@@ -189,7 +188,7 @@ namespace OfficeOpenXml.Table.PivotTable
         }
         private string GetStartXml(string name, int id, ExcelAddressBase address, ExcelAddressBase sourceAddress)
         {
-            string xml = string.Format("<pivotTableDefinition xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" name=\"{0}\" cacheId=\"{1}\" dataOnRows=\"1\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"0\" applyPatternFormats=\"0\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"1\" dataCaption=\"Data\" updatedVersion=\"3\" showMemberPropertyTips=\"0\" useAutoFormatting=\"1\" itemPrintTitles=\"1\" createdVersion=\"1\" indent=\"0\" compact=\"0\" compactData=\"0\" gridDropZones=\"1\">",name, id);
+            string xml = string.Format("<pivotTableDefinition xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" name=\"{0}\" cacheId=\"{1}\" dataOnRows=\"1\" applyNumberFormats=\"0\" applyBorderFormats=\"0\" applyFontFormats=\"0\" applyPatternFormats=\"0\" applyAlignmentFormats=\"0\" applyWidthHeightFormats=\"1\" dataCaption=\"Data\"  createdVersion=\"4\" showMemberPropertyTips=\"0\" useAutoFormatting=\"1\" itemPrintTitles=\"1\" indent=\"0\" compact=\"0\" compactData=\"0\" gridDropZones=\"1\">", ConvertUtil.ExcelEscapeString(name), id);
 
             xml += string.Format("<location ref=\"{0}\" firstHeaderRow=\"1\" firstDataRow=\"1\" firstDataCol=\"1\" /> ", address.FirstAddress);
             xml += string.Format("<pivotFields count=\"{0}\">", sourceAddress._toCol-sourceAddress._fromCol+1);
@@ -225,18 +224,18 @@ namespace OfficeOpenXml.Table.PivotTable
             get;
             set;
         }
-        const string ID_PATH = "@id";
-        internal int Id
-        {
-            get
-            {
-                return GetXmlNodeInt(ID_PATH);
-            }
-            set
-            {
-                SetXmlNodeString(ID_PATH, value.ToString());
-            }
-        }
+        //const string ID_PATH = "@id";
+        //internal int Id
+        //{
+        //    get
+        //    {
+        //        return GetXmlNodeInt(ID_PATH);
+        //    }
+        //    set
+        //    {
+        //        SetXmlNodeString(ID_PATH, value.ToString());
+        //    }
+        //}
         const string NAME_PATH = "@name";
         const string DISPLAY_NAME_PATH = "@displayName";
         /// <summary>
@@ -421,7 +420,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@enableDrill");
+                return GetXmlNodeBool("@enableDrill", true);
             }
             set
             {
@@ -435,7 +434,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@showDrill");
+                return GetXmlNodeBool("@showDrill", true);
             }
             set
             {
@@ -449,11 +448,11 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeBool("@showDataTips");
+                return GetXmlNodeBool("@showDataTips", true);
             }
             set
             {
-                SetXmlNodeBool("@showDataTips", value);
+                SetXmlNodeBool("@showDataTips", value, true);
             }
         }
         /// <summary>
@@ -487,7 +486,22 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable columns
         /// </summary>
+        [Obsolete("Use correctly spelled property 'ColumnGrandTotals'")]
         public bool ColumGrandTotals
+        {
+            get
+            {
+                return ColumnGrandTotals;
+            }
+            set
+            {
+                ColumnGrandTotals = value;
+            }
+        }
+        /// <summary>
+        /// If the grand totals should be displayed for the PivotTable columns
+        /// </summary>
+        public bool ColumnGrandTotals
         {
             get
             {
@@ -497,7 +511,7 @@ namespace OfficeOpenXml.Table.PivotTable
             {
                 SetXmlNodeBool("@colGrandTotals", value);
             }
-        }        
+        }
         /// <summary>
         /// If the grand totals should be displayed for the PivotTable rows
         /// </summary>
@@ -742,6 +756,20 @@ namespace OfficeOpenXml.Table.PivotTable
             }
         }
         /// <summary>
+        /// Specifies the string to be displayed in column header in compact mode.
+        /// </summary>
+        public string ColumnHeaderCaption
+        {
+            get
+            {
+                return GetXmlNodeString("@colHeaderCaption");
+            }
+            set
+            {
+                SetXmlNodeString("@colHeaderCaption", value);
+            }
+        }
+        /// <summary>
         /// Specifies the string to be displayed in cells with no value
         /// </summary>
         public string MissingCaption
@@ -883,7 +911,7 @@ namespace OfficeOpenXml.Table.PivotTable
         {
             get
             {
-                return GetXmlNodeString(StyleName);
+                return GetXmlNodeString(STYLENAME_PATH);
             }
             set
             {

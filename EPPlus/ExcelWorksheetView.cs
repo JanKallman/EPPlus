@@ -1,10 +1,10 @@
-/*******************************************************************************
+ï»¿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,8 +26,8 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		    Initial Release		       2009-10-01
- * Jan Källman		    License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		    Initial Release		       2009-10-01
+ * Jan KÃ¤llman		    License changed GPL-->LGPL 2011-12-27
  *******************************************************************************/
 using System;
 using System.Xml;
@@ -192,7 +192,8 @@ namespace OfficeOpenXml
         #endregion
         #region Public Methods & Properties
         /// <summary>
-        /// The active cell.
+        /// The active cell. Single Cell address.                
+        /// This cell must be inside the selected range. If not, the selected range is set to the active cell address
         /// </summary>
         public string ActiveCell
         {
@@ -200,13 +201,29 @@ namespace OfficeOpenXml
             {
                 return Panes[Panes.GetUpperBound(0)].ActiveCell;
             }
-            set 
+            set
             {
+                var ac = new ExcelAddressBase(value);
+                if (ac.IsSingleCell==false)
+                {
+                    throw (new InvalidOperationException("ActiveCell must be a single cell."));
+                }
+
+                /*** Active cell must be inside SelectedRange ***/
+                var sd = new ExcelAddressBase(SelectedRange.Replace(" ",","));
                 Panes[Panes.GetUpperBound(0)].ActiveCell = value;
+
+                if (IsActiveCellInSelection(ac, sd)==false)
+                {
+                    SelectedRange = value;
+                }
             }
         }
+
         /// <summary>
-        /// Selected Cells in the worksheet.Used in combination with ActiveCell
+        /// Selected Cells in the worksheet. Used in combination with ActiveCell.
+        /// If the active cell is not inside the selected range, the active cell will be set to the first cell in the selected range.
+        /// If the selected range has multiple adresses, these are separated with space. If the active cell is not within the first address in this list, the attribute ActiveCellId must be set (not supported, so it must be set via the XML).
         /// </summary>
         public string SelectedRange
         {
@@ -216,11 +233,45 @@ namespace OfficeOpenXml
             }
             set
             {
+                var ac = new ExcelAddressBase(ActiveCell);
+
+                /*** Active cell must be inside SelectedRange ***/
+                var sd = new ExcelAddressBase(value.Replace(" ",","));      //Space delimitered here, replace
+
                 Panes[Panes.GetUpperBound(0)].SelectedRange = value;
+                if (IsActiveCellInSelection(ac, sd)==false)
+                {
+                    ActiveCell = new ExcelCellAddress(sd._fromRow, sd._fromCol).Address;
+                }
             }
         }
+
+        private bool IsActiveCellInSelection(ExcelAddressBase ac, ExcelAddressBase sd)
+        {
+            var c = sd.Collide(ac);
+            if (c == ExcelAddressBase.eAddressCollition.Equal || c == ExcelAddressBase.eAddressCollition.Inside)
+            {
+                return true;
+            }
+            else
+            {
+                if (sd.Addresses != null)
+                {
+                    foreach (var sds in sd.Addresses)
+                    {
+                        c = sds.Collide(ac);
+                        if (c == ExcelAddressBase.eAddressCollition.Equal || c == ExcelAddressBase.eAddressCollition.Inside)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
         /// <summary>
-        /// Indicates if the worksheet is selected within the workbook
+        /// Indicates if the worksheet is selected within the workbook. NOTE: Setter clears other selected tabs.
         /// </summary>
         public bool TabSelected
         {
@@ -230,23 +281,50 @@ namespace OfficeOpenXml
             }
             set
             {
-                if (value)
+                SetTabSelected(value, false);
+            }
+        }
+
+        /// <summary>
+        /// Indicates if the worksheet is selected within the workbook. NOTE: Setter keeps other selected tabs.
+        /// </summary>
+        public bool TabSelectedMulti
+        {
+            get
+            {
+                return GetXmlNodeBool("@tabSelected");
+            }
+            set
+            {
+                SetTabSelected(value, true);
+            }
+        }
+
+        /// <summary>
+        /// Sets whether the worksheet is selected within the workbook.
+        /// </summary>
+        /// <param name="isSelected">Whether the tab is selected, defaults to true.</param>
+        /// <param name="allowMultiple">Whether to allow multiple active tabs, defaults to false.</param>
+        public void SetTabSelected(bool isSelected = true, bool allowMultiple = false)
+        {
+            if (isSelected)
+            {
+                SheetViewElement.SetAttribute("tabSelected", "1");
+                if (!allowMultiple)
                 {
                     //    // ensure no other worksheet has its tabSelected attribute set to 1
                     foreach (ExcelWorksheet sheet in _worksheet._package.Workbook.Worksheets)
                         sheet.View.TabSelected = false;
 
-                    SheetViewElement.SetAttribute("tabSelected", "1");
-                    XmlElement bookView = _worksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _worksheet.NameSpaceManager) as XmlElement;
-                    if (bookView != null)
-                    {
-                        bookView.SetAttribute("activeTab", (_worksheet.PositionID - 1).ToString());
-                    }
                 }
-                else
-                    SetXmlNodeString("@tabSelected", "0");
-
+                XmlElement bookView = _worksheet.Workbook.WorkbookXml.SelectSingleNode("//d:workbookView", _worksheet.NameSpaceManager) as XmlElement;
+                if (bookView != null)
+                {
+                    bookView.SetAttribute("activeTab", (_worksheet.PositionID - 1).ToString());
+                }
             }
+            else
+                SetXmlNodeString("@tabSelected", "0");
         }
 
 		/// <summary>

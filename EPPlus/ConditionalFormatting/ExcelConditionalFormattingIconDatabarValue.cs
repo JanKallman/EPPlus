@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -288,14 +288,35 @@ namespace OfficeOpenXml.ConditionalFormatting
                 {
                     throw(new ArgumentException("Value type can't be Min or Max for icon sets"));
                 }
-                SetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute, value.ToString().ToLower());                
+                SetXmlNodeString(ExcelConditionalFormattingConstants.Paths.TypeAttribute, value.ToString().ToLower(CultureInfo.InvariantCulture));                
 			}
 		}
 
-		/// <summary>
-		/// Get/Set the 'cfvo' node @val attribute
-		/// </summary>
-		public Double Value
+        /// <summary>
+        /// Get/Set the 'cfvo' node @gte attribute
+        /// </summary>
+        public bool GreaterThanOrEqualTo
+        {
+            get
+            {
+                return GetXmlNodeBool(ExcelConditionalFormattingConstants.Paths.GteAttribute);
+            }
+
+            set
+            {
+                SetXmlNodeString(  
+                    ExcelConditionalFormattingConstants.Paths.GteAttribute,
+                    (value == false) ? "0" : string.Empty,
+                    true);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Get/Set the 'cfvo' node @val attribute
+        /// </summary>
+        public Double Value
 		{
 			get
 			{

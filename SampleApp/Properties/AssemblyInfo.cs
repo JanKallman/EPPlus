@@ -3,7 +3,7 @@
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
  *
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  * 
  * All rights reserved.
  * 
@@ -35,13 +35,13 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EPPlusSamples")]
-[assembly: AssemblyDescription("Demonstrate Excel files being created on the server")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EPPlus Samples")]
-[assembly: AssemblyTrademark("The GNU General Public License (GPL)")]
-[assembly: AssemblyCulture("")]
+//[assembly: AssemblyTitle("EPPlusSamples")]
+//[assembly: AssemblyDescription("Demonstrate Excel files being created on the server")]
+//[assembly: AssemblyConfiguration("")]
+//[assembly: AssemblyCompany("")]
+//[assembly: AssemblyProduct("EPPlus Samples")]
+//[assembly: AssemblyTrademark("The GNU General Public License (GPL)")]
+//[assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible 
 // to COM components.  If you need to access a type in this assembly from 
@@ -58,5 +58,5 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.0.0.1")]
-[assembly: AssemblyFileVersion("1.0.0.1")]
+//[assembly: AssemblyVersion("1.0.0.1")]
+//[assembly: AssemblyFileVersion("1.0.0.1")]

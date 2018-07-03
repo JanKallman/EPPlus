@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Xml;
 using OfficeOpenXml.Table.PivotTable;
+using System.Globalization;
 
 namespace OfficeOpenXml.Drawing.Chart
 {
@@ -228,6 +229,21 @@ namespace OfficeOpenXml.Drawing.Chart
                     _DataLabel = new ExcelChartDataLabel(NameSpaceManager, ChartNode);
                 }
                 return _DataLabel;
+            }
+        }
+        string _gapWidthPath = "c:gapWidth/@val";
+        /// <summary>
+        /// The size of the gap between two adjacent bars/columns
+        /// </summary>
+        public int GapWidth
+        {
+            get
+            {
+                return _chartXmlHelper.GetXmlNodeInt(_gapWidthPath);
+            }
+            set
+            {
+                _chartXmlHelper.SetXmlNodeString(_gapWidthPath, value.ToString(CultureInfo.InvariantCulture));
             }
         }
         #endregion

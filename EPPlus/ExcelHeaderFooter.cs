@@ -2,9 +2,9 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
- * Copyright (C) 2011  Jan Källman
+ * Copyright (C) 2011  Jan KÃ¤llman
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,9 +26,9 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		                Initial Release		        2009-10-01
- * Jan Källman                      Total rewrite               2010-03-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-27
+ * Jan KÃ¤llman		                Initial Release		        2009-10-01
+ * Jan KÃ¤llman                      Total rewrite               2010-03-01
+ * Jan KÃ¤llman		License changed GPL-->LGPL 2011-12-27
  * *******************************************************************************/
 using System;
 using System.Xml;
@@ -39,6 +39,8 @@ using OfficeOpenXml.Drawing.Vml;
 using System.IO;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Utils;
+using OfficeOpenXml.Compatibility;
+
 namespace OfficeOpenXml
 {    
     /// <summary>
@@ -123,10 +125,16 @@ namespace OfficeOpenXml
         public ExcelVmlDrawingPicture InsertPicture(Image Picture, PictureAlignment Alignment)
         {
             string id = ValidateImage(Alignment);
-            
+
             //Add the image
+#if (Core)
+            var img=ImageCompat.GetImageAsByteArray(Picture);
+#else
             ImageConverter ic = new ImageConverter();
             byte[] img = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
+#endif
+
+
             var ii = _ws.Workbook._package.AddImage(img);
 
             return AddImage(Picture, id, ii);
@@ -154,10 +162,15 @@ namespace OfficeOpenXml
                 throw (new InvalidDataException("File is not a supported image-file or is corrupt", ex));
             }
 
-            ImageConverter ic = new ImageConverter();
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
-            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/"+PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
+            var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
+#if (Core)
+            var imgBytes=ImageCompat.GetImageAsByteArray(Picture);
+#else
+            var ic = new ImageConverter();
             byte[] imgBytes = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
+#endif
+
             var ii = _ws.Workbook._package.AddImage(imgBytes, uriPic, contentType);
 
             return AddImage(Picture, id, ii);
@@ -274,6 +287,7 @@ namespace OfficeOpenXml
             base(nameSpaceManager, topNode)
 		{
             _ws = ws;
+            SchemaNodeOrder = new string[] { "headerFooter", "oddHeader", "oddFooter", "evenHeader", "evenFooter", "firstHeader", "firstFooter" };
 		}
 		#endregion
 
@@ -330,14 +344,30 @@ namespace OfficeOpenXml
                 SetXmlNodeString(differentFirstPath, value ? "1" : "0");
 			}
 		}
-		#endregion
-
-		#region ExcelHeaderFooter Public Properties
-		/// <summary>
-		/// Provides access to the header on odd numbered pages of the document.
-		/// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
-		/// </summary>
-		public ExcelHeaderFooterText OddHeader 
+        #endregion
+        #region ScaleWithDoc
+        const string scaleWithDocPath = "@scaleWithDoc";
+        /// <summary>
+        /// Specify whether the header and footer should scale as you use the "Shrink to fit" feature on the document
+        /// </summary>
+        public bool ScaleWithDocument
+        {
+            get
+            {
+                return GetXmlNodeBool(scaleWithDocPath);
+            }
+            set
+            {
+                SetXmlNodeBool(scaleWithDocPath, value);
+            }
+        }
+        #endregion
+        #region ExcelHeaderFooter Public Properties
+        /// <summary>
+        /// Provides access to the header on odd numbered pages of the document.
+        /// If you want the same header on both odd and even pages, then only set values in this ExcelHeaderFooterText class.
+        /// </summary>
+        public ExcelHeaderFooterText OddHeader 
         { 
             get 
             {
@@ -453,12 +483,12 @@ namespace OfficeOpenXml
                 return _vmlDrawingsHF;
             }
         }
-		#endregion
-		#region Save  //  ExcelHeaderFooter
-		/// <summary>
-		/// Saves the header and footer information to the worksheet XML
-		/// </summary>
-		internal void Save()
+        #endregion
+            #region Save  //  ExcelHeaderFooter
+            /// <summary>
+            /// Saves the header and footer information to the worksheet XML
+            /// </summary>
+        internal void Save()
 		{
 			if (_oddHeader != null)
 			{

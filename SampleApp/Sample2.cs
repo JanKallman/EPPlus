@@ -1,4 +1,4 @@
-/*******************************************************************************
+﻿/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  * 
  * All rights reserved.
@@ -8,7 +8,7 @@
  * Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  * 
  * EPPlus provides server-side generation of Excel 2007 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  *
  * 
@@ -27,7 +27,7 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan K�llman		Added		10-SEP-2009
+ * Jan Källman		Added		10-SEP-2009
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -50,8 +50,8 @@ namespace EPPlusSamples
 			FileInfo existingFile = new FileInfo(FilePath);
 			using (ExcelPackage package = new ExcelPackage(existingFile))
 			{
-				// get the first worksheet in the workbook
-				ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
+                // get the first worksheet in the workbook
+                ExcelWorksheet worksheet = package.Workbook.Worksheets[1];
                 int col = 2; //The item description
 				// output the data in column 2
 				for (int row = 2; row < 5; row++)

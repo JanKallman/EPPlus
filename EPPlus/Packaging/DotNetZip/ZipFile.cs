@@ -41,10 +41,10 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 using Interop = System.Runtime.InteropServices;
-
-
-namespace Ionic.Zip
+using OfficeOpenXml.Packaging.Ionic.Zlib;
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     ///   The ZipFile type represents a zip archive file.
@@ -100,7 +100,7 @@ namespace Ionic.Zip
     ///   <item>
     ///     <c>ZipFile</c> can be used to read and extract zip files, in addition to
     ///     creating zip files. <c>ZipOutputStream</c> cannot read zip files. If you want
-    ///     to use a stream to read zip files, check out the <see cref="ZipInputStream"/> class.
+    ///     to use a stream to read zip files, check out the ZipInputStream class.
     ///   </item>
     ///
     ///   <item>
@@ -122,11 +122,11 @@ namespace Ionic.Zip
     /// </para>
     ///
     /// </remarks>
-    [Interop.GuidAttribute("ebc25cf6-9120-4283-b972-0e5520d00005")]
-    [Interop.ComVisible(true)]
-#if !NETCF
-    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]
-#endif
+//    [Interop.GuidAttribute("ebc25cf6-9120-4283-b972-0e5520d00005")]
+//    [Interop.ComVisible(true)]
+//#if !NETCF
+//    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]
+//#endif
     internal partial class ZipFile :
     System.Collections.IEnumerable,
     System.Collections.Generic.IEnumerable<ZipEntry>,
@@ -400,7 +400,7 @@ namespace Ionic.Zip
         ///   information see <see
         ///   cref="Ionic.Zlib.CompressionStrategy">Ionic.Zlib.CompressionStrategy</see>.
         /// </remarks>
-        public Ionic.Zlib.CompressionStrategy Strategy
+        public CompressionStrategy Strategy
         {
             get { return _Strategy; }
             set { _Strategy = value; }
@@ -471,7 +471,7 @@ namespace Ionic.Zip
         ///    alone, and accept the default.
         ///  </para>
         /// </remarks>
-        public Ionic.Zlib.CompressionLevel CompressionLevel
+        public OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel CompressionLevel
         {
             get;
             set;
@@ -1668,7 +1668,7 @@ namespace Ionic.Zip
         /// </example>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.Encryption">ZipFile.Encryption</seealso>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Password">ZipEntry.Password</seealso>
+        /// <seealso cref="ZipEntry.Password">ZipEntry.Password</seealso>
         public String Password
         {
             set
@@ -1712,7 +1712,7 @@ namespace Ionic.Zip
         ///   to be extracted does not already exist.
         /// </para>
         /// </remarks>
-        /// <seealso cref="Ionic.Zip.ZipEntry.ExtractExistingFile"/>
+        /// <seealso cref="ZipEntry.ExtractExistingFile"/>
         internal ExtractExistingFileAction ExtractExistingFile
         {
             get;
@@ -1809,7 +1809,7 @@ namespace Ionic.Zip
         /// </code>
         /// </example>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.ZipErrorAction"/>
+        /// <seealso cref="ZipEntry.ZipErrorAction"/>
         /// <seealso cref="Ionic.Zip.ZipFile.ZipError"/>
 
         internal ZipErrorAction ZipErrorAction
@@ -1945,7 +1945,7 @@ namespace Ionic.Zip
         /// </example>
         ///
         /// <seealso cref="Ionic.Zip.ZipFile.Password">ZipFile.Password</seealso>
-        /// <seealso cref="Ionic.Zip.ZipEntry.Encryption">ZipEntry.Encryption</seealso>
+        /// <seealso cref="ZipEntry.Encryption">ZipEntry.Encryption</seealso>
         internal EncryptionAlgorithm Encryption
         {
             get
@@ -2384,9 +2384,9 @@ namespace Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
-        #region Constructors
+#region Constructors
 
         /// <summary>
         ///   Creates a new <c>ZipFile</c> instance, using the specified filename.
@@ -2840,7 +2840,7 @@ namespace Ionic.Zip
             _StatusMessageTextWriter = statusMessageWriter;
             _contentsChanged = true;
             AddDirectoryWillTraverseReparsePoints = true;  // workitem 8617
-            CompressionLevel = Ionic.Zlib.CompressionLevel.Default;
+            CompressionLevel = OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.Default;
 #if !NETCF
             ParallelDeflateThreshold = 512 * 1024;
 #endif
@@ -2858,11 +2858,11 @@ namespace Ionic.Zip
 
             return;
         }
-        #endregion
+#endregion
 
 
 
-        #region Indexers and Collections
+#region Indexers and Collections
 
         private List<ZipEntry> ZipEntriesAsList
         {
@@ -3416,9 +3416,9 @@ namespace Ionic.Zip
         }
 
 
-        #endregion
+#endregion
 
-        #region Destructors and Disposers
+#region Destructors and Disposers
 
         //         /// <summary>
         //         /// This is the class Destructor, which gets called implicitly when the instance
@@ -3539,10 +3539,10 @@ namespace Ionic.Zip
                 this._disposed = true;
             }
         }
-        #endregion
+#endregion
 
 
-        #region private properties
+#region private properties
 
         internal Stream ReadStream
         {
@@ -3591,9 +3591,9 @@ namespace Ionic.Zip
                 _writestream = null;
             }
         }
-        #endregion
+#endregion
 
-        #region private fields
+#region private fields
         private TextWriter _StatusMessageTextWriter;
         private bool _CaseSensitiveRetrieval;
         private Stream _readstream;
@@ -3633,9 +3633,17 @@ namespace Ionic.Zip
         private Int64 _OffsetOfCentralDirectory64;
         private Nullable<bool> _OutputUsesZip64;
         internal bool _inExtractAll;
-        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("IBM437"); // UTF-8
+#if (Core)
+        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("UTF-8"); 
+#else
+        private System.Text.Encoding _alternateEncoding = System.Text.Encoding.GetEncoding("IBM437"); 
+#endif
         private ZipOption _alternateEncodingUsage = ZipOption.Never;
+#if (Core)
+        private static System.Text.Encoding _defaultEncoding = System.Text.Encoding.GetEncoding("UTF-8");
+#else
         private static System.Text.Encoding _defaultEncoding = System.Text.Encoding.GetEncoding("IBM437");
+#endif
 
         private int _BufferSize = BufferSizeDefault;
 
@@ -3655,7 +3663,7 @@ namespace Ionic.Zip
         /// </summary>
         public static readonly int BufferSizeDefault = 32768;
 
-        #endregion
+#endregion
     }
 
     /// <summary>
@@ -3834,7 +3842,7 @@ namespace Ionic.Zip
 //
 // Data descriptor:  (used only when bit 3 of the general purpose bitfield is set)
 //         (although, I have found zip files where bit 3 is not set, yet this descriptor is present!)
-//         local file header signature     4 bytes  (0x08074b50)  ** sometimes!!! Not always
+//         local file header signature     4 bytes  (0x0Get074b50)  ** sometimes!!! Not always
 //         crc-32                          4 bytes
 //         compressed size                 4 bytes
 //         uncompressed size               4 bytes

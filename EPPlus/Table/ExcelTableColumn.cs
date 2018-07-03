@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -31,8 +31,10 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using System.Xml;
+using OfficeOpenXml.Utils;
 
 namespace OfficeOpenXml.Table
 {
@@ -58,7 +60,7 @@ namespace OfficeOpenXml.Table
     /// </summary>
     public class ExcelTableColumn : XmlHelper
     {
-        ExcelTable _tbl;
+        internal ExcelTable _tbl;
         internal ExcelTableColumn(XmlNamespaceManager ns, XmlNode topNode, ExcelTable tbl, int pos) :
             base(ns, topNode)
         {
@@ -94,11 +96,29 @@ namespace OfficeOpenXml.Table
         {
             get
             {
-                return GetXmlNodeString("@name");
+                var n=GetXmlNodeString("@name");
+                if (string.IsNullOrEmpty(n))
+                {
+                    if (_tbl.ShowHeader)
+                    {
+                        n = ConvertUtil.ExcelDecodeString(_tbl.WorkSheet.GetValue<string>(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position));
+                    }
+                    else
+                    {
+                        n = "Column" + (this.Position+1).ToString();
+                    }
+                }
+                return n;
             }
             set
             {
-                SetXmlNodeString("@name", value);
+                var v = ConvertUtil.ExcelEncodeString(value);
+                SetXmlNodeString("@name", v);
+                if (_tbl.ShowHeader)
+                {
+                    _tbl.WorkSheet.SetValue(_tbl.Address._fromRow, _tbl.Address._fromCol + this.Position, value);
+                }
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         /// <summary>
@@ -140,8 +160,9 @@ namespace OfficeOpenXml.Table
                     throw(new Exception("Use the TotalsRowFormula-property to set a custom table formula"));
                 }
                 string s = value.ToString();
-                s = s.Substring(0, 1).ToLower() + s.Substring(1, s.Length - 1);
+                s = s.Substring(0, 1).ToLower(CultureInfo.InvariantCulture) + s.Substring(1, s.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", s);
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         const string TOTALSROWFORMULA_PATH = "d:totalsRowFormula";
@@ -163,6 +184,7 @@ namespace OfficeOpenXml.Table
                 if (value.StartsWith("=")) value = value.Substring(1, value.Length - 1);
                 SetXmlNodeString("@totalsRowFunction", "custom");                
                 SetXmlNodeString(TOTALSROWFORMULA_PATH, value);
+                _tbl.WorkSheet.SetTableTotalFunction(_tbl, this);
             }
         }
         const string DATACELLSTYLE_PATH = "@dataCellStyle";
@@ -187,7 +209,7 @@ namespace OfficeOpenXml.Table
                     toRow=_tbl.Address._toRow - (_tbl.ShowTotal?1:0),
                     col=_tbl.Address._fromCol+Position;
 
-                if (fromRow < toRow)
+                if (fromRow <= toRow)
                 {
                     _tbl.WorkSheet.Cells[fromRow, col, toRow, col].StyleName = value;
                 }

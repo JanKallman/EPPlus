@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -37,15 +37,6 @@ using System.Security;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EPPlus")]
-[assembly: AssemblyDescription("Allows Excel files(xlsx;xlsm) to be created on the server. See epplus.codeplex.com")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EPPlus")]
-[assembly: AssemblyCopyright("Copyright 2009- ©Jan Källman. Parts of the Interface comes from ExcelPackage-project")]
-[assembly: AssemblyTrademark("The GNU Lesser General Public License (LGPL)")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
 [assembly: InternalsVisibleTo("EPPlusTest, PublicKey=00240000048000009400000006020000002400005253413100040000010001001dd11308ec93a6ebcec727e183a8972dc6f95c23ecc34aa04f40cbfc9c17b08b4a0ea5c00dcd203bace44d15a30ce8796e38176ae88e960ceff9cc439ab938738ba0e603e3d155fc298799b391c004fc0eb4393dd254ce25db341eb43303e4c488c9500e126f1288594f0710ec7d642e9c72e76dd860649f1c48249c00e31fba")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
@@ -60,6 +51,18 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("3.1.1.0")]
-[assembly: AssemblyFileVersion("3.1.1.0")]
+#if (!Core)
+    //[assembly: AssemblyTitle("EPPlus")]
+    //[assembly: AssemblyDescription("Allows Excel files(xlsx;xlsm) to be created on the server. See epplus.codeplex.com")]
+    //[assembly: AssemblyConfiguration("")]
+    //[assembly: AssemblyCompany("EPPlus")]
+    //[assembly: AssemblyProduct("EPPlus")]
+    //[assembly: AssemblyCopyright("Copyright 2009- ©Jan Källman. Parts of the Interface comes from the ExcelPackage-project")]
+    //[assembly: AssemblyTrademark("The GNU Lesser General Public License (LGPL)")]
+    //[assembly: AssemblyCulture("")]
+    //[assembly: ComVisible(false)]
+
+    //[assembly: AssemblyVersion("4.5.0.0")]
+    //[assembly: AssemblyFileVersion("4.5.0.0")]
+#endif
 [assembly: AllowPartiallyTrustedCallers]

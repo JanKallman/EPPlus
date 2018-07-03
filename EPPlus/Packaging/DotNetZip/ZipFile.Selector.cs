@@ -35,8 +35,10 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using OfficeOpenXml.Packaging.Ionic.Zip;
+using System.Globalization;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
 
     partial class ZipFile
@@ -704,8 +706,8 @@ namespace Ionic.Zip
                                                       string pattern,
                                                       string replacement)
         {
-            string upperString = original.ToUpper();
-            string upperPattern = pattern.ToUpper();
+            string upperString = original.ToUpper(CultureInfo.InvariantCulture);
+            string upperPattern = pattern.ToUpper(CultureInfo.InvariantCulture);
             int p1 = upperString.IndexOf(upperPattern);
             if (p1 != 0) return original;
             return replacement + original.Substring(upperPattern.Length);
@@ -1243,17 +1245,17 @@ namespace Ionic.Zip
 
 
 
-namespace Ionic
+namespace OfficeOpenXml.Packaging.Ionic
 {
     internal abstract partial class SelectionCriterion
     {
-        internal abstract bool Evaluate(Ionic.Zip.ZipEntry entry);
+        internal abstract bool Evaluate(ZipEntry entry);
     }
 
 
     internal partial class NameCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             // swap forward slashes in the entry.FileName for backslashes
             string transformedFileName = entry.FileName.Replace("/", "\\");
@@ -1265,7 +1267,7 @@ namespace Ionic
 
     internal partial class SizeCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             return _Evaluate(entry.UncompressedSize);
         }
@@ -1273,7 +1275,7 @@ namespace Ionic
 
     internal partial class TimeCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             DateTime x;
             switch (Which)
@@ -1296,7 +1298,7 @@ namespace Ionic
 
     internal partial class TypeCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             bool result = (ObjectType == 'D')
                 ? entry.IsDirectory
@@ -1311,7 +1313,7 @@ namespace Ionic
 #if !SILVERLIGHT
     internal partial class AttributesCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             FileAttributes fileAttrs = entry.Attributes;
             return _Evaluate(fileAttrs);
@@ -1321,7 +1323,7 @@ namespace Ionic
 
     internal partial class CompoundCriterion : SelectionCriterion
     {
-        internal override bool Evaluate(Ionic.Zip.ZipEntry entry)
+        internal override bool Evaluate(ZipEntry entry)
         {
             bool result = Left.Evaluate(entry);
             switch (Conjunction)
@@ -1346,7 +1348,7 @@ namespace Ionic
 
     internal partial class FileSelector
     {
-        private bool Evaluate(Ionic.Zip.ZipEntry entry)
+        private bool Evaluate(ZipEntry entry)
         {
             bool result = _Criterion.Evaluate(entry);
             return result;
@@ -1380,14 +1382,14 @@ namespace Ionic
         /// <param name="zip">The ZipFile from which to retrieve entries.</param>
         ///
         /// <returns>a collection of ZipEntry objects that conform to the criteria.</returns>
-        public ICollection<Ionic.Zip.ZipEntry> SelectEntries(Ionic.Zip.ZipFile zip)
+        public ICollection<ZipEntry> SelectEntries(ZipFile zip)
         {
             if (zip == null)
                 throw new ArgumentNullException("zip");
 
-            var list = new List<Ionic.Zip.ZipEntry>();
+            var list = new List<ZipEntry>();
 
-            foreach (Ionic.Zip.ZipEntry e in zip)
+            foreach (ZipEntry e in zip)
             {
                 if (this.Evaluate(e))
                     list.Add(e);
@@ -1435,12 +1437,12 @@ namespace Ionic
         /// </param>
         ///
         /// <returns>a collection of ZipEntry objects that conform to the criteria.</returns>
-        public ICollection<Ionic.Zip.ZipEntry> SelectEntries(Ionic.Zip.ZipFile zip, string directoryPathInArchive)
+        public ICollection<ZipEntry> SelectEntries(ZipFile zip, string directoryPathInArchive)
         {
             if (zip == null)
                 throw new ArgumentNullException("zip");
 
-            var list = new List<Ionic.Zip.ZipEntry>();
+            var list = new List<ZipEntry>();
             // workitem 8559
             string slashSwapped = (directoryPathInArchive == null) ? null : directoryPathInArchive.Replace("/", "\\");
             // workitem 9174
@@ -1449,7 +1451,7 @@ namespace Ionic
                 while (slashSwapped.EndsWith("\\"))
                     slashSwapped = slashSwapped.Substring(0, slashSwapped.Length - 1);
             }
-            foreach (Ionic.Zip.ZipEntry e in zip)
+            foreach (ZipEntry e in zip)
             {
                 if (directoryPathInArchive == null || (Path.GetDirectoryName(e.FileName) == directoryPathInArchive)
                     || (Path.GetDirectoryName(e.FileName) == slashSwapped)) // workitem 8559

@@ -2,7 +2,7 @@
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
- * See http://www.codeplex.com/EPPlus for details.
+ * See https://github.com/JanKallman/EPPlus for details.
  *
  * Copyright (C) 2011  Jan Källman
  *
@@ -31,6 +31,7 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using OfficeOpenXml.Utils;
@@ -44,7 +45,7 @@ namespace OfficeOpenXml.DataValidation
     /// <summary>
     /// Excel datavalidation
     /// </summary>
-    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation  
+    public abstract class ExcelDataValidation : XmlHelper, IExcelDataValidation
     {
         private const string _itemElementNodeName = "d:dataValidation";
 
@@ -135,7 +136,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 throw new FormatException("Multiple addresses may not be commaseparated, use space instead");
             }
-            address = address.ToUpper();
+            address = ConvertUtil._invariantTextInfo.ToUpper(address);
             if (Regex.IsMatch(address, @"[A-Z]+:[A-Z]+"))
             {
                 address = AddressUtility.ParseEntireColumnSelections(address);
@@ -193,8 +194,7 @@ namespace OfficeOpenXml.DataValidation
             }
             private set
             {
-                var address = AddressUtility.ParseEntireColumnSelections(value.Address);
-                SetXmlNodeString(_sqrefPath, address);
+                SetAddress(value.Address);
             }
         }
         /// <summary>
@@ -209,7 +209,7 @@ namespace OfficeOpenXml.DataValidation
             }
             private set
             {
-                SetXmlNodeString(_typeMessagePath, value.SchemaName);
+                SetXmlNodeString(_typeMessagePath, value.SchemaName, true);
             }
         }
 
@@ -253,7 +253,7 @@ namespace OfficeOpenXml.DataValidation
             }
             set
             {
-                if(value == ExcelDataValidationWarningStyle.undefined)
+                if (value == ExcelDataValidationWarningStyle.undefined)
                 {
                     DeleteNode(_errorStylePath);
                 }
@@ -393,6 +393,13 @@ namespace OfficeOpenXml.DataValidation
             }
             var stringValue = val.Value.ToString().Replace(',', '.');
             SetXmlNodeString(path, stringValue);
+        }
+
+        internal void SetAddress(string address)
+        {
+            var dvAddress = AddressUtility.ParseEntireColumnSelections(address);
+            SetXmlNodeString(_sqrefPath, dvAddress);
+            
         }
     }
 }

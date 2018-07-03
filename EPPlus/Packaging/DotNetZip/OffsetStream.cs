@@ -29,7 +29,7 @@
 using System;
 using System.IO;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     internal class OffsetStream : System.IO.Stream, System.IDisposable
     {
@@ -103,12 +103,10 @@ namespace Ionic.Zip
         {
             Close();
         }
-
         public override void Close()
         {
             base.Close();
         }
-
     }
 
 }

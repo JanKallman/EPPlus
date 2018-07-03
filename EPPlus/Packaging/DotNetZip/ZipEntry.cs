@@ -30,7 +30,7 @@ using System;
 using System.IO;
 using Interop = System.Runtime.InteropServices;
 
-namespace Ionic.Zip
+namespace OfficeOpenXml.Packaging.Ionic.Zip
 {
     /// <summary>
     /// Represents a single entry in a ZipFile. Typically, applications get a ZipEntry
@@ -39,9 +39,9 @@ namespace Ionic.Zip
 
     [Interop.GuidAttribute("ebc25cf6-9120-4283-b972-0e5520d00004")]
     [Interop.ComVisible(true)]
-#if !NETCF
-    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]  // AutoDual
-#endif
+//#if !NETCF
+//    [Interop.ClassInterface(Interop.ClassInterfaceType.AutoDispatch)]  // AutoDual
+//#endif
     internal partial class ZipEntry
     {
         /// <summary>
@@ -57,7 +57,11 @@ namespace Ionic.Zip
             _CompressionLevel = Ionic.Zlib.CompressionLevel.Default;
             _Encryption = EncryptionAlgorithm.None;
             _Source = ZipEntrySource.None;
+#if (Core)
+            AlternateEncoding = System.Text.Encoding.GetEncoding("UTF-8");
+#else
             AlternateEncoding = System.Text.Encoding.GetEncoding("IBM437");
+#endif
             AlternateEncodingUsage = ZipOption.Never;
         }
 
@@ -1441,7 +1445,7 @@ namespace Ionic.Zip
         /// </remarks>
         ///
         /// <seealso cref="CompressionMethod"/>
-        public Ionic.Zlib.CompressionLevel CompressionLevel
+        public OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel CompressionLevel
         {
             get
             {
@@ -1453,18 +1457,18 @@ namespace Ionic.Zip
                     _CompressionMethod != (short)CompressionMethod.None)
                     return ; // no effect
 
-                if (value == Ionic.Zlib.CompressionLevel.Default &&
+                if (value == OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.Default &&
                     _CompressionMethod == (short)CompressionMethod.Deflate) return; // nothing to do
                 _CompressionLevel = value;
 
-                if (value == Ionic.Zlib.CompressionLevel.None &&
+                if (value == OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.None &&
                     _CompressionMethod == (short)CompressionMethod.None)
                     return; // nothing more to do
 
-                if (_CompressionLevel == Ionic.Zlib.CompressionLevel.None)
-                    _CompressionMethod = (short) Ionic.Zip.CompressionMethod.None;
+                if (_CompressionLevel == OfficeOpenXml.Packaging.Ionic.Zlib.CompressionLevel.None)
+                    _CompressionMethod = (short)OfficeOpenXml.Packaging.Ionic.Zip.CompressionMethod.None;
                 else
-                    _CompressionMethod = (short) Ionic.Zip.CompressionMethod.Deflate;
+                    _CompressionMethod = (short)OfficeOpenXml.Packaging.Ionic.Zip.CompressionMethod.Deflate;
 
                 if (_container.ZipFile != null) _container.ZipFile.NotifyEntryChanged();
                 _restreamRequiredOnSave = true;
@@ -1485,7 +1489,7 @@ namespace Ionic.Zip
         ///   overloads) in that case.
         /// </remarks>
         ///
-        /// <seealso cref="Ionic.Zip.ZipEntry.UncompressedSize"/>
+        /// <seealso cref="ZipEntry.UncompressedSize"/>
         public Int64 CompressedSize
         {
             get { return _CompressedSize; }
@@ -2717,8 +2721,11 @@ namespace Ionic.Zip
         private bool _skippedDuringSave;
         private UInt32 _diskNumber;
 
+#if (Core)
+        private static System.Text.Encoding ibm437 = System.Text.Encoding.GetEncoding("UTF-8");
+#else
         private static System.Text.Encoding ibm437 = System.Text.Encoding.GetEncoding("IBM437");
-        //private System.Text.Encoding _provisionalAlternateEncoding = System.Text.Encoding.GetEncoding("IBM437");
+#endif
         private System.Text.Encoding _actualEncoding;
 
         internal ZipContainer _container;

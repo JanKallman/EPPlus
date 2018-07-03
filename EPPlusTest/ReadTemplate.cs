@@ -9,124 +9,35 @@ using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.ConditionalFormatting;
-
+using System.Threading;
+using System.Drawing;
 namespace EPPlusTest
 {
     [TestClass]
-    public class ReadTemplate
+    public class ReadTemplate //: TestBase
     {
-        [TestMethod]
-        public void ReadDrawing()
-        {
-            using (ExcelPackage pck = new ExcelPackage(new FileInfo(@"Test\Drawing.xlsx"))) 
-            {
-                var ws = pck.Workbook.Worksheets["Pyramid"];
-                Assert.AreEqual(ws.Cells["V24"].Value, 104D);
-                ws = pck.Workbook.Worksheets["Scatter"];
-                var cht = ws.Drawings["ScatterChart1"] as ExcelScatterChart;
-                Assert.AreEqual(cht.Title.Text, "Header  Text");
-                cht.Title.Text = "Test";
-                Assert.AreEqual(cht.Title.Text, "Test");
-            }
-        }
-        [TestMethod]
-        public void ReadWorkSheet()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
-            using (ExcelPackage pck = new ExcelPackage(instream))
-            {
-                var ws = pck.Workbook.Worksheets["Perf"];
-                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
-
-                ws = pck.Workbook.Worksheets["Comment"];
-                var comment = ws.Cells["B2"].Comment;
-
-                Assert.AreNotEqual(comment, null);
-                Assert.AreEqual(comment.Author, "Jan Källman");
-
-                ws = pck.Workbook.Worksheets["Hidden"];
-                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.Hidden);
-
-                ws = pck.Workbook.Worksheets["VeryHidden"];
-                Assert.AreEqual<eWorkSheetHidden>(ws.Hidden, eWorkSheetHidden.VeryHidden);
-
-                ws = pck.Workbook.Worksheets["RichText"];
-                Assert.AreEqual("Room 02 & 03", ws.Cells["G1"].RichText.Text);
-
-                ws = pck.Workbook.Worksheets["HeaderImage"];
-
-                Assert.AreEqual(ws.HeaderFooter.Pictures.Count, 3);
-
-                ws = pck.Workbook.Worksheets["newsheet"];
-                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLine,true);
-                Assert.AreEqual(ws.Cells["F2"].Style.Font.UnderLineType, ExcelUnderLineType.Double);
-                Assert.AreEqual(ws.Cells["F3"].Style.Font.UnderLineType, ExcelUnderLineType.SingleAccounting);
-                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLineType, ExcelUnderLineType.None);
-                Assert.AreEqual(ws.Cells["F5"].Style.Font.UnderLine, false);
-                
-                //Assert.AreEqual(ws.HeaderFooter.Pictures[0].Name, "");
-            }
-            instream.Close();
-        }
-        [TestMethod]
-        public void ReadStreamWithTemplateWorkSheet()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.Read);
-            MemoryStream stream = new MemoryStream();
-            using (ExcelPackage pck = new ExcelPackage(stream, instream))
-            {
-                var ws = pck.Workbook.Worksheets["Perf"];                
-                Assert.AreEqual(ws.Cells["H6"].Formula, "B5+B6");
-
-                ws = pck.Workbook.Worksheets["newsheet"];
-                Assert.AreEqual(ws.GetValue<DateTime>(20 ,21),new DateTime(2010,1,1));
-
-                ws = pck.Workbook.Worksheets["Loaded DataTable"];                
-                Assert.AreEqual(ws.GetValue<string>(2 ,1),"Row1");
-                Assert.AreEqual(ws.GetValue<int>(2, 2), 1);
-                Assert.AreEqual(ws.GetValue<bool>(2, 3), true);
-                Assert.AreEqual(ws.GetValue<double>(2, 4), 1.5);
-
-                ws=pck.Workbook.Worksheets["RichText"];
-
-                var r1 = ws.Cells["A1"].RichText[0];
-                Assert.AreEqual(r1.Text,"Test");
-                Assert.AreEqual(r1.Bold, true);
-
-                ws=pck.Workbook.Worksheets["Pic URL"];
-                    Assert.AreEqual(((ExcelPicture)ws.Drawings["Pic URI"]).Hyperlink, "http://epplus.codeplex.com");                
-
-                Assert.AreEqual(pck.Workbook.Worksheets["Address"].GetValue<string>(40,1),"\b\t");
-
-                pck.SaveAs(new FileInfo(@"Test\Worksheet2.xlsx"));
-            }
-            instream.Close();
-        }
-        [TestMethod]
-        public void ReadStreamSaveAsStream()
-        {
-            FileStream instream = new FileStream(@"Test\Worksheet.xlsx", FileMode.Open, FileAccess.ReadWrite);
-            MemoryStream stream = new MemoryStream();
-            using (ExcelPackage pck = new ExcelPackage(instream))
-            {
-                var ws = pck.Workbook.Worksheets["Names"];
-                Assert.AreEqual(ws.Names["FullCol"].Start.Row, 1);
-                Assert.AreEqual(ws.Names["FullCol"].End.Row, ExcelPackage.MaxRows);
-                pck.SaveAs(stream);
-            }
-            instream.Close();
-        }
+        //[ClassInitialize()]
+        //public static void ClassInit(TestContext testContext)
+        //{
+        //    //InitBase();
+        //}
+        //[ClassCleanup()]
+        //public static void ClassCleanup()
+        //{
+        //    //SaveWorksheet("Worksheet.xlsx");
+        //}
         [TestMethod]
         public void ReadBlankStream()
         {
             MemoryStream stream = new MemoryStream();
             using (ExcelPackage pck = new ExcelPackage(stream))
             {
-                var ws = pck.Workbook.Worksheets["Perf"];
+                var ws = pck.Workbook.Worksheets.Add("Perf");
                 pck.SaveAs(stream);
             }
             stream.Close();
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug()
         {
@@ -137,6 +48,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug3()
         {
@@ -144,6 +56,7 @@ namespace EPPlusTest
             ExcelWorkbook xlsWb = xlsPack.Workbook;
             ExcelWorksheet xlsSheet = xlsWb.Worksheets["Billing"];
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug2()
         {
@@ -156,6 +69,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\Adenoviridae Protocol2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void CondFormatDataValBug()
         {            
@@ -169,6 +83,7 @@ namespace EPPlusTest
                 pck.SaveAs(new FileInfo(@"c:\temp\condi2.xlsx"));
             }
         }
+        [Ignore]
         [TestMethod]
         public void InternalZip()
         {
@@ -177,6 +92,7 @@ namespace EPPlusTest
             //{
             //}
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug4()
         {
@@ -209,6 +125,7 @@ namespace EPPlusTest
             }
             }
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug5()
         {
@@ -218,6 +135,7 @@ namespace EPPlusTest
             package.Workbook.Worksheets[1].Protection.SetPassword("test");
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\protectnew.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug6()
         {
@@ -227,6 +145,7 @@ namespace EPPlusTest
             package.Workbook.Worksheets[1].Protection.SetPassword("test");
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug7()
         {
@@ -243,6 +162,7 @@ namespace EPPlusTest
             
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\error.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug8()
         {
@@ -259,6 +179,7 @@ namespace EPPlusTest
 
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\billing_template.xlsx.error"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug9()
         {
@@ -266,6 +187,7 @@ namespace EPPlusTest
             var ws = package.Workbook.Worksheets[1];
             package.SaveAs(new FileInfo(@"c:\temp\2.9 bugs\new_t.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug10()
         {
@@ -275,6 +197,7 @@ namespace EPPlusTest
             Assert.IsNotNull(ws.Cells["B4"].Style.Fill.BackgroundColor.Indexed);
             Assert.IsNotNull(ws.Cells["B5"].Style.Fill.BackgroundColor.Indexed);
         }
+        [Ignore]
         [TestMethod]
         public void ReadBug11()
         {
@@ -284,6 +207,7 @@ namespace EPPlusTest
             pck2.Workbook.Worksheets.Add("Test", ws);
             pck2.SaveAs(new FileInfo(@"c:\temp\SampleNew.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadConditionalFormatting()
         {
@@ -293,6 +217,7 @@ namespace EPPlusTest
             Assert.AreEqual(ws.ConditionalFormatting[6].Type, eExcelConditionalFormattingRuleType.Equal);
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadStyleBug()
         {
@@ -301,21 +226,353 @@ namespace EPPlusTest
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
         public void ReadURL()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\url.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\url.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
             package.SaveAs(new FileInfo(@"c:\temp\condFormTest.xlsx"));
         }
+        [Ignore]
         [TestMethod]
-        public void ReadBug12()
+        public void ReadNameError()
         {
-            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\grid.xlsx"));
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\names2.xlsx"));
             var ws = package.Workbook.Worksheets[1];
             ws.Cells["A1"].Value = 1;
+            package.SaveAs(new FileInfo(@"c:\temp\TestTableSave.xlsx"));
+        }        
+        [TestMethod, Ignore]
+        public void ReadBug12()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\test4.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            ws.Cells["A1"].Value = 1;
+            //ws.Column(0).Style.Font.Bold = true;
             package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
         }
+        [Ignore]
+        [TestMethod]
+        public void ReadBug13()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\original.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            package.Workbook.Calculate(new OfficeOpenXml.FormulaParsing.ExcelCalculationOption() { AllowCirculareReferences = true });
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
+        }
+        [Ignore]
+        [TestMethod]
+        public void ReadBug14()
+        {
+            var package = new ExcelPackage();
+            var ws = package.Workbook.Worksheets.Add("Comment");
+            ws.Cells["A1"].AddComment("Test av kommentar", "J");
+            ws.Comments.RemoveAt(0);
+            package.SaveAs(new FileInfo(@"c:\temp\bug\CommentTest.xlsx"));
+        }
+        [Ignore]
+        [TestMethod]
+        public void ReadBug15()
+        {
+            var package = new ExcelPackage(new FileInfo(@"c:\temp\bug\ColumnMaxError.xlsx"));
+            var ws = package.Workbook.Worksheets[1];
+            var col = ws.Column(1);
+            col.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            col.Style.Fill.BackgroundColor.SetColor(Color.Red);
+            package.SaveAs(new FileInfo(@"c:\temp\bug2.xlsx"));
+        }
+#region "Threading Cellstore Test"
+        public int _threadCount=0;
+        ExcelPackage _pckThread;
+        [TestMethod, Ignore]
+        public void ThreadingTest()
+        {
+            _pckThread = new ExcelPackage();
+            var ws = _pckThread.Workbook.Worksheets.Add("Threading");
+
+            for (int t = 0; t < 20; t++)
+            {
+                var ts=new ThreadState(Finnished)
+                {
+                    ws=ws,
+                    StartRow=1+(t*1000),
+                    Rows=1000,                    
+                };
+                var tstart=new ThreadStart(ts.StartLoad);                                
+                var thread = new Thread(tstart);
+                _threadCount++;
+                thread.Start();
+            }
+            while (1 == 1)
+            {                
+                if (_threadCount == 0)
+                {
+                    _pckThread.SaveAs(new FileInfo("c:\\temp\\thread.xlsx"));
+                    break;
+                }
+                Thread.Sleep(1000);
+            }
+        }
+        public void Finnished()
+        {
+            _threadCount--;
+        }
+        private class ThreadState
+        {
+            public ThreadState(cbFinished cb)
+            {
+                _cb = cb;
+            }
+            public ExcelWorksheet ws { get; set; }
+            public int StartRow { get; set; }
+            public int Rows { get; set; }
+            public delegate void cbFinished();
+            public cbFinished _cb;
+            public void StartLoad()
+            {
+                for(int row=StartRow;row<StartRow+Rows;row++)
+                {
+                    for (int col = 1; col < 100; col++)
+                    {
+                        ws.SetValue(row,col,string.Format("row {0} col {1}", row,col));
+                    }
+                }
+                _cb();
+            }
+        }
+#endregion
+        [Ignore]
+        [TestMethod]
+        public void TestInvalidVBA()
+        {
+            const string infile=@"C:\temp\bug\Infile.xlsm";
+            const string outfile=@"C:\temp\bug\Outfile.xlsm";
+            ExcelPackage ep;
+
+            using (FileStream fs = File.OpenRead(infile))
+            {
+                ep = new ExcelPackage(fs);
+            }
+
+            using (FileStream fs = File.OpenWrite(outfile))
+            {
+                ep.SaveAs(fs);
+            }
+
+            using (FileStream fs = File.OpenRead(outfile))
+            {
+                ep = new ExcelPackage(fs);
+            }
+
+            using (FileStream fs = File.OpenWrite(outfile))
+            {
+                ep.SaveAs(fs);
+            }            
+        }
+        [Ignore]
+        [TestMethod]
+        public void StreamTest()
+        {
+            using (var templateStream = File.OpenRead(@"c:\temp\thread.xlsx"))
+            {
+
+                using (var outStream = File.Open(@"c:\temp\streamOut.xlsx", FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+                {
+                    using (var package = new ExcelPackage(outStream, templateStream))
+                    {
+                        package.Workbook.Worksheets[1].Cells["A1"].Value = 1;
+                        // Create more content
+                        package.Save();
+                    }
+                }
+            }
+        }
+        [TestMethod, Ignore]
+        public void test()
+        { 
+            CreateXlsxSheet(@"C:\temp\bug\test4.xlsx", 4, 4);
+            CreateXlsxSheet(@"C:\temp\bug\test25.xlsx", 25, 25); 
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15038()
+        {
+            using(var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\15038.xlsx")))
+            {
+                var ws=p.Workbook.Worksheets[1];
+            
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15039()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\15039.xlsm")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+
+                p.SaveAs(new FileInfo(@"c:\temp\bug\15039-saved.xlsm"));
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15030()
+        {
+            using (var newPack = new ExcelPackage(new FileInfo(@"c:\temp\bug\I15030.xlsx")))
+            {
+                var wkBk = newPack.Workbook.Worksheets[1];
+                var cell = wkBk.Cells["A1"];
+                if (cell.Comment != null)
+                {
+                    cell.Comment.Text = "Hello edited comments";
+                }
+                newPack.SaveAs(new FileInfo(@"c:\temp\bug\15030-save.xlsx"));
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15014()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"c:\temp\bug\ClassicWineCompany.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                Assert.AreEqual("SFFSectionHeading00", ws.Cells[5, 2].StyleName);
+            }
+        }
+        [Ignore]
+        [TestMethod]
+        public void I15043()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\EPPlusTest\EPPlusTest\EPPlusTest\example.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                p.Workbook.Worksheets.Copy(ws.Name, "Copy");
+            }
+        }
+        [TestMethod, Ignore]
+        public void whitespace()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\GridToExcel_05-12-2014.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                foreach (var cell in ws.Cells[1,84,3,86])
+                {
+                    Console.WriteLine(cell.Address);
+                }
+            }
+        }
+        [TestMethod, Ignore]
+        public void SaveCorruption()
+        {
+            using (var p = new ExcelPackage(new FileInfo(@"C:\temp\bug\tables.xlsx")))
+            {
+                var ws = p.Workbook.Worksheets[1];
+                p.SaveAs(new FileInfo(@"c:\temp\bug\corr.xlsx"));
+            }
+        }
+        [TestMethod]
+        public void VBAerror()
+        {
+            ExcelWorksheet ws;
+            using (var p = new ExcelPackage())
+            {
+                p.Workbook.CreateVBAProject();
+                ws = p.Workbook.Worksheets.Add("Градуировка");                
+                using (var p2 = new ExcelPackage())
+                {
+                    p2.Workbook.CreateVBAProject();
+                    var ws2 = p2.Workbook.Worksheets.Add("Градуировка2", ws);
+                }
+            }
+        }
+
+        [TestMethod, Ignore]
+        public void CopyIssue()
+        {
+            using (var pkg = new ExcelPackage())
+            {
+                var templateFile = ReadTemplateFile(@"C:\temp\bug\StackOverflow\EPPlusTest\20141120_01_3.各股累計收結表 (其他案件).xlsx");
+                using (var ms = new System.IO.MemoryStream(templateFile))
+                {
+                    using (var tempPkg = new ExcelPackage(ms))
+                    {
+                        pkg.Workbook.Worksheets.Add("20141120_01_3.各股累計收結表 (其他案件)", tempPkg.Workbook.Worksheets.First());
+                    }
+                }
+            }
+        }
+        [TestMethod, Ignore]
+        public void FileStreamSave()
+        {
+            var fs = File.Create(@"c:\temp\fs.xlsx");
+            using (var pkg = new ExcelPackage(fs))
+            {
+                var ws=pkg.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Value = 1;
+                var col=ws.Column(1);
+                col.OutlineLevel = 1;
+                col.ColumnMax = ExcelPackage.MaxColumns;
+                col.ColumnMax = 1;
+                pkg.Save();
+            }
+        }
+        public static byte[] ReadTemplateFile(string templateName)
+        {
+            byte[] templateFIle;
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                using (var sw = new System.IO.FileStream(templateName, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite))
+                {
+                    byte[] buffer = new byte[2048];
+                    int bytesRead;
+                    while ((bytesRead = sw.Read(buffer, 0, buffer.Length)) > 0)
+                    {
+                        ms.Write(buffer, 0, bytesRead);
+                    }
+                }
+                ms.Position = 0;
+                templateFIle = ms.ToArray();
+            }
+            return templateFIle;
+        }
+
+        private static void CreateXlsxSheet(string pFileName, int pRows, int pColumns) 
+        {
+            if (File.Exists(pFileName)) File.Delete(pFileName);
+
+            using (ExcelPackage excelPackage = new ExcelPackage(new FileInfo(pFileName)))
+            {
+                ExcelWorksheet excelWorksheet = excelPackage.Workbook.Worksheets.Add("Testsheet");
+
+                // Fill with data
+                for (int row = 1; row <= pRows; row++)
+                {
+                    for (int column = 1; column <= pColumns; column++)
+                    {
+                        if (column > 1 && row > 2)
+                        {
+                            using (ExcelRange range = excelWorksheet.Cells[row, column])
+                            {
+                                range.Style.Numberformat.Format = "0";
+                                range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Right;
+                                range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                            }
+                            excelWorksheet.Cells[row, column].Value = row * column;
+                        }
+                    }
+                }
+
+                // Try to style the first column, begining with row 3 which has no content yet...
+                using (ExcelRange range = excelWorksheet.Cells[ExcelCellBase.GetAddress(3, 1, pRows, 1)])
+                {
+                    ExcelStyle style = range.Style;
+                }
+
+                // now I would add data to the first column (left out here)...
+                excelPackage.Save();
+            } 
+        }    
     }
 }
