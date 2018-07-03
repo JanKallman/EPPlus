@@ -398,7 +398,14 @@ namespace OfficeOpenXml
         }
 
         #region Public Properties
-        /// <summary>
+
+	    public Type DataType
+	    {
+	        get { return GetCellDataType(); }
+	    }
+
+
+	    /// <summary>
         /// The styleobject for the range.
         /// </summary>
         public ExcelStyle Style
@@ -1512,6 +1519,26 @@ namespace OfficeOpenXml
         }
 		#endregion
 		#region Private Methods
+        
+
+	    /// <summary>
+	    /// Get the System Type of a cell or the type of the first cell if a range was defined
+	    /// That fix the problem if the DateTime not recognizable as so.
+	    /// </summary>
+	    /// <returns></returns>
+	    private Type GetCellDataType()
+	    {
+	        var styles = Worksheet.Workbook.Styles;
+	        var nfId = styles.CellXfs[StyleID].NumberFormatId;
+
+	        var excelFormatTranslators = (styles.NumberFormats.Where(t => nfId == t.NumFmtId)
+	            .Select(t => t.FormatTranslator));
+
+	        var nf = excelFormatTranslators.FirstOrDefault() ?? styles.NumberFormats[0].FormatTranslator;
+            
+	        return nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime ? typeof(DateTime) : Value.GetType();
+	    }
+
 		/// <summary>
 		/// Set the value without altering the richtext property
 		/// </summary>
