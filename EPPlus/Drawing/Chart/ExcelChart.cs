@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -359,7 +359,7 @@ namespace OfficeOpenXml.Drawing.Chart
        protected XmlHelper _chartXmlHelper;
        #region "Constructors"
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, bool isPivot) :
-           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
+           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/")
        {
            ChartType = type;
            CreateNewChart(drawings, type, null);
@@ -372,7 +372,7 @@ namespace OfficeOpenXml.Drawing.Chart
            LoadAxis();
        }
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, eChartType type, ExcelChart topChart, ExcelPivotTable PivotTableSource) :
-           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
+           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/")
        {
            ChartType = type;
            CreateNewChart(drawings, type, topChart);
@@ -396,7 +396,7 @@ namespace OfficeOpenXml.Drawing.Chart
            }
        }
        internal ExcelChart(ExcelDrawings drawings, XmlNode node, Uri uriChart, ZipPackagePart part, XmlDocument chartXml, XmlNode chartNode) :
-           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
+           base(drawings, node, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/")
        {
            UriChart = uriChart;
            Part = part;
@@ -406,7 +406,7 @@ namespace OfficeOpenXml.Drawing.Chart
            ChartType = GetChartType(chartNode.LocalName);
        }
        internal ExcelChart(ExcelChart topChart, XmlNode chartNode) :
-           base(topChart._drawings, topChart.TopNode, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/@name")
+           base(topChart._drawings, topChart.TopNode, "xdr:graphicFrame/xdr:nvGraphicFramePr/xdr:cNvPr/")
        {
            UriChart = topChart.UriChart;
            Part = topChart.Part;

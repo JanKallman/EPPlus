@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -50,7 +50,7 @@ namespace OfficeOpenXml.Drawing
     {
         #region "Constructors"
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
+            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/")
         {
             XmlNode picNode = node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip", drawings.NameSpaceManager);
             if (picNode != null)
@@ -91,7 +91,7 @@ namespace OfficeOpenXml.Drawing
             }
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, Image image, Uri hyperlink) :
-            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
+            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/")
         {
             XmlElement picNode = node.OwnerDocument.CreateElement("xdr", "pic", ExcelPackage.schemaSheetDrawings);
             node.InsertAfter(picNode,node.SelectSingleNode("xdr:to",NameSpaceManager));
@@ -113,7 +113,7 @@ namespace OfficeOpenXml.Drawing
             package.Flush();
         }
         internal ExcelPicture(ExcelDrawings drawings, XmlNode node, FileInfo imageFile, Uri hyperlink) :
-            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/@name")
+            base(drawings, node, "xdr:pic/xdr:nvPicPr/xdr:cNvPr/")
         {
             XmlElement picNode = node.OwnerDocument.CreateElement("xdr", "pic", ExcelPackage.schemaSheetDrawings);
             node.InsertAfter(picNode, node.SelectSingleNode("xdr:to", NameSpaceManager));

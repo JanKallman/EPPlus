@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -263,12 +263,12 @@ namespace OfficeOpenXml.Drawing
     public sealed class ExcelShape : ExcelDrawing
     {
         internal ExcelShape(ExcelDrawings drawings, XmlNode node) :
-            base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")
+            base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/")
         {
             init();
         }
         internal ExcelShape(ExcelDrawings drawings, XmlNode node, eShapeStyle style) :
-            base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/@name")
+            base(drawings, node, "xdr:sp/xdr:nvSpPr/xdr:cNvPr/")
         {
             init();
             XmlElement shapeNode = node.OwnerDocument.CreateElement("xdr", "sp", ExcelPackage.schemaSheetDrawings);

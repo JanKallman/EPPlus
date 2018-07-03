@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -180,15 +180,21 @@ namespace OfficeOpenXml.Drawing
                 }
             }
         }
+
         protected ExcelDrawings _drawings;
         protected XmlNode _topNode;
-        string _nameXPath;
+
+        private string _cNvPrXPath;
+        private string _nameXPath;
+        private string _titleXPath;
+        private string _descriptionXPath;
+
         protected internal int _id;
         const float STANDARD_DPI = 96;
         public const int EMU_PER_PIXEL = 9525;
         protected internal int _width = int.MinValue, _height = int.MinValue, _top=int.MinValue, _left=int.MinValue;
         bool _doNotAdjust = false;
-        internal ExcelDrawing(ExcelDrawings drawings, XmlNode node, string nameXPath) :
+        internal ExcelDrawing(ExcelDrawings drawings, XmlNode node, string cNvPrXPath) :
             base(drawings.NameSpaceManager, node)
         {
             _drawings = drawings;
@@ -209,7 +215,8 @@ namespace OfficeOpenXml.Drawing
                 To = null;
             }
             GetPositionSize();
-            _nameXPath = nameXPath;
+            SetCNvPrXPath(cNvPrXPath);
+
             SchemaNodeOrder = new string[] { "from", "to", "graphicFrame", "sp", "clientData"  };
         }
         /// <summary>
@@ -235,6 +242,66 @@ namespace OfficeOpenXml.Drawing
                 {
                     if (_nameXPath == "") throw new NotImplementedException();
                     SetXmlNodeString(_nameXPath, value);
+                }
+                catch
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+        /// <summary>
+        /// The title of the drawing object if set
+        /// </summary>
+        public string Title
+        {
+            get
+            {
+                try
+                {
+                    if (_titleXPath == "") return "";
+                    return GetXmlNodeString(_titleXPath);
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            set
+            {
+                try
+                {
+                    if (_titleXPath == "") throw new NotImplementedException();
+                    SetXmlNodeString(_titleXPath, value);
+                }
+                catch
+                {
+                    throw new NotImplementedException();
+                }
+            }
+        }
+        /// <summary>
+        /// The description of the drawing object if set
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                try
+                {
+                    if (_descriptionXPath == "") return "";
+                    return GetXmlNodeString(_descriptionXPath);
+                }
+                catch
+                {
+                    return "";
+                }
+            }
+            set
+            {
+                try
+                {
+                    if (_descriptionXPath == "") throw new NotImplementedException();
+                    SetXmlNodeString(_descriptionXPath, value);
                 }
                 catch
                 {
@@ -789,6 +856,20 @@ namespace OfficeOpenXml.Drawing
                 SetPixelHeight(_height);
                 SetPixelWidth(_width);
             }
+        }
+
+        private void SetCNvPrXPath(string cNvPrXPath)
+        {
+            _cNvPrXPath = cNvPrXPath;
+            if (string.IsNullOrEmpty(cNvPrXPath))
+            {
+                _nameXPath = _titleXPath = _descriptionXPath = "";
+                return;
+            }
+
+            _nameXPath = cNvPrXPath + "@name";
+            _titleXPath = cNvPrXPath + "@title";
+            _descriptionXPath = cNvPrXPath + "@descr";
         }
     }
 }
