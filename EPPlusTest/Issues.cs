@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -39,6 +39,51 @@ namespace EPPlusTest
                 Directory.CreateDirectory(@"c:\Temp\bug");
             }
         }
+
+        /// <summary>
+        /// Issue #250: Enhancement: Expose attributes of Non-Visual Properties (DrawingML)
+        /// </summary>
+        [TestMethod]
+        public void Issue250()
+        {
+#if !Core
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            var dir = AppContext.BaseDirectory;
+#endif
+            var file = Path.Combine(dir, "Workbooks", "NvPr.xlsx");
+            Assert.IsTrue(File.Exists(file));
+
+            using (var pkg = new ExcelPackage(new FileInfo(file)))
+            {
+                var dr = pkg.Workbook.Worksheets.First().Drawings;
+                Assert.IsNotNull(dr);
+                Assert.AreEqual(3, dr.ToArray().Length);
+
+                foreach (var d in dr.OfType<ExcelDrawing>())
+                {
+                    Assert.AreNotEqual("", d.Name);
+                    Assert.AreNotEqual("", d.Title);
+                    Assert.AreNotEqual("", d.Description);
+                }
+
+                var fst = dr.First();
+                var name = fst.Name;
+                var title = fst.Title;
+                var desc = fst.Description;
+
+                fst.Name = "ndr0000";
+                fst.Title = "tdr0000";
+                fst.Description = "ddr0000";
+
+                fst = dr.First();
+
+                Assert.AreNotEqual(fst.Name, name);
+                Assert.AreNotEqual(fst.Title, title);
+                Assert.AreNotEqual(fst.Description, desc);
+            }
+        }
+
         [TestMethod, Ignore]
         public void Issue15052()
         {
