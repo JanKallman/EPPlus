@@ -134,8 +134,7 @@ namespace OfficeOpenXml
             byte[] img = (byte[])ic.ConvertTo(Picture, typeof(byte[]));
 #endif
 
-
-            var ii = _ws.Workbook._package.AddImage(img);
+            var ii = _ws.Workbook._package.AddImage(img, ExcelPicture.GetImageCodecInfo(Picture));
 
             return AddImage(Picture, id, ii);
         }
