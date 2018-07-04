@@ -267,7 +267,7 @@ namespace OfficeOpenXml.Table
         /// <summary>
         /// The comment of the table, edit via Excel Name Manager
         /// </summary>
-        internal string Comment
+        public string Comment
         {
             get
             {
