@@ -41,6 +41,37 @@ namespace EPPlusTest
         }
 
         /// <summary>
+        /// Issue #249: Enhancement: Extend ExcelTable class to include table comments
+        /// </summary>
+        [TestMethod]
+        public void Issue249()
+        {
+#if !Core
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            var dir = AppContext.BaseDirectory;
+#endif
+            var file = Path.Combine(dir, "Workbooks", "NvPr.xlsx");
+            Assert.IsTrue(File.Exists(file));
+
+            using (var pkg = new ExcelPackage(new FileInfo(file)))
+            {
+                var tbls = pkg.Workbook.Worksheets.First().Tables;
+                Assert.IsNotNull(tbls);
+                Assert.AreEqual(1, tbls.Count);
+
+                var tbl = tbls.First();
+                Assert.IsNotNull(tbl.Comment);
+                Assert.AreEqual("Luke, I am your father... seriously...", tbl.Comment);
+
+                var cold = tbl.Comment;
+                tbl.Comment = "NOOOOOOOOO";
+                Assert.AreNotEqual(cold, tbl.Comment);
+
+                //pkg.SaveAs(new FileInfo("NvPr_#249.xlsx"));
+            }
+        }
+        /// <summary>
         /// Issue #250: Enhancement: Expose attributes of Non-Visual Properties (DrawingML)
         /// </summary>
         [TestMethod]
@@ -58,7 +89,7 @@ namespace EPPlusTest
             {
                 var dr = pkg.Workbook.Worksheets.First().Drawings;
                 Assert.IsNotNull(dr);
-                Assert.AreEqual(3, dr.ToArray().Length);
+                Assert.AreEqual(3, dr.Count);
 
                 foreach (var d in dr.OfType<ExcelDrawing>())
                 {
@@ -81,6 +112,8 @@ namespace EPPlusTest
                 Assert.AreNotEqual(fst.Name, name);
                 Assert.AreNotEqual(fst.Title, title);
                 Assert.AreNotEqual(fst.Description, desc);
+
+                //pkg.SaveAs(new FileInfo("NvPr_#250.xlsx"));
             }
         }
 
@@ -2161,7 +2194,7 @@ namespace EPPlusTest
         public void Issue219()
         {
             OpenTemplatePackage("issueFile.xlsx");
-            foreach(var ws in _pck.Workbook.Worksheets)
+            foreach (var ws in _pck.Workbook.Worksheets)
             {
                 Console.WriteLine(ws.Name);
             }
@@ -2182,9 +2215,9 @@ namespace EPPlusTest
 
         [TestMethod]
         public void Issue220()
-        {            
+        {
             OpenPackage("sheetname_pbl.xlsx", true);
-            var ws=_pck.Workbook.Worksheets.Add("Deal's History");
+            var ws = _pck.Workbook.Worksheets.Add("Deal's History");
             var a = ws.Cells["A:B"];
             ws.AutoFilterAddress = ws.Cells["A1:C3"];
             _pck.Workbook.Names.Add("Test", ws.Cells["B1:D2"]);
@@ -2203,7 +2236,7 @@ namespace EPPlusTest
             //get some test data
             var cars = Car.GenerateList();
 
-            OpenPackage("issue233.xlsx",true);
+            OpenPackage("issue233.xlsx", true);
 
             var sheetName = "Summary_GLEDHOWSUGARCO![]()PTY";
 
@@ -2267,7 +2300,7 @@ namespace EPPlusTest
         {
             OpenTemplatePackage("Font55.xlsx");
             var ws = _pck.Workbook.Worksheets["Sheet1"];
-            var d=ws.Drawings.AddShape("Shape1",eShapeStyle.Diamond);
+            var d = ws.Drawings.AddShape("Shape1", eShapeStyle.Diamond);
             ws.Cells["A1"].Value = "tasetraser";
             ws.Cells.AutoFitColumns();
             SaveWorksheet("Font55-Saved.xlsx");
@@ -2275,11 +2308,11 @@ namespace EPPlusTest
         [TestMethod]
         public void Issue241()
         {
-            OpenPackage("issue241",true);
+            OpenPackage("issue241", true);
             var wks = _pck.Workbook.Worksheets.Add("test");
             wks.DefaultRowHeight = 35;
             _pck.Save();
             _pck.Dispose();
         }
-    }        
+    }
 }
