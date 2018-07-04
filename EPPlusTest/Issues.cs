@@ -17,6 +17,7 @@ using System.Text;
 using System.Dynamic;
 using System.Globalization;
 using OfficeOpenXml.Drawing;
+using System.Drawing.Imaging;
 
 namespace EPPlusTest
 {
@@ -37,6 +38,43 @@ namespace EPPlusTest
             if (!Directory.Exists(@"c:\Temp\bug"))
             {
                 Directory.CreateDirectory(@"c:\Temp\bug");
+            }
+        }
+
+        /// <summary>
+        /// Issue #248: SavePicture function in ExcelPicture saves new image as .jpg file
+        /// </summary>
+        [TestMethod]
+        public void Issue248()
+        {
+#if !Core
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            var dir = AppContext.BaseDirectory;
+#endif
+            var file = Path.Combine(dir, "Workbooks", "NvPr.xlsx");
+            Assert.IsTrue(File.Exists(file));
+
+            using (var pkg = new ExcelPackage(new FileInfo(file)))
+            {
+                var dr = pkg.Workbook.Worksheets.First().Drawings;
+                Assert.IsNotNull(dr);
+                Assert.AreEqual(3, dr.Count);
+
+                var pictures = dr.OfType<ExcelPicture>().ToArray();
+                Assert.AreEqual(1, pictures.Length);
+
+                var p = pictures.First();
+                var oimg = p.Image;
+
+                var imgbyte = (byte[])Properties.Resources.ResourceManager.GetObject("BitmapImage");
+                using (var ms = new MemoryStream(imgbyte))
+                    p.Image = new Bitmap(ms);
+
+                Assert.AreNotEqual(oimg.RawFormat.Guid, p.Image.RawFormat.Guid);
+                Assert.AreNotEqual(p.Image.RawFormat.Guid, ImageFormat.Jpeg.Guid);
+
+                //pkg.SaveAs(new FileInfo("NvPr_#248.xlsx"));
             }
         }
 
