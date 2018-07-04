@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -260,6 +260,22 @@ namespace OfficeOpenXml.Table
                 }
                 SetXmlNodeString(NAME_PATH, value);
                 SetXmlNodeString(DISPLAY_NAME_PATH, ExcelAddressUtil.GetValidName(value));
+            }
+        }
+        const string COMMENT_PATH = "@comment";
+
+        /// <summary>
+        /// The comment of the table, edit via Excel Name Manager
+        /// </summary>
+        internal string Comment
+        {
+            get
+            {
+                return GetXmlNodeString(COMMENT_PATH);
+            }
+            set
+            {
+                SetXmlNodeString(COMMENT_PATH, value);
             }
         }
         /// <summary>
