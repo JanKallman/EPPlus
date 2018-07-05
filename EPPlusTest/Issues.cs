@@ -42,6 +42,111 @@ namespace EPPlusTest
         }
 
         /// <summary>
+        /// Issue #256: ExcelDrawing cell position doesn't update after row insert
+        /// </summary>
+        [TestMethod]
+        public void Issue256_Row()
+        {
+#if !Core
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            var dir = AppContext.BaseDirectory;
+#endif
+            var file = Path.Combine(dir, "Workbooks", "Drawings.xlsx");
+            Assert.IsTrue(File.Exists(file));
+
+            using (var pkg = new ExcelPackage(new FileInfo(file)))
+            {
+                var dr = pkg.Workbook.Worksheets.First().Drawings;
+                Assert.IsNotNull(dr);
+                Assert.AreEqual(9, dr.Count);
+
+                var expectedListCap = 12;
+                var fromTos = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTos.AddRange(new int[] { d.From.Row, d.To.Row });
+
+                Assert.AreEqual(12, fromTos.Count, "Wrong list count, pre");
+
+                var rInsert = 13;
+                pkg.Workbook.Worksheets.First().InsertRow(1, rInsert);
+
+                var fromTosInsert = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTosInsert.AddRange(new int[] { d.From.Row, d.To.Row });
+                Assert.AreEqual(12, fromTosInsert.Count, "Wrong list count, insert");
+
+                for (var i = 0; i < expectedListCap; i++)
+                    Assert.AreEqual(fromTos[i] + rInsert, fromTosInsert[i], "Wrong insert value, " + i);
+
+                var rDelete = 5;
+                pkg.Workbook.Worksheets.First().DeleteRow(1, rDelete);
+
+                var fromTosDelete = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTosDelete.AddRange(new int[] { d.From.Row, d.To.Row });
+                Assert.AreEqual(12, fromTosDelete.Count, "Wrong list count, delete");
+
+                for (var i = 0; i < expectedListCap; i++)
+                    Assert.AreEqual(fromTosInsert[i] - rDelete, fromTosDelete[i], "Wrong delete value, " + i);
+
+                //pkg.SaveAs(new FileInfo("Drawings#256_row.xlsx"));
+            }
+        }
+        /// <summary>
+        /// Issue #256: ExcelDrawing cell position doesn't update after row insert
+        /// </summary>
+        [TestMethod]
+        public void Issue256_Col()
+        {
+#if !Core
+            var dir = AppDomain.CurrentDomain.BaseDirectory;
+#else
+            var dir = AppContext.BaseDirectory;
+#endif
+            var file = Path.Combine(dir, "Workbooks", "Drawings.xlsx");
+            Assert.IsTrue(File.Exists(file));
+
+            using (var pkg = new ExcelPackage(new FileInfo(file)))
+            {
+                var dr = pkg.Workbook.Worksheets.First().Drawings;
+                Assert.IsNotNull(dr);
+                Assert.AreEqual(9, dr.Count);
+
+                var expectedListCap = 12;
+                var fromTos = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTos.AddRange(new int[] { d.From.Column, d.To.Column });
+
+                Assert.AreEqual(12, fromTos.Count, "Wrong list count, pre");
+
+                var insert = 7;
+                pkg.Workbook.Worksheets.First().InsertColumn(1, insert);
+
+                var fromTosInsert = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTosInsert.AddRange(new int[] { d.From.Column, d.To.Column });
+                Assert.AreEqual(12, fromTosInsert.Count, "Wrong list count, insert");
+
+                for (var i = 0; i < expectedListCap; i++)
+                    Assert.AreEqual(fromTos[i] + insert, fromTosInsert[i], "Wrong insert value, " + i);
+
+                var delete = 3;
+                pkg.Workbook.Worksheets.First().DeleteColumn(1, delete);
+
+                var fromTosDelete = new List<int>(expectedListCap);
+                foreach (ExcelDrawing d in dr.Where(d => d.EditAs != eEditAs.Absolute))
+                    fromTosDelete.AddRange(new int[] { d.From.Column, d.To.Column });
+                Assert.AreEqual(12, fromTosDelete.Count, "Wrong list count, delete");
+
+                for (var i = 0; i < expectedListCap; i++)
+                    Assert.AreEqual(fromTosInsert[i] - delete, fromTosDelete[i], "Wrong delete value, " + i);
+
+                //pkg.SaveAs(new FileInfo("Drawings#256_col.xlsx"));
+            }
+        }
+
+        /// <summary>
         /// Issue #248: SavePicture function in ExcelPicture saves new image as .jpg file
         /// </summary>
         [TestMethod]
