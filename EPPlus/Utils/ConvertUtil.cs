@@ -15,16 +15,17 @@ namespace OfficeOpenXml.Utils
     {
         internal static bool IsNumeric(object candidate)
         {
+            double doubleValue;
             if (candidate == null) return false;
-            return (TypeCompat.IsPrimitive(candidate) || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
+            return (TypeCompat.IsPrimitive(candidate) || double.TryParse(candidate.ToString(), out doubleValue) || candidate is double || candidate is decimal || candidate is DateTime || candidate is TimeSpan || candidate is long);
         }
-		/// <summary>
-		/// Tries to parse a double from the specified <paramref name="candidate"/> which is expected to be a string value.
-		/// </summary>
-		/// <param name="candidate">The string value.</param>
-		/// <param name="result">The double value parsed from the specified <paramref name="candidate"/>.</param>
-		/// <returns>True if <paramref name="candidate"/> could be parsed to a double; otherwise, false.</returns>
-		internal static bool TryParseNumericString(object candidate, out double result)
+        /// <summary>
+        /// Tries to parse a double from the specified <paramref name="candidate"/> which is expected to be a string value.
+        /// </summary>
+        /// <param name="candidate">The string value.</param>
+        /// <param name="result">The double value parsed from the specified <paramref name="candidate"/>.</param>
+        /// <returns>True if <paramref name="candidate"/> could be parsed to a double; otherwise, false.</returns>
+        internal static bool TryParseNumericString(object candidate, out double result)
 		{
 			if (candidate != null)
 			{

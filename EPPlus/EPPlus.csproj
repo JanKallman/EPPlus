@@ -75,6 +75,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework">
       <HintPath>..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v3.5\Profile\Client\PresentationFramework.dll</HintPath>
@@ -363,6 +364,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\Database\ExcelDatabaseRow.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Database\RowMatcher.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\Date.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\DateTime\DATEDIF.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateParsingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateStringParser.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\DateTime\DateValue.cs" />
@@ -400,6 +402,8 @@
     <Compile Include="FormulaParsing\Excel\Functions\ErrorHandlingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelDoubleCellValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Financial\PMT.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Financial\RATE.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgument.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionRepository.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionsModule.cs" />

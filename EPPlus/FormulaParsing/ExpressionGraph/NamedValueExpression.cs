@@ -62,7 +62,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
             if (name.Value is ExcelDataProvider.IRangeInfo)
             {
                 var range = (ExcelDataProvider.IRangeInfo)name.Value;
-                if (range.IsMulti)
+                if (range.IsMulti && (range.Count() > 1 || (range.Address.Columns > 1 || range.Address.Rows>1) ))
                 {
                     return new CompileResult(name.Value, DataType.Enumerable);
                 }
