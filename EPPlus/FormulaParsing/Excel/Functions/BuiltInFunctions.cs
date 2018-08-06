@@ -34,6 +34,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -202,6 +203,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["daverage"] = new Daverage();
             Functions["dvar"] = new Dvar();
             Functions["dvarp"] = new Dvarp();
+            //Finance
+            Functions["pmt"] = new Pmt();
         }
     }
 }
