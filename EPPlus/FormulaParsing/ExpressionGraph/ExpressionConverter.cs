@@ -74,6 +74,9 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
                         : new ExcelErrorExpression((ExcelErrorValue) compileResult.Result);
                 case DataType.Empty:
                    return new IntegerExpression(0); //Added JK
+                case DataType.Time:
+                case DataType.Date:
+                    return new DecimalExpression((double)compileResult.Result);
 
             }
             return null;
