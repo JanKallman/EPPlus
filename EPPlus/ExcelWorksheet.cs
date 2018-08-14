@@ -3330,8 +3330,11 @@ namespace OfficeOpenXml
                 if (r != null)  //Source does not exist
                 {
                     ExcelTable t = null;
-                    if (pt.CacheDefinition.SourceRange.IsName)
-                    {
+					// Would "true" only if the SourceRange is an ExcelNamedRange that refers to another Named Range, 
+					// in other words this condition does not  holw true even if the pivot table source is a named range (unless that named range refers to another named range):
+					// if (pt.CacheDefinition.SourceRange.IsName)
+					if (pt.CacheDefinition.SourceRange is ExcelNamedRange && !string.IsNullOrEmpty(((ExcelNamedRange)pt.CacheDefinition.SourceRange).Name))
+					{
                         //Named range, set name
                         pt.CacheDefinition.DeleteNode(ExcelPivotCacheDefinition._sourceAddressPath); //Remove any address if previously set.
                         pt.CacheDefinition.SetXmlNodeString(ExcelPivotCacheDefinition._sourceNamePath, ((ExcelNamedRange)pt.CacheDefinition.SourceRange).Name);
