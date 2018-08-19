@@ -2084,49 +2084,37 @@ namespace OfficeOpenXml
 		        return null;
 		    }
 
-			//if (Members.Length == 0)
-			//{
-			//	foreach (var item in Collection)
-			//	{
-			//		//_worksheet.Cells[row++, col].Value = item;
-   //                 values[row, col++] = item;
-   //             }
-			//}
-			//else
-			//{
-				foreach (var item in Collection)
-				{
-                    col = 0;
-                    if (item is string || item is decimal || item is DateTime || TypeCompat.IsPrimitive(item))
+			foreach (var item in Collection)
+			{
+                col = 0;
+                if (item is string || item is decimal || item is DateTime || TypeCompat.IsPrimitive(item))
+                {
+                    values[row, col++] = item;
+                }
+                else
+                {
+                    foreach (var t in Members)
                     {
-                        //_worksheet.Cells[row, col++].Value = item;
-                        values[row, col++] = item;
-                    }
-                    else
-                    {
-                        foreach (var t in Members)
+                        if (isSameType == false && item.GetType().GetMember(t.Name, memberFlags).Length == 0)
                         {
-                            if (isSameType == false && item.GetType().GetMember(t.Name, memberFlags).Length == 0)
-                            {
-                                col++;
-                                continue; //Check if the property exists if and inherited class is used
-                            }
-                            else if (t is PropertyInfo)
-                            {
-                                values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
-                            }
-                            else if (t is FieldInfo)
-                            {
-                                values[row, col++] = ((FieldInfo)t).GetValue(item);
-                            }
-                            else if (t is MethodInfo)
-                            {
-                                values[row, col++] = ((MethodInfo)t).Invoke(item, null);
-                            }
+                            col++;
+                            continue; //Check if the property exists if and inherited class is used
+                        }
+                        else if (t is PropertyInfo)
+                        {
+                            values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
+                        }
+                        else if (t is FieldInfo)
+                        {
+                            values[row, col++] = ((FieldInfo)t).GetValue(item);
+                        }
+                        else if (t is MethodInfo)
+                        {
+                            values[row, col++] = ((MethodInfo)t).Invoke(item, null);
                         }
                     }
-					row++;
-				//}
+                }
+				row++;
 			}
 
             _worksheet.SetRangeValueInner(_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1, values);

@@ -99,10 +99,10 @@ namespace OfficeOpenXml
     public class ExcelChartsheet : ExcelWorksheet
     {
         //ExcelDrawings draws;
-        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType) :
+        public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden, eChartType chartType, ExcelPivotTable pivotTableSource ) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
         {
-            this.Drawings.AddChart("Chart 1", chartType);
+            this.Drawings.AddChart("Chart 1", chartType, pivotTableSource);
         }
         public ExcelChartsheet(XmlNamespaceManager ns, ExcelPackage pck, string relID, Uri uriWorksheet, string sheetName, int sheetID, int positionID, eWorkSheetHidden hidden) :
             base(ns, pck, relID, uriWorksheet, sheetName, sheetID, positionID, hidden)
@@ -3104,7 +3104,8 @@ namespace OfficeOpenXml
                 {
                     if (_comments.Uri == null)
                     {
-                        _comments.Uri=new Uri(string.Format(@"/xl/comments{0}.xml", SheetID), UriKind.Relative);                        
+                        var id = SheetID;
+                        _comments.Uri = XmlHelper.GetNewUri(_package.Package, @"/xl/comments{0}.xml", ref id); //Issue 236-Part already exists fix
                     }
                     if(_comments.Part==null)
                     {
@@ -3129,7 +3130,8 @@ namespace OfficeOpenXml
                 {
                     if (_vmlDrawings.Uri == null)
                     {
-                        _vmlDrawings.Uri = XmlHelper.GetNewUri(_package.Package, @"/xl/drawings/vmlDrawing{0}.vml");
+                        var id = SheetID;
+                        _vmlDrawings.Uri = XmlHelper.GetNewUri(_package.Package, @"/xl/drawings/vmlDrawing{0}.vml", ref id);
                     }
                     if (_vmlDrawings.Part == null)
                     {

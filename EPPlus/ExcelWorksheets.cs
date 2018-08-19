@@ -46,6 +46,8 @@ using OfficeOpenXml.Drawing.Vml;
 using OfficeOpenXml.Packaging.Ionic.Zlib;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.VBA;
+using OfficeOpenXml.Table.PivotTable;
+
 namespace OfficeOpenXml
 {
 	/// <summary>
@@ -151,7 +153,7 @@ namespace OfficeOpenXml
             ExcelWorksheet worksheet = AddSheet(Name,false, null);
 			return worksheet;
 		}
-        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType)
+        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType, ExcelPivotTable pivotTableSource = null)
         {
             int sheetID;
             Uri uriWorksheet;
@@ -177,7 +179,7 @@ namespace OfficeOpenXml
                 ExcelWorksheet worksheet;
                 if (isChart)
                 {
-                    worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType);
+                    worksheet = new ExcelChartsheet(_namespaceManager, _pck, rel, uriWorksheet, Name, sheetID, positionID, eWorkSheetHidden.Visible, (eChartType)chartType, pivotTableSource);
                 }
                 else
                 {
@@ -293,12 +295,23 @@ namespace OfficeOpenXml
         /// <summary>
         /// Adds a chartsheet to the workbook.
         /// </summary>
-        /// <param name="Name"></param>
-        /// <param name="chartType"></param>
+        /// <param name="Name">The name of the worksheet</param>
+        /// <param name="chartType">The type of chart</param>
         /// <returns></returns>
         public ExcelChartsheet AddChart(string Name, eChartType chartType)
         {
-            return (ExcelChartsheet)AddSheet(Name, true, chartType);
+            return (ExcelChartsheet)AddSheet(Name, true, chartType, null);
+        }
+        /// <summary>
+        /// Adds a chartsheet to the workbook.
+        /// </summary>
+        /// <param name="Name">The name of the worksheet</param>
+        /// <param name="chartType">The type of chart</param>
+        /// <param name="pivotTableSource">The pivottable source</param>
+        /// <returns></returns>
+        public ExcelChartsheet AddChart(string Name, eChartType chartType, ExcelPivotTable pivotTableSource)
+        {
+            return (ExcelChartsheet)AddSheet(Name, true, chartType, pivotTableSource);
         }
         private void CopySheetNames(ExcelWorksheet Copy, ExcelWorksheet added)
         {

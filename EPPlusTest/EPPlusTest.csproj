@@ -100,6 +100,7 @@
     <Compile Include="ExcelCellBaseTest.cs" />
     <Compile Include="ExcelStyleTest.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExpressionEvaluatorTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FinanceFunctionTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionRepositoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RoundTests.cs" />

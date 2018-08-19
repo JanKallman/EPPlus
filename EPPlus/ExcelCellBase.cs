@@ -758,34 +758,35 @@ namespace OfficeOpenXml
         }
         internal static string GetFullAddress(string worksheetName, string address, bool fullRowCol)
         {
-               if (address.IndexOf("!") == -1 || address=="#REF!")
-               {
-                   if (fullRowCol)
-                   {
-                       string[] cells = address.Split(':');
-                       if (cells.Length > 0)
-                       {
-                           address = string.Format("'{0}'!{1}", worksheetName, cells[0]);
-                           if (cells.Length > 1)
-                           {
-                               address += string.Format(":{0}", cells[1]);
-                           }
-                       }
-                   }
-                   else
-                   {
-                       var a = new ExcelAddressBase(address);
-                       if ((a._fromRow == 1 && a._toRow == ExcelPackage.MaxRows) || (a._fromCol == 1 && a._toCol == ExcelPackage.MaxColumns))
-                       {
-                           address = string.Format("'{0}'!{1}{2}:{3}{4}", worksheetName, ExcelAddress.GetColumnLetter(a._fromCol), a._fromRow, ExcelAddress.GetColumnLetter(a._toCol), a._toRow);
-                       }
-                       else
-                       {
-                           address=GetFullAddress(worksheetName, address, true);
-                       }
-                   }
-               }
-               return address;
+            if(!string.IsNullOrEmpty(worksheetName)) worksheetName = worksheetName.Replace("'", "''");   //Makesure addresses handle single qoutes
+            if (address.IndexOf("!") == -1 || address=="#REF!")
+            {
+                if (fullRowCol)
+                {
+                    string[] cells = address.Split(':');
+                    if (cells.Length > 0)
+                    {
+                        address = string.Format("'{0}'!{1}", worksheetName, cells[0]);
+                        if (cells.Length > 1)
+                        {
+                            address += string.Format(":{0}", cells[1]);
+                        }
+                    }
+                }
+                else
+                {
+                    var a = new ExcelAddressBase(address);
+                    if ((a._fromRow == 1 && a._toRow == ExcelPackage.MaxRows) || (a._fromCol == 1 && a._toCol == ExcelPackage.MaxColumns))
+                    {
+                        address = string.Format("'{0}'!{1}{2}:{3}{4}", worksheetName, ExcelAddress.GetColumnLetter(a._fromCol), a._fromRow, ExcelAddress.GetColumnLetter(a._toCol), a._toRow);
+                    }
+                    else
+                    {
+                        address=GetFullAddress(worksheetName, address, true);
+                    }
+                }
+            }
+            return address;
         }
         #endregion
         #region IsValidCellAddress

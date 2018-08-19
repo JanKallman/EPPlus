@@ -400,6 +400,7 @@
     <Compile Include="FormulaParsing\Excel\Functions\ErrorHandlingFunction.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelDoubleCellValue.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\ExcelFunction.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\Finance\Pmt.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionArgument.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionRepository.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionsModule.cs" />

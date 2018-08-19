@@ -1095,7 +1095,7 @@ namespace EPPlusTest
             Console.WriteLine(rt.Bold.ToString());
             rt.Bold = true;
             Console.WriteLine(rt.Bold.ToString());
-        }
+        }   
         //[Ignore]
         //[TestMethod]
         public void FormulaError()
@@ -1144,8 +1144,13 @@ namespace EPPlusTest
                 new object [] { 1, 1, 2, 3, 5, 8, 13, 21, 34, 55}
             });
             var table = ws.Tables.Add(ws.Cells["A1:D4"], "PivotData");
-            ws.PivotTables.Add(ws.Cells["G1"], ws.Cells["A1:D4"], "PivotTable");
-            Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable"].StyleName);
+            var pt=ws.PivotTables.Add(ws.Cells["G20"], ws.Cells["A1:D4"], "PivotTable1");
+            pt.ColumnFields.Add(pt.Fields[1]);
+            pt.DataFields.Add(pt.Fields[3]);
+            Assert.AreEqual("PivotStyleMedium9", ws.PivotTables["PivotTable1"].StyleName);
+
+            _pck.Workbook.Worksheets.AddChart("PivotChartWorksheet", eChartType.Line, pt);
+            SaveWorksheet("Pivot.xlsx");
         }
 
 
@@ -1588,7 +1593,7 @@ namespace EPPlusTest
             ws.Names.AddValue("Value", 5);
             ws.Names.Add("FullRow", ws.Cells["2:2"]);
             ws.Names.Add("FullCol", ws.Cells["A:A"]);
-            //ws.Names["Value"].Style.Border.Bottom.Color.SetColor(Color.Black);
+
             ws.Names.AddFormula("Formula", "Names!A2+Names!A3+Names!Value");
         }
         [Ignore]
@@ -1630,13 +1635,6 @@ namespace EPPlusTest
                 dr[3] = 2.25;
                 dt.Rows.Add(dr);
 
-                //dr = dt.NewRow();
-                //dr[0] = "Row3";
-                //dr[1] = 3;
-                //dr[2] = true;
-                //dr[3] = 3.125;
-                //dt.Rows.Add(dr);
-
                 using (var reader = dt.CreateDataReader())
                 {
                     range = ws.Cells["A1"].LoadFromDataReader(reader, true, "My_Table",
@@ -1652,6 +1650,7 @@ namespace EPPlusTest
                     range = ws.Cells["A5"].LoadFromDataReader(reader, false, "My_Table2",
                                                               OfficeOpenXml.Table.TableStyles.Medium5);
                 }
+
                 Assert.AreEqual(1, range.Start.Column);
                 Assert.AreEqual(4, range.End.Column);
                 Assert.AreEqual(5, range.Start.Row);

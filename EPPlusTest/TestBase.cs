@@ -61,9 +61,13 @@ namespace EPPlusTest
             _pck = new ExcelPackage();
         }
 
-        protected ExcelPackage OpenPackage(string name)
+        protected ExcelPackage OpenPackage(string name, bool delete=false)
         {
             var fi = new FileInfo(_worksheetPath + name);
+            if(delete && fi.Exists)
+            {
+                fi.Delete();
+            }
             _pck = new ExcelPackage(fi);
             return _pck;
         }

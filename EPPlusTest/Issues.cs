@@ -1859,8 +1859,8 @@ namespace EPPlusTest
                 ws.Cells["A1"].Value = 1;
                 ws.Cells["B1"].Formula = "A1";
                 var wb = pck.Workbook;
-                wb.Names.Add("N1", ws.Cells["A1:A2"]);
-                ws.Names.Add("N2", ws.Cells["A1"]);
+                wb.Names.Add("Name1", ws.Cells["A1:A2"]);
+                ws.Names.Add("Name2", ws.Cells["A1"]);
                 pck.Save();
                 using (var pck2 = new ExcelPackage(pck.Stream))
                 {
@@ -2103,6 +2103,7 @@ namespace EPPlusTest
         public void Issue170()
         {
             OpenTemplatePackage("print_titles_170.xlsx");
+            _pck.Compatibility.IsWorksheets1Based = false;
             ExcelWorksheet sheet = _pck.Workbook.Worksheets[0];
 
             sheet.PrinterSettings.RepeatColumns = new ExcelAddress("$A:$C");
@@ -2134,5 +2135,118 @@ namespace EPPlusTest
 
             _pck.Dispose();
         }
+        [TestMethod]
+        [ExpectedException(typeof(InvalidDataException))]
+        public void Issue234()
+        {
+            using (var s = new MemoryStream())
+            {
+                var data = Encoding.UTF8.GetBytes("Bad data").ToArray();
+                s.Write(data, 0, data.Length);
+                var package = new ExcelPackage(s);
+            }
         }
-    }
+
+        [TestMethod]
+        public void Issue220()
+        {            
+            OpenPackage("sheetname_pbl.xlsx", true);
+            var ws=_pck.Workbook.Worksheets.Add("Deal's History");
+            var a = ws.Cells["A:B"];
+            ws.AutoFilterAddress = ws.Cells["A1:C3"];
+            _pck.Workbook.Names.Add("Test", ws.Cells["B1:D2"]);
+            var name = a.WorkSheet;
+
+            var a2 = new ExcelAddress("'Deal''s History'!a1:a3");
+            Assert.AreEqual(a2.WorkSheet, "Deal's History");
+            _pck.Save();
+            _pck.Dispose();
+
+        }
+        [ExpectedException(typeof(ArgumentException))]
+        [TestMethod]
+        public void Issue233()
+        {
+            //get some test data
+            var cars = Car.GenerateList();
+
+            OpenPackage("issue233.xlsx",true);
+
+            var sheetName = "Summary_GLEDHOWSUGARCO![]()PTY";
+
+            //Create the worksheet 
+            var sheet = _pck.Workbook.Worksheets.Add(sheetName);
+
+            //Read the data into a range
+            var range = sheet.Cells["A1"].LoadFromCollection(cars, true);
+
+            //Make the range a table
+            var tbl = sheet.Tables.Add(range, $"data{sheetName}");
+            tbl.ShowTotal = true;
+            tbl.Columns["ReleaseYear"].TotalsRowFunction = OfficeOpenXml.Table.RowFunctions.Sum;
+
+            //save and dispose
+            _pck.Save();
+            _pck.Dispose();
+        }
+        public class Car
+        {
+            public int Id { get; set; }
+            public string Make { get; set; }
+            public string Model { get; set; }
+            public int ReleaseYear { get; set; }
+
+            public Car(int id, string make, string model, int releaseYear)
+            {
+                Id = Id;
+                Make = make;
+                Model = model;
+                ReleaseYear = releaseYear;
+            }
+
+            internal static List<Car> GenerateList()
+            {
+                return new List<Car>
+            {
+				//random data
+				new Car(1,"Toyota", "Carolla", 1950),
+                new Car(2,"Toyota", "Yaris", 2000),
+                new Car(3,"Toyota", "Hilux", 1990),
+                new Car(4,"Nissan", "Juke", 2010),
+                new Car(5,"Nissan", "Trail Blazer", 1995),
+                new Car(6,"Nissan", "Micra", 2018),
+                new Car(7,"BMW", "M3", 1980),
+                new Car(8,"BMW", "X5", 2008),
+                new Car(9,"BMW", "M6", 2003),
+                new Car(10,"Merc", "S Class", 2001)
+            };
+            }
+        }
+        [TestMethod]
+        public void Issue236()
+        {
+            OpenTemplatePackage("Issue236.xlsx");
+            _pck.Workbook.Worksheets["Sheet1"].Cells[7, 10].AddComment("test", "Author");
+            SaveWorksheet("Issue236-Saved.xlsx");
+        }
+        [TestMethod]
+        public void Issue228()
+        {
+            OpenTemplatePackage("Font55.xlsx");
+            var ws = _pck.Workbook.Worksheets["Sheet1"];
+            var d=ws.Drawings.AddShape("Shape1",eShapeStyle.Diamond);
+            ws.Cells["A1"].Value = "tasetraser";
+            ws.Cells.AutoFitColumns();
+            SaveWorksheet("Font55-Saved.xlsx");
+        }
+        [TestMethod]
+        public void Issue241()
+        {
+            OpenPackage("issue241",true);
+            var wks = _pck.Workbook.Worksheets.Add("test");
+            wks.DefaultRowHeight = 35;
+            _pck.Save();
+            _pck.Dispose();
+        }
+    }        
+}
