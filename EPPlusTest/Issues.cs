@@ -2112,6 +2112,18 @@ namespace EPPlusTest
             _pck.Dispose();
         }
         [TestMethod]
+        public void Issue172()
+        {
+            OpenTemplatePackage("quest.xlsx");
+            foreach (var ws in _pck.Workbook.Worksheets)
+            {
+                Console.WriteLine(ws.Name);
+            }
+
+            _pck.Dispose();
+        }
+
+        [TestMethod]
         public void Issue219()
         {
             OpenTemplatePackage("issueFile.xlsx");
