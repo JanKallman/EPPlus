@@ -284,6 +284,58 @@ namespace EPPlusTest
             Assert.AreEqual(31, ws.Cells["A7"].Value);
             Assert.AreEqual(31, ws.Cells["A8"].Value);
         }
+
+#if (!NET20 && !NET35 && !NET40)
+
+        [TestMethod]
+        public void CalculateWorkbookAsync()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["A2"].Value = 2;
+                sheet.Cells["A3"].Formula = "SUM(A1:A2)";
+                var task = package.Workbook.CalculateAsync();
+                Assert.IsNull(sheet.Cells["A3"].Value);
+                task.Wait();
+                Assert.AreEqual(3d, sheet.Cells["A3"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void CalculateWorksheetAsync()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["A2"].Value = 2;
+                sheet.Cells["A3"].Formula = "SUM(A1:A2)";
+                var task = sheet.CalculateAsync();
+                Assert.IsNull(sheet.Cells["A3"].Value);
+                task.Wait();
+                Assert.AreEqual(3d, sheet.Cells["A3"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void CalculateRangeAsync()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["A2"].Value = 2;
+                sheet.Cells["A3"].Formula = "SUM(A1:A2)";
+                var task = sheet.Cells["A3"].CalculateAsync();
+                Assert.IsNull(sheet.Cells["A3"].Value);
+                task.Wait();
+                Assert.AreEqual(3d, sheet.Cells["A3"].Value);
+            }
+        }
+#endif
+
         public void TestAllWorkbooks()
         {
             StringBuilder sb=new StringBuilder();
