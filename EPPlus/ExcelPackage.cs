@@ -46,6 +46,9 @@ using OfficeOpenXml.Utils.CompundDocument;
 using System.Configuration;
 using OfficeOpenXml.Compatibility;
 using System.Text;
+#if (!NET20 && !NET35 && !NET40)
+using System.Threading.Tasks;
+#endif
 #if (Core)
 using Microsoft.Extensions.Configuration;
 #endif
@@ -818,9 +821,53 @@ namespace OfficeOpenXml
                 GC.Collect();
             }
 		}
-#endregion
+        #endregion
 
-#region Save  // ExcelPackage save
+        #region Save  // ExcelPackage save
+
+        #region Async methods
+#if (!NET20 && !NET35 && !NET40)
+        public async Task SaveAsync()
+        {
+            await Task.Run(() => Save());
+        }
+
+        public async Task SaveAsync(string password)
+        {
+            await Task.Run(() => Save(password));
+        }
+
+        public async Task SaveAsAsync(FileInfo fileInfo)
+        {
+            await Task.Run(() => SaveAs(fileInfo));
+        }
+
+        public async Task SaveAsAsync(FileInfo fileInfo, string password)
+        {
+            await Task.Run(() => SaveAs(fileInfo, password));
+        }
+
+        public async Task SaveAsAsync(Stream outputStream)
+        {
+            await Task.Run(() => SaveAsAsync(outputStream));
+        }
+
+        public async Task LoadAsync(Stream inputStream)
+        {
+            await Task.Run(() => Load(inputStream));
+        }
+
+        public async Task LoadAsync(Stream inputStream, string password)
+        {
+            await Task.Run(() => Load(inputStream, password));
+        }
+
+        public async Task LoadAsync(Stream inputStream, Stream outputStream, string password)
+        {
+            await Task.Run(() => Load(inputStream, outputStream, password));
+        }
+#endif
+#endregion
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
