@@ -37,31 +37,11 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Exceptions;
-#if (!NET20 && !NET35 && !NET40)
-using System.Threading.Tasks;
-#endif
 
 namespace OfficeOpenXml
 {
     public static class CalculationExtension
     {
-#if (!NET20 && !NET35 && !NET40)
-
-        public static async Task CalculateAsync(this ExcelWorkbook workbook)
-        {
-            await Task.Run(() => Calculate(workbook));
-        }
-
-        public static async Task CalculateAsync(this ExcelWorksheet worksheet)
-        {
-            await Task.Run(() => Calculate(worksheet));
-        }
-
-        public static async Task CalculateAsync(this ExcelRangeBase range)
-        {
-            await Task.Run(() => Calculate(range));
-        }
-#endif
 
         public static void Calculate(this ExcelWorkbook workbook)
         {
