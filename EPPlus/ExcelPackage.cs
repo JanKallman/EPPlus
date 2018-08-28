@@ -1177,12 +1177,16 @@ namespace OfficeOpenXml
             {
                 Stream ms;
                 this._stream = output;
-                if (Password != null)
+                Stream encrStream = new MemoryStream();
+                CopyStream(input, ref encrStream);
+                if (CompoundDocument.IsCompoundDocument((MemoryStream)encrStream))
                 {
-                    Stream encrStream = new MemoryStream();
-                    CopyStream(input, ref encrStream);
+                    Encryption.IsEncrypted = true;
+                    if (Password != null)
+                    {
+                        Encryption.Password = Password;
+                    }
                     EncryptedPackageHandler eph = new EncryptedPackageHandler();
-                    Encryption.Password = Password;
                     ms = eph.DecryptPackage((MemoryStream)encrStream, Encryption);
                 }
                 else
