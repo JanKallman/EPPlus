@@ -35,6 +35,7 @@ Ankh.NoLoad
 *.[Pp]ublish.xml
 .vs/
 .nuget/nuget.exe
+*.orig
 
 #Tooling
 _ReSharper*/
