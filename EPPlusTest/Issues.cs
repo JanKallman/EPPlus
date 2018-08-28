@@ -2248,5 +2248,26 @@ namespace EPPlusTest
             _pck.Save();
             _pck.Dispose();
         }
+        [TestMethod]
+        public void Issue195()
+        {
+            var pkg = new OfficeOpenXml.ExcelPackage();
+            var sheet = pkg.Workbook.Worksheets.Add("Sheet1");
+            var defaultStyle = pkg.Workbook.Styles.CreateNamedStyle("Default");
+            defaultStyle.Style.Font.Name = "Arial";
+            defaultStyle.Style.Font.Size = 18;
+            defaultStyle.Style.Font.UnderLine=true;
+            var boldStyle = pkg.Workbook.Styles.CreateNamedStyle("Bold", defaultStyle.Style);
+            boldStyle.Style.Font.Color.SetColor(Color.Red);
+
+            Assert.AreEqual("Arial", defaultStyle.Style.Font.Name);
+            Assert.AreEqual(18, defaultStyle.Style.Font.Size);
+
+            Assert.AreEqual("Arial", boldStyle.Style.Font.Name);
+            Assert.AreEqual(18, boldStyle.Style.Font.Size);
+            Assert.AreEqual(boldStyle.Style.Font.Color.Rgb, "FFFF0000");
+        
+            pkg.SaveAs(new FileInfo(@"c:\temp\n.xlsx"));
+        }
     }        
 }

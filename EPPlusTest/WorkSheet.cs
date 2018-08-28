@@ -2322,6 +2322,20 @@ namespace EPPlusTest
             colStyle.Fill.BackgroundColor.SetColor(Color.CadetBlue);
 
             wsSheet.Cells["D:E"].StyleName = "ColumnStyle";
+
+            //Verify that cloned styles works.
+            var defaultStyle = _pck.Workbook.Styles.CreateNamedStyle("Default");
+            defaultStyle.Style.Font.Name = "Arial";
+            defaultStyle.Style.Font.Size = 18;
+            defaultStyle.Style.Font.UnderLine = true;
+            var boldStyle = _pck.Workbook.Styles.CreateNamedStyle("Bold", defaultStyle.Style);
+            boldStyle.Style.Font.Color.SetColor(Color.Red);
+
+            Assert.AreEqual("Arial", defaultStyle.Style.Font.Name);
+            Assert.AreEqual(18, defaultStyle.Style.Font.Size);
+
+            Assert.AreEqual(boldStyle.Style.Font.Color.Rgb, "FFFF0000");
+
         }
         //[Ignore]
         //[TestMethod]
