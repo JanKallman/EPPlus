@@ -17,6 +17,7 @@ using System.Text;
 using System.Dynamic;
 using System.Globalization;
 using OfficeOpenXml.Drawing;
+using OfficeOpenXml.FormulaParsing;
 
 namespace EPPlusTest
 {

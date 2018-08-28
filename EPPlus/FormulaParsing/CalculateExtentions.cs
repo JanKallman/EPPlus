@@ -37,10 +37,12 @@ using System.Linq;
 using System.Text;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Exceptions;
+
 namespace OfficeOpenXml
 {
     public static class CalculationExtension
     {
+
         public static void Calculate(this ExcelWorkbook workbook)
         {
             Calculate(workbook, new ExcelCalculationOption(){AllowCirculareReferences=false});

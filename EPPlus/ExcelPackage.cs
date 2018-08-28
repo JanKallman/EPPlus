@@ -818,9 +818,10 @@ namespace OfficeOpenXml
                 GC.Collect();
             }
 		}
-#endregion
+        #endregion
 
-#region Save  // ExcelPackage save
+        #region Save  // ExcelPackage save
+
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.
