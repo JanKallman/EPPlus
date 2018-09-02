@@ -1,0 +1,13 @@
+before_build:
+  - cmd: MKDIR \epplusTest\Testoutput
+
+build_script:
+  - msbuild /restore %matrix_build_project% /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll" /p:NoWarn=CS1591
+
+environment:
+  matrix:
+    - matrix_build_project: EPPlus.Core.sln
+
+    - matrix_build_project: EPPlus.sln
+
+image: Visual Studio 2017
