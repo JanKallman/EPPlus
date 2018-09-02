@@ -78,13 +78,13 @@ namespace OfficeOpenXml
     /// <remarks>
     /// <example>
     /// <code>
-	///     FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-	/// 	if (newFile.Exists)
-	/// 	{
-	/// 		newFile.Delete();  // ensures we create a new workbook
-	/// 		newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
-	/// 	}
-	/// 	using (ExcelPackage package = new ExcelPackage(newFile))
+    ///     FileInfo newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+    /// 	if (newFile.Exists)
+    /// 	{
+    /// 		newFile.Delete();  // ensures we create a new workbook
+    /// 		newFile = new FileInfo(outputDir.FullName + @"\sample1.xlsx");
+    /// 	}
+    /// 	using (ExcelPackage package = new ExcelPackage(newFile))
     ///     {
     ///         // add a new worksheet to the empty workbook
     ///         ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
@@ -173,8 +173,8 @@ namespace OfficeOpenXml
     /// More samples can be found at  <a href="https://github.com/JanKallman/EPPlus/">https://github.com/JanKallman/EPPlus/</a>
     /// </example>
     /// </remarks>
-	public sealed class ExcelPackage : IDisposable
-	{
+    public sealed class ExcelPackage : IDisposable
+    {
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
         private bool _isExternalStream=false;
@@ -186,21 +186,21 @@ namespace OfficeOpenXml
             internal Packaging.ZipPackagePart Part { get; set; }
         }
         internal Dictionary<string, ImageInfo> _images = new Dictionary<string, ImageInfo>();
-		#region Properties
-		/// <summary>
-		/// Extention Schema types
-		/// </summary>
+        #region Properties
+        /// <summary>
+        /// Extention Schema types
+        /// </summary>
         internal const string schemaXmlExtension = "application/xml";
         internal const string schemaRelsExtension = "application/vnd.openxmlformats-package.relationships+xml";
         /// <summary>
-		/// Main Xml schema name
-		/// </summary>
-		internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
+        /// Main Xml schema name
+        /// </summary>
+        internal const string schemaMain = @"http://schemas.openxmlformats.org/spreadsheetml/2006/main";
                                             
-		/// <summary>
-		/// Relationship schema name
-		/// </summary>
-		internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+        /// <summary>
+        /// Relationship schema name
+        /// </summary>
+        internal const string schemaRelationships = @"http://schemas.openxmlformats.org/officeDocument/2006/relationships";
                                                                               
         internal const string schemaDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/main";
         internal const string schemaSheetDrawings = @"http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing";
@@ -243,7 +243,7 @@ namespace OfficeOpenXml
         internal const string contentTypeSharedString = @"application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml";
         //Package reference
         private Packaging.ZipPackage _package;
-		internal ExcelWorkbook _workbook;
+        internal ExcelWorkbook _workbook;
         /// <summary>
         /// Maximum number of columns in a worksheet (16384). 
         /// </summary>
@@ -252,8 +252,8 @@ namespace OfficeOpenXml
         /// Maximum number of rows in a worksheet (1048576). 
         /// </summary>
         public const int MaxRows = 1048576;
-		#endregion
-		#region ExcelPackage Constructors
+        #endregion
+        #region ExcelPackage Constructors
         /// <summary>
         /// Create a new instance of the ExcelPackage. 
         /// Output is accessed through the Stream property, using the <see cref="SaveAs(FileInfo)"/> method or later set the <see cref="File" /> property.
@@ -264,11 +264,11 @@ namespace OfficeOpenXml
             ConstructNewFile(null);
         }
         /// <summary>
-		/// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
-		/// </summary>
-		/// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
+        /// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+        /// </summary>
+        /// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
         public ExcelPackage(FileInfo newFile)
-		{
+        {
             Init();
             File = newFile;
             ConstructNewFile(null);
@@ -284,18 +284,18 @@ namespace OfficeOpenXml
             File = newFile;
             ConstructNewFile(password);
         }
-		/// <summary>
-		/// Create a new instance of the ExcelPackage class based on a existing template.
-		/// If newFile exists, it will be overwritten when the Save method is called
-		/// </summary>
-		/// <param name="newFile">The name of the Excel file to be created</param>
-		/// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
-		public ExcelPackage(FileInfo newFile, FileInfo template)
-		{
+        /// <summary>
+        /// Create a new instance of the ExcelPackage class based on a existing template.
+        /// If newFile exists, it will be overwritten when the Save method is called
+        /// </summary>
+        /// <param name="newFile">The name of the Excel file to be created</param>
+        /// <param name="template">The name of the Excel template to use as the basis of the new Excel file</param>
+        public ExcelPackage(FileInfo newFile, FileInfo template)
+        {
             Init();
             File = newFile;
             CreateFromTemplate(template, null);
-		}
+        }
         /// <summary>
         /// Create a new instance of the ExcelPackage class based on a existing template.
         /// If newFile exists, it will be overwritten when the Save method is called
@@ -659,10 +659,10 @@ namespace OfficeOpenXml
             _package.CreateRelationship(UriHelper.GetRelativeUri(new Uri("/xl", UriKind.Relative), Workbook.WorkbookUri), Packaging.TargetMode.Internal, schemaRelationships + "/officeDocument");
         }
 
-		/// <summary>
-		/// Returns a reference to the package
-		/// </summary>
-		public Packaging.ZipPackage Package { get { return (_package); } }
+        /// <summary>
+        /// Returns a reference to the package
+        /// </summary>
+        public Packaging.ZipPackage Package { get { return (_package); } }
         ExcelEncryption _encryption=null;
         /// <summary>
         /// Information how and if the package is encrypted
@@ -678,14 +678,14 @@ namespace OfficeOpenXml
                 return _encryption;
             }
         }
-		/// <summary>
-		/// Returns a reference to the workbook component within the package.
-		/// All worksheets and cells can be accessed through the workbook.
-		/// </summary>
-		public ExcelWorkbook Workbook
-		{
-			get
-			{
+        /// <summary>
+        /// Returns a reference to the workbook component within the package.
+        /// All worksheets and cells can be accessed through the workbook.
+        /// </summary>
+        public ExcelWorkbook Workbook
+        {
+            get
+            {
                 if (_workbook == null)
                 {
                     var nsm = CreateDefaultNSM();
@@ -697,8 +697,8 @@ namespace OfficeOpenXml
 
                 }
                 return (_workbook);
-			}
-		}
+            }
+        }
         /// <summary>
         /// Automaticlly adjust drawing size when column width/row height are adjusted, depending on the drawings editBy property.
         /// Default True
@@ -738,29 +738,29 @@ namespace OfficeOpenXml
 
             return ns;
         }
-		
+        
 #region SavePart
-		/// <summary>
-		/// Saves the XmlDocument into the package at the specified Uri.
-		/// </summary>
-		/// <param name="uri">The Uri of the component</param>
-		/// <param name="xmlDoc">The XmlDocument to save</param>
-		internal void SavePart(Uri uri, XmlDocument xmlDoc)
-		{
+        /// <summary>
+        /// Saves the XmlDocument into the package at the specified Uri.
+        /// </summary>
+        /// <param name="uri">The Uri of the component</param>
+        /// <param name="xmlDoc">The XmlDocument to save</param>
+        internal void SavePart(Uri uri, XmlDocument xmlDoc)
+        {
             Packaging.ZipPackagePart part = _package.GetPart(uri);
             var stream = part.GetStream(FileMode.Create, FileAccess.Write);
             var xr = new XmlTextWriter(stream, Encoding.UTF8);
             xr.Formatting = Formatting.None;
             
             xmlDoc.Save(xr);
-		}
+        }
         /// <summary>
-		/// Saves the XmlDocument into the package at the specified Uri.
-		/// </summary>
-		/// <param name="uri">The Uri of the component</param>
-		/// <param name="xmlDoc">The XmlDocument to save</param>
+        /// Saves the XmlDocument into the package at the specified Uri.
+        /// </summary>
+        /// <param name="uri">The Uri of the component</param>
+        /// <param name="xmlDoc">The XmlDocument to save</param>
         internal void SaveWorkbook(Uri uri, XmlDocument xmlDoc)
-		{
+        {
             Packaging.ZipPackagePart part = _package.GetPart(uri);
             if(Workbook.VbaProject==null)
             {
@@ -788,19 +788,19 @@ namespace OfficeOpenXml
             xr.Formatting = Formatting.None;
 
             xmlDoc.Save(xr);
-		}
+        }
 
 #endregion
 
 #region Dispose
-		/// <summary>
-		/// Closes the package.
-		/// </summary>
-		public void Dispose()
-		{
+        /// <summary>
+        /// Closes the package.
+        /// </summary>
+        public void Dispose()
+        {
             if(_package != null)
             {
-		        if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+                if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
                     CloseStream();
                 }
@@ -817,7 +817,7 @@ namespace OfficeOpenXml
                 _workbook = null;
                 GC.Collect();
             }
-		}
+        }
         #endregion
 
         #region Save  // ExcelPackage save
@@ -919,7 +919,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="password">This parameter overrides the Workbook.Encryption.Password.</param>
         public void Save(string password)
-		{
+        {
             Encryption.Password = password;
             Save();
         }
@@ -1051,12 +1051,12 @@ namespace OfficeOpenXml
         /// <param name="uri">The Uri to the part</param>
         /// <returns>The XmlDocument</returns>
         internal XmlDocument GetXmlFromUri(Uri uri)
-		{
-			XmlDocument xml = new XmlDocument();
-			Packaging.ZipPackagePart part = _package.GetPart(uri);
+        {
+            XmlDocument xml = new XmlDocument();
+            Packaging.ZipPackagePart part = _package.GetPart(uri);
             XmlHelper.LoadXmlSafe(xml, part.GetStream()); 
-			return (xml);
-		}
+            return (xml);
+        }
 #endregion
 
         /// <summary>
@@ -1071,7 +1071,7 @@ namespace OfficeOpenXml
         ///  Byte[] bin = package.GetAsByteArray();
         ///  Response.ContentType = "Application/vnd.ms-Excel";
         ///  Response.AddHeader("content-disposition", "attachment;  filename=TheFile.xlsx");
-		///  Response.BinaryWrite(bin);
+        ///  Response.BinaryWrite(bin);
         /// </code>
         /// </example>
         /// <returns></returns>

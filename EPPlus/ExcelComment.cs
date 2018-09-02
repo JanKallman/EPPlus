@@ -152,8 +152,8 @@ namespace OfficeOpenXml
         /// Reference
         /// </summary>
         internal string Reference
-		{
-			get { return _commentHelper.GetXmlNodeString("@ref"); }
+        {
+            get { return _commentHelper.GetXmlNodeString("@ref"); }
             set
             {
                 var a = new ExcelAddressBase(value);
@@ -172,5 +172,5 @@ namespace OfficeOpenXml
                 Column = Range._fromCol - 1;
             }
         }
-	}
+    }
 }

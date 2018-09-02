@@ -986,7 +986,7 @@ namespace OfficeOpenXml.Encryption
                 throw (new Exception("An error occured when the encryptionkey was created", ex));
             }
         }
-		private byte[] GetFinalHash(HashAlgorithm hashProvider, byte[] blockKey, byte[] hash)
+        private byte[] GetFinalHash(HashAlgorithm hashProvider, byte[] blockKey, byte[] hash)
         {
             //2.3.4.13 MS-OFFCRYPTO
             var tempHash = new byte[hash.Length + blockKey.Length];

@@ -37,11 +37,11 @@ using OfficeOpenXml.Style.Dxf;
 
 namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
-	/// <summary>
-	/// Interface for conditional formatting rule
-	/// </summary>
-	public interface IExcelConditionalFormattingRule
-	{
+    /// <summary>
+    /// Interface for conditional formatting rule
+    /// </summary>
+    public interface IExcelConditionalFormattingRule
+    {
     /// <summary>
     /// The 'cfRule' XML node
     /// </summary>
@@ -59,11 +59,11 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// </summary>
     ExcelAddress Address { get; set; }
 
-		/// <summary>
-		/// The priority of this conditional formatting rule. This value is used to determine
-		/// which format should be evaluated and rendered. Lower numeric values are higher
-		/// priority than higher numeric values, where 1 is the highest priority.
-		/// </summary>
+        /// <summary>
+        /// The priority of this conditional formatting rule. This value is used to determine
+        /// which format should be evaluated and rendered. Lower numeric values are higher
+        /// priority than higher numeric values, where 1 is the highest priority.
+        /// </summary>
     int Priority { get; set; }
 
     /// <summary>

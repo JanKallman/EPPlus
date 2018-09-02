@@ -51,10 +51,10 @@ namespace OfficeOpenXml
         /// <param name="wb"></param>
         internal ExcelWorkbookView(XmlNamespaceManager ns, XmlNode node, ExcelWorkbook wb) :
             base(ns, node)
-		{
+        {
             SchemaNodeOrder = wb.SchemaNodeOrder;
-		}
-		#endregion
+        }
+        #endregion
         const string LEFT_PATH="d:bookViews/d:workbookView/@xWindow";
         /// <summary>
         /// Position of the upper left corner of the workbook window. In twips.

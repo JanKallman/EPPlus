@@ -69,10 +69,10 @@ using OfficeOpenXml.Drawing.Vml;namespace OfficeOpenXml
                 RangeID = cellId;
             }
             internal IndexItem(ulong cellId, int listPointer)
-	        {
+            {
                 RangeID = cellId;
                 ListPointer=listPointer;
-	        }
+            }
             internal ulong RangeID;
             internal int ListPointer;
         }

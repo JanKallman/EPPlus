@@ -203,22 +203,22 @@ namespace OfficeOpenXml
         const string CreatedPath = "dcterms:created";
 
         /// <summary>
-	    /// Gets/sets the created property of the document (core property)
-	    /// </summary>
-	    public DateTime Created
-	    {
-	        get
-	        {
-	            DateTime date;
-	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(CreatedPath), out date) ? date : DateTime.MinValue;
-	        }
-	        set
-	        {
-	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
-	            _coreHelper.SetXmlNodeString(CreatedPath, dateString);
+        /// Gets/sets the created property of the document (core property)
+        /// </summary>
+        public DateTime Created
+        {
+            get
+            {
+                DateTime date;
+                return DateTime.TryParse(_coreHelper.GetXmlNodeString(CreatedPath), out date) ? date : DateTime.MinValue;
+            }
+            set
+            {
+                var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+                _coreHelper.SetXmlNodeString(CreatedPath, dateString);
                 _coreHelper.SetXmlNodeString(CreatedPath + "/@xsi:type", "dcterms:W3CDTF");
-	        }
-	    }
+            }
+        }
 
         const string CategoryPath = "cp:category";
         /// <summary>
@@ -315,23 +315,23 @@ namespace OfficeOpenXml
         }
 
         const string ModifiedPath = "dcterms:modified";
-	    /// <summary>
-	    /// Gets/sets the modified property of the document (core property)
-	    /// </summary>
-	    public DateTime Modified
-	    {
-	        get
-	        {
-	            DateTime date;
-	            return DateTime.TryParse(_coreHelper.GetXmlNodeString(ModifiedPath), out date) ? date : DateTime.MinValue;
-	        }
-	        set
-	        {
-	            var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
-	            _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
+        /// <summary>
+        /// Gets/sets the modified property of the document (core property)
+        /// </summary>
+        public DateTime Modified
+        {
+            get
+            {
+                DateTime date;
+                return DateTime.TryParse(_coreHelper.GetXmlNodeString(ModifiedPath), out date) ? date : DateTime.MinValue;
+            }
+            set
+            {
+                var dateString = value.ToUniversalTime().ToString("s", CultureInfo.InvariantCulture) + "Z";
+                _coreHelper.SetXmlNodeString(ModifiedPath, dateString);
                 _coreHelper.SetXmlNodeString(ModifiedPath + "/@xsi:type", "dcterms:W3CDTF");
-	        }
-	    }
+            }
+        }
         const string LinksUpToDatePath = "xp:Properties/xp:LinksUpToDate";
         /// <summary>
         /// Indicates whether hyperlinks in a document are up-to-date

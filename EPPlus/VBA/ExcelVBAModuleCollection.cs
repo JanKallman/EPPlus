@@ -121,9 +121,9 @@ namespace OfficeOpenXml.VBA
     {
         ExcelVbaProject _project;
         internal ExcelVbaModuleCollection (ExcelVbaProject project)
-	    {
+        {
             _project=project;
-	    }
+        }
         internal void Add(ExcelVBAModule Item)
         {
             _list.Add(Item);

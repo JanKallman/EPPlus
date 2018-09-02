@@ -38,13 +38,13 @@ using System.Drawing;
 
 namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
-	/// <summary>
-	/// IExcelConditionalFormattingDataBar
-	/// </summary>
-	public interface IExcelConditionalFormattingDataBarGroup
+    /// <summary>
+    /// IExcelConditionalFormattingDataBar
+    /// </summary>
+    public interface IExcelConditionalFormattingDataBarGroup
         : IExcelConditionalFormattingRule
-	{
-		#region Public Properties
+    {
+        #region Public Properties
         /// <summary>
         /// ShowValue
         /// </summary>
@@ -63,5 +63,5 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
         /// </summary>
         Color Color { get; set;}
         #endregion Public Properties
-	}
+    }
 }

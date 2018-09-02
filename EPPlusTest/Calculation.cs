@@ -151,7 +151,7 @@ namespace EPPlusTest
                     nErrors++;
                 }
             }
-		}
+        }
         [Ignore]
         [TestMethod]
         public void TestOneCell()
@@ -306,37 +306,37 @@ namespace EPPlusTest
 
             }
         }
-		[TestMethod]
-		public void CalculateDateMath()
-		{
-			using (ExcelPackage package = new ExcelPackage())
-			{
-				var worksheet = package.Workbook.Worksheets.Add("Test");
-				var dateCell = worksheet.Cells[2, 2];
-				var date = new DateTime(2013, 1, 1);
-				dateCell.Value = date;
-				var quotedDateCell = worksheet.Cells[2, 3];
-				quotedDateCell.Formula = $"\"{date.ToString("d")}\"";
-				var dateFormula = "B2";
-				var dateFormulaWithMath = "B2+1";
-				var quotedDateFormulaWithMath = $"\"{date.ToString("d")}\"+1";
-				var quotedDateReferenceFormulaWithMath = "C2+1";
-				var expectedDate = 41275.0; // January 1, 2013
-				var expectedDateWithMath = 41276.0; // January 2, 2013
-				Assert.AreEqual(expectedDate, worksheet.Calculate(dateFormula));
-				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(dateFormulaWithMath));
-				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateFormulaWithMath));
-				Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateReferenceFormulaWithMath));
-				var formulaCell = worksheet.Cells[2, 4];
-				formulaCell.Formula = dateFormulaWithMath;
-				formulaCell.Calculate();
-				Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
-				formulaCell.Formula = quotedDateReferenceFormulaWithMath;
-				formulaCell.Calculate();
-				Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
-			}
-		}
-		private string GetOutput(string file)
+        [TestMethod]
+        public void CalculateDateMath()
+        {
+            using (ExcelPackage package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Test");
+                var dateCell = worksheet.Cells[2, 2];
+                var date = new DateTime(2013, 1, 1);
+                dateCell.Value = date;
+                var quotedDateCell = worksheet.Cells[2, 3];
+                quotedDateCell.Formula = $"\"{date.ToString("d")}\"";
+                var dateFormula = "B2";
+                var dateFormulaWithMath = "B2+1";
+                var quotedDateFormulaWithMath = $"\"{date.ToString("d")}\"+1";
+                var quotedDateReferenceFormulaWithMath = "C2+1";
+                var expectedDate = 41275.0; // January 1, 2013
+                var expectedDateWithMath = 41276.0; // January 2, 2013
+                Assert.AreEqual(expectedDate, worksheet.Calculate(dateFormula));
+                Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(dateFormulaWithMath));
+                Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateFormulaWithMath));
+                Assert.AreEqual(expectedDateWithMath, worksheet.Calculate(quotedDateReferenceFormulaWithMath));
+                var formulaCell = worksheet.Cells[2, 4];
+                formulaCell.Formula = dateFormulaWithMath;
+                formulaCell.Calculate();
+                Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
+                formulaCell.Formula = quotedDateReferenceFormulaWithMath;
+                formulaCell.Calculate();
+                Assert.AreEqual(expectedDateWithMath, formulaCell.Value);
+            }
+        }
+        private string GetOutput(string file)
         {
             using (var pck = new ExcelPackage(new FileInfo(file)))
             {

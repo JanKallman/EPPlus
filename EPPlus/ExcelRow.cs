@@ -35,7 +35,7 @@ using System.Xml;
 using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
-	internal class RowInternal
+    internal class RowInternal
     {
         internal double Height=-1;
         internal bool Hidden;
@@ -61,12 +61,12 @@ namespace OfficeOpenXml
         }
     }
     /// <summary>
-	/// Represents an individual row in the spreadsheet.
-	/// </summary>
-	public class ExcelRow : IRangeID
-	{
-		private ExcelWorksheet _worksheet;
-		private XmlElement _rowElement = null;
+    /// Represents an individual row in the spreadsheet.
+    /// </summary>
+    public class ExcelRow : IRangeID
+    {
+        private ExcelWorksheet _worksheet;
+        private XmlElement _rowElement = null;
         /// <summary>
         /// Internal RowID.
         /// </summary>
@@ -78,30 +78,30 @@ namespace OfficeOpenXml
                 return GetRowID(_worksheet.SheetID, Row);
             }
         }
-		#region ExcelRow Constructor
-		/// <summary>
-		/// Creates a new instance of the ExcelRow class. 
-		/// For internal use only!
-		/// </summary>
-		/// <param name="Worksheet">The parent worksheet</param>
-		/// <param name="row">The row number</param>
-		internal ExcelRow(ExcelWorksheet Worksheet, int row)
-		{
-			_worksheet = Worksheet;
-            Row = row;
-		}
-		#endregion
-
-		/// <summary>
-		/// Provides access to the node representing the row.
-		/// </summary>
-		internal XmlNode Node { get { return (_rowElement); } }
-
-		#region ExcelRow Hidden
+        #region ExcelRow Constructor
         /// <summary>
-		/// Allows the row to be hidden in the worksheet
-		/// </summary>
-		public bool Hidden
+        /// Creates a new instance of the ExcelRow class. 
+        /// For internal use only!
+        /// </summary>
+        /// <param name="Worksheet">The parent worksheet</param>
+        /// <param name="row">The row number</param>
+        internal ExcelRow(ExcelWorksheet Worksheet, int row)
+        {
+            _worksheet = Worksheet;
+            Row = row;
+        }
+        #endregion
+
+        /// <summary>
+        /// Provides access to the node representing the row.
+        /// </summary>
+        internal XmlNode Node { get { return (_rowElement); } }
+
+        #region ExcelRow Hidden
+        /// <summary>
+        /// Allows the row to be hidden in the worksheet
+        /// </summary>
+        public bool Hidden
         {
             get
             {
@@ -121,16 +121,16 @@ namespace OfficeOpenXml
                 r.Hidden=value;
             }
         }        
-		#endregion
+        #endregion
 
-		#region ExcelRow Height
+        #region ExcelRow Height
         /// <summary>
-		/// Sets the height of the row
-		/// </summary>
-		public double Height
+        /// Sets the height of the row
+        /// </summary>
+        public double Height
         {
-			get
-			{
+            get
+            {
                 var r = (RowInternal)_worksheet.GetValueInner(Row, 0);
                 if (r == null || r.Height<0)
                 {
@@ -185,7 +185,7 @@ namespace OfficeOpenXml
                 r.CustomHeight = value;
             }
         }
-		#endregion
+        #endregion
 
         internal string _styleName = "";
         /// <summary>

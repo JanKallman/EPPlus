@@ -61,19 +61,19 @@ using OfficeOpenXml.Compatibility;
 namespace OfficeOpenXml
 {	
     /// <summary>
-	/// A range of cells 
-	/// </summary>
-	public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
-	{
-		/// <summary>
-		/// Reference to the worksheet
-		/// </summary>
-		protected ExcelWorksheet _worksheet;
-		internal ExcelWorkbook _workbook = null;
-		private delegate void _changeProp(ExcelRangeBase range, _setValue method, object value);
-		private delegate void _setValue(ExcelRangeBase range, object value, int row, int col);
+    /// A range of cells 
+    /// </summary>
+    public class ExcelRangeBase : ExcelAddress, IExcelCell, IDisposable, IEnumerable<ExcelRangeBase>, IEnumerator<ExcelRangeBase>
+    {
+        /// <summary>
+        /// Reference to the worksheet
+        /// </summary>
+        protected ExcelWorksheet _worksheet;
+        internal ExcelWorkbook _workbook = null;
+        private delegate void _changeProp(ExcelRangeBase range, _setValue method, object value);
+        private delegate void _setValue(ExcelRangeBase range, object value, int row, int col);
         private _changeProp _changePropMethod;
-		private int _styleID;
+        private int _styleID;
         private class CopiedCell
         {
             internal int Row { get; set; }
@@ -87,12 +87,12 @@ namespace OfficeOpenXml
             internal Byte Flag { get; set; }
         }
         #region Constructors
-		internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
-		{
-			_worksheet = xlWorksheet;
-			_ws = _worksheet.Name;
+        internal ExcelRangeBase(ExcelWorksheet xlWorksheet)
+        {
+            _worksheet = xlWorksheet;
+            _ws = _worksheet.Name;
             _workbook = _worksheet.Workbook;
-			SetDelegate();
+            SetDelegate();
         }
         /// <summary>
         /// On change address handler
@@ -105,117 +105,117 @@ namespace OfficeOpenXml
             }
             SetDelegate();
         }
-		internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
-			base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
-		{
-			_worksheet = xlWorksheet;
+        internal ExcelRangeBase(ExcelWorksheet xlWorksheet, string address) :
+            base(xlWorksheet == null ? "" : xlWorksheet.Name, address)
+        {
+            _worksheet = xlWorksheet;
             _workbook = _worksheet.Workbook;
             base.SetRCFromTable(_worksheet._package, null);
-			if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
-            SetDelegate();
-		}
-		internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
-			base(xlWorksheet == null ? "" : xlWorksheet.Name, address, isName)
-		{
-            SetRCFromTable(wb._package, null);
-            _worksheet = xlWorksheet;
-			_workbook = wb;
-			if (string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
+            if (string.IsNullOrEmpty(_ws)) _ws = _worksheet == null ? "" : _worksheet.Name;
             SetDelegate();
         }
-		#endregion
-		#region Set Value Delegates        
-		private static _changeProp _setUnknownProp = SetUnknown;
-		private static _changeProp _setSingleProp = SetSingle;
-		private static _changeProp _setRangeProp = SetRange;
-		private static _changeProp _setMultiProp = SetMultiRange;
-		private void SetDelegate()
-		{
-			if (_fromRow == -1)
-			{
-				_changePropMethod = SetUnknown;
-			}
-			//Single cell
-			else if (_fromRow == _toRow && _fromCol == _toCol && Addresses == null)
-			{
-				_changePropMethod = SetSingle;
-			}
-			//Range (ex A1:A2)
-			else if (Addresses == null)
-			{
-				_changePropMethod = SetRange;
-			}
-			//Multi Range (ex A1:A2,C1:C2)
-			else
-			{
-				_changePropMethod = SetMultiRange;
-			}
-		}
-		/// <summary>
-		/// We dont know the address yet. Set the delegate first time a property is set.
-		/// </summary>
-		/// <param name="range"></param>
-		/// <param name="valueMethod"></param>
-		/// <param name="value"></param>
-		private static void SetUnknown(ExcelRangeBase range, _setValue valueMethod, object value)
-		{
-			//Address is not set use, selected range
-			if (range._fromRow == -1)
-			{
-				range.SetToSelectedRange();
-			}
-			range.SetDelegate();
-			range._changePropMethod(range, valueMethod, value);
-		}
-		/// <summary>
-		/// Set a single cell
-		/// </summary>
-		/// <param name="range"></param>
-		/// <param name="valueMethod"></param>
-		/// <param name="value"></param>
-		private static void SetSingle(ExcelRangeBase range, _setValue valueMethod, object value)
-		{
-			valueMethod(range, value, range._fromRow, range._fromCol);
-		}
-		/// <summary>
-		/// Set a range
-		/// </summary>
-		/// <param name="range"></param>
-		/// <param name="valueMethod"></param>
-		/// <param name="value"></param>
-		private static void SetRange(ExcelRangeBase range, _setValue valueMethod, object value)
-		{
-			range.SetValueAddress(range, valueMethod, value);
-		}
-		/// <summary>
-		/// Set a multirange (A1:A2,C1:C2)
-		/// </summary>
-		/// <param name="range"></param>
-		/// <param name="valueMethod"></param>
-		/// <param name="value"></param>
-		private static void SetMultiRange(ExcelRangeBase range, _setValue valueMethod, object value)
-		{
-			range.SetValueAddress(range, valueMethod, value);
-			foreach (var address in range.Addresses)
-			{
-				range.SetValueAddress(address, valueMethod, value);
-			}
-		}
-		/// <summary>
-		/// Set the property for an address
-		/// </summary>
-		/// <param name="address"></param>
-		/// <param name="valueMethod"></param>
-		/// <param name="value"></param>
-		private void SetValueAddress(ExcelAddress address, _setValue valueMethod, object value)
-		{
-			IsRangeValid("");
-			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
-			{
-				throw (new ArgumentException("Can't reference all cells. Please use the indexer to set the range"));
-			}
-			else
-			{
+        internal ExcelRangeBase(ExcelWorkbook wb, ExcelWorksheet xlWorksheet, string address, bool isName) :
+            base(xlWorksheet == null ? "" : xlWorksheet.Name, address, isName)
+        {
+            SetRCFromTable(wb._package, null);
+            _worksheet = xlWorksheet;
+            _workbook = wb;
+            if (string.IsNullOrEmpty(_ws)) _ws = (xlWorksheet == null ? null : xlWorksheet.Name);
+            SetDelegate();
+        }
+        #endregion
+        #region Set Value Delegates        
+        private static _changeProp _setUnknownProp = SetUnknown;
+        private static _changeProp _setSingleProp = SetSingle;
+        private static _changeProp _setRangeProp = SetRange;
+        private static _changeProp _setMultiProp = SetMultiRange;
+        private void SetDelegate()
+        {
+            if (_fromRow == -1)
+            {
+                _changePropMethod = SetUnknown;
+            }
+            //Single cell
+            else if (_fromRow == _toRow && _fromCol == _toCol && Addresses == null)
+            {
+                _changePropMethod = SetSingle;
+            }
+            //Range (ex A1:A2)
+            else if (Addresses == null)
+            {
+                _changePropMethod = SetRange;
+            }
+            //Multi Range (ex A1:A2,C1:C2)
+            else
+            {
+                _changePropMethod = SetMultiRange;
+            }
+        }
+        /// <summary>
+        /// We dont know the address yet. Set the delegate first time a property is set.
+        /// </summary>
+        /// <param name="range"></param>
+        /// <param name="valueMethod"></param>
+        /// <param name="value"></param>
+        private static void SetUnknown(ExcelRangeBase range, _setValue valueMethod, object value)
+        {
+            //Address is not set use, selected range
+            if (range._fromRow == -1)
+            {
+                range.SetToSelectedRange();
+            }
+            range.SetDelegate();
+            range._changePropMethod(range, valueMethod, value);
+        }
+        /// <summary>
+        /// Set a single cell
+        /// </summary>
+        /// <param name="range"></param>
+        /// <param name="valueMethod"></param>
+        /// <param name="value"></param>
+        private static void SetSingle(ExcelRangeBase range, _setValue valueMethod, object value)
+        {
+            valueMethod(range, value, range._fromRow, range._fromCol);
+        }
+        /// <summary>
+        /// Set a range
+        /// </summary>
+        /// <param name="range"></param>
+        /// <param name="valueMethod"></param>
+        /// <param name="value"></param>
+        private static void SetRange(ExcelRangeBase range, _setValue valueMethod, object value)
+        {
+            range.SetValueAddress(range, valueMethod, value);
+        }
+        /// <summary>
+        /// Set a multirange (A1:A2,C1:C2)
+        /// </summary>
+        /// <param name="range"></param>
+        /// <param name="valueMethod"></param>
+        /// <param name="value"></param>
+        private static void SetMultiRange(ExcelRangeBase range, _setValue valueMethod, object value)
+        {
+            range.SetValueAddress(range, valueMethod, value);
+            foreach (var address in range.Addresses)
+            {
+                range.SetValueAddress(address, valueMethod, value);
+            }
+        }
+        /// <summary>
+        /// Set the property for an address
+        /// </summary>
+        /// <param name="address"></param>
+        /// <param name="valueMethod"></param>
+        /// <param name="value"></param>
+        private void SetValueAddress(ExcelAddress address, _setValue valueMethod, object value)
+        {
+            IsRangeValid("");
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
+            {
+                throw (new ArgumentException("Can't reference all cells. Please use the indexer to set the range"));
+            }
+            else
+            {
                 if (value is object[,] && valueMethod == Set_Value)
                 {
                     // only simple set value is supported for bulk copy
@@ -231,167 +231,167 @@ namespace OfficeOpenXml
                         }
                     }
                 }
-			}
+            }
         }
-		#endregion
-		#region Set property methods
-		private static _setValue _setStyleIdDelegate = Set_StyleID;
-		private static _setValue _setValueDelegate = Set_Value;
-		private static _setValue _setHyperLinkDelegate = Set_HyperLink;
-		private static _setValue _setIsRichTextDelegate = Set_IsRichText;
-		private static _setValue _setExistsCommentDelegate = Exists_Comment;
-		private static _setValue _setCommentDelegate = Set_Comment;
+        #endregion
+        #region Set property methods
+        private static _setValue _setStyleIdDelegate = Set_StyleID;
+        private static _setValue _setValueDelegate = Set_Value;
+        private static _setValue _setHyperLinkDelegate = Set_HyperLink;
+        private static _setValue _setIsRichTextDelegate = Set_IsRichText;
+        private static _setValue _setExistsCommentDelegate = Exists_Comment;
+        private static _setValue _setCommentDelegate = Set_Comment;
 
-		private static void Set_StyleID(ExcelRangeBase range, object value, int row, int col)
-		{
-			range._worksheet.SetStyleInner(row, col, (int)value);
-		}
-		private static void Set_StyleName(ExcelRangeBase range, object value, int row, int col)
-		{
-			range._worksheet.SetStyleInner(row, col, range._styleID);
-		}
-		private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
-		{
-			var sfi = range._worksheet._formulas.GetValue(row, col);
-			if (sfi is int)
-			{
-				range.SplitFormulas(range._worksheet.Cells[row, col]);                
-			}
-			if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
-			range._worksheet.SetValueInner(row, col, value);
-		}
-		private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
-		{
-			var f = range._worksheet._formulas.GetValue(row, col);
-			if (f is int && (int)f >= 0) range.SplitFormulas(range._worksheet.Cells[row, col]);
+        private static void Set_StyleID(ExcelRangeBase range, object value, int row, int col)
+        {
+            range._worksheet.SetStyleInner(row, col, (int)value);
+        }
+        private static void Set_StyleName(ExcelRangeBase range, object value, int row, int col)
+        {
+            range._worksheet.SetStyleInner(row, col, range._styleID);
+        }
+        private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
+        {
+            var sfi = range._worksheet._formulas.GetValue(row, col);
+            if (sfi is int)
+            {
+                range.SplitFormulas(range._worksheet.Cells[row, col]);                
+            }
+            if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
+            range._worksheet.SetValueInner(row, col, value);
+        }
+        private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
+        {
+            var f = range._worksheet._formulas.GetValue(row, col);
+            if (f is int && (int)f >= 0) range.SplitFormulas(range._worksheet.Cells[row, col]);
 
-			string formula = (value == null ? string.Empty : value.ToString());
-			if (formula == string.Empty)
-			{
+            string formula = (value == null ? string.Empty : value.ToString());
+            if (formula == string.Empty)
+            {
                 range._worksheet._formulas.SetValue(row, col, string.Empty);
-			}
-			else
-			{
-				if (formula[0] == '=') value = formula.Substring(1, formula.Length - 1); // remove any starting equalsign.
-				range._worksheet._formulas.SetValue(row, col, formula);
-				range._worksheet.SetValueInner(row, col, null);
-			}
-		}
-		/// <summary>
-		/// Handles shared formulas
-		/// </summary>
-		/// <param name="range">The range</param>
+            }
+            else
+            {
+                if (formula[0] == '=') value = formula.Substring(1, formula.Length - 1); // remove any starting equalsign.
+                range._worksheet._formulas.SetValue(row, col, formula);
+                range._worksheet.SetValueInner(row, col, null);
+            }
+        }
+        /// <summary>
+        /// Handles shared formulas
+        /// </summary>
+        /// <param name="range">The range</param>
         /// <param name="value">The  formula</param>
-		/// <param name="address">The address of the formula</param>
-		/// <param name="IsArray">If the forumla is an array formula.</param>
-		private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddress address, bool IsArray)
-		{
-			if (range._fromRow == 1 && range._fromCol == 1 && range._toRow == ExcelPackage.MaxRows && range._toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
-			{
-				throw (new InvalidOperationException("Can't set a formula for the entire worksheet"));
-			}
-			else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column && !IsArray)             //is it really a shared formula? Arrayformulas can be one cell only
-			{
-				//Nope, single cell. Set the formula
-				Set_Formula(range, value, address.Start.Row, address.Start.Column);
-				return;
-			}
-			range.CheckAndSplitSharedFormula(address);
-			ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
-			f.Formula = value;
-			f.Index = range._worksheet.GetMaxShareFunctionIndex(IsArray);
-			f.Address = address.FirstAddress;
-			f.StartCol = address.Start.Column;
-			f.StartRow = address.Start.Row;
-			f.IsArray = IsArray;
+        /// <param name="address">The address of the formula</param>
+        /// <param name="IsArray">If the forumla is an array formula.</param>
+        private static void Set_SharedFormula(ExcelRangeBase range, string value, ExcelAddress address, bool IsArray)
+        {
+            if (range._fromRow == 1 && range._fromCol == 1 && range._toRow == ExcelPackage.MaxRows && range._toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
+            {
+                throw (new InvalidOperationException("Can't set a formula for the entire worksheet"));
+            }
+            else if (address.Start.Row == address.End.Row && address.Start.Column == address.End.Column && !IsArray)             //is it really a shared formula? Arrayformulas can be one cell only
+            {
+                //Nope, single cell. Set the formula
+                Set_Formula(range, value, address.Start.Row, address.Start.Column);
+                return;
+            }
+            range.CheckAndSplitSharedFormula(address);
+            ExcelWorksheet.Formulas f = new ExcelWorksheet.Formulas(SourceCodeTokenizer.Default);
+            f.Formula = value;
+            f.Index = range._worksheet.GetMaxShareFunctionIndex(IsArray);
+            f.Address = address.FirstAddress;
+            f.StartCol = address.Start.Column;
+            f.StartRow = address.Start.Row;
+            f.IsArray = IsArray;
 
-			range._worksheet._sharedFormulas.Add(f.Index, f);
+            range._worksheet._sharedFormulas.Add(f.Index, f);
 
-			for (int col = address.Start.Column; col <= address.End.Column; col++)
-			{
-				for (int row = address.Start.Row; row <= address.End.Row; row++)
-				{
-					range._worksheet._formulas.SetValue(row, col, f.Index);
+            for (int col = address.Start.Column; col <= address.End.Column; col++)
+            {
+                for (int row = address.Start.Row; row <= address.End.Row; row++)
+                {
+                    range._worksheet._formulas.SetValue(row, col, f.Index);
                     range._worksheet._flags.SetFlagValue(row, col, true, CellFlags.ArrayFormula);
-					range._worksheet.SetValueInner(row, col, null);
-				}
-			}
-		}
-		private static void Set_HyperLink(ExcelRangeBase range, object value, int row, int col)
-		{
-			if (value is Uri)
-			{
-				range._worksheet._hyperLinks.SetValue(row, col, (Uri)value);
+                    range._worksheet.SetValueInner(row, col, null);
+                }
+            }
+        }
+        private static void Set_HyperLink(ExcelRangeBase range, object value, int row, int col)
+        {
+            if (value is Uri)
+            {
+                range._worksheet._hyperLinks.SetValue(row, col, (Uri)value);
 
-				if (value is ExcelHyperLink)
-				{
-					range._worksheet.SetValueInner(row, col, ((ExcelHyperLink)value).Display);
-				}
-				else
-				{
-					var v = range._worksheet.GetValueInner(row, col);
-					if (v == null || v.ToString() == "")
-					{
-						range._worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
-					}
-				}
-			}
-			else
-			{
-				range._worksheet._hyperLinks.SetValue(row, col, (Uri)null);
-				range._worksheet.SetValueInner(row, col, (Uri)null);
-			}
-		}
-		private static void Set_IsRichText(ExcelRangeBase range, object value, int row, int col)
-		{
-			range._worksheet._flags.SetFlagValue(row, col, (bool)value, CellFlags.RichText);
-		}
-		private static void Exists_Comment(ExcelRangeBase range, object value, int row, int col)
-		{
-			if (range._worksheet._commentsStore.Exists(row,col))
-			{
-				throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
-			}
+                if (value is ExcelHyperLink)
+                {
+                    range._worksheet.SetValueInner(row, col, ((ExcelHyperLink)value).Display);
+                }
+                else
+                {
+                    var v = range._worksheet.GetValueInner(row, col);
+                    if (v == null || v.ToString() == "")
+                    {
+                        range._worksheet.SetValueInner(row, col, ((Uri)value).OriginalString);
+                    }
+                }
+            }
+            else
+            {
+                range._worksheet._hyperLinks.SetValue(row, col, (Uri)null);
+                range._worksheet.SetValueInner(row, col, (Uri)null);
+            }
+        }
+        private static void Set_IsRichText(ExcelRangeBase range, object value, int row, int col)
+        {
+            range._worksheet._flags.SetFlagValue(row, col, (bool)value, CellFlags.RichText);
+        }
+        private static void Exists_Comment(ExcelRangeBase range, object value, int row, int col)
+        {
+            if (range._worksheet._commentsStore.Exists(row,col))
+            {
+                throw (new InvalidOperationException(string.Format("Cell {0} already contain a comment.", new ExcelCellAddress(row, col).Address)));
+            }
 
-		}
-		private static void Set_Comment(ExcelRangeBase range, object value, int row, int col)
-		{
-			string[] v = (string[])value;
-			range._worksheet.Comments.Add(new ExcelRangeBase(range._worksheet, GetAddress(range._fromRow, range._fromCol)), v[0], v[1]);
-		}
-		#endregion
-		private void SetToSelectedRange()
-		{
-			if (_worksheet.View.SelectedRange == "")
-			{
-				Address = "A1";
-			}
-			else
-			{
-				Address = _worksheet.View.SelectedRange;
-			}
-		}
-		private void IsRangeValid(string type)
-		{
-			if (_fromRow <= 0)
-			{
-				if (_address == "")
-				{
-					SetToSelectedRange();
-				}
-				else
-				{
-					if (type == "")
-					{
-						throw (new InvalidOperationException(string.Format("Range is not valid for this operation: {0}", _address)));
-					}
-					else
-					{
-						throw (new InvalidOperationException(string.Format("Range is not valid for {0} : {1}", type, _address)));
-					}
-				}
-			}
-		}
+        }
+        private static void Set_Comment(ExcelRangeBase range, object value, int row, int col)
+        {
+            string[] v = (string[])value;
+            range._worksheet.Comments.Add(new ExcelRangeBase(range._worksheet, GetAddress(range._fromRow, range._fromCol)), v[0], v[1]);
+        }
+        #endregion
+        private void SetToSelectedRange()
+        {
+            if (_worksheet.View.SelectedRange == "")
+            {
+                Address = "A1";
+            }
+            else
+            {
+                Address = _worksheet.View.SelectedRange;
+            }
+        }
+        private void IsRangeValid(string type)
+        {
+            if (_fromRow <= 0)
+            {
+                if (_address == "")
+                {
+                    SetToSelectedRange();
+                }
+                else
+                {
+                    if (type == "")
+                    {
+                        throw (new InvalidOperationException(string.Format("Range is not valid for this operation: {0}", _address)));
+                    }
+                    else
+                    {
+                        throw (new InvalidOperationException(string.Format("Range is not valid for {0} : {1}", type, _address)));
+                    }
+                }
+            }
+        }
         internal void UpdateAddress(string address)
         {
             throw new NotImplementedException();
@@ -402,10 +402,10 @@ namespace OfficeOpenXml
         /// The styleobject for the range.
         /// </summary>
         public ExcelStyle Style
-		{
-			get
-			{
-				IsRangeValid("styling");
+        {
+            get
+            {
+                IsRangeValid("styling");
                 int s=0;
                 if(!_worksheet.ExistsStyleInner(_fromRow,_fromCol, ref s)) //Cell exists
                 {
@@ -422,18 +422,18 @@ namespace OfficeOpenXml
                         }                        
                     }
                 }
-				return _worksheet.Workbook.Styles.GetStyleObject(s, _worksheet.PositionID, Address);
-			}
-		}
-		/// <summary>
-		/// The named style
-		/// </summary>
-		public string StyleName
-		{
-			get
-			{
-				IsRangeValid("styling");
-				int  xfId;
+                return _worksheet.Workbook.Styles.GetStyleObject(s, _worksheet.PositionID, Address);
+            }
+        }
+        /// <summary>
+        /// The named style
+        /// </summary>
+        public string StyleName
+        {
+            get
+            {
+                IsRangeValid("styling");
+                int  xfId;
                 if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)
                 {
                     xfId=GetColumnStyle(_fromCol);
@@ -475,23 +475,23 @@ namespace OfficeOpenXml
                 }
                 
                 return "";
-			}
-			set
-			{
-				_styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
+            }
+            set
+            {
+                _styleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 int col = _fromCol;
                 if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)    //Full column
-				{
-					ExcelColumn column;
+                {
+                    ExcelColumn column;
                     var c = _worksheet.GetValue(0, _fromCol);
                     if (c==null)
-					{
+                    {
                         column = _worksheet.Column(_fromCol);
-					}
-					else
-					{
+                    }
+                    else
+                    {
                         column = (ExcelColumn)c;
-					}
+                    }
 
                     column.StyleName = value;
                     column.StyleID = _styleID;
@@ -545,7 +545,7 @@ namespace OfficeOpenXml
                             }
                         }
                     }
-				}
+                }
                 else if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns) //FullRow
                 {
                     for (int r = _fromRow; r <= _toRow; r++)
@@ -573,8 +573,8 @@ namespace OfficeOpenXml
                         _worksheet.SetStyleInner(cells.Row, cells.Column, _styleID);
                     }
                 }
-			}
-		}
+            }
+        }
 
         private int GetColumnStyle(int col)
         {
@@ -597,15 +597,15 @@ namespace OfficeOpenXml
             }
             return 0;
         }
-		/// <summary>
-		/// The style ID. 
-		/// It is not recomended to use this one. Use Named styles as an alternative.
-		/// If you do, make sure that you use the Style.UpdateXml() method to update any new styles added to the workbook.
-		/// </summary>
-		public int StyleID
-		{
-			get
-			{
+        /// <summary>
+        /// The style ID. 
+        /// It is not recomended to use this one. Use Named styles as an alternative.
+        /// If you do, make sure that you use the Style.UpdateXml() method to update any new styles added to the workbook.
+        /// </summary>
+        public int StyleID
+        {
+            get
+            {
                 int s=0;
                 if(!_worksheet.ExistsStyleInner(_fromRow, _fromCol, ref s))
                 {
@@ -615,252 +615,252 @@ namespace OfficeOpenXml
                     }
                 }
                 return s;
-			}
-			set
-			{
-				_changePropMethod(this, _setStyleIdDelegate, value);
-			}
-		}
-		/// <summary>
-		/// Set the range to a specific value
-		/// </summary>
-		public object Value
-		{
-			get
-			{
-				if (IsName)
-				{
-					if (_worksheet == null)
-					{
-						return _workbook._names[_address].NameValue;
-					}
-					else
-					{
-						return _worksheet.Names[_address].NameValue; 
-					}
-				}
-				else
-				{
-					if (_fromRow == _toRow && _fromCol == _toCol)
-					{
-						return _worksheet.GetValue(_fromRow, _fromCol);
-					}
-					else
-					{
-						return GetValueArray();
-					}
-				}
-			}
-			set
-			{
-				if (IsName)
-				{
-					if (_worksheet == null)
-					{
-						_workbook._names[_address].NameValue = value;
-					}
-					else
-					{
-						_worksheet.Names[_address].NameValue = value;
-					}
-				}
-				else
-				{
-					_changePropMethod(this, _setValueDelegate, value);
-				}
-			}
-		}
+            }
+            set
+            {
+                _changePropMethod(this, _setStyleIdDelegate, value);
+            }
+        }
+        /// <summary>
+        /// Set the range to a specific value
+        /// </summary>
+        public object Value
+        {
+            get
+            {
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        return _workbook._names[_address].NameValue;
+                    }
+                    else
+                    {
+                        return _worksheet.Names[_address].NameValue; 
+                    }
+                }
+                else
+                {
+                    if (_fromRow == _toRow && _fromCol == _toCol)
+                    {
+                        return _worksheet.GetValue(_fromRow, _fromCol);
+                    }
+                    else
+                    {
+                        return GetValueArray();
+                    }
+                }
+            }
+            set
+            {
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        _workbook._names[_address].NameValue = value;
+                    }
+                    else
+                    {
+                        _worksheet.Names[_address].NameValue = value;
+                    }
+                }
+                else
+                {
+                    _changePropMethod(this, _setValueDelegate, value);
+                }
+            }
+        }
 
-		private bool IsInfinityValue(object value)
-		{
-			double? valueAsDouble = value as double?;
+        private bool IsInfinityValue(object value)
+        {
+            double? valueAsDouble = value as double?;
 
-			if(valueAsDouble.HasValue && 
-				(double.IsNegativeInfinity(valueAsDouble.Value) || double.IsPositiveInfinity(valueAsDouble.Value)))
-			{
-				return true;
-			}
+            if(valueAsDouble.HasValue && 
+                (double.IsNegativeInfinity(valueAsDouble.Value) || double.IsPositiveInfinity(valueAsDouble.Value)))
+            {
+                return true;
+            }
 
-			return false;
-		}
+            return false;
+        }
 
-		private object GetValueArray()
-		{
-			ExcelAddressBase addr;
-			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)
-			{
-				addr = _worksheet.Dimension;
-				if (addr == null) return null;
-			}
-			else
-			{
-				addr = this;
-			}
-			object[,] v = new object[addr._toRow - addr._fromRow + 1, addr._toCol - addr._fromCol + 1];
+        private object GetValueArray()
+        {
+            ExcelAddressBase addr;
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)
+            {
+                addr = _worksheet.Dimension;
+                if (addr == null) return null;
+            }
+            else
+            {
+                addr = this;
+            }
+            object[,] v = new object[addr._toRow - addr._fromRow + 1, addr._toCol - addr._fromCol + 1];
 
-			for (int col = addr._fromCol; col <= addr._toCol; col++)
-			{
-				for (int row = addr._fromRow; row <= addr._toRow; row++)
-				{
+            for (int col = addr._fromCol; col <= addr._toCol; col++)
+            {
+                for (int row = addr._fromRow; row <= addr._toRow; row++)
+                {
                     object o = null;
-					if (_worksheet.ExistsValueInner(row, col, ref o))
-					{
+                    if (_worksheet.ExistsValueInner(row, col, ref o))
+                    {
                         if (_worksheet._flags.GetFlagValue(row, col, CellFlags.RichText))
-						{
-							v[row - addr._fromRow, col - addr._fromCol] = GetRichText(row, col).Text;
-						}
-						else
-						{
-							v[row - addr._fromRow, col - addr._fromCol] = o;
-						}
-					}
-				}
-			}
-			return v;
-		}
-		private ExcelAddressBase GetAddressDim(ExcelRangeBase addr)
-		{
-			int fromRow, fromCol, toRow, toCol;
-			var d = _worksheet.Dimension;
-			fromRow = addr._fromRow < d._fromRow ? d._fromRow : addr._fromRow;
-			fromCol = addr._fromCol < d._fromCol ? d._fromCol : addr._fromCol;
+                        {
+                            v[row - addr._fromRow, col - addr._fromCol] = GetRichText(row, col).Text;
+                        }
+                        else
+                        {
+                            v[row - addr._fromRow, col - addr._fromCol] = o;
+                        }
+                    }
+                }
+            }
+            return v;
+        }
+        private ExcelAddressBase GetAddressDim(ExcelRangeBase addr)
+        {
+            int fromRow, fromCol, toRow, toCol;
+            var d = _worksheet.Dimension;
+            fromRow = addr._fromRow < d._fromRow ? d._fromRow : addr._fromRow;
+            fromCol = addr._fromCol < d._fromCol ? d._fromCol : addr._fromCol;
 
-			toRow = addr._toRow > d._toRow ? d._toRow : addr._toRow;
-			toCol = addr._toCol > d._toCol ? d._toCol : addr._toCol;
+            toRow = addr._toRow > d._toRow ? d._toRow : addr._toRow;
+            toCol = addr._toCol > d._toCol ? d._toCol : addr._toCol;
 
-			if (addr._fromRow == fromRow && addr._fromCol == fromCol && addr._toRow == toRow && addr._toCol == _toCol)
-			{
-				return addr;
-			}
-			else
-			{
-				if (_fromRow > _toRow || _fromCol > _toCol)
-				{
-					return null;
-				}
-				else
-				{
-					return new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
-				}
-			}
-		}
+            if (addr._fromRow == fromRow && addr._fromCol == fromCol && addr._toRow == toRow && addr._toCol == _toCol)
+            {
+                return addr;
+            }
+            else
+            {
+                if (_fromRow > _toRow || _fromCol > _toCol)
+                {
+                    return null;
+                }
+                else
+                {
+                    return new ExcelAddressBase(fromRow, fromCol, toRow, toCol);
+                }
+            }
+        }
 
-		private object GetSingleValue()
-		{
-			if (IsRichText)
-			{
-				return RichText.Text;
-			}
-			else
-			{
-				return _worksheet.GetValueInner(_fromRow, _fromCol);
-			}
-		}
-		/// <summary>
-		/// Returns the formatted value.
-		/// </summary>
-		public string Text
-		{
-			get
-			{
-				return GetFormattedText(false);
-			}
-		}
-		/// <summary>
-		/// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
-		/// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
-		/// Wrapped and merged cells are also ignored.
-		/// </summary>
-		public void AutoFitColumns()
-		{
-			AutoFitColumns(_worksheet.DefaultColWidth);
-		}
+        private object GetSingleValue()
+        {
+            if (IsRichText)
+            {
+                return RichText.Text;
+            }
+            else
+            {
+                return _worksheet.GetValueInner(_fromRow, _fromCol);
+            }
+        }
+        /// <summary>
+        /// Returns the formatted value.
+        /// </summary>
+        public string Text
+        {
+            get
+            {
+                return GetFormattedText(false);
+            }
+        }
+        /// <summary>
+        /// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
+        /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.
+        /// Wrapped and merged cells are also ignored.
+        /// </summary>
+        public void AutoFitColumns()
+        {
+            AutoFitColumns(_worksheet.DefaultColWidth);
+        }
 
-		/// <summary>
-		/// Set the column width from the content of the range.
-		/// Note: Cells containing formulas are ignored if no calculation is made.
-		///       Wrapped and merged cells are also ignored.
-		/// </summary>
+        /// <summary>
+        /// Set the column width from the content of the range.
+        /// Note: Cells containing formulas are ignored if no calculation is made.
+        ///       Wrapped and merged cells are also ignored.
+        /// </summary>
         /// <remarks>This method will not work if you run in an environment that does not support GDI</remarks>
-		/// <param name="MinimumWidth">Minimum column width</param>
-		public void AutoFitColumns(double MinimumWidth)
-		{
-		    AutoFitColumns(MinimumWidth, double.MaxValue);
-		}
+        /// <param name="MinimumWidth">Minimum column width</param>
+        public void AutoFitColumns(double MinimumWidth)
+        {
+            AutoFitColumns(MinimumWidth, double.MaxValue);
+        }
 
-	    /// <summary>
-	    /// Set the column width from the content of the range.
+        /// <summary>
+        /// Set the column width from the content of the range.
         /// Note: Cells containing formulas are ignored if no calculation is made.
         ///       Wrapped and merged cells are also ignored.
         ///      Hidden columns are left hidden.
-	    /// </summary>
-	    /// <param name="MinimumWidth">Minimum column width</param>
-	    /// <param name="MaximumWidth">Maximum column width</param>
-	    public void AutoFitColumns(double MinimumWidth, double MaximumWidth)
-		{
+        /// </summary>
+        /// <param name="MinimumWidth">Minimum column width</param>
+        /// <param name="MaximumWidth">Maximum column width</param>
+        public void AutoFitColumns(double MinimumWidth, double MaximumWidth)
+        {
             if (_worksheet.Dimension == null)
             {
                 return;
             }
             if (_fromCol < 1 || _fromRow < 1)
-			{
-				SetToSelectedRange();
-			}
+            {
+                SetToSelectedRange();
+            }
             var fontCache = new Dictionary<int, Font>();
 
-	        bool doAdjust = _worksheet._package.DoAdjustDrawings;
-			_worksheet._package.DoAdjustDrawings = false;
-			var drawWidths = _worksheet.Drawings.GetDrawingWidths();
+            bool doAdjust = _worksheet._package.DoAdjustDrawings;
+            _worksheet._package.DoAdjustDrawings = false;
+            var drawWidths = _worksheet.Drawings.GetDrawingWidths();
 
-			var fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
-			var toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
+            var fromCol = _fromCol > _worksheet.Dimension._fromCol ? _fromCol : _worksheet.Dimension._fromCol;
+            var toCol = _toCol < _worksheet.Dimension._toCol ? _toCol : _worksheet.Dimension._toCol;
 
             if (fromCol > toCol) return; //Issue 15383
 
             if (Addresses == null)
-			{
-				SetMinWidth(MinimumWidth, fromCol, toCol);
-			}
-			else
-			{
-				foreach (var addr in Addresses)
-				{
-					fromCol = addr._fromCol > _worksheet.Dimension._fromCol ? addr._fromCol : _worksheet.Dimension._fromCol;
-					toCol = addr._toCol < _worksheet.Dimension._toCol ? addr._toCol : _worksheet.Dimension._toCol;
+            {
+                SetMinWidth(MinimumWidth, fromCol, toCol);
+            }
+            else
+            {
+                foreach (var addr in Addresses)
+                {
+                    fromCol = addr._fromCol > _worksheet.Dimension._fromCol ? addr._fromCol : _worksheet.Dimension._fromCol;
+                    toCol = addr._toCol < _worksheet.Dimension._toCol ? addr._toCol : _worksheet.Dimension._toCol;
                     SetMinWidth(MinimumWidth, fromCol, toCol);
                 }
-			}
+            }
 
-			//Get any autofilter to widen these columns
-			var afAddr = new List<ExcelAddressBase>();
-			if (_worksheet.AutoFilterAddress != null)
-			{
-				afAddr.Add(new ExcelAddressBase(    _worksheet.AutoFilterAddress._fromRow,
-													_worksheet.AutoFilterAddress._fromCol,
-													_worksheet.AutoFilterAddress._fromRow,
-													_worksheet.AutoFilterAddress._toCol));
-				afAddr[afAddr.Count - 1]._ws = WorkSheet;
-			}
-			foreach (var tbl in _worksheet.Tables)
-			{
-				if (tbl.AutoFilterAddress != null)
-				{
-					afAddr.Add(new ExcelAddressBase(tbl.AutoFilterAddress._fromRow,
-																			tbl.AutoFilterAddress._fromCol,
-																			tbl.AutoFilterAddress._fromRow,
-																			tbl.AutoFilterAddress._toCol));
-					afAddr[afAddr.Count - 1]._ws = WorkSheet;
-				}
-			}
+            //Get any autofilter to widen these columns
+            var afAddr = new List<ExcelAddressBase>();
+            if (_worksheet.AutoFilterAddress != null)
+            {
+                afAddr.Add(new ExcelAddressBase(    _worksheet.AutoFilterAddress._fromRow,
+                                                    _worksheet.AutoFilterAddress._fromCol,
+                                                    _worksheet.AutoFilterAddress._fromRow,
+                                                    _worksheet.AutoFilterAddress._toCol));
+                afAddr[afAddr.Count - 1]._ws = WorkSheet;
+            }
+            foreach (var tbl in _worksheet.Tables)
+            {
+                if (tbl.AutoFilterAddress != null)
+                {
+                    afAddr.Add(new ExcelAddressBase(tbl.AutoFilterAddress._fromRow,
+                                                                            tbl.AutoFilterAddress._fromCol,
+                                                                            tbl.AutoFilterAddress._fromRow,
+                                                                            tbl.AutoFilterAddress._toCol));
+                    afAddr[afAddr.Count - 1]._ws = WorkSheet;
+                }
+            }
 
-			var styles = _worksheet.Workbook.Styles;
-			var nf = styles.Fonts[styles.CellXfs[0].FontId];
-			var fs = FontStyle.Regular;
-			if (nf.Bold) fs |= FontStyle.Bold;
-			if (nf.UnderLine) fs |= FontStyle.Underline;
-			if (nf.Italic) fs |= FontStyle.Italic;
-			if (nf.Strike) fs |= FontStyle.Strikeout;
-			var nfont = new Font(nf.Name, nf.Size, fs);
+            var styles = _worksheet.Workbook.Styles;
+            var nf = styles.Fonts[styles.CellXfs[0].FontId];
+            var fs = FontStyle.Regular;
+            if (nf.Bold) fs |= FontStyle.Bold;
+            if (nf.UnderLine) fs |= FontStyle.Underline;
+            if (nf.Italic) fs |= FontStyle.Italic;
+            if (nf.Strike) fs |= FontStyle.Strikeout;
+            var nfont = new Font(nf.Name, nf.Size, fs);
             
             var normalSize = Convert.ToSingle(ExcelWorkbook.GetWidthPixels(nf.Name, nf.Size));
 
@@ -879,30 +879,30 @@ namespace OfficeOpenXml
             }
 
             foreach (var cell in this)
-			{
+            {
                 if (_worksheet.Column(cell.Start.Column).Hidden)    //Issue 15338
                     continue;
 
                 if (cell.Merge == true || cell.Style.WrapText) continue;
-				var fntID = styles.CellXfs[cell.StyleID].FontId;
-				Font f;
-				if (fontCache.ContainsKey(fntID))
-				{
-					f = fontCache[fntID];
-				}
-				else
-				{
-					var fnt = styles.Fonts[fntID];
-					fs = FontStyle.Regular;
-					if (fnt.Bold) fs |= FontStyle.Bold;
-					if (fnt.UnderLine) fs |= FontStyle.Underline;
-					if (fnt.Italic) fs |= FontStyle.Italic;
-					if (fnt.Strike) fs |= FontStyle.Strikeout;
+                var fntID = styles.CellXfs[cell.StyleID].FontId;
+                Font f;
+                if (fontCache.ContainsKey(fntID))
+                {
+                    f = fontCache[fntID];
+                }
+                else
+                {
+                    var fnt = styles.Fonts[fntID];
+                    fs = FontStyle.Regular;
+                    if (fnt.Bold) fs |= FontStyle.Bold;
+                    if (fnt.UnderLine) fs |= FontStyle.Underline;
+                    if (fnt.Italic) fs |= FontStyle.Italic;
+                    if (fnt.Strike) fs |= FontStyle.Strikeout;
                     f = new Font(fnt.Name, fnt.Size, fs);
                     //f = new wm.Typeface(new System.Windows.Media.FontFamily(fnt.Name), fnt.Italic ? System.Windows.FontStyles.Italic : System.Windows.FontStyles.Normal, fnt.Bold ? System.Windows.FontWeights.Bold : System.Windows.FontWeights.Normal, System.Windows.FontStretches.Normal);
 
                     fontCache.Add(fntID, f);
-				}
+                }
                 var ind = styles.CellXfs[cell.StyleID].Indent;
                 var textForWidth = cell.TextForWidth;
                 var t = textForWidth + (ind > 0 && !string.IsNullOrEmpty(textForWidth) ? new string('_',ind) : "");
@@ -932,24 +932,24 @@ namespace OfficeOpenXml
                     //width= (((size.Width-size.Height) * Math.Abs(Math.Cos(Math.PI * r / 180.0)) + size.Height) +15) / normalSize;
                 }
 
-				foreach (var a in afAddr)
-				{
-					if (a.Collide(cell) != eAddressCollition.No)
-					{
+                foreach (var a in afAddr)
+                {
+                    if (a.Collide(cell) != eAddressCollition.No)
+                    {
                         //width += 2.8;
                         width += 2.25;
                         break;
-					}
-				}
+                    }
+                }
 
-				if (width > _worksheet.Column(cell._fromCol).Width)
-				{
-					_worksheet.Column(cell._fromCol).Width = width > MaximumWidth ? MaximumWidth : width;
-				}
-			}
-			_worksheet.Drawings.AdjustWidth(drawWidths);
-			_worksheet._package.DoAdjustDrawings = doAdjust;
-		}
+                if (width > _worksheet.Column(cell._fromCol).Width)
+                {
+                    _worksheet.Column(cell._fromCol).Width = width > MaximumWidth ? MaximumWidth : width;
+                }
+            }
+            _worksheet.Drawings.AdjustWidth(drawWidths);
+            _worksheet._package.DoAdjustDrawings = doAdjust;
+        }
 
         private void SetMinWidth(double minimumWidth, int fromCol, int toCol)
         {
@@ -976,130 +976,130 @@ namespace OfficeOpenXml
         }
 
         internal string TextForWidth
-		{
-			get
-			{
-				return GetFormattedText(true);
-			}
-		}
-		private string GetFormattedText(bool forWidthCalc)
-		{
-			object v = Value;
-			if (v == null) return "";
-			var styles = Worksheet.Workbook.Styles;
-			var nfID = styles.CellXfs[StyleID].NumberFormatId;
-			ExcelNumberFormatXml.ExcelFormatTranslator nf = null;
-			for (int i = 0; i < styles.NumberFormats.Count; i++)
-			{
-				if (nfID == styles.NumberFormats[i].NumFmtId)
-				{
-					nf = styles.NumberFormats[i].FormatTranslator;
-					break;
-				}
-			}
+        {
+            get
+            {
+                return GetFormattedText(true);
+            }
+        }
+        private string GetFormattedText(bool forWidthCalc)
+        {
+            object v = Value;
+            if (v == null) return "";
+            var styles = Worksheet.Workbook.Styles;
+            var nfID = styles.CellXfs[StyleID].NumberFormatId;
+            ExcelNumberFormatXml.ExcelFormatTranslator nf = null;
+            for (int i = 0; i < styles.NumberFormats.Count; i++)
+            {
+                if (nfID == styles.NumberFormats[i].NumFmtId)
+                {
+                    nf = styles.NumberFormats[i].FormatTranslator;
+                    break;
+                }
+            }
             if(nf==null)
             {
                 nf = styles.NumberFormats[0].FormatTranslator;  //nf should never be null. If so set to General, Issue 173
             }
 
-			string format, textFormat;
-			if (forWidthCalc)
-			{
-				format = nf.NetFormatForWidth;
-				textFormat = nf.NetTextFormatForWidth;
-			}
-			else
-			{
-				format = nf.NetFormat;
-				textFormat = nf.NetTextFormat;
-			}
+            string format, textFormat;
+            if (forWidthCalc)
+            {
+                format = nf.NetFormatForWidth;
+                textFormat = nf.NetTextFormatForWidth;
+            }
+            else
+            {
+                format = nf.NetFormat;
+                textFormat = nf.NetTextFormat;
+            }
 
             return FormatValue(v, nf, format, textFormat);
-		}
+        }
 
         internal static string FormatValue(object v, ExcelNumberFormatXml.ExcelFormatTranslator nf, string format, string textFormat)
         {
-			if (v is decimal || TypeCompat.IsPrimitive(v))
-			{
-				double d;
-				try
-				{
-					d = Convert.ToDouble(v);
-				}
-				catch
-				{
-					return "";
-				}
+            if (v is decimal || TypeCompat.IsPrimitive(v))
+            {
+                double d;
+                try
+                {
+                    d = Convert.ToDouble(v);
+                }
+                catch
+                {
+                    return "";
+                }
 
-				if (nf.DataType == ExcelNumberFormatXml.eFormatType.Number)
-				{
-					if (string.IsNullOrEmpty(nf.FractionFormat))
-					{
-						return d.ToString(format, nf.Culture);
-					}
-					else
-					{
-						return nf.FormatFraction(d);
-					}
-				}
-				else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
-				{
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.Number)
+                {
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
+                else if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
                     var date = DateTime.FromOADate(d);
                     //return date.ToString(format, nf.Culture);
                     return GetDateText(date, format, nf.Culture);
                 }
-			}
-			else if (v is DateTime)
-			{
-				if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
-				{
+            }
+            else if (v is DateTime)
+            {
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
                     return GetDateText((DateTime)v, format, nf.Culture);
-				}
-				else
-				{
-					double d = ((DateTime)v).ToOADate();
-					if (string.IsNullOrEmpty(nf.FractionFormat))
-					{
-						return d.ToString(format, nf.Culture);
-					}
-					else
-					{
-						return nf.FormatFraction(d);
-					}
-				}
-			}
-			else if (v is TimeSpan)
-			{
-				if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
-				{
+                }
+                else
+                {
+                    double d = ((DateTime)v).ToOADate();
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
+            }
+            else if (v is TimeSpan)
+            {
+                if (nf.DataType == ExcelNumberFormatXml.eFormatType.DateTime)
+                {
                     return GetDateText(new DateTime(((TimeSpan)v).Ticks), format, nf.Culture);
                     //return new DateTime(((TimeSpan)v).Ticks).ToString(format, nf.Culture);
                 }
-				else
-				{
-					double d = new DateTime(0).Add((TimeSpan)v).ToOADate();
-					if (string.IsNullOrEmpty(nf.FractionFormat))
-					{
-						return d.ToString(format, nf.Culture);
-					}
-					else
-					{
-						return nf.FormatFraction(d);
-					}
-				}
-			}
-			else
-			{
-				if (textFormat == "")
-				{
-					return v.ToString();
-				}
-				else
-				{
-					return string.Format(textFormat, v);
-				}
-			}
-			return v.ToString();
+                else
+                {
+                    double d = new DateTime(0).Add((TimeSpan)v).ToOADate();
+                    if (string.IsNullOrEmpty(nf.FractionFormat))
+                    {
+                        return d.ToString(format, nf.Culture);
+                    }
+                    else
+                    {
+                        return nf.FormatFraction(d);
+                    }
+                }
+            }
+            else
+            {
+                if (textFormat == "")
+                {
+                    return v.ToString();
+                }
+                else
+                {
+                    return string.Format(textFormat, v);
+                }
+            }
+            return v.ToString();
 }
 
         private static string GetDateText(DateTime d, string format, CultureInfo culture)
@@ -1135,76 +1135,76 @@ namespace OfficeOpenXml
         /// Gets or sets a formula for a range.
         /// </summary>
         public string Formula
-		{
-			get
-			{
-				if (IsName)
-				{
-					if (_worksheet == null)
-					{
-						return _workbook._names[_address].NameFormula;
-					}
-					else
-					{
-						return _worksheet.Names[_address].NameFormula;
-					}
-				}
-				else
-				{
-					return _worksheet.GetFormula(_fromRow, _fromCol);                    
-				}
-			}
-			set
-			{
-				if (IsName)
-				{
-					if (_worksheet == null)
-					{
-						_workbook._names[_address].NameFormula = value;
-					}
-					else
-					{
-						_worksheet.Names[_address].NameFormula = value;
-					}
-				}
-				else
-				{
-					if(value==null || value.Trim()=="")
+        {
+            get
+            {
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        return _workbook._names[_address].NameFormula;
+                    }
+                    else
+                    {
+                        return _worksheet.Names[_address].NameFormula;
+                    }
+                }
+                else
+                {
+                    return _worksheet.GetFormula(_fromRow, _fromCol);                    
+                }
+            }
+            set
+            {
+                if (IsName)
+                {
+                    if (_worksheet == null)
+                    {
+                        _workbook._names[_address].NameFormula = value;
+                    }
+                    else
+                    {
+                        _worksheet.Names[_address].NameFormula = value;
+                    }
+                }
+                else
+                {
+                    if(value==null || value.Trim()=="")
                     {
                         //Set the cells to null
                         Value = null;
                     }                    
                     else if (_fromRow == _toRow && _fromCol == _toCol)
-					{
-						Set_Formula(this, value, _fromRow, _fromCol);
-					}
-					else
-					{
-						Set_SharedFormula(this, value, this, false);
-						if (Addresses != null)
-						{
-							foreach (var address in Addresses)
-							{
-								Set_SharedFormula(this, value, address, false);
-							}
-						}
-					}
-				}
-			}
-		}
-		/// <summary>
-		/// Gets or Set a formula in R1C1 format.
-		/// </summary>
-		public string FormulaR1C1
-		{
-			get
-			{
-				IsRangeValid("FormulaR1C1");
-				return _worksheet.GetFormulaR1C1(_fromRow, _fromCol);
-			}
-			set
-			{
-				IsRangeValid("FormulaR1C1");
+                    {
+                        Set_Formula(this, value, _fromRow, _fromCol);
+                    }
+                    else
+                    {
+                        Set_SharedFormula(this, value, this, false);
+                        if (Addresses != null)
+                        {
+                            foreach (var address in Addresses)
+                            {
+                                Set_SharedFormula(this, value, address, false);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Gets or Set a formula in R1C1 format.
+        /// </summary>
+        public string FormulaR1C1
+        {
+            get
+            {
+                IsRangeValid("FormulaR1C1");
+                return _worksheet.GetFormulaR1C1(_fromRow, _fromCol);
+            }
+            set
+            {
+                IsRangeValid("FormulaR1C1");
                 if (value.Length > 0 && value[0] == '=') value = value.Substring(1, value.Length - 1); // remove any starting equalsign.
 
                 if (value == null || value.Trim() == "")
@@ -1212,109 +1212,109 @@ namespace OfficeOpenXml
                     //Set the cells to null
                     _worksheet.Cells[ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol)].Value = null;    
                 }
-				else if (Addresses == null)
-				{
-					Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), this, false);
-				}
-				else
-				{
-					Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(WorkSheet, FirstAddress), false);
-					foreach (var address in Addresses)
-					{
-						Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address, false);
-					}
-				}
-			}
-		}
-		/// <summary>
-		/// Set the hyperlink property for a range of cells
-		/// </summary>
-		public Uri Hyperlink
-		{
-			get
-			{
-				IsRangeValid("formulaR1C1");
-				return _worksheet._hyperLinks.GetValue(_fromRow, _fromCol);
-			}
-			set
-			{
-				_changePropMethod(this, _setHyperLinkDelegate, value);
-			}
-		}
-		/// <summary>
-		/// If the cells in the range are merged.
-		/// </summary>
-		public bool Merge
-		{
-			get
-			{
-				IsRangeValid("merging");
-				for (int col = _fromCol; col <= _toCol; col++)
-				{
-					for (int row = _fromRow; row <= _toRow; row++)
-					{
+                else if (Addresses == null)
+                {
+                    Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), this, false);
+                }
+                else
+                {
+                    Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, _fromRow, _fromCol), new ExcelAddress(WorkSheet, FirstAddress), false);
+                    foreach (var address in Addresses)
+                    {
+                        Set_SharedFormula(this, ExcelCellBase.TranslateFromR1C1(value, address.Start.Row, address.Start.Column), address, false);
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Set the hyperlink property for a range of cells
+        /// </summary>
+        public Uri Hyperlink
+        {
+            get
+            {
+                IsRangeValid("formulaR1C1");
+                return _worksheet._hyperLinks.GetValue(_fromRow, _fromCol);
+            }
+            set
+            {
+                _changePropMethod(this, _setHyperLinkDelegate, value);
+            }
+        }
+        /// <summary>
+        /// If the cells in the range are merged.
+        /// </summary>
+        public bool Merge
+        {
+            get
+            {
+                IsRangeValid("merging");
+                for (int col = _fromCol; col <= _toCol; col++)
+                {
+                    for (int row = _fromRow; row <= _toRow; row++)
+                    {
                         if(_worksheet.MergedCells[row, col]==null)
                         {
                             return false;
                         }
-					}
-				}
-				return true;
-			}
-			set
-			{
-				IsRangeValid("merging");
+                    }
+                }
+                return true;
+            }
+            set
+            {
+                IsRangeValid("merging");
                 _worksheet.MergedCells.Clear(this);
                 if (value)
-			    {
+                {
                     _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
-			        if (Addresses != null)
-			        {
-			            foreach (var address in Addresses)
-			            {
+                    if (Addresses != null)
+                    {
+                        foreach (var address in Addresses)
+                        {
                             _worksheet.MergedCells.Clear(address); //Fixes issue 15482
                             _worksheet.MergedCells.Add(address, true);
-			            }
-			        }
-			    }
-			    else
-			    {
+                        }
+                    }
+                }
+                else
+                {
                     if (Addresses != null)
-			        {
-			            foreach (var address in Addresses)
-			            {
+                    {
+                        foreach (var address in Addresses)
+                        {
                             _worksheet.MergedCells.Clear(address); ;
-			            }
-			        }
-			        
-			    }
-			}
-		}
-		/// <summary>
-		/// Set an autofilter for the range
-		/// </summary>
-		public bool AutoFilter
-		{
-			get
-			{
-				IsRangeValid("autofilter");
-				ExcelAddressBase address = _worksheet.AutoFilterAddress;
-				if (address == null) return false;
-				if (_fromRow >= address.Start.Row
-						&&
-						_toRow <= address.End.Row
-						&&
-						_fromCol >= address.Start.Column
-						&&
-						_toCol <= address.End.Column)
-				{
-					return true;
-				}
-				return false;
-			}
-			set
-			{
-				IsRangeValid("autofilter");
+                        }
+                    }
+                    
+                }
+            }
+        }
+        /// <summary>
+        /// Set an autofilter for the range
+        /// </summary>
+        public bool AutoFilter
+        {
+            get
+            {
+                IsRangeValid("autofilter");
+                ExcelAddressBase address = _worksheet.AutoFilterAddress;
+                if (address == null) return false;
+                if (_fromRow >= address.Start.Row
+                        &&
+                        _toRow <= address.End.Row
+                        &&
+                        _fromCol >= address.Start.Column
+                        &&
+                        _toCol <= address.End.Column)
+                {
+                    return true;
+                }
+                return false;
+            }
+            set
+            {
+                IsRangeValid("autofilter");
                 if (_worksheet.AutoFilterAddress != null)
                 {
                     var c = this.Collide(_worksheet.AutoFilterAddress);
@@ -1337,83 +1337,83 @@ namespace OfficeOpenXml
                 {
                     _worksheet.AutoFilterAddress = null;
                 }
-			}
-		}
-		/// <summary>
-		/// If the value is in richtext format.
-		/// </summary>
-		public bool IsRichText
-		{
-			get
-			{
-				IsRangeValid("richtext");
-				return _worksheet._flags.GetFlagValue(_fromRow, _fromCol,CellFlags.RichText);
-			}
-			set
-			{
-				_changePropMethod(this, _setIsRichTextDelegate, value);
-			}
-		}
-		/// <summary>
-		/// Is the range a part of an Arrayformula
-		/// </summary>
-		public bool IsArrayFormula
-		{
-			get
-			{
-				IsRangeValid("arrayformulas");
+            }
+        }
+        /// <summary>
+        /// If the value is in richtext format.
+        /// </summary>
+        public bool IsRichText
+        {
+            get
+            {
+                IsRangeValid("richtext");
+                return _worksheet._flags.GetFlagValue(_fromRow, _fromCol,CellFlags.RichText);
+            }
+            set
+            {
+                _changePropMethod(this, _setIsRichTextDelegate, value);
+            }
+        }
+        /// <summary>
+        /// Is the range a part of an Arrayformula
+        /// </summary>
+        public bool IsArrayFormula
+        {
+            get
+            {
+                IsRangeValid("arrayformulas");
                 return _worksheet._flags.GetFlagValue(_fromRow, _fromCol, CellFlags.ArrayFormula);
-			}
-		}
-		protected ExcelRichTextCollection _rtc = null;
-		/// <summary>
-		/// Cell value is richtext formatted. 
-		/// Richtext-property only apply to the left-top cell of the range.
-		/// </summary>
-		public ExcelRichTextCollection RichText
-		{
-			get
-			{
-				IsRangeValid("richtext");
-				if (_rtc == null)
-				{
-					_rtc = GetRichText(_fromRow, _fromCol);
-				}
-				return _rtc;
-			}
-		}
+            }
+        }
+        protected ExcelRichTextCollection _rtc = null;
+        /// <summary>
+        /// Cell value is richtext formatted. 
+        /// Richtext-property only apply to the left-top cell of the range.
+        /// </summary>
+        public ExcelRichTextCollection RichText
+        {
+            get
+            {
+                IsRangeValid("richtext");
+                if (_rtc == null)
+                {
+                    _rtc = GetRichText(_fromRow, _fromCol);
+                }
+                return _rtc;
+            }
+        }
 
-		private ExcelRichTextCollection GetRichText(int row, int col)
-		{
-			XmlDocument xml = new XmlDocument();
+        private ExcelRichTextCollection GetRichText(int row, int col)
+        {
+            XmlDocument xml = new XmlDocument();
             var v = _worksheet.GetValueInner(row, col);
             var isRt = _worksheet._flags.GetFlagValue(row, col, CellFlags.RichText);
             if (v != null)
-			{
-				if (isRt)
-				{
+            {
+                if (isRt)
+                {
                     XmlHelper.LoadXmlSafe(xml, "<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" >" + v.ToString() + "</d:si>", Encoding.UTF8);
-				}
-				else
-				{
-					xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + OfficeOpenXml.Utils.ConvertUtil.ExcelEscapeString(v.ToString()) + "</d:t></d:r></d:si>");
-				}
-			}
-			else
-			{
-				xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
-			}
-			var rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
-			return rtc;
-		}
-		/// <summary>
-		/// returns the comment object of the first cell in the range
-		/// </summary>
-		public ExcelComment Comment
-		{
-			get
-			{
-				IsRangeValid("comments");
+                }
+                else
+                {
+                    xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" ><d:r><d:t>" + OfficeOpenXml.Utils.ConvertUtil.ExcelEscapeString(v.ToString()) + "</d:t></d:r></d:si>");
+                }
+            }
+            else
+            {
+                xml.LoadXml("<d:si xmlns:d=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" />");
+            }
+            var rtc = new ExcelRichTextCollection(_worksheet.NameSpaceManager, xml.SelectSingleNode("d:si", _worksheet.NameSpaceManager), this);
+            return rtc;
+        }
+        /// <summary>
+        /// returns the comment object of the first cell in the range
+        /// </summary>
+        public ExcelComment Comment
+        {
+            get
+            {
+                IsRangeValid("comments");
                 var i = -1;
                 if (_worksheet.Comments.Count > 0)
                 {
@@ -1422,55 +1422,55 @@ namespace OfficeOpenXml
                         return _worksheet._comments[i] as ExcelComment;
                     }
                 }
-				return null;
-			}
-		}
-		/// <summary>
-		/// WorkSheet object 
-		/// </summary>
-		public ExcelWorksheet Worksheet
-		{
-			get
-			{
-				return _worksheet;
-			}
-		}
-		/// <summary>
-		/// Address including sheetname
-		/// </summary>
-		public new string FullAddress
-		{
-			get
-			{
-				string fullAddress = GetFullAddress(_worksheet.Name, _address);
-				if (Addresses != null)
-				{
-					foreach (var a in Addresses)
-					{
-						fullAddress += "," + GetFullAddress(_worksheet.Name, a.Address); ;
-					}
-				}
-				return fullAddress;
-			}
-		}
-		/// <summary>
-		/// Address including sheetname
-		/// </summary>
-		public string FullAddressAbsolute
-		{
-			get
-			{
-				string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
+                return null;
+            }
+        }
+        /// <summary>
+        /// WorkSheet object 
+        /// </summary>
+        public ExcelWorksheet Worksheet
+        {
+            get
+            {
+                return _worksheet;
+            }
+        }
+        /// <summary>
+        /// Address including sheetname
+        /// </summary>
+        public new string FullAddress
+        {
+            get
+            {
+                string fullAddress = GetFullAddress(_worksheet.Name, _address);
+                if (Addresses != null)
+                {
+                    foreach (var a in Addresses)
+                    {
+                        fullAddress += "," + GetFullAddress(_worksheet.Name, a.Address); ;
+                    }
+                }
+                return fullAddress;
+            }
+        }
+        /// <summary>
+        /// Address including sheetname
+        /// </summary>
+        public string FullAddressAbsolute
+        {
+            get
+            {
+                string wbwsRef = string.IsNullOrEmpty(base._wb) ? base._ws : "[" + base._wb.Replace("'", "''") + "]" + _ws;
                 string fullAddress;
-				if (Addresses == null)
+                if (Addresses == null)
                 {
                     fullAddress = GetFullAddress(wbwsRef, GetAddress(_fromRow, _fromCol, _toRow, _toCol, true));
                 }
                 else
-				{
+                {
                     fullAddress = "";
                     foreach (var a in Addresses)
-					{
+                    {
                         if (fullAddress != "") fullAddress += ",";
                         if (a.Address == "#REF!")
                         {
@@ -1480,11 +1480,11 @@ namespace OfficeOpenXml
                         {
                             fullAddress += GetFullAddress(wbwsRef, GetAddress(a.Start.Row, a.Start.Column, a.End.Row, a.End.Column, true)); 
                         }
-					}
-				}
-				return fullAddress;
-			}
-		}
+                    }
+                }
+                return fullAddress;
+            }
+        }
         /// <summary>
         /// Address including sheetname
         /// </summary>
@@ -1510,23 +1510,23 @@ namespace OfficeOpenXml
                 return fullAddress;
             }
         }
-		#endregion
-		#region Private Methods
-		/// <summary>
-		/// Set the value without altering the richtext property
-		/// </summary>
-		/// <param name="value">the value</param>
-		internal void SetValueRichText(object value)
-		{
-			if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
-			{
+        #endregion
+        #region Private Methods
+        /// <summary>
+        /// Set the value without altering the richtext property
+        /// </summary>
+        /// <param name="value">the value</param>
+        internal void SetValueRichText(object value)
+        {
+            if (_fromRow == 1 && _fromCol == 1 && _toRow == ExcelPackage.MaxRows && _toCol == ExcelPackage.MaxColumns)  //Full sheet (ex ws.Cells.Value=0). Set value for A1 only to avoid hanging 
+            {
                 SetValue(value, 1, 1);
-			}
-			else
-			{
+            }
+            else
+            {
                 SetValue(value, _fromRow,_fromCol);
-			}
-		}
+            }
+        }
 
         private void SetValue(object value, int row, int col)
         {
@@ -1534,40 +1534,40 @@ namespace OfficeOpenXml
            // if (value is string) _worksheet._types.SetValue(row, col, "S"); else _worksheet._types.SetValue(row, col, "");
             _worksheet._formulas.SetValue(row, col, "");
         }
-		internal void SetSharedFormulaID(int id)
-		{
-			for (int col = _fromCol; col <= _toCol; col++)
-			{
-				for (int row = _fromRow; row <= _toRow; row++)
-				{
+        internal void SetSharedFormulaID(int id)
+        {
+            for (int col = _fromCol; col <= _toCol; col++)
+            {
+                for (int row = _fromRow; row <= _toRow; row++)
+                {
                     _worksheet._formulas.SetValue(row, col, id);
-				}
-			}
-		}
-		private void CheckAndSplitSharedFormula(ExcelAddressBase address)
-		{
+                }
+            }
+        }
+        private void CheckAndSplitSharedFormula(ExcelAddressBase address)
+        {
             for (int col = address._fromCol; col <= address._toCol; col++)
-			{
+            {
                 for (int row = address._fromRow; row <= address._toRow; row++)
-				{
+                {
                     var f = _worksheet._formulas.GetValue(row, col);
                     if (f is int && (int)f >= 0)
-					{
-						SplitFormulas(address);
-						return;
-					}
-				}
-			}
-		}
+                    {
+                        SplitFormulas(address);
+                        return;
+                    }
+                }
+            }
+        }
 
-		private void SplitFormulas(ExcelAddressBase address)
-		{
-			List<int> formulas = new List<int>();
+        private void SplitFormulas(ExcelAddressBase address)
+        {
+            List<int> formulas = new List<int>();
             for (int col = address._fromCol; col <= address._toCol; col++)
-			{
+            {
                 for (int row = address._fromRow; row <= address._toRow; row++)
-				{
-					var f = _worksheet._formulas.GetValue(row, col);
+                {
+                    var f = _worksheet._formulas.GetValue(row, col);
                     if (f is int)
                     {
                         int id = (int)f;
@@ -1581,31 +1581,31 @@ namespace OfficeOpenXml
                             formulas.Add(id);
                         }
                     }                    
-				}
-			}
+                }
+            }
 
-			foreach (int ix in formulas)
-			{
+            foreach (int ix in formulas)
+            {
                 SplitFormula(address, ix);
-			}
+            }
         
             ////Clear any formula references inside the refered range
             //_worksheet._formulas.Clear(address._fromRow, address._toRow, address._toRow - address._fromRow + 1, address._toCol - address.column + 1);
         }
 
-		private void SplitFormula(ExcelAddressBase address, int ix)
-		{
-			var f = _worksheet._sharedFormulas[ix];
-			var fRange = _worksheet.Cells[f.Address];
+        private void SplitFormula(ExcelAddressBase address, int ix)
+        {
+            var f = _worksheet._sharedFormulas[ix];
+            var fRange = _worksheet.Cells[f.Address];
             var collide = address.Collide(fRange);
 
             //The formula is inside the currenct range, remove it
-			if (collide == eAddressCollition.Equal || collide == eAddressCollition.Inside)
-			{
-				_worksheet._sharedFormulas.Remove(ix);
+            if (collide == eAddressCollition.Equal || collide == eAddressCollition.Inside)
+            {
+                _worksheet._sharedFormulas.Remove(ix);
                 return;
-				//fRange.SetSharedFormulaID(int.MinValue); 
-			}
+                //fRange.SetSharedFormulaID(int.MinValue); 
+            }
             var firstCellCollide = address.Collide(new ExcelAddressBase(fRange._fromRow, fRange._fromCol, fRange._fromRow, fRange._fromCol));
             if (collide == eAddressCollition.Partly && (firstCellCollide == eAddressCollition.Inside || firstCellCollide == eAddressCollition.Equal)) //Do we need to split? Only if the functions first row is inside the new range.
             {
@@ -1709,161 +1709,161 @@ namespace OfficeOpenXml
 
                 }
             }
-		}
-		private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
-		{
-			if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return string.IsNullOrEmpty(v) ? null : v;
+        }
+        private object ConvertData(ExcelTextFormat Format, string v, int col, bool isText)
+        {
+            if (isText && (Format.DataTypes == null || Format.DataTypes.Length < col)) return string.IsNullOrEmpty(v) ? null : v;
 
-			double d;
-			DateTime dt;
-			if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
-			{
-				string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-				if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
-				{
-					if (v2 == v)
-					{
-						return d;
-					}
-					else
-					{
-						return d / 100;
-					}
-				}
-				if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
-				{
-					return dt;
-				}
-				else
-				{
-					return string.IsNullOrEmpty(v) ? null : v; ;
-				}
-			}
-			else
-			{
-				switch (Format.DataTypes[col])
-				{
-					case eDataTypes.Number:
-						if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
-						{
-							return d;
-						}
-						else
-						{
-							return v;
-						}
-					case eDataTypes.DateTime:
-						if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
-						{
-							return dt;
-						}
-						else
-						{
-							return v;
-						}
-					case eDataTypes.Percent:
-						string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
-						if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
-						{
-							return d / 100;
-						}
-						else
-						{
-							return v;
-						}
+            double d;
+            DateTime dt;
+            if (Format.DataTypes == null || Format.DataTypes.Length <= col || Format.DataTypes[col] == eDataTypes.Unknown)
+            {
+                string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+                {
+                    if (v2 == v)
+                    {
+                        return d;
+                    }
+                    else
+                    {
+                        return d / 100;
+                    }
+                }
+                if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                {
+                    return dt;
+                }
+                else
+                {
+                    return string.IsNullOrEmpty(v) ? null : v; ;
+                }
+            }
+            else
+            {
+                switch (Format.DataTypes[col])
+                {
+                    case eDataTypes.Number:
+                        if (double.TryParse(v, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    case eDataTypes.DateTime:
+                        if (DateTime.TryParse(v, Format.Culture, DateTimeStyles.None, out dt))
+                        {
+                            return dt;
+                        }
+                        else
+                        {
+                            return v;
+                        }
+                    case eDataTypes.Percent:
+                        string v2 = v.EndsWith("%") ? v.Substring(0, v.Length - 1) : v;
+                        if (double.TryParse(v2, NumberStyles.Any, Format.Culture, out d))
+                        {
+                            return d / 100;
+                        }
+                        else
+                        {
+                            return v;
+                        }
                     case eDataTypes.String:
                         return v;
                     default:
-						return string.IsNullOrEmpty(v) ? null : v;
+                        return string.IsNullOrEmpty(v) ? null : v;
 
-				}
-			}
-		}
-		#endregion
-		#region Public Methods
-		#region ConditionalFormatting
-		/// <summary>
-		/// Conditional Formatting for this range.
-		/// </summary>
-		public IRangeConditionalFormatting ConditionalFormatting
-		{
-			get
-			{
-				return new RangeConditionalFormatting(_worksheet, new ExcelAddress(Address));
-			}
-		}
-		#endregion
-		#region DataValidation
-		/// <summary>
-		/// Data validation for this range.
-		/// </summary>
-		public IRangeDataValidation DataValidation
-		{
-			get
-			{
+                }
+            }
+        }
+        #endregion
+        #region Public Methods
+        #region ConditionalFormatting
+        /// <summary>
+        /// Conditional Formatting for this range.
+        /// </summary>
+        public IRangeConditionalFormatting ConditionalFormatting
+        {
+            get
+            {
+                return new RangeConditionalFormatting(_worksheet, new ExcelAddress(Address));
+            }
+        }
+        #endregion
+        #region DataValidation
+        /// <summary>
+        /// Data validation for this range.
+        /// </summary>
+        public IRangeDataValidation DataValidation
+        {
+            get
+            {
                 return new RangeDataValidation(_worksheet, Address);
-			}
-		}
-		#endregion
+            }
+        }
+        #endregion
         #region LoadFromDataReader
-	    /// <summary>
-	    /// Load the data from the datareader starting from the top left cell of the range
-	    /// </summary>
-	    /// <param name="Reader">The datareader to loadfrom</param>
-	    /// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
-	    /// <param name="TableName">The name of the table</param>
-	    /// <param name="TableStyle">The table style to apply to the data</param>
-	    /// <returns>The filled range</returns>
-	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders, string TableName, TableStyles TableStyle = TableStyles.None)
-	    {
-	        var r = LoadFromDataReader(Reader, PrintHeaders);
+        /// <summary>
+        /// Load the data from the datareader starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Reader">The datareader to loadfrom</param>
+        /// <param name="PrintHeaders">Print the column caption property (if set) or the columnname property if not, on first row</param>
+        /// <param name="TableName">The name of the table</param>
+        /// <param name="TableStyle">The table style to apply to the data</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders, string TableName, TableStyles TableStyle = TableStyles.None)
+        {
+            var r = LoadFromDataReader(Reader, PrintHeaders);
 
             int rows = r.Rows - 1;
-	        if (rows >= 0 && r.Columns > 0)
-	        {
-	            var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows <= 0 ? 1 : rows), _fromCol + r.Columns - 1), TableName);
-	            tbl.ShowHeader = PrintHeaders;
-	            tbl.TableStyle = TableStyle;
-	        }
-	        return r;
-	    }
+            if (rows >= 0 && r.Columns > 0)
+            {
+                var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + (rows <= 0 ? 1 : rows), _fromCol + r.Columns - 1), TableName);
+                tbl.ShowHeader = PrintHeaders;
+                tbl.TableStyle = TableStyle;
+            }
+            return r;
+        }
 
-	    /// <summary>
-	    /// Load the data from the datareader starting from the top left cell of the range
-	    /// </summary>
-	    /// <param name="Reader">The datareader to load from</param>
-	    /// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
-	    /// <returns>The filled range</returns>
-	    public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders)
-	    {
-	        if (Reader == null)
-	        {
-	            throw (new ArgumentNullException("Reader", "Reader can't be null"));
-	        }
-	        int fieldCount = Reader.FieldCount;
-	  
-	        int col = _fromCol, row = _fromRow;
-	        if (PrintHeaders)
-	        {
-	            for (int i = 0; i < fieldCount; i++)
-	            {
-	                // If no caption is set, the ColumnName property is called implicitly.
-	                _worksheet.SetValueInner(row, col++, Reader.GetName(i));
-	            }
-	            row++;
-	            col = _fromCol;
-	        }
-	        while(Reader.Read())
-	        {
-	            for (int i = 0; i < fieldCount; i++)
-	            {
-	                _worksheet.SetValueInner(row, col++, Reader.GetValue(i));
-	            }
-	            row++;
-	            col = _fromCol;
-	        }
-	        return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
-	    }
+        /// <summary>
+        /// Load the data from the datareader starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Reader">The datareader to load from</param>
+        /// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromDataReader(IDataReader Reader, bool PrintHeaders)
+        {
+            if (Reader == null)
+            {
+                throw (new ArgumentNullException("Reader", "Reader can't be null"));
+            }
+            int fieldCount = Reader.FieldCount;
+      
+            int col = _fromCol, row = _fromRow;
+            if (PrintHeaders)
+            {
+                for (int i = 0; i < fieldCount; i++)
+                {
+                    // If no caption is set, the ColumnName property is called implicitly.
+                    _worksheet.SetValueInner(row, col++, Reader.GetName(i));
+                }
+                row++;
+                col = _fromCol;
+            }
+            while(Reader.Read())
+            {
+                for (int i = 0; i < fieldCount; i++)
+                {
+                    _worksheet.SetValueInner(row, col++, Reader.GetValue(i));
+                }
+                row++;
+                col = _fromCol;
+            }
+            return _worksheet.Cells[_fromRow, _fromCol, row - 1, _fromCol + fieldCount - 1];
+        }
         #endregion
 
 #region LoadFromDataTable
@@ -1875,26 +1875,26 @@ namespace OfficeOpenXml
         /// <param name="TableStyle">The table style to apply to the data</param>
         /// <returns>The filled range</returns>
         public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders, TableStyles TableStyle)
-		{
-			var r = LoadFromDataTable(Table, PrintHeaders);
+        {
+            var r = LoadFromDataTable(Table, PrintHeaders);
 
             int rows = (Table.Rows.Count == 0 ? 1 : Table.Rows.Count) + (PrintHeaders ? 1 : 0);
             if (rows >= 0 && Table.Columns.Count>0)
-			{
+            {
                 var tbl = _worksheet.Tables.Add(new ExcelAddressBase(_fromRow, _fromCol, _fromRow + rows - 1, _fromCol + Table.Columns.Count-1), Table.TableName);
-				tbl.ShowHeader = PrintHeaders;
-				tbl.TableStyle = TableStyle;
-			}
-		    return r;
-		}
-		/// <summary>
-		/// Load the data from the datatable starting from the top left cell of the range
-		/// </summary>
-		/// <param name="Table">The datatable to load</param>
-		/// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders)
-		{
+                tbl.ShowHeader = PrintHeaders;
+                tbl.TableStyle = TableStyle;
+            }
+            return r;
+        }
+        /// <summary>
+        /// Load the data from the datatable starting from the top left cell of the range
+        /// </summary>
+        /// <param name="Table">The datatable to load</param>
+        /// <param name="PrintHeaders">Print the caption property (if set) or the columnname property if not, on first row</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromDataTable(DataTable Table, bool PrintHeaders)
+        {
             if (Table == null)
             {
                 throw (new ArgumentNullException("Table can't be null"));
@@ -1932,13 +1932,13 @@ namespace OfficeOpenXml
 #endregion
 
 #region LoadFromArrays
-		/// <summary>
-		/// Loads data from the collection of arrays of objects into the range, starting from
-		/// the top-left cell.
-		/// </summary>
-		/// <param name="Data">The data.</param>
-		public ExcelRangeBase LoadFromArrays(IEnumerable<object[]> Data)
-		{
+        /// <summary>
+        /// Loads data from the collection of arrays of objects into the range, starting from
+        /// the top-left cell.
+        /// </summary>
+        /// <param name="Data">The data.</param>
+        public ExcelRangeBase LoadFromArrays(IEnumerable<object[]> Data)
+        {
             //thanx to Abdullin for the code contribution
             if (Data == null) throw new ArgumentNullException("data");
 
@@ -1972,67 +1972,67 @@ namespace OfficeOpenXml
         }
 #endregion
 #region LoadFromCollection
-		/// <summary>
-		/// Load a collection into a the worksheet starting from the top left row of the range.
-		/// </summary>
-		/// <typeparam name="T">The datatype in the collection</typeparam>
-		/// <param name="Collection">The collection to load</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection)
-		{
-			return LoadFromCollection<T>(Collection, false, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
-		}
-		/// <summary>
-		/// Load a collection of T into the worksheet starting from the top left row of the range.
-		/// Default option will load all public instance properties of T
-		/// </summary>
-		/// <typeparam name="T">The datatype in the collection</typeparam>
-		/// <param name="Collection">The collection to load</param>
+        /// <summary>
+        /// Load a collection into a the worksheet starting from the top left row of the range.
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection)
+        {
+            return LoadFromCollection<T>(Collection, false, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection of T into the worksheet starting from the top left row of the range.
+        /// Default option will load all public instance properties of T
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
         /// <param name="PrintHeaders">Print the property names on the first row. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders)
-		{
-			return LoadFromCollection<T>(Collection, PrintHeaders, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
-		}
-		/// <summary>
-		/// Load a collection of T into the worksheet starting from the top left row of the range.
-		/// Default option will load all public instance properties of T
-		/// </summary>
-		/// <typeparam name="T">The datatype in the collection</typeparam>
-		/// <param name="Collection">The collection to load</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders)
+        {
+            return LoadFromCollection<T>(Collection, PrintHeaders, TableStyles.None, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection of T into the worksheet starting from the top left row of the range.
+        /// Default option will load all public instance properties of T
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
         /// <param name="PrintHeaders">Print the property names on the first row. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
-		/// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle)
-		{
-			return LoadFromCollection<T>(Collection, PrintHeaders, TableStyle, BindingFlags.Public | BindingFlags.Instance, null);
-		}
-		/// <summary>
-		/// Load a collection into the worksheet starting from the top left row of the range.
-		/// </summary>
-		/// <typeparam name="T">The datatype in the collection</typeparam>
-		/// <param name="Collection">The collection to load</param>
-		/// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
-		/// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
-		/// <param name="memberFlags">Property flags to use</param>
-		/// <param name="Members">The properties to output. Must be of type T</param>
-		/// <returns>The filled range</returns>
-		public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members)
-		{
-			var type = typeof(T);
+        /// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle)
+        {
+            return LoadFromCollection<T>(Collection, PrintHeaders, TableStyle, BindingFlags.Public | BindingFlags.Instance, null);
+        }
+        /// <summary>
+        /// Load a collection into the worksheet starting from the top left row of the range.
+        /// </summary>
+        /// <typeparam name="T">The datatype in the collection</typeparam>
+        /// <param name="Collection">The collection to load</param>
+        /// <param name="PrintHeaders">Print the property names on the first row. Any underscore in the property name will be converted to a space. If the property is decorated with a <see cref="DisplayNameAttribute"/> or a <see cref="DescriptionAttribute"/> that attribute will be used instead of the reflected member name.</param>
+        /// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
+        /// <param name="memberFlags">Property flags to use</param>
+        /// <param name="Members">The properties to output. Must be of type T</param>
+        /// <returns>The filled range</returns>
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members)
+        {
+            var type = typeof(T);
             bool isSameType=true;
-			if (Members == null)
-			{
-				Members = type.GetProperties(memberFlags);
+            if (Members == null)
+            {
+                Members = type.GetProperties(memberFlags);
             }
-			else
-			{
+            else
+            {
                 if(Members.Length==0)   //Fixes issue 15555
                 {
                     throw (new ArgumentException("Parameter Members must have at least one property. Length is zero"));
                 }
                 foreach (var t in Members)
-				{
+                {
                     if (t.DeclaringType!=null && t.DeclaringType != type)
                     {
                         isSameType = false;
@@ -2042,8 +2042,8 @@ namespace OfficeOpenXml
                     {
                         throw new InvalidCastException("Supplied properties in parameter Properties must be of the same type as T (or an assignable type from T)");
                     }
-				}
-			}
+                }
+            }
 
             // create buffer
             object[,] values = new object[(PrintHeaders ? Collection.Count() + 1 : Collection.Count()), Members.Count()];
@@ -2076,16 +2076,16 @@ namespace OfficeOpenXml
                     //_worksheet.SetValueInner(row, col++, header);
                     values[row, col++] = header;
                 }
-				row++;
-			}
+                row++;
+            }
 
-		    if (!Collection.Any() && (Members.Length == 0 || PrintHeaders == false))
-		    {
-		        return null;
-		    }
+            if (!Collection.Any() && (Members.Length == 0 || PrintHeaders == false))
+            {
+                return null;
+            }
 
-			foreach (var item in Collection)
-			{
+            foreach (var item in Collection)
+            {
                 col = 0;
                 if (item is string || item is decimal || item is DateTime || TypeCompat.IsPrimitive(item))
                 {
@@ -2114,8 +2114,8 @@ namespace OfficeOpenXml
                         }
                     }
                 }
-				row++;
-			}
+                row++;
+            }
 
             _worksheet.SetRangeValueInner(_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1, values);
 
@@ -2127,26 +2127,26 @@ namespace OfficeOpenXml
 
             var r = _worksheet.Cells[_fromRow, _fromCol, _fromRow + row - 1, _fromCol + col - 1];
 
-			if (TableStyle != TableStyles.None)
-			{
-				var tbl = _worksheet.Tables.Add(r, "");
-				tbl.ShowHeader = PrintHeaders;
-				tbl.TableStyle = TableStyle;
-			}
-			return r;
-		}
+            if (TableStyle != TableStyles.None)
+            {
+                var tbl = _worksheet.Tables.Add(r, "");
+                tbl.ShowHeader = PrintHeaders;
+                tbl.TableStyle = TableStyle;
+            }
+            return r;
+        }
 #endregion
 #region LoadFromText
-		/// <summary>
-		/// Loads a CSV text into a range starting from the top left cell.
-		/// Default settings is Comma separation
-		/// </summary>
-		/// <param name="Text">The Text</param>
-		/// <returns>The range containing the data</returns>
-		public ExcelRangeBase LoadFromText(string Text)
-		{
-			return LoadFromText(Text, new ExcelTextFormat());
-		}
+        /// <summary>
+        /// Loads a CSV text into a range starting from the top left cell.
+        /// Default settings is Comma separation
+        /// </summary>
+        /// <param name="Text">The Text</param>
+        /// <returns>The range containing the data</returns>
+        public ExcelRangeBase LoadFromText(string Text)
+        {
+            return LoadFromText(Text, new ExcelTextFormat());
+        }
         /// <summary>
         /// Loads a CSV text into a range starting from the top left cell.
         /// </summary>
@@ -2331,46 +2331,46 @@ namespace OfficeOpenXml
         /// <param name="FirstRowIsHeader">Use the first row as header</param>
         /// <returns></returns>
         public ExcelRangeBase LoadFromText(string Text, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
-		{
-			var r = LoadFromText(Text, Format);
+        {
+            var r = LoadFromText(Text, Format);
 
-			var tbl = _worksheet.Tables.Add(r, "");
-			tbl.ShowHeader = FirstRowIsHeader;
-			tbl.TableStyle = TableStyle;
+            var tbl = _worksheet.Tables.Add(r, "");
+            tbl.ShowHeader = FirstRowIsHeader;
+            tbl.TableStyle = TableStyle;
 
-			return r;
-		}
+            return r;
+        }
         /// <summary>
         /// Loads a CSV file into a range starting from the top left cell.
         /// </summary>
         /// <param name="TextFile">The Textfile</param>
         /// <returns></returns>
         public ExcelRangeBase LoadFromText(FileInfo TextFile)
-		{
-			return LoadFromText(File.ReadAllText(TextFile.FullName, Encoding.ASCII));
-		}
-		/// <summary>
-		/// Loads a CSV file into a range starting from the top left cell.
-		/// </summary>
-		/// <param name="TextFile">The Textfile</param>
-		/// <param name="Format">Information how to load the text</param>
-		/// <returns></returns>
-		public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format)
-		{
-			return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format);
-		}
-		/// <summary>
-		/// Loads a CSV file into a range starting from the top left cell.
-		/// </summary>
-		/// <param name="TextFile">The Textfile</param>
-		/// <param name="Format">Information how to load the text</param>
-		/// <param name="TableStyle">Create a table with this style</param>
-		/// <param name="FirstRowIsHeader">Use the first row as header</param>
-		/// <returns></returns>
-		public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
-		{
-			return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
-		}
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Encoding.ASCII));
+        }
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="TextFile">The Textfile</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <returns></returns>
+        public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format)
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format);
+        }
+        /// <summary>
+        /// Loads a CSV file into a range starting from the top left cell.
+        /// </summary>
+        /// <param name="TextFile">The Textfile</param>
+        /// <param name="Format">Information how to load the text</param>
+        /// <param name="TableStyle">Create a table with this style</param>
+        /// <param name="FirstRowIsHeader">Use the first row as header</param>
+        /// <returns></returns>
+        public ExcelRangeBase LoadFromText(FileInfo TextFile, ExcelTextFormat Format, TableStyles TableStyle, bool FirstRowIsHeader)
+        {
+            return LoadFromText(File.ReadAllText(TextFile.FullName, Format.Encoding), Format, TableStyle, FirstRowIsHeader);
+        }
 #endregion
 #region GetValue
 
@@ -2398,61 +2398,61 @@ namespace OfficeOpenXml
         ///      <see cref="Value"/> is not string and direct conversion fails
         /// </exception>
         public T GetValue<T>()
-		{
+        {
             return ConvertUtil.GetTypedCellValue<T>(Value);
-		}
+        }
 #endregion
-		/// <summary>
-		/// Get a range with an offset from the top left cell.
-		/// The new range has the same dimensions as the current range
-		/// </summary>
-		/// <param name="RowOffset">Row Offset</param>
-		/// <param name="ColumnOffset">Column Offset</param>
-		/// <returns></returns>
-		public ExcelRangeBase Offset(int RowOffset, int ColumnOffset)
-		{
-			if (_fromRow + RowOffset < 1 || _fromCol + ColumnOffset < 1 || _fromRow + RowOffset > ExcelPackage.MaxRows || _fromCol + ColumnOffset > ExcelPackage.MaxColumns)
-			{
-				throw (new ArgumentOutOfRangeException("Offset value out of range"));
-			}
-			string address = GetAddress(_fromRow + RowOffset, _fromCol + ColumnOffset, _toRow + RowOffset, _toCol + ColumnOffset);
-			return new ExcelRangeBase(_worksheet, address);
-		}
-		/// <summary>
-		/// Get a range with an offset from the top left cell.
-		/// </summary>
-		/// <param name="RowOffset">Row Offset</param>
-		/// <param name="ColumnOffset">Column Offset</param>
-		/// <param name="NumberOfRows">Number of rows. Minimum 1</param>
-		/// <param name="NumberOfColumns">Number of colums. Minimum 1</param>
-		/// <returns></returns>
-		public ExcelRangeBase Offset(int RowOffset, int ColumnOffset, int NumberOfRows, int NumberOfColumns)
-		{
-			if (NumberOfRows < 1 || NumberOfColumns < 1)
-			{
-				throw (new Exception("Number of rows/columns must be greater than 0"));
-			}
-			NumberOfRows--;
-			NumberOfColumns--;
-			if (_fromRow + RowOffset < 1 || _fromCol + ColumnOffset < 1 || _fromRow + RowOffset > ExcelPackage.MaxRows || _fromCol + ColumnOffset > ExcelPackage.MaxColumns ||
-				 _fromRow + RowOffset + NumberOfRows < 1 || _fromCol + ColumnOffset + NumberOfColumns < 1 || _fromRow + RowOffset + NumberOfRows > ExcelPackage.MaxRows || _fromCol + ColumnOffset + NumberOfColumns > ExcelPackage.MaxColumns)
-			{
-				throw (new ArgumentOutOfRangeException("Offset value out of range"));
-			}
-			string address = GetAddress(_fromRow + RowOffset, _fromCol + ColumnOffset, _fromRow + RowOffset + NumberOfRows, _fromCol + ColumnOffset + NumberOfColumns);
-			return new ExcelRangeBase(_worksheet, address);
-		}
-		/// <summary>
-		/// Adds a new comment for the range.
-		/// If this range contains more than one cell, the top left comment is returned by the method.
-		/// </summary>
-		/// <param name="Text"></param>
-		/// <param name="Author"></param>
-		/// <returns>A reference comment of the top left cell</returns>
-		public ExcelComment AddComment(string Text, string Author)
-		{
-		    if (string.IsNullOrEmpty(Author))
-		    {
+        /// <summary>
+        /// Get a range with an offset from the top left cell.
+        /// The new range has the same dimensions as the current range
+        /// </summary>
+        /// <param name="RowOffset">Row Offset</param>
+        /// <param name="ColumnOffset">Column Offset</param>
+        /// <returns></returns>
+        public ExcelRangeBase Offset(int RowOffset, int ColumnOffset)
+        {
+            if (_fromRow + RowOffset < 1 || _fromCol + ColumnOffset < 1 || _fromRow + RowOffset > ExcelPackage.MaxRows || _fromCol + ColumnOffset > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentOutOfRangeException("Offset value out of range"));
+            }
+            string address = GetAddress(_fromRow + RowOffset, _fromCol + ColumnOffset, _toRow + RowOffset, _toCol + ColumnOffset);
+            return new ExcelRangeBase(_worksheet, address);
+        }
+        /// <summary>
+        /// Get a range with an offset from the top left cell.
+        /// </summary>
+        /// <param name="RowOffset">Row Offset</param>
+        /// <param name="ColumnOffset">Column Offset</param>
+        /// <param name="NumberOfRows">Number of rows. Minimum 1</param>
+        /// <param name="NumberOfColumns">Number of colums. Minimum 1</param>
+        /// <returns></returns>
+        public ExcelRangeBase Offset(int RowOffset, int ColumnOffset, int NumberOfRows, int NumberOfColumns)
+        {
+            if (NumberOfRows < 1 || NumberOfColumns < 1)
+            {
+                throw (new Exception("Number of rows/columns must be greater than 0"));
+            }
+            NumberOfRows--;
+            NumberOfColumns--;
+            if (_fromRow + RowOffset < 1 || _fromCol + ColumnOffset < 1 || _fromRow + RowOffset > ExcelPackage.MaxRows || _fromCol + ColumnOffset > ExcelPackage.MaxColumns ||
+                 _fromRow + RowOffset + NumberOfRows < 1 || _fromCol + ColumnOffset + NumberOfColumns < 1 || _fromRow + RowOffset + NumberOfRows > ExcelPackage.MaxRows || _fromCol + ColumnOffset + NumberOfColumns > ExcelPackage.MaxColumns)
+            {
+                throw (new ArgumentOutOfRangeException("Offset value out of range"));
+            }
+            string address = GetAddress(_fromRow + RowOffset, _fromCol + ColumnOffset, _fromRow + RowOffset + NumberOfRows, _fromCol + ColumnOffset + NumberOfColumns);
+            return new ExcelRangeBase(_worksheet, address);
+        }
+        /// <summary>
+        /// Adds a new comment for the range.
+        /// If this range contains more than one cell, the top left comment is returned by the method.
+        /// </summary>
+        /// <param name="Text"></param>
+        /// <param name="Author"></param>
+        /// <returns>A reference comment of the top left cell</returns>
+        public ExcelComment AddComment(string Text, string Author)
+        {
+            if (string.IsNullOrEmpty(Author))
+            {
 #if Core
                 Author = System.Security.Claims.ClaimsPrincipal.Current.Identity.Name;
 #else
@@ -2460,12 +2460,12 @@ namespace OfficeOpenXml
 #endif
             }
             //Check if any comments exists in the range and throw an exception
-			_changePropMethod(this, _setExistsCommentDelegate, null);
-			//Create the comments
-			_changePropMethod(this, _setCommentDelegate, new string[] { Text, Author });
+            _changePropMethod(this, _setExistsCommentDelegate, null);
+            //Create the comments
+            _changePropMethod(this, _setCommentDelegate, new string[] { Text, Author });
 
-			return _worksheet.Comments[new ExcelCellAddress(_fromRow, _fromCol)];
-		}
+            return _worksheet.Comments[new ExcelCellAddress(_fromRow, _fromCol)];
+        }
 
         /// <summary>
         /// Copies the range of cells to an other range
@@ -2706,30 +2706,30 @@ namespace OfficeOpenXml
         /// Clear all cells
         /// </summary>
         public void Clear()
-		{
-			Delete(this, false);
-		}
-		/// <summary>
-		/// Creates an array-formula.
-		/// </summary>
-		/// <param name="ArrayFormula">The formula</param>
-		public void CreateArrayFormula(string ArrayFormula)
-		{
-			if (Addresses != null)
-			{
-				throw (new Exception("An Arrayformula can not have more than one address"));
-			}
-			Set_SharedFormula(this, ArrayFormula, this, true);
-		}
+        {
+            Delete(this, false);
+        }
+        /// <summary>
+        /// Creates an array-formula.
+        /// </summary>
+        /// <param name="ArrayFormula">The formula</param>
+        public void CreateArrayFormula(string ArrayFormula)
+        {
+            if (Addresses != null)
+            {
+                throw (new Exception("An Arrayformula can not have more than one address"));
+            }
+            Set_SharedFormula(this, ArrayFormula, this, true);
+        }
         //private void Clear(ExcelAddressBase Range)
         //{
         //    Clear(Range, true);
         //}
         internal void Delete(ExcelAddressBase Range, bool shift)
-		{
+        {
             //DeleteCheckMergedCells(Range);
             _worksheet.MergedCells.Clear(Range);
-			//First find the start cell
+            //First find the start cell
             int fromRow, fromCol;
             var d = Worksheet.Dimension;
             if (d != null && Range._fromRow <= d._fromRow && Range._toRow >= d._toRow) //EntireRow?
@@ -2760,13 +2760,13 @@ namespace OfficeOpenXml
             _worksheet._flags.Delete(fromRow, fromCol, rows, cols, shift);
             _worksheet._commentsStore.Delete(fromRow, fromCol, rows, cols, shift);
 
-			//Clear multi addresses as well
-			if (Addresses != null)
-			{
-				foreach (var sub in Addresses)
-				{
-					Delete(sub, shift);
-				}
+            //Clear multi addresses as well
+            if (Addresses != null)
+            {
+                foreach (var sub in Addresses)
+                {
+                    Delete(sub, shift);
+                }
             }
         }
 
@@ -2791,58 +2791,58 @@ namespace OfficeOpenXml
             foreach (var item in removeItems)
             {
                 Worksheet.MergedCells.Remove(item);
-			}
-		}
+            }
+        }
 #endregion
 #region IDisposable Members
 
-		public void Dispose()
-		{
-			//_worksheet = null;            
-		}
+        public void Dispose()
+        {
+            //_worksheet = null;            
+        }
 
 #endregion
 #region "Enumerator"
         CellsStoreEnumerator<ExcelCoreValue> cellEnum;
-		public IEnumerator<ExcelRangeBase> GetEnumerator()
-		{
-			Reset();
-			return this;
-		}
+        public IEnumerator<ExcelRangeBase> GetEnumerator()
+        {
+            Reset();
+            return this;
+        }
 
-		IEnumerator IEnumerable.GetEnumerator()
-		{
-			Reset();
-			return this;
-		}
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            Reset();
+            return this;
+        }
 
-		/// <summary>
-		/// The current range when enumerating
-		/// </summary>
-		public ExcelRangeBase Current
-		{
-			get
-			{
-				return new ExcelRangeBase(_worksheet, ExcelAddressBase.GetAddress(cellEnum.Row, cellEnum.Column));
-			}
-		}
+        /// <summary>
+        /// The current range when enumerating
+        /// </summary>
+        public ExcelRangeBase Current
+        {
+            get
+            {
+                return new ExcelRangeBase(_worksheet, ExcelAddressBase.GetAddress(cellEnum.Row, cellEnum.Column));
+            }
+        }
 
-		/// <summary>
-		/// The current range when enumerating
-		/// </summary>
-		object IEnumerator.Current
-		{
-			get
-			{
-				return ((object)(new ExcelRangeBase(_worksheet, ExcelAddressBase.GetAddress(cellEnum.Row, cellEnum.Column))));
-			}
-		}
+        /// <summary>
+        /// The current range when enumerating
+        /// </summary>
+        object IEnumerator.Current
+        {
+            get
+            {
+                return ((object)(new ExcelRangeBase(_worksheet, ExcelAddressBase.GetAddress(cellEnum.Row, cellEnum.Column))));
+            }
+        }
 
         //public object FormatedText { get; private set; }
 
         int _enumAddressIx = -1;
         public bool MoveNext()
-		{
+        {
             if (cellEnum.Next())
             {
                 return true;
@@ -2865,10 +2865,10 @@ namespace OfficeOpenXml
                 }
             }
             return false;
-		}
+        }
 
-		public void Reset()
-		{
+        public void Reset()
+        {
             _enumAddressIx = -1;
             cellEnum = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
         }

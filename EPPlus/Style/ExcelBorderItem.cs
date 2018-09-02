@@ -45,10 +45,10 @@ namespace OfficeOpenXml.Style
         StyleBase _parent;
         internal ExcelBorderItem (ExcelStyles styles, OfficeOpenXml.XmlHelper.ChangedEventHandler ChangedEvent, int worksheetID, string address, eStyleClass cls, StyleBase parent) : 
             base(styles, ChangedEvent, worksheetID, address)
-	    {
+        {
             _cls=cls;
             _parent = parent;
-	    }
+        }
         /// <summary>
         /// The line style of the border
         /// </summary>

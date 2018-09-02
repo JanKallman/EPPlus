@@ -37,13 +37,13 @@ using OfficeOpenXml.ConditionalFormatting;
 
 namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
-	/// <summary>
-	/// IExcelConditionalFormattingIconSetGroup
-	/// </summary>
-	public interface IExcelConditionalFormattingIconSetGroup<T>
-		: IExcelConditionalFormattingRule
-	{
-		#region Public Properties
+    /// <summary>
+    /// IExcelConditionalFormattingIconSetGroup
+    /// </summary>
+    public interface IExcelConditionalFormattingIconSetGroup<T>
+        : IExcelConditionalFormattingRule
+    {
+        #region Public Properties
     /// <summary>
     /// Reverse
     /// </summary>
@@ -59,5 +59,5 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// </summary>
     T IconSet { get; set; }
     #endregion Public Properties
-	}
+    }
 }

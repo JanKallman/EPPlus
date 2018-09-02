@@ -38,31 +38,31 @@ using OfficeOpenXml.ConditionalFormatting.Contracts;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
-	/// <summary>
-	/// Factory class for ExcelConditionalFormatting.
-	/// </summary>
-	internal static class ExcelConditionalFormattingRuleFactory
-	{
-		public static ExcelConditionalFormattingRule Create(
-			eExcelConditionalFormattingRuleType type,
+    /// <summary>
+    /// Factory class for ExcelConditionalFormatting.
+    /// </summary>
+    internal static class ExcelConditionalFormattingRuleFactory
+    {
+        public static ExcelConditionalFormattingRule Create(
+            eExcelConditionalFormattingRuleType type,
       ExcelAddress address,
       int priority,
-			ExcelWorksheet worksheet,
-			XmlNode itemElementNode)
-		{
-			Require.Argument(type);
+            ExcelWorksheet worksheet,
+            XmlNode itemElementNode)
+        {
+            Require.Argument(type);
       Require.Argument(address).IsNotNull("address");
 
-	  // While MSDN states that 1 is the "highest priority," it also defines this
-	  // field as W3C XML Schema int, which would allow values less than 1. Excel
-	  // itself will, on occasion, use a value of 0, so this check will allow a 0.
+      // While MSDN states that 1 is the "highest priority," it also defines this
+      // field as W3C XML Schema int, which would allow values less than 1. Excel
+      // itself will, on occasion, use a value of 0, so this check will allow a 0.
       Require.Argument(priority).IsInRange(0, int.MaxValue, "priority");
 
       Require.Argument(worksheet).IsNotNull("worksheet");
-			
-			// According the conditional formatting rule type
-			switch (type)
-			{
+            
+            // According the conditional formatting rule type
+            switch (type)
+            {
         case eExcelConditionalFormattingRuleType.AboveAverage:
           return new ExcelConditionalFormattingAboveAverage(
             address,
@@ -348,8 +348,8 @@ namespace OfficeOpenXml.ConditionalFormatting
           return new ExcelConditionalFormattingTwoColorScale(
             address,
             priority,
-						worksheet,
-						itemElementNode);
+                        worksheet,
+                        itemElementNode);
         case eExcelConditionalFormattingRuleType.ThreeIconSet:
           return new ExcelConditionalFormattingThreeIconSet(
             address,
@@ -382,12 +382,12 @@ namespace OfficeOpenXml.ConditionalFormatting
 
 
         //TODO: Add DataBar
-			}
+            }
 
-			throw new InvalidOperationException(
+            throw new InvalidOperationException(
         string.Format(
           ExcelConditionalFormattingConstants.Errors.NonSupportedRuleType,
           type.ToString()));
-		}
-	}
+        }
+    }
 }

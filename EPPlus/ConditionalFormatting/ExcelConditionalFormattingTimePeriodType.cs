@@ -36,21 +36,21 @@ using System.Xml;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
-	/// <summary>
+    /// <summary>
   /// Functions related to the <see cref="ExcelConditionalFormattingTimePeriodType"/>
-	/// </summary>
+    /// </summary>
   internal static class ExcelConditionalFormattingTimePeriodType
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		public static string GetAttributeByType(
-			eExcelConditionalFormattingTimePeriodType type)
-		{
-			switch (type)
-			{
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        public static string GetAttributeByType(
+            eExcelConditionalFormattingTimePeriodType type)
+        {
+            switch (type)
+            {
         case eExcelConditionalFormattingTimePeriodType.Last7Days:
           return ExcelConditionalFormattingConstants.TimePeriods.Last7Days;
 
@@ -80,10 +80,10 @@ namespace OfficeOpenXml.ConditionalFormatting
 
         case eExcelConditionalFormattingTimePeriodType.Yesterday:
           return ExcelConditionalFormattingConstants.TimePeriods.Yesterday;
-			}
+            }
 
-			return string.Empty;
-		}
+            return string.Empty;
+        }
 
     /// <summary>
     /// 

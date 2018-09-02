@@ -33,12 +33,12 @@ using System.Drawing;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
-	/// <summary>
-	/// Provides functionality for adding Conditional Formatting to a range (<see cref="ExcelRangeBase"/>).
-	/// Each method will return a configurable condtional formatting type.
-	/// </summary>
-	public interface IRangeConditionalFormatting
-	{
+    /// <summary>
+    /// Provides functionality for adding Conditional Formatting to a range (<see cref="ExcelRangeBase"/>).
+    /// Each method will return a configurable condtional formatting type.
+    /// </summary>
+    public interface IRangeConditionalFormatting
+    {
     /// <summary>
     /// Adds a Above Average rule to the range
     /// </summary>

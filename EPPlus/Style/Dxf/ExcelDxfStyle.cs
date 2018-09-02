@@ -130,7 +130,7 @@ namespace OfficeOpenXml.Style.Dxf
         }
         protected internal override ExcelDxfStyleConditionalFormatting Clone()
         {
- 	       var s=new ExcelDxfStyleConditionalFormatting(_helper.NameSpaceManager, null, _styles);
+            var s=new ExcelDxfStyleConditionalFormatting(_helper.NameSpaceManager, null, _styles);
            s.Font = Font.Clone();
            s.NumberFormat = NumberFormat.Clone();
            s.Fill = Fill.Clone();

@@ -842,7 +842,7 @@ namespace OfficeOpenXml.Drawing.Chart
        }
        private string AddPerspectiveXml(eChartType type)
         {
- 	        //Add for 3D sharts
+             //Add for 3D sharts
             if (IsType3D())
             {
                 return "<c:view3D><c:perspective val=\"30\" /></c:view3D>";

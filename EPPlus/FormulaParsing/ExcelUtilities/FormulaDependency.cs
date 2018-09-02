@@ -39,10 +39,10 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
     public class FormulaDependency
     {
         public FormulaDependency(ParsingScope scope)
-	    {   
+        {   
             ScopeId = scope.ScopeId;
             Address = scope.Address;
-	    }
+        }
         public Guid ScopeId { get; private set; }
 
         public RangeAddress Address { get; private set; }
