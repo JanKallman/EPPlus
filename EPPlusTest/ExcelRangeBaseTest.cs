@@ -74,6 +74,54 @@ namespace EPPlusTest
         }
 
         [TestMethod]
+        public void LoadFromCollectionPrintsMemberHeaders()
+        {
+            var kittens = new[]
+            {
+                new KittenData("Kuro", 0.5, 0.8),
+                new KittenData("Mittens", 0.6, 0.9),
+            };
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Kittens");
+            var targetExcelRangeA1 = ws1.Cells[1, 1];
+            targetExcelRangeA1.LoadFromCollection(kittens, PrintHeaders: true);
+            // Headers
+            Assert.AreEqual("Name", ws1.Cells[1, 1].Value);
+            Assert.AreEqual("Furriness", ws1.Cells[1, 2].Value);
+            Assert.AreEqual("Cuteness", ws1.Cells[1, 3].Value);
+            Assert.IsNull(ws1.Cells[1, 4].Value);
+            // First kitten
+            Assert.AreEqual("Kuro", ws1.Cells[2, 1].Value);
+            Assert.AreEqual(0.5, ws1.Cells[2, 2].Value);
+            Assert.AreEqual(0.8, ws1.Cells[2, 3].Value);
+            Assert.IsNull(ws1.Cells[2, 4].Value);
+            // Second kitten
+            Assert.AreEqual("Mittens", ws1.Cells[3, 1].Value);
+            Assert.AreEqual(0.6, ws1.Cells[3, 2].Value);
+            Assert.AreEqual(0.9, ws1.Cells[3, 3].Value);
+            Assert.IsNull(ws1.Cells[3, 4].Value);
+            // No third kitten
+            Assert.IsNull(ws1.Cells[4, 1].Value);
+        }
+
+        [TestMethod]
+        public void LoadFromCollectionSupportsEmptyCollectionWithoutHeaders()
+        {
+            var kittens = new KittenData[]
+            {
+            };
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Kittens");
+            var targetExcelRangeA1 = ws1.Cells[1, 1];
+            targetExcelRangeA1.LoadFromCollection(kittens);
+            // Nothing should be written.
+            foreach (var cell in ws1.Cells)
+            {
+                Assert.IsNull(cell.Value);
+            }
+        }
+
+        [TestMethod]
         public void SettingAddressHandlesMultiAddresses()
         {
             using (ExcelPackage package = new ExcelPackage())
@@ -87,6 +135,25 @@ namespace EPPlusTest
                 Assert.IsNotNull(name.Addresses);
                 name.Address = "Sheet1!C3";
                 Assert.IsNull(name.Addresses);
+            }
+        }
+
+        class KittenData
+        {
+            public string Name { get; set; }
+            public double Furriness { get; set; }
+            public double Cuteness { get; set; }
+            public KittenData()
+            {
+            }
+            public KittenData(
+               string name,
+               double furriness,
+               double cuteness)
+            {
+                Name = name;
+                Furriness = furriness;
+                Cuteness = cuteness;
             }
         }
     }
