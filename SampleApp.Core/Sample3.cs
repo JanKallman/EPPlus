@@ -56,18 +56,18 @@ using OfficeOpenXml.Style;
 
 namespace EPPlusSamples
 {
-	class Sample3
-	{
-		/// <summary>
-		/// Sample 3 - creates a workbook and populates using data from the AdventureWorks database
-		/// This sample requires the AdventureWorks database.  
+    class Sample3
+    {
+        /// <summary>
+        /// Sample 3 - creates a workbook and populates using data from the AdventureWorks database
+        /// This sample requires the AdventureWorks database.  
         /// This one is from the orginal Excelpackage sample project, but without the template
-		/// </summary>
-		/// <param name="outputDir">The output directory</param>
-		/// <param name="templateDir">The location of the sample template</param>
-		/// <param name="connectionString">The connection string to your copy of the AdventureWorks database</param>
-		public static string RunSample3(string connectionString)
-		{
+        /// </summary>
+        /// <param name="outputDir">The output directory</param>
+        /// <param name="templateDir">The location of the sample template</param>
+        /// <param name="connectionString">The connection string to your copy of the AdventureWorks database</param>
+        public static string RunSample3(string connectionString)
+        {
             var file = Utils.GetFileInfo("Sample3.xlsx");
             // ok, we can run the real code of the sample now
             using (ExcelPackage xlPackage = new ExcelPackage(file))
@@ -202,7 +202,7 @@ namespace EPPlusSamples
                 xlPackage.Save();
             }
 
-			return file.FullName;
-		}
-	}
+            return file.FullName;
+        }
+    }
 }

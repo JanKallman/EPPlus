@@ -150,9 +150,9 @@ namespace OfficeOpenXml.Table.PivotTable
         internal string _topNode;
         internal ExcelPivotTableRowColumnFieldCollection(ExcelPivotTable table, string topNode) :
             base(table)
-	    {
+        {
             _topNode=topNode;
-	    }
+        }
 
         /// <summary>
         /// Add a new row/column field

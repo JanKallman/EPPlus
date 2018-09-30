@@ -35,46 +35,46 @@ using OfficeOpenXml.Style;
 namespace OfficeOpenXml
 {
     /// <summary>
-	/// Represents one or more columns within the worksheet
-	/// </summary>
-	public class ExcelColumn : IRangeID
-	{
-		private ExcelWorksheet _worksheet;
-		private XmlElement _colElement = null;
+    /// Represents one or more columns within the worksheet
+    /// </summary>
+    public class ExcelColumn : IRangeID
+    {
+        private ExcelWorksheet _worksheet;
+        private XmlElement _colElement = null;
 
-		#region ExcelColumn Constructor
-		/// <summary>
-		/// Creates a new instance of the ExcelColumn class.  
-		/// For internal use only!
-		/// </summary>
-		/// <param name="Worksheet"></param>
-		/// <param name="col"></param>
-		protected internal ExcelColumn(ExcelWorksheet Worksheet, int col)
+        #region ExcelColumn Constructor
+        /// <summary>
+        /// Creates a new instance of the ExcelColumn class.  
+        /// For internal use only!
+        /// </summary>
+        /// <param name="Worksheet"></param>
+        /// <param name="col"></param>
+        protected internal ExcelColumn(ExcelWorksheet Worksheet, int col)
         {
             _worksheet = Worksheet;
             _columnMin = col;
             _columnMax = col;
             _width = _worksheet.DefaultColWidth;
         }
-		#endregion
+        #endregion
         internal int _columnMin;		
-		/// <summary>
-		/// Sets the first column the definition refers to.
-		/// </summary>
-		public int ColumnMin 
-		{
+        /// <summary>
+        /// Sets the first column the definition refers to.
+        /// </summary>
+        public int ColumnMin 
+        {
             get { return _columnMin; }
-			//set { _columnMin=value; } 
-		}
+            //set { _columnMin=value; } 
+        }
 
         internal int _columnMax;
         /// <summary>
-		/// Sets the last column the definition refers to.
-		/// </summary>
+        /// Sets the last column the definition refers to.
+        /// </summary>
         public int ColumnMax 
-		{ 
+        { 
             get { return _columnMax; }
-			set 
+            set 
             {
                 if (value < _columnMin && value > ExcelPackage.MaxColumns)
                 {
@@ -92,7 +92,7 @@ namespace OfficeOpenXml
                 }
                 _columnMax = value; 
             } 
-		}
+        }
         /// <summary>
         /// Internal range id for the column
         /// </summary>
@@ -103,19 +103,19 @@ namespace OfficeOpenXml
                 return ExcelColumn.GetColumnID(_worksheet.SheetID, ColumnMin);
             }
         }
-		#region ExcelColumn Hidden
-		/// <summary>
-		/// Allows the column to be hidden in the worksheet
-		/// </summary>
+        #region ExcelColumn Hidden
+        /// <summary>
+        /// Allows the column to be hidden in the worksheet
+        /// </summary>
         internal bool _hidden=false;
         public bool Hidden
-		{
-			get
-			{
+        {
+            get
+            {
                 return _hidden;
-			}
-			set
-			{
+            }
+            set
+            {
                 if (_worksheet._package.DoAdjustDrawings)
                 {
                     var pos = _worksheet.Drawings.GetDrawingWidths();
@@ -126,11 +126,11 @@ namespace OfficeOpenXml
                 {
                     _hidden = value;
                 }
-			}
-		}
-		#endregion
+            }
+        }
+        #endregion
 
-		#region ExcelColumn Width
+        #region ExcelColumn Width
         internal double VisualWidth
         {
             get
@@ -150,12 +150,12 @@ namespace OfficeOpenXml
         /// Sets the width of the column in the worksheet
         /// </summary>
         public double Width
-		{
-			get
-			{
+        {
+            get
+            {
                 return _width;
-			}
-			set	
+            }
+            set	
             {
                 if (_worksheet._package.DoAdjustDrawings)
                 {
@@ -173,7 +173,7 @@ namespace OfficeOpenXml
                     _hidden = false;
                 }
             }
-		}
+        }
         /// <summary>
         /// If set to true a column automaticlly resize(grow wider) when a user inputs numbers in a cell. 
         /// </summary>
@@ -196,7 +196,7 @@ namespace OfficeOpenXml
         public bool Phonetic { get; set; }
         #endregion
 
-		#region ExcelColumn Style
+        #region ExcelColumn Style
         /// <summary>
         /// The Style applied to the whole column. Only effects cells with no individual style set. 
         /// Use Range object if you want to set specific styles.
@@ -212,10 +212,10 @@ namespace OfficeOpenXml
         }
         internal string _styleName="";
         /// <summary>
-		/// Sets the style for the entire column using a style name.
-		/// </summary>
-		public string StyleName
-		{
+        /// Sets the style for the entire column using a style name.
+        /// </summary>
+        public string StyleName
+        {
             get
             {
                 return _styleName;
@@ -225,7 +225,7 @@ namespace OfficeOpenXml
                 StyleID = _worksheet.Workbook.Styles.GetStyleIdFromName(value);
                 _styleName = value;
             }
-		}
+        }
         /// <summary>
         /// Sets the style for the entire column using the style ID.           
         /// </summary>
@@ -261,14 +261,14 @@ namespace OfficeOpenXml
         }
         #endregion
 
-		/// <summary>
-		/// Returns the range of columns covered by the column definition.
-		/// </summary>
-		/// <returns>A string describing the range of columns covered by the column definition.</returns>
-		public override string ToString()
-		{
-			return string.Format("Column Range: {0} to {1}", _colElement.GetAttribute("min"), _colElement.GetAttribute("min"));
-		}
+        /// <summary>
+        /// Returns the range of columns covered by the column definition.
+        /// </summary>
+        /// <returns>A string describing the range of columns covered by the column definition.</returns>
+        public override string ToString()
+        {
+            return string.Format("Column Range: {0} to {1}", _colElement.GetAttribute("min"), _colElement.GetAttribute("min"));
+        }
         /// <summary>
         /// Set the column width from the content of the range. The minimum width is the value of the ExcelWorksheet.defaultColumnWidth property.
         /// Note: Cells containing formulas are ignored since EPPlus don't have a calculation engine.

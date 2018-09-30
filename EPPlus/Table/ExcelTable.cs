@@ -130,7 +130,7 @@ namespace OfficeOpenXml.Table
         }
         internal ExcelTable(ExcelWorksheet sheet, ExcelAddressBase address, string name, int tblId) : 
             base(sheet.NameSpaceManager)
-	    {
+        {
             WorkSheet = sheet;
             Address = address;
             TableXml = new XmlDocument();

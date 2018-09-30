@@ -215,26 +215,26 @@ namespace OfficeOpenXml.Table
                 }
             }
         }
-  		const string CALCULATEDCOLUMNFORMULA_PATH = "d:calculatedColumnFormula";
- 		/// <summary>
- 		/// Sets a calculated column Formula.
- 		/// Be carefull with this property since it is not validated. 
- 		/// <example>
- 		/// tbl.Columns[9].CalculatedColumnFormula = string.Format("SUM(MyDataTable[[#This Row],[{0}]])",tbl.Columns[9].Name);
- 		/// </example>
- 		/// </summary>
- 		public string CalculatedColumnFormula
- 		{
- 			get
- 			{
- 				return GetXmlNodeString(CALCULATEDCOLUMNFORMULA_PATH);
- 			}
- 			set
- 			{
- 				if (value.StartsWith("=")) value = value.Substring(1, value.Length - 1);
- 				SetXmlNodeString(CALCULATEDCOLUMNFORMULA_PATH, value);
- 			}
- 		}
+          const string CALCULATEDCOLUMNFORMULA_PATH = "d:calculatedColumnFormula";
+         /// <summary>
+         /// Sets a calculated column Formula.
+         /// Be carefull with this property since it is not validated. 
+         /// <example>
+         /// tbl.Columns[9].CalculatedColumnFormula = string.Format("SUM(MyDataTable[[#This Row],[{0}]])",tbl.Columns[9].Name);
+         /// </example>
+         /// </summary>
+         public string CalculatedColumnFormula
+         {
+             get
+             {
+                 return GetXmlNodeString(CALCULATEDCOLUMNFORMULA_PATH);
+             }
+             set
+             {
+                 if (value.StartsWith("=")) value = value.Substring(1, value.Length - 1);
+                 SetXmlNodeString(CALCULATEDCOLUMNFORMULA_PATH, value);
+             }
+         }
 
     }
 }

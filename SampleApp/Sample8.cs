@@ -48,8 +48,8 @@ namespace EPPlusSamples
         /// <param name="outputDir">The path where sample7.xlsx is</param>
         public static void RunLinqSample()
         {
-	        Console.WriteLine("Now open sample 7 again and perform some Linq queries...");
-		    Console.WriteLine();
+            Console.WriteLine("Now open sample 7 again and perform some Linq queries...");
+            Console.WriteLine();
 
             FileInfo existingFile = Utils.GetFileInfo("sample7.xlsx", false);
             using (ExcelPackage package = new ExcelPackage(existingFile))

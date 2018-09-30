@@ -117,8 +117,8 @@ namespace OfficeOpenXml
         }
     }
     /// <summary>
-	/// Represents an Excel worksheet and provides access to its properties and methods
-	/// </summary>
+    /// Represents an Excel worksheet and provides access to its properties and methods
+    /// </summary>
     public class ExcelWorksheet : XmlHelper, IEqualityComparer<ExcelWorksheet>, IDisposable
     {
         internal class Formulas
@@ -597,8 +597,8 @@ namespace OfficeOpenXml
         }
         double _defaultRowHeight = double.NaN;
         /// <summary>
-		/// Get/set the default height of all rows in the worksheet
-		/// </summary>
+        /// Get/set the default height of all rows in the worksheet
+        /// </summary>
         public double DefaultRowHeight
         {
             get
@@ -1677,11 +1677,11 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-		/// Provides access to an individual row within the worksheet so you can set its properties.
-		/// </summary>
-		/// <param name="row">The row number in the worksheet</param>
-		/// <returns></returns>
-		public ExcelRow Row(int row)
+        /// Provides access to an individual row within the worksheet so you can set its properties.
+        /// </summary>
+        /// <param name="row">The row number in the worksheet</param>
+        /// <returns></returns>
+        public ExcelRow Row(int row)
         {
             //ExcelRow r;
             //ulong id = ExcelRow.GetRowID(_sheetID, row);
@@ -1862,13 +1862,13 @@ namespace OfficeOpenXml
             InsertRow(rowFrom, rows, 0);
         }
         /// <summary>
-		/// Inserts a new row into the spreadsheet.  Existing rows below the position are 
-		/// shifted down.  All formula are updated to take account of the new row.
-		/// </summary>
+        /// Inserts a new row into the spreadsheet.  Existing rows below the position are 
+        /// shifted down.  All formula are updated to take account of the new row.
+        /// </summary>
         /// <param name="rowFrom">The position of the new row</param>
         /// <param name="rows">Number of rows to insert.</param>
         /// <param name="copyStylesFromRow">Copy Styles from this row. Applied to all inserted rows</param>
-		public void InsertRow(int rowFrom, int rows, int copyStylesFromRow)
+        public void InsertRow(int rowFrom, int rows, int copyStylesFromRow)
         {
             CheckSheetType();
             var d = Dimension;
@@ -2762,7 +2762,7 @@ namespace OfficeOpenXml
         /// <param name="rows">Number of rows to delete</param>
         /// <param name="shiftOtherRowsUp">Not used. Rows are always shifted</param>
         public void DeleteRow(int rowFrom, int rows, bool shiftOtherRowsUp)
-		{
+        {
             DeleteRow(rowFrom, rows);
         }
 #endregion
@@ -4291,21 +4291,21 @@ namespace OfficeOpenXml
             }
         }
         /// <summary>
-		/// Returns the style ID given a style name.  
-		/// The style ID will be created if not found, but only if the style name exists!
-		/// </summary>
-		/// <param name="StyleName"></param>
-		/// <returns></returns>
-		internal int GetStyleID(string StyleName)
-		{
-			ExcelNamedStyleXml namedStyle=null;
+        /// Returns the style ID given a style name.  
+        /// The style ID will be created if not found, but only if the style name exists!
+        /// </summary>
+        /// <param name="StyleName"></param>
+        /// <returns></returns>
+        internal int GetStyleID(string StyleName)
+        {
+            ExcelNamedStyleXml namedStyle=null;
             Workbook.Styles.NamedStyles.FindByID(StyleName, ref namedStyle);
             if (namedStyle.XfId == int.MinValue)
             {
                 namedStyle.XfId=Workbook.Styles.CellXfs.FindIndexByID(namedStyle.Style.Id);
             }
             return namedStyle.XfId;
-		}
+        }
         /// <summary>
         /// The workbook object
         /// </summary>

@@ -36,21 +36,21 @@ using System.Xml;
 
 namespace OfficeOpenXml.ConditionalFormatting
 {
-	/// <summary>
+    /// <summary>
   /// Functions related to the <see cref="ExcelConditionalFormattingOperatorType"/>
-	/// </summary>
+    /// </summary>
   internal static class ExcelConditionalFormattingOperatorType
-	{
-		/// <summary>
-		/// 
-		/// </summary>
-		/// <param name="type"></param>
-		/// <returns></returns>
-		internal static string GetAttributeByType(
-			eExcelConditionalFormattingOperatorType type)
-		{
-			switch (type)
-			{
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        internal static string GetAttributeByType(
+            eExcelConditionalFormattingOperatorType type)
+        {
+            switch (type)
+            {
         case eExcelConditionalFormattingOperatorType.BeginsWith:
           return ExcelConditionalFormattingConstants.Operators.BeginsWith;
 
@@ -86,10 +86,10 @@ namespace OfficeOpenXml.ConditionalFormatting
 
         case eExcelConditionalFormattingOperatorType.NotEqual:
           return ExcelConditionalFormattingConstants.Operators.NotEqual;
-			}
+            }
 
-			return string.Empty;
-		}
+            return string.Empty;
+        }
 
     /// <summary>
     /// 

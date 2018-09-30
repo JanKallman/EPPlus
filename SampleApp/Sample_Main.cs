@@ -36,12 +36,12 @@ using OfficeOpenXml;
 
 namespace EPPlusSamples
 {
-	class Sample_Main
-	{
-		static void Main(string[] args)
-		{
-			try
-			{
+    class Sample_Main
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
                 //Sample 3, 4 and 12 uses the Adventureworks database. Enter the connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
                 //Leave this blank if you don't have access to the Adventureworks database 
                 string connectionStr = "";      //for example "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=MySqlServer"
@@ -171,10 +171,10 @@ namespace EPPlusSamples
                 Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
                 Console.WriteLine();
             }
-			catch (Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Error: {0}", ex.Message);
-			}
+            }
             var prevColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"Genereted sample workbooks can be found in {Utils.OutputDir.FullName}");
@@ -182,8 +182,8 @@ namespace EPPlusSamples
             Console.ForegroundColor = prevColor;
 
             Console.WriteLine();
-			Console.WriteLine("Press the return key to exit...");
-			Console.Read();
-		}
-	}
+            Console.WriteLine("Press the return key to exit...");
+            Console.Read();
+        }
+    }
 }

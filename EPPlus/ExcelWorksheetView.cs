@@ -34,11 +34,11 @@ using System.Xml;
 
 namespace OfficeOpenXml
 {
-	/// <summary>
-	/// Represents the different view states of the worksheet
-	/// </summary>
-	public class ExcelWorksheetView : XmlHelper
-	{
+    /// <summary>
+    /// Represents the different view states of the worksheet
+    /// </summary>
+    public class ExcelWorksheetView : XmlHelper
+    {
         /// <summary>
         /// The worksheet panes after a freeze or split.
         /// </summary>
@@ -89,7 +89,7 @@ namespace OfficeOpenXml
 
             private void CreateSelectionElement()
             {
- 	            _selectionNode=TopNode.OwnerDocument.CreateElement("selection", ExcelPackage.schemaMain);
+                 _selectionNode=TopNode.OwnerDocument.CreateElement("selection", ExcelPackage.schemaMain);
                 TopNode.AppendChild(_selectionNode);
                 TopNode=_selectionNode;             
             }
@@ -126,24 +126,24 @@ namespace OfficeOpenXml
                 }
             }
         }
-		private ExcelWorksheet _worksheet;
+        private ExcelWorksheet _worksheet;
 
-		#region ExcelWorksheetView Constructor
-		/// <summary>
-		/// Creates a new ExcelWorksheetView which provides access to all the view states of the worksheet.
-		/// </summary>
+        #region ExcelWorksheetView Constructor
+        /// <summary>
+        /// Creates a new ExcelWorksheetView which provides access to all the view states of the worksheet.
+        /// </summary>
         /// <param name="ns"></param>
         /// <param name="node"></param>
         /// <param name="xlWorksheet"></param>
-		internal ExcelWorksheetView(XmlNamespaceManager ns, XmlNode node,  ExcelWorksheet xlWorksheet) :
+        internal ExcelWorksheetView(XmlNamespaceManager ns, XmlNode node,  ExcelWorksheet xlWorksheet) :
             base(ns, node)
-		{
+        {
             _worksheet = xlWorksheet;
             SchemaNodeOrder = new string[] { "sheetViews", "sheetView", "pane", "selection" };
             Panes = LoadPanes(); 
-		}
+        }
 
-		#endregion
+        #endregion
         private ExcelWorksheetPanes[] LoadPanes()
         {
             XmlNodeList nodes = TopNode.SelectNodes("//d:selection", NameSpaceManager);
@@ -162,19 +162,19 @@ namespace OfficeOpenXml
                 return panes;
             }
         }
-		#region SheetViewElement
-		/// <summary>
-		/// Returns a reference to the sheetView element
-		/// </summary>
-		protected internal XmlElement SheetViewElement
-		{
-			get 
-			{
-				return (XmlElement)TopNode;
-			}
-		}
-		#endregion
-		#region TabSelected
+        #region SheetViewElement
+        /// <summary>
+        /// Returns a reference to the sheetView element
+        /// </summary>
+        protected internal XmlElement SheetViewElement
+        {
+            get 
+            {
+                return (XmlElement)TopNode;
+            }
+        }
+        #endregion
+        #region TabSelected
         private XmlElement _selectionNode = null;
         private XmlElement SelectionNode
         {
@@ -327,23 +327,23 @@ namespace OfficeOpenXml
                 SetXmlNodeString("@tabSelected", "0");
         }
 
-		/// <summary>
-		/// Sets the view mode of the worksheet to pagelayout
-		/// </summary>
-		public bool PageLayoutView
-		{
-			get
-			{
+        /// <summary>
+        /// Sets the view mode of the worksheet to pagelayout
+        /// </summary>
+        public bool PageLayoutView
+        {
+            get
+            {
                 return GetXmlNodeString("@view") == "pageLayout";
-			}
-			set
-			{
+            }
+            set
+            {
                 if (value)
                     SetXmlNodeString("@view", "pageLayout");
                 else
                     SheetViewElement.RemoveAttribute("view");
-			}
-		}
+            }
+        }
         /// <summary>
         /// Sets the view mode of the worksheet to pagebreak
         /// </summary>

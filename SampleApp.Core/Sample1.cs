@@ -39,15 +39,15 @@ using System.Drawing;
 using OfficeOpenXml.Style;
 namespace EPPlusSamples
 {
-	class Sample1
-	{
+    class Sample1
+    {
         /// <summary>
         /// Sample 1 - simply creates a new workbook from scratch.
         /// The workbook contains one worksheet with a simple invertory list
         /// </summary>
         public static string RunSample1()
         {
-			using (var package = new ExcelPackage())
+            using (var package = new ExcelPackage())
             {
                 // Add a new worksheet to the empty workbook
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
@@ -138,6 +138,6 @@ namespace EPPlusSamples
                 package.SaveAs(xlFile);
                 return xlFile.FullName;
             }
-		}
-	}
+        }
+    }
 }

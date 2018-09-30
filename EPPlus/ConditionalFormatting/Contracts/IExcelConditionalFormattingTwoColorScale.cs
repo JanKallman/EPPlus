@@ -37,13 +37,13 @@ using OfficeOpenXml.ConditionalFormatting;
 
 namespace OfficeOpenXml.ConditionalFormatting.Contracts
 {
-	/// <summary>
-	/// IExcelConditionalFormattingTwoColorScale
-	/// </summary>
-	public interface IExcelConditionalFormattingTwoColorScale
-		: IExcelConditionalFormattingColorScaleGroup
-	{
-		#region Public Properties
+    /// <summary>
+    /// IExcelConditionalFormattingTwoColorScale
+    /// </summary>
+    public interface IExcelConditionalFormattingTwoColorScale
+        : IExcelConditionalFormattingColorScaleGroup
+    {
+        #region Public Properties
     /// <summary>
     /// Two Color Scale Low Value
     /// </summary>
@@ -54,5 +54,5 @@ namespace OfficeOpenXml.ConditionalFormatting.Contracts
     /// </summary>
     ExcelConditionalFormattingColorScaleValue HighValue { get; set; }
     #endregion Public Properties
-	}
+    }
 }

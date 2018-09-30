@@ -208,7 +208,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                         l = l ?? new CompileResult(0, DataType.Integer);
                         r = r ?? new CompileResult(0, DataType.Integer);
                         if ((l.IsNumeric || l.IsNumericString || l.IsDateString || l.Result is ExcelDataProvider.IRangeInfo) &&
-							(r.IsNumeric || r.IsNumericString || r.IsDateString || r.Result is ExcelDataProvider.IRangeInfo))
+                            (r.IsNumeric || r.IsNumericString || r.IsDateString || r.Result is ExcelDataProvider.IRangeInfo))
                         {
                             return new CompileResult(Math.Pow(l.ResultNumeric, r.ResultNumeric), DataType.Decimal);
                         }
@@ -317,7 +317,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Operators
                                 return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Integer);
                             }
                             else if ((l.IsNumeric || l.IsNumericString || l.IsDateString || l.Result is ExcelDataProvider.IRangeInfo) &&
-								(r.IsNumeric || r.IsNumericString || r.IsDateString || r.Result is ExcelDataProvider.IRangeInfo))
+                                (r.IsNumeric || r.IsNumericString || r.IsDateString || r.Result is ExcelDataProvider.IRangeInfo))
                             {
                                 return new CompileResult(l.ResultNumeric * r.ResultNumeric, DataType.Decimal);
                             }

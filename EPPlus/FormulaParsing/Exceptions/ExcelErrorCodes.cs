@@ -59,7 +59,7 @@ namespace OfficeOpenXml.FormulaParsing.Exceptions
             {
                 return ((ExcelErrorCodes)obj).Code.Equals(Code);
             }
- 	        return false;
+             return false;
         }
 
         public static bool operator == (ExcelErrorCodes c1, ExcelErrorCodes c2)

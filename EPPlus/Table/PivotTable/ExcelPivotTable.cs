@@ -126,7 +126,7 @@ namespace OfficeOpenXml.Table.PivotTable
         /// <param name="tblId"></param>
         internal ExcelPivotTable(ExcelWorksheet sheet, ExcelAddressBase address,ExcelRangeBase sourceAddress, string name, int tblId) : 
             base(sheet.NameSpaceManager)
-	    {
+        {
             WorkSheet = sheet;
             Address = address;
             var pck = sheet._package.Package;

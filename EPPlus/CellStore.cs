@@ -63,14 +63,14 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
     {
         internal IndexBase _searchIx=new IndexBase();
         public ColumnIndex ()
-	    {
+        {
             _pages=new PageIndex[CellStore<int>.PagesPerColumnMin];
             PageCount=0;
-	    }
+        }
         ~ColumnIndex()
-	    {
+        {
             _pages=null;            
-	    }
+        }
         internal int GetPosition(int Row)
         {
             var page = (short)(Row >> CellStore<int>.pageBits);
@@ -218,10 +218,10 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
     {
         internal IndexItem _searchIx = new IndexItem();
         public PageIndex()
-	    {
+        {
             Rows = new IndexItem[CellStore<int>.PageSizeMin];
             RowCount = 0;
-	    }
+        }
         public PageIndex(IndexItem[] rows, int count)
         {
             Rows = rows;
@@ -241,9 +241,9 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             Offset = offset;
         }
         ~PageIndex()
-	    {
+        {
             Rows=null;
-	    }
+        }
         internal int Offset = 0;
         internal int IndexOffset
         {
@@ -343,18 +343,18 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
         internal IndexItem _searchItem = new IndexItem();
         internal int ColumnCount;
         public CellStore ()
-	    {
+        {
             _columnIndex = new ColumnIndex[ColSizeMin];
-	    }
+        }
         ~CellStore()
-	    {
+        {
             if (_values != null)
             {
                 _values.Clear();
                 _values = null;
             }
             _columnIndex=null;
-	    }
+        }
         internal int GetPosition(int Column)
         {
             if(Column < ColumnCount && _columnIndex[Column].Index==Column)      //Check if th column is lesser than

@@ -2209,8 +2209,8 @@ namespace EPPlusTest
             {
                 return new List<Car>
             {
-				//random data
-				new Car(1,"Toyota", "Carolla", 1950),
+                //random data
+                new Car(1,"Toyota", "Carolla", 1950),
                 new Car(2,"Toyota", "Yaris", 2000),
                 new Car(3,"Toyota", "Hilux", 1990),
                 new Car(4,"Nissan", "Juke", 2010),

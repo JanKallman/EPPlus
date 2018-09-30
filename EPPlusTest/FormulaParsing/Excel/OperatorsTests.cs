@@ -146,44 +146,44 @@ namespace EPPlusTest.Excel
         }
 
         [TestMethod]
-		public void OperatorsActingOnNumericStrings()
-		{
-			double number1 = 42.0;
-			double number2 = -143.75;
-			CompileResult result1 = new CompileResult(number1.ToString("n"), DataType.String);
-			CompileResult result2 = new CompileResult(number2.ToString("n"), DataType.String);
-			var operatorResult = Operator.Concat.Apply(result1, result2);
-			Assert.AreEqual($"{number1.ToString("n")}{number2.ToString("n")}", operatorResult.Result);
-			operatorResult = Operator.Divide.Apply(result1, result2);
-			Assert.AreEqual(number1 / number2, operatorResult.Result);
-			operatorResult = Operator.Exp.Apply(result1, result2);
-			Assert.AreEqual(Math.Pow(number1, number2), operatorResult.Result);
-			operatorResult = Operator.Minus.Apply(result1, result2);
-			Assert.AreEqual(number1 - number2, operatorResult.Result);
-			operatorResult = Operator.Multiply.Apply(result1, result2);
-			Assert.AreEqual(number1 * number2, operatorResult.Result);
-			operatorResult = Operator.Percent.Apply(result1, result2);
-			Assert.AreEqual(number1 * number2, operatorResult.Result);
-			operatorResult = Operator.Plus.Apply(result1, result2);
-			Assert.AreEqual(number1 + number2, operatorResult.Result);
-			// Comparison operators always compare string-wise and don't parse out the actual numbers.
-			operatorResult = Operator.NotEqualsTo.Apply(result1, new CompileResult(number1.ToString("n0"), DataType.String));
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.Eq.Apply(result1, new CompileResult(number1.ToString("n0"), DataType.String));
-			Assert.IsFalse((bool)operatorResult.Result);
-			operatorResult = Operator.GreaterThan.Apply(result1, result2);
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.GreaterThanOrEqual.Apply(result1, result2);
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.LessThan.Apply(result1, result2);
-			Assert.IsFalse((bool)operatorResult.Result);
-			operatorResult = Operator.LessThanOrEqual.Apply(result1, result2);
-			Assert.IsFalse((bool)operatorResult.Result);
-		}
+        public void OperatorsActingOnNumericStrings()
+        {
+            double number1 = 42.0;
+            double number2 = -143.75;
+            CompileResult result1 = new CompileResult(number1.ToString("n"), DataType.String);
+            CompileResult result2 = new CompileResult(number2.ToString("n"), DataType.String);
+            var operatorResult = Operator.Concat.Apply(result1, result2);
+            Assert.AreEqual($"{number1.ToString("n")}{number2.ToString("n")}", operatorResult.Result);
+            operatorResult = Operator.Divide.Apply(result1, result2);
+            Assert.AreEqual(number1 / number2, operatorResult.Result);
+            operatorResult = Operator.Exp.Apply(result1, result2);
+            Assert.AreEqual(Math.Pow(number1, number2), operatorResult.Result);
+            operatorResult = Operator.Minus.Apply(result1, result2);
+            Assert.AreEqual(number1 - number2, operatorResult.Result);
+            operatorResult = Operator.Multiply.Apply(result1, result2);
+            Assert.AreEqual(number1 * number2, operatorResult.Result);
+            operatorResult = Operator.Percent.Apply(result1, result2);
+            Assert.AreEqual(number1 * number2, operatorResult.Result);
+            operatorResult = Operator.Plus.Apply(result1, result2);
+            Assert.AreEqual(number1 + number2, operatorResult.Result);
+            // Comparison operators always compare string-wise and don't parse out the actual numbers.
+            operatorResult = Operator.NotEqualsTo.Apply(result1, new CompileResult(number1.ToString("n0"), DataType.String));
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.Eq.Apply(result1, new CompileResult(number1.ToString("n0"), DataType.String));
+            Assert.IsFalse((bool)operatorResult.Result);
+            operatorResult = Operator.GreaterThan.Apply(result1, result2);
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.GreaterThanOrEqual.Apply(result1, result2);
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.LessThan.Apply(result1, result2);
+            Assert.IsFalse((bool)operatorResult.Result);
+            operatorResult = Operator.LessThanOrEqual.Apply(result1, result2);
+            Assert.IsFalse((bool)operatorResult.Result);
+        }
 
-		[TestMethod]
-		public void OperatorsActingOnDateStrings()
-		{
+        [TestMethod]
+        public void OperatorsActingOnDateStrings()
+        {
             const string dateFormat = "M-dd-yyyy";
             DateTime date1 = new DateTime(2015, 2, 20);
             DateTime date2 = new DateTime(2015, 12, 1);
@@ -198,26 +198,26 @@ namespace EPPlusTest.Excel
             operatorResult = Operator.Exp.Apply(result1, result2);
             Assert.AreEqual(Math.Pow(numericDate1, numericDate2), operatorResult.Result);
             operatorResult = Operator.Minus.Apply(result1, result2);
-			Assert.AreEqual(numericDate1 - numericDate2, operatorResult.Result);
-			operatorResult = Operator.Multiply.Apply(result1, result2);
-			Assert.AreEqual(numericDate1 * numericDate2, operatorResult.Result);
-			operatorResult = Operator.Percent.Apply(result1, result2);
-			Assert.AreEqual(numericDate1 * numericDate2, operatorResult.Result);
-			operatorResult = Operator.Plus.Apply(result1, result2);
-			Assert.AreEqual(numericDate1 + numericDate2, operatorResult.Result);
-			// Comparison operators always compare string-wise and don't parse out the actual numbers.
-			operatorResult = Operator.Eq.Apply(result1, new CompileResult(date1.ToString("f"), DataType.String));
-			Assert.IsFalse((bool)operatorResult.Result);
-			operatorResult = Operator.NotEqualsTo.Apply(result1, new CompileResult(date1.ToString("f"), DataType.String));
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.GreaterThan.Apply(result1, result2);
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.GreaterThanOrEqual.Apply(result1, result2);
-			Assert.IsTrue((bool)operatorResult.Result);
-			operatorResult = Operator.LessThan.Apply(result1, result2);
-			Assert.IsFalse((bool)operatorResult.Result);
-			operatorResult = Operator.LessThanOrEqual.Apply(result1, result2);
-			Assert.IsFalse((bool)operatorResult.Result);
-		}
-	}
+            Assert.AreEqual(numericDate1 - numericDate2, operatorResult.Result);
+            operatorResult = Operator.Multiply.Apply(result1, result2);
+            Assert.AreEqual(numericDate1 * numericDate2, operatorResult.Result);
+            operatorResult = Operator.Percent.Apply(result1, result2);
+            Assert.AreEqual(numericDate1 * numericDate2, operatorResult.Result);
+            operatorResult = Operator.Plus.Apply(result1, result2);
+            Assert.AreEqual(numericDate1 + numericDate2, operatorResult.Result);
+            // Comparison operators always compare string-wise and don't parse out the actual numbers.
+            operatorResult = Operator.Eq.Apply(result1, new CompileResult(date1.ToString("f"), DataType.String));
+            Assert.IsFalse((bool)operatorResult.Result);
+            operatorResult = Operator.NotEqualsTo.Apply(result1, new CompileResult(date1.ToString("f"), DataType.String));
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.GreaterThan.Apply(result1, result2);
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.GreaterThanOrEqual.Apply(result1, result2);
+            Assert.IsTrue((bool)operatorResult.Result);
+            operatorResult = Operator.LessThan.Apply(result1, result2);
+            Assert.IsFalse((bool)operatorResult.Result);
+            operatorResult = Operator.LessThanOrEqual.Apply(result1, result2);
+            Assert.IsFalse((bool)operatorResult.Result);
+        }
+    }
 }

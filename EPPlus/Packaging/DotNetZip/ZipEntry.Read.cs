@@ -790,11 +790,11 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
                 _timestamp |= ZipEntryTimestamp.Windows;
                 _emitNtfsTimes = true;
             }
-   	    else
-	    {
+           else
+        {
                 // An unknown NTFS tag so simply skip it.
                 j += dataSize;				
-  	    }
+          }
             return j;
         }
 

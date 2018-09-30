@@ -242,13 +242,13 @@ namespace OfficeOpenXml.Style
                 _collection.ConvertRichtext();
                 if (value == ExcelVerticalAlignmentFont.None)
                 {
-					// If Excel 2010 encounters a vertical align value of blank, it will not load
-					// the spreadsheet. So if None is specified, delete the node, it will be 
-					// recreated if a new value is applied later.
-					DeleteNode(VERT_ALIGN_PATH);
-				} else {
-					SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
-				}
+                    // If Excel 2010 encounters a vertical align value of blank, it will not load
+                    // the spreadsheet. So if None is specified, delete the node, it will be 
+                    // recreated if a new value is applied later.
+                    DeleteNode(VERT_ALIGN_PATH);
+                } else {
+                    SetXmlNodeString(VERT_ALIGN_PATH, value.ToString().ToLowerInvariant());
+                }
                 if (_callback != null) _callback();
             }
         }

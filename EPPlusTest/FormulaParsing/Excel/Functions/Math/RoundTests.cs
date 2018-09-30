@@ -9,22 +9,22 @@ using OfficeOpenXml.FormulaParsing.Exceptions;
 
 namespace EPPlusTest.FormulaParsing.Excel.Functions.Math
 {
-	[TestClass]
-	public class RoundTests
-	{
-		[TestMethod]
-		public void RoundPositiveToOnesDownLiteral()
-		{
-			Round round = new Round();
-			double value1 = 123.45;
-		    int digits = 0;
-			var result = round.Execute(new FunctionArgument[]
-			{
-				new FunctionArgument(value1),
-				new FunctionArgument(digits)
-			}, ParsingContext.Create());
-			Assert.AreEqual(123D, result.Result);
-		}
+    [TestClass]
+    public class RoundTests
+    {
+        [TestMethod]
+        public void RoundPositiveToOnesDownLiteral()
+        {
+            Round round = new Round();
+            double value1 = 123.45;
+            int digits = 0;
+            var result = round.Execute(new FunctionArgument[]
+            {
+                new FunctionArgument(value1),
+                new FunctionArgument(digits)
+            }, ParsingContext.Create());
+            Assert.AreEqual(123D, result.Result);
+        }
         [TestMethod]
         public void RoundPositiveToOnesUpLiteral()
         {
