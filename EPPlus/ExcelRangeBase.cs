@@ -2496,7 +2496,6 @@ namespace OfficeOpenXml
             object o = null;
             byte flag=0;
             Uri hl = null;
-            //ExcelComment comment=null;
 
             var excludeFormulas = excelRangeCopyOptionFlags.HasValue && (excelRangeCopyOptionFlags.Value & ExcelRangeCopyOptionFlags.ExcludeFormulas) == ExcelRangeCopyOptionFlags.ExcludeFormulas;
             var cse = new CellsStoreEnumerator<ExcelCoreValue>(_worksheet._values, _fromRow, _fromCol, _toRow, _toCol);
@@ -2525,7 +2524,6 @@ namespace OfficeOpenXml
                     }
                     else
                     {
-                        //Destination._worksheet._formulas.SetValue(row, col, o);
                         cell.Formula=o;
                     }
                 }
@@ -2533,7 +2531,6 @@ namespace OfficeOpenXml
                 {
                     if (sameWorkbook)
                     {
-                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID=i;
                     }
                     else
@@ -2548,14 +2545,12 @@ namespace OfficeOpenXml
                             i = styles.CloneStyle(sourceStyles, i);
                             styleCashe.Add(oldStyleID, i);
                         }
-                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID=i;
                     }
                 }
                 
                 if (_worksheet._hyperLinks.Exists(row, col, ref hl))
                 {
-                    //Destination._worksheet._hyperLinks.SetValue(row, col, hl);
                     cell.HyperLink=hl;
                 }
                 
@@ -2601,7 +2596,6 @@ namespace OfficeOpenXml
                             i = styles.CloneStyle(sourceStyles, i);
                             styleCashe.Add(oldStyleID, i);
                         }
-                        //Destination._worksheet.SetStyleInner(row, col, i);
                         cell.StyleID = i;
                     }
                     copiedValue.Add(cell);
@@ -2615,7 +2609,8 @@ namespace OfficeOpenXml
                 if(!copiedMergedCells.ContainsKey(csem.Value))
                 {
                     var adr = new ExcelAddress(_worksheet.Name, _worksheet.MergedCells.List[csem.Value]);
-                    if(this.Collide(adr)==eAddressCollition.Inside)
+                    var collideResult = Collide(adr);
+                    if (collideResult==eAddressCollition.Inside || collideResult== eAddressCollition.Equal)
                     {                        
                         copiedMergedCells.Add(csem.Value, new ExcelAddress(
                             Destination._fromRow + (adr.Start.Row - _fromRow),
@@ -2635,8 +2630,6 @@ namespace OfficeOpenXml
 
             Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._formulas.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            //Destination._worksheet._styles.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
-            //Destination._worksheet._types.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._hyperLinks.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._flags.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
             Destination._worksheet._commentsStore.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);
@@ -2644,11 +2637,6 @@ namespace OfficeOpenXml
             foreach(var cell in copiedValue)
             {
                 Destination._worksheet.SetValueInner(cell.Row, cell.Column, cell.Value);
-
-                //if(cell.Type!=null)
-                //{
-                //    Destination._worksheet._types.SetValue(cell.Row, cell.Column, cell.Type);
-                //}
 
                 if(cell.StyleID!=null)
                 {

@@ -879,6 +879,16 @@ namespace OfficeOpenXml.Style.XmlAccess
             if (!_locked) this.SetXmlNodeString(lockedPath, "0");
             if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
             if (_quotePrefix) this.SetXmlNodeString(quotePrefixPath, "1");
+
+            if((_locked || _hidden) && doSetXfId)
+            {
+                SetXmlNodeString("@applyProtection", "1");
+            }
+
+            if ((_horizontalAlignment != ExcelHorizontalAlignment.General || _verticalAlignment != ExcelVerticalAlignment.Bottom) && doSetXfId)
+            {
+                SetXmlNodeString("@applyAlignment", "1");
+            }
             return TopNode;
         }
 

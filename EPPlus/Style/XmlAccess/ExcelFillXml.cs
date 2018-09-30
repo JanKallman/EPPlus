@@ -157,7 +157,6 @@ namespace OfficeOpenXml.Style.XmlAccess
                     if (PatternColor.Exists)
                     {
                         CreateNode(_patternColorPath);
-                        //topNode.AppendChild(PatternColor.CreateXmlNode(topNode.SelectSingleNode(_patternColorPath, NameSpaceManager)));
                         PatternColor.CreateXmlNode(topNode.SelectSingleNode(_patternColorPath, NameSpaceManager));
                     }
                 }
