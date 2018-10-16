@@ -785,7 +785,12 @@ namespace OfficeOpenXml
 		/// Saves the workbook and all its components to the package.
 		/// For internal use only!
 		/// </summary>
-		internal void Save()  // Workbook Save
+		internal void Save() 
+		{
+		    Save(true);
+		}	
+		
+		internal void Save(bool doValidation)  // Workbook Save
 		{
 			if (Worksheets.Count == 0)
 				throw new InvalidOperationException("The workbook must contain at least one worksheet");
@@ -853,7 +858,10 @@ namespace OfficeOpenXml
             //UpdateSharedStringsXml();
 			
 			// Data validation
-			ValidateDataValidations();
+			if (doValidation) 
+			{
+			    ValidateDataValidations();
+			}
 
             //VBA
             if (_vba!=null)
