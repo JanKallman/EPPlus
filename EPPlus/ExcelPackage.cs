@@ -827,7 +827,12 @@ namespace OfficeOpenXml
         /// This method recursively calls the Save method on all sub-components.
         /// We close the package after the save is done.
         /// </summary>
-        public void Save()
+	public void Save() 
+	{
+	    Save(true);
+	}
+		
+        public void Save(bool doValidation)
         {
             try
             {
@@ -839,7 +844,7 @@ namespace OfficeOpenXml
                     CloseStream();
                 }
 
-                Workbook.Save();
+                Workbook.Save(doValidation);
                 if (File == null)
                 {
                     if(Encryption.IsEncrypted)
@@ -918,10 +923,15 @@ namespace OfficeOpenXml
         /// d to encrypt the workbook with. 
         /// </summary>
         /// <param name="password">This parameter overrides the Workbook.Encryption.Password.</param>
-        public void Save(string password)
-		{
+        public void Save(string password) 
+	{
+	    Save(password, true);
+	}
+		
+	public void Save(string password, bool doValidation)
+	{
             Encryption.Password = password;
-            Save();
+            Save(doValidation);
         }
         /// <summary>
         /// Saves the workbook to a new file
