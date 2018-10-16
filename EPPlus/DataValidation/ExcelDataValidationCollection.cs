@@ -250,9 +250,17 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="address">The range/address to validate</param>
         /// <returns></returns>
-        public IExcelDataValidationList AddListValidation(string address)
+        public IExcelDataValidationList AddListValidation(string address) 
         {
-            ValidateAddress(address);
+            return AddListValidation(address, true)
+        }
+        
+        public IExcelDataValidationList AddListValidation(string address, bool doValidation)
+        {
+            if (doValidation) 
+            {
+                ValidateAddress(address);
+            }
             EnsureRootElementExists();
             var item = new ExcelDataValidationList(_worksheet, address, ExcelDataValidationType.List);
             _validations.Add(item);
