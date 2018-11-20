@@ -252,7 +252,7 @@ namespace OfficeOpenXml.DataValidation
         /// <returns></returns>
         public IExcelDataValidationList AddListValidation(string address) 
         {
-            return AddListValidation(address, true)
+            return AddListValidation(address, true);
         }
         
         public IExcelDataValidationList AddListValidation(string address, bool doValidation)
