@@ -60,10 +60,6 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 return Range.Address;
             }
-            internal set
-            {
-                Range.Address = value;
-            }
         }
 
         const string VERTICAL_ALIGNMENT_PATH="x:ClientData/x:TextVAlign";

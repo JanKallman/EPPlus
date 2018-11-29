@@ -2270,5 +2270,61 @@ namespace EPPlusTest
         
             pkg.SaveAs(new FileInfo(@"c:\temp\n.xlsx"));
         }
-    }        
+        [TestMethod]
+        public void Issue332()
+        {
+            InitBase();
+            var pkg = OpenPackage("Hyperlink.xlsx", true);
+            var ws = pkg.Workbook.Worksheets.Add("Hyperlink");
+            ws.Cells["A1"].Hyperlink = new ExcelHyperLink("A2","A2");
+            pkg.Save();
+        }
+        [TestMethod]
+        public void Issue332_2()
+        {
+            InitBase();
+            var pkg = OpenPackage("Hyperlink.xlsx");
+            var ws = pkg.Workbook.Worksheets["Hyperlink"];
+            Assert.IsNotNull(ws.Cells["A1"].Hyperlink);
+        }
+        [TestMethod]
+        public void Issuer246()
+        {
+            InitBase();
+            var pkg = OpenPackage("issue246.xlsx", true);
+            var ws = _pck.Workbook.Worksheets.Add("DateFormat");
+            ws.Cells["A1"].Value=43465;
+            ws.Cells["A1"].Style.Numberformat.Format = @"[$-F800]dddd,\ mmmm\ dd,\ yyyy";
+            _pck.Save();
+
+            pkg = OpenPackage("issue246.xlsx");
+            ws = _pck.Workbook.Worksheets["DateFormat"];
+            var pCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
+            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("sv-Se");
+            Assert.AreEqual(ws.Cells["A1"].Text, "den 31 december 2018");
+            Assert.AreEqual(ws.GetValue<DateTime>(1,1), new DateTime(2018,12,31));
+            System.Threading.Thread.CurrentThread.CurrentCulture = pCulture;
+        }
+        [TestMethod]
+        public void Issue347()
+        {
+            var package = OpenTemplatePackage("Issue327.xlsx");
+            var templateWS = package.Workbook.Worksheets["Template"];
+            //package.Workbook.Worksheets.Add("NewWs", templateWS);
+            package.Workbook.Worksheets.Delete(templateWS);
+        }
+        [TestMethod]
+        public void Issue348()
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("S1");
+                string formula = "VLOOKUP(C2,A:B,1,0)";
+                ws.Cells[2, 4].Formula = formula;
+                var t1 = ws.Cells[2, 4].FormulaR1C1; // VLOOKUP(C2,C[-3]:C[-2],1,0)
+                ws.Cells[2, 5].FormulaR1C1 = ws.Cells[2, 4].FormulaR1C1;
+                var t2 = ws.Cells[2, 5].FormulaR1C1; // VLOOKUP(C2,C[-3]**:B:C:C**,1,0)   //unexpected value here
+            }
+        }
+    }
 }

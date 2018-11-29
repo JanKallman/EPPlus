@@ -889,6 +889,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             {
                 SetXmlNodeString("@applyAlignment", "1");
             }
+
             return TopNode;
         }
 

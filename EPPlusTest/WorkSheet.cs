@@ -3084,10 +3084,10 @@ namespace EPPlusTest
                 Assert.AreEqual("SUM(B2:C2)", sheet2.Cells["D2"].Formula);
             }
         }
-        [TestMethod, Ignore]
+        [TestMethod]
         public void Sort()
-        {
-            using (ExcelPackage package = new ExcelPackage())
+        {            
+            using (var package = OpenPackage("Sort.xlsx", true))
             {
                 var ws = package.Workbook.Worksheets.Add("Sorting");
                 AddSortingData(ws,1,1);
@@ -3105,10 +3105,11 @@ namespace EPPlusTest
                 ws.Cells["I7"].Value = "12";
                 ws.Cells["I8"].Value = "Test";
                 ws.Cells["I9"].Value = "aa";
+                ws.Cells["I7"].AddComment("Comment", "Jan");
 
 
                 ws.Cells["I:I"].Sort(0,true);
-                package.SaveAs(new FileInfo(@"c:\temp\sort.xlsx"));
+                package.Save();
             }
         }
 

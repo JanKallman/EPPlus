@@ -73,7 +73,7 @@ namespace OfficeOpenXml
         }
         #endregion
         #region "Formula Functions"
-        private delegate string dlgTransl(string part, int row, int col, int rowIncr, int colIncr);
+        private delegate string dlgTransl(string part, int row, int col);
         #region R1C1 Functions"
         /// <summary>
         /// Translates a R1C1 to an absolut address/Formula
@@ -84,7 +84,7 @@ namespace OfficeOpenXml
         /// <returns>The RC address</returns>
         public static string TranslateFromR1C1(string value, int row, int col)
         {
-            return Translate(value, ToAbs, row, col, -1, -1);
+            return Translate(value, ToAbs, row, col);
         }
         /// <summary>
         /// Translates a absolut address to R1C1 Format
@@ -95,7 +95,7 @@ namespace OfficeOpenXml
         /// <returns>The absolut address/Formula</returns>
         public static string TranslateToR1C1(string value, int row, int col)
         {
-            return Translate(value, ToR1C1, row, col, -1, -1);
+            return Translate(value, ToR1C1, row, col);
         }
         /// <summary>
         /// Translates betweein R1C1 or absolut addresses
@@ -104,10 +104,8 @@ namespace OfficeOpenXml
         /// <param name="addressTranslator">The translating function</param>
         /// <param name="row"></param>
         /// <param name="col"></param>
-        /// <param name="rowIncr"></param>
-        /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string Translate(string value, dlgTransl addressTranslator, int row, int col, int rowIncr, int colIncr)
+        private static string Translate(string value, dlgTransl addressTranslator, int row, int col)
         {
             if (value == "")
                 return "";
@@ -119,7 +117,7 @@ namespace OfficeOpenXml
                 //Console.WriteLine($"{token.TokenType} : {token.Value}");
                 if (token.TokenType == TokenType.ExcelAddress || token.TokenType.Equals(TokenType.NameValue) || token.TokenType == TokenType.ExcelAddressR1C1)
                 {
-                    var part = addressTranslator(token.Value, row, col, rowIncr, colIncr);
+                    var part = addressTranslator(token.Value, row, col);
                     //Console.Write($"==> " + part);
                     token.Value = part;
                 }
@@ -137,7 +135,7 @@ namespace OfficeOpenXml
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string ToR1C1(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToR1C1(string part, int row, int col)
         {
             int shInd = part.IndexOf('!');
             string sh = "";
@@ -149,17 +147,17 @@ namespace OfficeOpenXml
             int delim = part.IndexOf(':');
             if (delim > 0)
             {
-                string p1 = ToR1C1_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
-                string p2 = ToR1C1_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                string p1 = ToR1C1_1(part.Substring(0, delim), row, col);
+                string p2 = ToR1C1_1(part.Substring(delim + 1), row, col);
                 if (p1.Equals(p2))
                     return p1;
                 return sh + p1 + ":" + p2;
             }
 
             else
-                return sh + ToR1C1_1(part, row, col, rowIncr, colIncr);
+                return sh + ToR1C1_1(part, row, col);
         }
-        private static string ToR1C1_1(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToR1C1_1(string part, int row, int col)
         {
             int addrRow, addrCol;
             bool fixRow, fixCol;
@@ -195,7 +193,7 @@ namespace OfficeOpenXml
         /// <param name="rowIncr"></param>
         /// <param name="colIncr"></param>
         /// <returns></returns>
-        private static string ToAbs(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToAbs(string part, int row, int col)
         {
             int shInd = part.IndexOf('!');
             string sh = "";
@@ -208,16 +206,16 @@ namespace OfficeOpenXml
             int delim = part.IndexOf(':');
             if (delim > 0)
             {
-                string p1 = ToAbs_1(part.Substring(0, delim), row, col, rowIncr, colIncr);
-                string p2 = ToAbs_1(part.Substring(delim + 1), row, col, rowIncr, colIncr);
+                string p1 = ToAbs_1(part.Substring(0, delim), row, col, false);
+                string p2 = ToAbs_1(part.Substring(delim + 1), row, col, false);
                 if (p1.Equals(p2))
                     return p1;
                 return sh + p1 + ":" + p2;
             }
             else
-                return sh + ToAbs_1(part, row, col, rowIncr, colIncr);
+                return sh + ToAbs_1(part, row, col, true);
         }
-        private static string ToAbs_1(string part, int row, int col, int rowIncr, int colIncr)
+        private static string ToAbs_1(string part, int row, int col, bool isSingle)
         {
             string check = Utils.ConvertUtil._invariantTextInfo.ToUpper(part);
             // Bug
@@ -248,7 +246,15 @@ namespace OfficeOpenXml
                 int RNum = GetRC(part.Substring(1), row, out absoluteRow);
                 if (RNum > int.MinValue)
                 {
-                    return GetAddressRow(RNum, absoluteRow);
+                    var r=GetAddressRow(RNum, absoluteRow);
+                    if (isSingle)
+                    {
+                        return $"{r}:{r}";
+                    }
+                    else
+                    {
+                        return $"{r}";
+                    }
                 }
                 else
                 {
@@ -260,7 +266,15 @@ namespace OfficeOpenXml
                 int CNum = GetRC(part.Substring(1), col, out absoluteCol);
                 if (CNum > int.MinValue)
                 {
-                    return GetAddressCol(CNum, absoluteCol);
+                    var c=GetAddressCol(CNum, absoluteCol);
+                    if (isSingle)
+                    {
+                        return $"{c}:{c}";
+                    }
+                    else
+                    {
+                        return $"{c}";
+                    }
                 }
                 else
                 {
@@ -612,15 +626,15 @@ namespace OfficeOpenXml
         public static string GetAddressRow(int Row, bool Absolute = false)
         {
             if (Absolute)
-                return $"${Row}:${Row}";
-            return $"{Row}:{Row}";
+                return $"${Row}";
+            return $"{Row}";
         }
         public static string GetAddressCol(int Col, bool Absolute = false)
         {
             var colLetter = GetColumnLetter(Col);
             if (Absolute)
-                return $"${colLetter}:${colLetter}";
-            return $"{colLetter}:{colLetter}";
+                return $"${colLetter}";
+            return $"{colLetter}";
         }
         /// <summary>
         /// Returns the AlphaNumeric representation that Excel expects for a Cell Address

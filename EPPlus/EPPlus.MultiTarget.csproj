@@ -236,10 +236,7 @@ Release Candidate changes
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Compatibility\DateTimeExtensions.cs" />
-    <Compile Remove="Compatibility\SecurityElement.cs" />
     <Compile Remove="Packaging\DotNetZip\ZipFile.SaveSelfExtractor.cs" />
-    <Compile Remove="Style\ExcelRichTextHtmlUtility.cs" />
   </ItemGroup>
 
 
