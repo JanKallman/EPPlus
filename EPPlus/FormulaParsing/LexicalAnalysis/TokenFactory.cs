@@ -152,10 +152,10 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
             {
                 return new Token(token, TokenType.Enumerable);
             }
-            var at = OfficeOpenXml.ExcelAddressBase.IsValid(token, _r1c1);
+            var at = OfficeOpenXml.ExcelAddressBase.IsValid(token, out string normalizedToken, _r1c1);
             if (at==ExcelAddressBase.AddressType.InternalAddress)
             {
-                return new Token(token.ToUpper(CultureInfo.InvariantCulture), TokenType.ExcelAddress);
+                return new Token(normalizedToken, TokenType.ExcelAddress);
             } 
             else if (at == ExcelAddressBase.AddressType.R1C1)
             {

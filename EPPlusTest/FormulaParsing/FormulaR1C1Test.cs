@@ -234,5 +234,14 @@ namespace EPPlusTest.FormulaParsing
             Assert.AreEqual("A3", _sheet.Cells["B3"].Formula);
 
         }
+
+        [TestMethod]
+        public void SheetNameTest()
+        {
+            const string formulaR1C1 = "SUM(Test2!R[-4]C[-4]:R[-1]C[-1])";
+            _sheet.Cells[5, 5].FormulaR1C1 = formulaR1C1;
+            string formula = _sheet.Cells[5, 5].Formula;
+            Assert.AreEqual("SUM(Test2!A1:D4)", formula);
+        }
     }
 }
