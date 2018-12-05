@@ -395,7 +395,7 @@ namespace OfficeOpenXml
 
             if (!string.IsNullOrEmpty(_ws))
             {
-                adr += string.Format("'{0}'!", _ws);
+                adr += _ws.Contains(" ") ? string.Format("'{0}'!", _ws) : string.Format("{0}!", _ws);
             }
             if (IsName)
               adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
