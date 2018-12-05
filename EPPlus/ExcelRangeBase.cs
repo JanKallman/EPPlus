@@ -1326,7 +1326,7 @@ namespace OfficeOpenXml
                     var c = this.Collide(_worksheet.AutoFilterAddress);
                     if (value == false && (c == eAddressCollition.Partly || c == eAddressCollition.No))
                     {
-                        throw (new InvalidOperationException("Can't remote Autofilter. Current autofilter does not match selected range."));
+                        throw (new InvalidOperationException("Can't remove Autofilter. Current Autofilter does not match selected range."));
                     }
                 }
                 if (_worksheet.Names.ContainsKey("_xlnm._FilterDatabase"))
