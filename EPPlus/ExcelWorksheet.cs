@@ -3896,7 +3896,7 @@ namespace OfficeOpenXml
                 }
                 else if (v is TimeSpan)
                 {
-                    s = DateTime.FromOADate(0).Add(((TimeSpan)v)).ToOADate().ToString(CultureInfo.InvariantCulture);
+                    s = ((double)((TimeSpan)v).Ticks / TimeSpan.TicksPerDay).ToString(CultureInfo.InvariantCulture);
                 }
                 else if(TypeCompat.IsPrimitive(v) || v is double || v is decimal)
                 {
