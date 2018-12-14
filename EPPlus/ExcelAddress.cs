@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml
 {
@@ -395,13 +396,18 @@ namespace OfficeOpenXml
 
             if (!string.IsNullOrEmpty(_ws))
             {
-                adr += _ws.Contains(" ") ? string.Format("'{0}'!", _ws) : string.Format("{0}!", _ws);
+                adr += GetWorksheetNameEscaped() + "!";
             }
             if (IsName)
               adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
             else
               adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             return adr;
+        }
+
+        public string GetWorksheetNameEscaped()
+        {
+            return Regex.IsMatch(_ws, RegexConstants.SheetNameSingleQuotes) ? $"'{_ws.Replace("'", "''")}'" : _ws;
         }
         #endregion
         protected ExcelCellAddress _start = null;
