@@ -724,7 +724,7 @@ namespace OfficeOpenXml
         }
         internal ExcelAddressBase AddRow(int row, int rows, bool setFixed=false)
         {
-            if (row > _toRow)
+            if (row > _toRow || _toRow == ExcelPackage.MaxRows)
             {
                 return this;
             }
@@ -739,7 +739,7 @@ namespace OfficeOpenXml
         }
         internal ExcelAddressBase DeleteRow(int row, int rows, bool setFixed = false)
         {
-            if (row > _toRow) //After
+            if (row > _toRow || _toRow == ExcelPackage.MaxRows) //After
             {
                 return this;
             }            
@@ -765,7 +765,7 @@ namespace OfficeOpenXml
         }
         internal ExcelAddressBase AddColumn(int col, int cols, bool setFixed = false)
         {
-            if (col > _toCol)
+            if (col > _toCol || _toCol == ExcelPackage.MaxColumns)
             {
                 return this;
             }
@@ -780,7 +780,7 @@ namespace OfficeOpenXml
         }
         internal ExcelAddressBase DeleteColumn(int col, int cols, bool setFixed = false)
         {
-            if (col > _toCol) //After
+            if (col > _toCol || _toCol == ExcelPackage.MaxColumns) //After
             {
                 return this;
             }
