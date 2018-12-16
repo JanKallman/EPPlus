@@ -178,6 +178,7 @@ namespace OfficeOpenXml
         internal const bool preserveWhitespace=false;
         Stream _stream = null;
         private bool _isExternalStream=false;
+        private bool _isReadOnly = false;
         internal class ImageInfo
         {
             internal string Hash { get; set; }
@@ -263,6 +264,45 @@ namespace OfficeOpenXml
             Init();
             ConstructNewFile(null);
         }
+        /// <summary>
+        /// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+        /// </summary>
+        /// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
+        public ExcelPackage(string newFile) : this(newFile, false)
+        {
+            
+        }
+        /// <summary>
+        /// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
+        /// </summary>
+        /// <param name="newFile">If newFile exists, it is opened.  Otherwise it is created from scratch.</param>
+        /// <param name="readOnly">Set to true to open a document already open in Excel</param>
+        public ExcelPackage(string newFile, bool readOnly)
+        {
+            Init();
+            if (readOnly)
+            {
+                _isReadOnly = true;
+                FileStream fs = new FileStream(newFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                
+                if (fs.Length == 0)
+                {
+                    _stream = fs;
+                    _isExternalStream = false;
+                    ConstructNewFile(null);
+                }
+                else
+                {
+                    Load(fs, new MemoryStream(), null);
+                }               
+            }
+            else
+            {
+                File = new FileInfo(newFile);
+                ConstructNewFile(null);
+            }
+        }
+            
         /// <summary>
 		/// Create a new instance of the ExcelPackage class based on a existing file or creates a new file. 
 		/// </summary>
@@ -829,6 +869,10 @@ namespace OfficeOpenXml
         /// </summary>
         public void Save()
         {
+            if (_isReadOnly)
+            {
+                throw new InvalidOperationException("Error saving file, the package was open as read only");
+            }
             try
             {
                 if (_stream is MemoryStream && _stream.Length > 0)
@@ -932,6 +976,15 @@ namespace OfficeOpenXml
         {
             File = file;
             Save();
+        }
+        /// <summary>
+        /// Saves the workbook to a new file
+        /// The package is closed after it has been saved        
+        /// </summary>
+        /// <param name="file">The file location</param>
+        public void SaveAs(string file)
+        {
+            SaveAs(new FileInfo(file));
         }
         /// <summary>
         /// Saves the workbook to a new file
