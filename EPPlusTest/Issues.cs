@@ -2326,5 +2326,22 @@ namespace EPPlusTest
                 var t2 = ws.Cells[2, 5].FormulaR1C1; // VLOOKUP(C2,C[-3]**:B:C:C**,1,0)   //unexpected value here
             }
         }
+
+        [TestMethod]
+        public void Issue376()
+        {
+            using (ExcelPackage pck = new ExcelPackage())
+            {
+                ExcelWorksheet ws = pck.Workbook.Worksheets.Add("test");
+                var v = ws.DataValidations.AddListValidation("A1");
+                v.Formula.Values.Add("1");
+                v.Formula.Values.Add("2");
+                v.ShowErrorMessage = true;
+                v.Error = "error!";
+                v.ErrorStyle = OfficeOpenXml.DataValidation.ExcelDataValidationWarningStyle.stop;
+                v.AllowBlank = false;
+                pck.SaveAs(new FileInfo(@"c:\temp\book.xlsx"));
+            }
+        }
     }
 }
