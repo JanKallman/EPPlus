@@ -3002,44 +3002,73 @@ namespace EPPlusTest
             Assert.AreEqual("Testing comment 2", ws1.Cells[3, 8].Comment.Text);
             Assert.AreEqual("test2", ws1.Cells[3, 8].Comment.Author);
         }
-#endregion
+        #endregion
 
         [TestMethod]
-        public void DateFunctionsWorkWithDifferentCultureDateFormats()
+        public void DateFunctionsWorkWithDifferentCultureDateFormats_US()
         {
             var currentCulture = CultureInfo.CurrentCulture;
 #if Core
-            var us = CultureInfo.DefaultThreadCurrentCulture=new CultureInfo("en-US");
+            var us = CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 #else
             var us = CultureInfo.CreateSpecificCulture("en-US");
             Thread.CurrentThread.CurrentCulture = us;
 #endif
-            using (var package = new ExcelPackage())
+            double usEoMonth = 0d, usEdate = 0d;
+            var thread = new Thread(delegate ()
             {
-                var ws = package.Workbook.Worksheets.Add("Sheet1");
-                ws.Cells[2, 2].Value = "1/15/2014";
-                ws.Cells[3, 3].Formula = "EOMONTH(C2, 0)";
-                ws.Cells[2, 3].Formula = "EDATE(B2, 0)";
-                ws.Calculate();
-                Assert.AreEqual(41654.0, ws.Cells[2, 3].Value);
-                Assert.AreEqual(41670.0, ws.Cells[3, 3].Value);
-            }
+                using (var package = new ExcelPackage())
+                {
+                    var ws = package.Workbook.Worksheets.Add("Sheet1");
+                    ws.Cells[2, 2].Value = "1/15/2014";
+                    ws.Cells[3, 3].Formula = "EOMONTH(C2, 0)";
+                    ws.Cells[2, 3].Formula = "EDATE(B2, 0)";
+                    ws.Calculate();
+                    usEoMonth = Convert.ToDouble(ws.Cells[2, 3].Value);
+                    usEdate = Convert.ToDouble(ws.Cells[3, 3].Value);
+
+                }
+            });
+            thread.Start();
+            thread.Join();
+            Assert.AreEqual(41654.0, usEoMonth);
+            Assert.AreEqual(41670.0, usEdate);
+#if Core
+            CultureInfo.DefaultThreadCurrentCulture = currentCulture;
+#else
+            Thread.CurrentThread.CurrentCulture = currentCulture;
+#endif
+        }
+
+        [TestMethod]
+        public void DateFunctionsWorkWithDifferentCultureDateFormats_GB()
+        {
+            var currentCulture = CultureInfo.CurrentCulture;
+
 #if Core
             var gb = CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-GB");
 #else
             var gb = CultureInfo.CreateSpecificCulture("en-GB");
             Thread.CurrentThread.CurrentCulture = gb;
 #endif
-            using (var package = new ExcelPackage())
+            double gbEoMonth = 0d, gbEdate = 0d;
+            var thread = new Thread(delegate ()
             {
-                var ws = package.Workbook.Worksheets.Add("Sheet1");
-                ws.Cells[2, 2].Value = "15/1/2014";
-                ws.Cells[3, 3].Formula = "EOMONTH(C2, 0)";
-                ws.Cells[2, 3].Formula = "EDATE(B2, 0)";
-                ws.Calculate();
-                Assert.AreEqual(41654.0, ws.Cells[2, 3].Value);
-                Assert.AreEqual(41670.0, ws.Cells[3, 3].Value);
-            }
+                using (var package = new ExcelPackage())
+                {
+                    var ws = package.Workbook.Worksheets.Add("Sheet1");
+                    ws.Cells[2, 2].Value = "15/1/2014";
+                    ws.Cells[3, 3].Formula = "EOMONTH(C2, 0)";
+                    ws.Cells[2, 3].Formula = "EDATE(B2, 0)";
+                    ws.Calculate();
+                    gbEoMonth = Convert.ToDouble(ws.Cells[2, 3].Value);
+                    gbEdate = Convert.ToDouble(ws.Cells[3, 3].Value);
+                }
+            });
+            thread.Start();
+            thread.Join();
+            Assert.AreEqual(41654.0, gbEoMonth);
+            Assert.AreEqual(41670.0, gbEdate);
 #if Core
             CultureInfo.DefaultThreadCurrentCulture = currentCulture;
 #else
