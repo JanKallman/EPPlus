@@ -2327,7 +2327,7 @@ namespace EPPlusTest
             }
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Issue376()
         {
             using (ExcelPackage pck = new ExcelPackage())
@@ -2341,6 +2341,22 @@ namespace EPPlusTest
                 v.ErrorStyle = OfficeOpenXml.DataValidation.ExcelDataValidationWarningStyle.stop;
                 v.AllowBlank = false;
                 pck.SaveAs(new FileInfo(@"c:\temp\book.xlsx"));
+            }
+        }
+
+        [TestMethod]
+        public void Issue367()
+        {
+            using(var pck = new ExcelPackage(new FileInfo(@"c:\Temp\ProductFunctionTest.xlsx")))
+            {
+                var sheet = pck.Workbook.Worksheets.First();
+                //sheet.Cells["B13"].Value = null;
+                sheet.Cells["B14"].Value = 11;
+                sheet.Cells["B15"].Value = 13;
+                sheet.Cells["B16"].Formula = "Product(B13:B15)";
+                sheet.Calculate();
+
+                Assert.AreEqual(0d, sheet.Cells["B16"].Value);
             }
         }
     }
