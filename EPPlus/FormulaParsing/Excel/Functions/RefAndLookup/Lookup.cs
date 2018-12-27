@@ -55,7 +55,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
         {
             var searchedValue = arguments.ElementAt(0).Value;
             Require.That(arguments.ElementAt(1).Value).Named("firstAddress").IsNotNull();
-            var firstAddress = ArgToString(arguments, 1);
+            var firstAddress = ArgToAddress(arguments, 1, context);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var address = rangeAddressFactory.Create(firstAddress);
             var nRows = address.ToRow - address.FromRow;
@@ -77,8 +77,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var searchedValue = arguments.ElementAt(0).Value;
             Require.That(arguments.ElementAt(1).Value).Named("firstAddress").IsNotNull();
             Require.That(arguments.ElementAt(2).Value).Named("secondAddress").IsNotNull();
-            var firstAddress = ArgToString(arguments, 1);
-            var secondAddress = ArgToString(arguments, 2);
+            var firstAddress = ArgToAddress(arguments, 1, context);
+            var secondAddress = ArgToAddress(arguments, 2, context);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var address1 = rangeAddressFactory.Create(firstAddress);
             var address2 = rangeAddressFactory.Create(secondAddress);

@@ -32,7 +32,7 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
             public TestFunctionModule()
             {
                 var myFunction = new MyFunction();
-                var customCompiler = new MyFunctionCompiler(myFunction);
+                var customCompiler = new MyFunctionCompiler(myFunction, ParsingContext.Create());
                 base.Functions.Add(MyFunction.Name, myFunction);
                 base.CustomCompilers.Add(typeof(MyFunction), customCompiler);
             }
@@ -49,8 +49,8 @@ namespace EPPlusTest.FormulaParsing.Excel.Functions
 
         public class MyFunctionCompiler : FunctionCompiler
         {
-            public MyFunctionCompiler(MyFunction function) : base(function) { }
-            public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
+            public MyFunctionCompiler(MyFunction function, ParsingContext context) : base(function, context) { }
+            public override CompileResult Compile(IEnumerable<Expression> children)
             {
                 throw new NotImplementedException();
             }

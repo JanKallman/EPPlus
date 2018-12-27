@@ -97,7 +97,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         /// Used for some Lookupfunctions to indicate that function arguments should
         /// not be compiled before the function is called.
         /// </summary>
-        public bool SkipArgumentEvaluation { get; set; }
+        //public bool SkipArgumentEvaluation { get; set; }
         protected object GetFirstValue(IEnumerable<FunctionArgument> val)
         {
             var arg = ((IEnumerable<FunctionArgument>)val).FirstOrDefault();
@@ -179,6 +179,16 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
         protected string ArgToAddress(IEnumerable<FunctionArgument> arguments, int index)
         {            
             return arguments.ElementAt(index).IsExcelRange ? arguments.ElementAt(index).ValueAsRangeInfo.Address.FullAddress : ArgToString(arguments, index);
+        }
+
+        protected string ArgToAddress(IEnumerable<FunctionArgument> arguments, int index, ParsingContext context)
+        {
+            var arg = arguments.ElementAt(index);
+            if(arg.ExcelAddressReferenceId > 0)
+            {
+                return context.AddressCache.Get(arg.ExcelAddressReferenceId);
+            }
+            return ArgToAddress(arguments, index);
         }
 
         /// <summary>
