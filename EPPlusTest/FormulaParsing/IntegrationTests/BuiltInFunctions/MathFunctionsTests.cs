@@ -12,11 +12,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
     [TestClass]
     public class MathFunctionsTests : FormulaParserTestBase
     {
+        private ExcelPackage _package;
+
         [TestInitialize]
         public void Setup()
         {
-            var excelDataProvider = A.Fake<ExcelDataProvider>();
+            _package = new ExcelPackage();
+            var excelDataProvider = new EpplusExcelDataProvider(_package);
             _parser = new FormulaParser(excelDataProvider);
+        }
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            _package.Dispose();
         }
 
         [TestMethod]
@@ -388,6 +397,20 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 sheet.Cells["A5"].Formula = "COUNTBLANK(A1:B4)";
                 sheet.Calculate();
                 Assert.AreEqual(7, sheet.Cells["A5"].Value);
+            }
+        }
+
+        [TestMethod]
+        public void CountBlankShouldCalculateResultOfOffset()
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var sheet = pck.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["B2"].Value = string.Empty;
+                sheet.Cells["A5"].Formula = "COUNTBLANK(OFFSET(A1, 0, 1))";
+                sheet.Calculate();
+                Assert.AreEqual(1, sheet.Cells["A5"].Value);
             }
         }
 

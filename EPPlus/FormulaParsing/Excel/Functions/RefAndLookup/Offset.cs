@@ -60,20 +60,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var toCol = (width != 0 ? adr._fromCol + width - 1 : adr._toCol) + colOffset;
 
             var newRange = context.ExcelDataProvider.GetRange(adr.WorkSheet, fromRow, fromCol, toRow, toCol);
-            if (!newRange.IsMulti)
-            {
-                if (newRange.IsEmpty) return CompileResult.Empty;
-                var val = newRange.GetValue(fromRow, fromCol);
-                if (IsNumeric(val))
-                {
-                    return CreateResult(val, DataType.Decimal);
-                }
-                if (val is ExcelErrorValue)
-                {
-                    return CreateResult(val, DataType.ExcelError);
-                }
-                return CreateResult(val, DataType.String);
-            }
+            
             return CreateResult(newRange, DataType.Enumerable);
         }
     }

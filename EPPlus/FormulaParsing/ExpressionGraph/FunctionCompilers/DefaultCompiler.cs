@@ -54,7 +54,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 var compileResult = child.Compile();
                 if (compileResult.IsResultOfSubtotal)
                 {
-                    var arg = new FunctionArgument(compileResult.Result);
+                    var arg = new FunctionArgument(compileResult.Result, compileResult.DataType);
                     arg.SetExcelStateFlag(ExcelCellState.IsResultOfSubtotal);
                     args.Add(arg);
                 }
