@@ -84,7 +84,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 
         protected void BuildFunctionArguments(CompileResult result, List<FunctionArgument> args)
         {
-            BuildFunctionArguments(result, DataType.Unknown, args);
+            BuildFunctionArguments(result, result.DataType, args);
         }
 
         public abstract CompileResult Compile(IEnumerable<Expression> children);
