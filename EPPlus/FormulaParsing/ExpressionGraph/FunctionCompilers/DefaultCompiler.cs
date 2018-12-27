@@ -39,16 +39,16 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
 {
     public class DefaultCompiler : FunctionCompiler
     {
-        public DefaultCompiler(ExcelFunction function)
-            : base(function)
+        public DefaultCompiler(ExcelFunction function, ParsingContext context)
+            : base(function, context)
         {
 
         }
 
-        public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
+        public override CompileResult Compile(IEnumerable<Expression> children)
         {
             var args = new List<FunctionArgument>();
-            Function.BeforeInvoke(context);
+            Function.BeforeInvoke(Context);
             foreach (var child in children)
             {
                 var compileResult = child.Compile();
@@ -60,10 +60,10 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 }
                 else
                 {
-                    BuildFunctionArguments(compileResult.Result, args);     
+                    BuildFunctionArguments(compileResult, args);     
                 }
             }
-            return Function.Execute(args, context);
+            return Function.Execute(args, Context);
         }
     }
 }

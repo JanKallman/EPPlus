@@ -7,6 +7,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Logging;
+using EPPlus.FormulaParsing;
 
 namespace OfficeOpenXml.FormulaParsing
 {
@@ -48,6 +49,8 @@ namespace OfficeOpenXml.FormulaParsing
         /// </summary>
         public ParsingScopes Scopes { get; private set; }
 
+        public ExcelAddressCache AddressCache { get; private set; }
+
         /// <summary>
         /// Returns true if a <see cref="IFormulaParserLogger"/> is attached to the parser.
         /// </summary>
@@ -65,12 +68,13 @@ namespace OfficeOpenXml.FormulaParsing
             var context = new ParsingContext();
             context.Configuration = ParsingConfiguration.Create();
             context.Scopes = new ParsingScopes(context);
+            context.AddressCache = new ExcelAddressCache();
             return context;
         }
 
         void IParsingLifetimeEventHandler.ParsingCompleted()
         {
-            
+            AddressCache.Clear();
         }
     }
 }

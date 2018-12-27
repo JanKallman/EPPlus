@@ -47,19 +47,19 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
     /// </summary>
     public class IfFunctionCompiler : FunctionCompiler
     {
-        public IfFunctionCompiler(ExcelFunction function)
-            : base(function)
+        public IfFunctionCompiler(ExcelFunction function, ParsingContext context)
+            : base(function, context)
         {
             Require.That(function).Named("function").IsNotNull();
             if (!(function is If)) throw new ArgumentException("function must be of type If");
         }
 
-        public override CompileResult Compile(IEnumerable<Expression> children, ParsingContext context)
+        public override CompileResult Compile(IEnumerable<Expression> children)
         {
             // 2 is allowed, Excel returns FALSE if false is the outcome of the expression
             if(children.Count() < 2) throw new ExcelErrorValueException(eErrorType.Value);
             var args = new List<FunctionArgument>();
-            Function.BeforeInvoke(context);
+            Function.BeforeInvoke(Context);
             var firstChild = children.ElementAt(0);
             var v = firstChild.Compile().Result;
 
@@ -119,7 +119,7 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph.FunctionCompilers
                 args.Add(new FunctionArgument(null));
                 args.Add(new FunctionArgument(val));
             }
-            return Function.Execute(args, context);
+            return Function.Execute(args, Context);
         }
     }
 }

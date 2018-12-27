@@ -351,7 +351,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(1, result.Result);
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void MatchShouldHandleAddressOnOtherSheet()
         {
             using (var package = new ExcelPackage())

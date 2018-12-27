@@ -65,6 +65,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             get { return Value != null ? Value.GetType() : null; }
         }
 
+        public int ExcelAddressReferenceId { get; set; }
+
         public bool IsExcelRange
         {
             get { return Value != null && Value is EpplusExcelDataProvider.IRangeInfo; }
