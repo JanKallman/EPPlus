@@ -1136,7 +1136,7 @@ namespace EPPlusTest
         {
             _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("PivotTable");
-            ws.Cells["A1"].LoadFromArrays(new object[][] { new[] { "A", "B", "C", "D" } });
+            ws.Cells["A1"].LoadFromArrays(new object[][] { new[] { "A&B", "B\"", "C'", "<D>" } });
             ws.Cells["A2"].LoadFromArrays(new object[][]
             {
                 new object [] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
@@ -3141,7 +3141,19 @@ namespace EPPlusTest
                 package.Save();
             }
         }
-
+        [TestMethod]
+        public void ShowGridlines()
+        {
+            using (var p = OpenPackage("ShowGridlines.xlsx"))
+            {
+                var ws = p.Workbook.Worksheets.Add("sort");
+                Assert.IsTrue(ws.View.ShowGridLines);   //Default true
+                ws.View.ShowGridLines = false;
+                Assert.IsFalse(ws.View.ShowGridLines);
+                ws.View.ShowGridLines = true;
+                Assert.IsTrue(ws.View.ShowGridLines);
+            }
+        }
         private static void AddSortingData(ExcelWorksheet ws, int row, int col)
         {
             var rand = new Random();

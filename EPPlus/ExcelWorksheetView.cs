@@ -368,7 +368,7 @@ namespace OfficeOpenXml
         {
             get
             {
-                return GetXmlNodeBool("@showGridLines");
+                return GetXmlNodeBool("@showGridLines", true);
             }
             set
             {

@@ -107,6 +107,8 @@ namespace OfficeOpenXml.DataValidation
             {
                 OnValidationCountChanged();
             }
+
+            InternalValidationEnabled = true;
         }
 
         private void EnsureRootElementExists()
@@ -161,6 +163,8 @@ namespace OfficeOpenXml.DataValidation
         {
             Require.Argument(address).IsNotNullOrEmpty("address");
 
+            if (!InternalValidationEnabled) return;
+
             // ensure that the new address does not collide with an existing validation.
             var newAddress = new ExcelAddress(address);
             if (_validations.Count > 0)
@@ -190,6 +194,8 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         internal void ValidateAll()
         {
+            if (!InternalValidationEnabled) return;
+
             foreach (var validation in _validations)
             {
                 validation.Validate();
@@ -342,6 +348,18 @@ namespace OfficeOpenXml.DataValidation
         public int Count
         {
             get { return _validations.Count; }
+        }
+
+
+        /// <summary>
+        /// Epplus validates that all data validations are consistend and valid
+        /// when they are added and when a workbook is saved. Since this takes some
+        /// resources, it can be disabled for improve performance. 
+        /// </summary>
+        public bool InternalValidationEnabled
+        {
+            get;
+            set;
         }
 
         /// <summary>

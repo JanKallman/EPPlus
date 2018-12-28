@@ -35,6 +35,8 @@ using System.Text;
 using System.Xml;
 using System.Linq;
 using OfficeOpenXml.Utils;
+using System.Security;
+
 namespace OfficeOpenXml.Table.PivotTable
 {
     public enum eSourceType
@@ -278,9 +280,8 @@ namespace OfficeOpenXml.Table.PivotTable
                 }
                 else
                 {
-                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", sourceWorksheet.GetValueInner(sourceAddress._fromRow, col));
+                    xml += string.Format("<cacheField name=\"{0}\" numFmtId=\"0\">", SecurityElement.Escape(sourceWorksheet.GetValueInner(sourceAddress._fromRow, col).ToString()));
                 }
-                //xml += "<sharedItems containsNonDate=\"0\" containsString=\"0\" containsBlank=\"1\" /> ";
                 xml += "<sharedItems containsBlank=\"1\" /> ";
                 xml += "</cacheField>";
             }
