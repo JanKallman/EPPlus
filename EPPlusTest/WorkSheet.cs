@@ -1136,7 +1136,7 @@ namespace EPPlusTest
         {
             _pck = new ExcelPackage();
             var ws = _pck.Workbook.Worksheets.Add("PivotTable");
-            ws.Cells["A1"].LoadFromArrays(new object[][] { new[] { "A", "B", "C", "D" } });
+            ws.Cells["A1"].LoadFromArrays(new object[][] { new[] { "A&B", "B\"", "C'", "<D>" } });
             ws.Cells["A2"].LoadFromArrays(new object[][]
             {
                 new object [] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 },
