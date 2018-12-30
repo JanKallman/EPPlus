@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Drawing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 
 namespace EPPlusTest
 {
@@ -184,6 +186,27 @@ namespace EPPlusTest
 
             Assert.AreEqual(ws.Cells["B1"].Value, ws.Cells["D1"].Value);
             Assert.AreNotEqual(ws.Cells["B1"].Formula, ws.Cells["D1"].Formula);
+        }
+        [TestMethod]
+        public void Issues351()
+        {
+            using (var package = new ExcelPackage())
+            {
+                // Arrange
+                var worksheet = package.Workbook.Worksheets.Add("Test");
+                worksheet.Cells[1, 1].Value = "A";                      // If you remove this "anchor", the problem doesn't happen.
+                worksheet.Cells[1026, 1].Value = "B";
+                worksheet.Cells[1026, 2].Value = "B";
+                var range = worksheet.Row(1026);
+                range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(255, 255, 0));
+
+                // Act - This should shift the whole row 1026 down 1
+                worksheet.InsertRow(1024, 1);
+
+                // Assert - This value should be null, instead it's "B"
+                Assert.IsNull(worksheet.Cells[1025, 1].Value);
+            }
         }
     }
 }
