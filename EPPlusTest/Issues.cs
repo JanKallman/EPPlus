@@ -2347,7 +2347,7 @@ namespace EPPlusTest
         [TestMethod]
         public void Issue367()
         {
-            using(var pck = new ExcelPackage(new FileInfo(@"c:\Temp\ProductFunctionTest.xlsx")))
+            using(var pck = OpenTemplatePackage(@"ProductFunctionTest.xlsx"))
             {
                 var sheet = pck.Workbook.Worksheets.First();
                 //sheet.Cells["B13"].Value = null;
@@ -2357,6 +2357,18 @@ namespace EPPlusTest
                 sheet.Calculate();
 
                 Assert.AreEqual(0d, sheet.Cells["B16"].Value);
+            }
+        }
+        [TestMethod]
+        public void Issue345()
+        {
+            using (ExcelPackage package = OpenTemplatePackage("issue345.xlsx"))
+            {
+	            var worksheet = package.Workbook.Worksheets["test"];
+                int[] sortColumns = new int[1];
+                sortColumns[0] = 0;	
+	            worksheet.Cells["A2:A30864"].Sort(sortColumns);
+                package.Save();
             }
         }
     }
