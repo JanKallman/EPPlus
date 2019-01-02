@@ -71,6 +71,7 @@ namespace OfficeOpenXml.DataValidation
     public class ExcelDataValidationCollection : XmlHelper, IEnumerable<IExcelDataValidation>
     {
         private List<IExcelDataValidation> _validations = new List<IExcelDataValidation>();
+        private ValidationStore _validationStore = new ValidationStore();
         private ExcelWorksheet _worksheet = null;
 
         private const string DataValidationPath = "//d:dataValidations";
@@ -100,15 +101,26 @@ namespace OfficeOpenXml.DataValidation
                     var typeSchema = node.Attributes["type"] != null ? node.Attributes["type"].Value : "";
 
                     var type = ExcelDataValidationType.GetBySchemaName(typeSchema);
-                    _validations.Add(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
+                    AddValidation(ExcelDataValidationFactory.Create(type, worksheet, addr, node));
                 }
-            }
-            if (_validations.Count > 0)
-            {
-                OnValidationCountChanged();
             }
 
             InternalValidationEnabled = true;
+        }
+
+        private void AddValidation(IExcelDataValidation validation)
+        {
+            _validations.Add(validation);
+            _validationStore.Add(validation);
+            OnValidationCountChanged();
+        }
+
+        private bool RemoveValidation(IExcelDataValidation validation)
+        {
+            var retVal = _validations.Remove(validation);
+            _validationStore.Remove(validation);
+            if (retVal) OnValidationCountChanged();
+            return retVal;
         }
 
         private void EnsureRootElementExists()
@@ -159,34 +171,28 @@ namespace OfficeOpenXml.DataValidation
         /// </summary>
         /// <param name="address"></param>
         /// <param name="validatingValidation"></param>
-        private void ValidateAddress(string address, IExcelDataValidation validatingValidation)
+        private void ValidateAddress(ExcelAddressBase address, IExcelDataValidation validatingValidation)
         {
-            Require.Argument(address).IsNotNullOrEmpty("address");
-
             if (!InternalValidationEnabled) return;
 
             // ensure that the new address does not collide with an existing validation.
-            var newAddress = new ExcelAddress(address);
             if (_validations.Count > 0)
             {
-                foreach (var validation in _validations)
+                var collision = _validationStore.FindCollisions(address, validatingValidation).FirstOrDefault();
+
+                if (collision != null)
                 {
-                    if (validatingValidation != null && validatingValidation == validation)
-                    {
-                        continue;
-                    }
-                    var result = validation.Address.Collide(newAddress);
-                    if (result != ExcelAddressBase.eAddressCollition.No)
-                    {
-                         throw new InvalidOperationException(string.Format("The address ({0}) collides with an existing validation ({1})", address, validation.Address.Address));
-                    }
+                    throw new InvalidOperationException(string.Format("The address ({0}) collides with an existing validation ({1})", address, collision.Address.Address));
                 }
             }
         }
 
         private void ValidateAddress(string address)
         {
-            ValidateAddress(address, null);
+            Require.Argument(address).IsNotNullOrEmpty("address");
+            var newAddress = new ExcelAddress(address);
+
+            ValidateAddress(newAddress, null);
         }
 
         /// <summary>
@@ -200,7 +206,7 @@ namespace OfficeOpenXml.DataValidation
             {
                 validation.Validate();
 
-                ValidateAddress(validation.Address.Address, validation);
+                ValidateAddress(validation.Address, validation);
             }
         }
 
@@ -214,8 +220,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationAny(_worksheet, address, ExcelDataValidationType.Any);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -229,8 +234,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.Whole);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -245,8 +249,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationDecimal(_worksheet, address, ExcelDataValidationType.Decimal);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -261,8 +264,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationList(_worksheet, address, ExcelDataValidationType.List);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -276,8 +278,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationInt(_worksheet, address, ExcelDataValidationType.TextLength);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -291,8 +292,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationDateTime(_worksheet, address, ExcelDataValidationType.DateTime);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -302,8 +302,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationTime(_worksheet, address, ExcelDataValidationType.Time);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
         /// <summary>
@@ -316,8 +315,7 @@ namespace OfficeOpenXml.DataValidation
             ValidateAddress(address);
             EnsureRootElementExists();
             var item = new ExcelDataValidationCustom(_worksheet, address, ExcelDataValidationType.Custom);
-            _validations.Add(item);
-            OnValidationCountChanged();
+            AddValidation(item);
             return item;
         }
 
@@ -337,9 +335,7 @@ namespace OfficeOpenXml.DataValidation
             //TopNode.RemoveChild(((ExcelDataValidation)item).TopNode);
             var dvNode = _worksheet.WorksheetXml.DocumentElement.SelectSingleNode(DataValidationPath.TrimStart('/'), NameSpaceManager);
             dvNode?.RemoveChild(((ExcelDataValidation)item).TopNode);
-            var retVal = _validations.Remove(item);
-            if (retVal) OnValidationCountChanged();
-            return retVal;
+            return RemoveValidation(item);
         }
 
         /// <summary>
@@ -437,6 +433,7 @@ namespace OfficeOpenXml.DataValidation
                 //}
             }
             _validations.RemoveAll(match);
+            matches.ForEach(m => _validationStore.Remove(m));
             OnValidationCountChanged();
         }
 
