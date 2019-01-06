@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.2.1</AssemblyVersion>
-    <FileVersion>4.5.2.1</FileVersion>
-    <Version>4.5.2.1</Version>
+    <AssemblyVersion>4.5.3</AssemblyVersion>
+    <FileVersion>4.5.3</FileVersion>
+    <Version>4.5.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -17,77 +17,82 @@
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>
-      EPPlus 4.5.2.1
+    <PackageReleaseNotes>EPPlus 4.5.3
 
-      New features in version 4.5:
-      * .NET Core support
-      * Sparklines
-      * Sort method added to ExcelRange
-      * Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
+        New features in version 4.5:
+        * .NET Core support
+        * Sparklines
+        * Sort method added to ExcelRange
+        * Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
 
-      Important Notes:
-      Breaking change in .NET Core: The Worksheets collection will be zero based as default.
-      This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
-      .NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
-      This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
+        Important Notes:
+        Breaking change in .NET Core: The Worksheets collection will be zero based as default.
+        This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
+        .NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+        This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
 
-      .NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
-      System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
-      Use your favorite package manager to install it.
-      For example:
+        .NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
+        System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
+        Use your favorite package manager to install it.
+        For example:
 
-      Homebrew on MacOS:
-      brew install mono-libgdiplus
+        Homebrew on MacOS:
+        brew install mono-libgdiplus
 
-      apt-get:
-      apt-get install libgdiplus
-1
-      EPPlus-A .NET Spreadsheet API
+        apt-get:
+        apt-get install libgdiplus
 
-      Changes
-      4.5.2.1
-      * Upgraded System.Drawing.Common for .NET Core to 4.5.0
-      * Fixed problem with Apostrophe in worksheet name
+        EPPlus-A .NET Spreadsheet API
 
-      4.5.2
-      * Upgraded System.Drawing.Common to 4.5.0-rc1
-      * Optimized image handling
-      * External Streams are not closed when disposing the package
-      * Fixed issue with Floor and Celing functions
-      * And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+        Changes
+        4.5.3
+        * Upgraded System.Drawing.Common for .NET Core to 4.5.1
+        * Enabled worksheetcharts to use a pivottable as source by adding a pivotTableSource parameter to the AddChart method of the Worksheets collection
+        * Pmt function
+        * And lots of bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+      
+        4.5.2.1
+        * Upgraded System.Drawing.Common for .NET Core to 4.5.0
+        * Fixed problem with Apostrophe in worksheet name
 
-      4.5.1
-      * Added web sample for .NET Core from Vahid Nasiri
-      * Added sample sparkline sample to sample project
-      * Fixed a few problems related to .NET Core on Mac
+        4.5.2
+        * Upgraded System.Drawing.Common to 4.5.0-rc1
+        * Optimized image handling
+        * External Streams are not closed when disposing the package
+        * Fixed issue with Floor and Celing functions
+        * And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
 
-      4.5.0.3
-      * Fix for compound documents (VBA and Encryption).
-      * Fix for Excel 2010 sha1 hashed agile encryption.
-      * Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
-      * Also see https://github.com/JanKallman/EPPlus/commits/master
+        4.5.1
+        * Added web sample for .NET Core from Vahid Nasiri
+        * Added sample sparkline sample to sample project
+        * Fixed a few problems related to .NET Core on Mac
 
-      4.5.0.2 rc
-      * Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+        4.5.0.3
+        * Fix for compound documents (VBA and Encryption).
+        * Fix for Excel 2010 sha1 hashed agile encryption.
+        * Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
+        * Also see https://github.com/JanKallman/EPPlus/commits/master
+
+        4.5.0.2 rc
+        * Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
 
-      4.5.0.1 Beta 2
-      * Added sparkline support.
-      * Switched targetframework from netcoreapp2.0 to netstandardapp2.0
-      * Replaced CoreCompat.System.Drawing.v2 with System.Drawing.Common
-      * Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+        4.5.0.1 Beta 2
+        * Added sparkline support.
+        * Switched targetframework from netcoreapp2.0 to netstandardapp2.0
+        * Replaced CoreCompat.System.Drawing.v2 with System.Drawing.Common
+        * Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
-      4.5.0.0 Beta 1
-      * .Net Core support.
-      * Added ExcelPackage.Compatibility.IsWorksheets1Based to remove inconsistent 1 base collection on the worksheets collection.
-      Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
-      This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
-      * RoundedCorners property Add to ExcelChart
-      * DataTable propery Added  to ExcelPlotArea for charts
-      * Sort method added on ExcelRange
-      * Added functions NETWORKDAYS.INTL and NETWORKDAYS.
-      * And a lot of bug fixes. See https://github.com/JanKallman/EPPlus/commits/master
+        4.5.0.0 Beta 1
+        * .Net Core support.
+        * Added ExcelPackage.Compatibility.IsWorksheets1Based to remove inconsistent 1 base collection on the worksheets collection.
+        Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+        This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
+        * RoundedCorners property Add to ExcelChart
+        * DataTable propery Added  to ExcelPlotArea for charts
+        * Sort method added on ExcelRange
+        * Added functions NETWORKDAYS.INTL and NETWORKDAYS.
+        * And a lot of bug fixes. See https://github.com/JanKallman/EPPlus/commits/master
 
       4.1.1
       * Fix VBA bug in Excel 2016 - 1708 and later
@@ -210,11 +215,9 @@ Release Candidate changes
 </PackageReleaseNotes>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>OpenOfficeXml.snk</AssemblyOriginatorKeyFile>
+    <NeutralLanguage />
   </PropertyGroup>
  
-  <!--<PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.0'">
-    <DefineConstants>Core</DefineConstants>
-  </PropertyGroup>-->
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>Core;STANDARD20</DefineConstants>
   </PropertyGroup>
@@ -263,19 +266,18 @@ Release Candidate changes
     <Reference Include="System.Security" />
     <Reference Include="System.Xml" />
   </ItemGroup>
-  <!--<ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' or '$(TargetFramework)' == 'netstandard2.0'">-->
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common">
-      <Version>4.5.0</Version>
+      <Version>4.5.1</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.4.0" />
-    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.4.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.1" />
+    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
