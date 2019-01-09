@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EPPlus.FormulaParsing
+namespace OfficeOpenXml.FormulaParsing
 {
     /// <summary>
     /// Caches string by generated id's.

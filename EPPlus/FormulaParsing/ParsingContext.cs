@@ -25,7 +25,6 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing;
 using OfficeOpenXml.FormulaParsing.Logging;
-using EPPlus.FormulaParsing;
 
 namespace OfficeOpenXml.FormulaParsing
 {
