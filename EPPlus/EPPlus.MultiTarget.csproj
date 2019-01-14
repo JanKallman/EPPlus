@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.3</AssemblyVersion>
-    <FileVersion>4.5.3</FileVersion>
-    <Version>4.5.3</Version>
+    <AssemblyVersion>4.5.3.1</AssemblyVersion>
+    <FileVersion>4.5.3.1</FileVersion>
+    <Version>4.5.3.1</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://www.gnu.org/licenses/lgpl-3.0.en.html</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
