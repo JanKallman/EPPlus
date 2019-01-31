@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -200,7 +200,9 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeString(MARKERSIZE_PATH, size.ToString(), true);
             }
         }
+
         string MARKERCOLOR_PATH = "c:marker/c:spPr/a:solidFill/a:srgbClr/@val";
+        string MARKERCOLOR_NOFILL_PATH = "c:marker/c:spPr/a:noFill";
         /// <summary>
         /// Marker color.
         /// </summary>
@@ -212,6 +214,12 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
+                bool noFill = ExistNode(MARKERCOLOR_NOFILL_PATH);
+                if (noFill)
+                {
+                    return Color.Transparent;
+                }
+
                 string color = GetXmlNodeString(MARKERCOLOR_PATH);
                 if (color == "")
                 {
@@ -221,11 +229,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 {
                     Color c = Color.FromArgb(Convert.ToInt32(color, 16));
                     int a = getAlphaChannel(MARKERCOLOR_PATH);
-                    if (a != 255)
-                    {
-                        c = Color.FromArgb(a, c);
-                    }
-                    return c;
+                    return Color.FromArgb(a, c);
                 }
             }
             set
@@ -262,8 +266,10 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeString(LINEWIDTH_PATH, (( int )(12700 * value)).ToString(), true);
             }
         }
+
         //marker line color
         string MARKERLINECOLOR_PATH = "c:marker/c:spPr/a:ln/a:solidFill/a:srgbClr/@val";
+        string MARKERLINECOLOR_NOFILL_PATH = "c:marker/c:spPr/a:ln/a:noFill";
         /// <summary>
         /// Marker Line color.
         /// (not to be confused with LineColor)
@@ -276,6 +282,12 @@ namespace OfficeOpenXml.Drawing.Chart
         {
             get
             {
+                bool noFill = ExistNode(MARKERLINECOLOR_NOFILL_PATH);
+                if (noFill)
+                {
+                    return Color.Transparent;
+                }
+
                 string color = GetXmlNodeString(MARKERLINECOLOR_PATH);
                 if (color == "")
                 {
@@ -285,11 +297,7 @@ namespace OfficeOpenXml.Drawing.Chart
                 {
                     Color c = Color.FromArgb(Convert.ToInt32(color, 16));
                     int a = getAlphaChannel(MARKERLINECOLOR_PATH);
-                    if (a != 255)
-                    {
-                        c = Color.FromArgb(a, c);
-                    }
-                    return c;
+                    return Color.FromArgb(a, c);
                 }
             }
             set
