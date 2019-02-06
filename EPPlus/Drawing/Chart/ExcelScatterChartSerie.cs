@@ -95,7 +95,7 @@ namespace OfficeOpenXml.Drawing.Chart
             {
                 return GetXmlNodeInt(smoothPath);
             }
-            internal set
+            set
             {
                 SetXmlNodeString(smoothPath, value.ToString());
             }
