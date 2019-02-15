@@ -185,13 +185,41 @@ namespace OfficeOpenXml
         /// </summary>
         public class MergeCellsCollection : IEnumerable<string>
         {
-            internal MergeCellsCollection()
+            private readonly ExcelWorksheet _ws;
+            internal MergeCellsCollection(ExcelWorksheet ws)
             {
-
+                _ws = ws;
             }
             internal CellStore<int> _cells = new CellStore<int>();
             List<string> _list = new List<string>();
             internal List<string> List { get { return _list; } }
+            
+            /// <summary>
+            /// Get MergeCell Index No
+            /// </summary>
+            /// <param name="row"></param>
+            /// <param name="column"></param>
+            /// <returns></returns>
+            public int GetId(int row, int column)
+            {
+                for (int i = 0; i < _list.Count; i++)
+                {
+                    if(!string.IsNullOrEmpty( _list[i]))
+                    {
+                        ExcelRange range = _ws.Cells[_list[i]];
+
+                        if (range.Start.Row <= row && row <= range.End.Row)
+                        {
+                            if (range.Start.Column <= column && column <= range.End.Column)
+                            {
+                                return i + 1;
+                            }
+                        }
+                    }
+                }
+                return 0;
+            }
+            
             public string this[int row, int column]
             {
                 get
@@ -324,26 +352,24 @@ namespace OfficeOpenXml
             #endregion
             internal void Clear(ExcelAddressBase Destination)
             {
-                var cse = new CellsStoreEnumerator<int>(_cells, Destination._fromRow, Destination._fromCol, Destination._toRow, Destination._toCol);
-                var used = new HashSet<int>();
-                while (cse.Next())
+                 _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
+                for (var row = Destination._fromRow; row <= Destination._toRow; row++)
                 {
-                    var v = cse.Value;
-                    if (!used.Contains(v) && _list[v] != null)
+                    for (var col = Destination._fromCol; col <= Destination._toCol; col++)
                     {
-                        var adr = new ExcelAddressBase(_list[v]);
-                        if (!(Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Equal))
+                        var mergedRangeId = GetId(row, col);
+                        if (mergedRangeId == 0)
                         {
-                            throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", adr._address)));
+                            continue;
                         }
-                        used.Add(v);
-                    }
-                }
 
-                _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
-                foreach (var i in used)
-                {
-                    _list[i] = null;
+                        var mergedRangeAddress = new ExcelAddressBase(_list[mergedRangeId]);
+                        if (Destination.Collide(mergedRangeAddress) == ExcelAddressBase.eAddressCollition.Partly)
+                        {
+                            throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", mergedRangeAddress._address)));
+                        }
+                        _list[mergedRangeId] = null;
+                    }
                 }
             }
         }
@@ -396,6 +422,7 @@ namespace OfficeOpenXml
             _name = sheetName;
             _sheetID = sheetID;
             _positionID = positionID;
+            _mergedCells = new MergeCellsCollection(this);
             Hidden = hide;
 
             /**** Cellstore ****/
@@ -1664,7 +1691,7 @@ namespace OfficeOpenXml
                 return new ExcelRange(this, View.SelectedRange);
             }
         }
-        MergeCellsCollection _mergedCells = new MergeCellsCollection();
+        MergeCellsCollection _mergedCells;
         /// <summary>
         /// Addresses to merged ranges
         /// </summary>
@@ -2863,22 +2890,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public int GetMergeCellId(int row, int column)
         {
-            for (int i = 0; i < _mergedCells.Count; i++)
-            {
-               if(!string.IsNullOrEmpty( _mergedCells[i]))
-               {
-                    ExcelRange range = Cells[_mergedCells[i]];
-
-                    if (range.Start.Row <= row && row <= range.End.Row)
-                    {
-                        if (range.Start.Column <= column && column <= range.End.Column)
-                        {
-                            return i + 1;
-                        }
-                    }
-                }
-            }
-            return 0;
+            return _mergedCells.GetId(row, column);
         }
 
 #endregion
