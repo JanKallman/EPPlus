@@ -314,6 +314,7 @@
     <Compile Include="FormulaParsing\DependencyChain\DependencyChain.cs" />
     <Compile Include="FormulaParsing\DependencyChain\FormulaCell.cs" />
     <Compile Include="FormulaParsing\EpplusExcelDataProvider.cs" />
+    <Compile Include="FormulaParsing\ExcelAddressCache.cs" />
     <Compile Include="FormulaParsing\ExcelCalculationOption.cs" />
     <Compile Include="FormulaParsing\ExcelCell.cs" />
     <Compile Include="FormulaParsing\ExcelDataProvider.cs" />
@@ -680,7 +681,6 @@
     <Compile Include="Packaging\DotNetZip\ZipFile.Extract.cs" />
     <Compile Include="Packaging\DotNetZip\ZipFile.Read.cs" />
     <Compile Include="Packaging\DotNetZip\ZipFile.Save.cs" />
-    <Compile Include="Packaging\DotNetZip\ZipFile.SaveSelfExtractor.cs" />
     <Compile Include="Packaging\DotNetZip\ZipFile.Selector.cs" />
     <Compile Include="Packaging\DotNetZip\ZipFile.x-IEnumerable.cs" />
     <Compile Include="Packaging\DotNetZip\ZipInputStream.cs">

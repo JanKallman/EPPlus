@@ -865,27 +865,37 @@ namespace OfficeOpenXml
                 bool ret;
                 if (r1 != "" && c1 != "" && r2 == "" && c2 == "")   //Single Cell
                 {
-                    ret=(GetColumn(c1) <= ExcelPackage.MaxColumns && int.Parse(r1) <= ExcelPackage.MaxRows);
+                    var column = GetColumn(c1);
+                    var row = int.Parse(r1);                    
+                    ret =(column>=1 && column <= ExcelPackage.MaxColumns && row >= 1 && row <= ExcelPackage.MaxRows);
                 }
                 else if (r1 != "" && r2 != "" && c1 != "" && c2 != "") //Range
                 {
+                    var iR1 = int.Parse(r1);
+                    var iC1 = GetColumn(c1);
                     var iR2 = int.Parse(r2);
                     var iC2 = GetColumn(c2);
 
-                    ret = GetColumn(c1) <= iC2 && int.Parse(r1) <= iR2 &&
-                        iC2 <= ExcelPackage.MaxColumns && iR2 <= ExcelPackage.MaxRows;
+                    ret = iC1 <= iC2 && iR1 <= iR2 &&
+                        iC1 >= 1 && iC2 <= ExcelPackage.MaxColumns && 
+                        iR1 >= 1 && iR2 <= ExcelPackage.MaxRows;
 
                 }
                 else if (r1 == "" && r2 == "" && c1 != "" && c2 != "") //Full Column
                 {
-                    var c2n = GetColumn(c2);
-                    ret = (GetColumn(c1) <= c2n && c2n <= ExcelPackage.MaxColumns);
+                    var iC1 = GetColumn(c1);
+                    var iC2 = GetColumn(c2);
+                    ret = iC1 <= iC2 && 
+                        iC1 >= 1 && iC2 <= ExcelPackage.MaxColumns;
                 }
                 else if (r1 != "" && r2 != "" && c1 == "" && c2 == "")
                 {
+                    var iR1 = int.Parse(r2);
                     var iR2 = int.Parse(r2);
 
-                    ret = int.Parse(r1) <= iR2 && iR2 <= ExcelPackage.MaxRows;
+                    ret = int.Parse(r1) <= iR2 && 
+                        iR1 >=1 &&
+                        iR2 <= ExcelPackage.MaxRows;
                 }
                 else
                 {

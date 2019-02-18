@@ -30,6 +30,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using System.Text.RegularExpressions;
+using static OfficeOpenXml.FormulaParsing.EpplusExcelDataProvider;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 {
@@ -47,8 +48,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 
         private bool HaveTwoRanges(IEnumerable<FunctionArgument> arguments)
         {
-            if (arguments.Count() == 2) return false;
-            return (ExcelAddressUtil.IsValidAddress(arguments.ElementAt(2).Value.ToString()));
+            if (arguments.Count() < 3) return false;
+            return (arguments.ElementAt(2).Value is RangeInfo);
         }
 
         private CompileResult HandleSingleRange(IEnumerable<FunctionArgument> arguments, ParsingContext context)

@@ -2987,7 +2987,6 @@ namespace OfficeOpenXml
             var formulas = GetItems(_worksheet._formulas, _fromRow, _fromCol, _toRow, _toCol);
             var hyperLinks = GetItems(_worksheet._hyperLinks, _fromRow, _fromCol, _toRow, _toCol);
             var comments = GetItems(_worksheet._commentsStore, _fromRow, _fromCol, _toRow, _toCol);
-            var sf = new HashSet<int>();
             //Sort the values and styles.
             _worksheet._values.Clear(_fromRow, _fromCol, _toRow - _fromRow + 1, cols);
             for (var r = 0; r < l.Count; r++)
@@ -3009,19 +3008,19 @@ namespace OfficeOpenXml
                         _worksheet._formulas.SetValue(row, col, formulas[addr]);
                         if (formulas[addr] is int)
                         {
-                            var sfIx = (int)formulas[addr];
-                            if (!sf.Contains(sfIx))
+                            int sfIx = (int)formulas[addr];
+                            var startAddr = new ExcelAddress(Worksheet._sharedFormulas[sfIx].Address);
+                            var f = Worksheet._sharedFormulas[sfIx];
+                            if (startAddr._fromRow > row)
                             {
-                                var startAddr = new ExcelAddress(Worksheet._sharedFormulas[sfIx].Address);
-                                if (startAddr._fromRow > row)
-                                {
-                                    var f = Worksheet._sharedFormulas[sfIx];
-                                    f.Formula = ExcelCellBase.TranslateFromR1C1(ExcelCellBase.TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), row, f.StartCol);
-                                    f.StartRow = row;
-                                    f.Address = ExcelCellBase.GetAddress(row, col, startAddr._toRow, startAddr._toCol);
-                                }
+                                f.Formula = ExcelCellBase.TranslateFromR1C1(ExcelCellBase.TranslateToR1C1(f.Formula, f.StartRow, f.StartCol), row, f.StartCol);
+                                f.StartRow = row;
+                                f.Address = ExcelCellBase.GetAddress(row, startAddr._fromCol, startAddr._toRow, startAddr._toCol);
                             }
-                            sf.Add(sfIx);
+                            else if (startAddr._toRow < row)
+                            {
+                                f.Address = ExcelCellBase.GetAddress(startAddr._fromRow, startAddr._fromCol, row, startAddr._toCol);
+                            }
                         }
                     }
 

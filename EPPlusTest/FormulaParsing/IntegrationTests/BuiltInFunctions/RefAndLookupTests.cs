@@ -344,5 +344,33 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
                 v = s1.Cells["X10"].Formula;
             }
         }
+
+        [TestMethod]
+        public void LookupShouldReturnFromResultVector()
+        {
+            var lookupAddress = "A1:A5";
+            var resultAddress = "B1:B5";
+            using (var package = new ExcelPackage())
+            {
+                var s = package.Workbook.Worksheets.Add("test");
+                //lookup_vector
+                s.Cells[1, 1].Value = 4.14;
+                s.Cells[2, 1].Value = 4.19;
+                s.Cells[3, 1].Value = 5.17;
+                s.Cells[4, 1].Value = 5.77;
+                s.Cells[5, 1].Value = 6.39;
+                //result_vector
+                s.Cells[1, 2].Value = "red";
+                s.Cells[2, 2].Value = "orange";
+                s.Cells[3, 2].Value = "yellow";
+                s.Cells[4, 2].Value = "green";
+                s.Cells[5, 2].Value = "blue";
+                //lookup_value
+                s.Cells[1, 3].Value = 4.14;
+                s.Cells[5, 5].Formula = "LOOKUP(C1, " + lookupAddress + ", " + resultAddress + ")";
+                s.Calculate();
+                Assert.AreEqual("red", s.Cells[5, 5].Value);
+            }
+        }
     }
 }
