@@ -218,10 +218,15 @@ namespace OfficeOpenXml
             }
             if (comment==c)
             {
-                comment.TopNode.ParentNode.RemoveChild(comment.TopNode); //Remove VML
-                comment._commentHelper.TopNode.ParentNode.RemoveChild(comment._commentHelper.TopNode); //Remove Comment
+                //
+                comment.TopNode.ParentNode?.RemoveChild(comment.TopNode); //Remove VML
+                comment._commentHelper.TopNode.ParentNode?.RemoveChild(comment._commentHelper.TopNode); //Remove Comment
 
-                Worksheet.VmlDrawingsComments._drawings.Delete(id);
+                if (Worksheet.VmlDrawingsComments._drawings.ContainsKey(id))
+                {
+                    Worksheet.VmlDrawingsComments._drawings.Delete(id);
+                }
+
                 _list.RemoveAt(i);                
                 Worksheet._commentsStore.Delete(comment.Range._fromRow, comment.Range._fromCol, 1, 1, false);   //Issue 15549, Comments should not be shifted 
                 var ci = new CellsStoreEnumerator<int>(Worksheet._commentsStore);

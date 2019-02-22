@@ -2551,8 +2551,27 @@ namespace OfficeOpenXml
             {
                 throw(new ArgumentException("Row out of range. Spans from 1 to " + ExcelPackage.MaxRows.ToString(CultureInfo.InvariantCulture)));
             }
+
             lock (this)
             {
+                var commentsDictionary = new List<ExcelComment>();
+
+                foreach (ExcelComment excelComment in Comments)
+                {
+                    var commentRow = Cells[excelComment.Reference].Start.Row;
+                    if (commentRow < rowFrom)
+                    {
+                        continue;
+                    }
+
+                    commentsDictionary.Add(excelComment);
+                }
+
+                foreach (var c in commentsDictionary)
+                {
+                    Comments.Remove(c);
+                }
+
                 _values.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _formulas.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _flags.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
@@ -2570,6 +2589,7 @@ namespace OfficeOpenXml
                 {
                     tbl.Address = tbl.Address.DeleteRow(rowFrom, rows);
                 }
+
                 foreach (var ptbl in PivotTables)
                 {
                     if (ptbl.Address.Start.Row > rowFrom + rows)
@@ -2577,6 +2597,7 @@ namespace OfficeOpenXml
                         ptbl.Address = ptbl.Address.DeleteRow(rowFrom, rows);
                     }
                 }
+
                 //Issue 15573
                 foreach (ExcelDataValidation dv in DataValidations)
                 {
@@ -2588,6 +2609,20 @@ namespace OfficeOpenXml
                         {
                             dv.SetAddress(newAddr);
                         }
+                    }
+                }
+
+                foreach (var commentToShift in commentsDictionary)
+                {
+                    var commentTarget = Cells[commentToShift.Range.Start.Row - rows, commentToShift.Range.Start.Column];
+                    var existingComment = commentTarget.Comment;
+                    if (existingComment != null)
+                    {
+                        existingComment.Text = commentToShift.Text;
+                    }
+                    else
+                    {
+                        commentTarget.AddComment(commentToShift.Text, commentToShift.Author);
                     }
                 }
             }
