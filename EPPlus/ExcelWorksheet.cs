@@ -358,12 +358,15 @@ namespace OfficeOpenXml
                     for (var col = Destination._fromCol; col <= Destination._toCol; col++)
                     {
                         var mergedRangeId = GetId(row, col);
+                        
                         if (mergedRangeId == 0)
                         {
                             continue;
                         }
 
-                        var mergedRangeAddress = new ExcelAddressBase(_list[mergedRangeId]);
+                        // из метода GetId возвращается индекс в списке _list + 1, т.к. результат 0 означает, что значение в списке не найдено
+                        // поэтому, чтобы восстановить исходный индекс, передаем mergedRangeId-1
+                        var mergedRangeAddress = new ExcelAddressBase(_list[mergedRangeId-1]);
                         if (Destination.Collide(mergedRangeAddress) == ExcelAddressBase.eAddressCollition.Partly)
                         {
                             throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", mergedRangeAddress._address)));
