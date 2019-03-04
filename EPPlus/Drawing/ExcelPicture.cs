@@ -55,7 +55,7 @@ namespace OfficeOpenXml.Drawing
             XmlNode picNode = node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip", drawings.NameSpaceManager);
             if (picNode != null)
             {
-                RelPic = drawings.Part.GetRelationship(picNode.Attributes["r:embed"].Value);
+                RelPic = drawings.Part.GetRelationship(picNode.Attributes["embed", ExcelPackage.schemaRelationships].Value);
                 UriPic = UriHelper.ResolvePartUri(drawings.UriDrawing, RelPic.TargetUri);
 
                 Part = drawings.Part.Package.GetPart(UriPic);
