@@ -257,7 +257,7 @@ namespace OfficeOpenXml
             {
                 range.SplitFormulas(range._worksheet.Cells[row, col]);
             }
-            if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
+           // if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
             range._worksheet.SetValueInner(row, col, value);
         }
         private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
