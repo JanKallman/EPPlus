@@ -371,7 +371,7 @@ namespace OfficeOpenXml
                         {
                             throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", mergedRangeAddress._address)));
                         }
-                        _list[mergedRangeId] = null;
+                        _list[mergedRangeId-1] = null;
                     }
                 }
             }
