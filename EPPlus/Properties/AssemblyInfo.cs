@@ -46,7 +46,7 @@ using System.Security;
 //
 //      Major Version
 //      Minor Version 
-//      Build Number
+//      Build NumberS
 //      Revision
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
@@ -62,7 +62,7 @@ using System.Security;
     //[assembly: AssemblyCulture("")]
     //[assembly: ComVisible(false)]
 
-    //[assembly: AssemblyVersion("4.5.0.0")]
-    //[assembly: AssemblyFileVersion("4.5.0.0")]
+    [assembly: AssemblyVersion("4.5.3.6")]
+    [assembly: AssemblyFileVersion("4.5.3.6")]
 #endif
 [assembly: AllowPartiallyTrustedCallers]

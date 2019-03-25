@@ -253,7 +253,7 @@ namespace OfficeOpenXml
         private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
         {
             var sfi = range._worksheet._formulas.GetValue(row, col);
-            if (sfi is int)
+            if (sfi is int && !range.IsSingleCell)
             {
                 range.SplitFormulas(range._worksheet.Cells[row, col]);
             }
@@ -1608,7 +1608,7 @@ namespace OfficeOpenXml
             //The formula is inside the currenct range, remove it
             if (collide == eAddressCollition.Equal || collide == eAddressCollition.Inside)
             {
-                _worksheet._sharedFormulas.Remove(ix);
+               // _worksheet._sharedFormulas.Remove(ix);
                 return;
                 //fRange.SetSharedFormulaID(int.MinValue); 
             }
