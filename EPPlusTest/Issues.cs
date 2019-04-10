@@ -2387,5 +2387,25 @@ namespace EPPlusTest
                 workbook.Names.Add("Q0", cells);
             }
         }
+        [TestMethod]
+        public void Issue333()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("TextBug");
+                ws.Cells["A1"].Value = new DateTime(2019, 3, 7);
+                ws.Cells["A1"].Style.Numberformat.Format = "mm-dd-yy";
+
+                Assert.AreEqual("2019-03-07", ws.Cells["A1"].Text);
+            }
+        }
+        [TestMethod]
+        public void Issue445()
+        {
+            ExcelPackage p = new ExcelPackage();
+            ExcelWorksheet ws = p.Workbook.Worksheets.Add("AutoFit"); //<-- This line takes forever. The process hangs.
+            ws.Cells[1, 1].Value = new string('a', 50000);
+            ws.Cells[1, 1].AutoFitColumns();
+        }
     }
 }
