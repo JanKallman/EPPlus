@@ -1270,7 +1270,11 @@ namespace OfficeOpenXml
             set
             {
                 IsRangeValid("merging");
-                _worksheet.MergedCells.Clear(this);
+                if (!_worksheet.DisableMergeValidation)
+                {
+                    _worksheet.MergedCells.Clear(this);
+                }
+
                 if (value)
                 {
                     _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);

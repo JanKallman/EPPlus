@@ -185,6 +185,25 @@ namespace OfficeOpenXml
         /// </summary>
         public class MergeCellsCollection : IEnumerable<string>
         {
+            private struct AddressDimensions
+            {
+                internal int StartRow;
+
+                internal int StartCol;
+
+                internal int EndRow;
+
+                internal int EndCol;
+
+                internal AddressDimensions(int startRow, int startCol, int endRow, int endCol)
+                {
+                    StartRow = startRow;
+                    StartCol = startCol;
+                    EndRow = endRow;
+                    EndCol = endCol;
+                }
+            }
+            
             private readonly ExcelWorksheet _ws;
             internal MergeCellsCollection(ExcelWorksheet ws)
             {
@@ -193,6 +212,8 @@ namespace OfficeOpenXml
             internal CellStore<int> _cells = new CellStore<int>();
             List<string> _list = new List<string>();
             internal List<string> List { get { return _list; } }
+            
+            private IDictionary<string,AddressDimensions> _mergedAreasDimsCache = new Dictionary<string,AddressDimensions>();
             
             /// <summary>
             /// Get MergeCell Index No
@@ -204,13 +225,20 @@ namespace OfficeOpenXml
             {
                 for (int i = 0; i < _list.Count; i++)
                 {
-                    if(!string.IsNullOrEmpty( _list[i]))
+                    var mergedAddress = _list[i];
+                    if(!string.IsNullOrEmpty( mergedAddress))
                     {
-                        ExcelRange range = _ws.Cells[_list[i]];
-
-                        if (range.Start.Row <= row && row <= range.End.Row)
+                        if (!_mergedAreasDimsCache.ContainsKey(mergedAddress))
                         {
-                            if (range.Start.Column <= column && column <= range.End.Column)
+                            ExcelCellBase.GetRowColFromAddress(mergedAddress, out var startRow, out var startColumn, out int toRow, out int toColumn);
+                            _mergedAreasDimsCache.Add(mergedAddress, new AddressDimensions(startRow, startColumn, toRow, toColumn));
+                        }
+                        
+                        var mergedDims = _mergedAreasDimsCache[mergedAddress];
+                        
+                        if (mergedDims.StartRow <= row && row <= mergedDims.EndRow)
+                        {
+                            if (mergedDims.StartCol <= column && column <= mergedDims.EndCol)
                             {
                                 return i + 1;
                             }
@@ -254,6 +282,7 @@ namespace OfficeOpenXml
                 lock (this)
                 {
                     ix = _list.Count;
+                    _mergedAreasDimsCache.Add(address.Address, new AddressDimensions(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column));
                     _list.Add(address.Address);
                     SetIndex(address, ix);
                 }
@@ -352,6 +381,7 @@ namespace OfficeOpenXml
             #endregion
             internal void Clear(ExcelAddressBase Destination)
             {
+                var used = new HashSet<int>();
                  _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
                 for (var row = Destination._fromRow; row <= Destination._toRow; row++)
                 {
@@ -359,11 +389,12 @@ namespace OfficeOpenXml
                     {
                         var mergedRangeId = GetId(row, col);
                         
-                        if (mergedRangeId == 0)
+                        if (mergedRangeId == 0 || used.Contains(mergedRangeId))
                         {
                             continue;
                         }
 
+                        used.Add(mergedRangeId);
                         // из метода GetId возвращается индекс в списке _list + 1, т.к. результат 0 означает, что значение в списке не найдено
                         // поэтому, чтобы восстановить исходный индекс, передаем mergedRangeId-1
                         var mergedRangeAddress = new ExcelAddressBase(_list[mergedRangeId-1]);
@@ -376,6 +407,7 @@ namespace OfficeOpenXml
                 }
             }
         }
+        public bool DisableMergeValidation { get; set; }
         //internal CellStore<object> _values;
         //internal CellStore<string> _types;
         //internal CellStore<int> _styles;
