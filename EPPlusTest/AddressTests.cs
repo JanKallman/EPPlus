@@ -141,6 +141,7 @@ namespace EPPlusTest
             Assert.IsFalse(ExcelAddressUtil.IsValidName("*d"));     //invalid start char
             Assert.IsFalse(ExcelAddressUtil.IsValidName("\t"));     //invalid start char
             Assert.IsFalse(ExcelAddressUtil.IsValidName("\\t"));    //Backslash at least three chars
+            Assert.IsTrue(ExcelAddressUtil.IsValidName("valid\\")); //Backslash not as first char
             Assert.IsFalse(ExcelAddressUtil.IsValidName("A+1"));   //invalid char
             Assert.IsFalse(ExcelAddressUtil.IsValidName("A%we"));   //Address invalid
             Assert.IsFalse(ExcelAddressUtil.IsValidName("BB73"));   //Address invalid
