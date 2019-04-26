@@ -442,7 +442,7 @@ namespace OfficeOpenXml.Table.PivotTable
                  {
                      // for no subtotals, set defaultSubtotal to off
                      SetXmlNodeBool("@defaultSubtotal", false);
-                     TopNode.InnerXml = "";
+                     TopNode.InnerXml = "<items count=\"1\"><item x=\"0\"/></items>";
                  }
                  else
                  {
