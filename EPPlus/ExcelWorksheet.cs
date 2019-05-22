@@ -282,7 +282,15 @@ namespace OfficeOpenXml
                 lock (this)
                 {
                     ix = _list.Count;
-                    _mergedAreasDimsCache.Add(address.Address, new AddressDimensions(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column));
+                    var addressDimension = new AddressDimensions(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column);
+                    if (!_mergedAreasDimsCache.ContainsKey(address.Address))
+                    {
+                        _mergedAreasDimsCache.Add(address.Address, addressDimension);
+                    }
+                    else
+                    {
+                        _mergedAreasDimsCache[address.Address] = addressDimension;
+                    }
                     _list.Add(address.Address);
                     SetIndex(address, ix);
                 }

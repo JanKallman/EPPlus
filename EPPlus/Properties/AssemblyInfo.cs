@@ -62,7 +62,7 @@ using System.Security;
     //[assembly: AssemblyCulture("")]
     //[assembly: ComVisible(false)]
 
-    [assembly: AssemblyVersion("4.5.3.7")]
-    [assembly: AssemblyFileVersion("4.5.3.7")]
+    [assembly: AssemblyVersion("4.5.3.9")]
+    [assembly: AssemblyFileVersion("4.5.3.9")]
 #endif
 [assembly: AllowPartiallyTrustedCallers]
