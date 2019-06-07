@@ -38,8 +38,10 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using System.Windows;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using Size = System.Drawing.Size;
 
 namespace OfficeOpenXml.Drawing
 {
@@ -353,6 +355,16 @@ namespace OfficeOpenXml.Drawing
             get;
             set;
         }
+
+        public Vector GetOffset()
+        {
+            return new Vector(_left, _top);
+        }
+        public Size GetSize()
+        {
+            return new Size(_width, _height);
+        }
+
         /// <summary>
         /// Set the size of the image in percent from the orginal size
         /// Note that resizing columns / rows after using this function will effect the size of the picture
