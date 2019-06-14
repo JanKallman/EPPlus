@@ -41,6 +41,7 @@ namespace OfficeOpenXml.FormulaParsing.Utilities
         //Changed JK 26/2-2013
         public const string ExcelAddress = @"^(('[^/\\?*\[\]]{1,31}'|[A-Za-z_]{1,31})!)?[\$]{0,1}([A-Z]|[A-Z]{1,3}[\$]{0,1}[1-9]{1}[0-9]{0,7})(\:({0,1}[A-Z]|[A-Z]{1,3}[\$]{0,1}[1-9]{1}[0-9]{0,7})){0,1}$";
         //public const string ExcelAddress = @"^([\$]{0,1}([A-Z]{1,3}[\$]{0,1}[0-9]{1,7})(\:([\$]{0,1}[A-Z]{1,3}[\$]{0,1}[0-9]{1,7}){0,1})|([\$]{0,1}[A-Z]{1,3}\:[\$]{0,1}[A-Z]{1,3})|([\$]{0,1}[0-9]{1,7}\:[\$]{0,1}[0-9]{1,7}))$";
+        public const string SheetNameSingleQuotes = @"^[A-Z]{1,3}[1-9]{1}[0-9]{0,7}$|^R-?\d*C-?\d*$|[\s()'$,;\-{}!]";
         public const string Boolean = @"^(true|false)$";
         public const string Decimal = @"^[0-9]+\.[0-9]+$";
         public const string Integer = @"^[0-9]+$";

@@ -55,8 +55,8 @@ namespace EPPlusTest
         [TestMethod]
         public void UpdateFormulaSheetReferences()
         {
-          var result = ExcelCellBase.UpdateFormulaSheetReferences("5+'OldSheet'!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", "OldSheet", "NewSheet");
-          Assert.AreEqual("5+'NewSheet'!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", result);
+          var result = ExcelCellBase.UpdateFormulaSheetReferences("5+OldSheet!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", "OldSheet", "NewSheet");
+          Assert.AreEqual("5+NewSheet!$G3+'Some Other Sheet'!C3+SUM(1,2,3)", result);
         }
 
         [TestMethod]
@@ -85,6 +85,34 @@ namespace EPPlusTest
         public void UpdateFormulaSheetReferencesEmptyNewSheetThrowsException()
         {
           ExcelCellBase.UpdateFormulaSheetReferences("formula", "sheet1", string.Empty);
+        }
+
+        [TestMethod]
+        public void UpdateFormulaSheetReferencesToSheetNameWithSpace()
+        {
+            var result = ExcelCellBase.UpdateFormulaSheetReferences("Sheet1!A1", "Sheet1", "Sheet 1");
+            Assert.AreEqual("'Sheet 1'!A1", result);
+        }
+
+        [TestMethod]
+        public void UpdateFormulaSheetReferencesToSheetNameWithSpecialChars()
+        {
+            var result = ExcelCellBase.UpdateFormulaSheetReferences("Sheet1!A1", "Sheet1", "(Sheet)'1!");
+            Assert.AreEqual("'(Sheet)''1!'!A1", result);
+        }
+
+        [TestMethod]
+        public void UpdateFormulaSheetReferencesToSheetNameWithA1Notation()
+        {
+            var result = ExcelCellBase.UpdateFormulaSheetReferences("Sheet1!A1", "Sheet1", "B1048576");
+            Assert.AreEqual("'B1048576'!A1", result);
+        }
+
+        [TestMethod]
+        public void UpdateFormulaSheetReferencesToSheetNameWithR1C1Notation()
+        {
+            var result = ExcelCellBase.UpdateFormulaSheetReferences("Sheet1!A1", "Sheet1", "RC");
+            Assert.AreEqual("'RC'!A1", result);
         }
         #endregion
   }

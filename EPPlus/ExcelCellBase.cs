@@ -150,7 +150,10 @@ namespace OfficeOpenXml
                 string p1 = ToR1C1_1(part.Substring(0, delim), row, col);
                 string p2 = ToR1C1_1(part.Substring(delim + 1), row, col);
                 if (p1.Equals(p2))
-                    return p1;
+                {
+                    return sh + p1;
+                }
+
                 return sh + p1 + ":" + p2;
             }
 
@@ -209,7 +212,10 @@ namespace OfficeOpenXml
                 string p1 = ToAbs_1(part.Substring(0, delim), row, col, false);
                 string p2 = ToAbs_1(part.Substring(delim + 1), row, col, false);
                 if (p1.Equals(p2))
-                    return p1;
+                {
+                    return sh + p1;
+                }
+
                 return sh + p1 + ":" + p2;
             }
             else

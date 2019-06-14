@@ -234,5 +234,46 @@ namespace EPPlusTest.FormulaParsing
             Assert.AreEqual("A3", _sheet.Cells["B3"].Formula);
 
         }
+
+        [TestMethod]
+        public void SheetNameTest()
+        {
+            const string formulaR1C1 = "SUM(Test2!R[-4]C[-4]:R[-1]C[-1])";
+            _sheet.Cells[5, 5].FormulaR1C1 = formulaR1C1;
+            string formula = _sheet.Cells[5, 5].Formula;
+            Assert.AreEqual("SUM(Test2!A1:D4)", formula);
+        }
+
+        [TestMethod]
+        public void TranslateToR1C1Test1()
+        {
+            const string formula = "SUM(Sheet1!A:A)";
+            var formulaR1C1 = ExcelCellBase.TranslateToR1C1(formula, 1,2);
+            Assert.AreEqual("SUM(Sheet1!C[-1])",formulaR1C1);
+        }
+
+        [TestMethod]
+        public void TranslateToR1C1Test2()
+        {
+            const string formula = "SUM(Sheet1!1:1)";
+            var formulaR1C1 = ExcelCellBase.TranslateToR1C1(formula, 2,1);
+            Assert.AreEqual("SUM(Sheet1!R[-1])",formulaR1C1);
+        }
+
+        [TestMethod]
+        public void TranslateFromR1C1Test1()
+        {
+            const string formulaR1C1 = "SUM(Sheet1!C[-1])";
+            var formula = ExcelCellBase.TranslateFromR1C1(formulaR1C1, 1,2);
+            Assert.AreEqual("SUM(Sheet1!A:A)", formula);
+        }
+
+        [TestMethod]
+        public void TranslateFromR1C1Test2()
+        {
+            const string formulaR1C1 = "SUM(Sheet1!R[-1])";
+            var formula = ExcelCellBase.TranslateFromR1C1(formulaR1C1, 2,1);
+            Assert.AreEqual("SUM(Sheet1!1:1)", formula);
+        }
     }
 }

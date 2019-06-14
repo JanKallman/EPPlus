@@ -188,7 +188,7 @@ namespace OfficeOpenXml
 						nameWorksheet=Worksheets[localSheetID + _package._worksheetAdd];
 					}
 
-					var addressType = ExcelAddressBase.IsValid(fullAddress);
+					var addressType = ExcelAddressBase.IsValid(fullAddress, out _);
 					ExcelRangeBase range;
 					ExcelNamedRange namedRange;
 

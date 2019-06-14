@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using OfficeOpenXml.FormulaParsing.Utilities;
 
 namespace OfficeOpenXml
 {
@@ -395,13 +396,18 @@ namespace OfficeOpenXml
 
             if (!string.IsNullOrEmpty(_ws))
             {
-                adr += string.Format("'{0}'!", _ws);
+                adr += GetWorksheetNameEscaped() + "!";
             }
             if (IsName)
               adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol);
             else
               adr += GetAddress(_fromRow, _fromCol, _toRow, _toCol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             return adr;
+        }
+
+        public string GetWorksheetNameEscaped()
+        {
+            return Regex.IsMatch(_ws, RegexConstants.SheetNameSingleQuotes) ? $"'{_ws.Replace("'", "''")}'" : _ws;
         }
         #endregion
         protected ExcelCellAddress _start = null;
@@ -889,8 +895,9 @@ namespace OfficeOpenXml
             R1C1
         }
 
-        internal static AddressType IsValid(string Address, bool r1c1=false)
+        internal static AddressType IsValid(string Address, out string normalizedAddress, bool r1c1 = false)
         {
+            normalizedAddress = Address;
             double d;
             if (Address == "#REF!")
             {
@@ -918,15 +925,25 @@ namespace OfficeOpenXml
                     {
                         if (intAddress.Contains("[")) //Table reference
                         {
-                            return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
+                            if (!string.IsNullOrEmpty(wb))
+                            {
+                                return AddressType.ExternalAddress;
+                            }
+
+                            normalizedAddress = NormalizeAddress(Address, ws, intAddress);
+                            return AddressType.InternalAddress;
                         }
-                        else if (intAddress.Contains(","))
+
+                        string addressToTest = intAddress.Contains(",") ? intAddress.Substring(0, intAddress.IndexOf(',')) : intAddress;
+                        if (IsAddress(addressToTest))
                         {
-                            intAddress = intAddress.Substring(0, intAddress.IndexOf(','));
-                        }
-                        if (IsAddress(intAddress))
-                        {
-                            return string.IsNullOrEmpty(wb) ? AddressType.InternalAddress : AddressType.ExternalAddress;
+                            if (!string.IsNullOrEmpty(wb))
+                            {
+                                return AddressType.ExternalAddress;
+                            }
+
+                            normalizedAddress = NormalizeAddress(Address, ws, intAddress);
+                            return AddressType.InternalAddress;
                         }
                         else
                         {
@@ -939,6 +956,11 @@ namespace OfficeOpenXml
                     }
                 }
             }
+        }
+
+        private static string NormalizeAddress(string fullAddress, string ws, string intAddress)
+        {
+            return fullAddress.StartsWith("!") ? fullAddress : string.IsNullOrEmpty(ws) ? intAddress : $"{ws}!{intAddress.ToUpperInvariant()}";
         }
 
         private static bool IsR1C1(string address)
