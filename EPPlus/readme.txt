@@ -1,4 +1,4 @@
-EPPlus 4.5.3
+EPPlus 4.5.3.2
 
 New features in version 4.5:
 * .NET Core support
@@ -26,6 +26,16 @@ apt-get install libgdiplus
 EPPlus-A .NET Spreadsheet API
 
 Changes
+4.5.3.2
+* Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
+* Fixed Text property with short date format
+* Fixed problem with defined names containing backslash 
+* More bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+
+4.5.3.1
+* Fixed Lookup function ignoring result vector.
+* Fixed address validation.
+
 4.5.3
 * Upgraded System.Drawing.Common for .NET Core to 4.5.1
 * Enabled worksheetcharts to use a pivottable as source by adding a pivotTableSource parameter to the AddChart method of the Worksheets collection

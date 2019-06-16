@@ -2668,23 +2668,44 @@ namespace OfficeOpenXml
                     Destination._worksheet.MergedCells.Add(m, true);
                 }
             }
+
+            //Check that the range is not larger than the dimensions of the worksheet. 
+            //If so set the copied range to the worksheet dimensions to avoid copying empty cells.
+            ExcelAddressBase range;
+
+            if (Worksheet.Dimension == null)
+            {
+                range = this;
+            }
+            else
+            {
+                var collideStatus = Collide(Worksheet.Dimension);
+                if (collideStatus != eAddressCollition.Equal || collideStatus != eAddressCollition.Inside)
+                {
+                    range = Worksheet.Dimension;
+                }
+                else
+                {
+                    range = this;
+                }
+            }
+
             if (_fromCol == 1 && _toCol == ExcelPackage.MaxColumns)
             {
-                for (int r = 0; r < this.Rows; r++)
+                for (int r = 0; r < range.Rows; r++)
                 {
                     var destinationRow = Destination.Worksheet.Row(Destination.Start.Row + r);
-                    destinationRow.OutlineLevel = this.Worksheet.Row(_fromRow + r).OutlineLevel;
+                    destinationRow.OutlineLevel = Worksheet.Row(range._fromRow + r).OutlineLevel;
                 }
             }
             if (_fromRow == 1 && _toRow == ExcelPackage.MaxRows)
             {
-                for (int c = 0; c < this.Columns; c++)
+                for (int c = 0; c < range.Columns; c++)
                 {
                     var destinationCol = Destination.Worksheet.Column(Destination.Start.Column + c);
-                    destinationCol.OutlineLevel = this.Worksheet.Column(_fromCol + c).OutlineLevel;
+                    destinationCol.OutlineLevel = Worksheet.Column(range._fromCol + c).OutlineLevel;
                 }
             }
-
         }
 
         /// <summary>

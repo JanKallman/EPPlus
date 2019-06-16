@@ -68,7 +68,7 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             }
             return OfficeOpenXml.ExcelAddress.IsValidAddress(token);
         }
-        readonly static char[] NameInvalidChars = new char[] { '!', '@', '#', '$', '£', '%', '&', '/', '(', ')', '[', ']', '{', '}', '<', '>', '=', '+', '?', '\\', '*', '-', '~', '^', ':', ';', '|', ',', ' ' };
+        readonly static char[] NameInvalidChars = new char[] { '!', '@', '#', '$', '£', '%', '&', '/', '(', ')', '[', ']', '{', '}', '<', '>', '=', '+', '*', '-', '~', '^', ':', ';', '|', ',', ' ' };
         public static bool IsValidName(string name)
         {
             if (string.IsNullOrEmpty(name))

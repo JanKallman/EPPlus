@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.3.1</AssemblyVersion>
-    <FileVersion>4.5.3.1</FileVersion>
-    <Version>4.5.3.1</Version>
+    <TargetFrameworks>netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>
+    <AssemblyVersion>4.5.3.2</AssemblyVersion>
+    <FileVersion>4.5.3.2</FileVersion>
+    <Version>4.5.3.2</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://licenses.nuget.org/LGPL-3.0-or-later</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -17,7 +17,7 @@
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>EPPlus 4.5.3.1
+    <PackageReleaseNotes>EPPlus 4.5.3.2
 
 New features in version 4.5:
 * .NET Core support
@@ -43,8 +43,13 @@ apt-get:
 apt-get install libgdiplus
 
 EPPlus-A .NET Spreadsheet API
-
 Changes
+4.5.3.2
+* Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
+* Fixed Text property with short date format
+* Fixed problem with defined names containing backslash 
+* More bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+
 4.5.3.1
 * Fixed Lookup function ignoring result vector.
 * Fixed address validation.
@@ -226,6 +231,10 @@ Release Candidate changes
     <DefineConstants>Core;STANDARD20</DefineConstants>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1'">
+    <DefineConstants>Core</DefineConstants>
+  </PropertyGroup>
+
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net35'">
     <DefineConstants>NET35;NETFULL</DefineConstants>
   </PropertyGroup>
@@ -285,6 +294,14 @@ Release Candidate changes
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
+    <PackageReference Include="System.Drawing.Common" Version="4.6.0-preview6.19303.8" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
+    <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+  </ItemGroup>
+
   <ItemGroup>
     <None Update="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

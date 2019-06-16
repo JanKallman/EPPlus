@@ -1106,7 +1106,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                 var delSize=page.MaxIndex - page.MinIndex+1;
                 rows -= delSize;
                 var prevOffset = page.Offset;
-                Array.Copy(column._pages, pagePos + 1, column._pages, pagePos, column.PageCount - pagePos);
+                Array.Copy(column._pages, pagePos + 1, column._pages, pagePos, column.PageCount - pagePos - 1);
                 column.PageCount--;
                 if (column.PageCount == 0)
                 {

@@ -2407,5 +2407,24 @@ namespace EPPlusTest
             ws.Cells[1, 1].Value = new string('a', 50000);
             ws.Cells[1, 1].AutoFitColumns();
         }
+        [TestMethod]
+        public void Issue460()
+        {
+            var p = OpenTemplatePackage("Issue460.xlsx");
+            var ws = p.Workbook.Worksheets[0];
+            var newWs=p.Workbook.Worksheets.Add("NewSheet");
+            ws.Cells.Copy(newWs.Cells);
+            SaveWorksheet("Issue460_saved.xlsx");
+        }
+        [TestMethod]
+        public void Issue476()
+        {
+            var p = OpenTemplatePackage("Issue345.xlsx");
+            var ws = p.Workbook.Worksheets[0];
+            int[] sortColumns = new int[1];
+            sortColumns[0] = 0;
+            ws.Cells["A2:A64515"].Sort(sortColumns);
+            SaveWorksheet("Issue345_saved.xlsx");
+        }
     }
 }
