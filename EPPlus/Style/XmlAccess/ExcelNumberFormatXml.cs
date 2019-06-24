@@ -13,17 +13,17 @@
 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
  *
  * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
  * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
  *
- * All code and executables are provided "as is" with no warranty either express or implied. 
+ * All code and executables are provided "as is" with no warranty either express or implied.
  * The author accepts no liability for any damage or loss of business that this product may cause.
  *
  * Code change notes:
- * 
+ *
  * Author							Change						Date
  * ******************************************************************************
  * Jan Källman		                Initial Release		        2009-10-01
@@ -44,8 +44,8 @@ namespace OfficeOpenXml.Style.XmlAccess
     {
         internal ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager) : base(nameSpaceManager)
         {
-            
-        }        
+
+        }
         internal ExcelNumberFormatXml(XmlNamespaceManager nameSpaceManager, bool buildIn): base(nameSpaceManager)
         {
             BuildIn = buildIn;
@@ -61,38 +61,38 @@ namespace OfficeOpenXml.Style.XmlAccess
 //        const string idPath = "@numFmtId";
         /// <summary>
         /// Id for number format
-        /// 
+        ///
         /// Build in ID's
-        /// 
-        /// 0   General 
-        /// 1   0 
-        /// 2   0.00 
-        /// 3   #,##0 
-        /// 4   #,##0.00 
-        /// 9   0% 
-        /// 10  0.00% 
-        /// 11  0.00E+00 
-        /// 12  # ?/? 
-        /// 13  # ??/?? 
-        /// 14  mm-dd-yy 
-        /// 15  d-mmm-yy 
-        /// 16  d-mmm 
-        /// 17  mmm-yy 
-        /// 18  h:mm AM/PM 
-        /// 19  h:mm:ss AM/PM 
-        /// 20  h:mm 
-        /// 21  h:mm:ss 
-        /// 22  m/d/yy h:mm 
-        /// 37  #,##0 ;(#,##0) 
-        /// 38  #,##0 ;[Red](#,##0) 
-        /// 39  #,##0.00;(#,##0.00) 
-        /// 40  #,##0.00;[Red](#,##0.00) 
-        /// 45  mm:ss 
-        /// 46  [h]:mm:ss 
-        /// 47  mmss.0 
-        /// 48  ##0.0E+0 
+        ///
+        /// 0   General
+        /// 1   0
+        /// 2   0.00
+        /// 3   #,##0
+        /// 4   #,##0.00
+        /// 9   0%
+        /// 10  0.00%
+        /// 11  0.00E+00
+        /// 12  # ?/?
+        /// 13  # ??/??
+        /// 14  mm-dd-yy
+        /// 15  d-mmm-yy
+        /// 16  d-mmm
+        /// 17  mmm-yy
+        /// 18  h:mm AM/PM
+        /// 19  h:mm:ss AM/PM
+        /// 20  h:mm
+        /// 21  h:mm:ss
+        /// 22  m/d/yy h:mm
+        /// 37  #,##0 ;(#,##0)
+        /// 38  #,##0 ;[Red](#,##0)
+        /// 39  #,##0.00;(#,##0.00)
+        /// 40  #,##0.00;[Red](#,##0.00)
+        /// 45  mm:ss
+        /// 46  [h]:mm:ss
+        /// 47  mmss.0
+        /// 48  ##0.0E+0
         /// 49  @
-        /// </summary>            
+        /// </summary>
         public int NumFmtId
         {
             get
@@ -127,10 +127,10 @@ namespace OfficeOpenXml.Style.XmlAccess
         }
         internal string GetNewID(int NumFmtId, string Format)
         {
-            
+
             if (NumFmtId < 0)
             {
-                NumFmtId = ExcelNumberFormat.GetFromBuildIdFromFormat(Format);                
+                NumFmtId = ExcelNumberFormat.GetFromBuildIdFromFormat(Format);
             }
             return NumFmtId.ToString();
         }
@@ -225,7 +225,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 {
                     ToNetFormat(format, false);
                     ToNetFormat(format, true);
-                }                
+                }
             }
             internal string NetTextFormat { get; private set; }
             internal string NetFormat { get; private set; }
@@ -316,12 +316,22 @@ namespace OfficeOpenXml.Style.XmlAccess
                                         {
                                             SpecialDateFormat = eSystemDateFormat.SystemLongTime;
                                         }
-                                        else
+                                        else if (int.TryParse(li[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var num))
                                         {
-                                            var num = int.Parse(li[1], NumberStyles.HexNumber);
                                             try
                                             {
                                                 Culture = CultureInfo.GetCultureInfo(num & 0xFFFF);
+                                            }
+                                            catch
+                                            {
+                                                Culture = null;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            try
+                                            {
+                                                Culture = CultureInfo.GetCultureInfo(li[1]);
                                             }
                                             catch
                                             {
@@ -336,7 +346,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                                 {
                                     SpecialDateFormat = eSystemDateFormat.Conditional;
                                 }
-                                else 
+                                else
                                 {
                                     sb.Append(bracketText);
                                     SpecialDateFormat = eSystemDateFormat.Conditional;
@@ -394,7 +404,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                                     if (c == '.' || c == ',')
                                     {
                                         sb.Append('\\');
-                                    }                                    
+                                    }
                                     sb.Append(c);
                                     prevBslsh = false;
                                 }
@@ -563,7 +573,7 @@ namespace OfficeOpenXml.Style.XmlAccess
                 {
                     fixedDenominator = 0;
                 }
-                
+
                 if (d == 0 || double.IsNaN(d))
                 {
                     if (fmt[0].Trim() == "" && fmt[1].Trim() == "")
@@ -624,7 +634,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
                         divRes = 1 / (divRes - intDivRes);  //Rest
                     }
-                    
+
                     numerator = (int)numerators[listPos];
                     denomerator = (int)denominators[listPos];
                 }
