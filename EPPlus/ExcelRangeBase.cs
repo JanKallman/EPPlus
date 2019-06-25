@@ -2013,8 +2013,9 @@ namespace OfficeOpenXml
         /// <param name="TableStyle">Will create a table with this style. If set to TableStyles.None no table will be created</param>
         /// <param name="memberFlags">Property flags to use</param>
         /// <param name="Members">The properties to output. Must be of type T</param>
+        /// <param name="Formatter">A delegate that formats the names of the headers</param>
         /// <returns>The filled range</returns>
-        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members)
+        public ExcelRangeBase LoadFromCollection<T>(IEnumerable<T> Collection, bool PrintHeaders, TableStyles TableStyle, BindingFlags memberFlags, MemberInfo[] Members, Func<string, string> Formatter = null)
         {
             var type = typeof(T);
             bool isSameType = true;
@@ -2067,7 +2068,7 @@ namespace OfficeOpenXml
                         }
                         else
                         {
-                            header = t.Name.Replace('_', ' ');
+                            header = (Formatter != null) ? Formatter(t.Name) : t.Name;
                         }
                     }
                     //_worksheet.SetValueInner(row, col++, header);
