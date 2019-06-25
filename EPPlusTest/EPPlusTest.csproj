@@ -272,7 +272,11 @@
     <EmbeddedResource Include="Resources\BitmapImage.gif" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\BitmapImage.bmp" />
+    <EmbeddedResource Include="Resources\BitmapImage.png" />
+    <EmbeddedResource Include="Resources\BitmapImage.tif" />
     <Content Include="Resources\Test1.jpg" />
+    <EmbeddedResource Include="Resources\Vector Drawing.emf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EPPlus\EPPlus.csproj">

@@ -30,7 +30,7 @@ namespace EPPlusTest
             var asm = Assembly.GetExecutingAssembly();
             var validExtensions = new[]
                 {
-                    ".gif", ".wmf"
+                    ".gif", ".wmf", ".jpg", "emf", "png", "tif", "bmp"
                 };
 
             foreach (var name in asm.GetManifestResourceNames())
