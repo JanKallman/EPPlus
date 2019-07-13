@@ -29,9 +29,6 @@
  * Mats Alm   		                Added       		        2013-03-01 (Prior file history on https://github.com/swmal/ExcelFormulaParser)
  *******************************************************************************/
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
 {
@@ -52,13 +49,17 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             {
                 return CompareStringToString(o1.ToString().ToLower(), o2.ToString().ToLower());
             }
-            else if( o1.GetType() == typeof(string))
+            else if (o1.GetType() == typeof(string))
             {
                 return CompareStringToObject(o1.ToString(), o2);
             }
             else if (o2.GetType() == typeof(string))
             {
                 return CompareObjectToString(o1, o2.ToString());
+            }
+            else if (o1.GetType() == typeof(DateTime))
+            {
+                return CompareDatetimeToDouble(o1, o2.ToString());
             }
             return Convert.ToDouble(o1).CompareTo(Convert.ToDouble(o2));
         }
@@ -113,6 +114,16 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             if (double.TryParse(o2, out d2))
             {
                 return Convert.ToDouble(o1).CompareTo(d2);
+            }
+            return IncompatibleOperands;
+        }
+
+        protected virtual int CompareDatetimeToDouble(object o1, string o2)
+        {
+            double dt1;
+            if (double.TryParse(o2, out dt1))
+            {
+                return DateTime.FromOADate(double.Parse(o2)).CompareTo(o1);
             }
             return IncompatibleOperands;
         }
