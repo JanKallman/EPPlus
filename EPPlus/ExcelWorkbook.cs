@@ -175,6 +175,11 @@ namespace OfficeOpenXml
 				{ 
 					string fullAddress = elem.InnerText;
 
+                    if(fullAddress == "'#REF'!#REF!" || fullAddress.EndsWith("!#REF!"))
+                    {
+                        continue;
+                    }
+
 					int localSheetID;
 					ExcelWorksheet nameWorksheet;
 					
