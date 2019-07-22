@@ -175,7 +175,7 @@ namespace OfficeOpenXml
 				{ 
 					string fullAddress = elem.InnerText;
 
-                    if(fullAddress == "'#REF'!#REF!" || fullAddress.EndsWith("!#REF!"))
+                    if(fullAddress.EndsWith("!#REF!"))
                     {
                         continue;
                     }
