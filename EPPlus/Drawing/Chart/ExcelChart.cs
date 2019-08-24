@@ -346,6 +346,59 @@ namespace OfficeOpenXml.Drawing.Chart
         /// </summary>
         Width
     }
+
+    public enum eErrorBarType
+    {
+        /// <summary>
+        /// Specifies that error bars shall be shown in the positive and negative directions.
+        /// </summary>
+        Both,
+        /// <summary>
+        /// Specifies that error bars shall be shown in the negative direction only.
+        /// </summary>
+        Minus,
+        /// <summary>
+        /// Specifies that error bars shall be shown in the positive direction only.
+        /// </summary>
+        Plus
+    }
+
+    public enum eErrorBarDirection
+    {
+        /// <summary>
+        /// Specifies that error bars shall be shown in the x direction.
+        /// </summary>
+        X,
+        /// <summary>
+        /// Specifies that error bars shall be shown in the y direction.
+        /// </summary>
+        Y
+    }
+
+    public enum eErrorBarValueType
+    {
+        /// <summary>
+        /// Specifies that the length of the error bars shall be determined by the Plus and Minus elements.
+        /// </summary>
+        CustomErrorBars,
+        /// <summary>
+        /// Specifies that the length of the error bars shall be the fixed value determined by Error Bar Value.
+        /// </summary>
+        FixedValue,
+        /// <summary>
+        /// Specifies that the length of the error bars shall be Error Bar Value percent of the data.
+        /// </summary>
+        Percentage,
+        /// <summary>
+        /// Specifies that the length of the error bars shall be Error Bar Value standard deviations of the data.
+        /// </summary>
+        StandardDeviation,
+        /// <summary>
+        /// Specifies that the length of the error bars shall be Error Bar Value standard errors of the data.
+        /// </summary>
+        StandardError
+    }
+
     #endregion
     /// <summary>
    /// Base class for Chart object.

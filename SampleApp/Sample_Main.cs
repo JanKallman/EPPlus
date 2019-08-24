@@ -170,8 +170,13 @@ namespace EPPlusSamples
                 Console.WriteLine("Running Sample_AddFormulaFunction");
                 Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
                 Console.WriteLine();
+
+                // Sample ErrorBars - Shows how to add error bars to chart series
+                Console.WriteLine("Running RunSample_ErrorBars");
+                Sample_ErrorBars.RunSample_ErrorBars();
+                Console.WriteLine();
             }
-			catch (Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine("Error: {0}", ex.Message);
 			}

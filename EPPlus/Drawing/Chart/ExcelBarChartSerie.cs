@@ -79,5 +79,21 @@ namespace OfficeOpenXml.Drawing.Chart
                 SetXmlNodeBool(INVERTIFNEGATIVE_PATH, value);
             }
         }
+
+        const string _errBarPath = "c:errBars";
+
+        ExcelChartErrorBar _errorBar = null;
+        public ExcelChartErrorBar ErrorBar
+        {
+            get
+            {
+                if (_errorBar == null)
+                {
+                    var node = CreateNode(_errBarPath);
+                    _errorBar = new ExcelChartErrorBar(this, NameSpaceManager, node);
+                }
+                return _errorBar;
+            }
+        }
     }
 }

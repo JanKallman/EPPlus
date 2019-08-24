@@ -58,7 +58,7 @@ namespace OfficeOpenXml.Drawing.Chart
            _chartSeries = chartSeries;
            _node=node;
            _ns=ns;
-           SchemaNodeOrder = new string[] { "idx", "order","spPr", "tx", "marker", "trendline", "explosion","invertIfNegative", "dLbls", "cat", "val", "xVal", "yVal", "bubbleSize", "bubble3D", "smooth" };
+           SchemaNodeOrder = new string[] { "idx", "order","spPr", "tx", "marker", "trendline", "explosion","invertIfNegative", "dLbls", "errBars", "cat", "val", "xVal", "yVal", "bubbleSize", "bubble3D", "smooth" };
 
            if (chartSeries.Chart.ChartType == eChartType.XYScatter ||
                chartSeries.Chart.ChartType == eChartType.XYScatterLines ||
