@@ -26,8 +26,9 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		2009-10-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Jan Källman		Added		                                2009-10-01
+ * Jan Källman		License changed GPL-->LGPL                  2011-12-16
+ * Kris Wragg       Added enums for error bars                  2019-08-25
  *******************************************************************************/
 using System;
 using System.Collections.Generic;

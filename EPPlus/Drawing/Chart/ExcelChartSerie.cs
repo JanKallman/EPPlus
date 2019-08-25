@@ -26,8 +26,9 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		2009-12-30
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Jan Källman		Added		                                2009-12-30
+ * Jan Källman		License changed GPL-->LGPL                  2011-12-16
+ * Kris Wragg       Added error bar functionality               2019-08-25
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -87,6 +88,16 @@ namespace OfficeOpenXml.Drawing.Chart
             else
             {
                 _xSeriesPath = np;
+            }
+
+            foreach (XmlNode n in node.SelectNodes("c:errBars", ns))
+            {
+                var errBar = new ExcelChartErrorBar(this, ns, n);
+
+                if (errBar.Direction == eErrorBarDirection.Y) // must have been explicitly set as X is the default
+                    _verticalErrorBar = errBar;
+                else
+                    _horizontalErrorBar = errBar;
             }
         }
        internal void SetID(string id)
@@ -267,6 +278,26 @@ namespace OfficeOpenXml.Drawing.Chart
                 }
                 return _border;
             }
+        }
+
+        protected ExcelChartErrorBar _horizontalErrorBar;
+        protected ExcelChartErrorBar _verticalErrorBar;
+
+        protected ExcelChartErrorBar AddErrorBar()
+        {
+            var errBarNode = _node.OwnerDocument.CreateElement("errBars", ExcelPackage.schemaChart);
+            XmlNodeList nodes = _node.SelectNodes("c:errBars", _ns);
+
+            if (nodes.Count > 0)
+            {
+                _node.InsertAfter(errBarNode, nodes[nodes.Count - 1]);
+            }
+            else
+            {
+                InserAfter(_node, "c:dLbls,c:invertIfNegative,c:explosion,c:trendline,c:tx,c:marker,c:spPr,c:order,c:idx", errBarNode);
+            }
+
+            return new ExcelChartErrorBar(this, _ns, errBarNode);
         }
     }
 }

@@ -26,8 +26,9 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		Initial Release		        2009-10-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Jan Källman		Initial Release		                        2009-10-01
+ * Jan Källman		License changed GPL-->LGPL                  2011-12-16
+ * Kris Wragg       Added error bar functionality               2019-08-25
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -374,6 +375,86 @@ namespace OfficeOpenXml.Drawing.Chart
             return s;
         }
 
+        /// <summary>
+        /// Returns the horizontal error bar or creates it if it does not exist
+        /// </summary>
+        public ExcelChartErrorBar HorizontalErrorBar
+        {
+            get
+            {
+                if (HasHorizontalErrorBar == false)
+                {
+                    _horizontalErrorBar = AddErrorBar();
+                    _horizontalErrorBar.Direction = eErrorBarDirection.X;
+                }
 
+                return _horizontalErrorBar;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether this series has a horizontal error bar associated with it
+        /// </summary>
+        public bool HasHorizontalErrorBar
+        {
+            get
+            {
+                return _horizontalErrorBar != null;
+            }
+        }
+
+        /// <summary>
+        /// Deletes the associated horizontal error bar if it exists
+        /// </summary>
+        public void DeleteHorizontalErrorBar()
+        {
+            if (HasHorizontalErrorBar)
+            {
+                ExcelChartErrorBar errBar = _horizontalErrorBar;
+                errBar.TopNode.ParentNode.RemoveChild(errBar.TopNode);
+                _horizontalErrorBar = null;
+            }
+        }
+
+        /// <summary>
+        /// Returns the vertical error bar or creates it if it does not exist
+        /// </summary>
+        public ExcelChartErrorBar VerticalErrorBar
+        {
+            get
+            {
+                if (HasVerticalErrorBar == false)
+                {
+                    _verticalErrorBar = AddErrorBar();
+                    _verticalErrorBar.Direction = eErrorBarDirection.Y;
+                }
+
+                return _verticalErrorBar;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether this series has a vertical error bar associated with it
+        /// </summary>
+        public bool HasVerticalErrorBar
+        {
+            get
+            {
+                return _verticalErrorBar != null;
+            }
+        }
+
+        /// <summary>
+        /// Deletes the associated vertical error bar if it exists
+        /// </summary>
+        public void DeleteVerticalErrorBar()
+        {
+            if (HasVerticalErrorBar)
+            {
+                ExcelChartErrorBar errBar = _verticalErrorBar;
+                errBar.TopNode.ParentNode.RemoveChild(errBar.TopNode);
+                _verticalErrorBar = null;
+            }
+        }
     }
 }

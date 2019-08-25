@@ -26,8 +26,9 @@
  * 
  * Author							Change						Date
  * ******************************************************************************
- * Jan Källman		Initial Release		        2009-10-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Jan Källman		Initial Release		                        2009-10-01
+ * Jan Källman		License changed GPL-->LGPL                  2011-12-16
+ * Kris Wragg       Added error bar functionality               2019-08-25
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -228,6 +229,44 @@ namespace OfficeOpenXml.Drawing.Chart
             }
         }
 
+        /// <summary>
+        /// Returns the error bar or creates it if it does not exist
+        /// </summary>
+        public ExcelChartErrorBar ErrorBar
+        {
+            get
+            {
+                if (HasErrorBar == false)
+                {
+                    _horizontalErrorBar = AddErrorBar();
+                }
 
+                return _horizontalErrorBar;
+            }
+        }
+
+        /// <summary>
+        /// Returns whether this series has an error bar associated with it
+        /// </summary>
+        public bool HasErrorBar
+        {
+            get
+            {
+                return _horizontalErrorBar != null;
+            }
+        }
+
+        /// <summary>
+        /// Deletes the associated error bar if it exists
+        /// </summary>
+        public void DeleteErrorBar()
+        {
+            if (HasErrorBar)
+            {
+                ExcelChartErrorBar errBar = _horizontalErrorBar;
+                errBar.TopNode.ParentNode.RemoveChild(errBar.TopNode);
+                _horizontalErrorBar = null;
+            }
+        }
     }
 }

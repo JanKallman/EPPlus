@@ -1,8 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*******************************************************************************
+ * You may amend and distribute as you like, but don't remove this header!
+ *
+ * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
+ * See https://github.com/JanKallman/EPPlus for details.
+ *
+ * Copyright (C) 2011  Jan Källman
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  
+ * See the GNU Lesser General Public License for more details.
+ *
+ * The GNU Lesser General Public License can be viewed at http://www.opensource.org/licenses/lgpl-license.php
+ * If you unfamiliar with this license or have questions about it, here is an http://www.gnu.org/licenses/gpl-faq.html
+ *
+ * All code and executables are provided "as is" with no warranty either express or implied. 
+ * The author accepts no liability for any damage or loss of business that this product may cause.
+ *
+ * Code change notes:
+ * 
+ * Author							Change						Date
+ * ******************************************************************************
+ * Kris Wragg		            Initial Release		            2019-08-25
+ *******************************************************************************/
+
+using System;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Xml;
 
 namespace OfficeOpenXml.Drawing.Chart
@@ -13,9 +41,11 @@ namespace OfficeOpenXml.Drawing.Chart
         protected XmlNode _node;
         protected XmlNamespaceManager _ns;
 
+        const string BARDIRPATH = "c:errDir/@val";
         const string BARTYPEPATH = "c:errBarType/@val";
         const string VALTYPEPATH = "c:errValType/@val";
         const string NOENDCAPVALUEPATH = "c:noEndCap/@val";
+
         const string _errorBarValuePath = "c:val/@val";
         const string _minusErrorPath = "c:minus/c:numRef/c:f";
         const string _plusErrorPath = "c:plus/c:numRef/c:f";
@@ -32,6 +62,47 @@ namespace OfficeOpenXml.Drawing.Chart
             _ns = ns;
 
             SchemaNodeOrder = new string[] { "errDir", "errBarType", "errValType", "noEndCap", "plus", "minus", "val", "spPr" };
+        }
+
+        internal ExcelChartErrorBar(ExcelChartSerie chartSerie, XmlNamespaceManager ns, XmlNode node, eErrorBarDirection direction)
+            : this(chartSerie, ns, node)
+        {
+            Direction = direction;
+        }
+
+        /// <summary>
+        /// The direction of the error bar - X or Y.
+        /// </summary>
+        public eErrorBarDirection Direction
+        {
+            get
+            {
+                switch (GetXmlNodeString(BARDIRPATH).ToLower(CultureInfo.InvariantCulture))
+                {
+                    case "x":
+                        return eErrorBarDirection.X;
+                    case "y":
+                        return eErrorBarDirection.Y;
+                    default:
+                        return eErrorBarDirection.X;
+                }
+            }
+
+            internal set
+            {
+                switch (value)
+                {
+                    case eErrorBarDirection.X:
+                        SetXmlNodeString(BARDIRPATH, "x");
+                        break;
+                    case eErrorBarDirection.Y:
+                        SetXmlNodeString(BARDIRPATH, "y");
+                        break;
+                    default:
+                        SetXmlNodeString(BARDIRPATH, "x");
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -125,7 +196,7 @@ namespace OfficeOpenXml.Drawing.Chart
         }
 
         /// <summary>
-        /// This element specifies an end cap is not drawn on the error bars.
+        /// This element specifies whether an end cap is not drawn on the error bars.
         /// </summary>
         public bool NoEndCap
         {
