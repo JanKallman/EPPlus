@@ -84,6 +84,13 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions
         }
 
         [TestMethod]
+        public void SubstituteShouldReplaceOnlySecondInstanceFound()
+        {
+            var result = _parser.Parse("Substitute(\"testar testar\", \"es\", \"xx\", 2)");
+            Assert.AreEqual("testar txxtar", result);
+        }
+
+        [TestMethod]
         public void ConcatenateShouldReturnAccordingToParams()
         {
             var result = _parser.Parse("CONCATENATE(\"One\", \"Two\", \"Three\")");
