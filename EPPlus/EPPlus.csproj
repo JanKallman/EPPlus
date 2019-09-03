@@ -225,6 +225,7 @@
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingUniqueValues.cs" />
     <Compile Include="ConditionalFormatting\Rules\ExcelConditionalFormattingYesterday.cs" />
     <Compile Include="Drawing\Chart\ExcelChartDataTable.cs" />
+    <Compile Include="ExcelIgnoredError.cs" />
     <Compile Include="FontSize.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidation.cs" />
     <Compile Include="DataValidation\Contracts\IExcelDataValidationAny.cs" />

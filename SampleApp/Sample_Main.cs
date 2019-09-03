@@ -170,6 +170,12 @@ namespace EPPlusSamples
                 Console.WriteLine("Running Sample_AddFormulaFunction");
                 Sample_AddFormulaFunction.RunSample_AddFormulaFunction();
                 Console.WriteLine();
+
+                //Sample ManageWarningErrors - Shows how to enable/disable cells warning errors, like "Number Stored as Text" or "Two Digit Text Year".
+                Console.WriteLine("Running Sample_ManageWarningErrors");
+                string sampleManageWarningErrorsPath = Sample_ManageWarningErrors.RunSample_ManageWarningErrors();
+                Console.WriteLine("Sample ManageWarningErrors created: {0}", sampleManageWarningErrorsPath);
+                Console.WriteLine();
             }
 			catch (Exception ex)
             {
