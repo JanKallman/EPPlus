@@ -371,6 +371,7 @@ namespace OfficeOpenXml
         private XmlDocument _worksheetXml;
         internal ExcelWorksheetView _sheetView;
         internal ExcelHeaderFooter _headerFooter;
+        private ExcelIgnoredError _ignoredError;
         #endregion
         #region ExcelWorksheet Constructor
         /// <summary>
@@ -799,6 +800,40 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        /// <summary>
+        /// Returns a IgnoredError object that allows you to ignore excel cell warning errors of the worksheet
+        /// </summary>
+        public ExcelIgnoredError IgnoredError
+        {
+            get
+            {
+                if (_ignoredError == null)
+                {
+                    // Check that ignoredErrors exists
+                    XmlNode node = TopNode.SelectSingleNode("d:ignoredErrors", NameSpaceManager);
+
+                    if (node == null)
+                    {
+                        CreateNode("d:ignoredErrors");
+                    }
+
+                    //Check that ignoredError exists
+                    node = TopNode.SelectSingleNode("d:ignoredErrors/d:ignoredError", NameSpaceManager);
+
+                    if (node == null)
+                    {
+                        CreateNode("d:ignoredErrors/d:ignoredError");
+                        node = TopNode.SelectSingleNode("d:ignoredErrors/d:ignoredError", NameSpaceManager);
+                    }
+
+                    _ignoredError = new ExcelIgnoredError(NameSpaceManager, node, this);
+                }
+
+                return (_ignoredError);
+            }
+        }
+
         #region WorksheetXml
         /// <summary>
         /// The XML document holding the worksheet data.
