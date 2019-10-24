@@ -1066,7 +1066,8 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             }
 
             changedName = changedNameTmp.ToString();
-            changedNameTmp.Clear();
+            changedNameTmp.Length = 0;
+            changedNameTmp.Capacity = 0;
 
             //replace invalid characters at start
             if (OkAtStart(Convert.ToInt32(changedName[0])) == false)
@@ -1078,7 +1079,8 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                 }
 
                 changedName = changedNameTmp.ToString();
-                changedNameTmp.Clear();
+                changedNameTmp.Length = 0;
+                changedNameTmp.Capacity = 0;
             }
 
             //replace invalid characters after start
@@ -1095,7 +1097,8 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
             }
 
             changedName = changedNameTmp.ToString();
-            changedNameTmp.Clear();
+            changedNameTmp.Length = 0;
+            changedNameTmp.Capacity = 0;
 
             //special check 'C','c','R','r' are reserved words 
             if (name.Length == 1 && name.IndexOfAny(SpecialReservedChars) > -1)
@@ -1132,8 +1135,9 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                 }
 
                 changedName = changedNameTmp.ToString();
-                changedNameTmp.Clear();
-    
+                changedNameTmp.Length = 0;
+                changedNameTmp.Capacity = 0;
+
             }
 
 
