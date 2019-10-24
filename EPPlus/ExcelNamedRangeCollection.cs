@@ -69,8 +69,8 @@ namespace OfficeOpenXml
 
             if (!ExcelAddressUtil.IsValidName(Name))
             {
-                //throw (new ArgumentException($"Name {Name} contains invalid characters"));  //Issue 458
-                Name = ExcelAddressUtil.GetValidName(Name); //temporary fix   
+                throw (new ArgumentException($"Name {Name} contains invalid characters"));  //Issue 458
+                //Name = ExcelAddressUtil.GetValidName(Name); //temporary fix   
                 
             }
             if (Range.IsName)

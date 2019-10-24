@@ -1032,7 +1032,8 @@ namespace OfficeOpenXml.FormulaParsing.ExcelUtilities
                 }
             }
 
-            if (ExcelCellBase.IsValidAddress(name)==false)
+            //Logic is reversed here
+            if (ExcelCellBase.IsValidAddress(name)==true)
             {
                 return false;
             }
