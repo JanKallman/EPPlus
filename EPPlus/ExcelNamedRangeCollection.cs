@@ -66,9 +66,12 @@ namespace OfficeOpenXml
         public ExcelNamedRange Add(string Name, ExcelRangeBase Range)
         {
             ExcelNamedRange item;
-            if(!ExcelAddressUtil.IsValidName(Name))
+
+            if (!ExcelAddressUtil.IsValidName(Name))
             {
-                throw (new ArgumentException($"Name {Name} contains invalid characters"));  //Issue 458
+                //throw (new ArgumentException($"Name {Name} contains invalid characters"));  //Issue 458
+                Name = ExcelAddressUtil.GetValidName(Name); //temporary fix   
+                
             }
             if (Range.IsName)
             {
