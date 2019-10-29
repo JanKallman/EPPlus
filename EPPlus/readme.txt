@@ -1,4 +1,4 @@
-EPPlus 4.5.3.2
+EPPlus 4.5.3.3
 
 New features in version 4.5:
 * .NET Core support
@@ -26,6 +26,9 @@ apt-get install libgdiplus
 EPPlus-A .NET Spreadsheet API
 
 Changes
+4.5.3.3
+* Added a target build for .NET Core 3.0 (netcoreapp3.0) with System.Drawing.Common 4.6.0
+
 4.5.3.2
 * Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
 * Fixed Text property with short date format
