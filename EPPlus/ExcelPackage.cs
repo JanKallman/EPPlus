@@ -1256,9 +1256,98 @@ namespace OfficeOpenXml
             }
         }
 #if (Core)
-        private static async Task WriteFileToStream(string path, Stream stream, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Create a new file from a template
+        /// </summary>
+        /// <param name="template">An existing xlsx file to use as a template</param>
+        /// <param name="password">The password to decrypt the package.</param>
+        /// <returns></returns>
+        private async Task CreateFromTemplateAsync(FileInfo template, string password, CancellationToken cancellationToken)
         {
-            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            if (template != null) template.Refresh();
+            if (template.Exists)
+            {
+                if (_stream == null) _stream = new MemoryStream();
+                var ms = new MemoryStream();
+                if (password != null)
+                {
+                    Encryption.IsEncrypted = true;
+                    Encryption.Password = password;
+                    var encrHandler = new EncryptedPackageHandler();
+                    ms = encrHandler.DecryptPackage(template, Encryption);
+                    encrHandler = null;
+                }
+                else
+                {
+                    await WriteFileToStreamAsync(template.FullName, ms, cancellationToken);
+                }
+                try
+                {
+                    //_package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                    _package = new Packaging.ZipPackage(ms);
+                }
+                catch (Exception ex)
+                {
+                    if (password == null && CompoundDocument.IsCompoundDocument(ms))
+                    {
+                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+                throw new Exception("Passed invalid TemplatePath to Excel Template");
+            //return newFile;
+        }
+        private async Task ConstructNewFileAsync(string password, CancellationToken cancellationToken)
+        {
+            var ms = new MemoryStream();
+            if (_stream == null) _stream = new MemoryStream();
+            if (File != null) File.Refresh();
+            if (File != null && File.Exists)
+            {
+                if (password != null)
+                {
+                    var encrHandler = new EncryptedPackageHandler();
+                    Encryption.IsEncrypted = true;
+                    Encryption.Password = password;
+                    ms = encrHandler.DecryptPackage(File, Encryption);
+                    encrHandler = null;
+                }
+                else
+                {
+                    await WriteFileToStreamAsync(File.FullName, ms, cancellationToken);
+                }
+                try
+                {
+                    //_package = Package.Open(_stream, FileMode.Open, FileAccess.ReadWrite);
+                    _package = new Packaging.ZipPackage(ms);
+                }
+                catch (Exception ex)
+                {
+                    if (password == null && CompoundDocument.IsCompoundDocument(File))
+                    {
+                        throw new Exception("Can not open the package. Package is an OLE compound document. If this is an encrypted package, please supply the password", ex);
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+            }
+            else
+            {
+                //_package = Package.Open(_stream, FileMode.Create, FileAccess.ReadWrite);
+                _package = new Packaging.ZipPackage(ms);
+                CreateBlankWb();
+            }
+        }
+        private static async Task WriteFileToStreamAsync(string path, Stream stream, CancellationToken cancellationToken = default)
+        {
+            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite, 8096, useAsync:true))
             {
                 var buffer = new byte[4096];
                 int read;
@@ -1322,7 +1411,7 @@ namespace OfficeOpenXml
                     _package.Close();
                     if (Stream is MemoryStream)
                     {
-                        var fi = new FileStream(File.FullName, FileMode.Create);
+                        var fi = new FileStream(File.FullName, FileMode.Create, FileAccess.Write, FileShare.None, 8096, useAsync:true);
                         //EncryptPackage
                         if (Encryption.IsEncrypted)
                         {
@@ -1437,7 +1526,20 @@ namespace OfficeOpenXml
         /// <param name="cancellationToken">the cancellation token</param>
         internal static async Task CopyStreamAsync(Stream inputStream, Stream outputStream, CancellationToken cancellationToken = default)
         {
-            inputStream.Position = 0;
+            if (!inputStream.CanRead)
+            {
+                throw (new Exception("Can not read from inputstream"));
+            }
+            if (!outputStream.CanWrite)
+            {
+                throw (new Exception("Can not write to outputstream"));
+            }
+            if (inputStream.CanSeek)
+            {
+                inputStream.Seek(0, SeekOrigin.Begin);
+            }
+
+            const int bufferLength = 8096;
             await inputStream.CopyToAsync(outputStream, 81920, cancellationToken);
         }
 
