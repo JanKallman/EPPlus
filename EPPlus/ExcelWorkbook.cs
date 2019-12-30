@@ -308,7 +308,7 @@ namespace OfficeOpenXml
 		#region Workbook Properties
 		decimal _standardFontWidth = decimal.MinValue;
         string _fontID = "";
-        internal FormulaParser FormulaParser
+        public FormulaParser FormulaParser
         {
             get
             {
