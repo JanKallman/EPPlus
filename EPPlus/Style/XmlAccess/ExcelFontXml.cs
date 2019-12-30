@@ -48,6 +48,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _name = "";
             _size = 0;
             _family = int.MinValue;
+            _charset = int.MinValue;
             _scheme = "";
             _color = _color = new ExcelColorXml(NameSpaceManager);
             _bold = false;
@@ -62,6 +63,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             _name = GetXmlNodeString(namePath);
             _size = (float)GetXmlNodeDecimal(sizePath);
             _family = GetXmlNodeIntNull(familyPath)??int.MinValue;
+            _charset = GetXmlNodeIntNull(charsetPath)??int.MinValue;
             _scheme = GetXmlNodeString(schemePath);
             _color = new ExcelColorXml(nsm, topNode.SelectSingleNode(_colorPath, nsm));
             _bold = GetBoolValue(topNode, boldPath);
@@ -140,6 +142,22 @@ namespace OfficeOpenXml.Style.XmlAccess
             set
             {
                 _family=value;
+            }
+        }
+        const string charsetPath = "d:charset/@val";
+        int _charset;
+        /// <summary>
+        /// Font Charset
+        /// </summary>
+        public int Charset
+        {
+            get
+            {
+                return (_charset == int.MinValue ? 1 : _charset); //  DEFAULT Charset
+            }
+            set
+            {
+                _charset = value;
             }
         }
         ExcelColorXml _color = null;
@@ -278,6 +296,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             Bold = Font.Bold;
             UnderLine=Font.Underline;
             Italic=Font.Italic;
+            Charset = Font.GdiCharSet; // default is 1
         }
         public static float GetFontHeight(string name, float size)
         {
@@ -332,6 +351,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             newFont.Name = _name;
             newFont.Size = _size;
             newFont.Family = _family;
+            newFont.Charset = _charset;
             newFont.Scheme = _scheme;
             newFont.Bold = _bold;
             newFont.Italic = _italic;
@@ -372,6 +392,7 @@ namespace OfficeOpenXml.Style.XmlAccess
             }
             if(!string.IsNullOrEmpty(_name)) SetXmlNodeString(namePath, _name);
             if(_family>int.MinValue) SetXmlNodeString(familyPath, _family.ToString());
+            if(_charset>int.MinValue) SetXmlNodeString(charsetPath, _charset.ToString());
             if (_scheme != "") SetXmlNodeString(schemePath, _scheme.ToString());
 
             return TopNode;

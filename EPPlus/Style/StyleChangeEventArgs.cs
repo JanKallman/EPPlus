@@ -91,7 +91,8 @@ namespace OfficeOpenXml.Style
         GradientRight,
         XfId,
         Indent,
-        QuotePrefix
+        QuotePrefix,
+        Charset
     }
     internal class StyleChangeEventArgs : EventArgs
     {

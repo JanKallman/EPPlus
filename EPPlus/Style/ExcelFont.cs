@@ -90,6 +90,20 @@ namespace OfficeOpenXml.Style
             }
         }
         /// <summary>
+        /// Font charset
+        /// </summary>
+        public int Charset
+        {
+            get
+            {
+                return _styles.Fonts[Index].Charset;
+            }
+            set
+            {
+                _ChangedEvent(this, new StyleChangeEventArgs(eStyleClass.Font, eStyleProperty.Charset, value, _positionID, _address));
+            }
+        }
+        /// <summary>
         /// Cell color
         /// </summary>
         public ExcelColor Color
@@ -222,13 +236,14 @@ namespace OfficeOpenXml.Style
             Bold = Font.Bold;
             UnderLine = Font.Underline;
             Italic = Font.Italic;
+            Charset = Font.GdiCharSet;
         }
 
         internal override string Id
         {
             get 
             {
-                return Name + Size.ToString() + Family.ToString() + Scheme.ToString() + Bold.ToString()[0] + Italic.ToString()[0] + Strike.ToString()[0] + UnderLine.ToString()[0] + VerticalAlign;
+                return Name + Size.ToString() + Family.ToString() + Charset.ToString() + Scheme.ToString() + Bold.ToString()[0] + Italic.ToString()[0] + Strike.ToString()[0] + UnderLine.ToString()[0] + VerticalAlign;
             }
         }
     }

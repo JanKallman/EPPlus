@@ -38,10 +38,21 @@ namespace EPPlusSamples
 {
 	class Sample_Main
 	{
+        static void Test()
+        {
+            Console.WriteLine("Running sample 4");
+            var sample17Path = Sample17.RunSample17(new FileInfo(@"C:\Users\mohammad\Desktop\DailyReportTemplate-v2.xlsx"));      //Template path from /bin/debug or /bin/release
+            Console.WriteLine("Sample 17 created: {0}", sample17Path);
+            Console.WriteLine();
+        }
 		static void Main(string[] args)
 		{
+            
 			try
 			{
+                Utils.OutputDir = new DirectoryInfo($"{AppDomain.CurrentDomain.BaseDirectory}SampleApp");
+                Test();
+                return;
                 //Sample 3, 4 and 12 uses the Adventureworks database. Enter the connectionstring to the Adventureworks database(2016 CTP3) into the variable below...
                 //Leave this blank if you don't have access to the Adventureworks database 
                 string connectionStr = "";      //for example "Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=AdventureWorks2016CTP3;Data Source=MySqlServer"
@@ -177,7 +188,7 @@ namespace EPPlusSamples
 			}
             var prevColor = Console.ForegroundColor;
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine($"Genereted sample workbooks can be found in {Utils.OutputDir.FullName}");
+            Console.WriteLine($"Genereted sample workbooks can be found in {Utils.OutputDir?.FullName}");
             Console.ForegroundColor = prevColor;
 
             Console.WriteLine();

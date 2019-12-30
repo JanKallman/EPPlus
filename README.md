@@ -1,4 +1,4 @@
-# EPPlus
+# EPPlus With Font Charset Support
 Create advanced Excel spreadsheets using .NET, without the need of interop.
 
 EPPlus is a .NET library that reads and writes Excel files using the Office Open XML format (xlsx). 
