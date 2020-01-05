@@ -57,6 +57,7 @@ using OfficeOpenXml.FormulaParsing.LexicalAnalysis;
 using w = System.Windows;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
+using EPPlus.Utils;
 
 namespace OfficeOpenXml
 {
@@ -1089,11 +1090,11 @@ namespace OfficeOpenXml
 
         private static string GetDateText(DateTime d, string format, ExcelNumberFormatXml.ExcelFormatTranslator nf)
         {
-            if(nf.SpecialDateFormat==ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongDate)
+            if (nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongDate)
             {
                 return d.ToLongDateString();
             }
-            else if(nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongTime)
+            else if (nf.SpecialDateFormat == ExcelNumberFormatXml.ExcelFormatTranslator.eSystemDateFormat.SystemLongTime)
             {
                 return d.ToLongTimeString();
             }
@@ -2099,15 +2100,43 @@ namespace OfficeOpenXml
                         }
                         else if (t is PropertyInfo)
                         {
-                            values[row, col++] = ((PropertyInfo)t).GetValue(item, null);
+                            var property = t as PropertyInfo;
+                            var propertyValue = property.GetValue(item, null);
+                            if (TypeCompat.IsEnum(property.PropertyType))
+                            {
+                                values[row, col++] = EnumHelper.GetDescriptionValue(property.PropertyType, propertyValue);
+                            }
+                            else
+                            {
+                                values[row, col++] = propertyValue;
+                            }
                         }
                         else if (t is FieldInfo)
                         {
-                            values[row, col++] = ((FieldInfo)t).GetValue(item);
+                            var field = t as FieldInfo;
+                            var fieldValue = field.GetValue(item);
+
+                            if (TypeCompat.IsEnum(field.FieldType))
+                            {
+                                values[row, col++] = EnumHelper.GetDescriptionValue(field.FieldType, fieldValue);
+                            }
+                            else
+                            {
+                                values[row, col++] = field.GetValue(item);
+                            }
                         }
                         else if (t is MethodInfo)
                         {
-                            values[row, col++] = ((MethodInfo)t).Invoke(item, null);
+                            var method = t as MethodInfo;
+                            var methodReturnValue = method.Invoke(item, null);
+                            if (TypeCompat.IsEnum(method.ReturnType))
+                            {
+                                values[row, col++] = EnumHelper.GetDescriptionValue(method.ReturnType, methodReturnValue);
+                            }
+                            else
+                            {
+                                values[row, col++] = ((MethodInfo)t).Invoke(item, null);
+                            }
                         }
                     }
                 }

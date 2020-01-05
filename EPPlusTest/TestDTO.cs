@@ -16,7 +16,7 @@ namespace EPPlusTest
         public TestDTO dto { get; set; }
         public DateTime Date { get; set; }
         public bool Boolean { get; set; }
-
+        public TestEnum? Enum { get; set; }
         public string GetNameID()
         {
             return Id + "," + Name;
@@ -27,4 +27,11 @@ namespace EPPlusTest
         public string InheritedProp { get; set; }
     }
 
+    public enum TestEnum
+    {
+        [Description("Item I")]
+        Item1,
+
+        Item2
+    }
 }
