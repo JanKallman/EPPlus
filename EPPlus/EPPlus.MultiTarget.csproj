@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.1;netcoreapp2.2;netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.3.2</AssemblyVersion>
-    <FileVersion>4.5.3.2</FileVersion>
-    <Version>4.5.3.2</Version>
+    <TargetFrameworks>netcoreapp3.1;netcoreapp3.0;netstandard2.1;netcoreapp2.2;netcoreapp2.1;netstandard2.0;net40</TargetFrameworks>
+    <AssemblyVersion>4.5.3.3</AssemblyVersion>
+    <FileVersion>4.5.3.3</FileVersion>
+    <Version>4.5.3.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl>https://licenses.nuget.org/LGPL-3.0-or-later</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -17,7 +17,7 @@
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
     <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>EPPlus 4.5.3.2
+    <PackageReleaseNotes>EPPlus 4.5.3.3
 
 New features in version 4.5:
 * .NET Core support
