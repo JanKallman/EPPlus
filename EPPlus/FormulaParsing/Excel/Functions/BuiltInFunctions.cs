@@ -21,20 +21,17 @@
  * Author							Change						Date
  *******************************************************************************
  * Mats Alm   		                Added		                2013-12-03
+ * César Morgan                     Fixing of namespaces        2020-01-14
  *******************************************************************************/
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Database;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Text;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -167,7 +164,7 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["column"] = new Column();
             Functions["columns"] = new Columns();
             Functions["choose"] = new Choose();
-            Functions["index"] = new Index();
+            Functions["index"] = new RefAndLookup.Index();
             Functions["indirect"] = new Indirect();
             Functions["offset"] = new Offset();
             // Date
