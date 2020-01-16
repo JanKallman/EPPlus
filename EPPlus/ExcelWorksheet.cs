@@ -900,7 +900,7 @@ namespace OfficeOpenXml
             stream.Dispose();
             packPart.Stream = new MemoryStream();
 
-            //first char is invalid sometimes?? 
+            //first char is invalid sometimes?? Probably Byte Order Mark (BOM)
             if (xml[0] != '<')
                 LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1), encoding);
             else
@@ -1024,7 +1024,7 @@ namespace OfficeOpenXml
                 length += size;
             }
             while (length < start + 20 && length < end);    //the  start-pos contains the stream position of the sheetData element. Add 20 (with some safty for whitespace, streampointer diff etc, just so be sure). 
-            startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
+            startmMatch = Regex.Match(sb.ToString(), string.Format("<(?:([^:]+):)?[^>]*{0}[^>]*>", "sheetData")); // (?:xxx) means non capturing group, i.e. use parentheses for logical formatting, but do not add to found match groups
             if (!startmMatch.Success) //Not found
             {
                 encoding = sr.CurrentEncoding;
@@ -1072,6 +1072,15 @@ namespace OfficeOpenXml
                 }
 
                 encoding = sr.CurrentEncoding;
+                if (startmMatch.Groups[1].Success) // Default namespace (http://schemas.openxmlformats.org/spreadsheetml/2006/main) for worksheet has prefix. Just remove the prefix.
+                {
+                    if (Regex.Matches(xml, ".<[^\\s/>:]+[\\s/>]").Count > 1) // Make sure we do not assimilate other tags without prefixes in the namespace. The only found tags should be the above inserted "<sheetData/>". The leading dot assures, we do not match the "<?xml".
+                    {
+                        throw new NotSupportedException("Default namespace for worksheet has prefix, but there are tag names in the worksheet that do not have prefixes. Sheet name: " + Name);
+                    }
+                    string namespacePrefix = startmMatch.Groups[1].Value;
+                    xml = xml.Replace("</" + namespacePrefix + ":", "</").Replace("<" + namespacePrefix + ":", "<").Replace("xmlns:" + namespacePrefix + "=", "xmlns=");
+                }
                 return xml;
             }
         }
