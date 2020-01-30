@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.3.2</AssemblyVersion>
-    <FileVersion>4.5.3.2</FileVersion>
-    <Version>4.5.3.2</Version>
+    <TargetFrameworks>netstandard2.1;netstandard2.0;net35;net40</TargetFrameworks>
+    <AssemblyVersion>4.5.3.3</AssemblyVersion>
+    <FileVersion>4.5.3.3</FileVersion>
+    <Version>4.5.3.3</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageLicenseUrl>https://licenses.nuget.org/LGPL-3.0-or-later</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
     <Authors>Jan Källman</Authors>
     <Company></Company>
@@ -16,187 +16,197 @@
     <RootNamespace>EPPlus</RootNamespace>
     <RepositoryUrl></RepositoryUrl>
     <PackageTags>Excel ooxml</PackageTags>
-    <Copyright>Jan Källman 2018</Copyright>
-    <PackageReleaseNotes>EPPlus 4.5.3.2
+    <Copyright>Jan Källman 2020</Copyright>
+    <PackageReleaseNotes>
+      # EPPlus 4.5.3.3
 
-New features in version 4.5:
-* .NET Core support
-* Sparklines
-* Sort method added to ExcelRange
-* Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
+      ## Announcement: This is the last version of EPPlus under the LGPL License
+      EPPlus will from version 5 be licensed under the [Polyform Noncommercial 1.0.0]( https://polyformproject.org/licenses/noncommercial/1.0.0/) license.
+      With the new license EPPlus is still free to use in some cases, but will require a commercial license to be used in a commercial business.
 
-Important Notes:
-Breaking change in .NET Core: The Worksheets collection will be zero based as default.
-This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
-.NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
-This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
+      More information on the license change on [our website]( https://www.epplussoftware.com/Home/LgplToPolyform)
 
-.NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
-System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
-Use your favorite package manager to install it.
-For example:
+      New features in version 4.5:
+      * .NET Core support
+      * Sparklines
+      * Sort method added to ExcelRange
+      * Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
 
-Homebrew on MacOS:
-brew install mono-libgdiplus
+      Important Notes:
+      Breaking change in .NET Core: The Worksheets collection will be zero based as default.
+      This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
+      .NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+      This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
 
-apt-get:
-apt-get install libgdiplus
+      .NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
+      System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
+      Use your favorite package manager to install it.
+      For example:
 
-EPPlus-A .NET Spreadsheet API
-Changes
-4.5.3.2
-* Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
-* Fixed Text property with short date format
-* Fixed problem with defined names containing backslash 
-* More bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+      Homebrew on MacOS:
+      brew install mono-libgdiplus
 
-4.5.3.1
-* Fixed Lookup function ignoring result vector.
-* Fixed address validation.
+      apt-get:
+      apt-get install libgdiplus
 
-4.5.3
-* Upgraded System.Drawing.Common for .NET Core to 4.5.1
-* Enabled worksheetcharts to use a pivottable as source by adding a pivotTableSource parameter to the AddChart method of the Worksheets collection
-* Pmt function
-* And lots of bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
-      
-4.5.2.1
-* Upgraded System.Drawing.Common for .NET Core to 4.5.0
-* Fixed problem with Apostrophe in worksheet name
+      EPPlus-A .NET Spreadsheet API
+      Changes
+      4.5.3.3
+      * Support for .NET Standard 2.1 and updated package references (Removed target netcoreapp2.1).
 
-4.5.2
-* Upgraded System.Drawing.Common to 4.5.0-rc1
-* Optimized image handling
-* External Streams are not closed when disposing the package
-* Fixed issue with Floor and Celing functions
-* And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+      4.5.3.2
+      * Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8
+      * Fixed Text property with short date format
+      * Fixed problem with defined names containing backslash
+      * More bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
 
-4.5.1
-* Added web sample for .NET Core from Vahid Nasiri
-* Added sample sparkline sample to sample project
-* Fixed a few problems related to .NET Core on Mac
+      4.5.3.1
+      * Fixed Lookup function ignoring result vector.
+      * Fixed address validation.
 
-4.5.0.3
-* Fix for compound documents (VBA and Encryption).
-* Fix for Excel 2010 sha1 hashed agile encryption.
-* Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
-* Also see https://github.com/JanKallman/EPPlus/commits/master
+      4.5.3
+      * Upgraded System.Drawing.Common for .NET Core to 4.5.1
+      * Enabled worksheetcharts to use a pivottable as source by adding a pivotTableSource parameter to the AddChart method of the Worksheets collection
+      * Pmt function
+      * And lots of bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
 
-4.5.0.2 rc
-* Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+      4.5.2.1
+      * Upgraded System.Drawing.Common for .NET Core to 4.5.0
+      * Fixed problem with Apostrophe in worksheet name
 
+      4.5.2
+      * Upgraded System.Drawing.Common to 4.5.0-rc1
+      * Optimized image handling
+      * External Streams are not closed when disposing the package
+      * Fixed issue with Floor and Celing functions
+      * And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
 
-4.5.0.1 Beta 2
-* Added sparkline support.
-* Switched targetframework from netcoreapp2.0 to netstandardapp2.0
-* Replaced CoreCompat.System.Drawing.v2 with System.Drawing.Common
-* Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+      4.5.1
+      * Added web sample for .NET Core from Vahid Nasiri
+      * Added sample sparkline sample to sample project
+      * Fixed a few problems related to .NET Core on Mac
 
-4.5.0.0 Beta 1
-* .Net Core support.
-* Added ExcelPackage.Compatibility.IsWorksheets1Based to remove inconsistent 1 base collection on the worksheets collection.
-Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
-This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
-* RoundedCorners property Add to ExcelChart
-* DataTable propery Added  to ExcelPlotArea for charts
-* Sort method added on ExcelRange
-* Added functions NETWORKDAYS.INTL and NETWORKDAYS.
-* And a lot of bug fixes. See https://github.com/JanKallman/EPPlus/commits/master
+      4.5.0.3
+      * Fix for compound documents (VBA and Encryption).
+      * Fix for Excel 2010 sha1 hashed agile encryption.
+      * Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
+      * Also see https://github.com/JanKallman/EPPlus/commits/master
 
-4.1.1
-* Fix VBA bug in Excel 2016 - 1708 and later
-
-4.1
-* Added functions Rank, Rank.eq, Rank.avg and Search
-* Applied a whole bunch of pull requests...
-* Performance and memory usage tweeks
-* Ability to set and retrieve 'custom' extended application propeties.
-* Added style QuotePrefix
-* Added support for MajorTimeUnit and MinorTimeUnit to chart axes
-* Added GapWidth Property to BarChart and Gapwidth.
-* Added Fill and Border properties to ChartSerie.
-* Added support for MajorTimeUnit and MinorTimeUnit to chart axes
-* Insert/delete row/column now shifts named ranges, comments, tables and pivottables.
-* And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
-
-4.0.5 Fixes
-* Switched to Visual Studio 2015 for code and sample projects.
-* Added LineColor, MarkerSize, LineWidth and MarkerLineColor properties to line charts
-* Added LineEnd properties to shapes
-* Added functions Value, DateValue, TimeValue
-* Removed WPF depedency.
-* And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
-
-4.0.4 Fixes
-* Added functions Daverage, Dvar Dvarp, DMax, DMin DSum,  DGet, DCount and DCountA 
-* Exposed the formula parser logging functionality via FormulaParserManager.
-* And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
-
-4.0.3 Fixes
-* Added compilation directive for MONO (Thanks Danny)
-* Added functions IfError, Char, Error.Type, Degrees, Fixed, IsNonText, IfNa and SumIfs
-* And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
-
-4.0.2 Fixes
-* Fixes a whole bunch of bugs related to the cell store (Worksheet.InsertColumn, Worksheet.InsertRow, Worksheet.DeleteColumn, Worksheet.DeleteRow, Range.Copy, Range.Clear)
-* Added functions Acos, Acosh, Asinh, Atanh, Atan, CountBlank, CountIfs, Mina, Offset, Median, Hyperlink, Rept
-* Fix for reading Excel comment content from the t-element.
-* Fix to make Range.LoadFromCollection work better with inheritence
-* And alot of other small fixes
-
-4.0.1 Fixes
-* VBA unreadable content
-* Fixed a few issues with InsertRow and DeleteRow
-* Fixed bug in Average and AverageA 
-* Handling of Div/0 in functions
-* Fixed VBA CodeModule error when copying a worksheet.
-* Value decoding when reading str element for cell value.
-* Better exception when accessing a worksheet out of range in the Excelworksheets indexer.
-* Added Small and Large function to formula parser. Performance fix when encountering an unknown function.
-* Fixed handling strings in formulas
-* Calculate hangs if formula start with a parenthes.
-* Worksheet.Dimension returned an invalid range in some cases.
-* Rowheight was wrong in some cases.
-* ExcelSeries.Header had an incorrect validation check.
-
-New features 4.0
-
-Replaced Packaging API with DotNetZip
-* This will remove any problems with Isolated Storage and enable multithreading
+      4.5.0.2 rc
+      * Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
 
-New Cell store
-* Less memory consumption
-* Insert columns (not on the range level)
-* Faster row inserts,
+      4.5.0.1 Beta 2
+      * Added sparkline support.
+      * Switched targetframework from netcoreapp2.0 to netstandardapp2.0
+      * Replaced CoreCompat.System.Drawing.v2 with System.Drawing.Common
+      * Fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
 
-Formula Parser
-* Calculates all formulas in a workbook, a worksheet or in a specified range
-* 100+ functions implemented
-* Access via Calculate methods on Workbook, Worksheet and Range objects.
-* Add custom/missing Excel functions via Workbook. FormulaParserManager.
-* Samples added to the EPPlusSamples project.
+      4.5.0.0 Beta 1
+      * .Net Core support.
+      * Added ExcelPackage.Compatibility.IsWorksheets1Based to remove inconsistent 1 base collection on the worksheets collection.
+      Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+      This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
+      * RoundedCorners property Add to ExcelChart
+      * DataTable propery Added  to ExcelPlotArea for charts
+      * Sort method added on ExcelRange
+      * Added functions NETWORKDAYS.INTL and NETWORKDAYS.
+      * And a lot of bug fixes. See https://github.com/JanKallman/EPPlus/commits/master
 
-The formula parser does not support Array Formulas
-* Intersect operator (Space)
-* References to external workbooks
-* And probably a whole lot of other stuff as well :)
+      4.1.1
+      * Fix VBA bug in Excel 2016 - 1708 and later
 
-Performance
-*Of course the performance of the formula parser is nowhere near Excels. Our focus has been functionality.
+      4.1
+      * Added functions Rank, Rank.eq, Rank.avg and Search
+      * Applied a whole bunch of pull requests...
+      * Performance and memory usage tweeks
+      * Ability to set and retrieve 'custom' extended application propeties.
+      * Added style QuotePrefix
+      * Added support for MajorTimeUnit and MinorTimeUnit to chart axes
+      * Added GapWidth Property to BarChart and Gapwidth.
+      * Added Fill and Border properties to ChartSerie.
+      * Added support for MajorTimeUnit and MinorTimeUnit to chart axes
+      * Insert/delete row/column now shifts named ranges, comments, tables and pivottables.
+      * And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
 
-Agile Encryption (Office 2012-)
-* Support for newer type of encryption.
+      4.0.5 Fixes
+      * Switched to Visual Studio 2015 for code and sample projects.
+      * Added LineColor, MarkerSize, LineWidth and MarkerLineColor properties to line charts
+      * Added LineEnd properties to shapes
+      * Added functions Value, DateValue, TimeValue
+      * Removed WPF depedency.
+      * And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
 
-Minor new features
-* Chart worksheets
-* New Chart Types Bubblecharts
-* Radar Charts
-* Area Charts
-* And lots of bug fixes...
+      4.0.4 Fixes
+      * Added functions Daverage, Dvar Dvarp, DMax, DMin DSum,  DGet, DCount and DCountA
+      * Exposed the formula parser logging functionality via FormulaParserManager.
+      * And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
 
-Beta 2 Changes
-* Fixed bug when using RepeatColumns &amp; RepeatRows at the same time.
+      4.0.3 Fixes
+      * Added compilation directive for MONO (Thanks Danny)
+      * Added functions IfError, Char, Error.Type, Degrees, Fixed, IsNonText, IfNa and SumIfs
+      * And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
+
+      4.0.2 Fixes
+      * Fixes a whole bunch of bugs related to the cell store (Worksheet.InsertColumn, Worksheet.InsertRow, Worksheet.DeleteColumn, Worksheet.DeleteRow, Range.Copy, Range.Clear)
+      * Added functions Acos, Acosh, Asinh, Atanh, Atan, CountBlank, CountIfs, Mina, Offset, Median, Hyperlink, Rept
+      * Fix for reading Excel comment content from the t-element.
+      * Fix to make Range.LoadFromCollection work better with inheritence
+      * And alot of other small fixes
+
+      4.0.1 Fixes
+      * VBA unreadable content
+      * Fixed a few issues with InsertRow and DeleteRow
+      * Fixed bug in Average and AverageA
+      * Handling of Div/0 in functions
+      * Fixed VBA CodeModule error when copying a worksheet.
+      * Value decoding when reading str element for cell value.
+      * Better exception when accessing a worksheet out of range in the Excelworksheets indexer.
+      * Added Small and Large function to formula parser. Performance fix when encountering an unknown function.
+      * Fixed handling strings in formulas
+      * Calculate hangs if formula start with a parenthes.
+      * Worksheet.Dimension returned an invalid range in some cases.
+      * Rowheight was wrong in some cases.
+      * ExcelSeries.Header had an incorrect validation check.
+
+      New features 4.0
+
+      Replaced Packaging API with DotNetZip
+      * This will remove any problems with Isolated Storage and enable multithreading
+
+
+      New Cell store
+      * Less memory consumption
+      * Insert columns (not on the range level)
+      * Faster row inserts,
+
+      Formula Parser
+      * Calculates all formulas in a workbook, a worksheet or in a specified range
+      * 100+ functions implemented
+      * Access via Calculate methods on Workbook, Worksheet and Range objects.
+      * Add custom/missing Excel functions via Workbook. FormulaParserManager.
+      * Samples added to the EPPlusSamples project.
+
+      The formula parser does not support Array Formulas
+      * Intersect operator (Space)
+      * References to external workbooks
+      * And probably a whole lot of other stuff as well :)
+
+      Performance
+      *Of course the performance of the formula parser is nowhere near Excels. Our focus has been functionality.
+
+      Agile Encryption (Office 2012-)
+      * Support for newer type of encryption.
+
+      Minor new features
+      * Chart worksheets
+      * New Chart Types Bubblecharts
+      * Radar Charts
+      * Area Charts
+      * And lots of bug fixes...
+
+      Beta 2 Changes
+      * Fixed bug when using RepeatColumns &amp; RepeatRows at the same time.
 * VBA project will be left untouched if it’s not accessed.
 * Fixed problem with strings on save.
 * Added locks to the cell store for access by multiple threads.
@@ -225,13 +235,14 @@ Release Candidate changes
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>OpenOfficeXml.snk</AssemblyOriginatorKeyFile>
     <NeutralLanguage />
+    <PackageLicenseFile>lgpl-3.0.txt</PackageLicenseFile>
   </PropertyGroup>
  
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <DefineConstants>Core;STANDARD20</DefineConstants>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netcoreapp2.1'">
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1'">
     <DefineConstants>Core</DefineConstants>
   </PropertyGroup>
 
@@ -280,31 +291,42 @@ Release Candidate changes
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
     <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Drawing.Common">
-      <Version>4.5.1</Version>
+      <Version>4.7.0</Version>
     </PackageReference>
     <PackageReference Include="System.Reflection" Version="4.3.0" />
     <PackageReference Include="System.Security.Claims" Version="4.3.0" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.0" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
     <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.1'">
-    <PackageReference Include="System.Drawing.Common" Version="4.6.0-preview6.19303.8" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Drawing.Common">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
-
   <ItemGroup>
     <None Update="readme.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="lgpl-3.0.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 </Project>
