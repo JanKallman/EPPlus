@@ -407,6 +407,7 @@ namespace OfficeOpenXml
             _flags = new FlagCellStore();
             _commentsStore = new CellStore<int>();
             _hyperLinks = new CellStore<Uri>();
+            _mergedCells = new MergeCellsCollection();
 
             _names = new ExcelNamedRangeCollection(Workbook, this);
 
@@ -1155,6 +1156,27 @@ namespace OfficeOpenXml
             }
             return (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tagName[0]));
         }
+        private bool ReadUntil(XmlReader xr, int desiredDepth, params string[] tagName)
+        {
+            if (xr.EOF) return false;
+            while (!Array.Exists(tagName, tag => Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tag)))
+            {
+                if (xr.Depth == desiredDepth)
+                {
+                    xr.Read();
+                    if (xr.EOF) return false;
+                }
+                else
+                {
+                    while (xr.Depth != desiredDepth)
+                    {
+                        xr.Read();
+                        if (xr.EOF) return false;
+                    }
+                }
+            }
+            return (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tagName[0]));
+        }
         private void LoadColumns(XmlReader xr)//(string xml)
         {
             var colList = new List<IRangeID>();
@@ -1471,7 +1493,7 @@ namespace OfficeOpenXml
         /// <param name="xr"></param>
         private void LoadMergeCells(XmlReader xr)
         {
-            if (ReadUntil(xr, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
+            if (ReadUntil(xr, 1, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
             {
                 while (xr.Read())
                 {
