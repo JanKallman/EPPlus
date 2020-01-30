@@ -1,4 +1,11 @@
 # EPPlus
+**Announcement: This repository will move to https://github.com/EPPlusSoftware/EPPlus.**  
+EPPlus will from version 5 switch license from **LGPL** to [Polyform Noncommercial 1.0.0]( https://polyformproject.org/licenses/noncommercial/1.0.0/) license.  
+With the new license EPPlus is still free to use in some cases, but will require a commercial license to be used in a commercial business.
+This repostitory will shortly be set to readonly.  
+
+More information on the license change on [our website]( https://www.epplussoftware.com/Home/LgplToPolyform)
+***
 Create advanced Excel spreadsheets using .NET, without the need of interop.
 
 EPPlus is a .NET library that reads and writes Excel files using the Office Open XML format (xlsx). 
