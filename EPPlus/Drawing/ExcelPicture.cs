@@ -356,10 +356,10 @@ namespace OfficeOpenXml.Drawing
             set;
         }
 
-        public Vector GetOffset()
-        {
-            return new Vector(_left, _top);
-        }
+        //public Vector GetOffset()
+        //{
+        //    return new Vector(_left, _top);
+        //}
         public Size GetSize()
         {
             return new Size(_width, _height);
