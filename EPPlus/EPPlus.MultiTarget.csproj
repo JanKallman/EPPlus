@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>
-    <AssemblyVersion>4.5.3.4</AssemblyVersion>
-    <FileVersion>4.5.3.4</FileVersion>
-    <Version>4.5.3.4</Version>
+    <!--<TargetFrameworks>netcoreapp3.1;netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>-->
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyVersion>4.5.3.5</AssemblyVersion>
+    <FileVersion>4.5.3.5</FileVersion>
+    <Version>4.5.3.5</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
@@ -325,11 +326,19 @@ Release Candidate changes
     <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1'">
-    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
-    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.5.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.0" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
+    <PackageReference Include="System.Data.Common" Version="4.3.0" />
+    <PackageReference Include="System.Drawing.Common">
+      <Version>4.7.0</Version>
+    </PackageReference>
+    <PackageReference Include="System.Reflection" Version="4.3.0" />
+    <PackageReference Include="System.Security.Claims" Version="4.3.0" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="4.7.0" />
     <PackageReference Include="System.Security.Cryptography.X509Certificates" Version="4.3.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.5.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.0" />
+    <PackageReference Include="System.Xml.XmlDocument" Version="4.3.0" />
+    <PackageReference Include="System.Xml.XPath.XmlDocument" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup>
