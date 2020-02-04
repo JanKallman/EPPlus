@@ -1,4 +1,9 @@
-EPPlus 4.5.3.2
+# EPPlus 4.5.3.3
+
+## Announcement: This is the last version of EPPlus under the LGPL License
+EPPlus will from version 5 be licensed under the [Polyform Noncommercial 1.0.0]( https://polyformproject.org/licenses/noncommercial/1.0.0/) license.  
+With the new license EPPlus is still free to use in some cases, but will require a commercial license to be used in a commercial business.  
+More information on the license change on [our website]( https://www.epplussoftware.com/Home/LgplToPolyform)
 
 New features in version 4.5:
 * .NET Core support
@@ -26,6 +31,9 @@ apt-get install libgdiplus
 EPPlus-A .NET Spreadsheet API
 
 Changes
+4.5.3.3
+* Support for .NET Standard 2.1.
+
 4.5.3.2
 * Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
 * Fixed Text property with short date format
