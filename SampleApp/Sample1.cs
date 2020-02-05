@@ -47,7 +47,7 @@ namespace EPPlusSamples
         /// </summary>
         public static string RunSample1()
         {
-			using (var package = new ExcelPackage())
+            using (var package = new ExcelPackage())
             {
                 // Add a new worksheet to the empty workbook
                 ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Inventory");
