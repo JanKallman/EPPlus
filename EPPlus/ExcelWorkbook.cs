@@ -1111,7 +1111,7 @@ namespace OfficeOpenXml
 					XmlElement book=xmlExtRef.SelectSingleNode("//d:externalBook", NameSpaceManager) as XmlElement;
 					if(book!=null)
 					{
-						string rId_ExtRef = book.GetAttribute("r:id");
+						string rId_ExtRef = book.GetAttribute("id", "http://schemas.openxmlformats.org/officeDocument/2006/relationships");
 						var rel_extRef = part.GetRelationship(rId_ExtRef);
 						if (rel_extRef != null)
 						{
