@@ -41,7 +41,7 @@ namespace EPPlusSamples
         static void Test()
         {
             Console.WriteLine("Running sample 4");
-            var sample17Path = Sample17.RunSample17(new FileInfo(@"C:\Users\mohammad\Desktop\DailyReportTemplate-v2.xlsx"));      //Template path from /bin/debug or /bin/release
+            var sample17Path = Sample17.RunSample17(new FileInfo(@"C:\Users\mohammad\Documents\Projects\DMS2\codes\backend\Infrastructure\XLSConverter\bin\Debug\132264854811994556.xlsx"));      //Template path from /bin/debug or /bin/release
             Console.WriteLine("Sample 17 created: {0}", sample17Path);
             Console.WriteLine();
         }

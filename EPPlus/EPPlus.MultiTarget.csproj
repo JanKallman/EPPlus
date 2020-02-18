@@ -3,9 +3,9 @@
   <PropertyGroup>
     <!--<TargetFrameworks>netcoreapp3.1;netcoreapp2.1;netstandard2.0;net35;net40</TargetFrameworks>-->
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AssemblyVersion>4.5.3.5</AssemblyVersion>
-    <FileVersion>4.5.3.5</FileVersion>
-    <Version>4.5.3.5</Version>
+    <AssemblyVersion>4.5.3.7</AssemblyVersion>
+    <FileVersion>4.5.3.7</FileVersion>
+    <Version>4.5.3.7</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/JanKallman/EPPlus</PackageProjectUrl>
