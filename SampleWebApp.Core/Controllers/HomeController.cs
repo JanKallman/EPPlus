@@ -14,11 +14,11 @@ namespace SampleWebApp.Core.Controllers
     public class HomeController : Controller
     {
         private const string XlsxContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-        private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HomeController(IHostingEnvironment hostingEnvironment)
+        public HomeController(IWebHostEnvironment webHostEnvironment)
         {
-            _hostingEnvironment = hostingEnvironment;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@ namespace SampleWebApp.Core.Controllers
 
             using (var package = createExcelPackage())
             {
-                package.SaveAs(new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName)));
+                package.SaveAs(new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, reportsFolder, fileDownloadName)));
             }
             return File($"~/{reportsFolder}/{fileDownloadName}", XlsxContentType, fileDownloadName);
         }
@@ -62,7 +62,7 @@ namespace SampleWebApp.Core.Controllers
         {
             var fileDownloadName = "report.xlsx";
             var reportsFolder = "reports";
-            var fileInfo = new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, reportsFolder, fileDownloadName));
+            var fileInfo = new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, reportsFolder, fileDownloadName));
             if (!fileInfo.Exists)
             {
                 using (var package = createExcelPackage())
@@ -207,7 +207,7 @@ namespace SampleWebApp.Core.Controllers
             worksheet.Cells[1, 1, 4, 4].AutoFitColumns();
 
             worksheet.HeaderFooter.OddFooter.InsertPicture(
-                new FileInfo(Path.Combine(_hostingEnvironment.WebRootPath, "images", "captcha.jpg")),
+                new FileInfo(Path.Combine(_webHostEnvironment.WebRootPath, "images", "captcha.jpg")),
                 PictureAlignment.Right);
 
             return package;
