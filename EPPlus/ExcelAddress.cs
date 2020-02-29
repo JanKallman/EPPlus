@@ -892,7 +892,7 @@ namespace OfficeOpenXml
         internal static AddressType IsValid(string Address, bool r1c1=false)
         {
             double d;
-            if (Address == "#REF!" || Address == "'#REF'!#REF!")
+            if (Address == "#REF!" || Address == "'#REF'!#REF!" || Address.StartsWith("#REF!"))
             {
                 return AddressType.Invalid;
             }

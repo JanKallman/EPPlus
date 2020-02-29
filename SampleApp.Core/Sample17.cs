@@ -79,6 +79,8 @@ namespace EPPlusSamples
             using (ExcelPackage p = new ExcelPackage(stream))
             {
                 p.Workbook.FormulaParserManager.AddOrReplaceFunction("e", new EvaluateFunction());
+                var sheet = p.Workbook.Worksheets.FirstOrDefault();
+                var resultFormula = sheet.Calculate("J23+J21+J13+J14+J22");
                 //Set up the headers
                 ExcelWorksheet ws = p.Workbook.Worksheets[0];
                 for (int i=1; i<= ws.Dimension.Rows; i++)
