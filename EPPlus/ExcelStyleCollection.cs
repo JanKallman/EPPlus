@@ -1,4 +1,4 @@
-﻿/*******************************************************************************
+/*******************************************************************************
  * You may amend and distribute as you like, but don't remove this header!
  *
  * EPPlus provides server-side generation of Excel 2007/2010 spreadsheets.
@@ -94,8 +94,10 @@ namespace OfficeOpenXml
         internal int Add(string key, T item)
         {
             _list.Add(item);
-            if (!_dic.ContainsKey(key.ToLower(CultureInfo.InvariantCulture))) _dic.Add(key.ToLower(CultureInfo.InvariantCulture), _list.Count - 1);
-            if (_setNextIdManual) NextId++;
+            if (!_dic.ContainsKey(key))
+                _dic.Add(key, _list.Count - 1);
+            if (_setNextIdManual) 
+                NextId++;
             return _list.Count-1;
         }
         /// <summary>
@@ -106,9 +108,9 @@ namespace OfficeOpenXml
         /// <returns>True if found</returns>
         internal bool FindByID(string key, ref T obj)
         {
-            if (_dic.ContainsKey(key))
+            if (_dic.TryGetValue(key, out int idx))
             {
-                obj = _list[_dic[key.ToLower(CultureInfo.InvariantCulture)]];
+                obj = _list[idx];
                 return true;
             }
             else
@@ -123,9 +125,9 @@ namespace OfficeOpenXml
         /// <returns></returns>
         internal int FindIndexByID(string key)
         {
-            if (_dic.ContainsKey(key))
+            if (_dic.TryGetValue(key, out int idx))
             {
-                return _dic[key];
+                return idx;
             }
             else
             {
