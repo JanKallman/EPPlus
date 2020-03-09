@@ -28,7 +28,7 @@
  * ******************************************************************************
  * Jan Källman		    Added       		        2017-11-02
  *******************************************************************************/
- using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
@@ -36,6 +36,21 @@ namespace OfficeOpenXml.Compatibility
 {
     internal class TypeCompat
     {
+        public static bool IsEnum(Type t)
+        {
+            if (t.IsEnum)
+            {
+                return true;
+            }
+
+            if (Nullable.GetUnderlyingType(t) != null)
+            {
+                return Nullable.GetUnderlyingType(t).IsEnum;
+            }
+
+            return false;
+        }
+
         public static bool IsPrimitive(object v)
         {
 #if (Core)            
