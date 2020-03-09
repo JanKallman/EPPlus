@@ -865,17 +865,41 @@ namespace OfficeOpenXml.Style.XmlAccess
                 SetXmlNodeString("@borderId", _styles.Borders[_borderId].newID.ToString());
                 if (doSetXfId) SetXmlNodeString("@applyBorder", "1");
             }
-            if(_horizontalAlignment != ExcelHorizontalAlignment.General) this.SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
+            if (_horizontalAlignment != ExcelHorizontalAlignment.General)
+            {
+                SetXmlNodeString(horizontalAlignPath, SetAlignString(_horizontalAlignment));
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
             if (doSetXfId)
             {
                 SetXmlNodeString("@xfId", _styles.CellStyleXfs[_xfID].newID.ToString());
             }
-            if (_verticalAlignment != ExcelVerticalAlignment.Bottom) this.SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
-            if(_wrapText) this.SetXmlNodeString(wrapTextPath, "1");
+            if (_verticalAlignment != ExcelVerticalAlignment.Bottom)
+            {
+                SetXmlNodeString(verticalAlignPath, SetAlignString(_verticalAlignment));
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
+            if (_wrapText)
+            {
+                SetXmlNodeString(wrapTextPath, "1");
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
             if(_readingOrder!=ExcelReadingOrder.ContextDependent) this.SetXmlNodeString(readingOrderPath, ((int)_readingOrder).ToString());
-            if (_shrinkToFit) this.SetXmlNodeString(shrinkToFitPath, "1");
-            if (_indent > 0) SetXmlNodeString(indentPath, _indent.ToString());
-            if (_textRotation > 0) this.SetXmlNodeString(textRotationPath, _textRotation.ToString());
+            if (_shrinkToFit)
+            {
+                SetXmlNodeString(shrinkToFitPath, "1");
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
+            if (_indent > 0)
+            {
+                SetXmlNodeString(indentPath, _indent.ToString());
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
+            if (_textRotation > 0)
+            {
+                SetXmlNodeString(textRotationPath, _textRotation.ToString());
+                if (doSetXfId) SetXmlNodeString("@applyAlignment", "true");
+            }
             if (!_locked) this.SetXmlNodeString(lockedPath, "0");
             if (_hidden) this.SetXmlNodeString(hiddenPath, "1");
             if (_quotePrefix) this.SetXmlNodeString(quotePrefixPath, "1");
