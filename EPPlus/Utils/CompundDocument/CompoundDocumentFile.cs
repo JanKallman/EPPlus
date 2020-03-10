@@ -114,10 +114,12 @@ namespace OfficeOpenXml.Utils.CompundDocument
         {
             try
             {
-                var fs = fi.OpenRead();
-                var b = new byte[8];
-                fs.Read(b, 0, 8);
-                return IsCompoundDocument(b);
+                using (var fs = fi.OpenRead())
+                {
+                    var b = new byte[8];
+                    fs.Read(b, 0, 8);
+                    return IsCompoundDocument(b);
+                }
             }
             catch
             {
