@@ -791,21 +791,6 @@ namespace OfficeOpenXml
 				throw new InvalidOperationException("The workbook must contain at least one worksheet");
 
 			DeleteCalcChain();
-
-            if (_vba == null && !_package.Package.PartExists(new Uri(ExcelVbaProject.PartUri, UriKind.Relative)))
-            {
-                if (Part.ContentType != ExcelPackage.contentTypeWorkbookDefault)
-                {
-                    Part.ContentType = ExcelPackage.contentTypeWorkbookDefault;
-                }
-            }
-            else
-            {
-                if (Part.ContentType != ExcelPackage.contentTypeWorkbookMacroEnabled)
-                {
-                    Part.ContentType = ExcelPackage.contentTypeWorkbookMacroEnabled;
-                }
-            }
 			
             UpdateDefinedNamesXml();
 
