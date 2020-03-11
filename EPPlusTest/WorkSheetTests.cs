@@ -15,6 +15,7 @@ using System.Reflection;
 using OfficeOpenXml.Table;
 using System.Threading;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace EPPlusTest
 {
@@ -2929,6 +2930,42 @@ namespace EPPlusTest
             var ws2 = pck.Workbook.Worksheets[1];
             ws2.Cells[1, 2].AddComment("Testing", "test1");
             pck.Save();
+        }
+
+        [TestMethod]
+        public async Task SaveAsync()
+        {
+            InitBase();
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Comment1");
+            ws1.Cells[1, 1].AddComment("Testing", "test1");
+
+            await pck.SaveAsAsync(new FileInfo(_worksheetPath + "comment-async.xlsx"));
+
+            pck = new ExcelPackage(new FileInfo(_worksheetPath + "comment-async.xlsx"));
+            pck.Compatibility.IsWorksheets1Based = true;
+            var ws2 = pck.Workbook.Worksheets[1];
+            ws2.Cells[1, 2].AddComment("Testing", "test1");
+            await pck.SaveAsync();
+
+        }
+
+        [TestMethod]
+        public async Task LoadAsync()
+        {
+            InitBase();
+            var pck = new ExcelPackage();
+            var ws1 = pck.Workbook.Worksheets.Add("Comment1");
+            ws1.Cells[1, 1].AddComment("Testing", "test1");
+            var stream = new MemoryStream();
+            await pck.SaveAsAsync(stream);
+            pck = new ExcelPackage();
+            await pck.LoadAsync(stream);
+            pck.Compatibility.IsWorksheets1Based = true;
+            var ws2 = pck.Workbook.Worksheets[1];
+            ws2.Cells[1, 2].AddComment("Testing", "test1");
+            await pck.SaveAsync();
+
         }
 
         [TestMethod]
