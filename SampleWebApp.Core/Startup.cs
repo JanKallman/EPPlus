@@ -8,15 +8,24 @@ namespace SampleWebApp.Core
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddControllersWithViews();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseDeveloperExceptionPage();
-            app.UseMvcWithDefaultRoute();
-            app.UseDefaultFiles();
+
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
+            
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
+            });
         }
     }
 }
