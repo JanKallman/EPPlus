@@ -103,5 +103,14 @@ namespace EPPlusTest.ExcelUtilities
             var result = _matcher.IsMatch(o1, o2);
             Assert.AreEqual(-2, result);
         }
+
+        [TestMethod]
+        public void ShouldReturnMinus1WhenTypesAreDateTimeAndDouble()
+        {
+            object o1 = Convert.ToDateTime("18/01/2024");
+            object o2 = 41711;
+            var result = _matcher.IsMatch(o1, o2);
+            Assert.AreEqual(-1, result);
+        }
     }
 }

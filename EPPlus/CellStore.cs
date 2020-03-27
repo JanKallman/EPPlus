@@ -30,11 +30,8 @@
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Collections;
 using OfficeOpenXml;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 
     internal class IndexBase : IComparable<IndexBase>
     {        
@@ -53,7 +50,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             get;
             set;
         }
-        internal short Index;
+        internal int Index;
         public int CompareTo(IndexItem other)
         {
             return Index - other.Index;
@@ -653,7 +650,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         pageItem = _columnIndex[col]._pages[pos];
                     }
 
-                    short ix = (short)(Row - ((pageItem.Index << pageBits) + pageItem.Offset));
+                    int ix = Row - ((pageItem.Index << pageBits) + pageItem.Offset);
                     _searchItem.Index = ix;
                     var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchItem);
                     if (cellPos < 0)
@@ -671,7 +668,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                     col = ~col;
                     AddColumn(col, Column);
                     AddPage(_columnIndex[col], 0, page);
-                    short ix = (short)(Row - (page << pageBits));
+                    int ix = Row - (page << pageBits);
                     AddCell(_columnIndex[col], 0, 0, ix, Value);
                 }
             }
@@ -742,7 +739,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                                     pageItem = _columnIndex[col]._pages[pos];
                                 }
 
-                                short ix = (short)(rowIx - ((pageItem.Index << pageBits) + pageItem.Offset));
+                                int ix = rowIx - ((pageItem.Index << pageBits) + pageItem.Offset);
                                 _searchItem.Index = ix;
                                 var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchItem);
                                 if (cellPos < 0)
@@ -761,7 +758,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                                 col = ~col;
                                 AddColumn(col, colIx);
                                 AddPage(_columnIndex[col], 0, page);
-                                short ix = (short)(rowIx - (page << pageBits));
+                                int ix = rowIx - (page << pageBits);
                                 AddCell(_columnIndex[col], 0, 0, ix, default(T));
                                 Updater(_values, _columnIndex[col]._pages[0].Rows[0].IndexPointer, rowIx, colIx, Value);
                             }
@@ -812,7 +809,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         pageItem = _columnIndex[col]._pages[pos];
                     }
 
-                    short ix = (short)(Row - ((pageItem.Index << pageBits) + pageItem.Offset));
+                    int ix = Row - ((pageItem.Index << pageBits) + pageItem.Offset);
                     _searchItem.Index = ix;
                     var cellPos = Array.BinarySearch(pageItem.Rows, 0, pageItem.RowCount, _searchItem);
                     if (cellPos < 0)
@@ -831,7 +828,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                     col = ~col;
                     AddColumn(col, Column);
                     AddPage(_columnIndex[col], 0, page);
-                    short ix = (short)(Row - (page << pageBits));
+                    int ix = Row - (page << pageBits);
                     AddCell(_columnIndex[col], 0, 0, ix, default(T));
                     Updater(_values, _columnIndex[col]._pages[0].Rows[0].IndexPointer, Value);
                 }
@@ -1421,7 +1418,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
             }
             return newSize;
         }
-        private void AddCell(ColumnIndex columnIndex, int pagePos, int pos, short ix, T value)
+        private void AddCell(ColumnIndex columnIndex, int pagePos, int pos, int ix, T value)
         {
             PageIndex pageItem = columnIndex._pages[pagePos];
             if (pageItem.RowCount == pageItem.Rows.Length)

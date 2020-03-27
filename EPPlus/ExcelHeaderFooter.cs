@@ -164,7 +164,7 @@ namespace OfficeOpenXml
 
             string contentType = ExcelPicture.GetContentType(PictureFile.Extension);
             var uriPic = XmlHelper.GetNewUri(_ws._package.Package, "/xl/media/" + PictureFile.Name.Substring(0, PictureFile.Name.Length-PictureFile.Extension.Length) + "{0}" + PictureFile.Extension);
-#if (Core)
+#if Core
             var imgBytes=ImageCompat.GetImageAsByteArray(Picture);
 #else
             var ic = new ImageConverter();

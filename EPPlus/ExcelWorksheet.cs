@@ -371,6 +371,7 @@ namespace OfficeOpenXml
         private XmlDocument _worksheetXml;
         internal ExcelWorksheetView _sheetView;
         internal ExcelHeaderFooter _headerFooter;
+        private ExcelIgnoredError _ignoredError;
         #endregion
         #region ExcelWorksheet Constructor
         /// <summary>
@@ -406,6 +407,7 @@ namespace OfficeOpenXml
             _flags = new FlagCellStore();
             _commentsStore = new CellStore<int>();
             _hyperLinks = new CellStore<Uri>();
+            _mergedCells = new MergeCellsCollection();
 
             _names = new ExcelNamedRangeCollection(Workbook, this);
 
@@ -799,6 +801,40 @@ namespace OfficeOpenXml
                 }
             }
         }
+
+        /// <summary>
+        /// Returns a IgnoredError object that allows you to ignore excel cell warning errors of the worksheet
+        /// </summary>
+        public ExcelIgnoredError IgnoredError
+        {
+            get
+            {
+                if (_ignoredError == null)
+                {
+                    // Check that ignoredErrors exists
+                    XmlNode node = TopNode.SelectSingleNode("d:ignoredErrors", NameSpaceManager);
+
+                    if (node == null)
+                    {
+                        CreateNode("d:ignoredErrors");
+                    }
+
+                    //Check that ignoredError exists
+                    node = TopNode.SelectSingleNode("d:ignoredErrors/d:ignoredError", NameSpaceManager);
+
+                    if (node == null)
+                    {
+                        CreateNode("d:ignoredErrors/d:ignoredError");
+                        node = TopNode.SelectSingleNode("d:ignoredErrors/d:ignoredError", NameSpaceManager);
+                    }
+
+                    _ignoredError = new ExcelIgnoredError(NameSpaceManager, node, this);
+                }
+
+                return (_ignoredError);
+            }
+        }
+
         #region WorksheetXml
         /// <summary>
         /// The XML document holding the worksheet data.
@@ -900,7 +936,7 @@ namespace OfficeOpenXml
             stream.Dispose();
             packPart.Stream = new MemoryStream();
 
-            //first char is invalid sometimes?? 
+            //first char is invalid sometimes?? Probably Byte Order Mark (BOM)
             if (xml[0] != '<')
                 LoadXmlSafe(_worksheetXml, xml.Substring(1, xml.Length - 1), encoding);
             else
@@ -1024,7 +1060,7 @@ namespace OfficeOpenXml
                 length += size;
             }
             while (length < start + 20 && length < end);    //the  start-pos contains the stream position of the sheetData element. Add 20 (with some safty for whitespace, streampointer diff etc, just so be sure). 
-            startmMatch = Regex.Match(sb.ToString(), string.Format("(<[^>]*{0}[^>]*>)", "sheetData"));
+            startmMatch = Regex.Match(sb.ToString(), string.Format("<(?:([^:]+):)?[^>]*{0}[^>]*>", "sheetData")); // (?:xxx) means non capturing group, i.e. use parentheses for logical formatting, but do not add to found match groups
             if (!startmMatch.Success) //Not found
             {
                 encoding = sr.CurrentEncoding;
@@ -1072,6 +1108,15 @@ namespace OfficeOpenXml
                 }
 
                 encoding = sr.CurrentEncoding;
+                if (startmMatch.Groups[1].Success) // Default namespace (http://schemas.openxmlformats.org/spreadsheetml/2006/main) for worksheet has prefix. Just remove the prefix.
+                {
+                    if (Regex.Matches(xml, ".<[^\\s/>:]+[\\s/>]").Count > 1) // Make sure we do not assimilate other tags without prefixes in the namespace. The only found tags should be the above inserted "<sheetData/>". The leading dot assures, we do not match the "<?xml".
+                    {
+                        throw new NotSupportedException("Default namespace for worksheet has prefix, but there are tag names in the worksheet that do not have prefixes. Sheet name: " + Name);
+                    }
+                    string namespacePrefix = startmMatch.Groups[1].Value;
+                    xml = xml.Replace("</" + namespacePrefix + ":", "</").Replace("<" + namespacePrefix + ":", "<").Replace("xmlns:" + namespacePrefix + "=", "xmlns=");
+                }
                 return xml;
             }
         }
@@ -1108,6 +1153,27 @@ namespace OfficeOpenXml
             {
                 xr.Read();
                 if (xr.EOF) return false;
+            }
+            return (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tagName[0]));
+        }
+        private bool ReadUntil(XmlReader xr, int desiredDepth, params string[] tagName)
+        {
+            if (xr.EOF) return false;
+            while (!Array.Exists(tagName, tag => Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tag)))
+            {
+                if (xr.Depth == desiredDepth)
+                {
+                    xr.Read();
+                    if (xr.EOF) return false;
+                }
+                else
+                {
+                    while (xr.Depth != desiredDepth)
+                    {
+                        xr.Read();
+                        if (xr.EOF) return false;
+                    }
+                }
             }
             return (Utils.ConvertUtil._invariantCompareInfo.IsSuffix(xr.LocalName, tagName[0]));
         }
@@ -1427,7 +1493,7 @@ namespace OfficeOpenXml
         /// <param name="xr"></param>
         private void LoadMergeCells(XmlReader xr)
         {
-            if (ReadUntil(xr, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
+            if (ReadUntil(xr, 1, "mergeCells", "hyperlinks", "rowBreaks", "colBreaks") && !xr.EOF)
             {
                 while (xr.Read())
                 {

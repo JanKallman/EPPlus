@@ -270,7 +270,7 @@ namespace OfficeOpenXml.Encryption
         {
             switch (ei.HashAlgorithm)
             {
-#if (!Core)
+#if !Core
                 case eHashAlogorithm.RIPEMD160:
                     return new HMACRIPEMD160(salt);
 #endif                
