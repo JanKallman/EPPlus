@@ -34,12 +34,44 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
     {
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
-            ValidateArguments(arguments, 3);
+            int argCount;
+            ValidateArguments(arguments, 3, out argCount);
             var text = ArgToString(arguments, 0);
             var find = ArgToString(arguments, 1);
             var replaceWith = ArgToString(arguments, 2);
-            var result = text.Replace(find, replaceWith);
+            string result;
+            if (argCount > 3)
+            {
+                var instanceNum = ArgToInt(arguments, 3);
+                result = ReplaceFirst(text, find, replaceWith, instanceNum);
+            }
+            else
+            {
+                result = text.Replace(find, replaceWith);
+            }
             return CreateResult(result, DataType.String);
+        }
+
+        /// <summary>
+        /// Replaces only the Nth instance of substring.
+        /// </summary>
+        /// <param name="text">String to modify</param>
+        /// <param name="search">Substring to look for</param>
+        /// <param name="replace">Replacement for the matched substring</param>
+        /// <param name="instanceNumber">One-based index of match to replace</param>
+        /// <returns>Modified copy of parameter text where only the specified substring instance has been replaced</returns>
+        private static string ReplaceFirst(string text, string search, string replace, int instanceNumber)
+        {
+            int pos = -1;
+            for (int i=0; i<instanceNumber; i++)
+            {
+                pos = text.IndexOf(search, pos+1);
+            }
+            if (pos < 0)
+            {
+                return text;
+            }
+            return text.Substring(0, pos) + replace + text.Substring(pos + search.Length);
         }
     }
 }

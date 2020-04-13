@@ -97,6 +97,22 @@ namespace EPPlusTest.Excel.Functions.Text
         }
 
         [TestMethod]
+        public void SubstituteShouldReplaceOnlyFirstInstance()
+        {
+            var func = new Substitute();
+            var result = func.Execute(FunctionsHelper.CreateArgs("testar testar", "es", "xx", 1), _parsingContext);
+            Assert.AreEqual("txxtar testar", result.Result);
+        }
+
+        [TestMethod]
+        public void SubstituteShouldReplaceOnlySecondInstance()
+        {
+            var func = new Substitute();
+            var result = func.Execute(FunctionsHelper.CreateArgs("testar testar", "es", "xx", 2), _parsingContext);
+            Assert.AreEqual("testar txxtar", result.Result);
+        }
+
+        [TestMethod]
         public void ConcatenateShouldConcatenateThreeStrings()
         {
             var func = new Concatenate();

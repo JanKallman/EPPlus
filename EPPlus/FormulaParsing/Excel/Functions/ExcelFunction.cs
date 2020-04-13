@@ -176,6 +176,41 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
                     return true;
                 }, "Expecting at least {0} arguments", minLength.ToString());
         }
+
+
+        /// <summary>
+        /// This functions validates that the supplied <paramref name="arguments"/> contains at least
+        /// (the value of) <paramref name="minLength"/> elements. If one of the arguments is an
+        /// <see cref="ExcelDataProvider.IRangeInfo">Excel range</see> the number of cells in
+        /// that range will be counted as well.
+        /// </summary>
+        /// <param name="arguments"></param>
+        /// <param name="minLength"></param>
+        /// <param name="length"></param>
+        /// <exception cref="ArgumentException"></exception>
+        protected void ValidateArguments(IEnumerable<FunctionArgument> arguments, int minLength, out int length)
+        {
+            Require.That(arguments).Named("arguments").IsNotNull();
+            var nArgs = 0;
+            ThrowArgumentExceptionIf(() =>
+            {
+                if (arguments.Any())
+                {
+                    foreach (var arg in arguments)
+                    {
+                        nArgs++;
+                        if (arg.IsExcelRange)
+                        {
+                            nArgs += arg.ValueAsRangeInfo.GetNCells();
+                        }
+                    }
+                    if (nArgs >= minLength) return false;
+                }
+                return true;
+            }, "Expecting at least {0} arguments", minLength.ToString());
+            length = nArgs;
+        }
+
         protected string ArgToAddress(IEnumerable<FunctionArgument> arguments, int index)
         {            
             return arguments.ElementAt(index).IsExcelRange ? arguments.ElementAt(index).ValueAsRangeInfo.Address.FullAddress : ArgToString(arguments, index);
