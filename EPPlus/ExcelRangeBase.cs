@@ -1531,13 +1531,23 @@ namespace OfficeOpenXml
             // if (value is string) _worksheet._types.SetValue(row, col, "S"); else _worksheet._types.SetValue(row, col, "");
             _worksheet._formulas.SetValue(row, col, "");
         }
-        internal void SetSharedFormulaID(int id)
+        internal void SetSharedFormulaID(int id, int? idOriginal = null)
         {
             for (int col = _fromCol; col <= _toCol; col++)
             {
                 for (int row = _fromRow; row <= _toRow; row++)
                 {
-                    _worksheet._formulas.SetValue(row, col, id);
+                    var f = _worksheet._formulas.GetValue(row, col);
+
+                    if (f is int)
+                    {
+                        int cellId = (int)f;
+
+                        if (cellId == id || (idOriginal.HasValue && cellId == idOriginal))
+                        {
+                            _worksheet._formulas.SetValue(row, col, id);
+                        }
+                    }
                 }
             }
         }
@@ -1609,6 +1619,7 @@ namespace OfficeOpenXml
                 //The formula partly collides with the current range
                 bool fIsSet = false;
                 string formulaR1C1 = fRange.FormulaR1C1;
+                int fIndexOriginal = f.Index;
                 //Top Range
                 if (fRange._fromRow < _fromRow)
                 {
@@ -1647,7 +1658,7 @@ namespace OfficeOpenXml
                              address._toRow, address._fromCol - 1);
                     }
                     f.Formula = TranslateFromR1C1(formulaR1C1, f.StartRow, f.StartCol);
-                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index, fIndexOriginal);
                 }
                 //Right Range
                 if (fRange._toCol > address._toCol)
@@ -1682,7 +1693,7 @@ namespace OfficeOpenXml
                                 address._toRow, fRange._toCol);
                     }
                     f.Formula = TranslateFromR1C1(formulaR1C1, f.StartRow, f.StartCol);
-                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index, fIndexOriginal);
                 }
                 //Bottom Range
                 if (fRange._toRow > address._toRow)
@@ -1702,7 +1713,7 @@ namespace OfficeOpenXml
 
                     f.Address = ExcelCellBase.GetAddress(f.StartRow, f.StartCol,
                             fRange._toRow, fRange._toCol);
-                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index);
+                    _worksheet.Cells[f.Address].SetSharedFormulaID(f.Index, fIndexOriginal);
 
                 }
             }
