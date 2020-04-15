@@ -642,5 +642,12 @@ namespace OfficeOpenXml.Table
         {
             return obj.TableXml.OuterXml.GetHashCode();
         }
+
+        public void ExtendRows(int count)
+        {
+            var ad = new ExcelAddress(Address.Start.Row, Address.Start.Column, Address.End.Row + count, Address.End.Column);
+
+            Address = ad;
+        }
     }
 }
