@@ -8,8 +8,8 @@ using OfficeOpenXml;
 using OfficeOpenXml.Drawing;
 using OfficeOpenXml.Drawing.Chart;
 using OfficeOpenXml.Style;
-using System.Diagnostics;
-using System.Reflection;
+using System.Drawing.Imaging;
+using System.IO.Compression;
 
 namespace EPPlusTest
 {
@@ -977,5 +977,87 @@ namespace EPPlusTest
             //    p.SaveAs(new FileInfo(@"c:\temp\colwidthAdjust.xlsx"));
             //}
         }
+
+        #region ImageFormat Test
+
+        [TestMethod]
+        public void AddPicture_Bmp_StoresFormat()
+        {
+            AddPicture_Assert("BitmapImage.bmp", ImageFormat.Bmp);
+        }
+
+        [TestMethod]
+        public void AddPicture_Gif_StoresFormat()
+        {
+            AddPicture_Assert("BitmapImage.gif", ImageFormat.Gif);
+        }
+
+        [TestMethod]
+        public void AddPicture_Png_StoresFormat()
+        {
+            AddPicture_Assert("BitmapImage.png", ImageFormat.Png);
+        }
+
+        [TestMethod]
+        public void AddPicture_Tif_StoresFormat()
+        {
+            AddPicture_Assert("BitmapImage.tif", ImageFormat.Tiff);
+        }
+
+        [TestMethod]
+        public void AddPicture_Jpg_StoresFormat()
+        {
+            AddPicture_Assert("Test1.jpg", ImageFormat.Jpeg);
+        }
+
+        [TestMethod]
+        public void AddPicture_Emf_StoresFormat()
+        {
+            AddPicture_Assert("Vector Drawing.emf", ImageFormat.Emf);
+        }
+
+        [TestMethod]
+        public void AddPicture_Wmf_StoresFormat()
+        {
+            AddPicture_Assert("Vector Drawing.wmf", ImageFormat.Wmf);
+        }
+
+        public void AddPicture_Assert(string fileName, ImageFormat format)
+        {
+            using (var pck = new ExcelPackage())
+            {
+                var workbook = pck.Workbook;
+                var ws = workbook.Worksheets.Add("Sheet1");
+
+                var pic = ws.Drawings.AddPicture("Pic4", new FileInfo(Path.Combine(_clipartPath, fileName)));
+                pic.From.Row = 0;
+                pic.From.Column = 0;
+
+                pic.To.Row = 30;
+                pic.To.Column = 23;
+
+                using (var zip = new ZipArchive(new MemoryStream(pck.GetAsByteArray()), ZipArchiveMode.Read))
+                {
+                    var found = false;
+
+                    foreach (var entry in zip.Entries)
+                    {
+                        if (entry.Name != $"1{fileName}")
+                            continue;
+
+                        found = true;
+                        var stream = entry.Open();
+                        var drawing = Image.FromStream(stream);
+
+                        Assert.AreEqual(format, drawing.RawFormat);
+                    }
+
+                    Assert.IsTrue(found, "Image was not found in zip.");
+                }
+            }
+
+        }
+
+        #endregion
     }
 }

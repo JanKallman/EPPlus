@@ -38,6 +38,7 @@ using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using System.Linq;
 using OfficeOpenXml.Utils;
 using OfficeOpenXml.Compatibility;
 
@@ -61,14 +62,15 @@ namespace OfficeOpenXml.Drawing
                 Part = drawings.Part.Package.GetPart(UriPic);
                 FileInfo f = new FileInfo(UriPic.OriginalString);
                 ContentType = GetContentType(f.Extension);
-                _image = Image.FromStream(Part.GetStream());
 
-#if (Core)
-                byte[] iby = ImageCompat.GetImageAsByteArray(_image);
-#else
-                ImageConverter ic =new ImageConverter();
-                var iby=(byte[])ic.ConvertTo(_image, typeof(byte[]));
-#endif
+                //Re-traverse the stream to avoid Image.Save call which converts emf/wmf to png
+                var ms = Part.GetStream();
+                _image = Image.FromStream(ms);
+
+                var iby = new byte[ms.Length];
+                ms.Position = 0;
+                ms.Read(iby, 0, iby.Length);
+
                 var ii = _drawings._package.LoadImage(iby, UriPic, Part);
                 ImageHash = ii.Hash;
 
@@ -128,12 +130,10 @@ namespace OfficeOpenXml.Drawing
             var imagestream = new FileStream(imageFile.FullName, FileMode.Open, FileAccess.Read);
             _image = Image.FromStream(imagestream);
 
-#if (Core)
-            var img=ImageCompat.GetImageAsByteArray(_image);
-#else
-            ImageConverter ic = new ImageConverter();
-            var img = (byte[])ic.ConvertTo(_image, typeof(byte[]));
-#endif
+            //Re-traverse the stream to avoid Image.Save call which converts emf/wmf to png
+            var img = new byte[imagestream.Length];
+            imagestream.Position = 0;
+            imagestream.Read(img, 0, img.Length);
 
             imagestream.Close();
             UriPic = GetNewUri(package, "/xl/media/{0}" + imageFile.Name);
