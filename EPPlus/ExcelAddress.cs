@@ -362,7 +362,7 @@ namespace OfficeOpenXml
                 _address = address;
             }
         }
-        internal void ChangeWorksheet(string wsName, string newWs)
+        public void ChangeWorksheet(string wsName, string newWs)
         {
             if (_ws == wsName) _ws = newWs;
             var fullAddress = GetAddress();
@@ -528,7 +528,14 @@ namespace OfficeOpenXml
                 throw new ArgumentOutOfRangeException("Start cell Address must be less or equal to End cell address");
             }
         }
-        internal string WorkSheet
+        public string WorkBook
+        {
+            get
+            {
+                return _wb;
+            }
+        }
+        public string WorkSheet
         {
             get
             {
@@ -722,7 +729,7 @@ namespace OfficeOpenXml
             else
                 return eAddressCollition.Partly;
         }
-        internal ExcelAddressBase AddRow(int row, int rows, bool setFixed=false)
+        public ExcelAddressBase AddRow(int row, int rows, bool setFixed=false)
         {
             if (row > _toRow)
             {
@@ -737,7 +744,7 @@ namespace OfficeOpenXml
                 return new ExcelAddressBase(_fromRow, _fromCol, (setFixed && _toRowFixed ? _toRow : _toRow + rows), _toCol, _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             }
         }
-        internal ExcelAddressBase DeleteRow(int row, int rows, bool setFixed = false)
+        public ExcelAddressBase DeleteRow(int row, int rows, bool setFixed = false)
         {
             if (row > _toRow) //After
             {
@@ -763,7 +770,7 @@ namespace OfficeOpenXml
                 }
             }
         }
-        internal ExcelAddressBase AddColumn(int col, int cols, bool setFixed = false)
+        public ExcelAddressBase AddColumn(int col, int cols, bool setFixed = false)
         {
             if (col > _toCol)
             {
@@ -778,7 +785,7 @@ namespace OfficeOpenXml
                 return new ExcelAddressBase(_fromRow, _fromCol, _toRow, (setFixed && _toColFixed ? _toCol : _toCol + cols), _fromRowFixed, _fromColFixed, _toRowFixed, _toColFixed);
             }
         }
-        internal ExcelAddressBase DeleteColumn(int col, int cols, bool setFixed = false)
+        public ExcelAddressBase DeleteColumn(int col, int cols, bool setFixed = false)
         {
             if (col > _toCol) //After
             {
@@ -1268,7 +1275,7 @@ namespace OfficeOpenXml
             return address.Substring(ix, endIx - ix).Replace("''","'");
         }
 
-        internal bool IsValidRowCol()
+        public bool IsValidRowCol()
         {
             return !(_fromRow > _toRow  ||
                    _fromCol > _toCol ||
