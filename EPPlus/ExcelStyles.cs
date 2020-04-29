@@ -953,6 +953,7 @@ namespace OfficeOpenXml
                     xfs = style.CellXfs[styleID];
                 }
                 ExcelXfs newXfs = xfs.Copy(this);
+                newXfs.XfId = 0;
                 //Numberformat
                 if (xfs.NumberFormatId > 0)
                 {
@@ -1026,7 +1027,7 @@ namespace OfficeOpenXml
                 }
 
                 //Named style reference
-                if (xfs.XfId > 0)
+                if (isNamedStyle && xfs.XfId > 0)
                 {
                     var id = style.CellStyleXfs[xfs.XfId].Id;
                     var newId = CellStyleXfs.FindIndexByID(id);

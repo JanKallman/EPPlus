@@ -185,13 +185,69 @@ namespace OfficeOpenXml
         /// </summary>
         public class MergeCellsCollection : IEnumerable<string>
         {
-            internal MergeCellsCollection()
+            private struct AddressDimensions
             {
+                internal int StartRow;
 
+                internal int StartCol;
+
+                internal int EndRow;
+
+                internal int EndCol;
+
+                internal AddressDimensions(int startRow, int startCol, int endRow, int endCol)
+                {
+                    StartRow = startRow;
+                    StartCol = startCol;
+                    EndRow = endRow;
+                    EndCol = endCol;
+                }
+            }
+            
+            private readonly ExcelWorksheet _ws;
+            internal MergeCellsCollection(ExcelWorksheet ws)
+            {
+                _ws = ws;
             }
             internal CellStore<int> _cells = new CellStore<int>();
             List<string> _list = new List<string>();
             internal List<string> List { get { return _list; } }
+            
+            private IDictionary<string,AddressDimensions> _mergedAreasDimsCache = new Dictionary<string,AddressDimensions>();
+            
+            /// <summary>
+            /// Get MergeCell Index No
+            /// </summary>
+            /// <param name="row"></param>
+            /// <param name="column"></param>
+            /// <returns></returns>
+            public int GetId(int row, int column)
+            {
+                for (int i = 0; i < _list.Count; i++)
+                {
+                    var mergedAddress = _list[i];
+                    if(!string.IsNullOrEmpty( mergedAddress))
+                    {
+                        if (!_mergedAreasDimsCache.ContainsKey(mergedAddress))
+                        {
+                            ExcelCellBase.GetRowColFromAddress(mergedAddress, out var startRow, out var startColumn, out int toRow, out int toColumn);
+                            _mergedAreasDimsCache.Add(mergedAddress, new AddressDimensions(startRow, startColumn, toRow, toColumn));
+                        }
+                        
+                        var mergedDims = _mergedAreasDimsCache[mergedAddress];
+                        
+                        if (mergedDims.StartRow <= row && row <= mergedDims.EndRow)
+                        {
+                            if (mergedDims.StartCol <= column && column <= mergedDims.EndCol)
+                            {
+                                return i + 1;
+                            }
+                        }
+                    }
+                }
+                return 0;
+            }
+            
             public string this[int row, int column]
             {
                 get
@@ -226,6 +282,15 @@ namespace OfficeOpenXml
                 lock (this)
                 {
                     ix = _list.Count;
+                    var addressDimension = new AddressDimensions(address.Start.Row, address.Start.Column, address.End.Row, address.End.Column);
+                    if (!_mergedAreasDimsCache.ContainsKey(address.Address))
+                    {
+                        _mergedAreasDimsCache.Add(address.Address, addressDimension);
+                    }
+                    else
+                    {
+                        _mergedAreasDimsCache[address.Address] = addressDimension;
+                    }
                     _list.Add(address.Address);
                     SetIndex(address, ix);
                 }
@@ -324,29 +389,33 @@ namespace OfficeOpenXml
             #endregion
             internal void Clear(ExcelAddressBase Destination)
             {
-                var cse = new CellsStoreEnumerator<int>(_cells, Destination._fromRow, Destination._fromCol, Destination._toRow, Destination._toCol);
                 var used = new HashSet<int>();
-                while (cse.Next())
+                 _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
+                for (var row = Destination._fromRow; row <= Destination._toRow; row++)
                 {
-                    var v = cse.Value;
-                    if (!used.Contains(v) && _list[v] != null)
+                    for (var col = Destination._fromCol; col <= Destination._toCol; col++)
                     {
-                        var adr = new ExcelAddressBase(_list[v]);
-                        if (!(Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Inside || Destination.Collide(adr) == ExcelAddressBase.eAddressCollition.Equal))
+                        var mergedRangeId = GetId(row, col);
+                        
+                        if (mergedRangeId == 0 || used.Contains(mergedRangeId))
                         {
-                            throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", adr._address)));
+                            continue;
                         }
-                        used.Add(v);
-                    }
-                }
 
-                _cells.Clear(Destination._fromRow, Destination._fromCol, Destination._toRow - Destination._fromRow + 1, Destination._toCol - Destination._fromCol + 1);
-                foreach (var i in used)
-                {
-                    _list[i] = null;
+                        used.Add(mergedRangeId);
+                        // из метода GetId возвращается индекс в списке _list + 1, т.к. результат 0 означает, что значение в списке не найдено
+                        // поэтому, чтобы восстановить исходный индекс, передаем mergedRangeId-1
+                        var mergedRangeAddress = new ExcelAddressBase(_list[mergedRangeId-1]);
+                        if (Destination.Collide(mergedRangeAddress) == ExcelAddressBase.eAddressCollition.Partly)
+                        {
+                            throw (new InvalidOperationException(string.Format("Can't delete/overwrite merged cells. A range is partly merged with the another merged range. {0}", mergedRangeAddress._address)));
+                        }
+                        _list[mergedRangeId-1] = null;
+                    }
                 }
             }
         }
+        public bool DisableMergeValidation { get; set; }
         //internal CellStore<object> _values;
         //internal CellStore<string> _types;
         //internal CellStore<int> _styles;
@@ -396,6 +465,7 @@ namespace OfficeOpenXml
             _name = sheetName;
             _sheetID = sheetID;
             _positionID = positionID;
+            _mergedCells = new MergeCellsCollection(this);
             Hidden = hide;
 
             /**** Cellstore ****/
@@ -1664,7 +1734,7 @@ namespace OfficeOpenXml
                 return new ExcelRange(this, View.SelectedRange);
             }
         }
-        MergeCellsCollection _mergedCells = new MergeCellsCollection();
+        MergeCellsCollection _mergedCells;
         /// <summary>
         /// Addresses to merged ranges
         /// </summary>
@@ -2524,8 +2594,27 @@ namespace OfficeOpenXml
             {
                 throw(new ArgumentException("Row out of range. Spans from 1 to " + ExcelPackage.MaxRows.ToString(CultureInfo.InvariantCulture)));
             }
+
             lock (this)
             {
+                var commentsDictionary = new List<ExcelComment>();
+
+                foreach (ExcelComment excelComment in Comments)
+                {
+                    var commentRow = Cells[excelComment.Reference].Start.Row;
+                    if (commentRow < rowFrom)
+                    {
+                        continue;
+                    }
+
+                    commentsDictionary.Add(excelComment);
+                }
+
+                foreach (var c in commentsDictionary)
+                {
+                    Comments.Remove(c);
+                }
+
                 _values.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _formulas.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
                 _flags.Delete(rowFrom, 0, rows, ExcelPackage.MaxColumns);
@@ -2543,6 +2632,7 @@ namespace OfficeOpenXml
                 {
                     tbl.Address = tbl.Address.DeleteRow(rowFrom, rows);
                 }
+
                 foreach (var ptbl in PivotTables)
                 {
                     if (ptbl.Address.Start.Row > rowFrom + rows)
@@ -2550,6 +2640,7 @@ namespace OfficeOpenXml
                         ptbl.Address = ptbl.Address.DeleteRow(rowFrom, rows);
                     }
                 }
+
                 //Issue 15573
                 foreach (ExcelDataValidation dv in DataValidations)
                 {
@@ -2561,6 +2652,20 @@ namespace OfficeOpenXml
                         {
                             dv.SetAddress(newAddr);
                         }
+                    }
+                }
+
+                foreach (var commentToShift in commentsDictionary)
+                {
+                    var commentTarget = Cells[commentToShift.Range.Start.Row - rows, commentToShift.Range.Start.Column];
+                    var existingComment = commentTarget.Comment;
+                    if (existingComment != null)
+                    {
+                        existingComment.Text = commentToShift.Text;
+                    }
+                    else
+                    {
+                        commentTarget.AddComment(commentToShift.Text, commentToShift.Author);
                     }
                 }
             }
@@ -2863,22 +2968,7 @@ namespace OfficeOpenXml
         /// <returns></returns>
         public int GetMergeCellId(int row, int column)
         {
-            for (int i = 0; i < _mergedCells.Count; i++)
-            {
-               if(!string.IsNullOrEmpty( _mergedCells[i]))
-               {
-                    ExcelRange range = Cells[_mergedCells[i]];
-
-                    if (range.Start.Row <= row && row <= range.End.Row)
-                    {
-                        if (range.Start.Column <= column && column <= range.End.Column)
-                        {
-                            return i + 1;
-                        }
-                    }
-                }
-            }
-            return 0;
+            return _mergedCells.GetId(row, column);
         }
 
 #endregion

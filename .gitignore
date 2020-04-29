@@ -53,3 +53,11 @@ _ReSharper*/
 
 #NuGet
 packages/
+.idea/.idea.EPPlus/.idea/contentModel.xml
+.idea/.idea.EPPlus/.idea/encodings.xml
+.idea/.idea.EPPlus/.idea/indexLayout.xml
+.idea/.idea.EPPlus/.idea/misc.xml
+.idea/.idea.EPPlus/.idea/modules.xml
+.idea/.idea.EPPlus/.idea/vcs.xml
+.idea/.idea.EPPlus/.idea/workspace.xml
+.idea/.idea.EPPlus/riderModule.iml

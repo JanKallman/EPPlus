@@ -253,11 +253,11 @@ namespace OfficeOpenXml
         private static void Set_Value(ExcelRangeBase range, object value, int row, int col)
         {
             var sfi = range._worksheet._formulas.GetValue(row, col);
-            if (sfi is int)
+            if (sfi is int && !range.IsSingleCell)
             {
                 range.SplitFormulas(range._worksheet.Cells[row, col]);
             }
-            if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
+           // if (sfi != null) range._worksheet._formulas.SetValue(row, col, string.Empty);
             range._worksheet.SetValueInner(row, col, value);
         }
         private static void Set_Formula(ExcelRangeBase range, object value, int row, int col)
@@ -1261,7 +1261,11 @@ namespace OfficeOpenXml
             set
             {
                 IsRangeValid("merging");
-                _worksheet.MergedCells.Clear(this);
+                if (!_worksheet.DisableMergeValidation)
+                {
+                    _worksheet.MergedCells.Clear(this);
+                }
+
                 if (value)
                 {
                     _worksheet.MergedCells.Add(new ExcelAddressBase(FirstAddress), true);
@@ -1599,7 +1603,7 @@ namespace OfficeOpenXml
             //The formula is inside the currenct range, remove it
             if (collide == eAddressCollition.Equal || collide == eAddressCollition.Inside)
             {
-                _worksheet._sharedFormulas.Remove(ix);
+               // _worksheet._sharedFormulas.Remove(ix);
                 return;
                 //fRange.SetSharedFormulaID(int.MinValue); 
             }
@@ -2600,29 +2604,35 @@ namespace OfficeOpenXml
             }
             var copiedMergedCells = new Dictionary<int, ExcelAddress>();
             //Merged cells
-            var csem = new CellsStoreEnumerator<int>(_worksheet.MergedCells._cells, _fromRow, _fromCol, _toRow, _toCol);
-            while (csem.Next())
+
+            for (var row = _fromRow; row <= _toRow; row++)
             {
-                if (!copiedMergedCells.ContainsKey(csem.Value))
+                for (var col = _fromCol; col <= _toCol; col++)
                 {
-                    var adr = new ExcelAddress(_worksheet.Name, _worksheet.MergedCells.List[csem.Value]);
-                    var collideResult = Collide(adr);
-                    if (collideResult == eAddressCollition.Inside || collideResult == eAddressCollition.Equal)
+                    var key = _worksheet.GetMergeCellId(row, col) - 1;
+                    if (key >= 0 && !copiedMergedCells.ContainsKey(key))
                     {
-                        copiedMergedCells.Add(csem.Value, new ExcelAddress(
-                            Destination._fromRow + (adr.Start.Row - _fromRow),
-                            Destination._fromCol + (adr.Start.Column - _fromCol),
-                            Destination._fromRow + (adr.End.Row - _fromRow),
-                            Destination._fromCol + (adr.End.Column - _fromCol)));
-                    }
-                    else
-                    {
-                        //Partial merge of the address ignore.
-                        copiedMergedCells.Add(csem.Value, null);
+                        var adr = new ExcelAddress(_worksheet.Name, _worksheet.MergedCells.List[key]);
+                        var collideResult = Collide(adr);
+                        if (collideResult == eAddressCollition.Inside || collideResult == eAddressCollition.Equal)
+                        {
+                            copiedMergedCells.Add(
+                                key,
+                                new ExcelAddress(
+                                    Destination._fromRow + (adr.Start.Row - _fromRow),
+                                    Destination._fromCol + (adr.Start.Column - _fromCol),
+                                    Destination._fromRow + (adr.End.Row - _fromRow),
+                                    Destination._fromCol + (adr.End.Column - _fromCol)));
+                        }
+                        else
+                        {
+                            //Partial merge of the address ignore.
+                            copiedMergedCells.Add(key, null);
+                        }
                     }
                 }
             }
-
+            
             Destination._worksheet.MergedCells.Clear(new ExcelAddressBase(Destination._fromRow, Destination._fromCol, Destination._fromRow + toRow - 1, Destination._fromCol + toCol - 1));
 
             Destination._worksheet._values.Clear(Destination._fromRow, Destination._fromCol, toRow, toCol);

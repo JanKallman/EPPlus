@@ -153,7 +153,7 @@ namespace OfficeOpenXml
             ExcelWorksheet worksheet = AddSheet(Name,false, null);
 			return worksheet;
 		}
-        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType, ExcelPivotTable pivotTableSource = null)
+        private ExcelWorksheet AddSheet(string Name, bool isChart, eChartType? chartType, ExcelPivotTable pivotTableSource = null, bool createVbaModule = false)
         {
             int sheetID;
             Uri uriWorksheet;
@@ -187,7 +187,7 @@ namespace OfficeOpenXml
                 }
 
                 _worksheets.Add(positionID, worksheet);
-                if (_pck.Workbook.VbaProject != null)
+                if (createVbaModule && _pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(worksheet);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(worksheet.CodeNameChange) { Name = name, Code = "", Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });
@@ -202,7 +202,7 @@ namespace OfficeOpenXml
         /// </summary>
         /// <param name="Name">The name of the workbook</param>
         /// <param name="Copy">The worksheet to be copied</param>
-        public ExcelWorksheet Add(string Name, ExcelWorksheet Copy)
+        public ExcelWorksheet Add(string Name, ExcelWorksheet Copy, bool copyVba= false)
         {
             lock (_worksheets)
             {
@@ -268,7 +268,7 @@ namespace OfficeOpenXml
                 CloneCells(Copy, added);
 
                 //Copy the VBA code
-                if (_pck.Workbook.VbaProject != null)
+                if (copyVba && _pck.Workbook.VbaProject != null)
                 {
                     var name = _pck.Workbook.VbaProject.GetModuleNameFromWorksheet(added);
                     _pck.Workbook.VbaProject.Modules.Add(new ExcelVBAModule(added.CodeNameChange) { Name = name, Code = Copy.CodeModule.Code, Attributes = _pck.Workbook.VbaProject.GetDocumentAttributes(Name, "0{00020820-0000-0000-C000-000000000046}"), Type = eModuleType.Document, HelpContext = 0 });

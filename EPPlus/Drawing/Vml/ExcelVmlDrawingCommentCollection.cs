@@ -113,7 +113,15 @@ namespace OfficeOpenXml.Drawing.Vml
             {
                 ix = ~ix;
                 var prevDraw = _drawings[ix] as ExcelVmlDrawingBase;
-                prevDraw.TopNode.ParentNode.InsertBefore(node, prevDraw.TopNode);
+                var parentNode = prevDraw.TopNode.ParentNode;
+                if (parentNode!=null)
+                {
+                    parentNode.InsertBefore(node, prevDraw.TopNode);
+                }
+                else
+                {
+                    VmlDrawingXml.DocumentElement.AppendChild(node);
+                }
             }
             else
             {
