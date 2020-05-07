@@ -660,7 +660,7 @@ namespace OfficeOpenXml.Drawing.Chart
                }
            }
 
-           xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/><c:overlay val=\"0\" /></c:legend><c:plotVisOnly val=\"1\"/></c:chart>", axID, xAxID);
+           xml.AppendFormat("</c:plotArea><c:legend><c:legendPos val=\"r\"/><c:layout/><c:overlay val=\"{0}\" /></c:legend><c:plotVisOnly val=\"{1}\"/></c:chart>", axID, xAxID);
 
            xml.Append("<c:printSettings><c:headerFooter/><c:pageMargins b=\"0.75\" l=\"0.7\" r=\"0.7\" t=\"0.75\" header=\"0.3\" footer=\"0.3\"/><c:pageSetup/></c:printSettings></c:chartSpace>");          
            return xml.ToString();
@@ -946,8 +946,7 @@ namespace OfficeOpenXml.Drawing.Chart
        {
             return ChartType == eChartType.BarClustered3D ||
                     ChartType == eChartType.BarStacked3D ||
-                    ChartType == eChartType.BarStacked1003D ||
-                    ChartType == eChartType.BarClustered3D ||
+                    ChartType == eChartType.BarStacked1003D ||                    
                     ChartType == eChartType.BarStacked3D ||
                     ChartType == eChartType.BarStacked1003D ||
                     ChartType == eChartType.Column3D ||

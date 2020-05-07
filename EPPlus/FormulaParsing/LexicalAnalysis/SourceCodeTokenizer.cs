@@ -227,7 +227,7 @@ namespace OfficeOpenXml.FormulaParsing.LexicalAnalysis
         {
             if (context.CurrentToken == "-")
             {
-                if (context.LastToken == null && context.LastToken.TokenType == TokenType.Operator)
+                if (context.LastToken != null && context.LastToken.TokenType == TokenType.Operator)
                 {
                     return new Token("-", TokenType.Negator);
                 }

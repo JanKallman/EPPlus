@@ -194,14 +194,12 @@ namespace OfficeOpenXml.Drawing
             _drawings = drawings;
             _topNode = node;
             _id = drawings.Worksheet.Workbook._nextDrawingID++;
-            XmlNode posNode = node.SelectSingleNode("xdr:from", drawings.NameSpaceManager);
+            XmlNode posNode;
             if (node != null)
             {
+                posNode = node.SelectSingleNode("xdr:from", drawings.NameSpaceManager);
                 From = new ExcelPosition(drawings.NameSpaceManager, posNode, GetPositionSize);
-            }
-            posNode = node.SelectSingleNode("xdr:to", drawings.NameSpaceManager);
-            if (node != null)
-            {
+                posNode = node.SelectSingleNode("xdr:to", drawings.NameSpaceManager);
                 To = new ExcelPosition(drawings.NameSpaceManager, posNode, GetPositionSize);
             }
             else

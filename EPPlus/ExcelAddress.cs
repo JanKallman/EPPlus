@@ -591,20 +591,12 @@ namespace OfficeOpenXml
                             }
                             else if (c == ']' && !isText)
                             {
-                                if (brackPos.Count > 0)
-                                {
-                                    var from = brackPos.Pop();
-                                    bracketParts.Add(fullAddress.Substring(from + 1, i - from - 1));
+                                var from = brackPos.Pop();
+                                bracketParts.Add(fullAddress.Substring(from + 1, i - from - 1));
 
-                                    if (brackPos.Count == 0)
-                                    {
-                                        HandleBrackets(first, second, bracketParts);
-                                    }
-                                }
-                                else
+                                if (brackPos.Count == 0)
                                 {
-                                    //Invalid address!
-                                    return false;
+                                    HandleBrackets(first, second, bracketParts);
                                 }
                             }
                         }
@@ -612,7 +604,7 @@ namespace OfficeOpenXml
                         {
                             brackPos.Push(i);
                         }
-                        else if (c == '!' && !isText && !first.EndsWith("#REF") && !second.EndsWith("#REF"))
+                        else if (c == '!' && !isText && !first.EndsWith("#REF") && second != null && !second.EndsWith("#REF"))
                         {
                             // the following is to handle addresses that specifies the
                             // same worksheet twice: Sheet1!A1:Sheet1:A3

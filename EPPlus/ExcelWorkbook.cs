@@ -926,7 +926,7 @@ namespace OfficeOpenXml
 				}
 				else
 				{
-                    if (t.Length > 0 && (t[0] == ' ' || t[t.Length - 1] == ' ' || t.Contains("  ") || t.Contains("\t") || t.Contains("\n") || t.Contains("\n")))   //Fixes issue 14849
+                    if (t.Length > 0 && (t[0] == ' ' || t[t.Length - 1] == ' ' || t.Contains("  ") || t.Contains("\t") || t.Contains("\n")))   //Fixes issue 14849
 					{
                         cache.Append("<si><t xml:space=\"preserve\">");
 					}

@@ -115,7 +115,6 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
 			{
 				if (obj is bool)
 				{
-					if (isInArray) return default(double?);
 					return ConvertUtil.GetValueDouble(obj);
 				}
 				else if (ConvertUtil.TryParseNumericString(obj, out number))
