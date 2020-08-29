@@ -109,30 +109,30 @@ namespace EPPlusTest
         [TestMethod]
         public void IsValidCellAdress()
         {
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1048576"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1048576"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1048576"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1"));
-          Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:A1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:XFD1"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1048576:XFD1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD1:XFD1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:A1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:XFD1"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1048576:XFD1048576"));
-          Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("A1048576"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("XFD1048576"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!A1048576"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1"));
+            Assert.IsTrue(ExcelCellBase.IsValidCellAddress("Table1!XFD1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:A1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1:XFD1"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("A1048576:XFD1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("XFD1:XFD1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:A1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1:XFD1"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!A1048576:XFD1048576"));
+            Assert.IsFalse(ExcelCellBase.IsValidCellAddress("Table1!XFD1:XFD1048576"));
         }
         [TestMethod]
         public void IsValidName()
@@ -156,9 +156,31 @@ namespace EPPlusTest
                 var range = sheet.Cells[2, 1, 3, 3];
                 var namedRange = sheet.Names.Add("NewNamedRange", range);
 
+                Assert.AreEqual("A2:C3", namedRange.Address);
+
                 sheet.InsertRow(1, 1);
 
-                Assert.AreEqual("'NEW'!A3:C4", namedRange.Address);
+                Assert.AreEqual("A3:C4", namedRange.Address);
+                Assert.AreEqual("'NEW'!A3:C4", namedRange.FullAddress);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeMovesUpIfRowDeletedAbove()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                // Initial range two cells lower than "NamedRangeMovesDownIfRowInsertedAbove" test
+                // and row deleted rather than inserted
+                var range = sheet.Cells[2 + 2, 1, 3 + 2, 3];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+                Assert.AreEqual("A4:C5", namedRange.Address);
+
+                sheet.DeleteRow(1, 1);
+
+                Assert.AreEqual("A3:C4", namedRange.Address);
+                Assert.AreEqual("'NEW'!A3:C4", namedRange.FullAddress);
             }
         }
 
@@ -170,10 +192,12 @@ namespace EPPlusTest
                 var sheet = package.Workbook.Worksheets.Add("NEW");
                 var range = sheet.Cells[2, 1, 3, 3];
                 var namedRange = sheet.Names.Add("NewNamedRange", range);
+                Assert.AreEqual("A2:C3", namedRange.Address);
 
                 sheet.InsertRow(4, 1);
 
                 Assert.AreEqual("A2:C3", namedRange.Address);
+                Assert.AreEqual("'NEW'!A2:C3", namedRange.FullAddress);
             }
         }
 
@@ -185,10 +209,12 @@ namespace EPPlusTest
                 var sheet = package.Workbook.Worksheets.Add("NEW");
                 var range = sheet.Cells[2, 1, 3, 3];
                 var namedRange = sheet.Names.Add("NewNamedRange", range);
+                Assert.AreEqual("A2:C3", namedRange.Address);
 
                 sheet.InsertRow(3, 1);
 
-                Assert.AreEqual("'NEW'!A2:C4", namedRange.Address);
+                Assert.AreEqual("A2:C4", namedRange.Address);
+                Assert.AreEqual("'NEW'!A2:C4", namedRange.FullAddress);
             }
         }
 
@@ -203,7 +229,25 @@ namespace EPPlusTest
 
                 sheet.InsertColumn(1, 1);
 
-                Assert.AreEqual("'NEW'!C2:E3", namedRange.Address);
+                // BUG Inconsistent address/full address pattern to the next two tests
+                Assert.AreEqual("C2:E3", namedRange.Address);
+                Assert.AreEqual("'NEW'!C2:E3", namedRange.FullAddress);
+            }
+        }
+
+        [TestMethod]
+        public void NamedRangeMovesLeftIfColDeletedBefore()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("NEW");
+                var range = sheet.Cells[2, 2 + 2, 3, 4 + 2];
+                var namedRange = sheet.Names.Add("NewNamedRange", range);
+
+                sheet.DeleteColumn(1, 1);
+
+                Assert.AreEqual("C2:E3", namedRange.Address);
+                Assert.AreEqual("'NEW'!C2:E3", namedRange.FullAddress);
             }
         }
 
@@ -219,6 +263,7 @@ namespace EPPlusTest
                 sheet.InsertColumn(5, 1);
 
                 Assert.AreEqual("B2:D3", namedRange.Address);
+                Assert.AreEqual("'NEW'!B2:D3", namedRange.FullAddress);
             }
         }
 
@@ -234,6 +279,7 @@ namespace EPPlusTest
                 sheet.InsertColumn(5, 1);
 
                 Assert.AreEqual("B2:D3", namedRange.Address);
+                Assert.AreEqual("'NEW'!B2:D3", namedRange.FullAddress);
             }
         }
 
@@ -249,7 +295,8 @@ namespace EPPlusTest
 
                 sheet.InsertRow(1, 1);
 
-                Assert.AreEqual("'NEW'!A3:C4", namedRange.Address);
+                Assert.AreEqual("A3:C4", namedRange.Address);
+                Assert.AreEqual("'NEW'!A3:C4", namedRange.FullAddress);
             }
         }
 
@@ -265,7 +312,8 @@ namespace EPPlusTest
 
                 sheet.InsertColumn(1, 1);
 
-                Assert.AreEqual("'NEW'!C2:D3", namedRange.Address);
+                Assert.AreEqual("C2:D3", namedRange.Address);
+                Assert.AreEqual("'NEW'!C2:D3", namedRange.FullAddress);
             }
         }
 
@@ -283,9 +331,10 @@ namespace EPPlusTest
                 sheet1.InsertColumn(1, 1);
 
                 Assert.AreEqual("B2:C3", namedRange.Address);
+                Assert.AreEqual("'NEW2'!B2:C3", namedRange.FullAddress);
             }
         }
-        
+
 
         [TestMethod]
         public void ShouldHandleWorksheetSpec()
