@@ -581,5 +581,19 @@ namespace EPPlusTest.Excel.Functions
                 Assert.AreEqual(13, ws.Cells["A1"].Value);
             }
         }
+
+        [TestMethod]
+        public void TimeAddition()
+        {
+            using (var package = new ExcelPackage())
+            {
+                var ws = package.Workbook.Worksheets.Add("test");
+                ws.Cells["A1"].Formula = "1 + (Time(10,0,0))";
+                ws.Calculate();
+                var result = Convert.ToDouble(ws.Cells["A1"].Value);
+                result = Math.Round(result, 2);
+                Assert.AreEqual(1.42d, result);
+            }
+        }
     }
 }

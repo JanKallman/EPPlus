@@ -34,6 +34,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.DateTime;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Numeric;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Information;
+using OfficeOpenXml.FormulaParsing.Excel.Functions.Finance;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions
 {
@@ -161,14 +162,14 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["vlookup"] = new VLookup();
             Functions["lookup"] = new Lookup();
             Functions["match"] = new Match();
-            Functions["row"] = new Row(){SkipArgumentEvaluation = true};
-            Functions["rows"] = new Rows(){SkipArgumentEvaluation = true};
-            Functions["column"] = new Column(){SkipArgumentEvaluation = true};
-            Functions["columns"] = new Columns(){SkipArgumentEvaluation = true};
+            Functions["row"] = new Row();
+            Functions["rows"] = new Rows();
+            Functions["column"] = new Column();
+            Functions["columns"] = new Columns();
             Functions["choose"] = new Choose();
-            Functions["index"] = new Index();
+            Functions["index"] = new RefAndLookup.Index();
             Functions["indirect"] = new Indirect();
-            Functions["offset"] = new Offset(){SkipArgumentEvaluation = true};
+            Functions["offset"] = new Offset();
             // Date
             Functions["date"] = new Date();
             Functions["today"] = new Today();
@@ -202,6 +203,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions
             Functions["daverage"] = new Daverage();
             Functions["dvar"] = new Dvar();
             Functions["dvarp"] = new Dvarp();
+            //Finance
+            Functions["pmt"] = new Pmt();
         }
     }
 }

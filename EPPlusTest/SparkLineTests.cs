@@ -7,10 +7,10 @@ using OfficeOpenXml.Sparkline;
 namespace EPPlusTest
 {
     [TestClass]
-    public class SparkLines : TestBase
+    public class SparkLineTests : TestBase
     {
         string _pckfile;
-        public SparkLines()
+        public SparkLineTests()
         {
             InitBase();
             _pckfile = "Sparklines.xlsx";

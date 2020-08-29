@@ -91,7 +91,7 @@ namespace EPPlusSamples
 
                 //Sample 6
                 //Creates an advanced report on a directory in the filesystem.
-                //Parameter 2 is the directory to report. Paramter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
+                //Parameter 2 is the directory to report. Parameter 3 is how deep the scan will go. Parameter 4 Skips Icons if set to true (The icon handling is slow)
                 //This example demonstrates how to use outlines, tables,comments, shapes, pictures and charts.                
                 Console.WriteLine("Running sample 6");
                 output = Sample6.RunSample6(new DirectoryInfo(System.Reflection.Assembly.GetEntryAssembly().Location).Parent, 5, true);

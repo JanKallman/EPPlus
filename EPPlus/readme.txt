@@ -1,15 +1,80 @@
-EPPlus 4.5 rc
+# EPPlus 4.5.3.3
 
-This version will be the last before the final 4.5, if no major bugs are found. 
-Please help us test it!
-NOTE: Breaking change in .Net Core. The indexer of the worksheets collection will be zero based. See remarks under 4.5.0.1 Beta 1 below.
+## Announcement: This is the last version of EPPlus under the LGPL License
+EPPlus will from version 5 be licensed under the [Polyform Noncommercial 1.0.0]( https://polyformproject.org/licenses/noncommercial/1.0.0/) license.  
+With the new license EPPlus is still free to use in some cases, but will require a commercial license to be used in a commercial business.  
+More information on the license change on [our website]( https://www.epplussoftware.com/Home/LgplToPolyform)
 
-Visit https://github.com/JanKallman/EPPlus for the latest information
+New features in version 4.5:
+* .NET Core support
+* Sparklines
+* Sort method added to ExcelRange
+* Bug fixes and minor changes, see below and visit https://github.com/JanKallman/EPPlus for tutorials, samples and the latest information
 
-EPPlus-Create advanced Excel spreadsheet.
+Important Notes:
+Breaking change in .NET Core: The Worksheets collection will be zero based as default.
+This can be altered by setting the ExcelPackage.Compatibility.IsWorksheets1Based to true.
+.NET Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+This property can also be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples!
+
+.NET Core uses a preview of System.Drawing.Common, so be aware of that. We will update it as Microsoft releases newer versions.
+System.Drawing.Common requires libgdiplus to be installed on non-Windows operating systems.
+Use your favorite package manager to install it.
+For example:
+
+Homebrew on MacOS:
+brew install mono-libgdiplus
+
+apt-get:
+apt-get install libgdiplus
+
+EPPlus-A .NET Spreadsheet API
+
+Changes
+4.5.3.3
+* Support for .NET Standard 2.1.
+
+4.5.3.2
+* Added a target build for .NET Core 2.1 (netcoreapp2.1) with System.Drawing.Common 4.6.0-preview6.19303.8 
+* Fixed Text property with short date format
+* Fixed problem with defined names containing backslash 
+* More bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+
+4.5.3.1
+* Fixed Lookup function ignoring result vector.
+* Fixed address validation.
+
+4.5.3
+* Upgraded System.Drawing.Common for .NET Core to 4.5.1
+* Enabled worksheetcharts to use a pivottable as source by adding a pivotTableSource parameter to the AddChart method of the Worksheets collection
+* Pmt function
+* And lots of bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+      
+4.5.2.1
+* Upgraded System.Drawing.Common for .NET Core to 4.5.0
+* Fixed problem with Apostrophe in worksheet name
+
+4.5.2
+* Upgraded System.Drawing.Common to 4.5.0-rc1
+* Optimized image handling
+* External Streams are not closed when disposing the package
+* Fixed issue with Floor and Celing functions
+* And more bugfixes, see https://github.com/JanKallman/EPPlus/commits/master
+
+4.5.1
+* Added web sample for .NET Core from Vahid Nasiri
+* Added sample sparkline sample to sample project
+* Fixed a few problems related to .NET Core on Mac
+
+4.5.0.3
+* Fix for compound documents (VBA and Encryption).
+* Fix for Excel 2010 sha1 hashed agile encryption.
+* Upgraded System.Drawing.Common to 4.5.0-preview1-26216-02
+* Also see https://github.com/JanKallman/EPPlus/commits/master
 
 4.5.0.2 rc
-* Merged in a few pull requests and fixed some issues. See https://github.com/JanKallman/EPPlus/commits/master
+* Merge in e few pull requests and fixed a few issues. See https://github.com/JanKallman/EPPlus/commits/master
+
 
 4.5.0.1 Beta 2
 * Added sparkline support.
@@ -20,12 +85,12 @@ EPPlus-Create advanced Excel spreadsheet.
 4.5.0.0 Beta 1
 * .Net Core support.
 * Added ExcelPackage.Compatibility.IsWorksheets1Based to remove inconsistent 1 base collection on the worksheets collection.
-  Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
-  This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
+Note: .Net Core will have this property set to false, and .Net 3.5 and .Net 4 version will have this property set to true for backward compatibility reasons.
+This property can be set via the appsettings.json file in .Net Core or the app.config file. See sample project for examples.
 * RoundedCorners property Add to ExcelChart
 * DataTable propery Added  to ExcelPlotArea for charts
 * Sort method added on ExcelRange
-* Added functions NETWORKDAYS.INTL and NETWORKDAYS. 
+* Added functions NETWORKDAYS.INTL and NETWORKDAYS.
 * And a lot of bug fixes. See https://github.com/JanKallman/EPPlus/commits/master
 
 4.1.1
@@ -34,14 +99,14 @@ EPPlus-Create advanced Excel spreadsheet.
 4.1
 * Added functions Rank, Rank.eq, Rank.avg and Search
 * Applied a whole bunch of pull requests...
- * Performance and memory usage tweeks
- * Ability to set and retrieve 'custom' extended application propeties.
- * Added style QuotePrefix
- * Added support for MajorTimeUnit and MinorTimeUnit to chart axes
- * Added GapWidth Property to BarChart and Gapwidth.
- * Added Fill and Border properties to ChartSerie.
- * Added support for MajorTimeUnit and MinorTimeUnit to chart axes
- * Insert/delete row/column now shifts named ranges, comments, tables and pivottables.
+* Performance and memory usage tweeks
+* Ability to set and retrieve 'custom' extended application propeties.
+* Added style QuotePrefix
+* Added support for MajorTimeUnit and MinorTimeUnit to chart axes
+* Added GapWidth Property to BarChart and Gapwidth.
+* Added Fill and Border properties to ChartSerie.
+* Added support for MajorTimeUnit and MinorTimeUnit to chart axes
+* Insert/delete row/column now shifts named ranges, comments, tables and pivottables.
 * And fixed a lot of issues. See http://epplus.codeplex.com/SourceControl/list/changesets for more details
 
 4.0.5 Fixes

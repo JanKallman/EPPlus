@@ -13,6 +13,7 @@ using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using OfficeOpenXml.FormulaParsing.Excel.Functions;
 using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using AddressFunction = OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup.Address;
+using static OfficeOpenXml.FormulaParsing.EpplusExcelDataProvider;
 
 namespace EPPlusTest.Excel.Functions
 {
@@ -226,43 +227,43 @@ namespace EPPlusTest.Excel.Functions
         [TestMethod]
         public void LookupShouldReturnResultFromMatchingSecondArrayHorizontal()
         {
-            var func = new Lookup();
-            var args = FunctionsHelper.CreateArgs(4, "A1:C1", "A3:C3");
-            var parsingContext = ParsingContext.Create();
-            parsingContext.Scopes.NewScope(RangeAddress.Empty);
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["B1"].Value = 3;
+                sheet.Cells["C1"].Value = 5;
+                sheet.Cells["A3"].Value = "A";
+                sheet.Cells["B3"].Value = "B";
+                sheet.Cells["C3"].Value = "C";
 
-            var provider = A.Fake<ExcelDataProvider>();
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(1);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 2)).Returns(3);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 3)).Returns(5);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 1)).Returns("A");
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 2)).Returns("B");
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 3)).Returns("C");
+                sheet.Cells["D1"].Formula = "LOOKUP(4, A1:C1, A3:C3)";
+                sheet.Calculate();
+                var result = sheet.Cells["D1"].Value;
+                Assert.AreEqual("B", result);
 
-            parsingContext.ExcelDataProvider = provider;
-            var result = func.Execute(args, parsingContext);
-            Assert.AreEqual("B", result.Result);
+            }
         }
 
         [TestMethod]
         public void LookupShouldReturnResultFromMatchingSecondArrayHorizontalWithOffset()
         {
-            var func = new Lookup();
-            var args = FunctionsHelper.CreateArgs(4, "A1:C1", "B3:D3");
-            var parsingContext = ParsingContext.Create();
-            parsingContext.Scopes.NewScope(RangeAddress.Empty);
+            using (var package = new ExcelPackage())
+            {
+                var sheet = package.Workbook.Worksheets.Add("test");
+                sheet.Cells["A1"].Value = 1;
+                sheet.Cells["B1"].Value = 3;
+                sheet.Cells["C1"].Value = 5;
+                sheet.Cells["B3"].Value = "A";
+                sheet.Cells["C3"].Value = "B";
+                sheet.Cells["D3"].Value = "C";
 
-            var provider = A.Fake<ExcelDataProvider>();
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 1)).Returns(1);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 2)).Returns(3);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,1, 3)).Returns(5);
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 2)).Returns("A");
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 3)).Returns("B");
-            A.CallTo(() => provider.GetCellValue(WorksheetName,3, 4)).Returns("C");
+                sheet.Cells["D1"].Formula = "LOOKUP(4, A1:C1, B3:D3)";
+                sheet.Calculate();
+                var result = sheet.Cells["D1"].Value;
+                Assert.AreEqual("B", result);
 
-            parsingContext.ExcelDataProvider = provider;
-            var result = func.Execute(args, parsingContext);
-            Assert.AreEqual("B", result.Result);
+            } 
         }
 
         [TestMethod]
@@ -351,7 +352,7 @@ namespace EPPlusTest.Excel.Functions
             Assert.AreEqual(1, result.Result);
         }
 
-        [TestMethod, Ignore]
+        [TestMethod]
         public void MatchShouldHandleAddressOnOtherSheet()
         {
             using (var package = new ExcelPackage())

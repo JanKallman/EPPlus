@@ -458,7 +458,7 @@ namespace OfficeOpenXml.ConditionalFormatting
 					|| (Type == eExcelConditionalFormattingValueObjectType.Percent)
 					|| (Type == eExcelConditionalFormattingValueObjectType.Percentile))
 				{
-					valueToStore = value.ToString();
+					valueToStore = value.ToString(CultureInfo.InvariantCulture);
 				}
 
 				CreateNodeByOrdem(

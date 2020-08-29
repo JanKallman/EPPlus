@@ -92,17 +92,5 @@ namespace OfficeOpenXml.Compatibility
                 }
             }
         }
-        //TODO: Add this in a future version
-        //public bool IsRowColumnCell1Based
-        //{
-        //    get
-        //    {
-        //        return excelPackage._rowColumnCellAdd == 1;
-        //    }
-        //    set
-        //    {
-        //        excelPackage._rowColumnCellAdd = value ? 1 : 0;
-        //    }
-        //}
     }
 }

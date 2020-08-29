@@ -149,5 +149,17 @@ namespace EPPlusTest.FormulaParsing.IntegrationTests.BuiltInFunctions.ExcelRange
             var result = _worksheet.Cells["A4"].Value;
             Assert.AreEqual(0.5, result);
         }
+
+        [TestMethod]
+        public void ValueShouldReturn0IfValueIsNull()
+        {
+
+            _worksheet.Cells["A1"].Value = null;
+            _worksheet.Cells["A4"].Formula = "Value(A1)";
+            _worksheet.Calculate();
+            var result = _worksheet.Cells["A4"].Value;
+            Assert.AreEqual(0d, result);
+        }
+
     }
 }

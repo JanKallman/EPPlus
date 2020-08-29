@@ -34,6 +34,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Collections;
 using System.Linq;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
 namespace OfficeOpenXml
 {
@@ -65,6 +66,10 @@ namespace OfficeOpenXml
         public ExcelNamedRange Add(string Name, ExcelRangeBase Range)
         {
             ExcelNamedRange item;
+            if(!ExcelAddressUtil.IsValidName(Name))
+            {
+                throw (new ArgumentException($"Name {Name} contains invalid characters"));  //Issue 458
+            }
             if (Range.IsName)
             {
 

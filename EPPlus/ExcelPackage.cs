@@ -509,13 +509,13 @@ namespace OfficeOpenXml
                 return null;
             }
         }
+        internal static int _id = 1;
         private Uri GetNewUri(Packaging.ZipPackage package, string sUri)
         {
-            int id = 1;
             Uri uri;
             do
             {
-                uri = new Uri(string.Format(sUri, id++), UriKind.Relative);
+                uri = new Uri(string.Format(sUri, _id++), UriKind.Relative);
             }
             while (package.PartExists(uri));
             return uri;
@@ -748,7 +748,11 @@ namespace OfficeOpenXml
 		internal void SavePart(Uri uri, XmlDocument xmlDoc)
 		{
             Packaging.ZipPackagePart part = _package.GetPart(uri);
-			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
+            var stream = part.GetStream(FileMode.Create, FileAccess.Write);
+            var xr = new XmlTextWriter(stream, Encoding.UTF8);
+            xr.Formatting = Formatting.None;
+            
+            xmlDoc.Save(xr);
 		}
         /// <summary>
 		/// Saves the XmlDocument into the package at the specified Uri.
@@ -779,7 +783,11 @@ namespace OfficeOpenXml
                     }
                 }
             }
-			xmlDoc.Save(part.GetStream(FileMode.Create, FileAccess.Write));
+            var stream = part.GetStream(FileMode.Create, FileAccess.Write);
+            var xr = new XmlTextWriter(stream, Encoding.UTF8);
+            xr.Formatting = Formatting.None;
+
+            xmlDoc.Save(xr);
 		}
 
 #endregion
@@ -792,13 +800,11 @@ namespace OfficeOpenXml
 		{
             if(_package != null)
             {
-		if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
+		        if (_isExternalStream==false && _stream != null && (_stream.CanRead || _stream.CanWrite))
                 {
-                    _stream.Close();
+                    CloseStream();
                 }
-                CloseStream();
                 _package.Close();
-                if(_isExternalStream==false) ((IDisposable)_stream).Dispose();
                 if(_workbook != null)
                 {
                     _workbook.Dispose();
@@ -812,9 +818,10 @@ namespace OfficeOpenXml
                 GC.Collect();
             }
 		}
-#endregion
+        #endregion
 
-#region Save  // ExcelPackage save
+        #region Save  // ExcelPackage save
+
         /// <summary>
         /// Saves all the components back into the package.
         /// This method recursively calls the Save method on all sub-components.

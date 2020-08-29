@@ -92,14 +92,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Address.cs" />
-    <Compile Include="Calculation.cs" />
+    <Compile Include="AddressTests.cs" />
+    <Compile Include="CalculationTests.cs" />
     <Compile Include="CompoundDoc.cs" />
     <Compile Include="ConditionalFormatting\ConditionalFormatting.cs" />
     <Compile Include="Drawing\Chart\ExcelChartDataTableTest.cs" />
-    <Compile Include="ExcelCellBaseTest.cs" />
-    <Compile Include="ExcelStyleTest.cs" />
+    <Compile Include="ExcelCellBaseTests.cs" />
+    <Compile Include="ExcelPackageTests.cs" />
+    <Compile Include="ExcelRangeBaseTests.cs" />
+    <Compile Include="ExcelStyleTests.cs" />
+    <Compile Include="FormulaParsing\ExcelAddressCacheTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExpressionEvaluatorTests.cs" />
+    <Compile Include="FormulaParsing\Excel\Functions\FinanceFunctionTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\FunctionRepositoryTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\CountIfsTests.cs" />
     <Compile Include="FormulaParsing\Excel\Functions\Math\RoundTests.cs" />
@@ -115,7 +119,7 @@
     <Compile Include="FormulaParsing\ExpressionGraph\FunctionCompilers\FunctionCompilerFactoryTests.cs" />
     <Compile Include="FormulaParsing\FormulaParserManagerTests.cs" />
     <Compile Include="FormulaParsing\FormulaR1C1Test.cs" />
-    <Compile Include="SparkLines.cs" />
+    <Compile Include="SparkLineTests.cs" />
     <Compile Include="Utils\ConvertUtilTest.cs" />
     <Compile Include="DataValidation\CustomValidationTests.cs" />
     <Compile Include="DataValidation\DataValidationTests.cs" />
@@ -135,7 +139,6 @@
     <Compile Include="Drawing\Chart\ExcelChartAxisTest.cs" />
     <Compile Include="DTS_FailingTests.cs" />
     <Compile Include="Encrypt.cs" />
-    <Compile Include="ExcelRangeBaseTest.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\AddressTranslatorTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\CellReferenceProviderTests.cs" />
     <Compile Include="FormulaParsing\ExcelUtilities\ExcelAddressInfoTests.cs" />
@@ -224,8 +227,7 @@
     <Compile Include="Utils\AddressUtilityTests.cs" />
     <Compile Include="Utils\GuardingTests.cs" />
     <Compile Include="Utils\SqRefUtilityTests.cs" />
-    <Compile Include="VBA.cs" />
-    <Compile Include="WorkSheet.cs" />
+    <Compile Include="VBATests.cs" />
     <Compile Include="WorksheetsTests.cs" />
   </ItemGroup>
   <ItemGroup>

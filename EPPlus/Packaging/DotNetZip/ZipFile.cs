@@ -2325,11 +2325,7 @@ namespace OfficeOpenXml.Packaging.Ionic.Zip
         {
             get
             {
-#if (Core)
-                return System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
-#else
                 return System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-#endif
             }
         }
 

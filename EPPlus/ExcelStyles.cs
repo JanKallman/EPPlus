@@ -605,6 +605,7 @@ namespace OfficeOpenXml
                 if (Template.PositionID < 0 && Template.Styles==this)
                 {
                     xfIdCopy = Template.Index;
+                    
                     positionID=Template.PositionID;
                     styles = this;
                     //style.Style = new ExcelStyle(this, NamedStylePropertyChange, Template.PositionID, name, Template.Index);
@@ -621,7 +622,7 @@ namespace OfficeOpenXml
             int styleXfId = CloneStyle(styles, xfIdCopy, true);
             //Close cells style
             CellStyleXfs[styleXfId].XfId = CellStyleXfs.Count-1;
-            int xfid = CloneStyle(styles, xfIdCopy, false, true); //Always add a new style (We create a new named style here)
+            int xfid = CloneStyle(styles, xfIdCopy, true, true); //Always add a new style (We create a new named style here)
             CellXfs[xfid].XfId = styleXfId;
             style.Style = new ExcelStyle(this, NamedStylePropertyChange, positionID, name, styleXfId);
             style.StyleXfId = styleXfId;
@@ -938,7 +939,7 @@ namespace OfficeOpenXml
         {
             return CloneStyle(style, styleID, isNamedStyle, false);
         }
-        internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle, bool allwaysAdd)
+        internal int CloneStyle(ExcelStyles style, int styleID, bool isNamedStyle, bool allwaysAddCellXfs)
         {
             ExcelXfs xfs;
             lock (style)
@@ -1033,7 +1034,7 @@ namespace OfficeOpenXml
                     {
                         newXfs.XfId = newId;
                     }
-                    else if(style._wb!=_wb && allwaysAdd==false) //Not the same workbook, copy the namedstyle to the workbook or match the id
+                    else if(style._wb!=_wb && allwaysAddCellXfs==false) //Not the same workbook, copy the namedstyle to the workbook or match the id
                     {
                         var nsFind = style.NamedStyles.ToDictionary(d => (d.StyleXfId));
                         if (nsFind.ContainsKey(xfs.XfId))
@@ -1053,13 +1054,13 @@ namespace OfficeOpenXml
                 }
 
                 int index;
-                if (isNamedStyle)
+                if (isNamedStyle && allwaysAddCellXfs==false)
                 {
                     index = CellStyleXfs.Add(newXfs.Id, newXfs);
                 }
                 else
                 {
-                    if (allwaysAdd)
+                    if (allwaysAddCellXfs)
                     {
                         index = CellXfs.Add(newXfs.Id, newXfs);
                     }

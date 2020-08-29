@@ -119,6 +119,14 @@ namespace EPPlusTest.FormulaParsing
             Assert.AreEqual("SUMIFS(C:C,$B:$B,$A5)", f);
         }
         [TestMethod]
+        public void RRelativeToAB()
+        {
+            string fR1C1 = "SUMIFS(R,C2,RC1)";
+            _sheet.Cells[5, 3].FormulaR1C1 = fR1C1;
+            string f = _sheet.Cells[5, 3].Formula;
+            Assert.AreEqual("SUMIFS(5:5,$B:$B,$A5)", f);
+        }
+        [TestMethod]
         public void RCRelativeToABToR1C1()
         {
             string fR1C1 = "SUMIFS(C,C2,RC1)";
@@ -171,6 +179,47 @@ namespace EPPlusTest.FormulaParsing
             c.Formula = f;
             Assert.AreEqual(fR1C1, c.FormulaR1C1);
         }
+        [TestMethod]
+        public void FullTwoColumn()
+        {
+            string formula = "VLOOKUP(C2,A:B,1,0)";
+            var c = _sheet.Cells["D2"];
+            c.Formula = formula;
+            Assert.AreEqual(c.FormulaR1C1, "VLOOKUP(RC[-1],C[-3]:C[-2],1,0)");
+            c.FormulaR1C1 = c.FormulaR1C1;
+            Assert.AreEqual(c.Formula, formula);
+        }
+        [TestMethod]
+        public void FullColumn()
+        {
+            string formula = "VLOOKUP(C2,A:A,1,0)";
+            var c = _sheet.Cells["D2"];
+            c.Formula = formula;
+            Assert.AreEqual(c.FormulaR1C1, "VLOOKUP(RC[-1],C[-3],1,0)");
+            c.FormulaR1C1 = c.FormulaR1C1;
+            Assert.AreEqual(c.Formula, formula);
+        }
+        [TestMethod]
+        public void FullTwoRow()
+        {
+            string formula = "VLOOKUP(C3,1:2,1,0)";
+            var c = _sheet.Cells["D3"];
+            c.Formula = formula;
+            Assert.AreEqual(c.FormulaR1C1, "VLOOKUP(RC[-1],R[-2]:R[-1],1,0)");
+            c.FormulaR1C1 = c.FormulaR1C1;
+            Assert.AreEqual(c.Formula, formula);
+        }
+        [TestMethod]
+        public void FullRow()
+        {
+            string formula = "VLOOKUP(C3,1:1,1,0)";
+            var c = _sheet.Cells["D3"];
+            c.Formula = formula;
+            Assert.AreEqual(c.FormulaR1C1, "VLOOKUP(RC[-1],R[-2],1,0)");
+            c.FormulaR1C1 = c.FormulaR1C1;
+            Assert.AreEqual(c.Formula, formula);
+        }
+
         [TestMethod]
         public void OutOfRangeCol()
         {

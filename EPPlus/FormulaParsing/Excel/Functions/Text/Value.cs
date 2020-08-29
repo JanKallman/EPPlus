@@ -21,9 +21,11 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Text
         public override CompileResult Execute(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             ValidateArguments(arguments, 1);
-            var val = ArgToString(arguments, 0).TrimEnd(' ');
+            var val = ArgToString(arguments, 0);
             double result = 0d;
-            if (Regex.IsMatch(val, $"^[\\d]*({Regex.Escape(_groupSeparator)}?[\\d]*)?({Regex.Escape(_decimalSeparator)}[\\d]*)?[ ?% ?]?$"))
+            if (string.IsNullOrEmpty(val)) return CreateResult(result, DataType.Integer);
+            val = val.TrimEnd(' ');
+            if (Regex.IsMatch(val, $"^[\\d]*({Regex.Escape(_groupSeparator)}?[\\d]*)?({Regex.Escape(_decimalSeparator)}[\\d]*)*?[ ?% ?]?$"))
             {
                 if (val.EndsWith("%"))
                 {

@@ -37,6 +37,7 @@ using System.Text.RegularExpressions;
 using OfficeOpenXml.FormulaParsing.Excel.Functions.Math;
 using OfficeOpenXml.Utils;
 using System.Security;
+using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 
 namespace OfficeOpenXml.Table
 {
@@ -157,7 +158,7 @@ namespace OfficeOpenXml.Table
             xml += string.Format("<table xmlns=\"http://schemas.openxmlformats.org/spreadsheetml/2006/main\" id=\"{0}\" name=\"{1}\" displayName=\"{2}\" ref=\"{3}\" headerRowCount=\"1\">",
             tblId,
             name,
-            cleanDisplayName(name),
+            ExcelAddressUtil.GetValidName(name),
             Address.Address);
             xml += string.Format("<autoFilter ref=\"{0}\" />", Address.Address);
 
@@ -191,7 +192,7 @@ namespace OfficeOpenXml.Table
 
             return xml;
         }
-        private string cleanDisplayName(string name) 
+        internal static string CleanDisplayName(string name) 
         {
             return Regex.Replace(name, @"[^\w\.-_]", "_");
         }
@@ -258,7 +259,7 @@ namespace OfficeOpenXml.Table
                     WorkSheet.Tables._tableNames.Add(value,ix);
                 }
                 SetXmlNodeString(NAME_PATH, value);
-                SetXmlNodeString(DISPLAY_NAME_PATH, cleanDisplayName(value));
+                SetXmlNodeString(DISPLAY_NAME_PATH, ExcelAddressUtil.GetValidName(value));
             }
         }
         /// <summary>

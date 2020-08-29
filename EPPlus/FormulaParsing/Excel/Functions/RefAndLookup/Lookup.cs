@@ -30,6 +30,7 @@ using OfficeOpenXml.FormulaParsing.ExpressionGraph;
 using OfficeOpenXml.FormulaParsing.Utilities;
 using OfficeOpenXml.FormulaParsing.ExcelUtilities;
 using System.Text.RegularExpressions;
+using static OfficeOpenXml.FormulaParsing.EpplusExcelDataProvider;
 
 namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 {
@@ -47,15 +48,15 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
 
         private bool HaveTwoRanges(IEnumerable<FunctionArgument> arguments)
         {
-            if (arguments.Count() == 2) return false;
-            return (ExcelAddressUtil.IsValidAddress(arguments.ElementAt(2).Value.ToString()));
+            if (arguments.Count() < 3) return false;
+            return (arguments.ElementAt(2).Value is RangeInfo);
         }
 
         private CompileResult HandleSingleRange(IEnumerable<FunctionArgument> arguments, ParsingContext context)
         {
             var searchedValue = arguments.ElementAt(0).Value;
             Require.That(arguments.ElementAt(1).Value).Named("firstAddress").IsNotNull();
-            var firstAddress = ArgToString(arguments, 1);
+            var firstAddress = ArgToAddress(arguments, 1, context);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var address = rangeAddressFactory.Create(firstAddress);
             var nRows = address.ToRow - address.FromRow;
@@ -77,8 +78,8 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup
             var searchedValue = arguments.ElementAt(0).Value;
             Require.That(arguments.ElementAt(1).Value).Named("firstAddress").IsNotNull();
             Require.That(arguments.ElementAt(2).Value).Named("secondAddress").IsNotNull();
-            var firstAddress = ArgToString(arguments, 1);
-            var secondAddress = ArgToString(arguments, 2);
+            var firstAddress = ArgToAddress(arguments, 1, context);
+            var secondAddress = ArgToAddress(arguments, 2, context);
             var rangeAddressFactory = new RangeAddressFactory(context.ExcelDataProvider);
             var address1 = rangeAddressFactory.Create(firstAddress);
             var address2 = rangeAddressFactory.Create(secondAddress);

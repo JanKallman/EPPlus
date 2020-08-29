@@ -864,7 +864,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                         var pagePos = column.GetPosition(fromRow);
                         if (pagePos >= 0)
                         {
-                            if (fromRow >= column._pages[pagePos].MinIndex && fromRow <= column._pages[pagePos].MaxIndex) //The row is inside the page
+                            if (IsWithinPage(fromRow, column, pagePos)) //The row is inside the page
                             {
                                 int offset = fromRow - column._pages[pagePos].IndexOffset;
                                 var rowPos = column._pages[pagePos].GetPosition(offset);
@@ -874,7 +874,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                                 }
                                 UpdateIndexOffset(column, pagePos, rowPos, fromRow, rows);
                             }
-                            else if (column._pages[pagePos].MinIndex > fromRow - 1 && pagePos > 0) //The row is on the page before.
+                            else if (pagePos > 0 && IsWithinPage(fromRow, column, pagePos-1)) //The row is inside the previous page
                             {
                                 int offset = fromRow - ((page - 1) << pageBits);
                                 var rowPos = column._pages[pagePos - 1].GetPosition(offset);
@@ -909,7 +909,13 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                 }
             }
         }
-        internal void Clear(int fromRow, int fromCol, int rows, int columns)
+
+    private static bool IsWithinPage(int row, ColumnIndex column, int pagePos)
+    {
+        return (row >= column._pages[pagePos].MinIndex && row <= column._pages[pagePos].MaxIndex);
+    }
+
+    internal void Clear(int fromRow, int fromCol, int rows, int columns)
         {
             Delete(fromRow, fromCol, rows, columns, false);
         }
@@ -1100,7 +1106,7 @@ using OfficeOpenXml.FormulaParsing.Excel.Functions.RefAndLookup;
                 var delSize=page.MaxIndex - page.MinIndex+1;
                 rows -= delSize;
                 var prevOffset = page.Offset;
-                Array.Copy(column._pages, pagePos + 1, column._pages, pagePos, column.PageCount - pagePos + 1);
+                Array.Copy(column._pages, pagePos + 1, column._pages, pagePos, column.PageCount - pagePos - 1);
                 column.PageCount--;
                 if (column.PageCount == 0)
                 {

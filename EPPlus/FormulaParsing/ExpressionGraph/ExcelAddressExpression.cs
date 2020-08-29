@@ -82,14 +82,23 @@ namespace OfficeOpenXml.FormulaParsing.ExpressionGraph
 
         public override CompileResult Compile()
         {
-            if (ParentIsLookupFunction)
+            //if (ParentIsLookupFunction)
+            //{
+            //    return new CompileResult(ExpressionString, DataType.ExcelAddress);
+            //}
+            //else
+            //{
+            //    return CompileRangeValues();
+            //}
+            var cache = _parsingContext.AddressCache;
+            var cacheId = cache.GetNewId();
+            if(!cache.Add(cacheId, ExpressionString))
             {
-                return new CompileResult(ExpressionString, DataType.ExcelAddress);
+                throw new InvalidOperationException("Catastropic error occurred, address caching failed");
             }
-            else
-            {
-                return CompileRangeValues();
-            }
+            var compileResult = CompileRangeValues();
+            compileResult.ExcelAddressReferenceId = cacheId;
+            return compileResult;
         }
 
         private CompileResult CompileRangeValues()

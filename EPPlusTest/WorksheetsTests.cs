@@ -111,12 +111,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }
@@ -140,12 +135,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }
@@ -168,12 +158,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }
@@ -199,12 +184,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }
@@ -226,12 +206,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }
@@ -252,12 +227,7 @@ namespace EPPlusTest
             ExcelPackage pck = new ExcelPackage();
             using (
                 Stream file =
-#if (Core)
-              Assembly.GetEntryAssembly()
-#else
-              Assembly.GetExecutingAssembly()
-#endif
-                        .GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
+              Assembly.GetExecutingAssembly().GetManifestResourceStream("EPPlusTest.TestWorkbooks.PreDeleteColumn.xls"))
             {
                 pck.Load(file);
             }

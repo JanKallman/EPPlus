@@ -49,6 +49,10 @@ namespace OfficeOpenXml.FormulaParsing.Excel.Functions.Math
             {
                 return CreateResult(System.Math.Floor(number), DataType.Decimal);
             }
+            else if (number % significance == 0)
+            {
+                return CreateResult(number, DataType.Decimal);
+            }
             else
             {
                 double result;
