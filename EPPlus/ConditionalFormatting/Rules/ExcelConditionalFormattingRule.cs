@@ -53,6 +53,7 @@ namespace OfficeOpenXml.ConditionalFormatting
     #region Private Properties
     private eExcelConditionalFormattingRuleType? _type;
     private ExcelWorksheet _worksheet;
+    private static string pivotTag = "@pivot";
 
     /// <summary>
     /// Sinalize that we are in a Cnaging Priorities opeartion so that we won't enter
@@ -99,23 +100,47 @@ namespace OfficeOpenXml.ConditionalFormatting
 
       if (itemElementNode == null)
       {
+        
+        string conditionFormattingTag = address.IsPivot ? 
+            string.Format(
+            "{0}[{1}='{2}']/{1}='{2}'/{6}='{7}'/{3}[{4}='{5}']/{4}='{5}'",
+            //{0}
+            ExcelConditionalFormattingConstants.Paths.ConditionalFormatting,
+            // {1}
+            ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
+            // {2}
+            address.AddressSpaceSeparated,          //CF node don't what to have comma between multi addresses, use space instead.
+            // {3}
+            ExcelConditionalFormattingConstants.Paths.CfRule,
+            //{4}
+            ExcelConditionalFormattingConstants.Paths.PriorityAttribute,
+            //{5}
+            priority,
+            //{6}
+            pivotTag,
+            //{7}
+            "1") 
+            :
+            string.Format(
+            "{0}[{1}='{2}']/{1}='{2}'/{3}[{4}='{5}']/{4}='{5}'",
+            //{0}
+            ExcelConditionalFormattingConstants.Paths.ConditionalFormatting,
+            // {1}
+            ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
+            // {2}
+            address.AddressSpaceSeparated,          //CF node don't what to have comma between multi addresses, use space instead.
+            // {3}
+            ExcelConditionalFormattingConstants.Paths.CfRule,
+            //{4}
+            ExcelConditionalFormattingConstants.Paths.PriorityAttribute,
+            //{5}
+            priority);
+          
         // Create/Get the <cfRule> inside <conditionalFormatting>
         itemElementNode = CreateComplexNode(
           _worksheet.WorksheetXml.DocumentElement,
-          string.Format(
-            "{0}[{1}='{2}']/{1}='{2}'/{3}[{4}='{5}']/{4}='{5}'",
-          //{0}
-            ExcelConditionalFormattingConstants.Paths.ConditionalFormatting,
-          // {1}
-            ExcelConditionalFormattingConstants.Paths.SqrefAttribute,
-          // {2}
-            address.AddressSpaceSeparated,          //CF node don't what to have comma between multi addresses, use space instead.
-          // {3}
-            ExcelConditionalFormattingConstants.Paths.CfRule,
-          //{4}
-            ExcelConditionalFormattingConstants.Paths.PriorityAttribute,
-          //{5}
-            priority));
+          conditionFormattingTag
+          );
       }
 
       // Point to <cfRule>
