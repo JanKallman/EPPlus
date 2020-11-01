@@ -916,5 +916,40 @@ namespace OfficeOpenXml.Drawing.Chart
             } 
         } 
         #endregion 
+        /// <summary>
+        /// Rotation in degrees (0-360)
+        /// </summary>
+        public double Rotation
+        {
+            get
+            {
+                var i = GetXmlNodeInt("c:txPr/a:bodyPr/@rot");
+                if (i < 0)
+                {
+                    return 360 - (i / 60000);
+                }
+                else
+                {
+                    return (i / 60000);
+                }
+            }
+            set
+            {
+                int v;
+                if (value < 0 || value > 360)
+                {
+                    throw (new ArgumentOutOfRangeException("Rotation must be between 0 and 360"));
+                }
+                if (value > 180)
+                {
+                    v = (int)((value - 360) * 60000);
+                }
+                else
+                {
+                    v = (int)(value * 60000);
+                }
+                SetXmlNodeString("c:txPr/a:bodyPr/@rot", v.ToString());
+            }
+        }
     }
 }
