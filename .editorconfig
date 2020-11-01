@@ -1,0 +1,17 @@
+# https://editorconfig.org/
+#
+# This file helps contributors respect the project’s style
+# conventions. Even if a contributor customizes their editor to their
+# preferences, their editor will automatically adapt to respect the
+# project’s conventions when using an editorconfig plugin (Visual
+# Studio has so-so native support).
+
+# Project root. Prevents inheriting rules from any .editorconfig file
+# in a parent directory (in case a user puts one in their home
+# direcotry).
+root = true
+
+[*.cs]
+encoding = utf-8-bom
+indent_size = 4
+indent_style = space
