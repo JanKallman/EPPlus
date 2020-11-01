@@ -117,6 +117,14 @@ namespace OfficeOpenXml.Style
         /// <summary>
         /// Set the color of the object
         /// </summary>
+        /// <param name="color">The color in HTML format</param>
+        public void SetColor(string color)
+        {
+            SetColor(ColorTranslator.FromHtml(color));
+        }        
+        /// <summary>
+        /// Set the color of the object
+        /// </summary>
         /// <param name="alpha">Alpha component value</param>
         /// <param name="red">Red component value</param>
         /// <param name="green">Green component value</param>
