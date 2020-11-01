@@ -391,7 +391,7 @@ namespace OfficeOpenXml.Style.XmlAccess
 
                                 if (prevBslsh)
                                 {
-                                    if (c == '.' || c == ',')
+                                    if (c == '.' || c == ',' || c == '%')
                                     {
                                         sb.Append('\\');
                                     }                                    

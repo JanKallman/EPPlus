@@ -258,6 +258,18 @@ namespace EPPlusTest
             Assert.IsNull(wks.Cells[2, 3].Value);
         }
 
+
+	    [TestMethod]
+	    public void DisplayCustomFormatTest()
+	    {
+	        var wks = workbook.Worksheets.Add("test");
+	        wks.Cells[2, 2].Value = 50.1M;
+	        wks.Cells[2, 2].Style.Numberformat.Format = "#,###.00\\%;\\-#,###.00\\%;";
+
+	        Assert.AreEqual("50.10%", wks.Cells[2, 2].Text);
+	    }
+
+
         private static void CompareOrderOfWorksheetsAfterSaving(ExcelPackage editedPackage)
 		{
 			var packageStream = new MemoryStream();
