@@ -295,6 +295,17 @@ namespace OfficeOpenXml
 		}
 		#endregion
 
+        /// <summary>
+        /// Provides access to ExcelPackage.
+        /// </summary>
+        public ExcelPackage ExcelPackage
+        {
+            get
+            {
+                return _package;
+            }
+        }
+
 		/// <summary>
 		/// Provides access to named ranges
 		/// </summary>
