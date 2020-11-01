@@ -37,7 +37,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents one or more columns within the worksheet
 	/// </summary>
-	public class ExcelColumn : IRangeID
+	public class ExcelColumn : IRangeID, IStyleable
 	{
 		private ExcelWorksheet _worksheet;
 		private XmlElement _colElement = null;

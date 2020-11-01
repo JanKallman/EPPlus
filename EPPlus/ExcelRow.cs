@@ -63,7 +63,7 @@ namespace OfficeOpenXml
     /// <summary>
 	/// Represents an individual row in the spreadsheet.
 	/// </summary>
-	public class ExcelRow : IRangeID
+	public class ExcelRow : IRangeID, IStyleable	
 	{
 		private ExcelWorksheet _worksheet;
 		private XmlElement _rowElement = null;
