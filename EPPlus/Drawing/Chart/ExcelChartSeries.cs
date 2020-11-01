@@ -26,8 +26,10 @@
  * 
  * Author							Change						Date
  *******************************************************************************
- * Jan Källman		Added		2009-10-01
- * Jan Källman		License changed GPL-->LGPL 2011-12-16
+ * Jan Källman		Added		                                2009-10-01
+ * Jan Källman		License changed GPL-->LGPL                  2011-12-16
+ * Kris Wragg       Fixed bug where bar charts do not get       2019-08-25
+ *                  ExcelBarChartSerie class type 
  *******************************************************************************/
 using System;
 using System.Collections.Generic;
@@ -91,6 +93,10 @@ namespace OfficeOpenXml.Drawing.Chart
                 else if (chart.ChartNode.LocalName == "bubbleChart")
                 {
                     s = new ExcelBubbleChartSerie(this, ns, n, isPivot);
+                }
+                else if(chart.ChartNode.LocalName == "barChart")
+                {
+                    s = new ExcelBarChartSerie(this, ns, n, isPivot);
                 }
                 else
                 {
