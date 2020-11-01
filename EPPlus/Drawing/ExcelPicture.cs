@@ -55,38 +55,43 @@ namespace OfficeOpenXml.Drawing
             XmlNode picNode = node.SelectSingleNode("xdr:pic/xdr:blipFill/a:blip", drawings.NameSpaceManager);
             if (picNode != null)
             {
-                RelPic = drawings.Part.GetRelationship(picNode.Attributes["r:embed"].Value);
-                UriPic = UriHelper.ResolvePartUri(drawings.UriDrawing, RelPic.TargetUri);
+                var embedAttributes = picNode.Attributes["r:embed"];
 
-                Part = drawings.Part.Package.GetPart(UriPic);
-                FileInfo f = new FileInfo(UriPic.OriginalString);
-                ContentType = GetContentType(f.Extension);
-                _image = Image.FromStream(Part.GetStream());
+				if (embedAttributes != null && !string.IsNullOrEmpty(embedAttributes.Value))
+				{
+                    RelPic = drawings.Part.GetRelationship(picNode.Attributes["r:embed"].Value);
+                    UriPic = UriHelper.ResolvePartUri(drawings.UriDrawing, RelPic.TargetUri);
 
-#if (Core)
-                byte[] iby = ImageCompat.GetImageAsByteArray(_image);
-#else
-                ImageConverter ic =new ImageConverter();
-                var iby=(byte[])ic.ConvertTo(_image, typeof(byte[]));
-#endif
-                var ii = _drawings._package.LoadImage(iby, UriPic, Part);
-                ImageHash = ii.Hash;
+                    Part = drawings.Part.Package.GetPart(UriPic);
+                    FileInfo f = new FileInfo(UriPic.OriginalString);
+                    ContentType = GetContentType(f.Extension);
+                    _image = Image.FromStream(Part.GetStream());
 
-                //_height = _image.Height;
-                //_width = _image.Width;
-                string relID = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@r:id");
-                if (!string.IsNullOrEmpty(relID))
-                {
-                    HypRel = drawings.Part.GetRelationship(relID);
-                    if (HypRel.TargetUri.IsAbsoluteUri)
+    #if (Core)
+                    byte[] iby = ImageCompat.GetImageAsByteArray(_image);
+    #else
+                    ImageConverter ic =new ImageConverter();
+                    var iby=(byte[])ic.ConvertTo(_image, typeof(byte[]));
+    #endif
+                    var ii = _drawings._package.LoadImage(iby, UriPic, Part);
+                    ImageHash = ii.Hash;
+
+                    //_height = _image.Height;
+                    //_width = _image.Width;
+                    string relID = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@r:id");
+                    if (!string.IsNullOrEmpty(relID))
                     {
-                        _hyperlink = new ExcelHyperLink(HypRel.TargetUri.AbsoluteUri);
+                        HypRel = drawings.Part.GetRelationship(relID);
+                        if (HypRel.TargetUri.IsAbsoluteUri)
+                        {
+                            _hyperlink = new ExcelHyperLink(HypRel.TargetUri.AbsoluteUri);
+                        }
+                        else
+                        {
+                            _hyperlink = new ExcelHyperLink(HypRel.TargetUri.OriginalString, UriKind.Relative);
+                        }
+                        ((ExcelHyperLink)_hyperlink).ToolTip = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@tooltip");
                     }
-                    else
-                    {
-                        _hyperlink = new ExcelHyperLink(HypRel.TargetUri.OriginalString, UriKind.Relative);
-                    }
-                    ((ExcelHyperLink)_hyperlink).ToolTip = GetXmlNodeString("xdr:pic/xdr:nvPicPr/xdr:cNvPr/a:hlinkClick/@tooltip");
                 }
             }
         }
